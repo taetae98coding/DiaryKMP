@@ -28,7 +28,7 @@ class SettingGeminiFormStateTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-023 화면이 재생성되어도 입력 중이던 값을 유지한다`() {
+    fun `TC-1aa3bc50-802d-4ef8-b2e2-9fe319706954 화면이 재생성되어도 입력 중이던 값을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: SettingGeminiFormState
 
@@ -83,7 +83,7 @@ class SettingGeminiFormStateTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-DOMAIN-003 저장된 설정이 바뀌어도 편집 중인 값을 덮어쓰지 않는다`() {
+    fun `TC-4d92bc2f-8b06-40ba-a362-61422ff97702 저장된 설정이 바뀌어도 편집 중인 값을 덮어쓰지 않는다`() {
         val initial = GeminiSetting(apiKey = STORED_API_KEY, model = OTHER_MODEL_ID, systemPrompt = STORED_SYSTEM_PROMPT)
         val storedSetting = mutableStateOf(initial)
         lateinit var state: SettingGeminiFormState

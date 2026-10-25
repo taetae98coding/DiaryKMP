@@ -6,14 +6,14 @@ import kotlinx.datetime.LocalDate
 
 class CalendarTimetableFetchDateRangeTest :
     FunSpec({
-        test("TC-CALENDAR-TIMETABLE-DATA-003 조회 기간은 표시 날짜와 앞뒤로 한 번 넘겼을 때 보이는 날짜를 포함한다") {
+        test("TC-a3da3a0a-fd52-42ae-ab25-ac99418efe16 조회 기간은 표시 날짜와 앞뒤로 한 번 넘겼을 때 보이는 날짜를 포함한다") {
             (date(month = 9, day = 23)..date(month = 9, day = 23)).calendarTimetableFetchDateRange() shouldBe
                 date(month = 9, day = 22)..date(month = 9, day = 24)
             (date(month = 9, day = 20)..date(month = 9, day = 26)).calendarTimetableFetchDateRange() shouldBe
                 date(month = 9, day = 13)..date(month = 10, day = 3)
         }
 
-        test("TC-CALENDAR-TIMETABLE-DOMAIN-012 공휴일 표시 대상 연도는 조회 기간에 들어가는 날짜의 연도다") {
+        test("TC-965f8947-eaed-4c66-a313-c350f8c29e33 공휴일 표시 대상 연도는 조회 기간에 들어가는 날짜의 연도다") {
             val caseList =
                 listOf(
                     LocalDate(2026, 7, 15)..LocalDate(2026, 7, 15) to listOf(2026),

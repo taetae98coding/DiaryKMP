@@ -31,7 +31,7 @@ class ContactDetailFavoriteTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-025 저장된 즐겨찾기 여부에 따라 즐겨찾기 표시가 갈린다`() {
+    fun `TC-cee773f5-9237-4cd5-9c50-f60146701ef7 저장된 즐겨찾기 여부에 따라 즐겨찾기 표시가 갈린다`() {
         setContactDetailScaffold(uiState = content(isFavorite = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_UNFAVORITE_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -39,7 +39,7 @@ class ContactDetailFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-025 즐겨찾기가 아니면 즐겨찾기에 추가하는 표시를 제공한다`() {
+    fun `TC-cee773f5-9237-4cd5-9c50-f60146701ef7 즐겨찾기가 아니면 즐겨찾기에 추가하는 표시를 제공한다`() {
         setContactDetailScaffold(uiState = content(isFavorite = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_FAVORITE_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -48,14 +48,14 @@ class ContactDetailFavoriteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-FEATURE-025 한국어 환경에서 즐겨찾기 변경의 이름을 제공한다`() {
+    fun `TC-cee773f5-9237-4cd5-9c50-f60146701ef7 한국어 환경에서 즐겨찾기 변경의 이름을 제공한다`() {
         setContactDetailScaffold(uiState = content(isFavorite = false))
 
         composeRule.onNodeWithContentDescription(KOREAN_FAVORITE_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-026 즐겨찾기를 선택하면 즐겨찾기 변경 행동을 한 번 전달한다`() {
+    fun `TC-57132162-2a6e-4602-8225-a8524d4b1272 즐겨찾기를 선택하면 즐겨찾기 변경 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<ContactDetailScaffoldEvent>()
 
         setContactDetailScaffold(uiState = content(isFavorite = false), onEvent = eventList::add)
@@ -65,7 +65,7 @@ class ContactDetailFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-027 즐겨찾기를 바꿔도 입력 중이던 내용과 수정 동작이 유지된다`() {
+    fun `TC-0fa8feeb-ad4c-40f5-9ba2-bcb13769eabf 즐겨찾기를 바꿔도 입력 중이던 내용과 수정 동작이 유지된다`() {
         val detail = testContactDetail(name = CONTACT_NAME, hometown = CONTACT_HOMETOWN)
         lateinit var state: ContactFormState
 
@@ -94,7 +94,7 @@ class ContactDetailFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-028 즐겨찾기 변경을 처리하는 동안 즐겨찾기 표시 대신 진행이 표시되고 수정과 삭제는 그대로 제공된다`() {
+    fun `TC-4ad526ff-2bf4-4d12-892d-39c28e1861e4 즐겨찾기 변경을 처리하는 동안 즐겨찾기 표시 대신 진행이 표시되고 수정과 삭제는 그대로 제공된다`() {
         val detail = testContactDetail(name = CONTACT_NAME)
         lateinit var state: ContactFormState
 
@@ -126,7 +126,7 @@ class ContactDetailFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-032 조회 중에는 즐겨찾기를 바꾸는 수단을 제공하지 않는다`() {
+    fun `TC-326c067f-a82b-450a-8c50-92257390499d 조회 중에는 즐겨찾기를 바꾸는 수단을 제공하지 않는다`() {
         setContactDetailScaffold(uiState = ContactDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_FAVORITE_BUTTON_DESCRIPTION).assertDoesNotExist()

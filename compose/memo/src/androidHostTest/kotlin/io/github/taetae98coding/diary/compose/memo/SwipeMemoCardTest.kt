@@ -40,7 +40,7 @@ class SwipeMemoCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-002 TC-TAG-DETAIL-MEMO-FEATURE-004 TC-MEMO-FINISHED-LIST-FEATURE-005 TC-TAG-MEMO-FINISHED-LIST-FEATURE-008 TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-008 자리 표시 카드는 선택하거나 스와이프할 수 없다`() {
+    fun `TC-d2470378-4504-4125-9897-35823f85da42 TC-addc358a-2eb3-4f53-b76f-cac2465fcc41 TC-1985297b-f73d-4f9b-bd92-585c61fb9274 TC-68b2f29e-d75c-4189-a182-d41536fbfecc TC-1855a51c-708a-4e15-b514-80c2b35fd24c 자리 표시 카드는 선택하거나 스와이프할 수 없다`() {
         var clickCount = 0
         var finishCount = 0
         var deleteCount = 0
@@ -201,7 +201,7 @@ class SwipeMemoCardTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 완료 뒤 같은 자리에 완료된 메모가 남으면 원래 모양으로 돌아오고 다시 시작을 한 번 실행한다`() {
+    fun `TC-8e34066e-2f24-4f5f-bd6c-9ee60b76d8a4 완료 뒤 같은 자리에 완료된 메모가 남으면 원래 모양으로 돌아오고 다시 시작을 한 번 실행한다`() {
         val memo = memo().copy(isFinished = false)
 
         assertSecondSwipeAfterStateChange(
@@ -213,7 +213,7 @@ class SwipeMemoCardTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 다시 시작 뒤 같은 자리에 미완료 메모가 남으면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
+    fun `TC-8e34066e-2f24-4f5f-bd6c-9ee60b76d8a4 다시 시작 뒤 같은 자리에 미완료 메모가 남으면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
         val memo = memo().copy(isFinished = true)
 
         assertSecondSwipeAfterStateChange(
@@ -225,7 +225,7 @@ class SwipeMemoCardTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 완료 뒤 실행 취소로 미완료 메모가 돌아오면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
+    fun `TC-8e34066e-2f24-4f5f-bd6c-9ee60b76d8a4 완료 뒤 실행 취소로 미완료 메모가 돌아오면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
         val memo = memo().copy(isFinished = false)
 
         assertSecondSwipeAfterStateChange(

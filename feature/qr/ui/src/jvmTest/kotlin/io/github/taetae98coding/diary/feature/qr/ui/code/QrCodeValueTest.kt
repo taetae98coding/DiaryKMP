@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class QrCodeValueTest :
     FunSpec({
-        test("TC-QR-ADD-DOMAIN-002 가장 큰 QR에 가장 낮은 오류 복원 수준으로 담을 수 있는지로 길이를 판정한다") {
+        test("TC-bd1407ff-116f-46bd-a750-9938c5f49b40 가장 큰 QR에 가장 낮은 오류 복원 수준으로 담을 수 있는지로 길이를 판정한다") {
             val caseList =
                 listOf(
                     "1".repeat(MAX_NUMERIC_LENGTH) to true,

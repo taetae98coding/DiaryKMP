@@ -141,7 +141,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-001 목록과 상세를 함께 쓰는 환경에서는 QR 목록과 QR 추가를 함께 표시한다`() {
+    fun `TC-e550c67e-bef5-47fc-901f-1aa289f145cd 목록과 상세를 함께 쓰는 환경에서는 QR 목록과 QR 추가를 함께 표시한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
 
         setQrNavDisplay(qrList = listOf(qr))
@@ -152,7 +152,7 @@ class QrListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-QR-LIST-DETAIL-FEATURE-002 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-9f938363-dcba-49b2-a6a7-b5700b7ecbca 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -168,7 +168,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 상세 영역의 화면에서 뒤로가기 수단을 제공하지 않는다`() {
+    fun `TC-0bef3603-ac7c-4223-9a7c-a4f739706bbb 목록과 함께 표시되면 상세 영역의 화면에서 뒤로가기 수단을 제공하지 않는다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -183,7 +183,7 @@ class QrListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-QR-LIST-DETAIL-FEATURE-006 단독으로 표시되면 그 화면에서 뒤로가기 수단을 제공한다`() {
+    fun `TC-67f801e9-f1eb-454b-8117-d81c79f7e028 단독으로 표시되면 그 화면에서 뒤로가기 수단을 제공한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -203,7 +203,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-007 목록에서 QR을 선택하면 목록을 유지한 채 상세 영역이 그 QR의 상세로 바뀐다`() {
+    fun `TC-840ed486-7f62-4dbc-b388-d96e66516e6e 목록에서 QR을 선택하면 목록을 유지한 채 상세 영역이 그 QR의 상세로 바뀐다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -215,7 +215,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-008 상세 영역에서 뒤로가면 QR 추가로 되돌아간다`() {
+    fun `TC-083fc33a-16a8-4821-95f5-5de278b4d54e 상세 영역에서 뒤로가면 QR 추가로 되돌아간다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -228,7 +228,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-009 상세에서 QR을 삭제하면 상세 영역이 QR 추가로 되돌아간다`() {
+    fun `TC-e0087465-5eba-4381-bc81-2e02b458583d 상세에서 QR을 삭제하면 상세 영역이 QR 추가로 되돌아간다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -242,7 +242,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-010 QR 상세가 놓인 동안 QR 추가를 실행하면 상세 영역이 QR 추가로 바뀐다`() {
+    fun `TC-4a0f92d9-f28c-46c2-b467-95f532ffa0e0 QR 상세가 놓인 동안 QR 추가를 실행하면 상세 영역이 QR 추가로 바뀐다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -254,7 +254,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-011 QR 상세 위에서 연 QR 추가에서 뒤로가면 이전 QR 상세로 돌아간다`() {
+    fun `TC-d6dce3f1-eb44-4386-b3ff-b64bfeaf5db3 QR 상세 위에서 연 QR 추가에서 뒤로가면 이전 QR 상세로 돌아간다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         openAddOnDetail(qr)
@@ -267,7 +267,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-012 QR 상세 위에서 연 QR 추가는 빈 입력으로 시작한다`() {
+    fun `TC-747eb9b9-40e9-4d85-bd64-d216527532a4 QR 상세 위에서 연 QR 추가는 빈 입력으로 시작한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         fillPlaceholder()
@@ -279,7 +279,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-013 QR 상세가 놓인 동안 다른 QR을 고르면 교체하고 뒤로가면 QR 추가로 돌아간다`() {
+    fun `TC-f9e861c8-4958-4974-8fe7-3e57a52a5998 QR 상세가 놓인 동안 다른 QR을 고르면 교체하고 뒤로가면 QR 추가로 돌아간다`() {
         val first = testQr(titlePrefix = FIRST_PREFIX)
         val second = testQr(titlePrefix = SECOND_PREFIX)
         setQrNavDisplay(qrList = listOf(first, second))
@@ -299,7 +299,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-014 QR 상세 위에서 연 QR 추가가 놓인 동안 다른 QR을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+    fun `TC-76f07609-186c-4cf3-b52b-7fa4181c4896 QR 상세 위에서 연 QR 추가가 놓인 동안 다른 QR을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
         val first = testQr(titlePrefix = FIRST_PREFIX)
         val second = testQr(titlePrefix = SECOND_PREFIX)
         setQrNavDisplay(qrList = listOf(first, second))
@@ -321,7 +321,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-014 좁은 창에서 연 QR 추가가 창이 넓어져 상세 영역에 놓인 동안 QR을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+    fun `TC-76f07609-186c-4cf3-b52b-7fa4181c4896 좁은 창에서 연 QR 추가가 창이 넓어져 상세 영역에 놓인 동안 QR을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
         val qr = testQr(titlePrefix = FIRST_PREFIX)
         directiveOverride = singlePaneDirective()
         setQrNavDisplay(qrList = listOf(qr))
@@ -348,7 +348,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-015 QR을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
+    fun `TC-9ef7bec1-0b07-4a30-8565-cbbc5fd64f18 QR을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -360,7 +360,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-016 선택 전 QR 추가에서 연 QR 스캔은 단독으로 표시하고 돌아오면 같은 배치로 돌아온다`() {
+    fun `TC-1976a6bb-5dd0-4256-a91e-da1ee3230f45 선택 전 QR 추가에서 연 QR 스캔은 단독으로 표시하고 돌아오면 같은 배치로 돌아온다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
 
@@ -380,7 +380,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-016 QR 상세에서 연 QR 스캔은 단독으로 표시하고 돌아오면 같은 QR 상세가 놓인 배치로 돌아온다`() {
+    fun `TC-1976a6bb-5dd0-4256-a91e-da1ee3230f45 QR 상세에서 연 QR 스캔은 단독으로 표시하고 돌아오면 같은 QR 상세가 놓인 배치로 돌아온다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -400,7 +400,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-017 선택 전 QR 추가에서 연 QrScan이 읽은 값을 돌려주면 돌아온 상세 영역의 QR 추가에 반영된다`() {
+    fun `TC-64b617f5-fa25-4fc0-b4fd-d3d1b1482067 선택 전 QR 추가에서 연 QrScan이 읽은 값을 돌려주면 돌아온 상세 영역의 QR 추가에 반영된다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         openQrScan()
@@ -416,7 +416,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-037 QR 상세가 함께 놓여 있어도 목록의 뒤로가기는 더보기로 돌아간다`() {
+    fun `TC-75ce6921-30f2-4bf4-8343-b6e86cb0a42a QR 상세가 함께 놓여 있어도 목록의 뒤로가기는 더보기로 돌아간다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -429,7 +429,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-038 상세에 열린 QR을 목록에서 밀어 삭제해도 상세 영역은 그 QR의 상세로 남는다`() {
+    fun `TC-b4d13c9d-cb8d-4427-92eb-abf059a39745 상세에 열린 QR을 목록에서 밀어 삭제해도 상세 영역은 그 QR의 상세로 남는다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -443,7 +443,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-004 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
+    fun `TC-044c27d7-9eed-402e-a01c-3ab8a6d5c412 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)
@@ -459,7 +459,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-005 더보기로 돌아갔다가 다시 진입하면 상세 영역의 QR 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-c633b20c-d4b5-4078-a691-8c438a203be3 더보기로 돌아갔다가 다시 진입하면 상세 영역의 QR 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
         setQrNavDisplay(qrList = listOf(testQr(titlePrefix = LIST_PREFIX)))
         fillPlaceholder()
 
@@ -473,7 +473,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-006 배치를 떠나기 전에는 상세 영역에서 QR 상세를 보고 돌아와도 QR 추가의 입력이 남는다`() {
+    fun `TC-0042406f-0ca1-486d-994f-1c074f3cc67c 배치를 떠나기 전에는 상세 영역에서 QR 상세를 보고 돌아와도 QR 추가의 입력이 남는다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         fillPlaceholder()
@@ -487,7 +487,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-007 배치를 떠나기 전에는 QrScan 화면에 다녀와도 상세 영역의 QR 추가의 입력이 남는다`() {
+    fun `TC-2a25cc4e-0bfc-4f05-9e7c-a3366ddd8a3f 배치를 떠나기 전에는 QrScan 화면에 다녀와도 상세 영역의 QR 추가의 입력이 남는다`() {
         setQrNavDisplay(qrList = listOf(testQr(titlePrefix = LIST_PREFIX)))
         fillPlaceholder()
 
@@ -500,7 +500,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-018 선택 전 QR 추가에서 추가에 성공해도 상세 영역은 QR 추가로 남고 추가한 QR이 목록에 나타난다`() {
+    fun `TC-2d86ffd1-bb64-48a2-b93b-c113586e0f33 선택 전 QR 추가에서 추가에 성공해도 상세 영역은 QR 추가로 남고 추가한 QR이 목록에 나타난다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         composeRule.onTitleInput().performTextInput(ADDED_TITLE)
@@ -521,7 +521,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-011 목록에서 연 QR 추가를 뒤로가기로 닫아도 선택 전 QR 추가의 작성 상태가 남는다`() {
+    fun `TC-43bfeeaa-05eb-44d2-afec-e13bf4f9ce14 목록에서 연 QR 추가를 뒤로가기로 닫아도 선택 전 QR 추가의 작성 상태가 남는다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         fillPlaceholder()
@@ -538,7 +538,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-011 목록에서 연 QR 추가를 다른 QR을 골라 걷어내도 선택 전 QR 추가의 작성 상태가 남는다`() {
+    fun `TC-43bfeeaa-05eb-44d2-afec-e13bf4f9ce14 목록에서 연 QR 추가를 다른 QR을 골라 걷어내도 선택 전 QR 추가의 작성 상태가 남는다`() {
         val first = testQr(titlePrefix = FIRST_PREFIX)
         val second = testQr(titlePrefix = SECOND_PREFIX)
         setQrNavDisplay(qrList = listOf(first, second))
@@ -556,7 +556,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-008 화면이 재생성되어도 상세 선택을 유지한다`() {
+    fun `TC-38782318-2135-41a3-b7d6-fd35353c8741 화면이 재생성되어도 상세 선택을 유지한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
@@ -575,7 +575,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-009 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다`() {
+    fun `TC-bfc566f4-a387-4134-9da0-215cd5a25ec9 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
@@ -597,7 +597,7 @@ class QrListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-DOMAIN-010 앱이 백그라운드에 다녀와도 상세 선택을 유지한다`() {
+    fun `TC-2990d483-92d2-4a6f-8c37-f867d289d0f7 앱이 백그라운드에 다녀와도 상세 선택을 유지한다`() {
         val qr = testQr(titlePrefix = LIST_PREFIX)
         setQrNavDisplay(qrList = listOf(qr))
         selectQr(qr)

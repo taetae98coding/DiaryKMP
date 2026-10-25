@@ -50,7 +50,7 @@ class MemoDetailScreenContactTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-066 연락처 입력에 저장된 연락처 연결이 칩으로 표시된다`() {
+    fun `TC-aeaaf285-fa56-4843-9f4e-3245ff80c70b 연락처 입력에 저장된 연락처 연결이 칩으로 표시된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoDetailScreenWithContact(
             contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), selectedContactList = listOf(contact)),
@@ -62,7 +62,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-067 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다`() {
+    fun `TC-f477fe87-b4f8-469e-9b25-1198beabe60a 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val uiState = MutableStateFlow(MemoContactInputUiState())
         composeRule.setMemoDetailScreenWithContact(
@@ -78,7 +78,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-069 연락처를 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
+    fun `TC-86a4fec2-b516-48d7-968e-a5258c9d377f 연락처를 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact))
         composeRule.setMemoDetailScreenWithContact(contactViewModel = contactViewModel)
@@ -93,7 +93,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-069 연락처 선택을 해제하면 즉시 연결 해제를 요청한다`() {
+    fun `TC-86a4fec2-b516-48d7-968e-a5258c9d377f 연락처 선택을 해제하면 즉시 연결 해제를 요청한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), selectedContactList = listOf(contact))
         composeRule.setMemoDetailScreenWithContact(contactViewModel = contactViewModel)
@@ -107,7 +107,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-016 연락처 칩을 누르면 ContactDetail 이동을 요청한다`() {
+    fun `TC-0a6954ce-f95b-4641-b63d-097225cc9cd3 연락처 칩을 누르면 ContactDetail 이동을 요청한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val clickedIdList = mutableListOf<Uuid>()
         composeRule.setMemoDetailScreenWithContact(
@@ -122,7 +122,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-003 선택할 수 있는 연락처가 없으면 추가 항목이 ContactAdd 이동을 요청한다`() {
+    fun `TC-48dc2878-e69b-4edb-a10a-c730782d7a26 선택할 수 있는 연락처가 없으면 추가 항목이 ContactAdd 이동을 요청한다`() {
         var contactAddCount = 0
         composeRule.setMemoDetailScreenWithContact(
             contactViewModel = memoDetailContactViewModel(contactList = emptyList()),
@@ -137,7 +137,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-007 목록의 연락처 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
+    fun `TC-7dfed0a2-9d1d-45e6-a8d4-0229360d0c18 목록의 연락처 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         var contactAddCount = 0
         composeRule.setMemoDetailScreenWithContact(
@@ -155,7 +155,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-DOMAIN-013 삭제된 연락처는 연락처 입력과 선택 목록에 나타나지 않는다`() {
+    fun `TC-276c3f6e-95ad-47dc-b86d-b00c056a9355 삭제된 연락처는 연락처 입력과 선택 목록에 나타나지 않는다`() {
         val keptContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val deletedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         // 조회는 삭제된 연락처를 제외하므로 선택 목록과 칩 모두에서 빠진다.
@@ -173,7 +173,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-015 상세 대상이 바뀌면 열려 있던 연락처 선택 목록과 검색어를 유지하지 않는다`() {
+    fun `TC-07a5a7c0-ff79-42f7-90dc-428b1fb00425 상세 대상이 바뀌면 열려 있던 연락처 선택 목록과 검색어를 유지하지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val detailUiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
         composeRule.setMemoDetailScreenWithContact(
@@ -194,7 +194,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-070 연락처를 선택해도 수정 버튼이 나타나지 않는다`() {
+    fun `TC-115124de-3d96-409f-931a-e585f5e00dc6 연락처를 선택해도 수정 버튼이 나타나지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoDetailScreenWithContact(contactViewModel = memoDetailContactViewModel(contactList = listOf(contact)))
 
@@ -207,7 +207,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-070 연락처 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
+    fun `TC-115124de-3d96-409f-931a-e585f5e00dc6 연락처 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoDetailScreenWithContact(contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), selectedContactList = listOf(contact)))
 
@@ -220,7 +220,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-071 다른 메모를 선택하면 연락처 입력이 새 메모의 연락처 연결로 바뀐다`() {
+    fun `TC-1dc9459d-d2d8-43da-a86e-4dfbbf3abbc9 다른 메모를 선택하면 연락처 입력이 새 메모의 연락처 연결로 바뀐다`() {
         val firstContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val secondContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val detailUiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
@@ -244,7 +244,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-072 화면이 재생성되면 연락처 입력은 저장된 연락처 연결을 다시 표시한다`() {
+    fun `TC-8a3aa309-146e-473d-841b-08070820007d 화면이 재생성되면 연락처 입력은 저장된 연락처 연결을 다시 표시한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val contactViewModel = memoDetailContactViewModel(contactList = listOf(contact), selectedContactList = listOf(contact))
         val restorationTester = StateRestorationTester(composeRule)

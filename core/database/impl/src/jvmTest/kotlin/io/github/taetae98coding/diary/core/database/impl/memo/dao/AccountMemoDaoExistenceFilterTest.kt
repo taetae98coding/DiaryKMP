@@ -203,7 +203,7 @@ class AccountMemoDaoExistenceFilterTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>().data.map { memo -> memo.id }
         }
 
-        test("TC-MEMO-HOME-FEATURE-033 유무 필터를 한 번도 고르지 않으면 모든 메모가 조회된다") {
+        test("TC-7e253b07-b1e4-4535-aab1-7758a9f0c219 유무 필터를 한 번도 고르지 않으면 모든 메모가 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val place = place()
@@ -218,7 +218,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(fullMemo.id, emptyMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-034 날짜 축을 있음으로 두면 기간이 있는 메모만 조회된다") {
+        test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 날짜 축을 있음으로 두면 기간이 있는 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
@@ -229,7 +229,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(dateMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-034 태그 축을 있음으로 두면 태그와 연결된 메모만 조회된다") {
+        test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 태그 축을 있음으로 두면 태그와 연결된 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -243,7 +243,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(tagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-034 장소 축을 있음으로 두면 장소와 연결된 메모만 조회된다") {
+        test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 장소 축을 있음으로 두면 장소와 연결된 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val placeMemo = memo()
@@ -257,7 +257,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(placeMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-035 날짜 축을 없음으로 두면 기간이 없는 메모만 조회된다") {
+        test("TC-25999924-32ec-41d1-8404-959eec4bbb20 날짜 축을 없음으로 두면 기간이 없는 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
@@ -268,7 +268,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(noDateMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-035 태그 축을 없음으로 두면 태그와 연결되지 않은 메모만 조회된다") {
+        test("TC-25999924-32ec-41d1-8404-959eec4bbb20 태그 축을 없음으로 두면 태그와 연결되지 않은 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -282,7 +282,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(noTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-035 장소 축을 없음으로 두면 장소와 연결되지 않은 메모만 조회된다") {
+        test("TC-25999924-32ec-41d1-8404-959eec4bbb20 장소 축을 없음으로 두면 장소와 연결되지 않은 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val placeMemo = memo()
@@ -296,7 +296,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(noPlaceMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-036 축을 전체로 되돌리면 그 축으로 거르지 않는다") {
+        test("TC-e1809211-a095-4491-8368-160d00b7b157 축을 전체로 되돌리면 그 축으로 거르지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
@@ -309,7 +309,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(dateMemo.id, noDateMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-038 서로 다른 축을 함께 고르면 모두 만족하는 메모만 조회된다") {
+        test("TC-af3ec584-09da-446e-b9ba-09f28cfbd1d7 서로 다른 축을 함께 고르면 모두 만족하는 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val datePlaceMemo = memo(detail = detail(isAllDay = true))
@@ -326,7 +326,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(datePlaceMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-053 태그 축이 없음이면 선택한 태그를 무시하고 태그 없는 메모가 조회된다") {
+        test("TC-6534011c-4061-4c5c-a2b4-8b19a98be0ee 태그 축이 없음이면 선택한 태그를 무시하고 태그 없는 메모가 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -343,7 +343,7 @@ class AccountMemoDaoExistenceFilterTest :
             database.memoFilterTagDao().getTagIdList(accountId = accountId).first() shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-054 태그 축을 되돌리면 유지된 태그 선택이 다시 적용된다") {
+        test("TC-2eac01d6-3594-4cb0-9f2e-c1ec5a0356dd 태그 축을 되돌리면 유지된 태그 선택이 다시 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -360,7 +360,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(tagMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-021 태그 축이 있음이면 태그 필터를 함께 적용한다") {
+        test("TC-6b58977b-e462-416f-a657-ae0a391da817 태그 축이 있음이면 태그 필터를 함께 적용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedTag = tag()
             val otherTag = tag()
@@ -378,7 +378,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(selectedTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-040 유무 필터와 태그 필터를 함께 만족하는 메모만 조회된다") {
+        test("TC-06375d56-0888-42b0-a756-de074f0d7652 유무 필터와 태그 필터를 함께 만족하는 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedTag = tag()
             val otherTag = tag()
@@ -397,7 +397,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(selectedTagDateMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-011 날짜 축은 종일 여부와 시각을 판정에 쓰지 않는다") {
+        test("TC-b5a78f72-0063-4134-8573-c31ba0c1aef3 날짜 축은 종일 여부와 시각을 판정에 쓰지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val allDayMemo =
                 memo(
@@ -457,7 +457,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(noEndMemo.id, noStartMemo.id, noAllDayMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-012 태그 축은 해제된 연결과 삭제된 태그를 세지 않는다") {
+        test("TC-36293b8b-3c59-4c6a-a72c-c05be13c4267 태그 축은 해제된 연결과 삭제된 태그를 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val activeTag = tag()
@@ -483,7 +483,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(activeTagMemo.id, finishedTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-013 장소 축은 해제된 연결과 삭제된 장소를 세지 않는다") {
+        test("TC-6f8663b7-982b-4c46-8f90-4fe207ba6b59 장소 축은 해제된 연결과 삭제된 장소를 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val activePlace = place()
@@ -506,7 +506,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(activePlaceMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-014 유무 필터를 만족해도 완료되거나 삭제된 메모는 조회되지 않는다") {
+        test("TC-cd0e6040-8cae-4f18-a066-1d9eae4ebabc 유무 필터를 만족해도 완료되거나 삭제된 메모는 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val activeMemo = memo(detail = detail(isAllDay = true))
             val finishedMemo = memo(detail = detail(isAllDay = true), isFinished = true)
@@ -518,7 +518,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-015 메모에 기간이 더해지면 날짜 축으로 다시 판정한다") {
+        test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 기간이 더해지면 날짜 축으로 다시 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(detail = detail(isAllDay = null))
             insertMemo(accountId, memo)
@@ -540,7 +540,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(memo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-015 메모에 태그 연결이 더해지면 태그 축으로 다시 판정한다") {
+        test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 태그 연결이 더해지면 태그 축으로 다시 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val memo = memo()
@@ -554,7 +554,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(memo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-015 메모에 장소 연결이 더해지면 장소 축으로 다시 판정한다") {
+        test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 장소 연결이 더해지면 장소 축으로 다시 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val memo = memo()
@@ -568,7 +568,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(memo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-012 유무 필터는 계정과 무관하게 모든 계정의 목록 조회에 적용된다") {
+        test("TC-4d4d586a-a64f-4b3d-b492-3c2922690709 유무 필터는 계정과 무관하게 모든 계정의 목록 조회에 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val dateMemo = memo(detail = detail(isAllDay = true))

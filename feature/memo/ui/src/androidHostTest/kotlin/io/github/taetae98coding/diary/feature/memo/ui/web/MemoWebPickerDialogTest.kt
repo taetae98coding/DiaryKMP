@@ -27,7 +27,7 @@ class MemoWebPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-001 목록에 웹 항목의 제목과 URL, 선택 여부를 함께 표시한다`() {
+    fun `TC-7d49b3ab-3e88-4679-b310-c578b24f36c9 목록에 웹 항목의 제목과 URL, 선택 여부를 함께 표시한다`() {
         val selectedWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val unselectedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         composeRule.setMemoWebPickerDialog(
@@ -45,7 +45,7 @@ class MemoWebPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-011 목록에서 웹 항목을 선택하면 선택 행동을 즉시 전달한다`() {
+    fun `TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa 목록에서 웹 항목을 선택하면 선택 행동을 즉시 전달한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
@@ -63,7 +63,7 @@ class MemoWebPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-012 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
+    fun `TC-e6e37bb6-3f75-4339-bd54-49d403f22e5c 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
@@ -82,7 +82,7 @@ class MemoWebPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-DOMAIN-002 목록의 웹 항목은 전달된 제목 오름차순으로 표시된다`() {
+    fun `TC-901baeec-4bf8-43d0-b255-4713ee5c5b6f 목록의 웹 항목은 전달된 제목 오름차순으로 표시된다`() {
         val firstWeb = testWeb(title = APPLE_WEB_TITLE, url = WIKI_WEB_URL)
         val lastWeb = testWeb(title = ZEBRA_WEB_TITLE, url = DOCS_WEB_URL)
         composeRule.setMemoWebPickerDialog(webList = listOf(firstWeb, lastWeb))
@@ -95,7 +95,7 @@ class MemoWebPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-022 목록의 웹 항목을 눌러도 상세 이동을 요청하지 않는다`() {
+    fun `TC-06d7e4b2-05a1-4790-9926-6b2dbf557467 목록의 웹 항목을 눌러도 상세 이동을 요청하지 않는다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoWebPickerDialog(webList = listOf(web), onWebSelect = selectedIdList::add)
@@ -151,14 +151,14 @@ class MemoWebPickerDialogAddTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-006 나타낼 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
+    fun `TC-25aecc3e-a2b4-4d61-a00d-7659dc8f2277 나타낼 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
         composeRule.setMemoWebPickerDialog(webList = emptyList())
 
         composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_ADD_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-006 나타낼 웹 항목이 여러 개여도 웹 추가 항목을 표시한다`() {
+    fun `TC-25aecc3e-a2b4-4d61-a00d-7659dc8f2277 나타낼 웹 항목이 여러 개여도 웹 추가 항목을 표시한다`() {
         composeRule.setMemoWebPickerDialog(webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE)))
         composeRule.awaitWebPickerRows()
 
@@ -166,7 +166,7 @@ class MemoWebPickerDialogAddTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-007 웹 추가 항목을 누르면 웹 추가 행동만 전달한다`() {
+    fun `TC-831b69ad-9b42-40fa-834e-ac184481a10b 웹 추가 항목을 누르면 웹 추가 행동만 전달한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE)
         var webAddCount = 0
         val selectedIdList = mutableListOf<Uuid>()

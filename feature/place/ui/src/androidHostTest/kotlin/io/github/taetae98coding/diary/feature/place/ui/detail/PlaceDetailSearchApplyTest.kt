@@ -19,7 +19,7 @@ class PlaceDetailSearchApplyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-024 검색에서 고른 장소의 좌표가 위도와 경도에 채워진다`() {
+    fun `TC-1362332c-baa9-4a83-ab9f-1835e2a62478 검색에서 고른 장소의 좌표가 위도와 경도에 채워진다`() {
         val initialDetail = savedDetail()
         val state = composeRule.setPlaceDetailScaffoldState(initialDetail = initialDetail)
         val place = searchedPlace()
@@ -30,7 +30,7 @@ class PlaceDetailSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-025 저장된 제목이 채워져 있으면 고른 장소의 이름이 제목을 덮어쓰지 않는다`() {
+    fun `TC-56760941-58a4-45bb-b511-5282a286daad 저장된 제목이 채워져 있으면 고른 장소의 이름이 제목을 덮어쓰지 않는다`() {
         val initialDetail = savedDetail()
         val state = composeRule.setPlaceDetailScaffoldState(initialDetail = initialDetail)
 
@@ -40,7 +40,7 @@ class PlaceDetailSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-026 제목을 비운 뒤 검색하면 고른 장소의 이름이 제목에 채워진다`() {
+    fun `TC-147b9ccd-e2f8-4a52-9612-e0739461098a 제목을 비운 뒤 검색하면 고른 장소의 이름이 제목에 채워진다`() {
         val state = composeRule.setPlaceDetailScaffoldState(initialDetail = savedDetail())
         val place = searchedPlace()
 
@@ -51,7 +51,7 @@ class PlaceDetailSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-027 검색에서 고른 장소의 주소가 주소 입력을 덮어쓴다`() {
+    fun `TC-2eafe4de-4da5-49ed-aeec-b16d4db1c750 검색에서 고른 장소의 주소가 주소 입력을 덮어쓴다`() {
         val state = composeRule.setPlaceDetailScaffoldState(initialDetail = savedDetail())
 
         listOf(

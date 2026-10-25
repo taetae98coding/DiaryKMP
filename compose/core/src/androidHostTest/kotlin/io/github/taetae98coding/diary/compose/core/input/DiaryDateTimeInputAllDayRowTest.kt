@@ -60,7 +60,7 @@ class DiaryDateTimeInputAllDayRowTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-006 종일 전환 중 시간은 비활성화되고 완료 후 사라진다`() {
+    fun `TC-0b587609-cc55-4329-af87-6a3e7106d8f4 종일 전환 중 시간은 비활성화되고 완료 후 사라진다`() {
         composeRule.mainClock.autoAdvance = false
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 

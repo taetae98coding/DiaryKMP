@@ -64,7 +64,7 @@ class WebDetailMemoPlaceholderTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-002 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
+    fun `TC-a4f73f34-b55f-4105-8e4a-c67218eb9e83 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val loadedMemoTitle = "WebMemoLoaded${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
         val memo = webMemo(title = loadedMemoTitle)

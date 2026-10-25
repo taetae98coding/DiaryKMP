@@ -64,7 +64,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DATA-001 항목별 완료 메모 paging에 주입된 Contact ID를 전달한다") {
+        test("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 항목별 완료 메모 paging에 주입된 Contact ID를 전달한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
@@ -82,7 +82,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-003 조회한 Contact의 저장 이름을 상단 바 제목으로 노출한다") {
+        test("TC-0fe6f585-5b4f-4239-b7fe-1107d3fc26ef 조회한 Contact의 저장 이름을 상단 바 제목으로 노출한다") {
             runTest(mainDispatcher) {
                 val name = fixtureMonkey.nonBlankString()
                 val target = fixtureMonkey.contact(name = name, isFavorite = false, isDeleted = false)
@@ -99,7 +99,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-004 Contact를 조회할 수 없거나 조회에 실패하면 상단 바 이름을 비운다") {
+        test("TC-3a803196-7a36-45a1-a26a-a896965402f3 Contact를 조회할 수 없거나 조회에 실패하면 상단 바 이름을 비운다") {
             listOf<Result<Contact?>>(
                 Result.success(null),
                 Result.failure(IllegalStateException()),
@@ -120,7 +120,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-005 Contact의 저장 이름이 바뀌면 상단 바 이름을 갱신한다") {
+        test("TC-7cb4d67b-a6e8-474a-a12c-457476e3212b Contact의 저장 이름이 바뀌면 상단 바 이름을 갱신한다") {
             runTest(mainDispatcher) {
                 val name = fixtureMonkey.nonBlankString()
                 val target = fixtureMonkey.contact(name = name, isFavorite = false, isDeleted = false)
@@ -165,7 +165,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-009 항목별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageUseCase = mockk<PageFinishedContactMemoUseCase>()
@@ -185,7 +185,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-009 항목별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
+        test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
@@ -203,7 +203,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-009 항목별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
@@ -227,7 +227,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-016 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
+        test("TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -246,7 +246,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-021 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
+        test("TC-2a3cb935-f956-466d-a1ad-c62843bda562 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -262,7 +262,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-018 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
+        test("TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -280,7 +280,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-017 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
+        test("TC-de3ead05-f69f-4c5e-9001-934c11e284b1 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -299,7 +299,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-021 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
+        test("TC-2a3cb935-f956-466d-a1ad-c62843bda562 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -315,7 +315,7 @@ class ContactMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-018 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
+        test("TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()

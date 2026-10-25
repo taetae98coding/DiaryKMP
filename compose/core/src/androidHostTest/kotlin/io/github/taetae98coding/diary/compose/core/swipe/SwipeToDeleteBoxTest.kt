@@ -39,7 +39,7 @@ class SwipeToDeleteBoxTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-007 삭제만 제공하는 카드는 좌에서 우로 밀어도 동작을 실행하지 않는다`() {
+    fun `TC-3835be48-ce6a-4eb3-b507-dd54dde58fd3 삭제만 제공하는 카드는 좌에서 우로 밀어도 동작을 실행하지 않는다`() {
         var deleteCount = 0
         setSwipeToDeleteBox(onDelete = { deleteCount += 1 })
 
@@ -52,7 +52,7 @@ class SwipeToDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-008 삭제만 제공하는 카드는 우에서 좌로 밀면 삭제 동작을 한 번 실행한다`() {
+    fun `TC-4b84c659-3838-4caa-abc5-8e6338bf677a 삭제만 제공하는 카드는 우에서 좌로 밀면 삭제 동작을 한 번 실행한다`() {
         var deleteCount = 0
         setSwipeToDeleteBox(onDelete = { deleteCount += 1 })
 
@@ -63,7 +63,7 @@ class SwipeToDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-009 비활성화된 삭제 전용 카드는 우에서 좌로 밀어도 삭제하지 않는다`() {
+    fun `TC-4c6eb1a6-abf3-44c5-82f2-b5047aaaad3d 비활성화된 삭제 전용 카드는 우에서 좌로 밀어도 삭제하지 않는다`() {
         var deleteCount = 0
         setSwipeToDeleteBox(gesturesEnabled = false, onDelete = { deleteCount += 1 })
 
@@ -75,7 +75,7 @@ class SwipeToDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-003 삭제 전용 카드가 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
+    fun `TC-d974ae3b-adb5-48a4-967b-f81026f98216 삭제 전용 카드가 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
         val firstKey = fixtureMonkey.giveMeOne<Long>()
         var key by mutableStateOf(firstKey)
         var deleteCount = 0
@@ -98,7 +98,7 @@ class SwipeToDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-004 실행 취소로 다시 나타난 삭제 전용 카드는 스와이프 전 모양으로 표시되고 삭제를 다시 실행하지 않는다`() {
+    fun `TC-be3c1894-baa4-4a84-98ac-952daf9746b7 실행 취소로 다시 나타난 삭제 전용 카드는 스와이프 전 모양으로 표시되고 삭제를 다시 실행하지 않는다`() {
         val key = fixtureMonkey.giveMeOne<Long>()
         var isShown by mutableStateOf(true)
         var deleteCount = 0
@@ -125,7 +125,7 @@ class SwipeToDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 삭제 전용 카드도 삭제 뒤에 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+    fun `TC-d6814ed1-6d4d-4ed5-83c3-cbfa5b99012b 삭제 전용 카드도 삭제 뒤에 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
         var deleteCount = 0
         setSwipeToDeleteBox(onDelete = { deleteCount += 1 })
 

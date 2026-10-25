@@ -38,7 +38,7 @@ class TagDetailMemoRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<MemoListEvent>()
         setTagDetailMemoTab(
             pagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = MEMO_TITLE)))),
@@ -52,21 +52,21 @@ class TagDetailMemoRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
+    fun `TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 진행 표시 상태이면 진행 표시가 나타난다`() {
         setTagDetailMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
+    fun `TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
         setTagDetailMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시가 사라진다`() {
+    fun `TC-19d9feda-6635-4b91-a41f-448cb4703f92 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setTagDetailMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

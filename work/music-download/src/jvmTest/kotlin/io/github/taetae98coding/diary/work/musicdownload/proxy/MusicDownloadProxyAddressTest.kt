@@ -8,7 +8,7 @@ private const val PORT = 27_180
 
 class MusicDownloadProxyAddressTest :
     FunSpec({
-        test("TC-MUSIC-DOWNLOAD-PROXY-DOMAIN-001 사설 IPv4 주소마다 후보를 하나씩 만들고 나머지는 뺀다") {
+        test("TC-b9614192-d606-4c32-8f38-08037a66ce61 사설 IPv4 주소마다 후보를 하나씩 만들고 나머지는 뺀다") {
             val addressList =
                 listOf(
                     "192.168.0.10",

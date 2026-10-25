@@ -63,7 +63,7 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-DOMAIN-018 화면이 회전하거나 재생성되어도 필터 선택, 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-9a3f00ab-c75c-4ff5-8bfc-786ac86a024a 화면이 회전하거나 재생성되어도 필터 선택, 정렬 선택과 보던 자리가 그대로다`() {
         val memoList = memoList()
         // 필터 선택은 기기에 저장된 값으로 조회되므로 그 조회 결과만 정하고, 정렬과 목록 표시는 실제 상태 객체가 맡는다.
         val viewModel =
@@ -93,7 +93,7 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-DOMAIN-022 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+    fun `TC-1b0b4202-239b-43d7-a956-7d8b4601da15 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
         val memoList = memoList()
         var nextViewModel = realViewModel(memoList = memoList, existence = MemoExistenceFilter())
         val restorationTester = StateRestorationTester(composeRule)
@@ -122,7 +122,7 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-DOMAIN-019 앱이 백그라운드에 다녀와도 보던 자리가 그대로다`() {
+    fun `TC-9f331a6f-c568-46df-8597-b9e4e0a48201 앱이 백그라운드에 다녀와도 보던 자리가 그대로다`() {
         val memoList = memoList()
         val viewModel = screenTestViewModel(memoList = memoList)
         composeRule.setContent { Home(viewModel = viewModel) }
@@ -137,7 +137,7 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-DOMAIN-020 메모 상세, 검색이나 완료된 메모 확인에 다녀와도 보던 자리가 그대로다`() {
+    fun `TC-a5723a33-9a42-4112-979d-761d8467d9e0 메모 상세, 검색이나 완료된 메모 확인에 다녀와도 보던 자리가 그대로다`() {
         val memoList = memoList()
         val viewModel = screenTestViewModel(memoList = memoList)
         var isMemoHomeOnTop by mutableStateOf(true)

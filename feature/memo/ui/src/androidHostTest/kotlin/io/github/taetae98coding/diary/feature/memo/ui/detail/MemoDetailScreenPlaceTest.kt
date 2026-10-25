@@ -41,7 +41,7 @@ class MemoDetailScreenPlaceTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-078 TC-MEMO-PLACE-CARD-DOMAIN-009 상세 대상 메모가 바뀌면 새 대상 메모에 연결된 장소를 노출한다`() {
+    fun `TC-e957a6a9-7f42-4b5c-b674-8d38ce04d1f7 TC-01d02413-e8ec-4ee5-b3f6-866b680a4254 상세 대상 메모가 바뀌면 새 대상 메모에 연결된 장소를 노출한다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
         val placeList = listOf(homePlace, officePlace)
@@ -65,7 +65,7 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-077 장소를 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
+    fun `TC-fcecc615-a0db-43f9-9f3b-5f74e7559633 장소를 선택하면 즉시 연결 변경을 요청하고 성공 안내는 표시하지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val placeViewModel = screenTestPlaceViewModel(placePagingData = placePagingData(listOf(homePlace)))
 
@@ -79,7 +79,7 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-077 장소 선택을 해제하면 즉시 연결 해제를 요청하고 성공 안내는 표시하지 않는다`() {
+    fun `TC-fcecc615-a0db-43f9-9f3b-5f74e7559633 장소 선택을 해제하면 즉시 연결 해제를 요청하고 성공 안내는 표시하지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val placeViewModel =
             screenTestPlaceViewModel(
@@ -97,7 +97,7 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-079 화면이 재생성되면 장소 카드는 저장된 장소 연결을 다시 표시한다`() {
+    fun `TC-98046ddc-12c3-4186-8f96-588c8218877f 화면이 재생성되면 장소 카드는 저장된 장소 연결을 다시 표시한다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val placeViewModel =
             screenTestPlaceViewModel(
@@ -115,7 +115,7 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-058 장소를 선택해도 수정 버튼이 나타나지 않는다`() {
+    fun `TC-70f02f7d-1926-48b7-97f3-91250782f688 장소를 선택해도 수정 버튼이 나타나지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
 
         composeRule.setMemoDetailScreenWithTag(placePagingData = placePagingData(listOf(homePlace)))
@@ -127,7 +127,7 @@ class MemoDetailScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-058 장소 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
+    fun `TC-70f02f7d-1926-48b7-97f3-91250782f688 장소 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val placeUiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(homePlace)))
 

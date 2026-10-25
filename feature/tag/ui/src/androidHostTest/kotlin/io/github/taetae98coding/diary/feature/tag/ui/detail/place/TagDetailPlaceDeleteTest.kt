@@ -58,7 +58,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-038 장소 카드를 삭제 방향으로 밀면 그 장소 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-92903379-bc52-4bad-8c9a-fe9055f0e396 장소 카드를 삭제 방향으로 밀면 그 장소 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()
@@ -72,7 +72,7 @@ class TagDetailPlaceDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-038 장소 카드를 삭제 방향으로 밀면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-92903379-bc52-4bad-8c9a-fe9055f0e396 장소 카드를 삭제 방향으로 밀면 한국어 안내와 실행 취소를 표시한다`() {
         val place = setScreenOnPlaceTab(tabDescription = KOREAN_PLACE_TAB_DESCRIPTION)
 
         swipeCardLeft()
@@ -83,7 +83,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-040 삭제를 실행 취소하면 그 장소의 삭제 되돌리기를 요청한다`() {
+    fun `TC-2d118d0a-ac53-41f3-b4ea-8a6a05fbda7a 삭제를 실행 취소하면 그 장소의 삭제 되돌리기를 요청한다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()
@@ -95,7 +95,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-044 안내가 보이는 동안 다른 장소를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-e1e93066-125b-4a93-9e0c-bb2e48c03d2e 안내가 보이는 동안 다른 장소를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val place = setScreenOnPlaceTab()
         val otherId = fixtureId()
 
@@ -114,7 +114,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-045 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-e6320ab3-c443-41b0-b02d-6e3860b65839 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()
@@ -130,7 +130,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-046 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-b8754c96-502a-4b35-b3d5-862b5af10c38 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()
@@ -149,7 +149,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-047 안내가 보이는 동안 보기 모드를 바꿔도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-90de9dd3-42b3-45ad-a617-3b897d100d29 안내가 보이는 동안 보기 모드를 바꿔도 안내가 남고 실행 취소할 수 있다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()
@@ -168,7 +168,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-015 장소 탭의 삭제와 실행 취소는 대상 태그와 수정 중인 입력을 바꾸지 않는다`() {
+    fun `TC-8f54e6bf-0bc7-4650-bd98-d7701ee65225 장소 탭의 삭제와 실행 취소는 대상 태그와 수정 중인 입력을 바꾸지 않는다`() {
         val place = tagPlace(title = PLACE_TITLE)
         // 대상 태그의 수정이나 삭제를 요청하면 엄격한 mock이 실패하므로, 요청하지 않았음을 함께 확인한다.
         setScreen(place = place)
@@ -189,7 +189,7 @@ class TagDetailPlaceDeleteTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-065 장소 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 장소가 삭제된다`() {
+    fun `TC-5c5b0403-8a85-454d-b486-04ff8a8c2c23 장소 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 장소가 삭제된다`() {
         val place = setScreenOnPlaceTab()
 
         swipeCardLeft()

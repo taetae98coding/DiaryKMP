@@ -5,7 +5,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 
 class UnsupportedLocationProviderTest :
     FunSpec({
-        test("TC-CURRENT-LOCATION-DOMAIN-002 디바이스 위치 확인을 제공하지 않는 데스크톱에서는 디바이스 위치를 확인하지 못한 것으로 다룬다") {
+        test("TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 디바이스 위치 확인을 제공하지 않는 데스크톱에서는 디바이스 위치를 확인하지 못한 것으로 다룬다") {
             UnsupportedLocationProvider().getCurrentLocation().shouldBeNull()
         }
     })

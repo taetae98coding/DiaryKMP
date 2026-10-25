@@ -22,13 +22,13 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GeminiSettingRepositoryImplTest :
     FunSpec({
-        test("TC-SETTING-GEMINI-DATA-001 저장된 설정이 없으면 비어 있는 설정을 제공한다") {
+        test("TC-e770ca2f-b1fc-4bee-a482-da7fe86dd5dd 저장된 설정이 없으면 비어 있는 설정을 제공한다") {
             val repository = createRepository(MutableStateFlow(GeminiSetting.EMPTY.toLocalEntity()))
 
             repository.get().first() shouldBe GeminiSetting.EMPTY
         }
 
-        test("TC-SETTING-GEMINI-DATA-002 저장한 설정을 이후 조회에서 제공한다") {
+        test("TC-3d6eb062-128b-48e9-a5ce-d3001c91768f 저장한 설정을 이후 조회에서 제공한다") {
             val settingList =
                 listOf(
                     fixtureMonkey.giveMeOne<GeminiSetting>(),
@@ -45,7 +45,7 @@ class GeminiSettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-GEMINI-DATA-003 다시 저장하면 마지막에 저장한 설정을 제공한다") {
+        test("TC-bb1a3db7-1466-4cab-b757-8379305a300d 다시 저장하면 마지막에 저장한 설정을 제공한다") {
             val first = fixtureMonkey.giveMeOne<GeminiSetting>()
             val second = fixtureMonkey.giveMeOne<GeminiSetting>()
             val last = fixtureMonkey.giveMeOne<GeminiSetting>()
@@ -57,7 +57,7 @@ class GeminiSettingRepositoryImplTest :
             repository.get().first() shouldBe last
         }
 
-        test("TC-SETTING-GEMINI-DATA-004 값 하나만 바꿔 저장해도 세 값이 함께 기록된다") {
+        test("TC-68e6b43d-cff0-4841-be45-250fdb68e765 값 하나만 바꿔 저장해도 세 값이 함께 기록된다") {
             val stored = fixtureMonkey.giveMeOne<GeminiSetting>()
             val repository = createRepository(MutableStateFlow(stored.toLocalEntity()))
             val changed = stored.copy(systemPrompt = stored.systemPrompt + "-changed")
@@ -70,7 +70,7 @@ class GeminiSettingRepositoryImplTest :
             actual.model shouldBe stored.model
         }
 
-        test("TC-SETTING-GEMINI-DATA-005 조회 중에 설정이 바뀌면 이어서 새 값을 제공한다") {
+        test("TC-7ae2c54b-c988-48f8-a942-e3f518e3def7 조회 중에 설정이 바뀌면 이어서 새 값을 제공한다") {
             val stored = fixtureMonkey.giveMeOne<GeminiSetting>()
             val next = fixtureMonkey.giveMeOne<GeminiSetting>()
             val repository = createRepository(MutableStateFlow(stored.toLocalEntity()))
@@ -84,7 +84,7 @@ class GeminiSettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-GEMINI-DATA-006 저장된 값을 읽을 수 없으면 비어 있는 설정을 제공하지 않고 실패를 그대로 알린다") {
+        test("TC-9e1d57da-42d4-4138-b18d-4b7a9ed27d48 저장된 값을 읽을 수 없으면 비어 있는 설정을 제공하지 않고 실패를 그대로 알린다") {
             val failure = IllegalStateException("gemini setting read failed")
             val repository =
                 GeminiSettingRepositoryImpl(

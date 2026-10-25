@@ -63,7 +63,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-006 대상 태그의 상태와 무관하게 웹 항목 추가를 시작할 수 있다`() {
+    fun `TC-958295e2-51d8-4b1c-944a-5036f8a606e1 대상 태그의 상태와 무관하게 웹 항목 추가를 시작할 수 있다`() {
         val uiStateFlow = MutableStateFlow<TagDetailUiState>(tagDetailUiState(detail = tagDetail(TAG_TITLE)))
         composeRule.setTagDetailScreen(viewModel = screenTestViewModel(uiStateFlow))
         composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
@@ -81,7 +81,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-007 웹 항목 추가를 선택하면 WebAdd 이동을 요청한다`() {
+    fun `TC-dc429c83-68b0-4c53-b340-398a98a8f6c3 웹 항목 추가를 선택하면 WebAdd 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnWebTab(navigateToWebAdd = { navigateCount += 1 })
 
@@ -92,21 +92,21 @@ class TagDetailWebScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-WEB-FEATURE-007 한국어 환경 웹 항목 추가 버튼의 접근성 이름은 웹 추가다`() {
+    fun `TC-dc429c83-68b0-4c53-b340-398a98a8f6c3 한국어 환경 웹 항목 추가 버튼의 접근성 이름은 웹 추가다`() {
         setScreenOnWebTab(tabDescription = KOREAN_WEB_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-012 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-ae09a03c-049b-4084-8e16-9aac1e17a318 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnWebTab(uiState = TagDetailUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-013 빈 상태에서도 웹 항목 추가를 실행할 수 있다`() {
+    fun `TC-a6b7abee-41a7-4ce6-9f91-3126500ae888 빈 상태에서도 웹 항목 추가를 실행할 수 있다`() {
         var navigateCount = 0
         setScreenOnWebTab(navigateToWebAdd = { navigateCount += 1 })
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -117,7 +117,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-014 웹 항목 추가는 웹 탭에서만 제공된다`() {
+    fun `TC-4a2f74b6-5b2c-45d6-b870-9bb23542de9f 웹 항목 추가는 웹 탭에서만 제공된다`() {
         setScreen()
 
         listOf(
@@ -136,7 +136,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-015 TC-TAG-DETAIL-WEB-DATA-005 대상 태그를 조회하지 못해도 웹 목록과 동작을 제공한다`() {
+    fun `TC-be4f277c-2a3e-48ac-a25b-c64e4b4b22d4 TC-c0b62845-91d8-42d5-b0f6-7fccf8c2a973 대상 태그를 조회하지 못해도 웹 목록과 동작을 제공한다`() {
         setScreenOnWebTab(
             uiState = TagDetailUiState.Loading,
             webPagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = WEB_TITLE))),
@@ -147,7 +147,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-005 웹 항목을 선택하면 그 웹 항목의 상세 이동을 요청한다`() {
+    fun `TC-8c0c98af-b6f0-466d-ad7e-53f726ef3d7b 웹 항목을 선택하면 그 웹 항목의 상세 이동을 요청한다`() {
         val web = tagWeb(title = WEB_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnWebTab(
@@ -161,7 +161,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-021 웹 카드를 삭제 방향으로 밀면 그 웹 항목 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-365c5415-2b42-4722-83fe-adb910874e83 웹 카드를 삭제 방향으로 밀면 그 웹 항목 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val web = swipeWeb()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
@@ -176,7 +176,7 @@ class TagDetailWebScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-WEB-FEATURE-021 웹 카드를 삭제 방향으로 밀면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-365c5415-2b42-4722-83fe-adb910874e83 웹 카드를 삭제 방향으로 밀면 한국어 안내와 실행 취소를 표시한다`() {
         val web = swipeWeb(tabDescription = KOREAN_WEB_TAB_DESCRIPTION)
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
@@ -188,7 +188,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-022 삭제를 실행 취소하면 그 웹 항목의 삭제 되돌리기를 요청한다`() {
+    fun `TC-194bbfc5-3cfb-45f1-86b2-35f848bdd00f 삭제를 실행 취소하면 그 웹 항목의 삭제 되돌리기를 요청한다`() {
         val web = swipeWeb()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
@@ -201,7 +201,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-026 안내가 보이는 동안 다른 웹 항목을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-bb214b6b-c3fc-4773-8703-c50f436d53a8 안내가 보이는 동안 다른 웹 항목을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val web = swipeWeb()
         val otherId = fixtureId()
 
@@ -221,7 +221,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-47e07a14-62da-43dc-aaa1-2259ddc531ca 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val web = swipeWeb()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
@@ -238,7 +238,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-DOMAIN-003 웹 탭의 삭제와 실행 취소는 대상 태그와 수정 중인 입력을 바꾸지 않는다`() {
+    fun `TC-466e4a24-f7ba-4f16-8e3a-2f7b9902566a 웹 탭의 삭제와 실행 취소는 대상 태그와 수정 중인 입력을 바꾸지 않는다`() {
         val web = tagWeb(title = WEB_TITLE)
         // 대상 태그의 수정이나 삭제를 요청하면 엄격한 mock이 실패하므로, 요청하지 않았음을 함께 확인한다.
         setScreen(webPagingData = tagEntityPagingData(itemList = listOf(web)))
@@ -262,7 +262,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-065 웹 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 웹 항목이 삭제된다`() {
+    fun `TC-5c5b0403-8a85-454d-b486-04ff8a8c2c23 웹 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 웹 항목이 삭제된다`() {
         val web = swipeWeb()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
@@ -274,7 +274,7 @@ class TagDetailWebScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-028 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-8ac990bf-12fd-4f6d-8f2c-bda3f22445b0 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val web = swipeWeb()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }

@@ -58,7 +58,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-004 조회한 곡 페이지를 그대로 노출한다") {
+        test("TC-97f58e54-aa0d-407e-b435-dc552077fa0c 조회한 곡 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val musicList = listOf(music(title = "Alpha"), music(title = "Bravo"))
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(musicList))))
@@ -67,7 +67,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-021 곡 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-8e7af4ed-f007-498f-8e92-5d1c37f8dd36 곡 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -78,7 +78,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-DATA-002 저장된 곡이 바뀌면 바뀐 페이지를 노출한다") {
+        test("TC-dd670125-228a-4168-9d06-dce88416c41d 저장된 곡이 바뀌면 바뀐 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val beforeMusicList = listOf(music(title = "Alpha"))
                 val afterMusicList = listOf(music(title = "Alpha"), music(title = "Bravo"))
@@ -96,7 +96,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-011 곡을 추가하면 별도 조작 없이 그 곡이 든 목록을 노출한다") {
+        test("TC-45bc7f0a-99ae-4a0d-bdef-16fc581a4c68 곡을 추가하면 별도 조작 없이 그 곡이 든 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val existing = music(title = "existing" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
                 val added = music(title = "added" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
@@ -114,7 +114,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-003 처음 정렬은 제목순이다") {
+        test("TC-7b479c76-f086-4f5e-9a12-08f8adcf789d 처음 정렬은 제목순이다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))))
 
@@ -151,7 +151,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-022 삭제에 성공하면 그 곡의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-9978aa69-9804-4ff3-bd5a-96492a93752c 삭제에 성공하면 그 곡의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
@@ -172,7 +172,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-028 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-c3ccf01d-a060-48b1-9a76-14991dd801b6 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
@@ -192,7 +192,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-007 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-e05d6154-dc88-4e4e-a0ea-737fef70dee5 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
@@ -213,7 +213,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-008 목록에서 삭제하고 실행 취소해도 곡의 다운로드 상태가 바뀌지 않고 다운로드를 요청하지 않는다") {
+        test("TC-8a4fff34-827d-4dab-94b4-ea0a67b2a18c 목록에서 삭제하고 실행 취소해도 곡의 다운로드 상태가 바뀌지 않고 다운로드를 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val music = music(title = "Alpha")
                 val stateMap = mapOf(MusicDownloadTarget(id = music.id, videoId = "dQw4w9WgXcQ") to MusicDownloadState.Running(progress = 0.62F))
@@ -306,7 +306,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-023 실행 취소하면 그 곡의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-7063f073-eeea-4c54-ab31-f9d65df23d44 실행 취소하면 그 곡의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreMusicUseCase = mockk<RestoreMusicUseCase>()

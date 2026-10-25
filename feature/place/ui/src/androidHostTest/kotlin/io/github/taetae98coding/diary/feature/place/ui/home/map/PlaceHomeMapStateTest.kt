@@ -26,7 +26,7 @@ class PlaceHomeMapStateTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-010 기본 지도를 고르지 않았으면 공용 지도 기능의 기본 제공자로 시작한다`() {
+    fun `TC-5c7ac63c-6860-4d50-8549-63b56a543ebf 기본 지도를 고르지 않았으면 공용 지도 기능의 기본 제공자로 시작한다`() {
         lateinit var placeHomeState: DiaryMapState
         lateinit var defaultState: DiaryMapState
 
@@ -42,7 +42,7 @@ class PlaceHomeMapStateTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-012 저장된 기본 지도가 초기 제공자로 지정된다`() {
+    fun `TC-ea06b448-7258-4a91-896f-770126cc82c9 저장된 기본 지도가 초기 제공자로 지정된다`() {
         val providerList =
             listOf(
                 MapProvider.NAVER to DiaryMapProvider.NAVER,
@@ -66,7 +66,7 @@ class PlaceHomeMapStateTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-013 화면이 표시된 뒤 기본 지도가 바뀌면 바뀐 지도로 새로 시작한다`() {
+    fun `TC-c36cb49f-9268-4f8f-87d8-739aff86b0c0 화면이 표시된 뒤 기본 지도가 바뀌면 바뀐 지도로 새로 시작한다`() {
         var uiState: PlaceHomeUiState by mutableStateOf(loaded(defaultProvider = MapProvider.NAVER))
         lateinit var state: DiaryMapState
 

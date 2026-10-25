@@ -22,13 +22,13 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrEntryTest :
     FunSpec({
-        test("TC-QR-LIST-DETAIL-DOMAIN-002 QR 목록에서 이어 진입한 QR 추가는 목록·상세 배치의 상세 pane이다") {
+        test("TC-716e1825-c501-4fb2-80e9-4da12240bdbc QR 목록에서 이어 진입한 QR 추가는 목록·상세 배치의 상세 pane이다") {
             val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey)
 
             metadataOf(backStack = backStack, key = QrAddNavKey).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-QR-LIST-DETAIL-DOMAIN-001 QR 목록에서 진입하지 않은 QR 추가는 목록·상세 배치에 참여하지 않는다") {
+        test("TC-3a2f6ba4-c418-49a0-b6eb-7905a5fca6c2 QR 목록에서 진입하지 않은 QR 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherNavKey, QrAddNavKey),
@@ -40,7 +40,7 @@ class QrEntryTest :
             }
         }
 
-        test("TC-QR-LIST-DETAIL-DOMAIN-003 QR 목록에서 이어 진입한 QR 상세는 목록·상세 배치의 상세 pane이다") {
+        test("TC-0a34437d-40fb-40de-8b7a-53f3dc5293ae QR 목록에서 이어 진입한 QR 상세는 목록·상세 배치의 상세 pane이다") {
             val key = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey, key)
 

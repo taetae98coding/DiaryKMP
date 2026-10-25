@@ -32,7 +32,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-018 해제를 한 번 요청하고 등록은 요청하지 않는다") {
+                Then("TC-90250441-85e8-4644-a4fd-8e1675552f74 해제를 한 번 요청하고 등록은 요청하지 않는다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { repository.delete() }
                     coVerify(exactly = 0) { repository.upsert() }
@@ -48,7 +48,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-003 등록도 해제도 요청하지 않는다") {
+                Then("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 등록도 해제도 요청하지 않는다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 0) { repository.upsert() }
                     coVerify(exactly = 0) { repository.delete() }
@@ -65,7 +65,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-005 등록을 한 번 요청하고 해제는 요청하지 않는다") {
+                Then("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 등록을 한 번 요청하고 해제는 요청하지 않는다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { repository.upsert() }
                     coVerify(exactly = 0) { repository.delete() }
@@ -84,7 +84,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-015 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-1f59cdc7-b364-4675-8396-9372bf186a49 TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
 
                     val report = reportList.single()
@@ -105,7 +105,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-015 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-1f59cdc7-b364-4675-8396-9372bf186a49 TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
 
                     val report = reportList.single()
@@ -126,7 +126,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 shouldThrowExactly<CancellationException> { useCase(parameter = Unit) }
 
-                Then("TC-FCM-TOKEN-DOMAIN-017 오류 보고가 남지 않는다") {
+                Then("TC-969f648b-64d1-4167-b5a1-e95732282aa5 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }
@@ -151,7 +151,7 @@ class SubmitFcmTokenUseCaseTest :
 
                 useCase(parameter = Unit).shouldBeSuccess()
 
-                Then("TC-FCM-TOKEN-DOMAIN-003 인증된 뒤에만 등록을 한 번 요청한다") {
+                Then("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 인증된 뒤에만 등록을 한 번 요청한다") {
                     coVerify(exactly = 1) { repository.upsert() }
                     coVerify(exactly = 0) { repository.delete() }
                 }
@@ -167,7 +167,7 @@ class SubmitFcmTokenUseCaseTest :
             When("게스트로 바뀐 계기에 토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-020 해제를 한 번 요청하고 실패를 전달한다") {
+                Then("TC-68ae3e2d-db68-4521-841f-5fa83acf7e6b 해제를 한 번 요청하고 실패를 전달한다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
                     coVerify(exactly = 1) { repository.delete() }
                     coVerify(exactly = 0) { repository.upsert() }
@@ -186,7 +186,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-016 통신 오류를 원인으로 담은 오류 보고가 한 번 남는다") {
+                Then("TC-9a2080b2-f51e-4d2a-bb69-cbf648bdd0ee 통신 오류를 원인으로 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
                     reportList.single().throwable shouldBeSameInstanceAs failure
                 }
@@ -203,7 +203,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-022 성공으로 끝나고 오류 보고가 남지 않는다") {
+                Then("TC-ed327973-684c-4131-af2e-3c9a8d007034 성공으로 끝나고 오류 보고가 남지 않는다") {
                     result.shouldBeSuccess()
                     reportList.shouldBeEmpty()
                 }
@@ -221,7 +221,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-024 토큰을 받아 오지 못한 오류를 원인으로 담은 오류 보고가 한 번 남는다") {
+                Then("TC-8df0e0c3-4978-4aa1-b355-df1ed8d79653 토큰을 받아 오지 못한 오류를 원인으로 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
                     reportList.single().throwable shouldBeSameInstanceAs failure
                 }

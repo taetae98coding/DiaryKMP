@@ -38,7 +38,7 @@ class WebHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-001 조회한 웹 항목을 목록에 표시한다`() {
+    fun `TC-3743b05e-be76-4e63-a0df-984a4fcc040a 조회한 웹 항목을 목록에 표시한다`() {
         val web = testWeb(title = WEB_TITLE, url = WEB_URL)
 
         setWebHomeScreen(webList = listOf(web))
@@ -48,7 +48,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-008 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-90d8f866-86e9-4286-9a54-885e416c1536 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
 
         setWebHomeScreen(navigateUp = { navigateUpCount++ })
@@ -59,7 +59,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-005 웹 추가를 선택하면 웹 추가 화면으로 이동한다`() {
+    fun `TC-0036a77a-fd88-4d90-b78b-7f1900def0e8 웹 추가를 선택하면 웹 추가 화면으로 이동한다`() {
         var navigateToAddCount = 0
 
         setWebHomeScreen(navigateToAdd = { navigateToAddCount++ })
@@ -70,7 +70,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-016 검색을 선택하면 검색 화면으로 이동한다`() {
+    fun `TC-b9b804fc-f2b9-4560-8a44-5da492e59d4a 검색을 선택하면 검색 화면으로 이동한다`() {
         var navigateToSearchCount = 0
 
         setWebHomeScreen(navigateToSearch = { navigateToSearchCount++ })
@@ -81,7 +81,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-017 웹 항목을 선택하면 그 웹 항목의 상세 화면으로 이동한다`() {
+    fun `TC-8392b3db-4a35-4d67-bc3b-fcc40f266178 웹 항목을 선택하면 그 웹 항목의 상세 화면으로 이동한다`() {
         val web = testWeb(title = WEB_TITLE, url = WEB_URL)
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -92,7 +92,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-013 목록을 당기면 새로고침을 한 번 실행한다`() {
+    fun `TC-a0d2d609-161f-429e-9ca9-5316a5689869 목록을 당기면 새로고침을 한 번 실행한다`() {
         val syncViewModel = syncViewModel()
 
         setWebHomeScreen(webList = listOf(testWeb(title = WEB_TITLE, url = WEB_URL)), syncViewModel = syncViewModel)
@@ -103,7 +103,7 @@ class WebHomeScreenTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-015 동기화가 진행 중이면 진행 표시가 나타난다`() {
+    fun `TC-e27e3473-1d9f-486a-9951-efd7b309ae1f 동기화가 진행 중이면 진행 표시가 나타난다`() {
         setWebHomeScreen(syncViewModel = syncViewModel(uiState = SyncRefreshUiState(isRefreshing = true)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

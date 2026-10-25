@@ -42,7 +42,7 @@ class RoutineListDetailPlaceholderTest {
     private val backStack = NavBackStack<ScreenNavKey>(RoutineHomeNavKey)
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-DOMAIN-003 다른 주요 목적지에 다녀오면 상세 영역의 루틴 추가는 제목과 설명이 비어 있는 상태로 시작한다`() {
+    fun `TC-acdca25a-a5ef-4070-972f-0c2bbcc47a45 다른 주요 목적지에 다녀오면 상세 영역의 루틴 추가는 제목과 설명이 비어 있는 상태로 시작한다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         setRoutineNavDisplay()

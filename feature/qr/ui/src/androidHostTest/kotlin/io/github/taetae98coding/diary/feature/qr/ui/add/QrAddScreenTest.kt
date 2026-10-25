@@ -46,7 +46,7 @@ class QrAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-ADD-FEATURE-016 뒤로가기를 선택하면 QrHome 화면으로 돌아간다`() {
+    fun `TC-109f4d48-f4cb-4757-b46d-a3db90ec8765 뒤로가기를 선택하면 QrHome 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setQrAddScreen(
             registry = respondingRegistry(isGranted = false),
@@ -61,7 +61,7 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-008 카메라 권한이 이미 허용되어 있으면 QrScan 화면으로 이동한다`() {
+    fun `TC-1f4e8b58-5a2d-4acc-84b5-405bc05b2584 카메라 권한이 이미 허용되어 있으면 QrScan 화면으로 이동한다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.CAMERA)
         val registry = respondingRegistry(isGranted = true)
         var navigateToScanCount = 0
@@ -80,7 +80,7 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-008 카메라 권한 요청을 허용하면 QrScan 화면으로 이동한다`() {
+    fun `TC-1f4e8b58-5a2d-4acc-84b5-405bc05b2584 카메라 권한 요청을 허용하면 QrScan 화면으로 이동한다`() {
         val registry = respondingRegistry(isGranted = true)
         var navigateToScanCount = 0
         setQrAddScreen(
@@ -98,7 +98,7 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-009 카메라 권한이 허용되지 않으면 화면에 머무르고 권한 안내를 표시한다`() {
+    fun `TC-17c6fa27-e39b-491c-b584-ed87d716dadf 카메라 권한이 허용되지 않으면 화면에 머무르고 권한 안내를 표시한다`() {
         var navigateToScanCount = 0
         setQrAddScreen(
             registry = respondingRegistry(isGranted = false),
@@ -141,7 +141,7 @@ class QrAddScreenTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-010 권한 요청에 응답하기 전에는 다시 선택해도 새 요청을 시작하지 않는다`() {
+    fun `TC-e1081d6e-3f9a-4da8-8f77-a928430ef54a 권한 요청에 응답하기 전에는 다시 선택해도 새 요청을 시작하지 않는다`() {
         val requestCode = slot<Int>()
         val registry = pendingRegistry(requestCode = requestCode)
         var navigateToScanCount = 0
@@ -164,7 +164,7 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-011 권한 요청에 응답한 뒤에는 다시 선택할 수 있다`() {
+    fun `TC-fa682ad7-a53c-4a27-95fa-ff7516508916 권한 요청에 응답한 뒤에는 다시 선택할 수 있다`() {
         val registry = respondingRegistry(isGranted = false)
         setQrAddScreen(registry = registry)
 
@@ -184,7 +184,7 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-004 화면이 재생성되면 표시 중이던 권한 안내를 다시 표시하지 않는다`() {
+    fun `TC-ce75e92f-b7fa-4aba-b895-665a3360817e 화면이 재생성되면 표시 중이던 권한 안내를 다시 표시하지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             QrAddScreenContent(registry = respondingRegistry(isGranted = false))
@@ -202,18 +202,18 @@ class QrAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-005 권한 요청을 기다리는 동안 화면이 재생성되면 허용 응답을 반영하지 않는다`() {
+    fun `TC-3a429108-ae3c-4b70-a40f-43881638ddd7 권한 요청을 기다리는 동안 화면이 재생성되면 허용 응답을 반영하지 않는다`() {
         assertResponseIgnoredAfterRestore(isGranted = true)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-006 권한 요청을 기다리는 동안 화면이 재생성되면 거부 응답을 반영하지 않는다`() {
+    fun `TC-67d69155-c05f-4e4f-ab91-71640dd3b268 권한 요청을 기다리는 동안 화면이 재생성되면 거부 응답을 반영하지 않는다`() {
         assertResponseIgnoredAfterRestore(isGranted = false)
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-FEATURE-001 카메라 권한이 허용되어 있지 않으면 QR 스캔 시작 시 시스템 카메라 권한 요청이 시작된다`() {
+    fun `TC-46fa5788-c078-449b-bef3-b5f3064e6ed9 카메라 권한이 허용되어 있지 않으면 QR 스캔 시작 시 시스템 카메라 권한 요청이 시작된다`() {
         val input = slot<Any>()
         val registry = spyk<ActivityResultRegistry>()
         every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), capture(input), any()) } answers {
@@ -229,7 +229,7 @@ class QrAddScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-FEATURE-002 카메라 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
+    fun `TC-4d7879d4-4b73-465f-ac2f-8ca0905c0017 카메라 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.CAMERA)
         val registry = respondingRegistry(isGranted = true)
         setQrAddScreen(registry = registry)
@@ -241,7 +241,7 @@ class QrAddScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-DOMAIN-001 QR 스캔 시작을 선택할 때마다 요청 조건을 다시 확인한다`() {
+    fun `TC-e950c031-08dd-41ed-8f03-98bfbf6658c9 QR 스캔 시작을 선택할 때마다 요청 조건을 다시 확인한다`() {
         val registry = respondingRegistry(isGranted = false)
         setQrAddScreen(registry = registry)
 
@@ -254,7 +254,7 @@ class QrAddScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-DOMAIN-002 QrAdd 화면이 표시되는 것만으로는 요청하지 않는다`() {
+    fun `TC-e6b4c026-fd1b-415d-845c-31ce485cd49c QrAdd 화면이 표시되는 것만으로는 요청하지 않는다`() {
         val registry = respondingRegistry(isGranted = false)
         setQrAddScreen(registry = registry)
         composeRule.waitForIdle()

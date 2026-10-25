@@ -28,7 +28,7 @@ class MemoTagPickerDialogPagingTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-025 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
+    fun `TC-b601fc11-b2c2-451d-bec5-d59756dd82d0 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val selectedIdList = mutableListOf<Uuid>()
         val primarySelectedIdList = mutableListOf<Uuid>()
@@ -47,7 +47,7 @@ class MemoTagPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-026 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
+    fun `TC-20372989-16fa-4b2d-a1e2-8022eb003fd9 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         composeRule.setMemoTagPickerDialog(tagPagingData = appendFailedTagPagingDataOf(listOf(workTag, exerciseTag)))

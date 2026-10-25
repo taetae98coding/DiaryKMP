@@ -63,21 +63,21 @@ class ChecklistAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-ADD-FEATURE-001 한국어 환경에서 상단 바에 화면 제목을 표시한다`() {
+    fun `TC-df04c07e-5719-446d-b2c9-8c7fbc5243d0 한국어 환경에서 상단 바에 화면 제목을 표시한다`() {
         setScreen()
 
         composeRule.onNodeWithText(KOREAN_TITLE, useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-001 기본 환경에서 상단 바에 화면 제목을 표시한다`() {
+    fun `TC-df04c07e-5719-446d-b2c9-8c7fbc5243d0 기본 환경에서 상단 바에 화면 제목을 표시한다`() {
         setScreen()
 
         composeRule.onNodeWithText(DEFAULT_TITLE, useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-002 처음 들어오면 입력이 비어 있고 넣어 둔 항목이 없으며 제목 입력에 초점이 있다`() {
+    fun `TC-47727fb9-7734-4141-a2df-45f1ca768e92 처음 들어오면 입력이 비어 있고 넣어 둔 항목이 없으며 제목 입력에 초점이 있다`() {
         setScreen()
 
         titleInput().editableText() shouldBe ""
@@ -89,7 +89,7 @@ class ChecklistAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-ADD-FEATURE-003 화면에는 정해진 입력과 동작만 둔다`() {
+    fun `TC-4e01a6c9-4a71-4a11-a11e-6455743b9833 화면에는 정해진 입력과 동작만 둔다`() {
         setScreen()
         addItem(PASSPORT)
 
@@ -106,7 +106,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-004 항목 넣기를 선택하면 목록 맨 끝에 놓이고 항목 입력이 비워진다`() {
+    fun `TC-ef7ce65b-6841-4f5c-a688-c6368a1906d5 항목 넣기를 선택하면 목록 맨 끝에 놓이고 항목 입력이 비워진다`() {
         setScreen()
         addItem(PASSPORT)
         itemInput().performTextInput(CHARGER)
@@ -120,7 +120,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-004 입력을 마치는 키를 누르면 목록 맨 끝에 놓이고 항목 입력이 비워진다`() {
+    fun `TC-ef7ce65b-6841-4f5c-a688-c6368a1906d5 입력을 마치는 키를 누르면 목록 맨 끝에 놓이고 항목 입력이 비워진다`() {
         setScreen()
         addItem(PASSPORT)
         itemInput().performTextInput(CHARGER)
@@ -134,7 +134,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-005 항목 입력이 비어 있거나 공백뿐이면 항목을 넣지 않는다`() {
+    fun `TC-596c3eaa-ca60-479e-bc04-0838033e7f55 항목 입력이 비어 있거나 공백뿐이면 항목을 넣지 않는다`() {
         setScreen()
 
         listOf("", "   ").forEach { value ->
@@ -148,7 +148,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-006 같은 내용의 항목도 새 항목으로 넣는다`() {
+    fun `TC-d5368dd6-3d3f-4c1e-895f-fe4112acb2b2 같은 내용의 항목도 새 항목으로 넣는다`() {
         setScreen()
 
         addItem(PASSPORT)
@@ -158,7 +158,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-007 넣어 둔 항목을 빼면 사라지고 남은 항목의 순서는 그대로다`() {
+    fun `TC-4008f7b3-8cd2-42b4-9a15-fe00d5eed0ee 넣어 둔 항목을 빼면 사라지고 남은 항목의 순서는 그대로다`() {
         setScreen()
         addItem(PASSPORT)
         addItem(CHARGER)
@@ -171,7 +171,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-008 넣어 둔 항목은 체크할 수 없다`() {
+    fun `TC-8510d9f5-9a2c-4b9c-9860-d42ab5e5639c 넣어 둔 항목은 체크할 수 없다`() {
         setScreen()
 
         addItem(PASSPORT)
@@ -180,7 +180,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-009 넣어 둔 항목이 없으면 안내 없이 목록 자리를 비워 둔다`() {
+    fun `TC-a2bdef97-6d51-4129-87da-2df44ee12c76 넣어 둔 항목이 없으면 안내 없이 목록 자리를 비워 둔다`() {
         setScreen()
 
         composeRule.onNode(SemanticsMatcher.expectValue(SemanticsProperties.TestTag, DIARY_EMPTY_BOX_TEST_TAG)).assertDoesNotExist()
@@ -191,7 +191,7 @@ class ChecklistAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-ADD-FEATURE-010 추가에 성공하면 화면에 머문 채 입력과 넣어 둔 항목을 비우고 성공 피드백을 제공한다`() {
+    fun `TC-bc713440-0005-43de-9923-2097f1f33358 추가에 성공하면 화면에 머문 채 입력과 넣어 둔 항목을 비우고 성공 피드백을 제공한다`() {
         val useCase = mockk<AddChecklistUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.success(checklistTestFixtureMonkey.giveMeOne<Uuid>())
         var navigateUpCount = 0
@@ -219,7 +219,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-010 기본 환경에서 추가 성공 피드백을 제공한다`() {
+    fun `TC-bc713440-0005-43de-9923-2097f1f33358 기본 환경에서 추가 성공 피드백을 제공한다`() {
         setScreen(viewModel = effectViewModel(effect = ChecklistAddEffect.AddSucceeded))
 
         clickAdd()
@@ -228,7 +228,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-011 추가를 처리하는 동안 진행 상태를 표시한다`() {
+    fun `TC-49dc8390-b403-4ba5-a76a-853c521be665 추가를 처리하는 동안 진행 상태를 표시한다`() {
         val gate = CompletableDeferred<Unit>()
         val useCase = mockk<AddChecklistUseCase>()
         coEvery { useCase(parameter = any()) } coAnswers {
@@ -247,7 +247,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-012 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
+    fun `TC-fb408e72-941f-425f-91a2-d88d18702f7f 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
         val useCase = mockk<AddChecklistUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(checklistTestFixtureMonkey.giveMeOne<String>()))
         setScreen(viewModel = ChecklistAddViewModel(addChecklistUseCase = useCase))
@@ -266,13 +266,13 @@ class ChecklistAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-ADD-FEATURE-013 제목이 비어 있으면 제목 입력을 알리고 초점을 옮긴다`() {
+    fun `TC-e59eaf14-df79-4587-a34f-775b4ffa7492 제목이 비어 있으면 제목 입력을 알리고 초점을 옮긴다`() {
         assertTitleBlank(title = "")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-ADD-FEATURE-013 제목이 공백뿐이면 제목 입력을 알리고 초점을 옮긴다`() {
+    fun `TC-e59eaf14-df79-4587-a34f-775b4ffa7492 제목이 공백뿐이면 제목 입력을 알리고 초점을 옮긴다`() {
         assertTitleBlank(title = "   ")
     }
 
@@ -293,7 +293,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-013 기본 환경에서 공백 제목으로 추가하면 제목 입력을 알린다`() {
+    fun `TC-e59eaf14-df79-4587-a34f-775b4ffa7492 기본 환경에서 공백 제목으로 추가하면 제목 입력을 알린다`() {
         val useCase = mockk<AddChecklistUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(ChecklistTitleBlankException())
         setScreen(viewModel = ChecklistAddViewModel(addChecklistUseCase = useCase))
@@ -306,7 +306,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-014 뒤로가기를 선택하면 이전 화면으로 돌아가고 추가를 요청하지 않는다`() {
+    fun `TC-57fc55f4-3e82-46af-bead-00bce95daf4d 뒤로가기를 선택하면 이전 화면으로 돌아가고 추가를 요청하지 않는다`() {
         val viewModel = relaxedViewModel()
         var navigateUpCount = 0
         setScreen(viewModel = viewModel, navigateUp = { navigateUpCount += 1 })
@@ -321,7 +321,7 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-001 화면이 재생성되거나 시스템이 되살려도 입력과 넣어 둔 항목을 유지한다`() {
+    fun `TC-1bd9ee5c-493a-4a54-ab47-8ca6a7c118a7 화면이 재생성되거나 시스템이 되살려도 입력과 넣어 둔 항목을 유지한다`() {
         val stateRestorationTester = StateRestorationTester(composeRule)
         val viewModel = relaxedViewModel()
         stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) } }
@@ -342,12 +342,12 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-002 화면이 재생성되면 표시 중이던 제목 미입력 피드백을 다시 표시하지 않는다`() {
+    fun `TC-bb7d5c7f-82c8-4068-90fd-4dd8b9f0a3d7 화면이 재생성되면 표시 중이던 제목 미입력 피드백을 다시 표시하지 않는다`() {
         assertFeedbackNotRestored(effect = ChecklistAddEffect.TitleBlank, message = DEFAULT_TITLE_BLANK)
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-002 화면이 재생성되면 표시 중이던 성공 피드백을 다시 표시하지 않는다`() {
+    fun `TC-bb7d5c7f-82c8-4068-90fd-4dd8b9f0a3d7 화면이 재생성되면 표시 중이던 성공 피드백을 다시 표시하지 않는다`() {
         assertFeedbackNotRestored(effect = ChecklistAddEffect.AddSucceeded, message = DEFAULT_ADD_SUCCEEDED)
     }
 
@@ -368,17 +368,17 @@ class ChecklistAddScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-009 항목 입력에 남은 내용은 맨 끝 항목으로 함께 추가를 요청한다`() {
+    fun `TC-af4f0edf-56d3-484e-afce-4391876a924a 항목 입력에 남은 내용은 맨 끝 항목으로 함께 추가를 요청한다`() {
         assertLeftoverInput(input = UMBRELLA, expected = listOf(PASSPORT, UMBRELLA))
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-009 항목 입력이 비어 있으면 넣어 둔 항목만 추가를 요청한다`() {
+    fun `TC-af4f0edf-56d3-484e-afce-4391876a924a 항목 입력이 비어 있으면 넣어 둔 항목만 추가를 요청한다`() {
         assertLeftoverInput(input = "", expected = listOf(PASSPORT))
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-DOMAIN-009 항목 입력이 공백뿐이면 넣어 둔 항목만 추가를 요청한다`() {
+    fun `TC-af4f0edf-56d3-484e-afce-4391876a924a 항목 입력이 공백뿐이면 넣어 둔 항목만 추가를 요청한다`() {
         assertLeftoverInput(input = "   ", expected = listOf(PASSPORT))
     }
 

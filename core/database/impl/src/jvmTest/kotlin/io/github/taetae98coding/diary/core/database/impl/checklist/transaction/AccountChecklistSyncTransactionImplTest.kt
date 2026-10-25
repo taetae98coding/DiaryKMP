@@ -45,7 +45,7 @@ class AccountChecklistSyncTransactionImplTest :
             database.close()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-087 업로드 대상은 그 계정의 업로드 대기 체크리스트뿐이고 게스트 상태에서 만든 체크리스트는 포함되지 않는다") {
+        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 업로드 대상은 그 계정의 업로드 대기 체크리스트뿐이고 게스트 상태에서 만든 체크리스트는 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pending = fixtureMonkey.localChecklist(isDeleted = false)
             val guest = fixtureMonkey.localChecklist(isDeleted = false)
@@ -55,7 +55,7 @@ class AccountChecklistSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(pending)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 TC-DATA-SYNC-DOMAIN-027 업로드한 수정 시각이 그대로면 동기화 완료가 되고, 그사이 바뀌었으면 업로드 대기로 남는다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드한 수정 시각이 그대로면 동기화 완료가 되고, 그사이 바뀌었으면 업로드 대기로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val unchanged = fixtureMonkey.localChecklist(isDeleted = false)
             val changed = fixtureMonkey.localChecklist(isDeleted = false)
@@ -73,7 +73,7 @@ class AccountChecklistSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).map { checklist -> checklist.id } shouldBe listOf(changed.id)
         }
 
-        test("TC-DATA-SYNC-DATA-022 TC-DATA-SYNC-DATA-023 TC-DATA-SYNC-DATA-028 내려받은 체크리스트는 기기보다 늦으면 반영하고, 기기가 더 늦으면 유지하며 체크리스트 커서만 전진한다") {
+        test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 TC-5dd13cc9-5011-41cf-bfae-1314fe0084b6 내려받은 체크리스트는 기기보다 늦으면 반영하고, 기기가 더 늦으면 유지하며 체크리스트 커서만 전진한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val local = fixtureMonkey.localChecklist(isDeleted = false)
             val newer = fixtureMonkey.localChecklist(isDeleted = false)
@@ -90,7 +90,7 @@ class AccountChecklistSyncTransactionImplTest :
             cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CHECKLIST_ITEM) shouldBe 0L
         }
 
-        test("TC-DATA-SYNC-DATA-025 기기에 없던 체크리스트는 계정과 연결되어 동기화 완료로 저장된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 체크리스트는 계정과 연결되어 동기화 완료로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pulled = fixtureMonkey.localChecklist(isDeleted = false)
 
@@ -101,7 +101,7 @@ class AccountChecklistSyncTransactionImplTest :
                 listOf(AccountChecklistLocalEntity(accountId = accountId, checklistId = pulled.id, isDirty = false))
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
-        test("TC-DATA-SYNC-DATA-022 서버의 수정 시각이 기기와 같으면 서버 내용을 반영한다") {
+        test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기와 같으면 서버 내용을 반영한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val local = fixtureMonkey.localChecklist(isDeleted = false)
             checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList())
@@ -117,7 +117,7 @@ class AccountChecklistSyncTransactionImplTest :
             "같음" to 0.seconds,
             "이른" to (-1).seconds,
         ).forEach { (label, offset) ->
-            test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val local = fixtureMonkey.localChecklist(isDeleted = false)
                 checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList())
@@ -129,7 +129,7 @@ class AccountChecklistSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 체크리스트와 커서가 모두 반영되지 않는다") {
+        test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 체크리스트와 커서가 모두 반영되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val failingDatabase = spyk(database)
             every { failingDatabase.syncCursorDao() } throws ChecklistSyncTestException()

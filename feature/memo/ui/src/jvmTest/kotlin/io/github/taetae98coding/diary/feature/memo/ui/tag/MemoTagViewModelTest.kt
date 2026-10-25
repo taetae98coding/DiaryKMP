@@ -63,7 +63,7 @@ class MemoTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-047 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val item = tag()
@@ -91,7 +91,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-005 선택한 태그가 삭제되면 선택과 대표 지정이 해제된 것으로 표시된다") {
+        test("TC-9e8b60ea-4926-41d9-9477-9e7d43b9c1d3 선택한 태그가 삭제되면 선택과 대표 지정이 해제된 것으로 표시된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val memo = memo().copy(primaryTagId = tag.id)
@@ -122,7 +122,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-006 태그가 복구되면 유지되어 있던 선택과 대표 지정이 다시 나타난다") {
+        test("TC-5f644d68-7baa-4b05-bef8-5db2b7871e40 태그가 복구되면 유지되어 있던 선택과 대표 지정이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val memo = memo().copy(primaryTagId = tag.id)
@@ -153,7 +153,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-042 삭제된 메모에서도 태그 선택을 반영한다") {
+        test("TC-69795cec-f7a4-4bc6-86f8-58552b55c6ec 삭제된 메모에서도 태그 선택을 반영한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val deletedMemo = memo().copy(isDeleted = true, primaryTagId = null)
@@ -197,7 +197,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-003 태그 선택 목록은 페이지 단위 조회 결과를 그대로 노출한다") {
+        test("TC-36238c18-3987-4f50-9051-4272285d7c16 태그 선택 목록은 페이지 단위 조회 결과를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(tagList)))
@@ -206,7 +206,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
+        test("TC-20372989-16fa-4b2d-a1e2-8022eb003fd9 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val useCase = mockk<PageMemoSelectableTagUseCase>()
@@ -243,7 +243,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-033 저장된 태그 연결과 대표 태그를 상태에 채운다") {
+        test("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 저장된 태그 연결과 대표 태그를 상태에 채운다") {
             runTest(mainDispatcher) {
                 val workTag = tag()
                 val exerciseTag = tag()
@@ -267,7 +267,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-004 표시하는 태그에 없는 대표 태그 지정은 해제한다") {
+        test("TC-a7830318-9349-45fc-83e0-918b42687e70 표시하는 태그에 없는 대표 태그 지정은 해제한다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
                 val unselectableTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -291,7 +291,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-047 TC-MEMO-DETAIL-FEATURE-048 연결된 완료된 태그의 연결과 대표 태그 지정도 상태에 채운다") {
+        test("TC-4178547d-4ad2-4d73-a5e3-68e4350e7dd9 TC-fc9a90ad-aa02-460e-b0dc-7e42d8bfce62 연결된 완료된 태그의 연결과 대표 태그 지정도 상태에 채운다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag(title = FIRST_TAG_TITLE).copy(isFinished = false)
                 val finishedTag = tag(title = SECOND_TAG_TITLE).copy(isFinished = true)
@@ -315,7 +315,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-051 TC-MEMO-TAG-INPUT-DOMAIN-009 연결된 완료된 태그를 선택 목록에 함께 담는다") {
+        test("TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 TC-8a88520a-5d49-4adb-abcc-d21a05f7ead8 연결된 완료된 태그를 선택 목록에 함께 담는다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag(title = FIRST_TAG_TITLE).copy(isFinished = false)
                 val finishedTag = tag(title = SECOND_TAG_TITLE).copy(isFinished = true)
@@ -339,7 +339,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-053 연결이 해제되면 선택 상태에서도 빠진다") {
+        test("TC-435c14a0-7434-48a6-9775-b8910c85738a 연결이 해제되면 선택 상태에서도 빠진다") {
             runTest(mainDispatcher) {
                 val finishedTag = tag(title = SECOND_TAG_TITLE).copy(isFinished = true)
                 val memo = memo().copy(primaryTagId = null)
@@ -365,7 +365,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-004 태그를 선택하면 그 메모와 태그의 연결 추가를 요청한다") {
+        test("TC-130270d5-4801-4215-b84d-029a6f8d8b96 태그를 선택하면 그 메모와 태그의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -379,7 +379,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-005 태그 선택을 해제하면 그 메모와 태그의 연결 제거를 요청한다") {
+        test("TC-278d2a9d-3386-4cee-a542-56f2577f0050 태그 선택을 해제하면 그 메모와 태그의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -393,7 +393,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-008 대표 태그를 지정하면 그 메모의 대표 태그 지정을 요청한다") {
+        test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 대표 태그를 지정하면 그 메모의 대표 태그 지정을 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -407,7 +407,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-009 대표 태그 지정을 해제하면 그 메모의 대표 태그 해제를 요청한다") {
+        test("TC-8f163fe3-4081-49db-adc8-22e85df13732 대표 태그 지정을 해제하면 그 메모의 대표 태그 해제를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val unsetMemoPrimaryTagUseCase = mockk<UnsetMemoPrimaryTagUseCase>(relaxed = true)
@@ -420,7 +420,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-005 앞선 태그 변경이 처리 중이어도 뒤이은 태그 변경을 처리한다") {
+        test("TC-39024d94-6c0e-4735-852c-1a56f7a559c3 앞선 태그 변경이 처리 중이어도 뒤이은 태그 변경을 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -448,7 +448,7 @@ class MemoTagViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-MEMO-TAG-INPUT-DATA-006 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-70938ef2-fc50-498e-9890-96e03ab30a4e 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(2) { tag() }
@@ -476,7 +476,7 @@ class MemoTagViewModelTest : FunSpec() {
     }
 
     private fun applyDelayTests() {
-        test("TC-MEMO-TAG-INPUT-FEATURE-044 연속으로 입력하는 동안에는 마지막 검색어만 선택 목록에 반영된다") {
+        test("TC-de371d99-7013-4f2f-adad-551f62a924a9 연속으로 입력하는 동안에는 마지막 검색어만 선택 목록에 반영된다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(3) { tag() }
@@ -512,7 +512,7 @@ class MemoTagViewModelTest : FunSpec() {
     }
 
     private fun blankQueryTests() {
-        test("TC-MEMO-TAG-INPUT-FEATURE-045 검색어를 지우면 기다리지 않고 선택 목록이 되돌아온다") {
+        test("TC-9b897170-7624-4db6-94ab-8581958c9dce 검색어를 지우면 기다리지 않고 선택 목록이 되돌아온다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(2) { tag() }
@@ -541,7 +541,7 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-018 검색어를 바꿔도 선택한 것으로 표시하는 태그는 그대로다") {
+        test("TC-bf5773db-dde5-48d8-bf92-c187f625608c 검색어를 바꿔도 선택한 것으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
                 val selectedTagList = List(2) { tag() }
                 val viewModel =

@@ -13,7 +13,7 @@ import kotlinx.datetime.plus
 
 class CalendarSelectStateTest :
     FunSpec({
-        test("TC-CALENDAR-SELECT-FEATURE-008 선택을 해제하면 선택된 기간이 없는 상태가 된다") {
+        test("TC-b53b60c5-75a4-4a0e-8adf-e62369a5ee19 선택을 해제하면 선택된 기간이 없는 상태가 된다") {
             val state = CalendarSelectState()
             state.select(randomDateRange())
 

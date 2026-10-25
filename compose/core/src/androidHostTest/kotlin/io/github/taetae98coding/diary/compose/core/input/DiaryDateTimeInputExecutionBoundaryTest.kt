@@ -36,7 +36,7 @@ class DiaryDateTimeInputExecutionBoundaryTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-036 다른 앱에 다녀와도 사용 여부와 종일 여부와 선택한 기간이 유지된다`() {
+    fun `TC-b20db7fd-4129-4e92-b038-15c0e2859017 다른 앱에 다녀와도 사용 여부와 종일 여부와 선택한 기간이 유지된다`() {
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         composeRule.setContent {
@@ -64,7 +64,7 @@ class DiaryDateTimeInputExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-037 시스템이 앱을 종료했다가 다시 열리면 떠나기 직전의 값이 복원된다`() {
+    fun `TC-fc62fbb1-a95a-4160-833e-3efb50f8ffcb 시스템이 앱을 종료했다가 다시 열리면 떠나기 직전의 값이 복원된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
@@ -80,7 +80,7 @@ class DiaryDateTimeInputExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-038 앱을 새로 실행하면 이전에 고른 값 없이 초기 기간으로 시작한다`() {
+    fun `TC-51172104-f17a-4605-830c-20d229d18e56 앱을 새로 실행하면 이전에 고른 값 없이 초기 기간으로 시작한다`() {
         var isShown by mutableStateOf(true)
         composeRule.setContent {
             DiaryTheme {

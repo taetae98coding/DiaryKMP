@@ -39,7 +39,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-PLACE-CARD-FEATURE-052 보이는 영역을 확인하기 전에는 목록을 준비하는 중으로 둔다") {
+        test("TC-98fb04b1-f186-4d06-a344-7b457e0b7708 보이는 영역을 확인하기 전에는 목록을 준비하는 중으로 둔다") {
             runTest(mainDispatcher) {
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 val viewModel = MemoPlacePickerMapViewModel(getPlaceListUseCase = getPlaceListUseCase)
@@ -91,7 +91,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-038 보이는 영역이 바뀌면 바뀐 영역의 장소로 목록을 바꾼다") {
+        test("TC-dfacfc42-3762-45d4-b82d-68ddb02a5a02 보이는 영역이 바뀌면 바뀐 영역의 장소로 목록을 바꾼다") {
             runTest(mainDispatcher) {
                 val firstBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val secondBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
@@ -114,7 +114,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-007 저장된 장소가 바뀌면 지도 보기의 목록에 바로 반영한다") {
+        test("TC-a92c7f17-a3e6-4745-a158-a6381750c73b 저장된 장소가 바뀌면 지도 보기의 목록에 바로 반영한다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val firstPlaceList = placeList()
@@ -138,7 +138,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-009 보이는 영역 안의 장소가 많아도 한 번에 모두 나타낸다") {
+        test("TC-d62b34b3-3b23-41f9-ab0d-cd14bb5fe383 보이는 영역 안의 장소가 많아도 한 번에 모두 나타낸다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val placeList = List(size = MANY_PLACE_COUNT) { fixtureMonkey.place(isDeleted = false) }
@@ -157,7 +157,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-008 지도 보기의 목록을 불러오지 못하면 장소 없음과 같게 다룬다") {
+        test("TC-9ee14ee5-46f8-4eb4-b7ec-5289934194dc 지도 보기의 목록을 불러오지 못하면 장소 없음과 같게 다룬다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
@@ -174,7 +174,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-008 장소가 나타나 있던 중 다시 불러오지 못하면 보이던 장소 대신 장소 없음과 같게 다룬다") {
+        test("TC-9ee14ee5-46f8-4eb4-b7ec-5289934194dc 장소가 나타나 있던 중 다시 불러오지 못하면 보이던 장소 대신 장소 없음과 같게 다룬다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val placeList = placeList()

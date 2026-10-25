@@ -46,7 +46,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-WEB-DETAIL-FEATURE-004 저장된 URL과 요청 헤더로 웹 페이지를 한 번 불러온다") {
+        test("TC-be0b371e-cba7-4075-80dc-9745d8a16755 저장된 URL과 요청 헤더로 웹 페이지를 한 번 불러온다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
@@ -61,7 +61,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-001 대상 웹 항목이 조회되기 전에는 웹 페이지를 요청하지 않는다") {
+        test("TC-43a42162-c097-4b5c-923a-12c3dae536be 대상 웹 항목이 조회되기 전에는 웹 페이지를 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(null))
@@ -84,7 +84,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-005 TC-WEB-DETAIL-FEATURE-006 불러오는 동안 진행 상태를 유지하고 성공하면 받은 웹 페이지를 노출한다") {
+        test("TC-371f5358-32db-4580-a22e-17a0533b7eed TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오는 동안 진행 상태를 유지하고 성공하면 받은 웹 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()
                 val response = CompletableDeferred<Result<WebPage>>()
@@ -108,7 +108,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-007 TC-WEB-DETAIL-DOMAIN-010 불러오기에 실패하면 실패 상태를 노출한다") {
+        test("TC-acb441f8-9fa4-4db2-9d10-094a22bce6c8 TC-78770bfe-3f95-4faf-bfad-b4ad0d438fa5 불러오기에 실패하면 실패 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException())
@@ -121,7 +121,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-009 TC-WEB-DETAIL-FEATURE-010 다시 시도하면 같은 URL과 요청 헤더로 다시 불러온다") {
+        test("TC-04087944-e03c-4f27-a985-1fd686cb0d0b TC-971bac07-ae1d-4a33-8b69-f0ce47d67854 다시 시도하면 같은 URL과 요청 헤더로 다시 불러온다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -143,7 +143,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-011 다시 시도에 실패하면 다시 실패 상태를 노출하고 또 시도할 수 있다") {
+        test("TC-63c2ef8b-e9e4-4a47-8570-154898ab0ddc 다시 시도에 실패하면 다시 실패 상태를 노출하고 또 시도할 수 있다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException())
@@ -162,7 +162,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-011 불러오는 동안 전달된 다시 시도 요청은 처리하지 않는다") {
+        test("TC-6d2cd3ce-0709-4540-830a-47fa35713946 불러오는 동안 전달된 다시 시도 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val response = CompletableDeferred<Result<WebPage>>()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -199,7 +199,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-040 응답 본문 방식을 한 번도 열지 않았으면 수정으로 URL이 바뀌어도 요청하지 않는다") {
+        test("TC-e174e111-11cd-479b-a1df-d6c7dff55e22 응답 본문 방식을 한 번도 열지 않았으면 수정으로 URL이 바뀌어도 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
@@ -223,7 +223,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-040 응답 본문 방식에서 불러온 뒤 URL 방식으로 되돌렸으면 수정으로 바뀐 URL로 곧바로 한 번 다시 불러온다") {
+        test("TC-e174e111-11cd-479b-a1df-d6c7dff55e22 응답 본문 방식에서 불러온 뒤 URL 방식으로 되돌렸으면 수정으로 바뀐 URL로 곧바로 한 번 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val reloadedPage = webPage()
@@ -256,7 +256,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-007 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌어도 다시 불러오지 않는다") {
+        test("TC-bbf59348-1a5e-45fd-9e10-c40393dd2eb5 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌어도 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webPage = webPage()
@@ -275,7 +275,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-048 다른 경로에서 URL이 바뀐 뒤 제목만 고쳐 수정해도 최신 저장 URL로 한 번 다시 불러온다") {
+        test("TC-a713daf3-3ff6-4fc0-abbe-d7c41d92c3e1 다른 경로에서 URL이 바뀐 뒤 제목만 고쳐 수정해도 최신 저장 URL로 한 번 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
@@ -299,7 +299,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DATA-022 URL 방식에서는 웹 페이지를 원격에 요청하지 않는다") {
+        test("TC-4c01f467-8ee6-4c7f-a123-85e51bc5b229 URL 방식에서는 웹 페이지를 원격에 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
@@ -314,7 +314,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 TC-WEB-DETAIL-DOMAIN-051 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
+        test("TC-a2c71837-5d51-4d47-986b-1aeffc65e620 TC-6f63c6a1-5218-42f2-8910-ff66d9bbc2a0 TC-729f3b16-d41f-495c-9073-6c52554ab482 TC-8b030e9d-b400-494a-b80d-348edf2757f5 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -332,7 +332,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-030 수정으로 저장된 URL이나 요청 헤더가 바뀌면 새 값으로 다시 불러온다") {
+        test("TC-d9d1473a-519d-46ec-8521-5665c3a60e57 수정으로 저장된 URL이나 요청 헤더가 바뀌면 새 값으로 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
@@ -363,7 +363,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-031 수정으로 제목이나 설명만 바뀌면 다시 불러오지 않는다") {
+        test("TC-63504c0a-256e-4d9c-a1c6-b84bb7fbe880 수정으로 제목이나 설명만 바뀌면 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webPage = webPage()
@@ -385,7 +385,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-030 불러오는 동안 수정으로 URL이 바뀌면 진행 중이던 불러오기를 대체한다") {
+        test("TC-80a9be81-29bd-420f-baf7-0cee45d95556 불러오는 동안 수정으로 URL이 바뀌면 진행 중이던 불러오기를 대체한다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val firstPage = webPage()
@@ -418,7 +418,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DATA-006 다시 진입한 화면은 이전에 받은 웹 페이지 없이 시작하고 응답 본문 방식이 되면 다시 요청한다") {
+        test("TC-75700e2a-da51-4a61-b90d-83072dd5076e 다시 진입한 화면은 이전에 받은 웹 페이지 없이 시작하고 응답 본문 방식이 되면 다시 요청한다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())

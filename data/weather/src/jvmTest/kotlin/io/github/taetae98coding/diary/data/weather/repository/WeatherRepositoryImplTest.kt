@@ -41,7 +41,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class WeatherRepositoryImplTest :
     FunSpec({
-        test("TC-WEATHER-FETCH-DATA-008 확인한 위치 하나를 세 요청에 함께 사용한다") {
+        test("TC-89671f9e-6427-4dfe-b210-2388f68f48e6 확인한 위치 하나를 세 요청에 함께 사용한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val forecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
@@ -91,7 +91,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-009 현재 날씨, 시간대별 예보와 지역명을 동시에 요청한다") {
+        test("TC-b173a476-6550-4e06-a906-d28d26cb96aa 현재 날씨, 시간대별 예보와 지역명을 동시에 요청한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val currentStarted = CompletableDeferred<Unit>()
             val forecastStarted = CompletableDeferred<Unit>()
@@ -137,7 +137,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-010 두 날씨 응답을 하나의 목록으로 저장한다") {
+        test("TC-b42768d4-8b1a-422a-b1f7-3c23a7dfac2a 두 날씨 응답을 하나의 목록으로 저장한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val forecast =
@@ -170,7 +170,7 @@ class WeatherRepositoryImplTest :
                 }
         }
 
-        test("TC-WEATHER-FETCH-DATA-011 다시 동기화하면 이전 날씨를 새 결과로 교체한다") {
+        test("TC-21717153-c5b7-46e6-b3a7-81c47c15a0a3 다시 동기화하면 이전 날씨를 새 결과로 교체한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val oldCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val oldForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
@@ -210,7 +210,7 @@ class WeatherRepositoryImplTest :
                 }
         }
 
-        test("TC-WEATHER-FETCH-DATA-013 동기화 일부가 실패하면 이전 날씨를 유지한다") {
+        test("TC-47671c52-4594-48cc-8861-e46521d110cb 동기화 일부가 실패하면 이전 날씨를 유지한다") {
             FailurePoint.entries.forEach { failurePoint ->
                 val location = fixtureMonkey.giveMeOne<Coordinate>()
                 val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
@@ -255,7 +255,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-014 새 동기화 결과를 관찰 중인 캘린더 날씨에 전달한다") {
+        test("TC-8a4538e7-11ea-44af-9458-0bffe9ed1218 새 동기화 결과를 관찰 중인 캘린더 날씨에 전달한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val forecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
@@ -281,7 +281,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-015 날씨 아이콘 식별자를 이미지 주소로 바꿔 저장한다") {
+        test("TC-67a68831-37b1-453d-bd86-079f1232e740 날씨 아이콘 식별자를 이미지 주소로 바꿔 저장한다") {
             val currentIcon = "01d"
             val forecastIcon = "10d"
             val currentWeather =
@@ -317,7 +317,7 @@ class WeatherRepositoryImplTest :
                 "https://openweathermap.org/img/wn/$forecastIcon.png"
         }
 
-        test("TC-WEATHER-FETCH-DATA-016 Night 아이콘 식별자를 Day 아이콘 이미지 주소로 바꿔 저장한다") {
+        test("TC-66f662ca-62db-4e6c-a2b7-15c3533b87c0 Night 아이콘 식별자를 Day 아이콘 이미지 주소로 바꿔 저장한다") {
             val currentWeather =
                 fixtureMonkey
                     .giveMeOne<CurrentWeatherRemoteEntity>()
@@ -351,7 +351,7 @@ class WeatherRepositoryImplTest :
                 "https://openweathermap.org/img/wn/10d.png"
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-018 마지막 동기화 성공에서 1시간이 지나야 다시 조회한다") {
+        test("TC-7741e82e-1212-45ea-b65b-2d7947cbd5b4 마지막 동기화 성공에서 1시간이 지나야 다시 조회한다") {
             val elapsedList =
                 listOf(
                     59.minutes to false,
@@ -377,7 +377,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-019 한 번도 동기화에 성공하지 않았으면 조회한다") {
+        test("TC-21d53662-f5ac-4e25-a653-a26fde881ca5 한 번도 동기화에 성공하지 않았으면 조회한다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             val repository =
                 repository(
@@ -390,7 +390,7 @@ class WeatherRepositoryImplTest :
             weatherRemoteDataSource.verifyFetchCount(count = 1)
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-020 위치 권한 허용 계기는 간격과 무관하게 조회한다") {
+        test("TC-44f121e6-fb34-456f-b5c3-df7604d2fb20 위치 권한 허용 계기는 간격과 무관하게 조회한다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             var now = fixtureMonkey.giveMeOne<Instant>()
             val locationRepository = locationRepository()
@@ -409,7 +409,7 @@ class WeatherRepositoryImplTest :
             weatherRemoteDataSource.verifyFetchCount(count = 2)
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-021 실패한 동기화는 다음 요청의 조회를 막지 않는다") {
+        test("TC-468be48d-4caa-4bfb-9c6e-ad2e458af612 실패한 동기화는 다음 요청의 조회를 막지 않는다") {
             FailurePoint.entries.forEach { failurePoint ->
                 val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
                 val locationRepository = locationRepository()
@@ -450,7 +450,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-026 이전 성공 뒤의 실패는 다음 조회 시점을 미루지 않는다") {
+        test("TC-91c36e94-15be-4dc8-8fb3-1acf4c24e79b 이전 성공 뒤의 실패는 다음 조회 시점을 미루지 않는다") {
             val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery {
@@ -475,7 +475,7 @@ class WeatherRepositoryImplTest :
             coVerify(exactly = 3) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-022 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
+        test("TC-4d4ff7a0-55e0-400f-abd2-6cea8b15200c 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             var now = fixtureMonkey.giveMeOne<Instant>()
             val repository =
@@ -494,7 +494,7 @@ class WeatherRepositoryImplTest :
             weatherRemoteDataSource.verifyFetchCount(count = 2)
         }
 
-        test("TC-WEATHER-FETCH-DATA-017 조회하지 않은 동기화는 저장된 날씨를 그대로 유지한다") {
+        test("TC-1d2e2a26-deb9-4fba-b93f-0cf6581fdb9f 조회하지 않은 동기화는 저장된 날씨를 그대로 유지한다") {
             val locationRepository = locationRepository()
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
@@ -521,7 +521,7 @@ class WeatherRepositoryImplTest :
             repository.get().first() shouldBe previousWeatherReport
         }
 
-        test("TC-WEATHER-FETCH-DATA-018 앱 프로세스를 새로 시작하면 첫 동기화가 다시 조회한다") {
+        test("TC-864efbba-00be-438d-a80e-c35b4896e572 앱 프로세스를 새로 시작하면 첫 동기화가 다시 조회한다") {
             val locationRepository = locationRepository()
             val weatherRemoteDataSource = weatherRemoteDataSource()
             val now = fixtureMonkey.giveMeOne<Instant>()
@@ -545,7 +545,7 @@ class WeatherRepositoryImplTest :
             weatherRemoteDataSource.verifyFetchCount(count = 2)
         }
 
-        test("TC-WEATHER-FETCH-DATA-019 저장된 날씨의 시간 구간을 함께 제공한다") {
+        test("TC-2994a0b5-37f3-413a-8470-40478695cec4 저장된 날씨의 시간 구간을 함께 제공한다") {
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val forecast =
                 fixtureMonkey
@@ -579,7 +579,7 @@ class WeatherRepositoryImplTest :
                 weatherList.minOf { weather -> weather.dateTime }..<weatherList.maxOf { weather -> weather.dateTime } + 3.hours
         }
 
-        test("TC-WEATHER-FETCH-DATA-020 저장된 날씨가 없으면 시간 구간도 제공하지 않는다") {
+        test("TC-2ca3cdd8-abdd-4799-9954-3283480a7946 저장된 날씨가 없으면 시간 구간도 제공하지 않는다") {
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -589,7 +589,7 @@ class WeatherRepositoryImplTest :
             repository.get().first() shouldBe null
         }
 
-        test("TC-WEATHER-FETCH-DATA-021 위치와 인증 정보를 담아 지역명을 요청한다") {
+        test("TC-fe58d96a-c870-41d9-a66b-9cec9bbade4c 위치와 인증 정보를 담아 지역명을 요청한다") {
             val location = fixtureMonkey.giveMeOne<Coordinate>()
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
@@ -610,7 +610,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-023 응답에서 지역명 하나를 정해 날씨와 함께 저장한다") {
+        test("TC-bd7ec1d7-8fd6-40f2-819f-7166b299cb11 응답에서 지역명 하나를 정해 날씨와 함께 저장한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
             val paris = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Paris", localNames = emptyMap())
@@ -639,7 +639,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-024 지역명만 실패해도 동기화는 성공하고 날씨를 저장한다") {
+        test("TC-60683bed-79d6-4a91-b49d-dcb17e89ecc8 지역명만 실패해도 동기화는 성공하고 날씨를 저장한다") {
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
@@ -665,7 +665,7 @@ class WeatherRepositoryImplTest :
                 .first() shouldBe currentWeather.toDomain()
         }
 
-        test("TC-WEATHER-FETCH-DATA-029 조회하지 않는 동기화는 현재 위치도 확인하지 않는다") {
+        test("TC-2381bd9d-4ed2-4267-845e-ff31ffeb634d 조회하지 않는 동기화는 현재 위치도 확인하지 않는다") {
             val locationRepository = locationRepository()
             var now = fixtureMonkey.giveMeOne<Instant>()
             val repository =
@@ -682,7 +682,7 @@ class WeatherRepositoryImplTest :
             coVerify(exactly = 1) { locationRepository.fetch() }
         }
 
-        test("TC-WEATHER-FETCH-DATA-025 다시 동기화하면 지역명도 새 결과로 교체한다") {
+        test("TC-646ddb50-f79c-462f-8bca-a6d826ad475d 다시 동기화하면 지역명도 새 결과로 교체한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
             val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
@@ -720,7 +720,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-030 다시 동기화해도 새 날씨와 이전 지역명이 섞인 결과는 제공되지 않는다") {
+        test("TC-f6197581-073f-417c-9bc6-8ba4617c53e2 다시 동기화해도 새 날씨와 이전 지역명이 섞인 결과는 제공되지 않는다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
             val oldCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
@@ -760,7 +760,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-026 날씨 조회가 실패하면 이전 지역명을 유지한다") {
+        test("TC-879a1bfe-f157-4eeb-a373-d78bd1cdcfa9 날씨 조회가 실패하면 이전 지역명을 유지한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
 
@@ -797,7 +797,7 @@ class WeatherRepositoryImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-027 동기화 전에는 지역명을 제공하지 않는다") {
+        test("TC-1ce154ba-a748-47f1-a95b-d7ac555563aa 동기화 전에는 지역명을 제공하지 않는다") {
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -811,7 +811,7 @@ class WeatherRepositoryImplTest :
                 .orEmpty() shouldBe ""
         }
 
-        test("TC-WEATHER-FETCH-DATA-028 새 지역명을 관찰 중인 곳에 전달한다") {
+        test("TC-9e24b3a6-6111-4c9c-9564-4687e216976f 새 지역명을 관찰 중인 곳에 전달한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam)

@@ -40,7 +40,7 @@ class PlaceAddMapReflectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-012 지도에서 고른 좌표는 기다리지 않고 곧바로 반영한다`() {
+    fun `TC-2564e844-d4e4-40f8-9cd9-c49ec9042b77 지도에서 고른 좌표는 기다리지 않고 곧바로 반영한다`() {
         composeRule.mainClock.autoAdvance = false
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
@@ -55,7 +55,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-020 좌표를 직접 입력하면 지점 표시와 지도가 그 좌표로 옮겨진다`() {
+    fun `TC-3428e27a-0779-4775-98da-812ef312751f 좌표를 직접 입력하면 지점 표시와 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
         val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
@@ -70,7 +70,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-021 성립하지 않는 좌표를 입력하면 지점 표시가 사라지고 지도는 옮기지 않는다`() {
+    fun `TC-c262ea93-bebd-4821-b480-242c417923c9 성립하지 않는 좌표를 입력하면 지점 표시가 사라지고 지도는 옮기지 않는다`() {
         composeRule.mainClock.autoAdvance = false
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
@@ -94,7 +94,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-010 직접 입력한 좌표는 입력이 멈춘 뒤 지도에 반영한다`() {
+    fun `TC-0c3cadbc-bbae-4f24-be38-c836211269ee 직접 입력한 좌표는 입력이 멈춘 뒤 지도에 반영한다`() {
         composeRule.mainClock.autoAdvance = false
         val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
@@ -111,7 +111,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-011 기다리는 동안 다시 입력하면 마지막으로 입력한 좌표만 반영한다`() {
+    fun `TC-c9c8114e-a62d-4f9c-b35b-338509b8c914 기다리는 동안 다시 입력하면 마지막으로 입력한 좌표만 반영한다`() {
         composeRule.mainClock.autoAdvance = false
         val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val changedCoordinate =
@@ -133,7 +133,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-015 넘겨받은 지도 위치를 초기 지도 위치로 지정한다`() {
+    fun `TC-3a4ad223-0a33-47f1-bbe0-7f0997d3c4a4 넘겨받은 지도 위치를 초기 지도 위치로 지정한다`() {
         val initialCoordinateList = List(2) { fixtureMonkey.mapCoordinateInFormPrecision() }
         val stateList = setPlaceAddFormStateList(initialCoordinateList = initialCoordinateList)
 
@@ -143,7 +143,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-001 넘겨받은 지도 위치가 있어도 위도와 경도는 비어 있고 지점 표시가 없다`() {
+    fun `TC-7e2d31c7-b8db-4c66-96de-3afeab9a475e 넘겨받은 지도 위치가 있어도 위도와 경도는 비어 있고 지점 표시가 없다`() {
         composeRule.mainClock.autoAdvance = false
         val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val state = setReflectCoordinate(initialCoordinate = initialCoordinate)
@@ -159,7 +159,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-016 넘겨받은 지도 위치가 없으면 초기 위치를 지정하지 않는다`() {
+    fun `TC-1b77d276-588e-4205-a53f-632b462dd813 넘겨받은 지도 위치가 없으면 초기 위치를 지정하지 않는다`() {
         val stateList = setPlaceAddFormStateList(initialCoordinateList = listOf(null))
 
         composeRule.runOnIdle {
@@ -171,7 +171,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-027 표시 중에 기본 지도가 바뀌면 바뀐 지도로 새로 시작하고 입력을 유지한다`() {
+    fun `TC-f882b25c-284b-4470-b1ed-6de9707acc5e 표시 중에 기본 지도가 바뀌면 바뀐 지도로 새로 시작하고 입력을 유지한다`() {
         composeRule.mainClock.autoAdvance = false
         val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
@@ -221,7 +221,7 @@ class PlaceAddMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-025 화면이 재생성되어도 고른 지점과 보고 있던 지도를 유지한다`() {
+    fun `TC-b2d6ed6e-4a3c-462c-8d4b-4e390f45b4d5 화면이 재생성되어도 고른 지점과 보고 있던 지도를 유지한다`() {
         val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val movedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }

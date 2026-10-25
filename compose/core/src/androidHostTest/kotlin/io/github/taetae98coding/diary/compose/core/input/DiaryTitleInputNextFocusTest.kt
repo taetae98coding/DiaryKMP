@@ -29,7 +29,7 @@ class DiaryTitleInputNextFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-004 설명 입력 상태이면 Tab을 눌렀을 때 설명 입력으로 초점이 옮겨 간다`() {
+    fun `TC-f8b8e282-11fe-40b8-ae77-3c1e3767cf42 설명 입력 상태이면 Tab을 눌렀을 때 설명 입력으로 초점이 옮겨 간다`() {
         setTitleWithDescription(descriptionText = "")
 
         pressTabOnTitle()
@@ -38,7 +38,7 @@ class DiaryTitleInputNextFocusTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-005 마크다운 미리보기 상태이면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
+    fun `TC-acbbc8d9-8cde-490b-99f8-8ce8b4bba246 마크다운 미리보기 상태이면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
         setTitleWithDescription(descriptionText = DESCRIPTION_TEXT)
 
         pressTabOnTitle()
@@ -47,7 +47,7 @@ class DiaryTitleInputNextFocusTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-006 뒤에 설명 입력이 없으면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
+    fun `TC-06582590-cccb-406b-af8d-bb503dce1236 뒤에 설명 입력이 없으면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTitleInput(state = rememberDiaryTitleInputState(initialText = TITLE_TEXT))

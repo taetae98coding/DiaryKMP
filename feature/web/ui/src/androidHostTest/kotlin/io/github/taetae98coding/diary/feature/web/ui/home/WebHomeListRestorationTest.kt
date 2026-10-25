@@ -27,7 +27,7 @@ class WebHomeListRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-007 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
+    fun `TC-54f0044b-2119-4127-aac3-2a602e15e8ee 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
         val webList =
             List(RESTORATION_WEB_COUNT) { index ->
                 testWeb(title = "웹-${index.toString().padStart(length = 2, padChar = '0')}")
@@ -54,7 +54,7 @@ class WebHomeListRestorationTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-015 다른 앱에 다녀와도 보던 목록 위치를 유지한다`() {
+    fun `TC-6bba873d-22a2-4635-abd9-495fe8b47b3d 다른 앱에 다녀와도 보던 목록 위치를 유지한다`() {
         val webList =
             List(RESTORATION_WEB_COUNT) { index ->
                 testWeb(title = "웹-${index.toString().padStart(length = 2, padChar = '0')}")

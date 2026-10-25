@@ -44,7 +44,7 @@ private val countryOptionMap: Map<HolidayCountry, HolidayCountryOption> =
 
 class HolidayCountryApplyUseCaseTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-FETCH-DOMAIN-006 적용 국가가 한국과 미국이고 두 국가의 원격 조회가 성공한다") {
+        Given("TC-45e9e289-bbf3-4520-bd05-99d9d0bd2030 적용 국가가 한국과 미국이고 두 국가의 원격 조회가 성공한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val koreaHolidayList = listOf(holiday(name = "korea"))
             val unitedStatesHolidayList = listOf(holiday(name = "united-states"))
@@ -62,7 +62,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-FETCH-DOMAIN-007 적용 국가가 없다") {
+        Given("TC-9e6ad71e-78b3-4790-ae5f-65c5202e004d 적용 국가가 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val repository = mockk<HolidayRepository>()
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = emptySet()), holidayRepository = repository)
@@ -77,7 +77,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-FETCH-DOMAIN-008 한국 원격 조회는 실패하고 미국 원격 조회는 성공한다") {
+        Given("TC-7182d3ff-07ce-496b-aa7d-3030eb9ad9e6 한국 원격 조회는 실패하고 미국 원격 조회는 성공한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val repository = mockk<HolidayRepository>()
@@ -95,7 +95,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-FETCH-DOMAIN-009 저장된 국가 설정을 읽을 수 없다") {
+        Given("TC-edbe175e-0d29-4bcd-a7be-20a72a8a4d7f 저장된 국가 설정을 읽을 수 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val repository = mockk<HolidayRepository>()
             val useCase =
@@ -114,7 +114,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-014 같은 연도의 한국과 미국 공휴일이 저장되어 있다") {
+        Given("TC-35eb35d3-08e2-407d-8f09-82b10ee83d59 같은 연도의 한국과 미국 공휴일이 저장되어 있다") {
             val year = HOLIDAY_YEAR
             val holidayMap = countryHolidayMap()
             val caseList =
@@ -138,7 +138,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-015 적용 국가가 한국인 상태로 캘린더용 공휴일을 조회하고 있다") {
+        Given("TC-e999545a-66af-49b4-aa5d-953fe8db009f 적용 국가가 한국인 상태로 캘린더용 공휴일을 조회하고 있다") {
             val year = HOLIDAY_YEAR
             val holidayMap = countryHolidayMap()
             val optionSetFlow = MutableStateFlow(setOf(HolidayCountryOption.KOREA))
@@ -162,7 +162,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-016 공휴일이 저장되어 있고 저장된 국가 설정을 읽을 수 없다") {
+        Given("TC-b2f6342e-d967-410c-b70a-5478c150a1dc 공휴일이 저장되어 있고 저장된 국가 설정을 읽을 수 없다") {
             val year = HOLIDAY_YEAR
             val useCase =
                 GetCalendarHolidayUseCase(
@@ -178,7 +178,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-004 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있으며 그 이름을 숨겼다") {
+        Given("TC-d26a6e51-fcef-49ea-ae2f-2dc707f70139 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있으며 그 이름을 숨겼다") {
             val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
             val koreaHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))
             val unitedStatesHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))
@@ -204,7 +204,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-005 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있다") {
+        Given("TC-992f1222-917f-4fe8-b232-e182f67d5d9b 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있다") {
             val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
             val useCase =
                 GetSettingHolidayUseCase(
@@ -227,7 +227,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-DOMAIN-012 한국과 미국 공휴일이 저장되어 있다") {
+        Given("TC-74319c9c-860f-48f8-8af8-f5d8c2ab6888 한국과 미국 공휴일이 저장되어 있다") {
             val holidayMap = countryHolidayMap()
             val caseList =
                 listOf(
@@ -255,7 +255,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-DOMAIN-013 적용 국가가 한국이고 미국 공휴일 key가 숨김으로 저장되어 있다") {
+        Given("TC-e65564f5-558e-4afb-9917-9e6814a34887 적용 국가가 한국이고 미국 공휴일 key가 숨김으로 저장되어 있다") {
             val koreaHoliday = holiday(name = "korea-day", isHoliday = false)
             val unitedStatesHoliday = holiday(name = "united-states-day", isHoliday = false)
             val holidayMap =
@@ -297,7 +297,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DATA-013 2026년 5월 1일은 미국 공휴일로만, 5월 4일은 한국 공휴일로만 저장되어 있고 연차 개수는 0이다") {
+        Given("TC-10e7ec9e-cea0-40ea-9a08-4f27fa48712a 2026년 5월 1일은 미국 공휴일로만, 5월 4일은 한국 공휴일로만 저장되어 있고 연차 개수는 0이다") {
             val holidayMap =
                 mapOf(
                     HolidayCountry.KOREA to listOf(holiday(name = "korea-day", isHoliday = true, date = may(day = 4))),
@@ -331,7 +331,7 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DATA-015 5월 1일은 미국 공휴일로만, 5월 4일은 한국 공휴일로만 저장되어 있고 적용 국가가 한국인 채 2026년의 황금연휴를 조회하고 있다") {
+        Given("TC-ce882ac0-929e-4ae8-a480-02145fbaa295 5월 1일은 미국 공휴일로만, 5월 4일은 한국 공휴일로만 저장되어 있고 적용 국가가 한국인 채 2026년의 황금연휴를 조회하고 있다") {
             val holidayMap =
                 mapOf(
                     HolidayCountry.KOREA to listOf(holiday(name = "korea-day", isHoliday = true, date = may(day = 4))),

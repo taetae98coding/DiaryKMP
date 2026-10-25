@@ -21,7 +21,7 @@ class MemoContactPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-013 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+    fun `TC-376cdf7d-d21a-45ef-ba87-d760f31352d5 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val matchedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val otherContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(listOf(matchedContact, otherContact)))

@@ -55,7 +55,7 @@ class MemoHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-001 목록에 메모 제목이 카드로 표시된다`() {
+    fun `TC-86fd5bcc-a675-43be-a297-222676499c85 목록에 메모 제목이 카드로 표시된다`() {
         val itemList =
             listOf(
                 MemoListItem.Content(memo = memo(title = FIRST_TITLE)),
@@ -69,21 +69,21 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-013 상세 영역에 메모 추가 화면이 표시되면 메모 추가 버튼이 표시되지 않는다`() {
+    fun `TC-4869b408-ac42-46b2-ac55-a5e124ae3bcf 상세 영역에 메모 추가 화면이 표시되면 메모 추가 버튼이 표시되지 않는다`() {
         setMemoHomeScaffold(componentVisibleProvider = { MemoHomeScaffoldComponentVisible(isAddButtonVisible = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-011 TC-MEMO-LIST-DETAIL-FEATURE-014 추가 버튼 표시 상태이면 메모 추가 버튼이 표시된다`() {
+    fun `TC-29bacaef-39bb-4f55-b5c1-1e77f7c44a07 TC-fd4f5bc6-1a79-4112-b4ee-9eba037d13b9 추가 버튼 표시 상태이면 메모 추가 버튼이 표시된다`() {
         setMemoHomeScaffold(componentVisibleProvider = { MemoHomeScaffoldComponentVisible(isAddButtonVisible = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-013 기간이 있는 메모의 카드 위에 시작 날짜 헤더가 표시된다`() {
+    fun `TC-9b146ec4-d100-4de8-ac7b-64e87092f3f2 기간이 있는 메모의 카드 위에 시작 날짜 헤더가 표시된다`() {
         setMemoHomeScaffold(itemList = dateHeaderMemoItemList())
 
         composeRule.onAllNodes(dateHeaderMatcher(DEFAULT_ALL_DAY_HEADER)).assertCountEquals(1)
@@ -92,7 +92,7 @@ class MemoHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-013 한국어 환경에서 시작 날짜 헤더를 표시한다`() {
+    fun `TC-9b146ec4-d100-4de8-ac7b-64e87092f3f2 한국어 환경에서 시작 날짜 헤더를 표시한다`() {
         setMemoHomeScaffold(itemList = dateHeaderMemoItemList())
 
         composeRule.onAllNodes(dateHeaderMatcher(KOREAN_ALL_DAY_HEADER)).assertCountEquals(1)
@@ -100,7 +100,7 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-014 시작 날짜가 같은 메모들에는 날짜 헤더가 하나만 표시된다`() {
+    fun `TC-dfc11e6d-158e-4cb7-a46f-751c4f20cc2e 시작 날짜가 같은 메모들에는 날짜 헤더가 하나만 표시된다`() {
         val itemList =
             listOf(
                 MemoListItem.DateHeader(date = LocalDate(year = 2026, month = 7, day = 19)),
@@ -118,7 +118,7 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-016 기간이 없는 메모에는 날짜 헤더가 표시되지 않는다`() {
+    fun `TC-b86ab9f8-2035-4af0-8ee7-8cce617446b9 기간이 없는 메모에는 날짜 헤더가 표시되지 않는다`() {
         val itemList =
             listOf(
                 MemoListItem.Content(memo = memo(title = FIRST_TITLE)),
@@ -132,7 +132,7 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-072 유무 필터의 한 축이 있음이면 필터 버튼이 적용 상태를 알리고 누르면 필터 열기 Event를 전달한다`() {
+    fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 유무 필터의 한 축이 있음이면 필터 버튼이 적용 상태를 알리고 누르면 필터 열기 Event를 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         setMemoHomeScaffold(
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
@@ -148,21 +148,21 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-072 세 축이 모두 전체이고 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+    fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 세 축이 모두 전체이고 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
         setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState())
 
         filterButtonStateDescription() shouldBe null
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-072 유무 필터의 한 축이 없음이면 필터 버튼이 적용 상태를 알린다`() {
+    fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 유무 필터의 한 축이 없음이면 필터 버튼이 적용 상태를 알린다`() {
         setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(tag = MemoFilterExistence.NOT_EXIST)))
 
         filterButtonStateDescription() shouldBe DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-072 태그를 하나 이상 선택하면 필터 버튼이 적용 상태를 알린다`() {
+    fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 태그를 하나 이상 선택하면 필터 버튼이 적용 상태를 알린다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
 
@@ -170,14 +170,14 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-072 선택한 태그가 모두 판정에서 무시되고 있으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+    fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 선택한 태그가 모두 판정에서 무시되고 있으면 필터 버튼이 적용 상태를 알리지 않는다`() {
         setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = emptySet(), storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())))
 
         filterButtonStateDescription() shouldBe null
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-029 TC-MEMO-HOME-FEATURE-030 완료된 메모 버튼을 누르면 완료 목록 열기 Event를 전달한다`() {
+    fun `TC-e41844e5-ce96-4a72-9124-e7d980251114 TC-ddf3584e-9d18-4cba-989b-fb64c58c0b43 완료된 메모 버튼을 누르면 완료 목록 열기 Event를 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         setMemoHomeScaffold(onEvent = eventList::add)
 
@@ -188,7 +188,7 @@ class MemoHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-029 한국어 환경에서 완료된 메모 버튼 이름은 완료된 메모이다`() {
+    fun `TC-e41844e5-ce96-4a72-9124-e7d980251114 한국어 환경에서 완료된 메모 버튼 이름은 완료된 메모이다`() {
         setMemoHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_FINISHED_LIST_BUTTON_LABEL).assert(hasClickAction())

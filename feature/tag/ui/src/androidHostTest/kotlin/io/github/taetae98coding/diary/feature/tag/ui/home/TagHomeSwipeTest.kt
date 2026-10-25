@@ -52,7 +52,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-039 태그 카드를 좌에서 우로 밀면 완료을 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-02c58564-cd30-479e-9e3e-950f995c6271 태그 카드를 좌에서 우로 밀면 완료을 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -64,7 +64,7 @@ class TagHomeSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-039 한국어 환경에서 완료 안내와 실행 취소를 표시한다`() {
+    fun `TC-02c58564-cd30-479e-9e3e-950f995c6271 한국어 환경에서 완료 안내와 실행 취소를 표시한다`() {
         setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -74,7 +74,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-040 태그 카드를 우에서 좌로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-f04ed4ba-9160-49b3-9119-2b067c786ac8 태그 카드를 우에서 좌로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -86,7 +86,7 @@ class TagHomeSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-040 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-f04ed4ba-9160-49b3-9119-2b067c786ac8 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -96,7 +96,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-041 완료을 실행 취소하면 그 태그의 다시 시작를 요청한다`() {
+    fun `TC-26185d25-e46b-42e4-8ef7-b64293bff745 완료을 실행 취소하면 그 태그의 다시 시작를 요청한다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -108,7 +108,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-042 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 요청한다`() {
+    fun `TC-718b7a0b-4fe2-4546-8606-427f71a89780 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 요청한다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -120,7 +120,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-044 안내가 보이는 동안 다른 태그를 삭제하면 마지막 동작에만 실행 취소가 적용된다`() {
+    fun `TC-ff04f3aa-bd0d-43e3-9301-8eb476f26158 안내가 보이는 동안 다른 태그를 삭제하면 마지막 동작에만 실행 취소가 적용된다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -139,7 +139,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-045 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-fffcba43-da2f-4659-a010-a580a386eba2 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -154,7 +154,7 @@ class TagHomeSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-047 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-2b3b5ee8-eb17-4297-9b0e-93324dbf0c31 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setScreen(isShownProvider = { isShown })
 

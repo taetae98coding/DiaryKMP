@@ -54,7 +54,7 @@ class QrHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-025 QR 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다`() {
+    fun `TC-98ca827f-e67d-4286-8dc7-e65c9b344bf1 QR 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다`() {
         val environment = setQrHomeScreen()
 
         swipeCardLeft(qr = environment.first)
@@ -65,7 +65,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-025 기본 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-98ca827f-e67d-4286-8dc7-e65c9b344bf1 기본 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         val environment = setQrHomeScreen()
 
         swipeCardLeft(qr = environment.first)
@@ -75,7 +75,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-026 삭제를 실행 취소하면 그 QR의 삭제가 되돌려진다`() {
+    fun `TC-2a786ab0-837b-4471-88ca-2d748702f590 삭제를 실행 취소하면 그 QR의 삭제가 되돌려진다`() {
         val environment = setQrHomeScreen()
 
         swipeCardLeft(qr = environment.first)
@@ -86,7 +86,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-027 QR 카드를 반대 방향으로 밀면 아무 동작도 실행하지 않는다`() {
+    fun `TC-b6303833-e69c-4de2-aa26-e36356aa1b2b QR 카드를 반대 방향으로 밀면 아무 동작도 실행하지 않는다`() {
         val environment = setQrHomeScreen()
 
         composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(environment.first.detail.title)).performTouchInput { swipeRight() }
@@ -99,7 +99,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-029 안내가 보이는 동안 다른 QR을 삭제하면 마지막 삭제의 안내만 남는다`() {
+    fun `TC-368bc024-9d83-4097-93b5-77ee5bf5a5d5 안내가 보이는 동안 다른 QR을 삭제하면 마지막 삭제의 안내만 남는다`() {
         val environment = setQrHomeScreen()
 
         swipeCardLeft(qr = environment.first)
@@ -117,7 +117,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-030 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
+    fun `TC-ee3ae8bd-28fe-494d-b0fe-b6277052247c 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
         val first = testQr()
         val pageQrUseCase = mockk<PageQrUseCase>()
         every { pageQrUseCase(parameter = Unit) } returns flowOf(Result.success(qrPagingDataOf(listOf(first))))
@@ -139,7 +139,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-032 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-2fefca34-7dba-4b63-bdb6-f9504c7b76a4 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setQrHomeScreen()
 
         swipeCardLeft(qr = environment.first)
@@ -154,7 +154,7 @@ class QrHomeDeleteTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-031 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-4f868331-a403-4f80-a5f4-0886e5be9877 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setQrHomeScreen(isShownProvider = { isShown })
 

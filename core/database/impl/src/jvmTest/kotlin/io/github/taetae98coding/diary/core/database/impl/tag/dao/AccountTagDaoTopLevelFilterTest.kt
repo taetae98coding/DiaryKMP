@@ -90,7 +90,7 @@ class AccountTagDaoTopLevelFilterTest :
                 .page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT.queryValue)
                 .pagedTagIdList()
 
-        test("TC-TAG-HOME-DOMAIN-007 TC-TAG-LINK-DOMAIN-017 향해 오는 연결이 없는 태그만 최상위 태그로 조회한다") {
+        test("TC-321a76c1-8636-4002-8189-9ae57cc584b2 TC-b41116c2-09b1-4d5d-8353-de691a6ed597 향해 오는 연결이 없는 태그만 최상위 태그로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val isolatedTag = tag(title = "alpha")
             val toOnlyTag = tag(title = "bravo")
@@ -113,7 +113,7 @@ class AccountTagDaoTopLevelFilterTest :
             tagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
-        test("TC-TAG-HOME-DOMAIN-008 여러 단계로 이어지는 연결의 중간 태그는 최상위 태그가 아니다") {
+        test("TC-17e2318b-3b0f-4997-aa2c-2e87714b8dcf 여러 단계로 이어지는 연결의 중간 태그는 최상위 태그가 아니다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag(title = "alpha")
             val middleTag = tag(title = "bravo")
@@ -125,7 +125,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(rootTag.id)
         }
 
-        test("TC-TAG-HOME-DOMAIN-009 모든 태그가 순환에 속하면 최상위 태그가 조회되지 않는다") {
+        test("TC-5ce6767d-2335-4ed7-89c3-ae0767df7417 모든 태그가 순환에 속하면 최상위 태그가 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag(title = "alpha")
             val secondTag = tag(title = "bravo")
@@ -138,7 +138,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-TAG-HOME-DOMAIN-010 최상위 태그로 좁혀도 완료되거나 삭제된 태그는 조회되지 않는다") {
+        test("TC-5bba61ce-d9e1-4426-baaf-0eb1cb017616 최상위 태그로 좁혀도 완료되거나 삭제된 태그는 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val activeTag = tag(title = "alpha")
             val finishedTag = tag(title = "bravo").copy(isFinished = true)
@@ -148,7 +148,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(activeTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-006 최상위 태그도 제목 오름차순으로 조회한다") {
+        test("TC-d99924f1-d849-49dc-81a2-f75fbf93edaa 최상위 태그도 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val charlieTag = tag(title = "charlie")
             val alphaTag = tag(title = "alpha")
@@ -160,7 +160,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(alphaTag.id, bravoTag.id, charlieTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-007 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
+        test("TC-48e9d359-c512-44f7-b05c-bde5269455d9 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -189,7 +189,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-018 해제한 연결은 향해 오는 연결로 세지 않는다") {
+        test("TC-e3064fa3-62ac-4af6-8e20-6dc87bcb0f36 해제한 연결은 향해 오는 연결로 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -201,7 +201,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-019 출발 태그의 상태에 따라 향해 오는 연결을 세는 기준이 달라진다") {
+        test("TC-7b5b43cb-6795-4605-adc2-7defb5d21740 출발 태그의 상태에 따라 향해 오는 연결을 세는 기준이 달라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -230,7 +230,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-020 계정과 연결되지 않은 출발 태그의 연결은 세지 않는다") {
+        test("TC-8ce1096e-0041-4ec1-86ea-d67f9f468e96 계정과 연결되지 않은 출발 태그의 연결은 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val toTag = tag(title = "alpha")
@@ -242,7 +242,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-021 기기에 없는 태그에서 오는 연결은 세지 않는다") {
+        test("TC-f9af899e-be35-4360-8dc2-3e592855d951 기기에 없는 태그에서 오는 연결은 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val toTag = tag(title = "alpha")
             insertTag(accountId, toTag)
@@ -251,7 +251,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-012 필터 선택을 켜 두어도 검색, 메모·태그 연결·웹 항목·장소의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
+        test("TC-bc6352ed-7bcb-4f79-bab0-4f2a496268f3 필터 선택을 켜 두어도 검색, 메모·태그 연결·웹 항목·장소의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -289,7 +289,7 @@ class AccountTagDaoTopLevelFilterTest :
             tagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
-        test("TC-TAG-FINISHED-LIST-DOMAIN-009 최상위 태그 필터를 켜 두어도 완료된 태그 목록은 좁혀지지 않는다") {
+        test("TC-063bad17-d264-4953-9120-99bebeac8c6f 최상위 태그 필터를 켜 두어도 완료된 태그 목록은 좁혀지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha").copy(isFinished = true)
             val toTag = tag(title = "bravo").copy(isFinished = true)

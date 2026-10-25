@@ -22,7 +22,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class MemoListItemTest :
     FunSpec({
-        test("TC-MEMO-HOME-FEATURE-013 TC-MEMO-HOME-FEATURE-014 시작 날짜가 바뀌는 자리마다 날짜 헤더를 하나 만든다") {
+        test("TC-9b146ec4-d100-4de8-ac7b-64e87092f3f2 TC-dfc11e6d-158e-4cb7-a46f-751c4f20cc2e 시작 날짜가 바뀌는 자리마다 날짜 헤더를 하나 만든다") {
             val allDayMemo = memo(dateTime = allDay(day = 19))
             val sameDateMemo = memo(dateTime = dateTime(day = 19, hour = 13))
             val nextDateMemo = memo(dateTime = allDay(day = 21))
@@ -39,7 +39,7 @@ class MemoListItemTest :
                 )
         }
 
-        test("TC-MEMO-HOME-FEATURE-016 기간이 없는 메모에는 날짜 헤더를 만들지 않는다") {
+        test("TC-b86ab9f8-2035-4af0-8ee7-8cce617446b9 기간이 없는 메모에는 날짜 헤더를 만들지 않는다") {
             val noDateTimeMemo = memo(dateTime = null)
             val otherNoDateTimeMemo = memo(dateTime = null)
             val allDayMemo = memo(dateTime = allDay(day = 19))
@@ -66,7 +66,7 @@ class MemoListItemTest :
         }
 
         listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
-            test("TC-MEMO-HOME-DOMAIN-016 ${'$'}sort 정렬에서는 날짜 헤더를 만들지 않는다") {
+            test("TC-86accd72-8a38-4e57-acc0-c863e6032631 ${'$'}sort 정렬에서는 날짜 헤더를 만들지 않는다") {
                 val allDayMemo = memo(dateTime = allDay(day = 19))
                 val nextDateMemo = memo(dateTime = allDay(day = 21))
 
@@ -80,7 +80,7 @@ class MemoListItemTest :
             }
         }
 
-        test("TC-MEMO-HOME-DOMAIN-016 기본순에서는 날짜 헤더를 만든다") {
+        test("TC-86accd72-8a38-4e57-acc0-c863e6032631 기본순에서는 날짜 헤더를 만든다") {
             val allDayMemo = memo(dateTime = allDay(day = 19))
 
             val itemList = memoListItemList(listOf(allDayMemo), sort = ListSort.DEFAULT)

@@ -21,7 +21,7 @@ class SettingHolidayBulkActionTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-HOLIDAY-FEATURE-005 한국어 환경에서 동작 버튼을 펼치면 일괄 선택 문구를 표시한다`() {
+    fun `TC-ca71ca30-6064-4ccd-b4d1-bc06bc137d52 한국어 환경에서 동작 버튼을 펼치면 일괄 선택 문구를 표시한다`() {
         composeRule.setSettingHolidayScaffold()
 
         composeRule.onNodeWithContentDescription(KOREAN_BULK_ACTION_DESCRIPTION).performClick()
@@ -34,7 +34,7 @@ class SettingHolidayBulkActionTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-005 기본 환경에서 동작 버튼을 펼치면 일괄 선택 문구를 표시한다`() {
+    fun `TC-ca71ca30-6064-4ccd-b4d1-bc06bc137d52 기본 환경에서 동작 버튼을 펼치면 일괄 선택 문구를 표시한다`() {
         composeRule.setSettingHolidayScaffold()
 
         composeRule.onNodeWithText(DEFAULT_SELECT_ALL).assertDoesNotExist()
@@ -68,7 +68,7 @@ class SettingHolidayBulkActionTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-030 일괄 선택 동작을 고르면 펼친 동작을 접는다`() {
+    fun `TC-4e4602ff-af6f-424e-8031-bc0fba2e3d9b 일괄 선택 동작을 고르면 펼친 동작을 접는다`() {
         composeRule.setSettingHolidayScaffold()
 
         composeRule.expandBulkAction()
@@ -82,7 +82,7 @@ class SettingHolidayBulkActionTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-031 동작 버튼을 다시 선택하면 아무 동작도 전달하지 않고 접는다`() {
+    fun `TC-c6120d39-598d-4afe-b700-f547b102179f 동작 버튼을 다시 선택하면 아무 동작도 전달하지 않고 접는다`() {
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         composeRule.setSettingHolidayScaffold(onEvent = eventList::add)
 

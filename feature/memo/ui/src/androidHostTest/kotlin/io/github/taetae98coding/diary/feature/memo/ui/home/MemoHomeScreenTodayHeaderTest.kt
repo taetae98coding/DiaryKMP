@@ -42,7 +42,7 @@ class MemoHomeScreenTodayHeaderTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-015 시작 날짜가 오늘인 메모의 날짜 헤더에는 오늘 문구가 표시된다`() {
+    fun `TC-5a9a4657-63ac-4e59-aa07-aeb42f4f6d7f 시작 날짜가 오늘인 메모의 날짜 헤더에는 오늘 문구가 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         setMemoHomeScreen(
@@ -56,7 +56,7 @@ class MemoHomeScreenTodayHeaderTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-015 한국어 환경에서 오늘 문구를 표시한다`() {
+    fun `TC-5a9a4657-63ac-4e59-aa07-aeb42f4f6d7f 한국어 환경에서 오늘 문구를 표시한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         setMemoHomeScreen(
@@ -69,7 +69,7 @@ class MemoHomeScreenTodayHeaderTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-013 시작 날짜가 오늘이 아닌 메모의 날짜 헤더에는 날짜가 표시된다`() {
+    fun `TC-9b146ec4-d100-4de8-ac7b-64e87092f3f2 시작 날짜가 오늘이 아닌 메모의 날짜 헤더에는 날짜가 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val other = LocalDate(year = today.year - 1, month = 1, day = 2)
 

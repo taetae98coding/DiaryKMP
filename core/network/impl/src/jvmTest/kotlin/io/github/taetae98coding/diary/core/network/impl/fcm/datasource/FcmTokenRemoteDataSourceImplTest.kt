@@ -22,7 +22,7 @@ import kotlinx.serialization.json.Json
 
 class FcmTokenRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-FCM-TOKEN-DATA-001 등록 제출은 설치 ID, 시간대, 언어를 담아 v1-fcm-token-submit로 보낸다") {
+        test("TC-151a7384-b1d2-4272-a502-e16304ba0087 등록 제출은 설치 ID, 시간대, 언어를 담아 v1-fcm-token-submit로 보낸다") {
             val fcmToken = FcmTokenRemoteEntity(installationId = "fid-a", timeZone = "Asia/Seoul", language = "ko-KR")
             val bodySlot = slot<Any>()
             val supabaseFunction = mockk<SupabaseFunction>()
@@ -37,7 +37,7 @@ class FcmTokenRemoteDataSourceImplTest :
             Json.encodeToString(FcmTokenRemoteEntity.serializer(), fcmToken) shouldBe """{"installationId":"fid-a","timeZone":"Asia/Seoul","language":"ko-KR"}"""
         }
 
-        test("TC-FCM-TOKEN-DATA-002 해제 제출은 설치 ID만 담아 v1-fcm-token-submit로 보낸다") {
+        test("TC-3822e4ff-6e13-4ed0-8859-8ee236fd553d 해제 제출은 설치 ID만 담아 v1-fcm-token-submit로 보낸다") {
             val fcmToken = FcmTokenRemoteEntity(installationId = "fid-a")
             val bodySlot = slot<Any>()
             val supabaseFunction = mockk<SupabaseFunction>()
@@ -53,7 +53,7 @@ class FcmTokenRemoteDataSourceImplTest :
             Json.encodeToString(FcmTokenRemoteEntity.serializer(), bodySlot.captured as FcmTokenRemoteEntity) shouldBe """{"installationId":"fid-a"}"""
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-016 요청이 실패하면 실패를 그대로 전달한다") {
+        test("TC-9a2080b2-f51e-4d2a-bb69-cbf648bdd0ee 요청이 실패하면 실패를 그대로 전달한다") {
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery { supabaseFunction(function = any(), body = any(), typeInfo = any(), headers = any()) } throws TestException("network")
             val dataSource = FcmTokenRemoteDataSourceImpl(supabaseFunction = supabaseFunction)

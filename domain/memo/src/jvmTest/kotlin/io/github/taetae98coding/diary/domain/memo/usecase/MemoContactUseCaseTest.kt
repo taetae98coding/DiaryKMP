@@ -36,7 +36,7 @@ class MemoContactUseCaseTest :
             every { clock.now() } returns now
 
             When("연락처를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-032 메모와 그 연락처의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
+                Then("TC-fb979993-e8ea-4976-8b6e-cabbd34737fa 메모와 그 연락처의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val contactId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -61,7 +61,7 @@ class MemoContactUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-035 TC-MEMO-CONTACT-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-80cf15b2-5173-48e5-8ea6-fdc8d07c7347 TC-67f953f6-883a-4912-af4b-650db9024031 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val useCase =
                         AddMemoContactUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -85,7 +85,7 @@ class MemoContactUseCaseTest :
             }
 
             When("연락처를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-033 메모와 그 연락처의 연결을 해제 상태와 해제 시점으로 저장한다") {
+                Then("TC-893893ed-6d9b-4b51-941b-c20d2f7b83bf 메모와 그 연락처의 연결을 해제 상태와 해제 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val contactId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -124,7 +124,7 @@ class MemoContactUseCaseTest :
             every { clock.now() } returns now
 
             When("연락처를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-036 저장한 연락처 연결을 되돌리지 않는다") {
+                Then("TC-0260e70f-6e81-4721-bfcd-87f1a5505393 저장한 연락처 연결을 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val contactId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -148,7 +148,7 @@ class MemoContactUseCaseTest :
             }
 
             When("연락처를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-036 저장한 연락처 연결 해제를 되돌리지 않는다") {
+                Then("TC-0260e70f-6e81-4721-bfcd-87f1a5505393 저장한 연락처 연결 해제를 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val contactId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =

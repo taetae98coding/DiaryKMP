@@ -50,7 +50,7 @@ class MemoFinishedListScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-002 목록에 완료된 메모 제목이 카드로 표시된다`() {
+    fun `TC-ee7d7010-984c-49c6-937d-304f78fa4943 목록에 완료된 메모 제목이 카드로 표시된다`() {
         val itemList =
             listOf(
                 MemoListItem.Content(memo = memo(title = FIRST_TITLE)),
@@ -64,7 +64,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-003 기간이 있는 메모에는 기간이 함께 표시된다`() {
+    fun `TC-5e6fdbd1-bad5-4bd1-989e-8e17a2fe5856 기간이 있는 메모에는 기간이 함께 표시된다`() {
         setMemoFinishedListScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE, dateTime = allDay(day = 19)))),
         )
@@ -74,7 +74,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-004 기간이 없는 메모에는 기간이 표시되지 않는다`() {
+    fun `TC-011800e2-b60f-4a6e-b17f-39788a066432 기간이 없는 메모에는 기간이 표시되지 않는다`() {
         setMemoFinishedListScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))),
         )
@@ -84,21 +84,21 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-009 이 화면에는 태그 필터 버튼을 표시하지 않는다`() {
+    fun `TC-7783a8b4-a3f6-4c2e-84f3-a3930e0e07ab 이 화면에는 태그 필터 버튼을 표시하지 않는다`() {
         setMemoFinishedListScaffold(itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))))
 
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-021 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
+    fun `TC-787c7488-3765-4e41-bcaa-131a1020fb7b 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
         setMemoFinishedListScaffold(itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-010 기간이 있는 메모의 카드 위에 시작 날짜 헤더가 표시된다`() {
+    fun `TC-3699fead-e7af-4daf-b0a4-98de4ba4e490 기간이 있는 메모의 카드 위에 시작 날짜 헤더가 표시된다`() {
         setMemoFinishedListScaffold(itemList = dateHeaderMemoItemList())
 
         composeRule.onAllNodes(dateHeaderMatcher(DEFAULT_ALL_DAY_HEADER)).assertCountEquals(1)
@@ -106,7 +106,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-011 시작 날짜가 같은 메모들에는 날짜 헤더가 하나만 표시된다`() {
+    fun `TC-8068ed89-cbd3-49ee-bcc2-d877c3d6c82f 시작 날짜가 같은 메모들에는 날짜 헤더가 하나만 표시된다`() {
         val itemList =
             listOf(
                 MemoListItem.DateHeader(date = LocalDate(year = 2026, month = 7, day = 19)),
@@ -121,7 +121,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-012 기간이 없는 메모에는 날짜 헤더가 표시되지 않는다`() {
+    fun `TC-0ce1eee3-98c3-4f35-8247-b4401e1027ae 기간이 없는 메모에는 날짜 헤더가 표시되지 않는다`() {
         setMemoFinishedListScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))),
         )
@@ -131,7 +131,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-013 시작 날짜가 오늘인 메모의 날짜 헤더에는 오늘 문구가 표시된다`() {
+    fun `TC-09809dd0-333f-465a-8f4e-98c53aedb5f5 시작 날짜가 오늘인 메모의 날짜 헤더에는 오늘 문구가 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val itemList =
             listOf(
@@ -148,7 +148,7 @@ class MemoFinishedListScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-013 한국어 환경에서 오늘 문구를 표시한다`() {
+    fun `TC-09809dd0-333f-465a-8f4e-98c53aedb5f5 한국어 환경에서 오늘 문구를 표시한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val itemList =
             listOf(
@@ -179,7 +179,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-019 메모 카드를 선택하면 해당 메모의 상세 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-698aba55-0311-40af-ba80-ac00ecfeb0ce 메모 카드를 선택하면 해당 메모의 상세 화면 전환 행동을 한 번 전달한다`() {
         val memo = memo(title = FIRST_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoFinishedListScaffold(
@@ -193,7 +193,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-020 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
+    fun `TC-d65fbf7b-d699-42bf-8449-22d55dd61b1f 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<MemoFinishedListScaffoldEvent>()
         setMemoFinishedListScaffold(onEvent = eventList::add)
 
@@ -203,7 +203,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-015 좌에서 우로 스와이프하면 다시 시작 행동을 한 번 전달한다`() {
+    fun `TC-1ef63eda-de50-40a0-a6a6-11efc71536e3 좌에서 우로 스와이프하면 다시 시작 행동을 한 번 전달한다`() {
         val memo = memo(title = FIRST_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoFinishedListScaffold(
@@ -218,7 +218,7 @@ class MemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-017 우에서 좌로 스와이프하면 삭제 행동을 한 번 전달한다`() {
+    fun `TC-72adc9f7-a269-41ef-a86c-ba35e313d143 우에서 좌로 스와이프하면 삭제 행동을 한 번 전달한다`() {
         val memo = memo(title = FIRST_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoFinishedListScaffold(

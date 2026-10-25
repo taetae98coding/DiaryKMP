@@ -31,7 +31,7 @@ class ContactHomeListTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-001 저장된 연락처의 이름과 전화번호를 표시한다`() {
+    fun `TC-ae158c85-2169-44b2-8ac6-954c26974660 저장된 연락처의 이름과 전화번호를 표시한다`() {
         val first = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
         val second = testContact(name = OTHER_CONTACT_NAME, phoneNumberList = listOf(OTHER_CONTACT_PHONE_NUMBER))
 
@@ -44,7 +44,7 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-002 전화번호가 여러 개면 첫 번째 전화번호만 표시한다`() {
+    fun `TC-2f021c70-86a4-4276-a1fb-56241c3a9b88 전화번호가 여러 개면 첫 번째 전화번호만 표시한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER, OTHER_PHONE_NUMBER))
 
         setContactHomeList(contactList = listOf(contact))
@@ -54,7 +54,7 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-003 전화번호가 없는 연락처는 이름만 표시한다`() {
+    fun `TC-86555829-09bd-4932-9399-2a77dea79a9e 전화번호가 없는 연락처는 이름만 표시한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = emptyList())
 
         setContactHomeList(contactList = listOf(contact))
@@ -64,7 +64,7 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-002 전화번호가 있는 연락처는 이름과 첫 번째 전화번호를 함께 읽힌다`() {
+    fun `TC-2f021c70-86a4-4276-a1fb-56241c3a9b88 전화번호가 있는 연락처는 이름과 첫 번째 전화번호를 함께 읽힌다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER, OTHER_PHONE_NUMBER))
 
         setContactHomeList(contactList = listOf(contact))
@@ -73,7 +73,7 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-004 연락처의 설명과 고향은 목록에 표시하지 않는다`() {
+    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 고향은 목록에 표시하지 않는다`() {
         val contact =
             testContact(
                 name = CONTACT_NAME,
@@ -89,28 +89,28 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-008 표시할 연락처가 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-f2c81ef9-b642-4471-b828-6a40267bc604 표시할 연락처가 있으면 빈 상태 안내를 표시하지 않는다`() {
         setContactHomeList(contactList = listOf(testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-007 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-ab3831fa-80e1-4110-9367-289b6856fc3a 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setContactHomeList(pagingData = loadingContactPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DATA-003 목록 조회에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-9c2309f9-b843-4de1-adb0-fa01300765e7 목록 조회에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
         setContactHomeList(pagingData = failedContactPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-015 연락처 카드를 누르면 그 연락처를 선택한 이벤트를 전달한다`() {
+    fun `TC-1703c8ae-d3c7-4acc-8d12-3bfc6838c2e1 연락처 카드를 누르면 그 연락처를 선택한 이벤트를 전달한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
 
@@ -121,7 +121,7 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-010 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
+    fun `TC-4e87f335-aaff-447d-98b4-5bc14e1e6d38 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
         val contactList =
             List(RESTORATION_CONTACT_COUNT) { index ->
                 testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}")

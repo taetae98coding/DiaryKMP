@@ -20,7 +20,7 @@ import javax.imageio.ImageIO
 
 class JvmImageConverterTest :
     FunSpec({
-        test("TC-PROFILE-IMAGE-DOMAIN-002 투명한 부분이 있는 이미지도 같은 크기의 JPEG로 바꾼다") {
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 투명한 부분이 있는 이미지도 같은 크기의 JPEG로 바꾼다") {
             runTest {
                 val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -81,7 +81,7 @@ class JvmImageConverterTest :
             oriented.getRGB(0, 1) shouldBe Color.BLUE.rgb
         }
 
-        test("TC-PROFILE-IMAGE-DOMAIN-002 정한 영역만 남긴 정사각형 JPEG로 바꾼다") {
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 정한 영역만 남긴 정사각형 JPEG로 바꾼다") {
             runTest {
                 val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
                 val region = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
@@ -96,7 +96,7 @@ class JvmImageConverterTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DOMAIN-002 남긴 이미지의 긴 변이 최대 변 길이를 넘으면 그 길이로 줄인다") {
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 남긴 이미지의 긴 변이 최대 변 길이를 넘으면 그 길이로 줄인다") {
             runTest {
                 val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -110,7 +110,7 @@ class JvmImageConverterTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DOMAIN-002 남긴 이미지가 최대 변 길이를 넘지 않으면 해상도를 그대로 둔다") {
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 남긴 이미지가 최대 변 길이를 넘지 않으면 해상도를 그대로 둔다") {
             runTest {
                 val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -124,7 +124,7 @@ class JvmImageConverterTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DOMAIN-002 촬영 방향을 반영한 사진에서 영역을 남긴다") {
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 촬영 방향을 반영한 사진에서 영역을 남긴다") {
             runTest {
                 val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
                 // 8x4 사진에 90도 회전 방향이 있으면 4x8로 보이므로, 가로 전체와 세로 가운데를 남기면 4x4가 된다.

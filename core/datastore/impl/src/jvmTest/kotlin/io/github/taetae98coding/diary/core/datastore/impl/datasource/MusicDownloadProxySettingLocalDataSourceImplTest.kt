@@ -15,13 +15,13 @@ private const val ADDRESS = "http://192.168.0.10:27180"
 
 class MusicDownloadProxySettingLocalDataSourceImplTest :
     FunSpec({
-        test("TC-SETTING-PLAYLIST-DATA-002 보관된 것이 없으면 비어 있는 주소를 제공한다") {
+        test("TC-3240f1fa-ebae-425e-ab22-f2bd8abe2b2d 보관된 것이 없으면 비어 있는 주소를 제공한다") {
             val dataSource = MusicDownloadProxySettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(MusicDownloadProxySettingData())))
 
             dataSource.getAddress().first() shouldBe ""
         }
 
-        test("TC-SETTING-PLAYLIST-DATA-001 저장한 주소를 이후 조회에서 제공한다") {
+        test("TC-fdbd7278-c317-46c7-bb21-0eadd9d526b2 저장한 주소를 이후 조회에서 제공한다") {
             listOf(ADDRESS, "").forEach { address ->
                 val dataSource = MusicDownloadProxySettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(MusicDownloadProxySettingData())))
 

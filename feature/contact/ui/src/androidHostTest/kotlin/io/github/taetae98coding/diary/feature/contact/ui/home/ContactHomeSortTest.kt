@@ -31,7 +31,7 @@ class ContactHomeSortTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-010 목록 위에 현재 정렬을 이름순으로 표시한다`() {
+    fun `TC-50546574-6293-4a77-8b78-66d2903c78c0 목록 위에 현재 정렬을 이름순으로 표시한다`() {
         setContactHomeScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -40,7 +40,7 @@ class ContactHomeSortTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-011 정렬 컨트롤을 누르면 이름순과 최근 수정순을 고를 수 있다`() {
+    fun `TC-061e34cf-54a7-46eb-aed3-6ef30a65c6b2 정렬 컨트롤을 누르면 이름순과 최근 수정순을 고를 수 있다`() {
         setContactHomeScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
@@ -50,7 +50,7 @@ class ContactHomeSortTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-012 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-d4225566-5f5c-4f63-8728-b550d4025e4c 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setContactHomeScaffold(onEvent = eventList::add, sortSheetState = sortSheetState)
@@ -63,7 +63,7 @@ class ContactHomeSortTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-025 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
+    fun `TC-94e213ce-32db-4089-bd7d-a879776ae27f 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
         setContactHomeScaffold(contactPagingData = contactPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

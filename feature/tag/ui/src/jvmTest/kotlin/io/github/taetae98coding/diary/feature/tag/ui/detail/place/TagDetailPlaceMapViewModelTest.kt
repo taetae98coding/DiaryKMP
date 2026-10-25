@@ -44,7 +44,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-024 기본 지도를 확인하기 전에는 지도를 표시하지 않는다") {
+        test("TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 기본 지도를 확인하기 전에는 지도를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = emptyFlow())
 
@@ -57,7 +57,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-024 기본 지도를 읽지 못하면 지도를 표시하지 않는다") {
+        test("TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 기본 지도를 읽지 못하면 지도를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.failure(IllegalStateException("read error"))))
 
@@ -70,7 +70,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-024 현재 위치 확인이 끝나기 전에는 지도를 표시하지 않는다") {
+        test("TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 현재 위치 확인이 끝나기 전에는 지도를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
 
@@ -96,7 +96,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-003 확인한 현재 위치를 초기 위치로 제공한다") {
+        test("TC-bb0136dd-2d35-4563-a5bd-ecf2e9e8a76c 확인한 현재 위치를 초기 위치로 제공한다") {
             runTest(mainDispatcher) {
                 val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val viewModel =
@@ -113,7 +113,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-003 현재 위치를 확인하지 못하면 초기 위치 없이 제공한다") {
+        test("TC-bb0136dd-2d35-4563-a5bd-ecf2e9e8a76c 현재 위치를 확인하지 못하면 초기 위치 없이 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -129,7 +129,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-005 TC-TAG-DETAIL-PLACE-DOMAIN-006 확인을 다시 요청해도 현재 위치는 한 번만 확인한다") {
+        test("TC-efccf1d0-a4ca-4aa2-8366-52fa1f9234d1 TC-7634fb75-4b16-43dd-8767-649d1f781552 확인을 다시 요청해도 현재 위치는 한 번만 확인한다") {
             runTest(mainDispatcher) {
                 val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
@@ -153,7 +153,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-007 새 화면에서는 현재 위치를 새로 확인한다") {
+        test("TC-a7b1b209-3b0a-4564-af5d-f1ae346d8568 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
                 val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()

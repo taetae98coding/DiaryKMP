@@ -52,7 +52,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-HOLIDAY-HOME-DATA-001 년도가 화면에 드러나면 그 년도와 앞뒤 년도의 공휴일을 동기화한다") {
+        test("TC-3e671ef3-60bb-4e81-b4a9-8cc809ee4ed1 년도가 화면에 드러나면 그 년도와 앞뒤 년도의 공휴일을 동기화한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
@@ -66,7 +66,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-DATA-002 다른 년도로 이동하면 이동한 년도 기준으로 동기화한다") {
+        test("TC-edc935be-be00-45d3-9066-7cee21d4457a 다른 년도로 이동하면 이동한 년도 기준으로 동기화한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
@@ -83,7 +83,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-DATA-004 한 판단 대상 년도의 동기화가 실패해도 다른 대상 년도의 동기화를 계속한다") {
+        test("TC-fa0c469a-2195-40cc-b82d-58b8e6920abd 한 판단 대상 년도의 동기화가 실패해도 다른 대상 년도의 동기화를 계속한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
@@ -103,7 +103,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-DATA-009 한 년도의 동기화가 진행 중이어도 다른 년도의 동기화를 시작한다") {
+        test("TC-be1ab5df-161e-4870-8b23-0fbe93bdc920 한 년도의 동기화가 진행 중이어도 다른 년도의 동기화를 시작한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
@@ -122,7 +122,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-DATA-016 동기화가 진행 중일 때 다시 요청하면 새 동기화를 시작하지 않는다") {
+        test("TC-ff49fe21-b41d-4052-bf43-b503f48b74fe 동기화가 진행 중일 때 다시 요청하면 새 동기화를 시작하지 않는다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
@@ -141,7 +141,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-DATA-012 년도가 다시 화면에 드러나면 동기화를 다시 요청한다") {
+        test("TC-f56be085-158a-407e-ba5f-bdec0d790f97 년도가 다시 화면에 드러나면 동기화를 다시 요청한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val fetchHolidayUseCase = successfulFetchHolidayUseCase()
@@ -437,7 +437,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-FEATURE-060 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 목록은 이전 지역 기준으로 남는다") {
+        test("TC-a297cd36-c2ff-4065-9037-4c34460ef8b0 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 목록은 이전 지역 기준으로 남는다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))
@@ -462,7 +462,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-FEATURE-061 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역 기준으로 목록이 다시 표시된다") {
+        test("TC-254e8814-7a28-45bc-89f6-189a1792d1e1 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역 기준으로 목록이 다시 표시된다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))
@@ -485,7 +485,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-HOLIDAY-HOME-FEATURE-062 바뀐 지역에 적용 국가가 없으면 5초가 지나기 전에 돌아와도 제공 없음 안내가 표시된다") {
+        test("TC-a8bb0295-cca6-41fa-9feb-3e2d8a6fa19a 바뀐 지역에 적용 국가가 없으면 5초가 지나기 전에 돌아와도 제공 없음 안내가 표시된다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val previousRegionList = listOf(goldenHolidayGroup(year = year))

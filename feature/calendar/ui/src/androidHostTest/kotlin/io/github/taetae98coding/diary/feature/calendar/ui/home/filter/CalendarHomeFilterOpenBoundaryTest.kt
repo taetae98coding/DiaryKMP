@@ -84,7 +84,7 @@ class CalendarHomeFilterOpenBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-094 필터를 연 채 화면이 재생성되어도 필터는 열린 채로 남고 태그 선택이 유지된다`() {
+    fun `TC-56369ddc-31ff-4e06-bfd1-2e00e08f30ce 필터를 연 채 화면이 재생성되어도 필터는 열린 채로 남고 태그 선택이 유지된다`() {
         val tag = filterTag()
         val viewModelStoreOwner = testViewModelStoreOwner()
         val restorationTester = StateRestorationTester(composeRule)
@@ -100,7 +100,7 @@ class CalendarHomeFilterOpenBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-094 필터를 연 채 앱이 백그라운드에 다녀와도 필터는 열린 채로 남고 태그 선택이 유지된다`() {
+    fun `TC-56369ddc-31ff-4e06-bfd1-2e00e08f30ce 필터를 연 채 앱이 백그라운드에 다녀와도 필터는 열린 채로 남고 태그 선택이 유지된다`() {
         val tag = filterTag()
         val viewModelStoreOwner = testViewModelStoreOwner()
         composeRule.setContent {
@@ -117,7 +117,7 @@ class CalendarHomeFilterOpenBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-094 필터를 연 채 시스템이 앱을 정리한 뒤 다시 만들면 필터가 열린 채로 다시 보이고 태그 선택이 유지된다`() {
+    fun `TC-56369ddc-31ff-4e06-bfd1-2e00e08f30ce 필터를 연 채 시스템이 앱을 정리한 뒤 다시 만들면 필터가 열린 채로 다시 보이고 태그 선택이 유지된다`() {
         val tag = filterTag()
         val restorationTester = StateRestorationTester(composeRule)
         // 시스템이 앱을 정리하면 ViewModel도 사라지므로, 다시 만들 때 새 소유자에서 새 ViewModel을 받게 한다.

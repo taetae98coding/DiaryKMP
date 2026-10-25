@@ -57,7 +57,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-9065f330-9fac-4a23-88e2-d747eebcb1ca 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setFileHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
@@ -72,7 +72,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-005 게스트 상태에서는 로그인 안내만 표시하고 로그인 이동과 파일 추가를 두지 않는다`() {
+    fun `TC-2e7619f5-e91c-4918-b683-b02dd5e0f339 게스트 상태에서는 로그인 안내만 표시하고 로그인 이동과 파일 추가를 두지 않는다`() {
         setFileHomeScaffold(uiState = FileHomeUiState.Guest)
 
         composeRule.onNodeWithText(KOREAN_GUEST_TITLE).assertExists()
@@ -84,7 +84,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-006 계정 상태를 확정하지 않은 동안에는 제목과 뒤로가기만 표시한다`() {
+    fun `TC-724f16b0-07de-418f-aee5-8701186d717e 계정 상태를 확정하지 않은 동안에는 제목과 뒤로가기만 표시한다`() {
         setFileHomeScaffold(uiState = FileHomeUiState.Loading, pagingData = PagingData.from(listOf(fixtureMonkey.diaryFile())))
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
@@ -96,7 +96,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-046 목록의 각 파일에 제목과 파일 이름, 크기, 올린 날짜와 시각을 표시하고 설명은 표시하지 않는다`() {
+    fun `TC-526972e7-c09d-4f57-8639-26c2ccf5d792 목록의 각 파일에 제목과 파일 이름, 크기, 올린 날짜와 시각을 표시하고 설명은 표시하지 않는다`() {
         val defaultTimeZone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
         try {
@@ -128,7 +128,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-008 목록을 처음 불러오는 동안 불러오는 중임을 표시한다`() {
+    fun `TC-d1e4bdd5-6315-458c-84c6-008443de7a9b 목록을 처음 불러오는 동안 불러오는 중임을 표시한다`() {
         setFileHomeScaffold(
             uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
             pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.Loading)),
@@ -141,7 +141,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-009 처음 불러오기에 실패하면 실패 안내와 다시 시도를 표시한다`() {
+    fun `TC-d6f066a1-3ba3-4563-bb58-eb2b0b1f785f 처음 불러오기에 실패하면 실패 안내와 다시 시도를 표시한다`() {
         setFileHomeScaffold(
             uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
             pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.Error(IllegalStateException("load")))),
@@ -154,7 +154,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-011 올린 파일이 하나도 없으면 빈 상태 안내를 표시하고 파일 추가를 그대로 둔다`() {
+    fun `TC-945cd089-e224-49fe-8f94-8ef966c2bdbd 올린 파일이 하나도 없으면 빈 상태 안내를 표시하고 파일 추가를 그대로 둔다`() {
         setFileHomeScaffold(
             uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
             pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.NotLoading(endOfPaginationReached = true))),
@@ -167,7 +167,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-013 이어서 불러오기에 실패하면 목록 끝에 실패 안내와 다시 시도를 표시하고 파일은 그대로 남는다`() {
+    fun `TC-a487c7b4-8ae1-40cf-8b98-84f6003dc4db 이어서 불러오기에 실패하면 목록 끝에 실패 안내와 다시 시도를 표시하고 파일은 그대로 남는다`() {
         val fileList = List(PAGE_SIZE) { index -> fixtureMonkey.diaryFile(name = "file-$index.txt") }
 
         setFileHomeScaffold(
@@ -183,7 +183,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-020 이어서 불러오는 동안 목록 끝에 불러오는 중임을 표시한다`() {
+    fun `TC-37eee6d1-c7dd-42b2-aa50-28681089396d 이어서 불러오는 동안 목록 끝에 불러오는 중임을 표시한다`() {
         val fileList = List(PAGE_SIZE) { index -> fixtureMonkey.diaryFile(name = "file-$index.txt") }
 
         setFileHomeScaffold(
@@ -196,7 +196,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-048 올리는 동안 파일 추가 자리에 진행 중 표시를 둔다`() {
+    fun `TC-9707e7f6-f68f-4a28-8701-f2759b92ad40 올리는 동안 파일 추가 자리에 진행 중 표시를 둔다`() {
         setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), uploadUiState = FileHomeUploadUiState(isUploading = true))
 
         composeRule
@@ -207,7 +207,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-028 파일 목록을 아래로 당기면 새로고침을 요청한다`() {
+    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록을 아래로 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
 
         setFileHomeScaffold(
@@ -223,7 +223,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-028 새로고침하는 동안 목록 위에 새로고침 진행 표시를 둔다`() {
+    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 새로고침하는 동안 목록 위에 새로고침 진행 표시를 둔다`() {
         val file = fixtureMonkey.diaryFile()
 
         setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), pagingData = PagingData.from(listOf(file)), isRefreshing = true)
@@ -259,7 +259,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-052 사용자이고 올리는 중인 파일이 없으면 Cmd A 단축키로 파일 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-8d366b39-b2c6-4f10-8857-ab8af3c4043d 사용자이고 올리는 중인 파일이 없으면 Cmd A 단축키로 파일 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
         setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()))
 
@@ -269,7 +269,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-053 계정 상태를 아직 확정하지 않았으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-b16a0dfb-a0e3-4b0a-8590-6e92f0e0658a 계정 상태를 아직 확정하지 않았으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
         setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.Loading)
 
@@ -279,7 +279,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-053 게스트이면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-b16a0dfb-a0e3-4b0a-8590-6e92f0e0658a 게스트이면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
         setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.Guest)
 
@@ -289,7 +289,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-053 올리는 중인 파일이 있으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-b16a0dfb-a0e3-4b0a-8590-6e92f0e0658a 올리는 중인 파일이 있으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
         setFileHomeScaffold(
             onEvent = eventList::add,
@@ -304,7 +304,7 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-LIST-DETAIL-FEATURE-003 상세 영역에 FileAdd가 놓이면 파일 추가 버튼을 두지 않고 Cmd A 단축키로도 파일 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-7e1e3678-bffe-4341-9b07-82c444317948 상세 영역에 FileAdd가 놓이면 파일 추가 버튼을 두지 않고 Cmd A 단축키로도 파일 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<FileHomeScaffoldEvent>()
         setFileHomeScaffold(
             onEvent = eventList::add,

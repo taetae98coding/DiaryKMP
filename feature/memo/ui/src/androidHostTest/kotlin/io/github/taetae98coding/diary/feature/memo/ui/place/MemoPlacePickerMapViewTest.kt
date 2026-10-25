@@ -44,7 +44,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-046 카드의 지도가 표시되면 목록 보기로 열리고 지도 보기로 바꾸는 조작을 제공한다`() {
+    fun `TC-ef69ebeb-0b8f-4669-a639-a233e8fc7b53 카드의 지도가 표시되면 목록 보기로 열리고 지도 보기로 바꾸는 조작을 제공한다`() {
         setDialog(mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER))
 
         composeRule.placeDialogSearchField().assertExists()
@@ -53,14 +53,14 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-PLACE-CARD-FEATURE-046 한국어 환경에서 지도 보기로 바꾸는 조작의 이름을 표시한다`() {
+    fun `TC-ef69ebeb-0b8f-4669-a639-a233e8fc7b53 한국어 환경에서 지도 보기로 바꾸는 조작의 이름을 표시한다`() {
         setDialog(mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER))
 
         composeRule.onNodeWithContentDescription(KOREAN_SHOW_MAP_ACTION).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-047 카드의 지도가 표시되지 않으면 지도 보기로 바꾸는 조작을 제공하지 않는다`() {
+    fun `TC-29017b00-830b-4219-a55b-b8ba0de808b5 카드의 지도가 표시되지 않으면 지도 보기로 바꾸는 조작을 제공하지 않는다`() {
         setDialog(mapState = null)
 
         composeRule.placeDialogSearchField().assertExists()
@@ -69,7 +69,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-048 지도 보기의 목록에 보이는 영역의 장소가 선택 여부와 함께 나타난다`() {
+    fun `TC-12dc2410-d559-4a44-b160-e13bb9b35768 지도 보기의 목록에 보이는 영역의 장소가 선택 여부와 함께 나타난다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
         setMapList(
@@ -82,17 +82,17 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-049 선택되지 않은 장소를 누르면 선택된 것으로 표시되고 상세 이동은 요청하지 않는다`() {
+    fun `TC-48e1e605-3ba0-47b8-abb4-3828a8cbf7a3 선택되지 않은 장소를 누르면 선택된 것으로 표시되고 상세 이동은 요청하지 않는다`() {
         assertMapListToggle(isInitiallySelected = false)
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-049 선택된 장소를 누르면 선택되지 않은 것으로 표시되고 상세 이동은 요청하지 않는다`() {
+    fun `TC-48e1e605-3ba0-47b8-abb4-3828a8cbf7a3 선택된 장소를 누르면 선택되지 않은 것으로 표시되고 상세 이동은 요청하지 않는다`() {
         assertMapListToggle(isInitiallySelected = true)
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-051 보이는 영역 안에 장소가 없으면 안내를 표시한다`() {
+    fun `TC-3b79ed3e-d33b-46d9-b09e-b3524a6bde56 보이는 영역 안에 장소가 없으면 안내를 표시한다`() {
         setMapList(placeList = emptyList())
 
         composeRule.onNodeWithText(DEFAULT_MAP_EMPTY_TITLE).assertExists()
@@ -101,7 +101,7 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-PLACE-CARD-FEATURE-051 한국어 환경에서 장소 없음 안내 문구를 표시한다`() {
+    fun `TC-3b79ed3e-d33b-46d9-b09e-b3524a6bde56 한국어 환경에서 장소 없음 안내 문구를 표시한다`() {
         setMapList(placeList = emptyList())
 
         composeRule.onNodeWithText(KOREAN_MAP_EMPTY_TITLE).assertExists()
@@ -109,7 +109,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-052 보이는 영역을 확인하기 전에는 장소도 안내도 표시하지 않는다`() {
+    fun `TC-98fb04b1-f186-4d06-a344-7b457e0b7708 보이는 영역을 확인하기 전에는 장소도 안내도 표시하지 않는다`() {
         setMapList(mapUiState = MemoPlacePickerMapUiState(isLoaded = false))
 
         composeRule.onNodeWithText(DEFAULT_MAP_EMPTY_TITLE).assertDoesNotExist()
@@ -117,17 +117,17 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-040 네이버 지도를 보던 카드에서 열면 지도 보기가 네이버 지도로 같은 위치에서 시작한다`() {
+    fun `TC-58e5a5e8-9846-44a9-8deb-2f40012fc713 네이버 지도를 보던 카드에서 열면 지도 보기가 네이버 지도로 같은 위치에서 시작한다`() {
         assertPickerMapStartsFromCardMap(provider = DiaryMapProvider.NAVER)
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-040 Google 지도를 보던 카드에서 열면 지도 보기가 Google 지도로 같은 위치에서 시작한다`() {
+    fun `TC-58e5a5e8-9846-44a9-8deb-2f40012fc713 Google 지도를 보던 카드에서 열면 지도 보기가 Google 지도로 같은 위치에서 시작한다`() {
         assertPickerMapStartsFromCardMap(provider = DiaryMapProvider.GOOGLE)
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-040 지도 보기에서 바꾼 제공자와 위치는 카드의 지도에 반영하지 않는다`() {
+    fun `TC-58e5a5e8-9846-44a9-8deb-2f40012fc713 지도 보기에서 바꾼 제공자와 위치는 카드의 지도에 반영하지 않는다`() {
         val cardCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.GOOGLE, initialCoordinate = cardCoordinate)
@@ -149,7 +149,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-045 기본 지도가 바뀌어 카드의 지도가 다시 시작하면 지도 보기의 지도도 새 기본 지도로 다시 시작한다`() {
+    fun `TC-1ea4c491-ca05-4c15-b790-76ab76c61f82 기본 지도가 바뀌어 카드의 지도가 다시 시작하면 지도 보기의 지도도 새 기본 지도로 다시 시작한다`() {
         val firstCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val movedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val restartedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
@@ -171,7 +171,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-046 지도 보기에 있지만 카드의 지도를 표시할 수 없으면 목록 보기의 내용을 보여 준다`() {
+    fun `TC-f898b7cc-0191-4de5-98cb-2b4c6ce2a319 지도 보기에 있지만 카드의 지도를 표시할 수 없으면 목록 보기의 내용을 보여 준다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setDialog(
             state = MemoPlacePickerState(initialViewMode = MemoPlacePickerViewMode.MAP, initialIsMapViewVisited = true),
@@ -186,7 +186,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-047 목록 보기에서 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
+    fun `TC-dcc67ec4-f921-4d3c-b8be-4de7ac04f7ee 목록 보기에서 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
         val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val eventList = mutableListOf<MemoPlacePickerEvent>()
         setDialog(
@@ -202,7 +202,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-041 화면이 재생성되거나 복원되어도 지도 보기와 그 지도 상태가 유지된다`() {
+    fun `TC-d8e45de3-c185-4bf4-bfea-ada296d40606 화면이 재생성되거나 복원되어도 지도 보기와 그 지도 상태가 유지된다`() {
         val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         val restorationTester = StateRestorationTester(composeRule)
@@ -229,7 +229,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-042 목록을 닫았다가 다시 열면 목록 보기로 시작한다`() {
+    fun `TC-4f614b08-2b8d-4dae-afe6-25300f0383cf 목록을 닫았다가 다시 열면 목록 보기로 시작한다`() {
         var isVisible by mutableStateOf(true)
         var state: MemoPlacePickerState? = null
 

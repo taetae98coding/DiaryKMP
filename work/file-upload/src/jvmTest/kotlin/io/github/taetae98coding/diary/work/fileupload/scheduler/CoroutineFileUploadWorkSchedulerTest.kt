@@ -57,7 +57,7 @@ class CoroutineFileUploadWorkSchedulerTest :
     BehaviorSpec({
         Given("파일 A를 올리는 중이고 서버가 아직 응답하지 않았다") {
             When("파일 B로 올리기를 요청한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-009 파일 B는 올리지 않고 파일 A의 올리기가 그대로 이어진다") {
+                Then("TC-80d42ac1-f55b-4e98-99f3-4f7f49e4b1b7 파일 B는 올리지 않고 파일 A의 올리기가 그대로 이어진다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val requestA = fixture.request()
@@ -80,7 +80,7 @@ class CoroutineFileUploadWorkSchedulerTest :
 
         Given("크기가 1,000바이트인 파일을 올린다") {
             When("보낸 양이 0, 250, 1,000바이트가 된 뒤 올리기가 끝난다") {
-                Then("TC-FILE-STORAGE-DOMAIN-011 백분율 없음, 25%, 100%를 거쳐 올리는 파일이 없는 상태가 된다") {
+                Then("TC-6dbf702d-7086-4551-a6e0-e8e92d936f8b 백분율 없음, 25%, 100%를 거쳐 올리는 파일이 없는 상태가 된다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()
@@ -152,7 +152,7 @@ class CoroutineFileUploadWorkSchedulerTest :
 
         Given("데스크톱 앱이나 웹에서 연결이 없어 서버 요청이 연결 실패로 끝난다") {
             When("파일 하나로 올리기를 시작한다") {
-                Then("TC-FILE-STORAGE-DATA-020 기다리지 않고 크기 초과가 아닌 실패로 알리고 올리는 파일이 없는 상태로 돌아간다") {
+                Then("TC-12cb0fa4-ede3-443d-bd47-4f62a37a061f 기다리지 않고 크기 초과가 아닌 실패로 알리고 올리는 파일이 없는 상태로 돌아간다") {
                     runTest {
                         val scope = CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job]) + CoroutineExceptionHandler { _, _ -> })
                         val fixture = SchedulerFixture(scope = scope)
@@ -185,7 +185,7 @@ class CoroutineFileUploadWorkSchedulerTest :
 
         Given("사용자가 FileHome 화면에서 파일 올리기를 시작했고 서버가 아직 응답하지 않았다") {
             When("사용자가 FileHome 화면을 떠난 뒤 서버가 성공을 돌려준다") {
-                Then("TC-FILE-STORAGE-DATA-024 올리기가 중단되지 않고 성공으로 끝나 결과를 알림으로 알린다") {
+                Then("TC-4f2460f3-da2e-4331-b3aa-ce294301ec89 올리기가 중단되지 않고 성공으로 끝나 결과를 알림으로 알린다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()
@@ -247,7 +247,7 @@ class CoroutineFileUploadWorkSchedulerTest :
 
         Given("앞선 실행에서 시작한 올리기를 시스템이 이어서 보내고 있다") {
             When("상태를 확인하고 새 올리기를 요청한다") {
-                Then("TC-FILE-STORAGE-DATA-018 올리는 중으로 보고 새 파일은 올리지 않는다") {
+                Then("TC-07e4c4bb-5dc5-47d8-8161-b82c2b903104 올리는 중으로 보고 새 파일은 올리지 않는다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         fixture.continuedUpload.value = ContinuedFileUpload(name = fixtureMonkey.fileUploadSource().name, size = 1_000, sentBytes = 250)
@@ -265,7 +265,7 @@ class CoroutineFileUploadWorkSchedulerTest :
             }
 
             When("이어서 보내던 올리기가 끝난다") {
-                Then("TC-FILE-STORAGE-DATA-018 성공, 크기 초과, 그 밖의 실패를 올리기 결과로 알린다") {
+                Then("TC-07e4c4bb-5dc5-47d8-8161-b82c2b903104 성공, 크기 초과, 그 밖의 실패를 올리기 결과로 알린다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val file = fixtureMonkey.diaryFile()
@@ -291,7 +291,7 @@ class CoroutineFileUploadWorkSchedulerTest :
                 "계정 B의 사용자" to fixtureMonkey.giveMeOne<Uuid>(),
             ).forEach { (accountState, exceptAccountId) ->
                 When("${accountState}가 확인되어 다른 계정의 올리기를 취소한다") {
-                    Then("TC-FILE-STORAGE-DOMAIN-017 올리기를 멈추고 결과를 알리지 않으며 붙들고 있던 파일을 돌려준다") {
+                    Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 올리기를 멈추고 결과를 알리지 않으며 붙들고 있던 파일을 돌려준다") {
                         runTest {
                             val fixture = SchedulerFixture(scope = backgroundScope)
                             val request = fixture.request()
@@ -320,7 +320,7 @@ class CoroutineFileUploadWorkSchedulerTest :
             }
 
             When("계정 A가 확인되어 다른 계정의 올리기를 취소한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-017 올리기가 계속되고 돌려줄 파일이 없다") {
+                Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 올리기가 계속되고 돌려줄 파일이 없다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()

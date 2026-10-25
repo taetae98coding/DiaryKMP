@@ -24,7 +24,7 @@ class ReconcileFileUploadUseCaseTest :
             When("그 계정 상태를 반영한다") {
                 val result = useCase(parameter = Account.Guest)
 
-                Then("TC-FILE-STORAGE-DOMAIN-017 어느 계정의 올리기도 남기지 않고 모두 취소한다") {
+                Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 어느 계정의 올리기도 남기지 않고 모두 취소한다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { fileUploadManager.cancelUpload(exceptAccountId = null) }
                 }
@@ -40,7 +40,7 @@ class ReconcileFileUploadUseCaseTest :
             When("그 계정 상태를 반영한다") {
                 val result = useCase(parameter = account)
 
-                Then("TC-FILE-STORAGE-DOMAIN-017 그 계정이 시작한 올리기만 남기고 다른 계정의 올리기를 취소한다") {
+                Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 그 계정이 시작한 올리기만 남기고 다른 계정의 올리기를 취소한다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { fileUploadManager.cancelUpload(exceptAccountId = account.id) }
                 }

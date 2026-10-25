@@ -42,7 +42,7 @@ class TagLinkUseCaseTest :
             every { clock.now() } returns now
 
             When("다른 태그를 향하는 연결을 만든다") {
-                Then("TC-TAG-LINK-DOMAIN-001 현재 계정의 연결로 저장한다") {
+                Then("TC-df08c8b2-3439-4471-aa23-c53541766209 현재 계정의 연결로 저장한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -67,7 +67,7 @@ class TagLinkUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-LINK-DATA-007 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-42163cbe-4de0-46d3-874d-f2e722114fb9 저장한 뒤 동기화를 한 번 요청한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
@@ -96,7 +96,7 @@ class TagLinkUseCaseTest :
             }
 
             When("연결을 해제한다") {
-                Then("TC-TAG-LINK-DOMAIN-011 현재 계정의 연결을 해제 상태로 저장한다") {
+                Then("TC-bae78258-0c5d-41fd-8f75-f063da049013 현재 계정의 연결을 해제 상태로 저장한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -121,7 +121,7 @@ class TagLinkUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-LINK-DATA-007 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-42163cbe-4de0-46d3-874d-f2e722114fb9 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
@@ -150,7 +150,7 @@ class TagLinkUseCaseTest :
             }
 
             When("같은 태그를 출발 태그와 도착 태그로 지정해 연결을 만든다") {
-                Then("TC-TAG-LINK-DOMAIN-006 실패로 끝나고 저장하지 않는다") {
+                Then("TC-0123392a-ca34-4bb3-a837-483bfcc59218 실패로 끝나고 저장하지 않는다") {
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val selfLinkRepository = mockk<AccountTagLinkRepository>(relaxed = true)
                     val selfLinkSyncUseCase = mockk<RequestSyncUseCase>()
@@ -179,7 +179,7 @@ class TagLinkUseCaseTest :
             }
 
             When("연결된 태그를 조회한다") {
-                Then("TC-TAG-LINK-DOMAIN-015 현재 계정의 연결된 태그를 그대로 전달한다") {
+                Then("TC-26ce9486-6caf-4eb7-82f3-13bcb4eafdd3 현재 계정의 연결된 태그를 그대로 전달한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagList = List(2) { tag() }
                     every {

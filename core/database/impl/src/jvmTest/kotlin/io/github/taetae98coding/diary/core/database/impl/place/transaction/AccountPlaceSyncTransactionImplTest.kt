@@ -81,7 +81,7 @@ class AccountPlaceSyncTransactionImplTest :
             placeId: Uuid,
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { place -> place.id == placeId }
 
-        test("TC-PLACE-ADD-DATA-005 현재 계정의 업로드 대기 장소만 조회한다") {
+        test("TC-290f5f48-48fa-40f0-ae35-16679be6895d 현재 계정의 업로드 대기 장소만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPendingPlace = place()
@@ -98,7 +98,7 @@ class AccountPlaceSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingPlace, secondPendingPlace)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
+        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val guestEntity = place()
             val accountEntity = place()
@@ -108,7 +108,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             insertWithSyncState(accountId, place, isDirty = true)
@@ -118,7 +118,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 장소는 업로드 대기로 남는다") {
+        test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 장소는 업로드 대기로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pushedPlace = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changedPlace = pushedPlace.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
@@ -129,7 +129,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedPlace)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-030 장소가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
+        test("TC-9a613623-4f22-4e1e-bd07-c68c13af1c0d 장소가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val cursor = 7L
@@ -146,7 +146,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe cursor
         }
 
-        test("TC-PLACE-DETAIL-DATA-008 장소를 삭제하면 업로드 대기가 된다") {
+        test("TC-e4322045-cda0-47a9-a446-deb2016075f6 장소를 삭제하면 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 3L)
@@ -161,7 +161,7 @@ class AccountPlaceSyncTransactionImplTest :
             isPending(accountId = accountId, placeId = place.id) shouldBe true
         }
 
-        test("TC-DATA-SYNC-DATA-016 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
+        test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstCursor = 3L
             val secondCursor = 11L
@@ -173,7 +173,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe secondCursor
         }
 
-        test("TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용한다") {
+        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 기록된 순번이 없으면 기본 커서를 사용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             transaction.upsert(accountId = otherAccountId, placeList = listOf(place()), cursor = 9L)
@@ -185,7 +185,7 @@ class AccountPlaceSyncTransactionImplTest :
             "늦음" to Instant.fromEpochMilliseconds(2_000),
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-DATA-SYNC-DATA-022 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
+            test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remotePlace =
@@ -201,7 +201,7 @@ class AccountPlaceSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-023 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
+        test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remotePlace =
@@ -223,7 +223,7 @@ class AccountPlaceSyncTransactionImplTest :
             "같음" to Instant.fromEpochMilliseconds(2_000),
             "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(2_000))
                 val remotePlace = localPlace.copy(detail = detail(), updatedAt = remoteUpdatedAt)
@@ -235,7 +235,7 @@ class AccountPlaceSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-025 기기에 없던 장소는 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 장소는 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remotePlace = place()
 
@@ -245,7 +245,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 장소와 커서가 모두 반영되지 않는다") {
+        test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 장소와 커서가 모두 반영되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remotePlace = place()
             val failingDatabase = spyk(database)
@@ -260,7 +260,7 @@ class AccountPlaceSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe 0L
         }
 
-        test("TC-DATA-SYNC-DATA-027 업로드한 장소가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
+        test("TC-a748604b-2b82-4ee6-a15a-2185c71e18a0 업로드한 장소가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             insertWithSyncState(accountId, place, isDirty = false)

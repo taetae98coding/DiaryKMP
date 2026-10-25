@@ -49,7 +49,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-LINK-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-bafce675-468e-430e-b1ca-2721e029fcd5 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
@@ -65,7 +65,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-FEATURE-018 처음에는 연결 대상으로 표시하는 태그가 없다") {
+        test("TC-e74af70e-67e2-4b8e-8bff-1ab703d9adea 처음에는 연결 대상으로 표시하는 태그가 없다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(selectedTagList = { emptyList() })
 
@@ -77,7 +77,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-FEATURE-019 태그를 고르면 고른 태그가 연결 대상으로 표시된다") {
+        test("TC-e0cd2aba-795d-4a3a-9505-48c1e8f508fa 태그를 고르면 고른 태그가 연결 대상으로 표시된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(selectedTagList = { tagIdSet -> listOf(tag).filter { it.id in tagIdSet } })
@@ -116,7 +116,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-FEATURE-020 연결을 비우면 연결 대상으로 표시하는 태그가 없다") {
+        test("TC-5abbd749-b478-4bf4-bc7a-41acac60d31a 연결을 비우면 연결 대상으로 표시하는 태그가 없다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(selectedTagList = { tagIdSet -> listOf(tag).filter { it.id in tagIdSet } })
@@ -135,7 +135,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-LINK-INPUT-DOMAIN-003 표시 기준에서 빠진 태그는 연결에서 제외된 것으로 표시한다") {
+        test("TC-6fd25fc8-b55b-4b95-a026-6b3ab037816f 표시 기준에서 빠진 태그는 연결에서 제외된 것으로 표시한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val displayedTagList = MutableStateFlow(listOf(tag))
@@ -158,7 +158,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-LINK-INPUT-DOMAIN-004 태그가 복구되면 유지되어 있던 연결이 다시 나타난다") {
+        test("TC-f15bd58e-702b-4c9c-8c91-d33b216b0aac 태그가 복구되면 유지되어 있던 연결이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val displayedTagList = MutableStateFlow(listOf(tag))
@@ -183,7 +183,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-DOMAIN-004 고른 태그가 완료되거나 삭제되면 연결 대상에서 제외된 것으로 표시하고 선택은 유지한다") {
+        test("TC-d040284d-6ed4-49e3-a03a-84e3bbcb3700 고른 태그가 완료되거나 삭제되면 연결 대상에서 제외된 것으로 표시하고 선택은 유지한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val selectableTagList = MutableStateFlow(listOf(tag))
@@ -210,7 +210,7 @@ class TagAddLinkViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-TAG-LINK-INPUT-DATA-005 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-6c8807b6-281d-4167-abf4-d79272febec2 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
@@ -231,7 +231,7 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-LINK-INPUT-DOMAIN-009 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
+        test("TC-88b1423e-e248-41cb-bd1a-a0f70736ca67 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(selectedTagList = { tagIdSet -> listOf(tag).filter { value -> value.id in tagIdSet } })

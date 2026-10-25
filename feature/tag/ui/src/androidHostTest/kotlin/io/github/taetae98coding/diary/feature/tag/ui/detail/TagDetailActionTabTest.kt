@@ -23,7 +23,7 @@ class TagDetailActionTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-062 메모 탭에서 완료해도 메모 탭이 선택된 채로 다시 시작 동작이 제공된다`() {
+    fun `TC-f7e226c9-5d86-4f9b-bc0e-79da9f5d286d 메모 탭에서 완료해도 메모 탭이 선택된 채로 다시 시작 동작이 제공된다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isFinished = false))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.finish() } answers { uiState.value = uiState.value.copy(isFinished = true) }
@@ -38,7 +38,7 @@ class TagDetailActionTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-062 웹 탭에서 다시 시작해도 웹 탭이 선택된 채로 완료 동작이 제공된다`() {
+    fun `TC-f7e226c9-5d86-4f9b-bc0e-79da9f5d286d 웹 탭에서 다시 시작해도 웹 탭이 선택된 채로 완료 동작이 제공된다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isFinished = true))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.restart() } answers { uiState.value = uiState.value.copy(isFinished = false) }
@@ -53,7 +53,7 @@ class TagDetailActionTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-062 장소 탭에서 삭제하면 탭과 관계없이 진입하기 전 화면으로 돌아가는 동작이 한 번 실행된다`() {
+    fun `TC-f7e226c9-5d86-4f9b-bc0e-79da9f5d286d 장소 탭에서 삭제하면 탭과 관계없이 진입하기 전 화면으로 돌아가는 동작이 한 번 실행된다`() {
         var navigateUpCount = 0
         val effectChannel = Channel<TagDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel =

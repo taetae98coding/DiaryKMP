@@ -24,7 +24,7 @@ class CalendarMonthItemTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-MONTH-FEATURE-002 지정한 아이템이 겹치는 주에만 표시된다`() {
+    fun `TC-5588be94-ed66-4ac5-bee1-8ddcbebd30c6 지정한 아이템이 겹치는 주에만 표시된다`() {
         setCalendarMonth {
             group { textItem(text = FIRST_ITEM_TEXT, start = july(day = 1), endInclusive = july(day = 3)) }
         }
@@ -33,7 +33,7 @@ class CalendarMonthItemTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MONTH-DOMAIN-002 여러 주에 걸친 아이템은 겹치는 각 주에 나뉘어 표시된다`() {
+    fun `TC-15cf3ef8-4b1f-43a0-89b1-c9cd74e66b8c 여러 주에 걸친 아이템은 겹치는 각 주에 나뉘어 표시된다`() {
         setCalendarMonth {
             group { textItem(text = FIRST_ITEM_TEXT, start = july(day = 4), endInclusive = july(day = 5)) }
         }
@@ -42,7 +42,7 @@ class CalendarMonthItemTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MONTH-DOMAIN-003 여섯 주와 겹치지 않는 아이템은 어느 주에도 표시되지 않는다`() {
+    fun `TC-27c60899-e0ed-4e2a-8606-54fe3d14a6ec 여섯 주와 겹치지 않는 아이템은 어느 주에도 표시되지 않는다`() {
         setCalendarMonth {
             group { textItem(text = FIRST_ITEM_TEXT, start = august(day = 9), endInclusive = august(day = 11)) }
         }

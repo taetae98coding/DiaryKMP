@@ -55,7 +55,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-047 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
@@ -71,7 +71,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-022 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-774a56d6-fec9-4aa6-97bb-1a0825284ea3 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { tag() }
@@ -93,7 +93,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-008 선택한 태그를 즉시 선택 태그 목록으로 노출한다") {
+        test("TC-c1df03b8-28d1-4fc8-830a-de144502b77e 선택한 태그를 즉시 선택 태그 목록으로 노출한다") {
             runTest(mainDispatcher) {
                 val firstTag = tag()
                 val secondTag = tag()
@@ -118,7 +118,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-009 선택을 해제한 태그를 즉시 선택 태그 목록에서 제외한다") {
+        test("TC-21f8c835-da42-4244-ae10-fbf6f5e61986 선택을 해제한 태그를 즉시 선택 태그 목록에서 제외한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
@@ -138,7 +138,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-015 선택하지 않은 태그를 대표로 지정하면 함께 선택된다") {
+        test("TC-309d3012-79cc-4fab-a565-217ce5974f69 선택하지 않은 태그를 대표로 지정하면 함께 선택된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
@@ -156,7 +156,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-016 대표 태그 지정을 해제해도 태그 선택은 유지된다") {
+        test("TC-82a02e1f-1f62-400f-afdd-6ace6348b225 대표 태그 지정을 해제해도 태그 선택은 유지된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))
@@ -175,7 +175,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-045 화면 구성이 변경되어도 선택한 태그와 대표 태그 지정을 유지한다") {
+        test("TC-a2051d3b-c7a9-4412-aad9-cc9357a01158 화면 구성이 변경되어도 선택한 태그와 대표 태그 지정을 유지한다") {
             runTest(mainDispatcher) {
                 val primaryTag = tag()
                 val secondaryTag = tag()
@@ -205,7 +205,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-007 TC-MEMO-TAG-INPUT-FEATURE-017 대표 태그는 항상 하나이며 선택한 태그에 포함된다") {
+        test("TC-44920526-2952-43f7-91ff-81c4bbfeef71 TC-da5e9e79-7573-4944-b64f-c59f065f1a63 대표 태그는 항상 하나이며 선택한 태그에 포함된다") {
             runTest(mainDispatcher) {
                 val firstTag = tag()
                 val secondTag = tag()
@@ -225,7 +225,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-018 대표 태그의 선택을 해제하면 대표 지정도 해제된다") {
+        test("TC-5adc87bc-d0b7-46db-a114-1cdbb02f1e15 대표 태그의 선택을 해제하면 대표 지정도 해제된다") {
             runTest(mainDispatcher) {
                 val primaryTag = tag()
                 val otherTag = tag()
@@ -285,7 +285,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-004 선택 상태로 표시하는 태그는 선택 목록 조회와 분리해 조회한다") {
+        test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택 상태로 표시하는 태그는 선택 목록 조회와 분리해 조회한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel =
@@ -309,7 +309,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-003 태그 선택 목록은 페이지 단위 조회 결과를 그대로 노출한다") {
+        test("TC-36238c18-3987-4f50-9051-4272285d7c16 태그 선택 목록은 페이지 단위 조회 결과를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(tagList)))
@@ -318,7 +318,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
+        test("TC-20372989-16fa-4b2d-a1e2-8022eb003fd9 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val useCase = mockk<PageTagUseCase>()
@@ -355,7 +355,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-014 TC-MEMO-ADD-DOMAIN-007 선택할 수 있는 태그에서 빠진 태그는 선택과 대표 지정에서 제외된다") {
+        test("TC-6226b344-7a35-42da-8ea0-4bfc8ec66262 TC-5b86ee8b-9377-47ed-9641-ab1e1e83aa8d 선택할 수 있는 태그에서 빠진 태그는 선택과 대표 지정에서 제외된다") {
             runTest(mainDispatcher) {
                 val remainingTag = tag()
                 val removedTag = tag()
@@ -383,7 +383,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-012 TC-MEMO-ADD-DATA-014 선택할 수 있는 태그에 없는 태그와 대표 지정도 선택으로 남는다") {
+        test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 선택할 수 있는 태그에 없는 태그와 대표 지정도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
                 val unselectableTag = tag()
@@ -405,7 +405,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-005 저장 시점의 선택 태그와 대표 태그를 선택으로 유지한다") {
+        test("TC-b26a374f-dbe3-4ad8-9e4f-b36db2d3d639 저장 시점의 선택 태그와 대표 태그를 선택으로 유지한다") {
             runTest(mainDispatcher) {
                 val tagA = tag()
                 val tagB = tag()
@@ -428,7 +428,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-042 진입 경로가 전달한 대표 태그를 선택하고 대표로 지정한다") {
+        test("TC-5ecde1bd-ae2b-4038-98ea-8419376d06da 진입 경로가 전달한 대표 태그를 선택하고 대표로 지정한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel =
@@ -472,7 +472,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-016 진입 경로가 대표 태그를 전달하지 않으면 선택한 태그 없이 시작한다") {
+        test("TC-fbed40cc-4d74-40f7-9879-f0ee91b18b4d 진입 경로가 대표 태그를 전달하지 않으면 선택한 태그 없이 시작한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel =
@@ -492,7 +492,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-015 전달된 대상 태그를 초기 선택과 초기 대표로 시작하고 저장 전까지 바꿀 수 있다") {
+        test("TC-23352e2a-58fa-4158-987f-706f56a798c3 전달된 대상 태그를 초기 선택과 초기 대표로 시작하고 저장 전까지 바꿀 수 있다") {
             runTest(mainDispatcher) {
                 val targetTag = tag()
                 val otherTag = tag()
@@ -521,7 +521,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-016 완료되었거나 삭제된 대상 태그는 선택과 대표 지정 없이 시작한다") {
+        test("TC-16a8b240-b3d1-44f2-b4e0-e5f66cc537f4 완료되었거나 삭제된 대상 태그는 선택과 대표 지정 없이 시작한다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
                 val finishedTag = tag().copy(isFinished = true)
@@ -550,7 +550,7 @@ class MemoAddTagViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-MEMO-TAG-INPUT-DATA-006 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-70938ef2-fc50-498e-9890-96e03ab30a4e 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
@@ -571,7 +571,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-018 검색어를 바꿔도 선택한 것으로 표시하는 태그는 그대로다") {
+        test("TC-bf5773db-dde5-48d8-bf92-c187f625608c 검색어를 바꿔도 선택한 것으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(tag))))

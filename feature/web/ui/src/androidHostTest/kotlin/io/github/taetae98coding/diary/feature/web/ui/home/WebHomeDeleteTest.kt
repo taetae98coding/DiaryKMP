@@ -42,7 +42,7 @@ class WebHomeDeleteTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-025 웹 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-b6eb4a10-bb07-4d9c-9ae2-4955a3aeb9d1 웹 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
@@ -55,7 +55,7 @@ class WebHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-HOME-FEATURE-025 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-b6eb4a10-bb07-4d9c-9ae2-4955a3aeb9d1 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
@@ -66,7 +66,7 @@ class WebHomeDeleteTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-027 웹 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+    fun `TC-0c7fa192-3184-47ac-bdde-8ade25145c06 웹 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
         val environment = setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeRight() }
@@ -79,7 +79,7 @@ class WebHomeDeleteTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-026 삭제를 실행 취소하면 그 웹 항목의 삭제 되돌리기를 요청한다`() {
+    fun `TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 삭제를 실행 취소하면 그 웹 항목의 삭제 되돌리기를 요청한다`() {
         val environment = setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
@@ -91,7 +91,7 @@ class WebHomeDeleteTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-029 안내가 보이는 동안 다른 웹 항목을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-d8a51645-05ed-4232-98f8-b245f24463b9 안내가 보이는 동안 다른 웹 항목을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val environment = setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
@@ -110,7 +110,7 @@ class WebHomeDeleteTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-030 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-a96fa9ff-3183-49f2-bc50-1cd64f118cc3 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setWebHomeScreen()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
@@ -126,7 +126,7 @@ class WebHomeDeleteTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-032 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-2cdb91ad-0c95-4864-b2f7-7a513db10d90 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setWebHomeScreen(isShownProvider = { isShown })
 

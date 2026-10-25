@@ -42,7 +42,7 @@ class TagDetailPlaceExecutionBoundaryTest {
     private lateinit var mapState: DiaryMapState
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 다른 탭을 선택한 뒤 장소 탭으로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 다른 탭을 선택한 뒤 장소 탭으로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         val hoistedState = TagDetailPlaceState()
@@ -62,7 +62,7 @@ class TagDetailPlaceExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 회전하거나 창 크기가 바뀌어도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 화면이 회전하거나 창 크기가 바뀌어도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         val restorationTester = StateRestorationTester(composeRule)
@@ -77,7 +77,7 @@ class TagDetailPlaceExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         composeRule.setContent { PlaceTab(mapViewModel = mapViewModel) }
@@ -93,7 +93,7 @@ class TagDetailPlaceExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         var isTagDetailOnTop by mutableStateOf(true)
@@ -122,19 +122,19 @@ class TagDetailPlaceExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 시스템이 앱을 종료했다가 되살려도 지도 모드를 유지하고 새로 확인한 위치에서 지도를 시작한다`() {
+    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 시스템이 앱을 종료했다가 되살려도 지도 모드를 유지하고 새로 확인한 위치에서 지도를 시작한다`() {
         assertRestoreStartsAtFetchedLocation(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
         val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
 
         assertRestoreStartsAtFetchedLocation(beforeCoordinate = coordinate, afterCoordinate = coordinate)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
         assertRestoreStartsAtFetchedLocation(beforeCoordinate = null, afterCoordinate = null)
     }
 

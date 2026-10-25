@@ -56,7 +56,7 @@ class CalendarHomeScreenMemoTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-028 표시 중인 달에 걸친 메모의 제목이 캘린더에 표시된다`() {
+    fun `TC-ddb97757-e388-4d1d-82a7-9714fa7306a0 표시 중인 달에 걸친 메모의 제목이 캘린더에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             memoListFlow = MutableStateFlow(listOf(memo(title = TRIP_TITLE, start = july(day = 7), endInclusive = july(day = 9)))),
@@ -66,7 +66,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-029 캘린더에 보이는 주와 겹치지 않는 메모는 표시되지 않는다`() {
+    fun `TC-952c915b-a65a-4d85-baed-29caf48b8915 캘린더에 보이는 주와 겹치지 않는 메모는 표시되지 않는다`() {
         val mayDay = LocalDate(year = 2026, month = Month.MAY, day = 1)
 
         setCalendarHomeScreen(
@@ -78,7 +78,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-031 메모가 바뀌면 조작 없이 캘린더 표시가 반영된다`() {
+    fun `TC-3467117d-5786-4daa-b05f-84185ae27aba 메모가 바뀌면 조작 없이 캘린더 표시가 반영된다`() {
         val memoListFlow = MutableStateFlow(emptyList<CalendarMemo>())
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -93,7 +93,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-019 메모 조회가 실패해도 메모 없이 표시하고 공휴일 표시를 막지 않는다`() {
+    fun `TC-2082ce29-485b-44a2-888a-ec09be4c5ac1 메모 조회가 실패해도 메모 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         val errorMessage = fixtureMonkey.nonBlankString()
         every { getCalendarMemoUseCase(parameter = any()) } returns
@@ -127,7 +127,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-032 메모 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
+    fun `TC-8694a648-5353-42af-986a-a6b7b907c5ad 메모 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
         val memo = memo(title = TRIP_TITLE, start = july(day = 7), endInclusive = july(day = 9))
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -143,7 +143,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-033 여러 주에 나뉘어 표시된 메모 제목은 어느 조각을 눌러도 같은 메모의 MemoDetail 화면으로 이동한다`() {
+    fun `TC-99e7573f-b395-48c1-9ca2-c0adb599cb48 여러 주에 나뉘어 표시된 메모 제목은 어느 조각을 눌러도 같은 메모의 MemoDetail 화면으로 이동한다`() {
         val memo =
             memo(
                 title = LONG_TRIP_TITLE,
@@ -167,7 +167,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-060 하루 일정인 메모와 종일 기간인 메모의 제목이 모두 캘린더에 표시된다`() {
+    fun `TC-d72d4ecc-48e3-4bcd-9792-04a52147e059 하루 일정인 메모와 종일 기간인 메모의 제목이 모두 캘린더에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             memoListFlow =
@@ -184,7 +184,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-061 하루 일정인 메모의 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
+    fun `TC-d710a65b-e579-4bf8-b216-02c424ea72f8 하루 일정인 메모의 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
         val memo = timedMemo(title = MEETING_TITLE, date = july(day = 7), startHour = 9, endHour = 10)
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -200,7 +200,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-064 여러 날에 걸친 시각이 있는 기간인 메모의 제목도 캘린더에 표시된다`() {
+    fun `TC-99231f3d-4f8e-4454-8fd1-5a94726311c6 여러 날에 걸친 시각이 있는 기간인 메모의 제목도 캘린더에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             memoListFlow =
@@ -221,7 +221,7 @@ class CalendarHomeScreenMemoTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-065 여러 날에 걸친 시각이 있는 기간인 메모의 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
+    fun `TC-60c7380c-cbe2-467d-901c-96ac56b0a735 여러 날에 걸친 시각이 있는 기간인 메모의 제목을 누르면 그 메모의 MemoDetail 화면으로 이동한다`() {
         val memo =
             timedMemo(
                 title = WORKSHOP_TITLE,

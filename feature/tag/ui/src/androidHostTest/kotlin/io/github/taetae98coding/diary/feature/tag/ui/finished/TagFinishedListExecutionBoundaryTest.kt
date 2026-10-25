@@ -61,7 +61,7 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-030 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+    fun `TC-1d7a4270-9e8c-4a5f-a1f0-7aa6e7102eba 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
         setFinishedListNavDisplay(tagList = tagList())
 
         openFinishedList()
@@ -74,7 +74,7 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-031 태그 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
+    fun `TC-758c07f1-09c2-44a7-86a2-dd9e765af8b7 태그 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
         val tagList = tagList()
         setFinishedListNavDisplay(tagList = tagList)
         openFinishedList()
@@ -90,7 +90,7 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DOMAIN-011 TagHome 목록으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
+    fun `TC-a703d126-230a-458f-a749-fb880372396b TagHome 목록으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
         val tagList = tagList()
         setFinishedListNavDisplay(tagList = tagList)
         openFinishedList()
@@ -108,7 +108,7 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DOMAIN-012 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-30150e03-3e37-42b6-9818-f6539b2572c5 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
         val tagList = tagList()
         setFinishedListNavDisplay(tagList = tagList)
         openFinishedList()

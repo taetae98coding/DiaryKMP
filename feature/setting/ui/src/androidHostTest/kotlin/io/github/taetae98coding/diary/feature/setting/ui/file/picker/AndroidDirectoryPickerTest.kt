@@ -36,7 +36,7 @@ class AndroidDirectoryPickerTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-FILE-DOMAIN-002 선택 도구가 열린 동안 화면이 재생성되어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
+    fun `TC-4a16856d-4ec7-44bf-a4bf-d11d437a63b5 선택 도구가 열린 동안 화면이 재생성되어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
         val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${fixtureMonkey.giveMeOne<Int>()}")
         val harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<String>()
@@ -56,7 +56,7 @@ class AndroidDirectoryPickerTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-DOMAIN-002 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
+    fun `TC-4a16856d-4ec7-44bf-a4bf-d11d437a63b5 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
         val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${fixtureMonkey.giveMeOne<Int>()}")
         var harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<String>()
@@ -80,7 +80,7 @@ class AndroidDirectoryPickerTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-007 폴더를 고르지 않고 선택 도구를 닫으면 고른 폴더를 전달하지 않는다`() {
+    fun `TC-5a7c116a-9f0a-4126-9c26-1624c7a91034 폴더를 고르지 않고 선택 도구를 닫으면 고른 폴더를 전달하지 않는다`() {
         val harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<String>()
         lateinit var picker: DirectoryPicker

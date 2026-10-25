@@ -28,7 +28,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-011 황금연휴 항목에 공휴일 이름과 기간과 일수가 표시된다`() {
+    fun `TC-e700e906-c419-42b1-a43c-090708bef7dd 황금연휴 항목에 공휴일 이름과 기간과 일수가 표시된다`() {
         val holiday = holiday(name = HOLIDAY_NAME, start = february(day = 6))
         setGoldenHoliday(
             optionList =
@@ -47,7 +47,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-012 연차를 사용하는 연휴에 사용 연차 일수와 연차 이름이 표시된다`() {
+    fun `TC-c5a22d80-829f-414a-a145-335524f0e1ff 연차를 사용하는 연휴에 사용 연차 일수와 연차 이름이 표시된다`() {
         val holiday = holiday(name = HOLIDAY_NAME, start = february(day = 5))
         setGoldenHoliday(
             optionList =
@@ -66,7 +66,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-013 연차를 사용하지 않는 연휴에는 연차 이름이 표시되지 않는다`() {
+    fun `TC-82d93f4a-144e-462e-866f-a82e2c17bfa4 연차를 사용하지 않는 연휴에는 연차 이름이 표시되지 않는다`() {
         val holiday = holiday(name = HOLIDAY_NAME, start = february(day = 6))
         setGoldenHoliday(
             optionList =
@@ -84,7 +84,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-014 연휴가 걸친 주가 모두 표시된다`() {
+    fun `TC-07ee7503-676c-470b-8863-7787c0e14ae9 연휴가 걸친 주가 모두 표시된다`() {
         val holiday =
             holiday(
                 name = LONG_HOLIDAY_NAME,
@@ -106,7 +106,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-048 같은 이름의 공휴일이 여러 개 포함되면 이름은 한 번만 표시된다`() {
+    fun `TC-9e064210-5d1b-4c49-8be4-1ca3873f6d18 같은 이름의 공휴일이 여러 개 포함되면 이름은 한 번만 표시된다`() {
         setGoldenHoliday(
             optionList =
                 listOf(
@@ -128,7 +128,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-057 연이은 연차 날짜는 하나의 연차로 이어서 표시된다`() {
+    fun `TC-0b587150-9316-4af1-a4b1-19134d6da877 연이은 연차 날짜는 하나의 연차로 이어서 표시된다`() {
         setGoldenHoliday(
             optionList =
                 listOf(

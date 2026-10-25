@@ -33,7 +33,7 @@ class RefreshUserDataUseCaseTest :
             When("사용자 정보 다시 확인을 시작한다") {
                 val result = useCase(Unit)
 
-                Then("TC-MORE-HOME-FEATURE-032 저장된 사용자 정보를 다시 받는 요청이 한 번 이루어지고 성공이 전달된다") {
+                Then("TC-30e7cfcf-7076-4ad9-b152-4c228f4d17d8 저장된 사용자 정보를 다시 받는 요청이 한 번 이루어지고 성공이 전달된다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { repository.refresh() }
                 }
@@ -52,7 +52,7 @@ class RefreshUserDataUseCaseTest :
                 When("사용자 정보 다시 확인을 시작한다") {
                     val result = useCase(Unit)
 
-                    Then("TC-MORE-HOME-DOMAIN-012 $name 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
+                    Then("TC-680f56fb-e443-4367-a3bb-5d70337e5047 $name 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
                         result.shouldBeSuccess()
                         coVerify(exactly = 0) { repository.refresh() }
                     }
@@ -68,7 +68,7 @@ class RefreshUserDataUseCaseTest :
             val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase, userDataRepository = repository)
 
             When("사용자 정보 다시 확인을 시작한다") {
-                Then("TC-MORE-HOME-DOMAIN-012 아직 받지 못함 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
+                Then("TC-680f56fb-e443-4367-a3bb-5d70337e5047 아직 받지 못함 저장된 사용자 정보를 다시 받는 요청이 이루어지지 않는다") {
                     runTest {
                         backgroundScope.launch { useCase(Unit) }
                         advanceUntilIdle()
@@ -93,7 +93,7 @@ class RefreshUserDataUseCaseTest :
                 val useCase = RefreshUserDataUseCase(getAccountUseCase = getAccountUseCase, userDataRepository = repository)
 
                 When("기다리던 계정 정보 확인이 $name") {
-                    Then("TC-MORE-HOME-DOMAIN-017 $name 저장된 사용자 정보를 다시 받는 요청이 ${expectedRefreshCount}번 이루어진다") {
+                    Then("TC-b40b7f0d-6dca-439d-96e1-cd6eb03e3aa1 $name 저장된 사용자 정보를 다시 받는 요청이 ${expectedRefreshCount}번 이루어진다") {
                         runTest {
                             val refresh = backgroundScope.launch { useCase(Unit) }
                             advanceUntilIdle()
@@ -117,7 +117,7 @@ class RefreshUserDataUseCaseTest :
             When("사용자 정보 다시 확인을 시작한다") {
                 val result = useCase(Unit)
 
-                Then("TC-MORE-HOME-DOMAIN-013 실패가 그대로 전달된다") {
+                Then("TC-1b93af08-c181-480d-a9bb-6477302074c7 실패가 그대로 전달된다") {
                     result.shouldBeFailure()
                 }
             }

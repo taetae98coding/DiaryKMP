@@ -13,7 +13,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class ChromeCookieDecryptorTest :
     FunSpec({
-        test("TC-CHROME-SESSION-IMPORT-DATA-001 v10으로 암호화한 값을 원래 값으로 되돌린다") {
+        test("TC-55ec15b6-9aa0-4f2d-b34f-eeef8d32647d v10으로 암호화한 값을 원래 값으로 되돌린다") {
             val key = randomAesKey()
             val value = "value-${fixtureMonkey.giveMeOne<String>()}"
             val encrypted = encryptChromeCookieValue(value = value, hostKey = "example.com", key = key, withDomainHash = false)

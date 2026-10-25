@@ -38,7 +38,7 @@ class FindPlaceUseCaseTest :
                 )
 
             When("대상 장소를 조회한다") {
-                Then("TC-PLACE-DETAIL-DATA-001 계정과 대상 식별자로 조회한 장소를 전달한다") {
+                Then("TC-0fad4667-a470-48d7-b8b0-d67cafc909ae 계정과 대상 식별자로 조회한 장소를 전달한다") {
                     useCase(parameter = place.id).first().shouldBeSuccess(place)
                 }
             }
@@ -58,7 +58,7 @@ class FindPlaceUseCaseTest :
                 )
 
             When("대상 장소를 조회한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-001 조회할 수 없는 것으로 전달한다") {
+                Then("TC-8df9d1f4-ce1e-47e2-9929-ea6b531d30ab 조회할 수 없는 것으로 전달한다") {
                     useCase(parameter = id).first().shouldBeSuccess(null)
                 }
             }
@@ -76,7 +76,7 @@ class FindPlaceUseCaseTest :
                 )
 
             When("대상 장소를 조회한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-002 실패를 그대로 전달한다") {
+                Then("TC-b5c2589f-fc07-4105-841c-b3c02fdc8e65 실패를 그대로 전달한다") {
                     useCase(parameter = Uuid.random())
                         .first()
                         .shouldBeFailure()
@@ -101,7 +101,7 @@ class FindPlaceUseCaseTest :
                 )
 
             When("저장된 제목이 바뀐다") {
-                Then("TC-PLACE-DETAIL-DATA-002 조회 결과가 갱신된다") {
+                Then("TC-f7f61215-e581-4e0c-af7c-9db899bc4d6d 조회 결과가 갱신된다") {
                     runTest {
                         useCase(parameter = place.id).first().shouldBeSuccess(place)
 

@@ -16,13 +16,13 @@ import kotlin.uuid.Uuid
 
 class SearchedPlaceMapperTest :
     FunSpec({
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-010 네이버 이름의 강조 표식을 제거한다") {
+        test("TC-165b3a7d-e8b9-44db-8de6-1fc45e3f4d51 네이버 이름의 강조 표식을 제거한다") {
             val place = naverPlace(title = "<b>서울</b>역 <B>맛집</B>")
 
             place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>()).name shouldBe "서울역 맛집"
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-011 네이버 결과의 주소는 도로명 주소를 먼저 보여 준다") {
+        test("TC-8faf1cb5-cbd4-4d47-ac79-47103378eac2 네이버 결과의 주소는 도로명 주소를 먼저 보여 준다") {
             val jibun = "지번-${fixtureMonkey.giveMeOne<String>()}"
             val road = "도로명-${fixtureMonkey.giveMeOne<String>()}"
 
@@ -38,7 +38,7 @@ class SearchedPlaceMapperTest :
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-013 Google 결과의 주소는 전체 주소를 먼저 보여 준다") {
+        test("TC-578a8b85-e169-4604-9240-64501d16ef2b Google 결과의 주소는 전체 주소를 먼저 보여 준다") {
             val formatted = "전체-${fixtureMonkey.giveMeOne<String>()}"
             val short = "짧은-${fixtureMonkey.giveMeOne<String>()}"
 

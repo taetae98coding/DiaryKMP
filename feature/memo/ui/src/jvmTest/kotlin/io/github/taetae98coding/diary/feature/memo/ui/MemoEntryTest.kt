@@ -39,7 +39,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class MemoEntryTest :
     FunSpec({
-        test("TC-MEMO-LIST-DETAIL-FEATURE-017 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
+        test("TC-69618ec9-ff62-4854-acd2-a344b4e97e43 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
             val addKey = MemoAddNavKey()
             val backStackCases =
@@ -59,7 +59,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-MEMO-LIST-DETAIL-FEATURE-003 목록에서 메모를 선택하면 그 메모의 상세가 상세 영역에 놓인다") {
+        test("TC-ec5cc549-0d17-49af-9e6d-ac3998c3ce92 목록에서 메모를 선택하면 그 메모의 상세가 상세 영역에 놓인다") {
             val selectedId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey)
 
@@ -69,7 +69,7 @@ class MemoEntryTest :
             metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-MEMO-LIST-DETAIL-FEATURE-015 상세 영역에 메모 상세가 놓인 동안 목록에서 추가를 실행하면 메모 추가가 상세 영역에 놓인다") {
+        test("TC-54d0f158-e2b8-4e17-aa11-965d5435bd36 상세 영역에 메모 상세가 놓인 동안 목록에서 추가를 실행하면 메모 추가가 상세 영역에 놓인다") {
             val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, detailKey)
 
@@ -79,7 +79,7 @@ class MemoEntryTest :
             metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-MEMO-LIST-DETAIL-FEATURE-024 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
+        test("TC-bc758a5f-a423-4e44-b44d-b2b2486e8884 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
             val addKey = MemoAddNavKey()
             val backStackCases =
@@ -94,7 +94,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-MEMO-LIST-DETAIL-FEATURE-025 필터를 열어도 목록의 메모 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
+        test("TC-50bf2616-fbd6-494b-aa25-ab3ae5cd84d7 필터를 열어도 목록의 메모 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
             val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val addKey = MemoAddNavKey()
             val backStackCases =
@@ -114,7 +114,7 @@ class MemoEntryTest :
         }
 
         test(
-            "TC-MEMO-LIST-DETAIL-FEATURE-016 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 TC-TAG-DETAIL-MEMO-FEATURE-031 " +
+            "TC-e21e272c-e40f-4e9d-aad7-bf5a54dfb035 TC-82555806-07af-4604-9e2c-148db442cb25 TC-e9e30493-4fea-45ac-aa7b-13d43f9f057a " +
                 "메모 목록이나 완료된 메모 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다",
         ) {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
@@ -142,7 +142,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 TagMemoFinishedList에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
+        test("TC-5d4035f7-5d0b-4a78-9d62-bc8832d86406 TagMemoFinishedList에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val tagId = Uuid.random()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
             val detailKey = MemoDetailNavKey(id = Uuid.random())
@@ -162,7 +162,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 상세 pane의 scene 키는 진입한 목록 pane마다 다르다") {
+        test("TC-82555806-07af-4604-9e2c-148db442cb25 상세 pane의 scene 키는 진입한 목록 pane마다 다르다") {
             val tagId = Uuid.random()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
             val otherTagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Uuid.random())
@@ -186,7 +186,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 항목 완료 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
+        test("TC-69de256a-e21f-4869-9aee-af7ea3d53bd0 항목 완료 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
 
             entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
@@ -202,7 +202,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 항목 완료 메모 목록에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
+        test("TC-b0eb45ed-3fc5-4394-880d-24592d42bb5e 항목 완료 메모 목록에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
             val addKey = MemoAddNavKey()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Uuid.random())
@@ -223,13 +223,13 @@ class MemoEntryTest :
                 MemoFinishedListNavKey
         }
 
-        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-001 MemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
+        test("TC-d5d2c870-c1a8-4977-bd89-f6f37f88fd13 MemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
             val backStack = listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey)
 
             metadataOf(backStack = backStack, key = MemoFinishedListNavKey).keys shouldBe listPaneMetadataKeys
         }
 
-        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 완료된 메모 목록에서 고른 메모의 상세는 그 목록의 상세 pane에 놓인다") {
+        test("TC-dd8970a8-0084-4755-9ece-aade2474e3d2 TC-4aad5acb-d137-4580-90d6-73ba27ba770c 완료된 메모 목록에서 고른 메모의 상세는 그 목록의 상세 pane에 놓인다") {
             val previousDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(previousDetailKey))
 
@@ -245,7 +245,7 @@ class MemoEntryTest :
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-004 다른 메모를 고르면 앞 메모 상세를 쌓지 않고 교체한다") {
+        test("TC-cfd4bb51-93d4-41cf-881b-af6f01ec14ae 다른 메모를 고르면 앞 메모 상세를 쌓지 않고 교체한다") {
             val selectedId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack =
                 NavBackStack<ScreenNavKey>(
@@ -261,7 +261,7 @@ class MemoEntryTest :
             backStack.memoDetailPaneSceneKey(key = backStack.last()) shouldBe MemoFinishedListNavKey
         }
 
-        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 MemoFinishedList에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
+        test("TC-95e17dbf-5c89-4501-aaee-fd14f21e11ef MemoFinishedList에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
             val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
             val sceneKeyCases =

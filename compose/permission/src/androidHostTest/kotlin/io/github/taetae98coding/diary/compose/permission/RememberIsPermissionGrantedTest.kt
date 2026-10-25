@@ -34,7 +34,7 @@ class RememberIsPermissionGrantedTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-008 허용 여부를 확인해도 시스템 위치 권한 요청이 시작되지 않는다`() {
+    fun `TC-7bdc8ee3-87bd-4fb8-bf62-630b49d6bc2d 허용 여부를 확인해도 시스템 위치 권한 요청이 시작되지 않는다`() {
         val registry = launchIgnoringRegistry()
 
         setIsPermissionGranted(registry = registry)
@@ -45,7 +45,7 @@ class RememberIsPermissionGrantedTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-009 앱 밖에서 위치 권한을 허용하고 돌아오면 바뀐 허용 여부가 반영된다`() {
+    fun `TC-d621cb4d-9431-43c2-b544-34d9b5834ec4 앱 밖에서 위치 권한을 허용하고 돌아오면 바뀐 허용 여부가 반영된다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
         setIsPermissionGranted(lifecycleOwner = lifecycleOwner)
@@ -60,7 +60,7 @@ class RememberIsPermissionGrantedTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-009 앱 밖에서 위치 권한을 거두고 돌아오면 바뀐 허용 여부가 반영된다`() {
+    fun `TC-d621cb4d-9431-43c2-b544-34d9b5834ec4 앱 밖에서 위치 권한을 거두고 돌아오면 바뀐 허용 여부가 반영된다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(*LOCATION_PERMISSION_LIST)
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
@@ -76,7 +76,7 @@ class RememberIsPermissionGrantedTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-012 대략적인 위치만 허용된 상태도 허용으로 확인한다`() {
+    fun `TC-c4005516-f2e1-463f-8e63-9617cee1a8cf 대략적인 위치만 허용된 상태도 허용으로 확인한다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
 
         setIsPermissionGranted()

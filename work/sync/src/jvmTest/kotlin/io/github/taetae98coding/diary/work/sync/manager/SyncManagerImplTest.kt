@@ -35,7 +35,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-002 진행 보고를 요청한 동기화가 실행되면 진행 표시 대상이 된다") {
+        test("TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 진행 보고를 요청한 동기화가 실행되면 진행 표시 대상이 된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -49,7 +49,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-004 변경으로 시작된 동기화가 실행되어도 진행 표시 대상이 아니다") {
+        test("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 변경으로 시작된 동기화가 실행되어도 진행 표시 대상이 아니다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -63,7 +63,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시 대상에서 해제된다") {
+        test("TC-19d9feda-6635-4b91-a41f-448cb4703f92 동기화가 끝나면 진행 표시 대상에서 해제된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -79,7 +79,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-001 요청한 동기화가 실행되지 않고 기다리는 동안에는 진행 표시 대상이 아니다") {
+        test("TC-d3c86eec-fa12-4227-9773-521cf1a7800b 요청한 동기화가 실행되지 않고 기다리는 동안에는 진행 표시 대상이 아니다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -93,7 +93,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-002 기다리던 작업이 실행되기 시작하면 진행 표시 대상이 된다") {
+        test("TC-486caf69-48e9-462b-9a8f-9ff3074bc0f2 기다리던 작업이 실행되기 시작하면 진행 표시 대상이 된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -110,7 +110,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-005 진행 표시 중 진행을 보고하지 않는 요청으로 새 동기화가 이어져도 끝날 때까지 진행 표시가 유지된다") {
+        test("TC-904c3de1-9a96-4f74-9e76-74ebeaedfe00 진행 표시 중 진행을 보고하지 않는 요청으로 새 동기화가 이어져도 끝날 때까지 진행 표시가 유지된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -131,7 +131,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-009 진행 중에 다시 당기면 새 동기화를 요청하고 진행 표시가 이어진다") {
+        test("TC-1f820570-271d-47fe-afe1-2e6d8126d8dd 진행 중에 다시 당기면 새 동기화를 요청하고 진행 표시가 이어진다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncWorkScheduler = syncWorkScheduler(workState = workState)
@@ -149,7 +149,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-006 이어진 동기화가 끝난 뒤의 변경 계기는 진행 표시 대상이 아니다") {
+        test("TC-6c1ddc49-6e24-43a4-85c1-d0db3fb0cca5 이어진 동기화가 끝난 뒤의 변경 계기는 진행 표시 대상이 아니다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -168,7 +168,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-010 화면이 재생성되어 다시 관찰하면 그 시점의 실행 여부로 진행 표시를 다시 정한다") {
+        test("TC-3431cb48-65a3-4fbf-a213-f3dd87b2b079 화면이 재생성되어 다시 관찰하면 그 시점의 실행 여부로 진행 표시를 다시 정한다") {
             // 재생성 시점의 실행 여부: 표시 대상 동기화 실행 중, 실행 중인 동기화 없음, 표시 대상이 아닌 동기화만 실행 중
             val caseList =
                 listOf(
@@ -200,7 +200,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-011 TC-SYNC-REFRESH-DOMAIN-012 이어서 실행 중인 작업은 계정이 확인될 때부터 진행 표시 대상이 된다") {
+        test("TC-30e6f8ea-4f11-48ce-b8c9-cf9eef84fd9a TC-32901c46-d015-48a7-8670-935bf75d1290 이어서 실행 중인 작업은 계정이 확인될 때부터 진행 표시 대상이 된다") {
             runTest {
                 // 앱을 다시 실행해 표시 대상 여부가 초기화된 상태에서 이전 실행의 작업이 계속 실행되고 있다.
                 val workState = MutableStateFlow(SyncWorkState.RUNNING)
@@ -215,7 +215,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-013 한 화면에서 당겨 시작한 동기화가 실행 중이면 옮겨 간 다른 화면에도 진행이 표시된다") {
+        test("TC-eaa94eec-d118-445d-ae48-8c7468003975 한 화면에서 당겨 시작한 동기화가 실행 중이면 옮겨 간 다른 화면에도 진행이 표시된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -237,7 +237,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-014 다른 화면에 다녀오면 돌아온 시점의 실행 여부로 진행 표시를 다시 정한다") {
+        test("TC-549a9498-d929-4f70-9cbe-000f23525afb 다른 화면에 다녀오면 돌아온 시점의 실행 여부로 진행 표시를 다시 정한다") {
             val caseList =
                 listOf(
                     SyncWorkState.RUNNING to true,
@@ -267,7 +267,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-014 다른 화면에 다녀온 사이 표시 대상이 아닌 동기화만 실행 중이면 진행을 표시하지 않는다") {
+        test("TC-549a9498-d929-4f70-9cbe-000f23525afb 다른 화면에 다녀온 사이 표시 대상이 아닌 동기화만 실행 중이면 진행을 표시하지 않는다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -285,7 +285,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 주기를 백그라운드 작업에 전달한다") {
+        test("TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 주기 동기화 예약의 주기를 백그라운드 작업에 전달한다") {
             runTest {
                 val period = 4.hours
                 val periodicSyncWorkScheduler = periodicSyncWorkScheduler()
@@ -297,7 +297,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-059 주기 동기화 예약 해제를 백그라운드 작업에 전달한다") {
+        test("TC-cc07f234-2c6a-4021-a650-4a0161718819 주기 동기화 예약 해제를 백그라운드 작업에 전달한다") {
             runTest {
                 val periodicSyncWorkScheduler = periodicSyncWorkScheduler()
                 val syncManager = syncManager(periodicSyncWorkScheduler = periodicSyncWorkScheduler, scope = backgroundScope)
@@ -308,7 +308,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-011 주기 동기화만 예약되어 실행되면 진행 표시 대상이 되지 않는다") {
+        test("TC-16116bd8-e994-44d9-8a67-4d3920488939 주기 동기화만 예약되어 실행되면 진행 표시 대상이 되지 않는다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)

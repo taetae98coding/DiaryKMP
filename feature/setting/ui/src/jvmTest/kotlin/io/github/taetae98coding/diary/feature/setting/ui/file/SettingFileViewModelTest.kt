@@ -47,7 +47,7 @@ class SettingFileViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-FILE-FEATURE-002 저장된 설정을 확인하기 전이거나 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-283ec755-2b37-46d3-b133-b22eb704af9a 저장된 설정을 확인하기 전이거나 읽지 못하면 확인 중 상태를 유지한다") {
             listOf(emptyFlow(), flowOf(Result.failure<FileDownloadSetting>(IllegalStateException("read error")))).forEach { setting ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(setting = setting)
@@ -61,7 +61,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-FEATURE-003 TC-SETTING-FILE-FEATURE-004 저장된 설정의 고른 폴더를 그대로 제공한다") {
+        test("TC-2e3176b1-a1f4-4217-9cb9-e7141780387f TC-0d5074c9-38b9-433a-aa49-7b74fe270e88 저장된 설정의 고른 폴더를 그대로 제공한다") {
             listOf(null, fixtureMonkey.giveMeOne<FileDownloadDirectory>()).forEach { directory ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = directory))))
@@ -74,7 +74,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-FEATURE-006 폴더를 고르면 곧바로 저장되고 저장된 폴더가 화면의 위치가 된다") {
+        test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 곧바로 저장되고 저장된 폴더가 화면의 위치가 된다") {
             runTest(mainDispatcher) {
                 val uri = fixtureMonkey.giveMeOne<String>()
                 val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(uri = uri)
@@ -102,7 +102,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-FEATURE-008 폴더를 쓰도록 허락받지 못하거나 저장에 실패하면 실패를 알리고 설정은 그대로 둔다") {
+        test("TC-41fd402c-68d3-4b41-9366-c2f9bb19d9ca 폴더를 쓰도록 허락받지 못하거나 저장에 실패하면 실패를 알리고 설정은 그대로 둔다") {
             runTest(mainDispatcher) {
                 val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
                 val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
@@ -121,7 +121,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-FEATURE-009 기본 위치로 되돌리면 고른 폴더가 없는 설정이 화면의 위치가 된다") {
+        test("TC-cef9e1ad-cca8-4668-b96c-e2124fbc09d7 기본 위치로 되돌리면 고른 폴더가 없는 설정이 화면의 위치가 된다") {
             runTest(mainDispatcher) {
                 val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>())))
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
@@ -143,7 +143,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-FEATURE-010 되돌리기에 실패하면 실패를 알린다") {
+        test("TC-3a05cdca-74ef-4bb0-8d41-247f33ec83d2 되돌리기에 실패하면 실패를 알린다") {
             runTest(mainDispatcher) {
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
                 coEvery { unsetUseCase(Unit) } returns Result.failure(IllegalStateException("write error"))
@@ -157,7 +157,7 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-FILE-DOMAIN-001 저장하는 동안에는 폴더 고르기와 되돌리기를 다시 처리하지 않는다") {
+        test("TC-26317d55-0959-4669-8b2c-7aa6a2df9b2c 저장하는 동안에는 폴더 고르기와 되돌리기를 다시 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val pending = CompletableDeferred<Result<Unit>>()
                 val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()

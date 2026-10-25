@@ -52,7 +52,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-030 메모 카드를 시작 방향으로 밀면 완료 여부에 맞는 동작을 요청하고 기본 안내를 표시한다`() {
+    fun `TC-59805e68-ece8-4b40-9ff0-9fb81549022d 메모 카드를 시작 방향으로 밀면 완료 여부에 맞는 동작을 요청하고 기본 안내를 표시한다`() {
         val unfinished = resultMemo()
         val finished = resultMemo(isFinished = true)
         composeRule.setSearchHomeScreen(memoList = listOf(unfinished, finished))
@@ -73,7 +73,7 @@ class SearchHomeSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SEARCH-HOME-FEATURE-030 한국어 환경에서 메모 완료와 다시 시작 안내를 표시한다`() {
+    fun `TC-59805e68-ece8-4b40-9ff0-9fb81549022d 한국어 환경에서 메모 완료와 다시 시작 안내를 표시한다`() {
         val unfinished = resultMemo()
         val finished = resultMemo(isFinished = true)
         composeRule.setSearchHomeScreen(memoList = listOf(unfinished, finished))
@@ -90,7 +90,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-031 태그 카드를 시작 방향으로 밀면 완료 여부에 맞는 동작을 요청하고 기본 안내를 표시한다`() {
+    fun `TC-e1cb79a7-62eb-4e64-8242-f9f62fe382bd 태그 카드를 시작 방향으로 밀면 완료 여부에 맞는 동작을 요청하고 기본 안내를 표시한다`() {
         val unfinished = resultTag()
         val finished = resultTag(isFinished = true)
         composeRule.setSearchHomeScreen(tagList = listOf(unfinished, finished))
@@ -111,7 +111,7 @@ class SearchHomeSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SEARCH-HOME-FEATURE-031 한국어 환경에서 태그 완료와 다시 시작 안내를 표시한다`() {
+    fun `TC-e1cb79a7-62eb-4e64-8242-f9f62fe382bd 한국어 환경에서 태그 완료와 다시 시작 안내를 표시한다`() {
         val unfinished = resultTag()
         val finished = resultTag(isFinished = true)
         composeRule.setSearchHomeScreen(tagList = listOf(unfinished, finished))
@@ -128,7 +128,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-032 네 유형의 결과 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내를 표시한다`() {
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 네 유형의 결과 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내를 표시한다`() {
         val memo = resultMemo()
         val tag = resultTag()
         val place = resultPlace()
@@ -159,7 +159,7 @@ class SearchHomeSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SEARCH-HOME-FEATURE-032 한국어 환경에서 네 유형의 삭제 안내를 표시한다`() {
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 한국어 환경에서 네 유형의 삭제 안내를 표시한다`() {
         val memo = resultMemo()
         val tag = resultTag()
         val place = resultPlace()
@@ -184,7 +184,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 메모 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 메모 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -195,7 +195,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 메모 다시 시작을 실행 취소하면 그 다시 시작을 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 메모 다시 시작을 실행 취소하면 그 다시 시작을 되돌리는 요청을 보낸다`() {
         val memo = resultMemo(isFinished = true)
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -206,7 +206,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 메모 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 메모 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -217,7 +217,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 태그 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
         val tag = resultTag()
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -229,7 +229,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 태그 다시 시작을 실행 취소하면 그 다시 시작을 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 다시 시작을 실행 취소하면 그 다시 시작을 되돌리는 요청을 보낸다`() {
         val tag = resultTag(isFinished = true)
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -241,7 +241,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 태그 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
         val tag = resultTag()
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -253,7 +253,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-033 장소와 웹 항목의 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 장소와 웹 항목의 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
         val place = resultPlace()
         val web = resultWeb()
         composeRule.setSearchHomeScreen(placeList = listOf(place), webList = listOf(web))
@@ -270,7 +270,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-034 장소와 웹 카드를 시작 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+    fun `TC-fb17bb9c-c8c9-4b06-a0fa-b02b18f54f7f 장소와 웹 카드를 시작 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
         val place = resultPlace()
         val web = resultWeb()
         composeRule.setSearchHomeScreen(placeList = listOf(place), webList = listOf(web))
@@ -289,7 +289,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-037 안내가 보이는 동안 다른 메모가 삭제되면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-61959064-1f9f-4eb9-9a56-839808c63c7a 안내가 보이는 동안 다른 메모가 삭제되면 마지막 삭제에만 실행 취소가 적용된다`() {
         val first = resultMemo()
         val second = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(first, second))
@@ -308,7 +308,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-038 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-162729c5-e5ad-49cc-878d-d7b43f4a3589 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -324,7 +324,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-039 안내가 보이는 동안 다른 유형으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-a89077d7-67c6-40f1-95c1-937e198d025d 안내가 보이는 동안 다른 유형으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -340,7 +340,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-040 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-cb575460-9e87-4290-8f34-8bbb882d677c 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo), isShownProvider = { isShown })
@@ -360,7 +360,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-041 안내가 보이는 동안 질의를 고쳐도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-bb5bf7b6-f243-4053-9f1e-76693f565171 안내가 보이는 동안 질의를 고쳐도 안내가 남고 실행 취소할 수 있다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -375,7 +375,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-041 안내가 보이는 동안 정렬을 바꿔도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-bb5bf7b6-f243-4053-9f1e-76693f565171 안내가 보이는 동안 정렬을 바꿔도 안내가 남고 실행 취소할 수 있다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -394,7 +394,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-042 메모 카드 위에서 오른쪽으로 밀면 유형은 바뀌지 않고 그 메모의 완료를 요청한다`() {
+    fun `TC-0e18ab4a-58b2-484f-afde-c2d4a42fae86 메모 카드 위에서 오른쪽으로 밀면 유형은 바뀌지 않고 그 메모의 완료를 요청한다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -405,7 +405,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-042 태그 카드 위에서 왼쪽으로 밀면 유형은 바뀌지 않고 그 태그의 삭제를 요청한다`() {
+    fun `TC-0e18ab4a-58b2-484f-afde-c2d4a42fae86 태그 카드 위에서 왼쪽으로 밀면 유형은 바뀌지 않고 그 태그의 삭제를 요청한다`() {
         val tag = resultTag()
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -417,7 +417,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-042 웹 카드 위에서 오른쪽으로 밀면 유형은 바뀌지 않고 아무 동작도 요청하지 않는다`() {
+    fun `TC-0e18ab4a-58b2-484f-afde-c2d4a42fae86 웹 카드 위에서 오른쪽으로 밀면 유형은 바뀌지 않고 아무 동작도 요청하지 않는다`() {
         val web = resultWeb()
         composeRule.setSearchHomeScreen(webList = listOf(web))
         composeRule.selectSearchHomeTab(WEB_TAB_LABEL)
@@ -430,7 +430,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-043 카드 밖 여백에서 왼쪽으로 밀면 옆 유형으로 바뀐다`() {
+    fun `TC-27d83eb6-6808-44bf-9e74-bdefcf21b2c0 카드 밖 여백에서 왼쪽으로 밀면 옆 유형으로 바뀐다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -447,7 +447,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 완료한 메모가 결과에 남으면 그 카드는 다시 시작을 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료한 메모가 결과에 남으면 그 카드는 다시 시작을 요청한다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -462,7 +462,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 다시 시작한 메모가 결과에 남으면 그 카드는 완료를 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 다시 시작한 메모가 결과에 남으면 그 카드는 완료를 요청한다`() {
         val memo = resultMemo(isFinished = true)
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -477,7 +477,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 완료를 실행 취소한 메모가 결과에 남으면 그 카드는 다시 완료를 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료를 실행 취소한 메모가 결과에 남으면 그 카드는 다시 완료를 요청한다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
@@ -494,7 +494,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 완료한 태그가 결과에 남으면 그 카드는 다시 시작을 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료한 태그가 결과에 남으면 그 카드는 다시 시작을 요청한다`() {
         val tag = resultTag()
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -510,7 +510,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 다시 시작한 태그가 결과에 남으면 그 카드는 완료를 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 다시 시작한 태그가 결과에 남으면 그 카드는 완료를 요청한다`() {
         val tag = resultTag(isFinished = true)
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
@@ -526,7 +526,7 @@ class SearchHomeSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-044 완료를 실행 취소한 태그가 결과에 남으면 그 카드는 다시 완료를 요청한다`() {
+    fun `TC-4e88bd9f-b733-4df3-bf4b-6c499b9a3b54 완료를 실행 취소한 태그가 결과에 남으면 그 카드는 다시 완료를 요청한다`() {
         val tag = resultTag()
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
         composeRule.selectSearchHomeTab(TAG_TAB_LABEL)

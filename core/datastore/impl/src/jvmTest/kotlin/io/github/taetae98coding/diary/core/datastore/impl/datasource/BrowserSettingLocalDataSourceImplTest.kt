@@ -15,13 +15,13 @@ private const val PROFILE_DIRECTORY = "Profile 1"
 
 class BrowserSettingLocalDataSourceImplTest :
     FunSpec({
-        test("TC-SETTING-BROWSER-DATA-001 보관된 것이 없으면 고른 프로필이 없음을 제공한다") {
+        test("TC-ff647b05-ab2d-4a7c-b4e2-1b777b23ff20 보관된 것이 없으면 고른 프로필이 없음을 제공한다") {
             val dataSource = BrowserSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(BrowserSettingData())))
 
             dataSource.getChromeSessionProfileDirectory().first() shouldBe ""
         }
 
-        test("TC-SETTING-BROWSER-DATA-002 저장한 선택을 이후 조회에서 제공한다") {
+        test("TC-c247585a-0e54-480f-8d45-ae55450a14da 저장한 선택을 이후 조회에서 제공한다") {
             listOf(PROFILE_DIRECTORY, "").forEach { directory ->
                 val dataSource = BrowserSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(BrowserSettingData())))
 
@@ -31,7 +31,7 @@ class BrowserSettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-SETTING-BROWSER-DATA-004 보관된 선택이 바뀌면 바뀐 값을 이어서 제공한다") {
+        test("TC-d5152151-dea2-4201-a096-de0744c604b6 보관된 선택이 바뀌면 바뀐 값을 이어서 제공한다") {
             val settingFlow = MutableStateFlow(BrowserSettingData())
             val dataSource = BrowserSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 

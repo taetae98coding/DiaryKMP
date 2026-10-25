@@ -39,7 +39,7 @@ class ContactDetailTabBoundaryTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-020 앱이 백그라운드에 다녀와도 선택한 탭이 유지된다`() {
+    fun `TC-aaabe24f-ef74-498f-a9b3-bdf9bbc9f92f 앱이 백그라운드에 다녀와도 선택한 탭이 유지된다`() {
         composeRule.setContactDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content())))
         composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
@@ -54,7 +54,7 @@ class ContactDetailTabBoundaryTest {
 
     // 선택한 탭과 입력 내용은 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-013 TC-CONTACT-DETAIL-FEATURE-020 앱을 다시 실행해 들어오면 연락처 디테일 탭과 저장된 내용으로 시작한다`() {
+    fun `TC-66fe1ae0-5c27-40f0-bafc-db93304bb0f5 TC-eaa0d3cf-24b5-47c0-b968-beab1d53116a 앱을 다시 실행해 들어오면 연락처 디테일 탭과 저장된 내용으로 시작한다`() {
         val stored = testContactDetail()
 
         composeRule.setContactDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(stored = stored))))

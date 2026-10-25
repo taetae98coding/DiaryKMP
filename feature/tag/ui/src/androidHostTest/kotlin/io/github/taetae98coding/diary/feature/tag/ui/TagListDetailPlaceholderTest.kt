@@ -110,7 +110,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-001 TC-TAG-LIST-DETAIL-FEATURE-002 선택한 태그가 없으면 목록과 함께 상세 영역에 태그 추가 화면이 표시된다`() {
+    fun `TC-41f7589c-0d82-4bc5-9be2-db34cbf70264 TC-93946645-7dc1-438b-85b4-b5b84a926dbb 선택한 태그가 없으면 목록과 함께 상세 영역에 태그 추가 화면이 표시된다`() {
         setTagNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(TAG_HOME_CONTENT).assertExists()
@@ -120,7 +120,7 @@ class TagListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-TAG-LIST-DETAIL-FEATURE-004 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-d0f396e4-d06e-413b-97a8-fa0478da0b00 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
         setTagNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(TAG_HOME_CONTENT).assertExists()
@@ -143,7 +143,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-018 선택한 태그가 없을 때 태그 추가에서 연결한 태그를 누르면 그 태그를 선택한 것과 같다`() {
+    fun `TC-31d2740c-b007-4d37-bc2a-467cbc9e90ff 선택한 태그가 없을 때 태그 추가에서 연결한 태그를 누르면 그 태그를 선택한 것과 같다`() {
         val input = placeholderInput()
         setTagNavDisplay(input = input, isTagDetailScreen = true)
         composeRule.fillPlaceholder(input = input)
@@ -159,7 +159,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-020 선택한 태그가 없을 때 상세 영역에서 추가한 태그는 다른 태그 입력에 돌려주지 않는다`() {
+    fun `TC-02d2b347-3210-4073-a9eb-f6a89f47b605 선택한 태그가 없을 때 상세 영역에서 추가한 태그는 다른 태그 입력에 돌려주지 않는다`() {
         val input = placeholderInput()
         coEvery { addTagUseCase(parameter = any()) } returns Result.success(fixtureId())
         setTagNavDisplay(input = input)
@@ -173,7 +173,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-DOMAIN-002 다른 주요 목적지에 다녀오면 상세 영역의 태그 추가는 입력과 연결이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-16865921-607f-467c-baee-6249fc6fd85a 다른 주요 목적지에 다녀오면 상세 영역의 태그 추가는 입력과 연결이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setTagNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -197,22 +197,22 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 입력과 연결이 남는다`() {
+    fun `TC-98758bf8-de13-45c5-839b-312f29457d71 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 입력과 연결이 남는다`() {
         assertPlaceholderRetained(route = TagDetailNavKey(id = fixtureId()))
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 연결 입력으로 연 태그 추가에 다녀와도 태그 추가의 입력과 연결이 남는다`() {
+    fun `TC-98758bf8-de13-45c5-839b-312f29457d71 배치를 떠나기 전에는 연결 입력으로 연 태그 추가에 다녀와도 태그 추가의 입력과 연결이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureId()))
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-DOMAIN-006 완료된 태그 목록에 다녀와도 선택 전 태그 추가의 입력과 연결이 남는다`() {
+    fun `TC-62fc4ea3-f7fa-45c9-9f11-d138d4563e88 완료된 태그 목록에 다녀와도 선택 전 태그 추가의 입력과 연결이 남는다`() {
         assertPlaceholderRetained(route = TagFinishedListNavKey)
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-017 목록에서 고른 태그의 상세에서 시스템 뒤로가기를 사용하면 태그 상세를 고르기 전 상태로 돌아간다`() {
+    fun `TC-99964339-7621-458b-b2e1-86b115657409 목록에서 고른 태그의 상세에서 시스템 뒤로가기를 사용하면 태그 상세를 고르기 전 상태로 돌아간다`() {
         val pathCases =
             listOf(
                 listOf(TagDetailNavKey(id = fixtureId())),
@@ -241,7 +241,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-019 태그 상세 위에 연 태그 추가에서 시스템 뒤로가기를 사용하면 그 태그 상세로 돌아온다`() {
+    fun `TC-b4d6b49f-09cd-485f-b1a1-e8f7d0414ded 태그 상세 위에 연 태그 추가에서 시스템 뒤로가기를 사용하면 그 태그 상세로 돌아온다`() {
         val detailKey = TagDetailNavKey(id = fixtureId())
         setTagNavDisplay(input = placeholderInput())
         composeRule.runOnIdle { backStack.navigateToTagDetail(detailKey.id) }
@@ -258,7 +258,7 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-054 연결한 태그를 눌러 연 태그 상세에서 시스템 뒤로가기를 사용하면 목록을 유지하고 이전 태그의 상세로 돌아간다`() {
+    fun `TC-dc43207a-95ef-4a7f-9050-1154df3631bc 연결한 태그를 눌러 연 태그 상세에서 시스템 뒤로가기를 사용하면 목록을 유지하고 이전 태그의 상세로 돌아간다`() {
         val fromKey = TagDetailNavKey(id = fixtureId())
         val toKey = TagDetailNavKey(id = fixtureId())
         setTagNavDisplay(input = placeholderInput())

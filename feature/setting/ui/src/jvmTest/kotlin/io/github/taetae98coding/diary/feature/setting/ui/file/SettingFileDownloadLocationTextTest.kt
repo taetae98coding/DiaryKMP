@@ -12,7 +12,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class SettingFileDownloadLocationTextTest :
     FunSpec({
-        test("TC-SETTING-FILE-FEATURE-012 데스크톱 앱에서 고른 폴더의 보조 표시는 전체 경로다") {
+        test("TC-54007111-1d12-4faf-89ae-1c4c34ad4b10 데스크톱 앱에서 고른 폴더의 보조 표시는 전체 경로다") {
             val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
 
             directory.supportingText() shouldBe SettingFileLocationSupportingText.Text(text = directory.uri)

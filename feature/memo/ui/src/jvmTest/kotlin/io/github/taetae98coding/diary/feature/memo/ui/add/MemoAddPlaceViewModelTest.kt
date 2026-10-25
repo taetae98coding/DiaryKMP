@@ -52,7 +52,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-PLACE-CARD-FEATURE-042 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
+        test("TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = place()
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
@@ -68,7 +68,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-071 선택한 장소의 제목, 컬러, 위치가 바뀌면 장소 카드에 바로 반영된다") {
+        test("TC-65b06f4e-afc1-49bb-8e71-b7d9992aaa08 선택한 장소의 제목, 컬러, 위치가 바뀌면 장소 카드에 바로 반영된다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val changedPlace = place.copy(detail = fixtureMonkey.giveMeOne<Place>().detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}"))
@@ -93,7 +93,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-030 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-762261d0-1140-4db7-a87e-309fcf2a1e63 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { place() }
@@ -174,7 +174,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-063 PlaceDetail 메모 탭에서 진입하면 그 장소만 선택된 상태로 시작한다") {
+        test("TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 PlaceDetail 메모 탭에서 진입하면 그 장소만 선택된 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val target = place()
                 val other = place()
@@ -194,7 +194,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-064 PlaceDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+        test("TC-8a446cb3-f4b7-4dde-aed0-222187c3edba PlaceDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = place()
                 val other = place()
@@ -218,7 +218,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 장소는 PlaceDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+        test("TC-05cb9f46-4a6a-4410-85cd-379e6994e718 삭제된 대상 장소는 PlaceDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val deletedTarget = place()
                 val viewModel =
@@ -236,7 +236,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-048 진입하면 선택한 장소가 없는 상태로 시작한다") {
+        test("TC-bc3f31af-16ec-41b2-b0d5-9adbd70de1d1 진입하면 선택한 장소가 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val placeList = listOf(place(), place())
                 val viewModel =
@@ -278,7 +278,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-050 화면 구성이 변경되어도 선택한 장소를 유지한다") {
+        test("TC-ab2ece94-f511-437c-8719-99cd4027364c 화면 구성이 변경되어도 선택한 장소를 유지한다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = flowOf(Result.success(listOf(place))))
@@ -302,7 +302,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-009 선택한 장소가 삭제되면 선택에서 제외된 것으로 표시된다") {
+        test("TC-f97ab42a-b037-45f2-817d-791adbec3df9 선택한 장소가 삭제되면 선택에서 제외된 것으로 표시된다") {
             runTest(mainDispatcher) {
                 val remainingPlace = place()
                 val removedPlace = place()
@@ -325,7 +325,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-013 선택한 뒤 삭제된 장소도 선택으로 남는다") {
+        test("TC-5cd9d853-1b39-4712-9282-b33a84585338 선택한 뒤 삭제된 장소도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val remainingPlace = place()
                 val deletedPlace = place()
@@ -368,7 +368,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-MEMO-PLACE-CARD-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-56d7583e-169a-4162-b65f-8c12d501a15a 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allPlaceList = List(2) { place() }
                 val matchedPlaceList = listOf(allPlaceList.first())
@@ -389,7 +389,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-022 검색어를 바꿔도 카드에 노출하는 장소는 그대로다") {
+        test("TC-3ddcd5d5-32ec-4787-b118-31b9b2901311 검색어를 바꿔도 카드에 노출하는 장소는 그대로다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = flowOf(Result.success(listOf(place))))

@@ -26,7 +26,7 @@ class CalendarHomeScreenWeatherGroupTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-057 날씨 날짜와 겹치지 않는 메모 공휴일이 있는 주에서도 날씨와 메모 공휴일이 모두 표시된다`() {
+    fun `TC-7f929a63-3cf9-4963-a4af-19dbbc20fe53 날씨 날짜와 겹치지 않는 메모 공휴일이 있는 주에서도 날씨와 메모 공휴일이 모두 표시된다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
@@ -40,7 +40,7 @@ class CalendarHomeScreenWeatherGroupTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-058 날씨 날짜와 겹치는 메모가 있는 주에서도 날씨와 메모 공휴일이 모두 표시된다`() {
+    fun `TC-03a354fa-d0f2-4b47-a20b-6dabfb480bc9 날씨 날짜와 겹치는 메모가 있는 주에서도 날씨와 메모 공휴일이 모두 표시된다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 13), endInclusive = july(day = 14))),
@@ -55,7 +55,7 @@ class CalendarHomeScreenWeatherGroupTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "w411dp-h1600dp")
-    fun `TC-CALENDAR-HOME-FEATURE-059 메모끼리 겹치는 주에서도 날씨와 메모가 모두 표시된다`() {
+    fun `TC-139d7a0b-3d32-46a1-a7ce-c822e1a91cfa 메모끼리 겹치는 주에서도 날씨와 메모가 모두 표시된다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather()),
             memoList =

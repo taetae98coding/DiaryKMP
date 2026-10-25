@@ -46,7 +46,7 @@ import kotlin.uuid.Uuid
 
 class GeminiContentRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-MEMO-GEMINI-DATA-001: 인증 정보와 모델을 담아 생성을 요청한다") {
+        test("TC-9b073a1f-64e9-4bb1-be62-c93c520d2f8b: 인증 정보와 모델을 담아 생성을 요청한다") {
             val request = request()
             val engine = createEngine()
             val dataSource = createDataSource(engine)
@@ -79,7 +79,7 @@ class GeminiContentRemoteDataSourceImplTest :
             body["generationConfig"]!!.jsonObject["responseSchema"] shouldBe SCHEMA
         }
 
-        test("TC-MEMO-GEMINI-DATA-003: 지시문이 비어 있으면 요청에 담지 않는다") {
+        test("TC-0ea03cb6-5be1-4857-915b-b2aaf75e2102: 지시문이 비어 있으면 요청에 담지 않는다") {
             val request = request()
             listOf("", "   ").forEach { blank ->
                 val engine = createEngine()
@@ -132,7 +132,7 @@ class GeminiContentRemoteDataSourceImplTest :
             actual["title"]!!.jsonPrimitive.content shouldBe head + tail
         }
 
-        test("TC-MEMO-GEMINI-DATA-005: 구조화된 형태가 아닌 응답을 인증 실패와 구분해 알린다") {
+        test("TC-659c06e0-8cc6-4e57-8cbc-be3ed3159758: 구조화된 형태가 아닌 응답을 인증 실패와 구분해 알린다") {
             val request = request()
             listOf(
                 generateContentResponse(""),
@@ -169,7 +169,7 @@ class GeminiContentRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-GEMINI-DATA-006: 그 밖의 실패를 실패로 알린다") {
+        test("TC-7f71e24a-8875-4480-a89e-23d86fa1c81e: 그 밖의 실패를 실패로 알린다") {
             val request = request()
             listOf(
                 MockEngine { respondError(HttpStatusCode.BadRequest) },

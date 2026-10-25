@@ -22,7 +22,7 @@ class SettingHolidayScaffoldStatusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-013 확인 중에는 진행 상태만 표시하고 선택할 항목이 없다`() {
+    fun `TC-13adc387-fbeb-4465-a27f-87bf7f16d13c 확인 중에는 진행 상태만 표시하고 선택할 항목이 없다`() {
         composeRule.setSettingHolidayScaffold(uiState = SettingHolidayUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertExists()
@@ -34,14 +34,14 @@ class SettingHolidayScaffoldStatusTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-HOLIDAY-FEATURE-013 한국어 확인 중 접근성 이름을 표시한다`() {
+    fun `TC-13adc387-fbeb-4465-a27f-87bf7f16d13c 한국어 확인 중 접근성 이름을 표시한다`() {
         composeRule.setSettingHolidayScaffold(uiState = SettingHolidayUiState.Loading)
 
         composeRule.onNodeWithContentDescription(KOREAN_LOADING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-032 확인 중에도 일괄 선택 동작을 펼쳐 실행할 수 있다`() {
+    fun `TC-80005293-ab12-40ee-995f-9eddf6f9068d 확인 중에도 일괄 선택 동작을 펼쳐 실행할 수 있다`() {
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         composeRule.setSettingHolidayScaffold(
             uiState = SettingHolidayUiState.Loading,

@@ -22,7 +22,7 @@ class MemoWebPickerDialogSearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-023 목록을 열면 검색어가 비어 있고 대상 웹 항목이 모두 나타난다`() {
+    fun `TC-3cea2c48-8bd7-42a0-8ae5-2e18d5f8751b 목록을 열면 검색어가 비어 있고 대상 웹 항목이 모두 나타난다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         val queryList = mutableListOf<String>()
         composeRule.setMemoWebPickerDialogHost(webList = webList, onQueryChange = queryList::add)
@@ -35,7 +35,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-030 목록을 열면 검색어 입력에 초점이 놓인다`() {
+    fun `TC-824216fe-cbcf-406b-b265-c565b04ded11 목록을 열면 검색어 입력에 초점이 놓인다`() {
         // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
         composeRule.setMemoWebPickerDialogHost(webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE)))
@@ -45,7 +45,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-024 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
+    fun `TC-8417ef0c-392b-486e-9762-f62ebd749db9 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoWebPickerDialogHost(webList = webList, onQueryChange = queryList::add)
@@ -58,7 +58,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-025 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
+    fun `TC-e733afb8-b8db-4e03-ac5f-38b34230f194 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoWebPickerDialogHost(webList = webList, onQueryChange = queryList::add)
@@ -72,7 +72,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-026 검색어로 좁힌 목록에서도 선택을 전달한다`() {
+    fun `TC-a7adfc30-cff3-4273-a3e8-97b5089cb52b 검색어로 좁힌 목록에서도 선택을 전달한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoWebPickerDialogHost(webList = listOf(web), onWebSelect = selectedIdList::add)
@@ -89,7 +89,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-024 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
+    fun `TC-8417ef0c-392b-486e-9762-f62ebd749db9 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
         // 좁힌 조회 결과는 목록을 처음 그릴 때 넘긴다. 검색 입력에도 검색어가 들어 있으므로 항목은 URL로 가린다.
         composeRule.setMemoWebPickerDialog(webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)), query = WIKI_WEB_QUERY)
         composeRule.awaitWebPickerRows()
@@ -100,7 +100,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-025 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
+    fun `TC-e733afb8-b8db-4e03-ac5f-38b34230f194 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         composeRule.setMemoWebPickerDialog(webList = webList, query = "")
         composeRule.awaitWebPickerRows()
@@ -110,7 +110,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-026 검색어로 좁힌 목록에서 선택한 웹 항목을 누르면 해제를 전달하고 목록에 남는다`() {
+    fun `TC-a7adfc30-cff3-4273-a3e8-97b5089cb52b 검색어로 좁힌 목록에서 선택한 웹 항목을 누르면 해제를 전달하고 목록에 남는다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val unselectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoWebPickerDialog(
@@ -129,7 +129,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-027 검색어에 맞는 웹 항목이 없으면 결과 없음을 알린다`() {
+    fun `TC-a5eb1ba9-ea98-4269-be0e-e6b894138a85 검색어에 맞는 웹 항목이 없으면 결과 없음을 알린다`() {
         composeRule.setMemoWebPickerDialogHost(webList = emptyList())
         composeRule.webDialogSearchField().performTextInput(WIKI_WEB_QUERY)
         composeRule.waitForIdle()
@@ -150,7 +150,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-005 검색어가 비어 있으면 나타낼 웹 항목이 없어도 결과 없음을 알리지 않는다`() {
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 검색어가 비어 있으면 나타낼 웹 항목이 없어도 결과 없음을 알리지 않는다`() {
         composeRule.setMemoWebPickerDialogHost(webList = emptyList())
         composeRule.waitForIdle()
 
@@ -158,7 +158,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-006 검색어에 맞는 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
+    fun `TC-25aecc3e-a2b4-4d61-a00d-7659dc8f2277 검색어에 맞는 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
         composeRule.setMemoWebPickerDialogHost(webList = emptyList())
         composeRule.webDialogSearchField().performTextInput(WIKI_WEB_QUERY)
         composeRule.waitForIdle()
@@ -168,7 +168,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-028 검색 결과가 없어도 웹 추가 항목으로 이동을 전달한다`() {
+    fun `TC-78bb1ad9-88b2-49fd-81d4-ebb1c5ad4b68 검색 결과가 없어도 웹 추가 항목으로 이동을 전달한다`() {
         var webAddCount = 0
         composeRule.setMemoWebPickerDialogHost(webList = emptyList(), onWebAdd = { webAddCount += 1 })
         composeRule.webDialogSearchField().performTextInput(WIKI_WEB_QUERY)
@@ -181,7 +181,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-029 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
+    fun `TC-e3b77205-ecb5-45c9-a9a0-c4b62cbbb9d7 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE))
         val dialogState = DialogState(isVisible = true)
         val queryList = mutableListOf<String>()

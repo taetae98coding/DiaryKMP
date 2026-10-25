@@ -53,7 +53,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-037 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
+    fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
         val pageViewModel = pageViewModel()
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -63,7 +63,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-004 TC-WEB-DETAIL-FEATURE-040 응답 본문 방식을 고르면 웹 페이지 불러오기를 한 번 시작한다`() {
+    fun `TC-be0b371e-cba7-4075-80dc-9745d8a16755 TC-91db69f6-f373-4821-96d4-5307ce48c70f 응답 본문 방식을 고르면 웹 페이지 불러오기를 한 번 시작한다`() {
         val pageViewModel = pageViewModel()
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -73,7 +73,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-041 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
+    fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -85,7 +85,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-009 다시 시도를 선택하면 다시 불러오기를 한 번 실행한다`() {
+    fun `TC-04087944-e03c-4f27-a985-1fd686cb0d0b 다시 시도를 선택하면 다시 불러오기를 한 번 실행한다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Failure)
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -97,7 +97,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-015 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-e1733a76-37b3-4b77-99f3-56f3e513418c 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
 
         setWebDetailScreen(navigateUp = { navigateUpCount++ })
@@ -107,7 +107,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-006 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
+    fun `TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
         setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage())))
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
 
@@ -116,7 +116,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-016 외부로 열기를 선택하면 저장된 URL을 앱 밖에서 한 번 연다`() {
+    fun `TC-b66fd1fc-9dae-4e34-9b0f-ab6dc1661181 외부로 열기를 선택하면 저장된 URL을 앱 밖에서 한 번 연다`() {
         val detail = testWebDetail()
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
@@ -128,7 +128,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-032 반영하지 않은 URL 입력은 외부로 여는 주소를 바꾸지 않는다`() {
+    fun `TC-fe077d93-b94a-40e7-9a0e-2a0682af5bbf 반영하지 않은 URL 입력은 외부로 여는 주소를 바꾸지 않는다`() {
         val detail = testWebDetail()
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
@@ -144,7 +144,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-073 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
+    fun `TC-80b368c8-a5ee-4e74-8097-562630e321ff 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
         val detail = testWebDetail(headerList = listOf(WebHeader(name = TYPED_HEADER_NAME, value = "header-value")))
         val uriHandler =
             mockk<UriHandler> {
@@ -166,7 +166,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-014 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
+    fun `TC-26a8fc6b-6a03-477f-a070-e03027088d87 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
         val detail = testWebDetail()
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
 
@@ -181,7 +181,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-031 반영하지 않은 URL 입력은 다시 시도에 쓰지 않는다`() {
+    fun `TC-ac801375-9e04-47b6-9061-8851b3d339cc 반영하지 않은 URL 입력은 다시 시도에 쓰지 않는다`() {
         val webViewModel = webViewModel()
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Failure)
 
@@ -198,7 +198,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 삭제를 선택하면 삭제를 한 번 실행한다`() {
+    fun `TC-35ae4b6d-4860-445b-9469-595ebb1fac84 삭제를 선택하면 삭제를 한 번 실행한다`() {
         val webViewModel = webViewModel(uiState = testContentUiState())
 
         setWebDetailScreen(webViewModel = webViewModel)
@@ -209,7 +209,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 TC-TAG-DETAIL-WEB-FEATURE-020 삭제에 성공하면 뒤로가기와 같은 닫기로 이전 화면으로 돌아간다`() {
+    fun `TC-35ae4b6d-4860-445b-9469-595ebb1fac84 TC-0cc096fc-4d70-45db-9581-b20bdee05bb5 삭제에 성공하면 뒤로가기와 같은 닫기로 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.DeleteSucceeded))
 
@@ -220,7 +220,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-023 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-2aefeb4d-e3aa-4ef8-9943-bb28c8292ae0 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
         setWebDetailScreen()
         composeRule.selectFormTab()
 
@@ -228,7 +228,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-024 수정을 선택하면 입력한 내용으로 수정을 한 번 실행한다`() {
+    fun `TC-ed5f7e67-ca83-4085-bcac-dfff466a11c3 수정을 선택하면 입력한 내용으로 수정을 한 번 실행한다`() {
         val detail = testWebDetail()
         val webViewModel = webViewModel(uiState = testContentUiState(detail = detail))
 
@@ -243,7 +243,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-026 수정에 성공하면 입력을 유지하고 성공 안내를 표시한다`() {
+    fun `TC-d837592b-4ade-4baa-be57-80723a8a8fc0 수정에 성공하면 입력을 유지하고 성공 안내를 표시한다`() {
         val detail = testWebDetail()
         val effect = Channel<WebDetailEffect>(capacity = Channel.UNLIMITED)
         val webViewModel =
@@ -265,7 +265,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-030 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
+    fun `TC-d9d1473a-519d-46ec-8521-5665c3a60e57 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
         val pageViewModel = pageViewModel()
         val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.UpdateSucceeded))
 
@@ -276,7 +276,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-028 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시한다`() {
+    fun `TC-05af06b9-5c30-4045-9213-f5dc39a90a0c 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시한다`() {
         val detail = testWebDetail()
         val webViewModel =
             webViewModel(
@@ -293,7 +293,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-021 저장 내용이 바뀌어도 입력을 다시 채우지 않고 화면 제목만 갱신한다`() {
+    fun `TC-fe84093a-c265-4d86-b4e8-e6a68eabc153 저장 내용이 바뀌어도 입력을 다시 채우지 않고 화면 제목만 갱신한다`() {
         val detail = testWebDetail()
         val changedDetail = detail.copy(title = CHANGED_TITLE, url = CHANGED_URL)
         val content = testContentUiState(detail = detail)
@@ -313,7 +313,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-029 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
+    fun `TC-231fffed-c9ff-4e34-a60d-d66e06945494 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val uiStateFlow = MutableStateFlow<WebDetailUiState>(testContentUiState())
 
@@ -353,7 +353,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-072 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
+    fun `TC-3dc63903-fbcb-4aef-9d9e-a811d56ff1ae 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
         val recreatedPageViewModel = pageViewModel()
@@ -389,7 +389,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-054 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
+    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
         val uiState = testContentUiState()
 
         setWebDetailScreen(

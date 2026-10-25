@@ -33,7 +33,7 @@ class PrepareSyncUseCaseTest :
                 every { clock.now() } returns now
 
                 When("동기화를 시작하기 전에 판단한다") {
-                    Then("TC-DATA-SYNC-DOMAIN-076 $label 강제 전체 재동기화 여부가 $isReset 이다") {
+                    Then("TC-67bf1087-1e26-4262-b97f-adb4a1f3d591 $label 강제 전체 재동기화 여부가 $isReset 이다") {
                         val accountSyncTimeRepository = mockk<AccountSyncTimeRepository>(relaxed = true)
                         coEvery { accountSyncTimeRepository.read(account = account) } returns elapsed?.let { now - it }
                         val accountSyncDataRepository = mockk<AccountSyncDataRepository>(relaxed = true)
@@ -66,7 +66,7 @@ class PrepareSyncUseCaseTest :
             coEvery { accountSyncTimeRepository.read(account = staleAccount) } returns now - 31.days
 
             When("두 계정의 동기화를 차례로 시작한다") {
-                Then("TC-DATA-SYNC-DOMAIN-077 31일 전인 계정만 기기 데이터를 지운다") {
+                Then("TC-c5e30eff-5c6e-4966-8850-ae38ebb2c551 31일 전인 계정만 기기 데이터를 지운다") {
                     val accountSyncDataRepository = mockk<AccountSyncDataRepository>(relaxed = true)
                     val useCase =
                         PrepareSyncUseCase(
@@ -89,7 +89,7 @@ class PrepareSyncUseCaseTest :
             val firstTriggeredAt = fixtureMonkey.giveMeOne<Instant>()
 
             When("30일이 지나기 전에 같은 계정의 동기화를 다시 시작한다") {
-                Then("TC-DATA-SYNC-DATA-038 기기 데이터를 다시 지우지 않는다") {
+                Then("TC-453cd1d7-cbf5-46d3-ac55-21aaa4237bde 기기 데이터를 다시 지우지 않는다") {
                     val storedSyncedAt = mutableMapOf<Account, Instant>(account to firstTriggeredAt - 31.days)
                     val accountSyncTimeRepository = mockk<AccountSyncTimeRepository>()
                     coEvery { accountSyncTimeRepository.read(account = any()) } answers { storedSyncedAt[firstArg<Account>()] }

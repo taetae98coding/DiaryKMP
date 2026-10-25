@@ -29,7 +29,7 @@ class ContactDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-028 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
+    fun `TC-3895d588-3775-4e4c-ad4f-da5520095064 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnMemoTab(navigateToMemoFinishedList = { navigateCount += 1 })
 
@@ -40,14 +40,14 @@ class ContactDetailScreenMemoFinishedListTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-028 한국어 환경 완료된 메모 확인 라벨을 표시한다`() {
+    fun `TC-3895d588-3775-4e4c-ad4f-da5520095064 한국어 환경 완료된 메모 확인 라벨을 표시한다`() {
         setScreenOnMemoTab(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(KOREAN_FINISHED_LIST_LABEL).assertHasClickAction()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-029 연결된 메모가 표시되어 있어도 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-7ae476d8-3864-4396-82ff-60f28bf4a8e1 연결된 메모가 표시되어 있어도 완료된 메모 확인을 실행할 수 있다`() {
         val memo = contactMemo(title = MEMO_TITLE)
         var navigateCount = 0
         setScreenOnMemoTab(
@@ -64,7 +64,7 @@ class ContactDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-029 TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-024 빈 상태와 대상 조회 상태와 무관하게 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-7ae476d8-3864-4396-82ff-60f28bf4a8e1 TC-fa086b84-94ef-4d78-a1b4-2dd04e8a8211 빈 상태와 대상 조회 상태와 무관하게 완료된 메모 확인을 실행할 수 있다`() {
         val uiStateList = listOf(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail()), ContactDetailUiState.Loading)
         val uiStateFlow = MutableStateFlow<ContactDetailUiState>(uiStateList.first())
         var navigateCount = 0
@@ -81,7 +81,7 @@ class ContactDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-030 연락처 디테일 탭에서는 완료된 메모 확인을 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+    fun `TC-62020ca0-8bf8-4a9f-b130-fbcbaf94d48a 연락처 디테일 탭에서는 완료된 메모 확인을 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
         var navigateCount = 0
         val uiStateFlow = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail()))
         composeRule.setContactDetailScreen(viewModel = screenTestViewModel(uiStateFlow), navigateToMemoFinishedList = { navigateCount += 1 })

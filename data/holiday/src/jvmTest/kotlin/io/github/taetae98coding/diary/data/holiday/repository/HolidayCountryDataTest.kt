@@ -42,7 +42,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class HolidayCountryDataTest :
     FunSpec({
-        test("TC-HOLIDAY-FETCH-DOMAIN-008 한 국가가 실패해도 다른 국가의 저장된 공휴일은 원격 공휴일로 교체되고 연도 동기화는 실패한다") {
+        test("TC-7182d3ff-07ce-496b-aa7d-3030eb9ad9e6 한 국가가 실패해도 다른 국가의 저장된 공휴일은 원격 공휴일로 교체되고 연도 동기화는 실패한다") {
             val year = randomYear()
             val unitedStatesRemoteList = listOf(remoteHoliday(year = year), remoteHoliday(year = year))
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
@@ -64,7 +64,7 @@ class HolidayCountryDataTest :
             coVerify(exactly = 0) { context.transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = any(), holidayList = any()) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-014 한 국가가 실패한 연도를 다시 요청하면 실패한 국가만 다시 원격 조회한다") {
+        test("TC-5bcf3e88-0091-49ed-a823-f72e9cb68b74 한 국가가 실패한 연도를 다시 요청하면 실패한 국가만 다시 원격 조회한다") {
             val year = randomYear()
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
             coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
@@ -81,7 +81,7 @@ class HolidayCountryDataTest :
             coVerify(exactly = 1) { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) }
         }
 
-        test("TC-HOLIDAY-COUNTRY-DATA-005 국가 설정을 바꿔도 기기에 저장된 공휴일은 바뀌지 않는다") {
+        test("TC-0d734f0f-dd9e-4adc-9cbd-d6095ee05e47 국가 설정을 바꿔도 기기에 저장된 공휴일은 바뀌지 않는다") {
             val year = randomYear()
             val storedHolidayList = listOf(localHoliday(year = year), localHoliday(year = year))
             val context = holidayCountryDataTestContext(optionSet = setOf(HolidayCountryOptionLocalEntity.KOREA))

@@ -24,7 +24,7 @@ class OpenDeepLinkEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-010 앱이 시작되며 받은 알림 주소로 화면이 만들어진 뒤 FileHome 화면을 연다`() {
+    fun `TC-e2ce08ed-fcaa-4ad9-aeeb-adb99caeacac 앱이 시작되며 받은 알림 주소로 화면이 만들어진 뒤 FileHome 화면을 연다`() {
         lateinit var appState: AppState
 
         AppDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME)
@@ -43,7 +43,7 @@ class OpenDeepLinkEffectTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-009 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome이면 알림을 선택해도 새로 열지 않는다`() {
+    fun `TC-66288305-8c99-4bde-9280-d147cf3171a6 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome이면 알림을 선택해도 새로 열지 않는다`() {
         lateinit var appState: AppState
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
 
@@ -71,7 +71,7 @@ class OpenDeepLinkEffectTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-020 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome에서 연 FileAdd면 알림을 선택해도 FileAdd를 유지한다`() {
+    fun `TC-41f772e5-d9ec-4108-8edc-7af5961a0a26 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome에서 연 FileAdd면 알림을 선택해도 FileAdd를 유지한다`() {
         lateinit var appState: AppState
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
 

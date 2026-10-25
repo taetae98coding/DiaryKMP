@@ -42,7 +42,7 @@ class ContactDetailMemoEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-012 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-ffcade33-dfc7-402b-b05f-460ae4bee9c3 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -52,7 +52,7 @@ class ContactDetailMemoEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-012 한국어 환경에서 빈 상태 안내는 이 연락처에 연결된 메모가 없습니다이다`() {
+    fun `TC-ffcade33-dfc7-402b-b05f-460ae4bee9c3 한국어 환경에서 빈 상태 안내는 이 연락처에 연결된 메모가 없습니다이다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -60,21 +60,21 @@ class ContactDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-013 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-401767a8-6f19-4554-b909-519fcc4007b6 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setMemoTab(pagingData = loadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-014 대상 연락처를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-ad61f9fd-0de1-46aa-ae7f-613cad5f40bd 대상 연락처를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = ContactDetailUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-015 빈 상태에서도 메모 추가를 실행할 수 있다`() {
+    fun `TC-7c14a92c-af74-4dc8-b6d0-d9e608731346 빈 상태에서도 메모 추가를 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -84,7 +84,7 @@ class ContactDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-017 대상 연락처를 조회하지 못해도 메모 추가를 실행할 수 있다`() {
+    fun `TC-33b99449-929a-478b-9f08-2c87ffa92a0a 대상 연락처를 조회하지 못해도 메모 추가를 실행할 수 있다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = ContactDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()

@@ -38,7 +38,7 @@ class FileDetailAccountViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-DETAIL-FEATURE-017 처음 확인한 사용자에서 테스트 데이터의 계정으로 바뀌면 계정이 바뀐 상태다") {
+        test("TC-97c06e67-2ee1-4376-8ad9-61e5b2b76adc 처음 확인한 사용자에서 테스트 데이터의 계정으로 바뀌면 계정이 바뀐 상태다") {
             runTest(mainDispatcher) {
                 listOf<Account>(Account.Guest, fixtureMonkey.giveMeOne<Account.User>()).forEach { changed ->
                     val owner = fixtureMonkey.giveMeOne<Account.User>()
@@ -57,7 +57,7 @@ class FileDetailAccountViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-DETAIL-FEATURE-018 계정을 확인하지 못하거나 같은 사용자의 세션 상태만 바뀌면 계정이 바뀐 것으로 보지 않는다") {
+        test("TC-dd6a353f-2bc5-4709-a362-218ee5cdfd32 계정을 확인하지 못하거나 같은 사용자의 세션 상태만 바뀌면 계정이 바뀐 것으로 보지 않는다") {
             runTest(mainDispatcher) {
                 val owner = fixtureMonkey.giveMeOne<Account.User>()
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(owner))

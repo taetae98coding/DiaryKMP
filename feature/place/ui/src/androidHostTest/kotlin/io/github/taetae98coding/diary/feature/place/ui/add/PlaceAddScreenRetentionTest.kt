@@ -29,27 +29,27 @@ class PlaceAddScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-007 제목이 비어 있으면 설명과 좌표를 유지하고 제목에 다시 초점을 맞춘다`() {
+    fun `TC-1d0b6a15-a125-42f5-96b6-b073a76f6e35 제목이 비어 있으면 설명과 좌표를 유지하고 제목에 다시 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialTitle = "")
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-007 제목이 공백이면 모든 입력을 유지하고 제목에 다시 초점을 맞춘다`() {
+    fun `TC-1d0b6a15-a125-42f5-96b6-b073a76f6e35 제목이 공백이면 모든 입력을 유지하고 제목에 다시 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialTitle = WHITESPACE_TITLE)
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-010 좌표를 읽을 수 없으면 작성 내용을 유지한다`() {
+    fun `TC-80cb0106-6fd7-489a-ae41-cb475e340d93 좌표를 읽을 수 없으면 작성 내용을 유지한다`() {
         assertCoordinateFailureRetainsInput(latitude = INVALID_LATITUDE)
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-010 좌표가 범위를 벗어나도 작성 내용을 유지한다`() {
+    fun `TC-80cb0106-6fd7-489a-ae41-cb475e340d93 좌표가 범위를 벗어나도 작성 내용을 유지한다`() {
         assertCoordinateFailureRetainsInput(latitude = OUT_OF_RANGE_LATITUDE)
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-013 화면이 재생성되어도 제목 설명 좌표를 유지한다`() {
+    fun `TC-68cddc44-5a40-47af-9ec4-4105aff35d5f 화면이 재생성되어도 제목 설명 좌표를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel()
         restorationTester.setContent {

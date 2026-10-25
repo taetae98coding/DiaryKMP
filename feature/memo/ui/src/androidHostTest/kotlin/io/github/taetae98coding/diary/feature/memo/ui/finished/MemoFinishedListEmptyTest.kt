@@ -41,7 +41,7 @@ class MemoFinishedListEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-022 완료된 메모가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-bfd3251b-71f3-42bc-8dcb-f5ea144155fc 완료된 메모가 없으면 빈 상태 안내를 표시한다`() {
         setMemoFinishedListScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -50,28 +50,28 @@ class MemoFinishedListEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-022 한국어 환경에서 빈 상태 안내는 완료한 메모가 없습니다이다`() {
+    fun `TC-bfd3251b-71f3-42bc-8dcb-f5ea144155fc 한국어 환경에서 빈 상태 안내는 완료한 메모가 없습니다이다`() {
         setMemoFinishedListScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-022 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
+    fun `TC-bfd3251b-71f3-42bc-8dcb-f5ea144155fc 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
         setMemoFinishedListScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithText(MEMO_HOME_EMPTY_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-023 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-5031f7c2-aac6-42da-84a0-73fdc6cbb435 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setMemoFinishedListScaffold(MutableStateFlow(loadingMemoPagingData()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DATA-005 처음 불러오기에 실패하면 오류 안내와 다시 시도 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 처음 불러오기에 실패하면 오류 안내와 다시 시도 없이 빈 상태 안내를 표시한다`() {
         setMemoFinishedListScaffold(
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
@@ -87,7 +87,7 @@ class MemoFinishedListEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DATA-005 이어서 불러오기에 실패해도 앞서 불러온 메모를 그대로 표시한다`() {
+    fun `TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 이어서 불러오기에 실패해도 앞서 불러온 메모를 그대로 표시한다`() {
         setMemoFinishedListScaffold(
             MutableStateFlow(
                 memoPagingDataWithLoadStates(

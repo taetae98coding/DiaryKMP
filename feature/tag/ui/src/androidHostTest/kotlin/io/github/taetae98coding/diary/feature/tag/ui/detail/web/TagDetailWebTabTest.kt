@@ -41,7 +41,7 @@ class TagDetailWebTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-001 대상 태그와 연결된 웹 항목을 목록에 표시한다`() {
+    fun `TC-df40d32a-1065-417f-87e8-94dfb2cb8c7d 대상 태그와 연결된 웹 항목을 목록에 표시한다`() {
         val firstWeb = tagWeb(title = FIRST_TITLE)
         val secondWeb = tagWeb(title = SECOND_TITLE)
         setWebTab(pagingData = tagEntityPagingData(itemList = listOf(firstWeb, secondWeb)))
@@ -54,7 +54,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-004 최초 조회 실패는 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-ed485231-32e5-48e0-a0ea-0c07b145e373 최초 조회 실패는 오류와 재시도를 표시하지 않는다`() {
         setWebTab(
             pagingData =
                 tagEntityPagingData<Web>(
@@ -70,7 +70,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-004 추가 조회 실패는 표시된 웹 항목을 유지한다`() {
+    fun `TC-ed485231-32e5-48e0-a0ea-0c07b145e373 추가 조회 실패는 표시된 웹 항목을 유지한다`() {
         setWebTab(
             pagingData =
                 tagEntityPagingData(
@@ -86,7 +86,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-005 웹 항목을 선택하면 그 웹 항목의 상세 이동을 요청한다`() {
+    fun `TC-8c0c98af-b6f0-466d-ad7e-53f726ef3d7b 웹 항목을 선택하면 그 웹 항목의 상세 이동을 요청한다`() {
         val web = tagWeb(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(pagingData = tagEntityPagingData(itemList = listOf(web)), onEvent = eventList::add)
@@ -97,7 +97,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-010 연결된 웹 항목이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-e194b234-edcd-4996-8eea-eb598f3929e5 연결된 웹 항목이 없으면 빈 상태 안내를 표시한다`() {
         setWebTab(pagingData = tagEntityPagingData(itemList = emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -108,7 +108,7 @@ class TagDetailWebTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-WEB-FEATURE-010 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 웹이 없습니다이다`() {
+    fun `TC-e194b234-edcd-4996-8eea-eb598f3929e5 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 웹이 없습니다이다`() {
         setWebTab(pagingData = tagEntityPagingData(itemList = emptyList()))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -116,14 +116,14 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-011 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-688991a9-d4e5-4d5e-ad6a-a8e18590a0fb 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setWebTab(pagingData = tagEntityLoadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-016 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),
@@ -137,7 +137,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-016 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
 
@@ -148,7 +148,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-016 새로고침이 진행 중이면 진행 표시가 나타나고 끝나면 사라진다`() {
+    fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 새로고침이 진행 중이면 진행 표시가 나타나고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),
@@ -164,7 +164,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-021 웹 카드를 삭제 방향으로 밀면 그 웹 항목의 삭제를 전달한다`() {
+    fun `TC-365c5415-2b42-4722-83fe-adb910874e83 웹 카드를 삭제 방향으로 밀면 그 웹 항목의 삭제를 전달한다`() {
         val web = tagWeb(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(
@@ -179,7 +179,7 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-023 웹 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
+    fun `TC-f5dc7344-ec22-42a5-b056-828c59b6b225 웹 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),

@@ -69,7 +69,7 @@ class QrRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-019 QR의 최신 전체 상태와 서버 변경 순번을 응답한다") {
+        test("TC-c368908b-b191-4ceb-9b5d-e82025cf6da8 QR의 최신 전체 상태와 서버 변경 순번을 응답한다") {
             val usn = fixtureMonkey.giveMeOne<Long>()
             val qrPullList =
                 listOf(

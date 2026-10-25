@@ -43,7 +43,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MORE-HOME-FEATURE-033 앞선 확인이 끝난 뒤 다시 요청하면 사용자 정보 다시 확인을 다시 시작한다") {
+        test("TC-5ce779c1-3217-4697-ae8b-04ba136bc0c1 앞선 확인이 끝난 뒤 다시 요청하면 사용자 정보 다시 확인을 다시 시작한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshUserDataUseCase>()
                 coEvery { useCase(Unit) } returns Result.success(Unit)
@@ -58,7 +58,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MORE-HOME-DOMAIN-014 앞선 다시 확인이 끝나기 전에 화면이 다시 표시되면 새로 요청하지 않는다") {
+        test("TC-c5aea484-1261-4318-aa62-e5bc5bbfd98a 앞선 다시 확인이 끝나기 전에 화면이 다시 표시되면 새로 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Unit>()
                 val useCase = mockk<RefreshUserDataUseCase>()
@@ -76,7 +76,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MORE-HOME-DOMAIN-018 확인 중에 기다리는 동안 화면이 다시 표시되어도 새로 요청하지 않는다") {
+        test("TC-f53d767c-fd09-4084-95b0-1e6259b3ef2b 확인 중에 기다리는 동안 화면이 다시 표시되어도 새로 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val accountDetermined = CompletableDeferred<Unit>()
                 val useCase = mockk<RefreshUserDataUseCase>()
@@ -94,7 +94,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다") {
+        test("TC-1b93af08-c181-480d-a9bb-6477302074c7 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다") {
             runTest(mainDispatcher) {
                 val email = "diary-" + fixtureMonkey.giveMeOne<String>()
                 val profileImage = fixtureMonkey.giveMeOne<String>()

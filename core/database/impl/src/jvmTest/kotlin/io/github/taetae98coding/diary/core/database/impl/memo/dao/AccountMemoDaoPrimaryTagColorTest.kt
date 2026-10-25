@@ -39,7 +39,7 @@ class AccountMemoDaoPrimaryTagColorTest :
             database.close()
         }
 
-        test("TC-MEMO-PRIMARY-TAG-DOMAIN-010 메모 목록은 대표 태그와 관계없이 메모 자신의 컬러로 메모를 표시한다") {
+        test("TC-f8720167-661e-4e49-9e04-a6ae8a8f5c63 메모 목록은 대표 태그와 관계없이 메모 자신의 컬러로 메모를 표시한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
             val baseMemo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = tag.id)

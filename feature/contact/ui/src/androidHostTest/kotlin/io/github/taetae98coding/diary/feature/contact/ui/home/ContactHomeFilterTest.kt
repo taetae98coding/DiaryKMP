@@ -62,7 +62,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-040 처음에는 세 축이 모두 전체이고 목록을 거르지 않는다`() {
+    fun `TC-da6da799-9cd6-4577-a51a-2231c6c1a828 처음에는 세 축이 모두 전체이고 목록을 거르지 않는다`() {
         val contactList = axisContactList()
         setContactHomeScreen(contactList = contactList)
 
@@ -75,37 +75,37 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-041 생일 축에서 있음을 고르면 생일이 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
+    fun `TC-685d992b-bc6c-475b-863c-cd81286a6cac 생일 축에서 있음을 고르면 생일이 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
         assertWithSelected(case = birthdayCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-041 태어난 연도 축에서 있음을 고르면 태어난 연도가 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
+    fun `TC-685d992b-bc6c-475b-863c-cd81286a6cac 태어난 연도 축에서 있음을 고르면 태어난 연도가 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
         assertWithSelected(case = birthYearCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-041 전화번호 축에서 있음을 고르면 전화번호가 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
+    fun `TC-685d992b-bc6c-475b-863c-cd81286a6cac 전화번호 축에서 있음을 고르면 전화번호가 있는 연락처만 표시되고 필터는 열린 채 남는다`() {
         assertWithSelected(case = phoneNumberCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-042 생일 축에서 없음을 고르면 생일이 없는 연락처만 표시된다`() {
+    fun `TC-39533d6b-1110-4ba8-a5b1-fb93eb983ac7 생일 축에서 없음을 고르면 생일이 없는 연락처만 표시된다`() {
         assertWithoutSelected(case = birthdayCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-042 태어난 연도 축에서 없음을 고르면 태어난 연도가 없는 연락처만 표시된다`() {
+    fun `TC-39533d6b-1110-4ba8-a5b1-fb93eb983ac7 태어난 연도 축에서 없음을 고르면 태어난 연도가 없는 연락처만 표시된다`() {
         assertWithoutSelected(case = birthYearCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-042 전화번호 축에서 없음을 고르면 전화번호가 없는 연락처만 표시된다`() {
+    fun `TC-39533d6b-1110-4ba8-a5b1-fb93eb983ac7 전화번호 축에서 없음을 고르면 전화번호가 없는 연락처만 표시된다`() {
         assertWithoutSelected(case = phoneNumberCase())
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-043 축을 전체로 되돌리면 그 축으로 거르지 않는다`() {
+    fun `TC-0fe1d98c-c869-46a3-8b3a-b0b6417a2304 축을 전체로 되돌리면 그 축으로 거르지 않는다`() {
         val withPhoneNumber = testContact(name = displayText(), phoneNumberList = listOf(displayText()))
         val withoutPhoneNumber = testContact(name = displayText())
         setContactHomeScreen(contactList = listOf(withPhoneNumber, withoutPhoneNumber))
@@ -121,7 +121,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-044 필터를 여는 동작은 필터가 적용되었는지 알린다`() {
+    fun `TC-3ad9d1cc-6efd-461c-b44e-d53ffc2d4c9b 필터를 여는 동작은 필터가 적용되었는지 알린다`() {
         val caseList =
             listOf(
                 ContactFilter() to false,
@@ -152,7 +152,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-045 필터를 적용해 맞는 연락처가 없으면 좁힌 빈 상태를 알린다`() {
+    fun `TC-a4e6db31-3a33-47e2-a8d0-2e51aa2e3a32 필터를 적용해 맞는 연락처가 없으면 좁힌 빈 상태를 알린다`() {
         setContactHomeScreen(contactList = listOf(testContact(name = displayText(), phoneNumberList = listOf(displayText()))))
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
 
@@ -164,7 +164,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-046 연락처가 하나도 없어도 필터를 열 수 있다`() {
+    fun `TC-16bb3020-8cc9-4a2b-90e2-f95426a9091d 연락처가 하나도 없어도 필터를 열 수 있다`() {
         setContactHomeScreen(contactList = emptyList())
         waitUntilTextExists(DEFAULT_EMPTY_TITLE)
 
@@ -177,7 +177,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-046 좁힌 결과가 비어 있어도 필터를 열 수 있다`() {
+    fun `TC-16bb3020-8cc9-4a2b-90e2-f95426a9091d 좁힌 결과가 비어 있어도 필터를 열 수 있다`() {
         val viewModel = contactHomeViewModel(contactList = listOf(testContact(name = displayText())))
         viewModel.setBirthdayExistence(existence = ContactFilterExistence.EXIST)
         composeRule.setContent { ContactHomeScreenContent(viewModel = viewModel) }
@@ -192,7 +192,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-047 필터 축을 바꾸면 목록을 처음부터 다시 본다`() {
+    fun `TC-fa5369e8-175d-4636-929a-bd601f89604a 필터 축을 바꾸면 목록을 처음부터 다시 본다`() {
         val contactList = positionContactList()
         setContactHomeScreen(contactList = contactList)
         waitUntilNameExists(contactList.first().detail.name)
@@ -207,7 +207,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-048 이미 고른 축 상태를 다시 고르면 목록 위치를 되돌리지 않는다`() {
+    fun `TC-baa17f81-7f27-457b-9c4d-51ad900c1b38 이미 고른 축 상태를 다시 고르면 목록 위치를 되돌리지 않는다`() {
         val contactList = positionContactList()
         setContactHomeScreen(contactList = contactList)
         waitUntilNameExists(contactList.first().detail.name)
@@ -222,7 +222,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-020 화면이 재생성되어도 유무 필터 선택을 유지한다`() {
+    fun `TC-852f29ae-df6e-48e7-9930-771159a3ee43 화면이 재생성되어도 유무 필터 선택을 유지한다`() {
         val withBirthday = testContact(name = displayText(), birthday = birthday())
         val withoutBirthday = testContact(name = displayText())
         val viewModel = contactHomeViewModel(contactList = listOf(withBirthday, withoutBirthday))
@@ -241,7 +241,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-021 시스템이 앱을 정리했다가 다시 만들면 유무 필터가 처음 상태로 돌아간다`() {
+    fun `TC-aa5ba16e-90da-45c6-aeea-05b10ad39ada 시스템이 앱을 정리했다가 다시 만들면 유무 필터가 처음 상태로 돌아간다`() {
         val withPhoneNumber = testContact(name = displayText(), phoneNumberList = listOf(displayText()))
         val withoutPhoneNumber = testContact(name = displayText())
         val contactList = listOf(withPhoneNumber, withoutPhoneNumber)
@@ -263,7 +263,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-049 필터를 닫았다가 다시 열어도 유무 필터 상태를 표시한다`() {
+    fun `TC-5aacff14-029c-4c93-a4ab-4d47f077336d 필터를 닫았다가 다시 열어도 유무 필터 상태를 표시한다`() {
         val filterSheetState = DialogState(isVisible = true)
         var filterUiState by mutableStateOf(ContactHomeFilterUiState())
         composeRule.setContent {
@@ -293,7 +293,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-050 필터를 연 채 화면이 재생성되어도 필터는 열린 채 남는다`() {
+    fun `TC-e567cdd5-51a3-4088-aaf3-7e56ed6508c4 필터를 연 채 화면이 재생성되어도 필터는 열린 채 남는다`() {
         val viewModel = contactHomeViewModel(contactList = axisContactList())
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ContactHomeScreenContent(viewModel = viewModel) }
@@ -307,7 +307,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-050 필터를 연 채 시스템이 앱을 정리했다가 다시 만들어도 필터는 열린 채 남는다`() {
+    fun `TC-e567cdd5-51a3-4088-aaf3-7e56ed6508c4 필터를 연 채 시스템이 앱을 정리했다가 다시 만들어도 필터는 열린 채 남는다`() {
         val contactList = axisContactList()
         var viewModel = contactHomeViewModel(contactList = contactList)
         val restorationTester = StateRestorationTester(composeRule)
@@ -323,7 +323,7 @@ class ContactHomeFilterTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-022 필터를 바꾸지 않은 채 목록의 내용이 바뀌면 보던 위치를 유지한다`() {
+    fun `TC-41761d0a-3df3-45c7-aa52-03bc7f80c69b 필터를 바꾸지 않은 채 목록의 내용이 바뀌면 보던 위치를 유지한다`() {
         val contactList = positionContactList()
         val contactListFlow = MutableStateFlow(contactList)
         val pageContactUseCase = mockk<PageContactUseCase>()

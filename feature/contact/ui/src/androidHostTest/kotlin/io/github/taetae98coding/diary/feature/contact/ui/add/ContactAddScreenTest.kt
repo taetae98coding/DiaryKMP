@@ -33,7 +33,7 @@ class ContactAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-001 화면에 처음 진입하면 입력이 모두 비어 있다`() {
+    fun `TC-97700e58-f5e2-4c28-a6ae-d18532c6e667 화면에 처음 진입하면 입력이 모두 비어 있다`() {
         composeRule.setContactAddScreen()
 
         composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_PHONE_NUMBER
@@ -48,7 +48,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-003 전화번호 항목을 추가해 번호를 입력할 수 있다`() {
+    fun `TC-30c657f6-23a1-4194-a3b5-9a5e1a444b24 전화번호 항목을 추가해 번호를 입력할 수 있다`() {
         composeRule.setContactAddScreen()
 
         composeRule.addPhoneNumberRow()
@@ -63,7 +63,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-004 전화번호 항목을 삭제해도 다른 입력은 유지된다`() {
+    fun `TC-46b81d89-66f5-40b9-841a-91dbc2ff4d37 전화번호 항목을 삭제해도 다른 입력은 유지된다`() {
         composeRule.setContactAddScreen()
         composeRule.nameInput().performTextInput(TYPED_NAME)
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
@@ -82,7 +82,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-014 전화번호 항목을 추가하거나 삭제해도 초점을 옮기지 않는다`() {
+    fun `TC-a9e9700d-1916-4c96-9ae5-bbc8f8852b65 전화번호 항목을 추가하거나 삭제해도 초점을 옮기지 않는다`() {
         composeRule.setContactAddScreen()
         composeRule.waitForIdle()
 
@@ -96,7 +96,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-002 이름과 설명을 입력하면 화면에 그대로 표시된다`() {
+    fun `TC-da306e19-71a0-4dea-868a-6cd140d12098 이름과 설명을 입력하면 화면에 그대로 표시된다`() {
         composeRule.setContactAddScreen()
 
         composeRule.nameInput().performTextInput(TYPED_NAME)
@@ -108,7 +108,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-017 키와 신발 사이즈를 입력하면 화면에 그대로 표시된다`() {
+    fun `TC-89ff8c09-ddaa-42df-b34d-30c38bb0f617 키와 신발 사이즈를 입력하면 화면에 그대로 표시된다`() {
         composeRule.setContactAddScreen()
 
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
@@ -120,7 +120,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-018 키는 정한 문자와 자리 수만 반영한다`() {
+    fun `TC-46eea2ad-c8f1-4378-8e3c-2ac6ab2258aa 키는 정한 문자와 자리 수만 반영한다`() {
         composeRule.setContactAddScreen()
 
         listOf(
@@ -139,7 +139,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-018 신발 사이즈는 정한 문자와 자리 수만 반영한다`() {
+    fun `TC-46eea2ad-c8f1-4378-8e3c-2ac6ab2258aa 신발 사이즈는 정한 문자와 자리 수만 반영한다`() {
         composeRule.setContactAddScreen()
 
         listOf(
@@ -155,7 +155,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-038 키는 전각 숫자를 반영하지 않는다`() {
+    fun `TC-b85bd3cf-7226-41eb-90bc-8fbf34fda9a6 키는 전각 숫자를 반영하지 않는다`() {
         composeRule.setContactAddScreen()
 
         listOf(
@@ -171,7 +171,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-038 신발 사이즈는 전각 숫자를 반영하지 않는다`() {
+    fun `TC-b85bd3cf-7226-41eb-90bc-8fbf34fda9a6 신발 사이즈는 전각 숫자를 반영하지 않는다`() {
         composeRule.setContactAddScreen()
 
         listOf(
@@ -187,7 +187,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-037 키와 신발 사이즈는 입력한 값을 한 번에 지울 수 있다`() {
+    fun `TC-7b52f468-38b9-4a5c-a74e-8a36822d977a 키와 신발 사이즈는 입력한 값을 한 번에 지울 수 있다`() {
         composeRule.setContactAddScreen()
 
         listOf(
@@ -205,7 +205,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-013 화면에 처음 진입하면 이름 입력에 초점이 있다`() {
+    fun `TC-aa75ff27-c43c-431f-9693-9763c27407fa 화면에 처음 진입하면 이름 입력에 초점이 있다`() {
         composeRule.setContactAddScreen()
 
         composeRule.waitForIdle()
@@ -214,7 +214,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-012 화면이 재생성되어도 작성 중이던 내용을 유지한다`() {
+    fun `TC-37880f30-92d8-4d3f-976d-ae42f058cedc 화면이 재생성되어도 작성 중이던 내용을 유지한다`() {
         val viewModel = screenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -254,7 +254,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-046 생일 없이 입력한 태어난 연도는 화면이 재생성되어도 유지된다`() {
+    fun `TC-d24b4c59-b6cc-44f5-a0d4-7101e84629e8 생일 없이 입력한 태어난 연도는 화면이 재생성되어도 유지된다`() {
         val viewModel = screenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -278,7 +278,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-035 메모리 정리 뒤 복원해도 작성 중이던 내용을 모두 복원한다`() {
+    fun `TC-5b8bf97d-e565-481e-b0d4-fca092be9332 메모리 정리 뒤 복원해도 작성 중이던 내용을 모두 복원한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             // 메모리 정리 뒤에는 화면 상태를 들고 있던 객체도 새로 만들어지므로 복원할 때마다 새 인스턴스를 쓴다.
@@ -324,7 +324,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-033 TC-CONTACT-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
+    fun `TC-aa4cea53-888d-47d2-9a1b-77e59c0f00fb TC-1a9ee424-8630-4ff9-98dc-606b97c57280 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setContactAddScreen(navigateUp = { navigateUpCount++ })
 
@@ -334,7 +334,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-0210acce-6535-4bb7-bba2-abcda27d289e 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         composeRule.setContactAddScreen(componentVisible = ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()

@@ -61,7 +61,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-103 날짜를 누르면 그 날짜의 하루 시간표 열기를 요청한다`() {
+    fun `TC-7fcae19f-9b49-4829-adbe-af1e1b2f2033 날짜를 누르면 그 날짜의 하루 시간표 열기를 요청한다`() {
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         setCalendarHomeScreen(navigateToTimetable = { navKeyList += it })
 
@@ -71,7 +71,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-104 이웃 달 날짜를 누르면 그 실제 날짜의 하루 시간표 열기를 요청한다`() {
+    fun `TC-70261496-5c3a-4781-974b-385dc307da3a 이웃 달 날짜를 누르면 그 실제 날짜의 하루 시간표 열기를 요청한다`() {
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         setCalendarHomeScreen(navigateToTimetable = { navKeyList += it })
 
@@ -82,7 +82,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-105 주를 누르면 그 주의 주간 시간표 열기를 요청한다`() {
+    fun `TC-d3fed751-a66d-40dd-87ef-93f468003ec8 주를 누르면 그 주의 주간 시간표 열기를 요청한다`() {
         val caseList =
             listOf(
                 "Week of September 20" to september(day = 20),
@@ -97,7 +97,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-106 아이템을 누르면 시간표를 열지 않고 아이템의 선택 결과가 실행된다`() {
+    fun `TC-7dac7195-3ff7-4635-8620-e0b3f3e55a4e 아이템을 누르면 시간표를 열지 않고 아이템의 선택 결과가 실행된다`() {
         val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE)
         val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = september(day = 22))
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
@@ -136,7 +136,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-107 날짜 칸을 길게 눌러 선택을 끝내면 시간표를 열지 않고 MemoAdd 화면 이동만 요청한다`() {
+    fun `TC-28fda229-9753-4ad8-9db5-d368e3800f2a 날짜 칸을 길게 눌러 선택을 끝내면 시간표를 열지 않고 MemoAdd 화면 이동만 요청한다`() {
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         val memoAddList = mutableListOf<LocalDateRange>()
         setCalendarHomeScreen(
@@ -153,7 +153,7 @@ class CalendarHomeScreenTimetableTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-108 메모 제목을 길게 눌러 옮기면 시간표를 열지 않는다`() {
+    fun `TC-5c5d2c48-a94c-4b81-bb7b-dc4e1748fb2d 메모 제목을 길게 눌러 옮기면 시간표를 열지 않는다`() {
         val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 23), title = MEETING_TITLE)
         val memoViewModel = memoViewModel(memoList = listOf(memo))
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()

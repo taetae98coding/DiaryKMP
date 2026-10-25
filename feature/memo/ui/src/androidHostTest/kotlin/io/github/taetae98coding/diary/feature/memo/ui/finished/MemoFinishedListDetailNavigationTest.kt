@@ -113,7 +113,7 @@ class MemoFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-015 목록에서 고른 메모 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
+    fun `TC-e43cbca2-ba1c-4a39-9784-d783cf8ce485 목록에서 고른 메모 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
         val memoList = memoList()
         setMemoNavDisplay(memoList = memoList)
         selectMemo(memoList[0])
@@ -124,7 +124,7 @@ class MemoFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-015 목록에서 다른 메모를 고른 뒤 삭제하면 선택 전 상태로 돌아간다`() {
+    fun `TC-e43cbca2-ba1c-4a39-9784-d783cf8ce485 목록에서 다른 메모를 고른 뒤 삭제하면 선택 전 상태로 돌아간다`() {
         val memoList = memoList()
         setMemoNavDisplay(memoList = memoList)
         selectMemo(memoList[0])
@@ -136,7 +136,7 @@ class MemoFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-015 복사한 메모 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
+    fun `TC-e43cbca2-ba1c-4a39-9784-d783cf8ce485 복사한 메모 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
         val memoList = memoList()
         val copiedId = fixtureMonkey.giveMeOne<Uuid>()
         setMemoNavDisplay(memoList = memoList, copiedId = copiedId)
@@ -151,7 +151,7 @@ class MemoFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-016 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다`() {
+    fun `TC-a23c4238-ba40-4f34-aa3f-83d77f8fe361 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다`() {
         val memoList = memoList()
         setMemoNavDisplay(memoList = memoList)
         selectMemo(memoList[0])

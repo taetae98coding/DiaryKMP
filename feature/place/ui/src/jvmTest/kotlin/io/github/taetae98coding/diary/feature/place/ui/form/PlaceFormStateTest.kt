@@ -14,7 +14,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlaceFormStateTest :
     FunSpec({
-        test("TC-PLACE-ADD-FEATURE-016 지도에서 위치를 고르면 위도와 경도가 채워진다") {
+        test("TC-c7e9ea0f-dde3-4b8a-9abf-d2c00ce0b516 지도에서 위치를 고르면 위도와 경도가 채워진다") {
             val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
 
             List(2) { fixtureMonkey.mapCoordinateInFormPrecision() }.forEach { selectedCoordinate ->
@@ -26,7 +26,7 @@ class PlaceFormStateTest :
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-017 지도에서 다른 위치를 고르면 좌표가 새 위치로 바뀌고 지점은 하나만 남는다") {
+        test("TC-c28713da-07da-459e-bfeb-7a1e0acad043 지도에서 다른 위치를 고르면 좌표가 새 위치로 바뀌고 지점은 하나만 남는다") {
             val firstCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
             val secondCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstCoordinate }
             val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
@@ -39,7 +39,7 @@ class PlaceFormStateTest :
             state.mapState.spot shouldBe secondCoordinate
         }
 
-        test("TC-PLACE-ADD-FEATURE-018 지도에서 고른 좌표를 이어서 직접 고칠 수 있다") {
+        test("TC-4ed40457-9c12-4c4d-85a3-cacf681225eb 지도에서 고른 좌표를 이어서 직접 고칠 수 있다") {
             val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
             val changedLatitude =
                 generateSequence { fixtureMonkey.mapCoordinateInFormPrecision().latitude.toCoordinateText() }
@@ -53,7 +53,7 @@ class PlaceFormStateTest :
             state.longitudeState.text.toString() shouldBe selectedCoordinate.longitude.toCoordinateText()
         }
 
-        test("TC-PLACE-ADD-DOMAIN-009 지도에서 고른 좌표는 항상 성립하는 좌표다") {
+        test("TC-caf684a1-2033-4e4a-b288-c6b69bbdd231 지도에서 고른 좌표는 항상 성립하는 좌표다") {
             val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
 
             listOf(

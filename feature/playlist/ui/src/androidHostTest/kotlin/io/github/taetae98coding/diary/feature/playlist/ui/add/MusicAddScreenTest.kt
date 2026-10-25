@@ -22,7 +22,7 @@ class MusicAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-001 화면에 처음 진입하면 입력이 모두 비어 있다`() {
+    fun `TC-e07678db-2111-4944-9d93-f50a191fc20e 화면에 처음 진입하면 입력이 모두 비어 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.titleInput().assert(hasText(""))
@@ -33,7 +33,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-002 제목, 가수와 링크를 입력할 수 있다`() {
+    fun `TC-bdeb1708-c98c-4b95-9cff-68f7a7c10a18 제목, 가수와 링크를 입력할 수 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.titleInput().performTextInput(TYPED_TITLE)
@@ -47,7 +47,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-028 영상 링크를 입력하면 불러오기 없이 썸네일 미리보기가 표시된다`() {
+    fun `TC-77113c8c-2e24-456a-805d-58f9b3770a01 영상 링크를 입력하면 불러오기 없이 썸네일 미리보기가 표시된다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.linkInput().performTextInput(TYPED_LINK)
@@ -57,7 +57,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-028 영상을 가리키지 않는 링크는 썸네일 미리보기를 표시하지 않는다`() {
+    fun `TC-77113c8c-2e24-456a-805d-58f9b3770a01 영상을 가리키지 않는 링크는 썸네일 미리보기를 표시하지 않는다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         listOf(YOUTUBE_CHANNEL_LINK, NOT_YOUTUBE_LINK).forEach { link ->
@@ -69,7 +69,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-030 링크를 지우면 썸네일 미리보기가 사라진다`() {
+    fun `TC-008454bc-889c-40b7-b09f-6ad0682a414f 링크를 지우면 썸네일 미리보기가 사라진다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -81,7 +81,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-030 링크를 채널 주소로 바꾸면 썸네일 미리보기가 사라진다`() {
+    fun `TC-008454bc-889c-40b7-b09f-6ad0682a414f 링크를 채널 주소로 바꾸면 썸네일 미리보기가 사라진다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -93,7 +93,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-030 링크를 다른 영상으로 바꾸어도 썸네일 미리보기가 유지된다`() {
+    fun `TC-008454bc-889c-40b7-b09f-6ad0682a414f 링크를 다른 영상으로 바꾸어도 썸네일 미리보기가 유지된다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -105,7 +105,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-004 추가에 성공하면 다음 곡을 작성할 수 있는 상태로 초기화한다`() {
+    fun `TC-8409ba94-326c-4496-af30-d829c0731afa 추가에 성공하면 다음 곡을 작성할 수 있는 상태로 초기화한다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded))
         composeRule.fillAllInput()
         composeRule.thumbnailPreviewCount() shouldBe 1
@@ -120,17 +120,17 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-009 제목이 공백이면 작성 내용은 유지된다`() {
+    fun `TC-160b5699-f7d7-4a3f-b679-ccc30d455742 제목이 공백이면 작성 내용은 유지된다`() {
         assertInvalidInputRetainsInput(effect = MusicAddEffect.TitleBlank)
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-009 링크가 YouTube 주소가 아니면 작성 내용은 유지된다`() {
+    fun `TC-160b5699-f7d7-4a3f-b679-ccc30d455742 링크가 YouTube 주소가 아니면 작성 내용은 유지된다`() {
         assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkNotYoutube)
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-015 TC-PLAYLIST-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기로 이전 화면으로 돌아간다`() {
+    fun `TC-a1584a8b-c998-4bbb-9a47-2c43f74ddf23 TC-917a95b1-daae-4e09-ad20-3c6967902cd0 단독으로 표시되면 뒤로가기로 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMusicAddScreen(
             viewModel = screenTestViewModel(),
@@ -144,7 +144,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-e1d68a79-74e0-416a-a913-0ae5d6911ce2 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         setMusicAddScreen(
             viewModel = screenTestViewModel(),
             componentVisible = MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false),

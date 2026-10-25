@@ -20,14 +20,14 @@ class TagDetailScaffoldEmojiTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-001 이모지가 있으면 상단 바에 이모지와 제목을 함께 표시한다`() {
+    fun `TC-a51bbc33-302d-4e16-a3f9-3d4cd2c501f6 이모지가 있으면 상단 바에 이모지와 제목을 함께 표시한다`() {
         setTagDetailScaffold(detail = tagDetail(title = TAG_TITLE, emoji = TAG_EMOJI))
 
         composeRule.onNodeWithText("$TAG_EMOJI $TAG_TITLE").assertExists()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-029 이모지가 비어 있으면 상단 바에 제목만 표시한다`() {
+    fun `TC-3bac44ce-ac37-4b17-8806-ffa9b432a9b0 이모지가 비어 있으면 상단 바에 제목만 표시한다`() {
         setTagDetailScaffold(detail = tagDetail(title = TAG_TITLE))
 
         composeRule.onNode(hasText(TAG_TITLE) and !hasSetTextAction()).assertExists()

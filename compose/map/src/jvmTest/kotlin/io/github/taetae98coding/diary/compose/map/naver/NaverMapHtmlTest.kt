@@ -10,7 +10,7 @@ import java.net.URI
 
 class NaverMapHtmlTest :
     FunSpec({
-        test("TC-DIARY-MAP-DOMAIN-007: 유효한 인증 정보로 전체 영역을 사용하는 네이버 지도 문서를 만든다") {
+        test("TC-06902c42-4b31-42d0-99e0-11b915d091d2: 유효한 인증 정보로 전체 영역을 사용하는 네이버 지도 문서를 만든다") {
             val ncpKeyId = "test-key_123"
 
             val html = requireNotNull(createNaverMapHtml(ncpKeyId = ncpKeyId, camera = null))
@@ -36,7 +36,7 @@ class NaverMapHtmlTest :
             html shouldNotContain """href="/"""
         }
 
-        test("TC-DIARY-MAP-DOMAIN-011: 네이버 지도가 제공하는 지도 컨트롤과 조작을 모두 켠 지도를 만든다") {
+        test("TC-fe3dba2d-bd5e-4b48-866f-9f482a9e86ef: 네이버 지도가 제공하는 지도 컨트롤과 조작을 모두 켠 지도를 만든다") {
             val html = requireNotNull(createNaverMapHtml(ncpKeyId = "test-key_123", camera = null))
 
             val enabledOptions =
@@ -61,7 +61,7 @@ class NaverMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-043: 현 위치 표시를 켜지 않은 지도를 만든다") {
+        test("TC-0c69edba-8ded-4d61-9af6-2d965bb2c242: 현 위치 표시를 켜지 않은 지도를 만든다") {
             val html = requireNotNull(createNaverMapHtml(ncpKeyId = "test-key_123", camera = null))
 
             val myLocationKeywordList =
@@ -78,7 +78,7 @@ class NaverMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-023: 초기 위치를 지정하면 그 위치와 동네 수준 확대를 지도 문서에 담는다") {
+        test("TC-f332d25c-769c-4896-bf0f-54d0aa3f85ef: 초기 위치를 지정하면 그 위치와 동네 수준 확대를 지도 문서에 담는다") {
             val camera =
                 DiaryMapCamera(
                     latitude = 37.5666102,
@@ -94,7 +94,7 @@ class NaverMapHtmlTest :
             html shouldContain "options.center = { lat: diaryMapCamera.latitude, lng: diaryMapCamera.longitude }"
         }
 
-        test("TC-DIARY-MAP-DOMAIN-024: 초기 위치를 지정하지 않으면 지도 문서에 시작 위치를 담지 않는다") {
+        test("TC-3d55c280-9116-4775-be0b-1397e7722fdb: 초기 위치를 지정하지 않으면 지도 문서에 시작 위치를 담지 않는다") {
             val html = requireNotNull(createNaverMapHtml(ncpKeyId = "test-key_123", camera = null))
 
             html shouldContain "var diaryMapCamera = null;"
@@ -128,13 +128,13 @@ class NaverMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-008: 인증 정보가 비어 있으면 지도 문서를 만들지 않는다") {
+        test("TC-e2e262dc-1629-4f18-8206-e6f7cc246812: 인증 정보가 비어 있으면 지도 문서를 만들지 않는다") {
             listOf("", " ").forEach { ncpKeyId ->
                 createNaverMapHtml(ncpKeyId = ncpKeyId, camera = null).shouldBeNull()
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-008: HTML에 삽입할 수 없는 인증 정보는 지도 문서를 만들지 않는다") {
+        test("TC-e2e262dc-1629-4f18-8206-e6f7cc246812: HTML에 삽입할 수 없는 인증 정보는 지도 문서를 만들지 않는다") {
             createNaverMapHtml(ncpKeyId = """"><script>alert("invalid")</script>""", camera = null).shouldBeNull()
         }
 

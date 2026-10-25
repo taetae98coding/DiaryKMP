@@ -44,7 +44,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-003 만들어지는 것만으로는 모델을 받아 오지 않는다") {
+        test("TC-4f82e618-8baf-419e-ae3a-ccb498f4e91d 만들어지는 것만으로는 모델을 받아 오지 않는다") {
             runTest(mainDispatcher) {
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
@@ -56,7 +56,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-031 다른 앱에 다녀와도 받아 둔 모델 목록을 다시 조회하지 않는다") {
+        test("TC-1aa79bea-052a-445e-9ae7-8ab80ad1981b 다른 앱에 다녀와도 받아 둔 모델 목록을 다시 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val modelList = fixtureMonkey.giveMe<GeminiModel>(2)
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
@@ -81,7 +81,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-005 전달한 인증 정보로 조회한다") {
+        test("TC-54bf33da-7b16-4728-9208-c8b422ef52f7 전달한 인증 정보로 조회한다") {
             runTest(mainDispatcher) {
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 coEvery { fetchGeminiModelUseCase(any()) } returns Result.success(emptyList())
@@ -95,7 +95,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-006 조회하는 동안 진행 상태를 제공한다") {
+        test("TC-5414e004-7086-416f-82d2-9554e9842fa6 조회하는 동안 진행 상태를 제공한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
@@ -119,7 +119,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-007 조회 중에는 같은 조회 요청을 처리하지 않는다") {
+        test("TC-df5048d4-a187-48f9-af3c-3b69556e14d1 조회 중에는 같은 조회 요청을 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
@@ -138,7 +138,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-008 조회에 성공하면 받아 온 모델을 제공한다") {
+        test("TC-03a2c699-e091-4756-80e2-d0dcde9f0b3b 조회에 성공하면 받아 온 모델을 제공한다") {
             runTest(mainDispatcher) {
                 val modelList = fixtureMonkey.giveMe<GeminiModel>(3)
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
@@ -155,7 +155,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-009 고를 수 있는 모델이 없으면 빈 목록을 받은 상태로 제공한다") {
+        test("TC-94a954b5-65a0-4eb1-ab10-090f97cc5707 고를 수 있는 모델이 없으면 빈 목록을 받은 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(emptyList())
@@ -171,7 +171,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-010 조회 실패의 원인을 구분해 제공한다") {
+        test("TC-0f0c8862-4112-4544-8f20-216852b8a0ba 조회 실패의 원인을 구분해 제공한다") {
             val failureCases =
                 listOf(
                     GeminiApiKeyInvalidException() to SettingGeminiModelFailure.INVALID_API_KEY,
@@ -194,7 +194,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-011 조회에 실패해도 받아 둔 목록을 유지한다") {
+        test("TC-ef45d0e5-8837-402d-a394-2c7b9e9592f9 조회에 실패해도 받아 둔 목록을 유지한다") {
             val failureCases =
                 listOf(
                     GeminiApiKeyInvalidException() to SettingGeminiModelEffect.InvalidApiKey,

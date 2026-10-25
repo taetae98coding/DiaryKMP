@@ -111,7 +111,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-002 다른 주요 목적지에 다녀오면 상세 영역의 메모 추가는 입력과 선택이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-56993684-4876-4f8b-b41c-eca45eb2fa33 다른 주요 목적지에 다녀오면 상세 영역의 메모 추가는 입력과 선택이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -141,22 +141,22 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
+    fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
+    fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-005 완료된 메모 목록에 다녀와도 선택 전 메모 추가의 입력과 선택이 남는다`() {
+    fun `TC-4b6fb492-81b6-4c57-8992-1c7a884b53c6 완료된 메모 목록에 다녀와도 선택 전 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = MemoFinishedListNavKey)
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
+    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
         val input = placeholderInput()
         val detail = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         setMemoNavDisplay(input = input)
@@ -176,7 +176,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 선택한 메모 없이 목록에서 연 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 메모 추가로 되돌아간다`() {
+    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 선택한 메모 없이 목록에서 연 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 메모 추가로 되돌아간다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -193,7 +193,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-001 함께 표시하는 환경에서는 목록과 상세 영역이 모두 표시된다`() {
+    fun `TC-7a5c0161-e132-4805-abe4-4afbcac2a5e8 함께 표시하는 환경에서는 목록과 상세 영역이 모두 표시된다`() {
         setMemoNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
@@ -201,7 +201,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-002 선택한 메모가 없으면 상세 영역에 메모 추가 화면이 표시된다`() {
+    fun `TC-3ffa2149-52c5-481a-80d3-63e622a167c7 선택한 메모가 없으면 상세 영역에 메모 추가 화면이 표시된다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
 
@@ -214,7 +214,7 @@ class MemoListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-004 한 영역만 표시하는 환경에서는 현재 영역만 표시된다`() {
+    fun `TC-a82d797b-2b4d-43f6-abda-2d15067f70b9 한 영역만 표시하는 환경에서는 현재 영역만 표시된다`() {
         setMemoNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()

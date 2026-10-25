@@ -51,7 +51,7 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-009 날짜 선택 다이얼로그에서 확인하면 고른 날짜가 반영된다`() {
+    fun `TC-ce1bb9b6-4b63-4329-906e-c4adfd80b0e9 날짜 선택 다이얼로그에서 확인하면 고른 날짜가 반영된다`() {
         setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNodeWithText(START_DATE_TEXT).performClick()
@@ -63,7 +63,7 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-010 날짜 선택 다이얼로그를 취소하면 기존 값이 유지된다`() {
+    fun `TC-a1bb49f4-9e4e-4057-bb7d-228d708c667a 날짜 선택 다이얼로그를 취소하면 기존 값이 유지된다`() {
         setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNodeWithText(START_DATE_TEXT).performClick()
@@ -75,7 +75,7 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-014 시작을 종료보다 뒤로 선택하면 종료가 시작에 맞춰진다`() {
+    fun `TC-100445a4-5154-4302-ab94-c8bd236938e3 시작을 종료보다 뒤로 선택하면 종료가 시작에 맞춰진다`() {
         setDiaryDateTimeInput(
             initialValue =
                 DiaryDateTimeInputValue.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = 19)..LocalDate(year = 2026, month = 7, day = 20)),
@@ -89,7 +89,7 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-015 종료를 시작보다 앞으로 선택하면 시작이 종료에 맞춰진다`() {
+    fun `TC-366a967c-d2ff-45b3-8b70-2093910bfd17 종료를 시작보다 앞으로 선택하면 시작이 종료에 맞춰진다`() {
         setDiaryDateTimeInput(
             initialValue =
                 DiaryDateTimeInputValue.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = 19)..LocalDate(year = 2026, month = 7, day = 20)),

@@ -44,7 +44,7 @@ class TagDetailCardSwipePriorityTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-066 메모 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 그 메모가 완료된다`() {
+    fun `TC-0ad9ffe8-1686-4386-9d4d-397acbd57d8c 메모 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 그 메모가 완료된다`() {
         val memo = tagMemo(title = MEMO_TITLE)
         setScreen(tabDescription = DEFAULT_MEMO_TAB_DESCRIPTION, memo = memo)
 
@@ -57,7 +57,7 @@ class TagDetailCardSwipePriorityTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-066 웹 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 아무 상태 변경도 요청하지 않는다`() {
+    fun `TC-0ad9ffe8-1686-4386-9d4d-397acbd57d8c 웹 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 아무 상태 변경도 요청하지 않는다`() {
         setScreen(tabDescription = DEFAULT_WEB_TAB_DESCRIPTION)
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(WEB_TITLE)).performTouchInput { swipeRight() }
@@ -71,7 +71,7 @@ class TagDetailCardSwipePriorityTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-066 장소 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 아무 상태 변경도 요청하지 않는다`() {
+    fun `TC-0ad9ffe8-1686-4386-9d4d-397acbd57d8c 장소 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 아무 상태 변경도 요청하지 않는다`() {
         setScreen(tabDescription = DEFAULT_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(PLACE_TITLE)).performTouchInput { swipeRight() }
@@ -85,7 +85,7 @@ class TagDetailCardSwipePriorityTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-067 카드 밖 여백에서 왼쪽으로 밀면 옆 탭으로 전환된다`() {
+    fun `TC-4b6e96cb-7922-4df1-9aae-26be9eaebaa6 카드 밖 여백에서 왼쪽으로 밀면 옆 탭으로 전환된다`() {
         setScreen(tabDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
 
         // 카드는 목록 맨 위에 하나만 있으므로, 떠 있는 버튼을 피한 목록 아래쪽 여백을 가로질러 민다.

@@ -59,14 +59,14 @@ class QrHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-c828fbff-661d-4b4e-9ea5-39aa2dd783e8 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setQrHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-c828fbff-661d-4b4e-9ea5-39aa2dd783e8 기본 환경에서 상단 바에 제목을 표시한다`() {
         setQrHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
@@ -74,21 +74,21 @@ class QrHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-019 한국어 환경에서 QR 추가는 접근성 이름으로 제공된다`() {
+    fun `TC-e401f656-42ca-4328-9abc-f234dff754f9 한국어 환경에서 QR 추가는 접근성 이름으로 제공된다`() {
         setQrHomeScaffold()
 
         composeRule.onNode(hasClickAction() and hasContentDescription(KOREAN_ADD_DESCRIPTION)).assertExists()
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-019 기본 환경에서 QR 추가는 접근성 이름으로 제공된다`() {
+    fun `TC-e401f656-42ca-4328-9abc-f234dff754f9 기본 환경에서 QR 추가는 접근성 이름으로 제공된다`() {
         setQrHomeScaffold()
 
         composeRule.onNode(hasClickAction() and hasContentDescription(DEFAULT_ADD_DESCRIPTION)).assertExists()
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-015 계정에 저장된 QR을 목록으로 표시하고 각 항목에 제목과 QR 값을 담은 그림을 보여 준다`() {
+    fun `TC-a23d9fc3-5fbd-410d-bbb8-ca350cd6d564 계정에 저장된 QR을 목록으로 표시하고 각 항목에 제목과 QR 값을 담은 그림을 보여 준다`() {
         val qrList = listOf(testQr(), testQr())
         setQrHomeScaffold(pagingData = qrPagingDataOf(qrList))
 
@@ -98,7 +98,7 @@ class QrHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-033 제목, 뒤로가기, QR 목록과 QR 추가 외의 정보와 동작을 두지 않는다`() {
+    fun `TC-9b818627-858a-47a6-984d-afb1285013f5 제목, 뒤로가기, QR 목록과 QR 추가 외의 정보와 동작을 두지 않는다`() {
         val qr = testQr()
         setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(qr)))
 
@@ -108,7 +108,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-016 QR의 설명과 QR 값의 글자는 목록에 표시하지 않는다`() {
+    fun `TC-64ee7ec8-6cfa-441f-87b7-641b9230840d QR의 설명과 QR 값의 글자는 목록에 표시하지 않는다`() {
         val qr =
             qrTestFixtureMonkey.qr(
                 isDeleted = false,
@@ -122,7 +122,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-034 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
+    fun `TC-faf59225-fd29-4e65-a963-5f79e88347ee 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         val qrList = listOf(testQr(), testQr())
         setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onEvent = eventList::add)
@@ -135,7 +135,7 @@ class QrHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-020 표시할 QR이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-8aa2afc1-edb5-43e9-b7b9-0c3fad26da80 표시할 QR이 없으면 빈 상태 안내를 표시한다`() {
         setQrHomeScaffold(pagingData = qrPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -144,7 +144,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-020 기본 환경에서 빈 상태 안내를 표시한다`() {
+    fun `TC-8aa2afc1-edb5-43e9-b7b9-0c3fad26da80 기본 환경에서 빈 상태 안내를 표시한다`() {
         setQrHomeScaffold(pagingData = qrPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -152,7 +152,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-021 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-59668a76-d3d8-4eb9-ad5b-f7d21ddef078 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setQrHomeScaffold(pagingData = loadingQrPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
@@ -160,7 +160,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-022 표시할 QR이 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-fa6d75ba-d545-459c-952b-b7bf25240e8f 표시할 QR이 있으면 빈 상태 안내를 표시하지 않는다`() {
         val qr = testQr()
         setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(qr)))
 
@@ -169,7 +169,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DATA-002 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
+    fun `TC-b5682b6b-e9c6-40ff-a76f-f5a27ceb86c5 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
         val snackbarHostState = SnackbarHostState()
         setQrHomeScaffold(pagingData = failedQrPagingData(), snackbarHostState = snackbarHostState)
 
@@ -181,17 +181,17 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-023 QR이 표시된 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-baec8bc1-1a9a-49bf-b47d-e1f4212413f4 QR이 표시된 목록을 당기면 새로고침을 요청한다`() {
         assertRefreshRequested(pagingData = qrPagingDataOf(listOf(testQr())))
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-023 빈 상태 안내가 표시된 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-baec8bc1-1a9a-49bf-b47d-e1f4212413f4 빈 상태 안내가 표시된 목록을 당기면 새로고침을 요청한다`() {
         assertRefreshRequested(pagingData = qrPagingDataOf(emptyList()))
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-024 새로고침이 실행되는 동안 진행이 표시되고 끝나면 사라진다`() {
+    fun `TC-83b267ce-2bdf-4f78-a9dd-787149b0a5da 새로고침이 실행되는 동안 진행이 표시되고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setQrHomeScaffold(
             pagingData = qrPagingDataOf(listOf(testQr())),
@@ -260,7 +260,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-036 Cmd A 단축키를 입력하면 QR 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-5916f0a2-4ca2-4b13-92ba-2a65a3dde5b6 Cmd A 단축키를 입력하면 QR 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(onEvent = eventList::add)
 
@@ -270,7 +270,7 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-003 상세 영역에 QR 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
+    fun `TC-9605be3c-0841-42d9-abbd-9f694c10d02a 상세 영역에 QR 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(
             onEvent = eventList::add,
@@ -284,14 +284,14 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-LIST-DETAIL-FEATURE-004 상세 영역에 QR 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
+    fun `TC-7af608de-8aa2-4b0e-815c-d734a5d9ff3c 상세 영역에 QR 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
         setQrHomeScaffold(componentVisible = QrHomeScaffoldComponentVisible(isAddButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-037 상세 영역에 QR 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+    fun `TC-75ce6921-30f2-4bf4-8343-b6e86cb0a42a 상세 영역에 QR 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(
             onEvent = eventList::add,

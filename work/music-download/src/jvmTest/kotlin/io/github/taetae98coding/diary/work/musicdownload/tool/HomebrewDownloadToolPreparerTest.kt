@@ -18,7 +18,7 @@ class HomebrewDownloadToolPreparerTest :
     BehaviorSpec({
         Given("두 도구가 모두 있다") {
             When("준비한다") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-011 설치하지 않고 준비된 것으로 본다") {
+                Then("TC-94f51396-8b75-4981-91bb-74c8964bc026 설치하지 않고 준비된 것으로 본다") {
                     val commandRunner = commandRunner(installedList = listOf(DownloadTool.YT_DLP, DownloadTool.FFMPEG))
                     val preparer = HomebrewDownloadToolPreparer(commandRunner = commandRunner)
 
@@ -31,7 +31,7 @@ class HomebrewDownloadToolPreparerTest :
 
         Given("도구가 없고 Homebrew는 있으며 설치가 성공한다") {
             When("준비한다") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-012 없는 도구만 설치하고 준비된 것으로 본다") {
+                Then("TC-0b89d8b5-d87a-4222-b176-6121f5e6662c 없는 도구만 설치하고 준비된 것으로 본다") {
                     val caseList =
                         listOf(
                             listOf(DownloadTool.YT_DLP) to listOf(DownloadTool.FFMPEG),
@@ -58,7 +58,7 @@ class HomebrewDownloadToolPreparerTest :
 
         Given("도구가 없고 Homebrew도 없다") {
             When("준비한다") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-013 직접 설치해야 함을 알린다") {
+                Then("TC-19b5cf96-076b-4cff-a43a-639e4f77fc13 직접 설치해야 함을 알린다") {
                     val commandRunner = commandRunner(installedList = emptyList(), hasBrew = false)
                     val preparer = HomebrewDownloadToolPreparer(commandRunner = commandRunner)
 
@@ -71,7 +71,7 @@ class HomebrewDownloadToolPreparerTest :
 
         Given("도구가 없고 Homebrew는 있지만 설치가 실패한다") {
             When("준비한다") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-014 준비 실패로 본다") {
+                Then("TC-cf6e0f6d-6083-4da0-9415-b30221861ad2 준비 실패로 본다") {
                     val commandRunner = commandRunner(installedList = emptyList(), hasBrew = true, exitCode = FAILURE_EXIT_CODE)
                     val preparer = HomebrewDownloadToolPreparer(commandRunner = commandRunner)
 

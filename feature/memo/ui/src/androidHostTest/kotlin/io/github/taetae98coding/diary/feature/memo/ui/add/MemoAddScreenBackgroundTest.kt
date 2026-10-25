@@ -34,7 +34,7 @@ class MemoAddScreenBackgroundTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-068 다른 앱에 다녀와도 입력 내용과 선택이 그대로다`() {
+    fun `TC-95f21cb7-8d6c-43b7-b2d2-cde33534f8d0 다른 앱에 다녀와도 입력 내용과 선택이 그대로다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val tagTitle = "BackgroundTag${fixtureMonkey.giveMeOne<Int>()}"

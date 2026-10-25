@@ -29,7 +29,7 @@ class PlaceSearchResultTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-003 검색어가 비어 있으면 결과를 표시하지 않는다`() {
+    fun `TC-8613724f-e814-4641-a21d-94ca669415fd 검색어가 비어 있으면 결과를 표시하지 않는다`() {
         val placeName = randomText(prefix = PLACE_NAME_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val place = searchedPlace(name = placeName, address = placeAddress)
@@ -46,7 +46,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-004 검색어를 입력하면 찾은 장소가 받은 순서대로 목록에 표시된다`() {
+    fun `TC-7fcc2059-175a-4c24-bddb-b370ce5dde6e 검색어를 입력하면 찾은 장소가 받은 순서대로 목록에 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val firstPlaceName = randomText(prefix = FIRST_PLACE_NAME_PREFIX)
@@ -66,7 +66,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-005 결과 항목에 이름과 주소가 함께 표시된다`() {
+    fun `TC-07080369-8d01-4737-95b1-e856e13270ae 결과 항목에 이름과 주소가 함께 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val placeName = randomText(prefix = PLACE_NAME_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
@@ -82,7 +82,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-006 결과가 없으면 결과 없음 안내가 표시된다`() {
+    fun `TC-0b99edc9-1e06-4e1d-b80a-e4e1f0d37bf8 결과가 없으면 결과 없음 안내가 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content() })
 
@@ -97,7 +97,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-007 검색에 실패하면 실패 안내가 표시된다`() {
+    fun `TC-8b804367-027f-4059-98fe-215c08778d31 검색에 실패하면 실패 안내가 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val placeName = randomText(prefix = PLACE_NAME_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
@@ -119,7 +119,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-008 검색어를 지우면 결과가 사라진다`() {
+    fun `TC-514c3942-86ec-40d4-a90a-696a6bb33b8b 검색어를 지우면 결과가 사라진다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val placeName = randomText(prefix = PLACE_NAME_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
@@ -141,7 +141,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-021 목록의 장소를 누르면 지도가 그 장소의 좌표를 가운데에 둔다`() {
+    fun `TC-779e6a90-ec04-4057-9765-0a0c9f60a0a9 목록의 장소를 누르면 지도가 그 장소의 좌표를 가운데에 둔다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
         val otherCoordinate = DiaryMapCoordinate(latitude = place.coordinate.latitude + 1.0, longitude = place.coordinate.longitude + 1.0)
@@ -159,7 +159,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-022 지도 가운데에 있지 않은 장소를 목록에서 눌러도 장소를 고르지 않고 결과 목록이 그대로 표시된다`() {
+    fun `TC-a0ec67c2-62cf-4a51-8088-dace5a7091e1 지도 가운데에 있지 않은 장소를 목록에서 눌러도 장소를 고르지 않고 결과 목록이 그대로 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val first = searchedPlace(name = randomText(prefix = FIRST_PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
         val second = searchedPlace(name = randomText(prefix = SECOND_PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
@@ -182,7 +182,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-024 지도 가운데에 있는 장소를 목록에서 누르면 그 장소를 고른다`() {
+    fun `TC-97ce25be-aefd-4aa2-a719-ce41283abafd 지도 가운데에 있는 장소를 목록에서 누르면 그 장소를 고른다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
         val selectedList = mutableListOf<SearchedPlace>()
@@ -202,7 +202,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-025 목록의 장소를 두 번 누르면 처음에는 지도를 옮기고 다음에는 그 장소를 고른다`() {
+    fun `TC-a48e3fc4-c94a-4708-8d7a-534704f7eb09 목록의 장소를 두 번 누르면 처음에는 지도를 옮기고 다음에는 그 장소를 고른다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
         val selectedList = mutableListOf<SearchedPlace>()
@@ -225,7 +225,7 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-023 결과 항목마다 그 장소의 컬러 표시가 하나씩 있다`() {
+    fun `TC-ccb05c09-28aa-430c-ac57-052686eb9f4f 결과 항목마다 그 장소의 컬러 표시가 하나씩 있다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val placeList =
             listOf(FIRST_PLACE_NAME_PREFIX, SECOND_PLACE_NAME_PREFIX).map { prefix ->

@@ -48,7 +48,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-041 네트워크에 연결되지 않았으면 동기화 작업을 실행하지 않고 대기시킨다`() {
+    fun `TC-29e99d7e-20c8-4721-8f6a-e3b249fb2ee3 네트워크에 연결되지 않았으면 동기화 작업을 실행하지 않고 대기시킨다`() {
         AndroidSyncWorkScheduler(context = context).sync()
 
         val workInfo = enqueuedWorkInfo()
@@ -58,7 +58,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-042 네트워크에 연결되면 대기 중인 동기화 작업이 실행된다`() {
+    fun `TC-91a07888-6299-4581-b187-b769d27e6d1a 네트워크에 연결되면 대기 중인 동기화 작업이 실행된다`() {
         AndroidSyncWorkScheduler(context = context).sync()
 
         connectNetwork()
@@ -68,7 +68,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-043 연결을 기다리는 동안 여러 계기가 발생해도 연결 후 한 번만 실행된다`() {
+    fun `TC-965bab9d-893c-4a50-983d-cf3e1119827f 연결을 기다리는 동안 여러 계기가 발생해도 연결 후 한 번만 실행된다`() {
         val manager = AndroidSyncWorkScheduler(context = context)
         manager.sync()
         manager.sync()
@@ -92,7 +92,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-001 네트워크를 기다리며 대기하는 동안에는 실행 중 상태가 아니다`() {
+    fun `TC-d3c86eec-fa12-4227-9773-521cf1a7800b 네트워크를 기다리며 대기하는 동안에는 실행 중 상태가 아니다`() {
         runBlocking {
             val manager = AndroidSyncWorkScheduler(context = context)
 
@@ -103,7 +103,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-005 대기 중인 작업이 실행되어 성공으로 끝나면 남은 작업이 없는 상태가 된다`() {
+    fun `TC-19d9feda-6635-4b91-a41f-448cb4703f92 대기 중인 작업이 실행되어 성공으로 끝나면 남은 작업이 없는 상태가 된다`() {
         runBlocking {
             val manager = AndroidSyncWorkScheduler(context = context)
             manager.sync()
@@ -115,7 +115,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-005 실행 중인 작업이 실패로 끝나도 남은 작업이 없는 상태가 된다`() {
+    fun `TC-19d9feda-6635-4b91-a41f-448cb4703f92 실행 중인 작업이 실패로 끝나도 남은 작업이 없는 상태가 된다`() {
         runBlocking {
             coEvery { syncWork.doWork() } throws IllegalStateException("sync failure")
             val manager = AndroidSyncWorkScheduler(context = context)
@@ -128,7 +128,7 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-005 TC-SYNC-REFRESH-DOMAIN-009 실행 중에 다시 요청해도 남은 작업이 없는 상태를 거치지 않고 이어진 작업이 끝나야 끝난다`() {
+    fun `TC-904c3de1-9a96-4f74-9e76-74ebeaedfe00 TC-1f820570-271d-47fe-afe1-2e6d8126d8dd 실행 중에 다시 요청해도 남은 작업이 없는 상태를 거치지 않고 이어진 작업이 끝나야 끝난다`() {
         runBlocking {
             val firstWorkGate = CompletableDeferred<Unit>()
             coEvery { syncWork.doWork() } coAnswers {

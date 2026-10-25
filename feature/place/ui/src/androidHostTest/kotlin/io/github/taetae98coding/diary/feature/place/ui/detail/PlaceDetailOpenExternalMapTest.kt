@@ -46,7 +46,7 @@ class PlaceDetailOpenExternalMapTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-032 외부 지도로 열기를 실행하면 입력된 좌표가 앱 밖의 지도에서 열린다`() {
+    fun `TC-c1536a40-3f77-4730-9837-1da479fa170d 외부 지도로 열기를 실행하면 입력된 좌표가 앱 밖의 지도에서 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val detail = placeDetail(coordinate = SAVED_COORDINATE)
 
@@ -61,7 +61,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-033 좌표가 성립하지 않으면 지도를 열지 않고 좌표를 알린다`() {
+    fun `TC-c9d09f80-fab8-41cc-841c-088a866c02d1 좌표가 성립하지 않으면 지도를 열지 않고 좌표를 알린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         composeRule.setPlaceDetailScreen(
@@ -85,7 +85,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-034 외부 지도로 열어도 입력 중인 내용과 화면을 유지하고 장소를 수정하지 않는다`() {
+    fun `TC-7409206e-79f5-407c-9782-a2f89c46dc3d 외부 지도로 열어도 입력 중인 내용과 화면을 유지하고 장소를 수정하지 않는다`() {
         val viewModel = savedViewModel(detail = placeDetail(coordinate = SAVED_COORDINATE))
 
         composeRule.setPlaceDetailScreen(viewModel = viewModel)
@@ -107,7 +107,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-060 지도 앱과 웹 지도를 모두 열지 못하면 화면을 유지하고 지도를 열지 못했다고 알린다`() {
+    fun `TC-90dfcb1f-2eed-4076-ab43-e033259f32c4 지도 앱과 웹 지도를 모두 열지 못하면 화면을 유지하고 지도를 열지 못했다고 알린다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalArgumentException("외부 지도를 열 수 없습니다.")
@@ -132,7 +132,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-042 지도 앱을 열지 못하면 같은 위치를 웹 지도로 연다`() {
+    fun `TC-faa29555-5df1-45db-b371-bbcdfa693c22 지도 앱을 열지 못하면 같은 위치를 웹 지도로 연다`() {
         val detail = placeDetail(coordinate = SAVED_COORDINATE)
         val appUri = savedAppUri(detail = detail)
         val webUri = savedWebUri(detail = detail)
@@ -163,7 +163,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-036 지도가 표시되지 않아도 외부 지도로 열기를 제공한다`() {
+    fun `TC-6cdd4a21-50f9-4eeb-bb2e-557816d09806 지도가 표시되지 않아도 외부 지도로 열기를 제공한다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         val detail = placeDetail(coordinate = SAVED_COORDINATE)
@@ -183,7 +183,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-021 외부 지도로 여는 위치는 저장된 좌표가 아니라 입력된 좌표다`() {
+    fun `TC-b375e331-4087-41c2-a6c3-5c2130c99348 외부 지도로 여는 위치는 저장된 좌표가 아니라 입력된 좌표다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         val detail = placeDetail(coordinate = SAVED_COORDINATE)
@@ -212,7 +212,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-023 수정을 처리하는 동안에도 외부 지도로 열기를 실행할 수 있다`() {
+    fun `TC-31f2be1a-7088-4e50-ac76-fe26bf2595a1 수정을 처리하는 동안에도 외부 지도로 열기를 실행할 수 있다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         val detail = placeDetail(coordinate = SAVED_COORDINATE)
@@ -231,7 +231,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-023 삭제를 처리하는 동안에도 외부 지도로 열기를 실행할 수 있다`() {
+    fun `TC-31f2be1a-7088-4e50-ac76-fe26bf2595a1 삭제를 처리하는 동안에도 외부 지도로 열기를 실행할 수 있다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         val detail = placeDetail(coordinate = SAVED_COORDINATE)

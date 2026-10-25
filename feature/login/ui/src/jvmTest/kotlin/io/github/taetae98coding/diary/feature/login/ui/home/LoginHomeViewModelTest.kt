@@ -43,7 +43,7 @@ class LoginHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-LOGIN-FEATURE-009 로그인 진행 상태를 전환한다") {
+        test("TC-d33c5bf1-1f6d-4023-9333-20e81623d39c 로그인 진행 상태를 전환한다") {
             runTest(mainDispatcher) {
                 val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
                 val completion = CompletableDeferred<Unit>()
@@ -66,7 +66,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-LOGIN-FEATURE-009 Apple 로그인 진행 상태를 전환한다") {
+        test("TC-d33c5bf1-1f6d-4023-9333-20e81623d39c Apple 로그인 진행 상태를 전환한다") {
             runTest(mainDispatcher) {
                 val credential = fixtureMonkey.giveMeOne<AppleCredential>()
                 val completion = CompletableDeferred<Unit>()
@@ -89,7 +89,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-LOGIN-FEATURE-010 진행 중 같은 수단의 추가 요청 무시") {
+        test("TC-bf35c0ee-ee31-4ebd-8b72-937d90ccccda 진행 중 같은 수단의 추가 요청 무시") {
             runTest(mainDispatcher) {
                 val firstCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
                 val secondCredential = fixtureMonkey.giveMeOne<GoogleCredential.AuthorizationCode>()
@@ -116,7 +116,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-LOGIN-FEATURE-010 진행 중 다른 수단의 추가 요청 무시") {
+        test("TC-bf35c0ee-ee31-4ebd-8b72-937d90ccccda 진행 중 다른 수단의 추가 요청 무시") {
             runTest(mainDispatcher) {
                 val googleCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
                 val appleCredential = fixtureMonkey.giveMeOne<AppleCredential>()
@@ -224,7 +224,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-LOGIN-FEATURE-015 같은 수단으로 실패 후 다시 로그인할 수 있다") {
+        test("TC-09801d23-391b-4709-89d7-495cd0a73bcb 같은 수단으로 실패 후 다시 로그인할 수 있다") {
             runTest(mainDispatcher) {
                 val firstCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
                 val secondCredential = fixtureMonkey.giveMeOne<GoogleCredential.AuthorizationCode>()
@@ -256,7 +256,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-LOGIN-FEATURE-015 다른 수단으로 실패 후 다시 로그인할 수 있다") {
+        test("TC-09801d23-391b-4709-89d7-495cd0a73bcb 다른 수단으로 실패 후 다시 로그인할 수 있다") {
             runTest(mainDispatcher) {
                 val googleCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
                 val appleCredential = fixtureMonkey.giveMeOne<AppleCredential>()
@@ -288,7 +288,7 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
-        context("TC-LOGIN-FEATURE-026 Login 화면에 다시 들어오면 로그인 수단 선택 대기 상태에서 시작한다") {
+        context("TC-6920889b-7b94-4800-90b3-92536d07ec18 Login 화면에 다시 들어오면 로그인 수단 선택 대기 상태에서 시작한다") {
             listOf<Pair<String, (SignInWithGoogleUseCase, GoogleCredential) -> Unit>>(
                 "앱 로그인 처리 중" to { useCase, credential ->
                     coEvery { useCase(credential) } coAnswers { CompletableDeferred<Result<Unit>>().await() }

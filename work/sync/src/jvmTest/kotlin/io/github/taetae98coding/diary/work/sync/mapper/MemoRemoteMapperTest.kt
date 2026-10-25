@@ -15,7 +15,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class MemoRemoteMapperTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-006 TC-DATA-SYNC-DOMAIN-007 local to remote") {
+        test("TC-cb16b55c-2e2e-40b2-b6a1-70c5ee02410f TC-429c3283-a871-461c-99ea-9f5f4fbce798 local to remote") {
             fixtureMonkey.memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
                 val local = fixtureMonkey.localMemo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId)
 

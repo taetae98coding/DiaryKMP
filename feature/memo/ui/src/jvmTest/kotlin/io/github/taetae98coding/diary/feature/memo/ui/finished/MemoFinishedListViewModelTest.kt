@@ -56,7 +56,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-001 완료된 메모 목록 UseCase를 한 번 조회한다") {
+        test("TC-a0437ed6-af73-40b1-9476-537e4aae6df0 완료된 메모 목록 UseCase를 한 번 조회한다") {
             runTest(mainDispatcher) {
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.empty()))
@@ -71,7 +71,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-015 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
+        test("TC-1ef63eda-de50-40a0-a6a6-11efc71536e3 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -90,7 +90,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-026 메모 다시 시작이 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
+        test("TC-8f4f06f0-df07-4f84-9662-aa2798fcd547 메모 다시 시작이 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = fixtureMonkey.giveMeOne<Memo>()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
@@ -116,7 +116,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-016 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
+        test("TC-f8006e64-5c55-4081-b0bb-e2d694e00988 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -134,7 +134,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-017 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
+        test("TC-72adc9f7-a269-41ef-a86c-ba35e313d143 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -153,7 +153,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-026 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
+        test("TC-8f4f06f0-df07-4f84-9662-aa2798fcd547 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = fixtureMonkey.giveMeOne<Memo>()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
@@ -179,7 +179,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-018 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
+        test("TC-bd7a3c2d-71e3-477c-91c1-30055be2259b 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
@@ -197,7 +197,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-030 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+        test("TC-86ea0420-41ef-40a8-8f34-71347b0bdb40 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
             listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
                 runTest(mainDispatcher) {
                     val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
@@ -219,7 +219,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-031 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
+        test("TC-d798dbeb-65ec-4aec-ad4f-17fe699c5c1e 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val memo =
                     fixtureMonkey
@@ -247,7 +247,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-005 최초 조회에 실패하면 빈 목록을 노출한다") {
+        test("TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 최초 조회에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.failure(IllegalStateException()))
@@ -260,7 +260,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-005 추가 조회에 실패해도 이미 표시된 메모를 유지한다") {
+        test("TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 추가 조회에 실패해도 이미 표시된 메모를 유지한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
@@ -277,7 +277,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-005 다시 조회에 실패하면 이전 메모를 남기지 않고 빈 목록을 노출한다") {
+        test("TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 다시 조회에 실패하면 이전 메모를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val memo = fixtureMonkey.giveMeOne<Memo>()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()

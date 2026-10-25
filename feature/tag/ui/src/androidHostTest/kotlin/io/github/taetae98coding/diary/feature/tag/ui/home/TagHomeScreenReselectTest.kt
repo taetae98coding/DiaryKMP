@@ -39,7 +39,7 @@ class TagHomeScreenReselectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-009 태그 목적지를 다시 선택하면 태그 목록의 첫 항목으로 돌아간다`() {
+    fun `TC-6d6ea720-76ed-46dc-bc47-d20dcc847db7 태그 목적지를 다시 선택하면 태그 목록의 첫 항목으로 돌아간다`() {
         val reselectEvent = reselectEvent()
         setTagHomeScreen(reselectEvent = reselectEvent)
 
@@ -54,7 +54,7 @@ class TagHomeScreenReselectTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-010 이미 첫 태그를 보고 있으면 목록 자리를 바꾸지 않는다`() {
+    fun `TC-e8c22e00-ba72-44a3-af1b-6bae10c5d492 이미 첫 태그를 보고 있으면 목록 자리를 바꾸지 않는다`() {
         val reselectEvent = reselectEvent()
         setTagHomeScreen(reselectEvent = reselectEvent)
 

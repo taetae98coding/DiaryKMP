@@ -38,7 +38,7 @@ class CalendarHomeScreenFilterTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 있으면 필터 버튼이 적용 상태를 알린다`() {
+    fun `TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 있으면 필터 버튼이 적용 상태를 알린다`() {
         setCalendarHomeScreen(
             filterUiState = CalendarHomeScaffoldFilterUiState(isApplied = true),
         )
@@ -54,7 +54,7 @@ class CalendarHomeScreenFilterTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+    fun `TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
         setCalendarHomeScreen(
             filterUiState = CalendarHomeScaffoldFilterUiState(isApplied = false),
         )

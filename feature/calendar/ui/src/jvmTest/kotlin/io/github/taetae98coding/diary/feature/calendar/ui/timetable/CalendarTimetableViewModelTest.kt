@@ -41,7 +41,7 @@ class CalendarTimetableViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-TIMETABLE-DATA-001 날짜를 옮기면 옮긴 날짜의 조회 기간으로 메모를 다시 조회한다") {
+        test("TC-1fa8af84-2706-49ca-8383-77f1b734d6bc 날짜를 옮기면 옮긴 날짜의 조회 기간으로 메모를 다시 조회한다") {
             runTest(mainDispatcher) {
                 val firstRange = date(day = 22)..date(day = 24)
                 val secondRange = date(day = 23)..date(day = 25)
@@ -65,7 +65,7 @@ class CalendarTimetableViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-TIMETABLE-DOMAIN-011 메모 조회에 실패하면 메모 없이 표시한다") {
+        test("TC-9487401c-55f3-44d2-a1b2-49c76b70feb9 메모 조회에 실패하면 메모 없이 표시한다") {
             runTest(mainDispatcher) {
                 val firstRange = date(day = 22)..date(day = 24)
                 val secondRange = date(day = 23)..date(day = 25)

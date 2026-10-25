@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ContactNavigationTest :
     FunSpec({
-        test("TC-CONTACT-HOME-FEATURE-014 연락처 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
+        test("TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 연락처 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
@@ -34,7 +34,7 @@ class ContactNavigationTest :
             }
         }
 
-        test("TC-CONTACT-LIST-DETAIL-FEATURE-016 목록에서 연락처를 선택하면 목록 위에 쌓인 상세와 연락처 추가를 모두 걷어내고 그 상세로 바꾼다") {
+        test("TC-5f06e023-4786-4590-af12-bd9084031688 목록에서 연락처를 선택하면 목록 위에 쌓인 상세와 연락처 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
                     listOf(ContactAddNavKey()),

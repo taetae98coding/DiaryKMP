@@ -18,7 +18,7 @@ private val UNUSED_SNAPSHOT_PARENT_DIRECTORY: Path = Paths.get("/nonexistent")
 
 class ChromeProfileLocalDataSourceImplTest :
     FunSpec({
-        test("TC-CHROME-SESSION-IMPORT-DATA-009 프로필 목록을 Chrome이 기록한 이름과 순서로 제공한다") {
+        test("TC-d3d1ce85-3ec3-48e3-8398-35f9c7fc71bb 프로필 목록을 Chrome이 기록한 이름과 순서로 제공한다") {
             runTest {
                 val dataSource =
                     dataSource(
@@ -34,7 +34,7 @@ class ChromeProfileLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-010 이름이 없는 프로필은 폴더 이름으로 제공한다") {
+        test("TC-9376194d-4c4f-4a15-9c54-6e1ad44ed9f2 이름이 없는 프로필은 폴더 이름으로 제공한다") {
             runTest {
                 val dataSource = dataSource(localState = """{"profile":{"info_cache":{"Profile 2":{"name":""},"Profile 3":{}}}}""", dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -46,7 +46,7 @@ class ChromeProfileLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-011 프로필 정보 파일이 없으면 실패로 알린다") {
+        test("TC-44472fb1-aacc-49fa-9f71-0f4130a3781d 프로필 정보 파일이 없으면 실패로 알린다") {
             runTest {
                 val dataSource =
                     ChromeProfileLocalDataSourceImpl(
@@ -58,7 +58,7 @@ class ChromeProfileLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-011 프로필 정보 파일을 읽을 수 없으면 실패로 알린다") {
+        test("TC-44472fb1-aacc-49fa-9f71-0f4130a3781d 프로필 정보 파일을 읽을 수 없으면 실패로 알린다") {
             runTest {
                 val userDataDirectory = createTempDirectory("diary-chrome-unreadable")
                 // 같은 이름의 폴더를 두어 파일로 읽을 수 없게 한다.
@@ -73,7 +73,7 @@ class ChromeProfileLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-011 프로필 정보 파일을 해석할 수 없으면 실패로 알린다") {
+        test("TC-44472fb1-aacc-49fa-9f71-0f4130a3781d 프로필 정보 파일을 해석할 수 없으면 실패로 알린다") {
             runTest {
                 val dataSource = dataSource(localState = "not json", dispatcher = StandardTestDispatcher(testScheduler))
 

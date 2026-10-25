@@ -33,14 +33,14 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-d4d67f02-3291-411e-834d-0981d78b4d5f 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setQrAddScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-d4d67f02-3291-411e-834d-0981d78b4d5f 기본 환경에서 상단 바에 제목을 표시한다`() {
         setQrAddScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
@@ -48,7 +48,7 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-050 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
+    fun `TC-e4f88643-3b7d-466c-a843-8fea115445c4 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
@@ -66,7 +66,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-050 기본 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
+    fun `TC-e4f88643-3b7d-466c-a843-8fea115445c4 기본 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
@@ -85,7 +85,7 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-003 처음 들어오면 값이 비어 있고 QR을 그리지 않는다`() {
+    fun `TC-d0297934-6f9d-43f0-ae0d-3ceddf359b6c 처음 들어오면 값이 비어 있고 QR을 그리지 않는다`() {
         setQrAddScaffold()
 
         composeRule.qrTextInputText() shouldBe ""
@@ -94,7 +94,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-004 값을 입력하면 그 값을 담은 QR을 바로 그린다`() {
+    fun `TC-bfb56275-7384-491d-a09b-c1bf4377f542 값을 입력하면 그 값을 담은 QR을 바로 그린다`() {
         setQrAddScaffold()
 
         listOf(qrTestFixtureMonkey.qrDetail().value, "안녕하세요", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->
@@ -109,7 +109,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-005 값을 바꾸면 바뀐 값을 담은 QR로 다시 그린다`() {
+    fun `TC-39f9d57b-c600-4107-8ee3-1e3296b33877 값을 바꾸면 바뀐 값을 담은 QR로 다시 그린다`() {
         val firstValue = qrTestFixtureMonkey.qrDetail().value
         val addedValue = qrTestFixtureMonkey.qrDetail().value
         setQrAddScaffold()
@@ -124,7 +124,7 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-006 값을 모두 지우면 QR을 그리지 않는다`() {
+    fun `TC-0fe19b1a-609f-4105-8b4f-a09a65faf9ec 값을 모두 지우면 QR을 그리지 않는다`() {
         setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput(qrTestFixtureMonkey.qrDetail().value)
         composeRule.waitForIdle()
@@ -138,7 +138,7 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-007 QR 하나에 담을 수 없는 입력은 반영하지 않는다`() {
+    fun `TC-27f5b3fc-f0d4-47fb-9b02-35bfaed90320 QR 하나에 담을 수 없는 입력은 반영하지 않는다`() {
         val longestValue = "1".repeat(MAX_NUMERIC_LENGTH)
         setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput(longestValue)
@@ -153,7 +153,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-020 제목과 설명을 바꿔도 QR 그림은 QR 값만 담는다`() {
+    fun `TC-e28f3f6f-aed6-4cb6-92ba-8d177302be0a 제목과 설명을 바꿔도 QR 그림은 QR 값만 담는다`() {
         val value = qrTestFixtureMonkey.qrDetail().value
         setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput(value)
@@ -167,7 +167,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-023 추가를 처리하는 동안 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-1e6c2fde-1356-4fe2-a374-f4ba7f54761a 추가를 처리하는 동안 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setQrAddScaffold(uiState = QrAddUiState(isInProgress = true))
 
         composeRule
@@ -185,7 +185,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-001 줄바꿈과 앞뒤 공백을 그대로 담는다`() {
+    fun `TC-639ee2a4-0392-423b-856b-4c66fee8d786 줄바꿈과 앞뒤 공백을 그대로 담는다`() {
         setQrAddScaffold()
 
         listOf("  ${qrTestFixtureMonkey.qrDetail().value}  ", " ", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->

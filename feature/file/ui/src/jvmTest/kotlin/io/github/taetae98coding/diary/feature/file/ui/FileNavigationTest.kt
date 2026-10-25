@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileNavigationTest :
     FunSpec({
-        test("TC-FILE-LIST-DETAIL-FEATURE-015 파일 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
+        test("TC-ef8a7743-df68-44e9-8a97-a56e91fba5cf 파일 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
@@ -34,7 +34,7 @@ class FileNavigationTest :
             }
         }
 
-        test("TC-FILE-LIST-DETAIL-FEATURE-012 FileDetail이 놓여 있으면 새 파일의 FileDetail로 교체한다") {
+        test("TC-3138af23-fb7b-408c-8a86-92eead539d42 FileDetail이 놓여 있으면 새 파일의 FileDetail로 교체한다") {
             val first = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val second = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = fileBackStack(detailKeyList = listOf(first))
@@ -44,7 +44,7 @@ class FileNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeStubNavKey, FileHomeNavKey, second)
         }
 
-        test("TC-FILE-LIST-DETAIL-FEATURE-013 목록에서 파일을 선택하면 목록 위에 쌓인 FileDetail과 FileAdd를 모두 걷어내고 그 FileDetail로 바꾼다") {
+        test("TC-d314030a-4b36-4de7-b07b-eb59d6d8cd8b 목록에서 파일을 선택하면 목록 위에 쌓인 FileDetail과 FileAdd를 모두 걷어내고 그 FileDetail로 바꾼다") {
             val detailCases =
                 listOf(
                     listOf(FileAddNavKey),

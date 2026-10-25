@@ -28,7 +28,7 @@ class ContactCardFavoriteTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-023 즐겨찾기인 연락처에만 즐겨찾기 표시가 나타난다`() {
+    fun `TC-5d46860f-c486-4113-88a8-7c3e8f7375b6 즐겨찾기인 연락처에만 즐겨찾기 표시가 나타난다`() {
         val favorite = testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)
         val other = testContact(name = CONTACT_NAME, phoneNumberList = listOf(OTHER_CONTACT_PHONE_NUMBER), isFavorite = false)
 
@@ -38,7 +38,7 @@ class ContactCardFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-023 즐겨찾기 표시는 카드와 하나로 합쳐져 카드의 접근성 이름 맨 앞에 온다`() {
+    fun `TC-5d46860f-c486-4113-88a8-7c3e8f7375b6 즐겨찾기 표시는 카드와 하나로 합쳐져 카드의 접근성 이름 맨 앞에 온다`() {
         val favorite = testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)
 
         setContactHomeList(contactList = listOf(favorite))
@@ -53,7 +53,7 @@ class ContactCardFavoriteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-HOME-FEATURE-023 한국어 환경에서 즐겨찾기 표시의 이름을 제공한다`() {
+    fun `TC-5d46860f-c486-4113-88a8-7c3e8f7375b6 한국어 환경에서 즐겨찾기 표시의 이름을 제공한다`() {
         setContactHomeList(
             contactList = listOf(testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)),
         )
@@ -62,7 +62,7 @@ class ContactCardFavoriteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-024 즐겨찾기 표시를 눌러도 즐겨찾기는 바뀌지 않고 그 연락처를 선택한 이벤트만 전달한다`() {
+    fun `TC-11eeaf7b-ac3a-40a6-b1a4-f7df68391030 즐겨찾기 표시를 눌러도 즐겨찾기는 바뀌지 않고 그 연락처를 선택한 이벤트만 전달한다`() {
         val favorite = testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
 

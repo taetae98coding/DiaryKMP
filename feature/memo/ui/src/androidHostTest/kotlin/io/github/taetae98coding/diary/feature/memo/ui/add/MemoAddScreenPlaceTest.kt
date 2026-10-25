@@ -64,7 +64,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-010 추가 항목을 누르면 장소 선택 목록이 열린다`() {
+    fun `TC-ecaa765c-0f6e-47f6-916f-c1b26f8a45bf 추가 항목을 누르면 장소 선택 목록이 열린다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
         var placeAddCount = 0
@@ -82,7 +82,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-022 TC-MEMO-PLACE-CARD-FEATURE-042 선택할 수 있는 장소가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 PlaceAdd 이동을 요청한다`() {
+    fun `TC-051ea8eb-a1d4-4a9e-b539-7f48864cac11 TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택할 수 있는 장소가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 PlaceAdd 이동을 요청한다`() {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placeList = emptyList()),
@@ -96,7 +96,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-016 목록을 준비하는 동안 추가 항목을 누르면 목록이 열리고 안내를 표시하지 않는다`() {
+    fun `TC-a1eecaba-b709-479a-974e-d877699fe5f8 목록을 준비하는 동안 추가 항목을 누르면 목록이 열리고 안내를 표시하지 않는다`() {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placePagingDataFlow = MutableStateFlow(refreshingPlacePagingData())),
@@ -110,7 +110,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-043 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+    fun `TC-7211c1f6-2da6-49c4-a38f-d56324a76368 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placePagingDataFlow = MutableStateFlow(refreshFailedPlacePagingData())),
@@ -124,7 +124,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-023 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+    fun `TC-af75366c-2658-41e6-ae42-6168aefd537f 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
         val placePagingDataFlow = MutableStateFlow(refreshingPlacePagingData())
         setMemoAddScreen(viewModels = screenTestRealViewModel(placePagingDataFlow = placePagingDataFlow))
         composeRule.openPlacePicker()
@@ -137,7 +137,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-012 목록에서 장소를 선택하면 즉시 반영된다`() {
+    fun `TC-e9e1ffa2-ffcf-4eb3-8735-5b3dd0ccf471 목록에서 장소를 선택하면 즉시 반영된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setMemoAddScreen(viewModels = screenTestRealViewModel(placeList = listOf(homePlace)))
 
@@ -152,7 +152,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-040 목록의 장소를 눌러도 장소 상세로 이동하지 않는다`() {
+    fun `TC-27fb4be9-fa05-4ef5-af0a-0c753bba9c3d 목록의 장소를 눌러도 장소 상세로 이동하지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         var placeDetailCount = 0
         setMemoAddScreen(
@@ -167,7 +167,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-063 PlaceDetail 메모 탭에서 진입하면 대상 장소가 장소 카드에 선택되어 있다`() {
+    fun `TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 PlaceDetail 메모 탭에서 진입하면 대상 장소가 장소 카드에 선택되어 있다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setMemoAddScreen(viewModels = screenTestRealViewModel(initialPlaceId = homePlace.id, placeList = listOf(homePlace)))
 
@@ -175,7 +175,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-013 목록에서 장소 선택을 해제하면 즉시 반영된다`() {
+    fun `TC-a1af6784-f104-4cda-943b-71d1904701d1 목록에서 장소 선택을 해제하면 즉시 반영된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setMemoAddScreen(viewModels = screenTestRealViewModel(placeList = listOf(homePlace)))
         composeRule.selectPlace(homePlace.detail.title)
@@ -190,7 +190,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-014 목록을 닫아도 반영한 선택이 유지된다`() {
+    fun `TC-c468b9e8-6689-47fe-bf3e-ea731aa62f1e 목록을 닫아도 반영한 선택이 유지된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setMemoAddScreen(viewModels = screenTestRealViewModel(placeList = listOf(homePlace)))
         composeRule.selectPlace(homePlace.detail.title)
@@ -202,7 +202,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-DATA-011 장소를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
+    fun `TC-616d16e0-eb8e-4858-a063-f9104f6770b8 장소를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         setMemoAddScreen(
@@ -216,7 +216,7 @@ class MemoAddScreenPlaceTest {
 
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
-    fun `TC-MEMO-ADD-FEATURE-049 추가에 성공해도 선택한 장소가 유지된다`() {
+    fun `TC-c57fb907-cb67-47b2-9a37-46970833c1a1 추가에 성공해도 선택한 장소가 유지된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Uuid.random())
@@ -239,7 +239,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-038 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+    fun `TC-d3900af3-81b5-4b4f-9ced-19c7734b5888 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
         val placeList =
             List(PICKER_PLACE_COUNT) { index ->
                 testPlace(title = "$PICKER_PLACE_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")

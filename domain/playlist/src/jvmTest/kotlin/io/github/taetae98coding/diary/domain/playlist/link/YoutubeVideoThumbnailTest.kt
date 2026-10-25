@@ -24,7 +24,7 @@ class YoutubeVideoThumbnailTest :
             "HTTPS://WWW.YOUTUBE.COM/watch?v=$VIDEO_ID",
             "http://www.youtube.com/watch?v=$VIDEO_ID#fragment",
         ).forEach { link ->
-            test("TC-MUSIC-ADD-DOMAIN-017 영상 ID를 얻을 수 있는 링크는 그 영상의 썸네일이 정해진다: '$link'") {
+            test("TC-2585ad1d-9f73-454b-aaae-533a1c9d2204 영상 ID를 얻을 수 있는 링크는 그 영상의 썸네일이 정해진다: '$link'") {
                 link.toYoutubeVideoThumbnailOrNull() shouldBe THUMBNAIL
             }
         }
@@ -48,7 +48,7 @@ class YoutubeVideoThumbnailTest :
             "https://youtube.com.attacker.example/watch?v=$VIDEO_ID",
             "www.youtube.com/watch?v=$VIDEO_ID",
         ).forEach { link ->
-            test("TC-MUSIC-ADD-DOMAIN-018 영상 ID를 얻을 수 없는 링크는 썸네일이 없다: '$link'") {
+            test("TC-cb4099b2-44b7-492c-af68-947f767d45a3 영상 ID를 얻을 수 없는 링크는 썸네일이 없다: '$link'") {
                 link.toYoutubeVideoThumbnailOrNull().shouldBeNull()
             }
         }

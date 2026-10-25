@@ -30,7 +30,7 @@ class WebHomeEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-010 표시할 웹 항목이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-f7237009-2c85-440e-ab9c-adccba73977a 표시할 웹 항목이 없으면 빈 상태 안내를 표시한다`() {
         setWebHomeScaffold(pagingData = webPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -40,7 +40,7 @@ class WebHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-HOME-FEATURE-010 한국어 환경에서 빈 상태 안내는 아직 웹이 없습니다이다`() {
+    fun `TC-f7237009-2c85-440e-ab9c-adccba73977a 한국어 환경에서 빈 상태 안내는 아직 웹이 없습니다이다`() {
         setWebHomeScaffold(pagingData = webPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -48,7 +48,7 @@ class WebHomeEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-011 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-f7baef9f-a12d-4ed0-a778-75297fb884eb 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setWebHomeScaffold(pagingData = loadingWebPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
@@ -56,7 +56,7 @@ class WebHomeEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-012 표시할 웹 항목이 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-457b9ff8-29db-4815-8e28-cabdcd589ee2 표시할 웹 항목이 있으면 빈 상태 안내를 표시하지 않는다`() {
         setWebHomeScaffold(pagingData = webPagingDataOf(listOf(testWeb(title = WEB_TITLE))))
 
         composeRule.onNodeWithTag(WEB_CARD_TEST_TAG, useUnmergedTree = true).assertExists()
@@ -64,7 +64,7 @@ class WebHomeEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-DATA-003 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
+    fun `TC-280b2dfa-027e-49d2-9abd-683b1bda1b04 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
         setWebHomeScaffold(pagingData = failedWebPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -73,7 +73,7 @@ class WebHomeEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-005 빈 상태에서도 웹 추가를 실행할 수 있다`() {
+    fun `TC-0036a77a-fd88-4d90-b78b-7f1900def0e8 빈 상태에서도 웹 추가를 실행할 수 있다`() {
         setWebHomeScaffold(pagingData = webPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -81,7 +81,7 @@ class WebHomeEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-014 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
+    fun `TC-31579d51-9d9e-46f9-8431-5d96e2c30c83 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(pagingData = webPagingDataOf(emptyList()), onEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

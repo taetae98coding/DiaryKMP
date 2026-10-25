@@ -52,7 +52,7 @@ class QrAddRawTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-ADD-FEATURE-049 처음 들어오면 정보 탭과 텍스트 포맷이 선택되어 있고 QR 값과 되돌릴 기록이 없다`() {
+    fun `TC-9b8076d6-fb6b-4668-9082-324528b609a5 처음 들어오면 정보 탭과 텍스트 포맷이 선택되어 있고 QR 값과 되돌릴 기록이 없다`() {
         setQrAddScreen()
 
         composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
@@ -63,7 +63,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-051 포맷을 바꿔도 QR 값은 그대로이고 그 포맷의 값이면 입력이 채워진다`() {
+    fun `TC-bd7f0a61-ced8-4dec-9f63-52aea95b63c3 포맷을 바꿔도 QR 값은 그대로이고 그 포맷의 값이면 입력이 채워진다`() {
         val raw = "WIFI:T:WEP;S:home;P:pw;H:true;;"
         setQrAddScreen()
         composeRule.onQrTextInput().performTextInput(raw)
@@ -79,7 +79,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-052 그 포맷의 값이 아니면 포맷의 입력이 빈 입력으로 보인다`() {
+    fun `TC-2d908988-7c84-4cde-b1c0-d9e6f250543f 그 포맷의 값이 아니면 포맷의 입력이 빈 입력으로 보인다`() {
         val today =
             Clock.System
                 .now()
@@ -111,7 +111,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-053 그 포맷의 값에서 입력을 고치면 고친 부분만 바뀌고 나머지는 그대로 남는다`() {
+    fun `TC-1b72df3c-f526-4f76-a303-2983ded1cdb6 그 포맷의 값에서 입력을 고치면 고친 부분만 바뀌고 나머지는 그대로 남는다`() {
         val state = setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput("WIFI:T:WPA;S:home;E:PEAP;P:pw;;")
         composeRule.write { state().contentState.selectFormat(QrFormat.WIFI) }
@@ -124,7 +124,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-054 다른 포맷의 값에서 입력을 고치면 새로 쓰고 되돌리기를 선택할 수 있게 된다`() {
+    fun `TC-65ba3d5c-9f59-4783-aea1-61ce926696f4 다른 포맷의 값에서 입력을 고치면 새로 쓰고 되돌리기를 선택할 수 있게 된다`() {
         setQrAddScreen()
         composeRule.onQrTextInput().performTextInput(HELLO)
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
@@ -137,7 +137,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-055 빈 QR 값에서 포맷 입력을 고치면 새로 쓰되 되돌릴 기록을 남기지 않는다`() {
+    fun `TC-125f4bc3-06a6-49d1-8cb3-f45d1c81f6d7 빈 QR 값에서 포맷 입력을 고치면 새로 쓰되 되돌릴 기록을 남기지 않는다`() {
         setQrAddScreen()
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = PHONE_FORMAT)
 
@@ -149,7 +149,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-056 되돌리기를 선택하면 기록한 QR 값과 포맷으로 차례로 돌아간다`() {
+    fun `TC-7cbfcdd1-eb7d-48ce-a78a-32fa0983e7e3 되돌리기를 선택하면 기록한 QR 값과 포맷으로 차례로 돌아간다`() {
         val detail = qrTestFixtureMonkey.qrDetail()
         setQrAddScreen()
         composeRule.onTitleInput().performTextInput(detail.title)
@@ -182,7 +182,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-057 QrScan 화면에서 QR을 읽어 돌아오면 QR 값을 바꾸고 알아본 포맷을 보여 준다`() {
+    fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QrScan 화면에서 QR을 읽어 돌아오면 QR 값을 바꾸고 알아본 포맷을 보여 준다`() {
         val detail = qrTestFixtureMonkey.qrDetail()
         val resultEventBus = ResultEventBus()
         setQrAddScreen(resultEventBus = resultEventBus)
@@ -217,7 +217,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-057 QR 값이 비어 있을 때 스캔하면 되돌릴 기록을 남기지 않는다`() {
+    fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QR 값이 비어 있을 때 스캔하면 되돌릴 기록을 남기지 않는다`() {
         val resultEventBus = ResultEventBus()
         setQrAddScreen(resultEventBus = resultEventBus)
 
@@ -231,7 +231,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-058 추가에 성공하면 정보 탭으로 돌아가 QR 값과 되돌릴 기록을 비우고 선택한 포맷은 유지한다`() {
+    fun `TC-ecf6d6e7-2584-4a88-95da-386d199767dc 추가에 성공하면 정보 탭으로 돌아가 QR 값과 되돌릴 기록을 비우고 선택한 포맷은 유지한다`() {
         val detail = qrTestFixtureMonkey.qrDetail()
         setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.AddSucceeded))
         composeRule.onTitleInput().performTextInput(detail.title)
@@ -258,7 +258,7 @@ class QrAddRawTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-059 QR 값이 비어 있으면 QR 탭으로 바꾸고 선택한 포맷의 첫 입력을 알린다`() {
+    fun `TC-b707d875-5ed9-49ab-ad91-bd0647f2bba5 QR 값이 비어 있으면 QR 탭으로 바꾸고 선택한 포맷의 첫 입력을 알린다`() {
         val caseList =
             listOf(
                 Triple("텍스트", "내용을 입력해 주세요.", "내용"),
@@ -293,7 +293,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-060 포맷의 입력 일부만 채워도 QR 값이 있으면 추가를 요청한다`() {
+    fun `TC-8cb87ee9-f307-4adf-bf4b-017524171840 포맷의 입력 일부만 채워도 QR 값이 있으면 추가를 요청한다`() {
         val viewModel = screenTestViewModel()
         setQrAddScreen(viewModel = viewModel)
         composeRule.onTitleInput().performTextInput("회사")
@@ -309,7 +309,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-061 포맷 입력으로 바로 앞에 쓴 값은 그 포맷의 값으로 보아 기록을 남기지 않는다`() {
+    fun `TC-df92e072-9645-4c44-948e-f84870718e0f 포맷 입력으로 바로 앞에 쓴 값은 그 포맷의 값으로 보아 기록을 남기지 않는다`() {
         setQrAddScreen()
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")
 
@@ -323,7 +323,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-026 제목이 공백이면 QR 값과 포맷이 유지된다`() {
+    fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf 제목이 공백이면 QR 값과 포맷이 유지된다`() {
         val useCase = mockk<AddQrUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(QrTitleBlankException())
         setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
@@ -341,7 +341,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-026 QR 값이 비어 있으면 제목, 설명과 포맷이 유지된다`() {
+    fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf QR 값이 비어 있으면 제목, 설명과 포맷이 유지된다`() {
         val useCase = mockk<AddQrUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(QrValueEmptyException())
         setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
@@ -360,7 +360,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-032 되돌리기 기록은 알아본 포맷과 함께 최근 20개까지만 남는다`() {
+    fun `TC-2036efa1-b253-4d58-8ebe-8bf0bf645b7c 되돌리기 기록은 알아본 포맷과 함께 최근 20개까지만 남는다`() {
         setQrAddScreen()
         composeRule.onQrTextInput().performTextInput("WIFI:S:home;;")
         val rawList =
@@ -393,14 +393,14 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-033 화면이 재생성되어도 QR 값, 포맷, 입력, 탭과 되돌리기 기록을 유지한다`() {
+    fun `TC-c19b060d-ac32-46f5-8ce2-e6828a40e717 화면이 재생성되어도 QR 값, 포맷, 입력, 탭과 되돌리기 기록을 유지한다`() {
         val viewModel = screenTestViewModel()
 
         assertRawRetained { viewModel }
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-033 시스템이 앱을 되살리며 화면을 다시 보여 줘도 QR 값과 되돌리기 기록을 복원한다`() {
+    fun `TC-c19b060d-ac32-46f5-8ce2-e6828a40e717 시스템이 앱을 되살리며 화면을 다시 보여 줘도 QR 값과 되돌리기 기록을 복원한다`() {
         assertRawRetained { screenTestViewModel() }
     }
 

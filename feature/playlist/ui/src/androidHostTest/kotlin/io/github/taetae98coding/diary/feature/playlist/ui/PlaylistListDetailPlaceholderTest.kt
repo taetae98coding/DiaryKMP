@@ -72,7 +72,7 @@ class PlaylistListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-DOMAIN-004 더보기로 돌아갔다가 다시 진입하면 상세 영역의 곡 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-8279258c-59dc-42a7-9b8f-d621e66679fb 더보기로 돌아갔다가 다시 진입하면 상세 영역의 곡 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setPlaylistNavDisplay()
         composeRule.fillPlaceholder(input = input)
@@ -90,7 +90,7 @@ class PlaylistListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 상세 영역에서 곡 상세를 보고 돌아와도 곡 추가의 입력이 남는다`() {
+    fun `TC-5ce27ad0-3a3c-4b52-a561-2448e09823f4 배치를 떠나기 전에는 상세 영역에서 곡 상세를 보고 돌아와도 곡 추가의 입력이 남는다`() {
         val input = placeholderInput()
         setPlaylistNavDisplay()
         composeRule.fillPlaceholder(input = input)

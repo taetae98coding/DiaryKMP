@@ -56,7 +56,7 @@ class MoreHomeDestinationReturnTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-015 더보기 목적지에 다녀오면 화면의 맨 위부터 시작한다`() {
+    fun `TC-875e0a2f-30d2-40fc-9359-65925970d3f9 더보기 목적지에 다녀오면 화면의 맨 위부터 시작한다`() {
         setMoreNavDisplay()
         composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).assertIsDisplayed()
         composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(moreHomeMenuList.size)

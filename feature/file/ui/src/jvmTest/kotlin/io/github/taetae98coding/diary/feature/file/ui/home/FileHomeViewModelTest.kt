@@ -47,7 +47,7 @@ class FileHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-HOME-FEATURE-006 계정 상태를 확정하지 않은 동안에는 본문을 비우는 상태다") {
+        test("TC-724f16b0-07de-418f-aee5-8701186d717e 계정 상태를 확정하지 않은 동안에는 본문을 비우는 상태다") {
             runTest(mainDispatcher) {
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.failure(IllegalStateException("account")))
                 val viewModel = viewModel(accountFlow = accountFlow)
@@ -59,7 +59,7 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-005 게스트 상태면 로그인 안내 상태다") {
+        test("TC-2e7619f5-e91c-4918-b683-b02dd5e0f339 게스트 상태면 로그인 안내 상태다") {
             runTest(mainDispatcher) {
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Account.Guest))
                 val viewModel = viewModel(accountFlow = accountFlow)
@@ -71,7 +71,7 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-DOMAIN-009 계정 상태를 확인하지 못하면 본문을 비우는 상태로 돌아간다") {
+        test("TC-cfdfb082-926f-421d-82cb-0dc590b0b2bd 계정 상태를 확인하지 못하면 본문을 비우는 상태로 돌아간다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>()
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
@@ -87,7 +87,7 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-DOMAIN-003 세션 갱신 여부와 관계없이 사용자 상태에서는 사용자 화면을 제공한다") {
+        test("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 사용자 상태에서는 사용자 화면을 제공한다") {
             runTest(mainDispatcher) {
                 listOf(
                     true to false,
@@ -134,7 +134,7 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-055 고친 파일은 같은 자리에서 고친 값으로 전달하고 다른 파일은 그대로 둔다") {
+        test("TC-7062b208-3784-4e82-b622-75fc8ac830db 고친 파일은 같은 자리에서 고친 값으로 전달하고 다른 파일은 그대로 둔다") {
             runTest(mainDispatcher) {
                 val fileList = List(3) { fixtureMonkey.giveMeOne<DiaryFile>() }
                 val updatedFile = fileList[1].copy(title = fixtureMonkey.giveMeOne<String>(), name = fixtureMonkey.giveMeOne<String>())

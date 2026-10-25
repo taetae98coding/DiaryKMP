@@ -11,7 +11,7 @@ import kotlin.uuid.Uuid
 
 class PlaylistNavigationTest :
     FunSpec({
-        test("TC-PLAYLIST-HOME-FEATURE-014 곡 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
+        test("TC-4f4be13e-7d7d-4f0f-9a92-592307a5fa81 곡 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
@@ -27,7 +27,7 @@ class PlaylistNavigationTest :
             }
         }
 
-        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-014 곡 상세가 놓여 있으면 새 곡의 상세로 교체한다") {
+        test("TC-d7aaa386-5c2b-4908-81d9-16d4eb8006bb 곡 상세가 놓여 있으면 새 곡의 상세로 교체한다") {
             val first = MusicDetailNavKey(id = Uuid.random())
             val second = MusicDetailNavKey(id = Uuid.random())
             val backStack = playlistBackStack(detailKeyList = listOf(first))
@@ -37,7 +37,7 @@ class PlaylistNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey, second)
         }
 
-        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-016 목록에서 곡을 선택하면 목록 위에 쌓인 상세와 곡 추가를 모두 걷어내고 그 상세로 바꾼다") {
+        test("TC-c41335b9-dce4-40f5-8581-5930af99d5e3 목록에서 곡을 선택하면 목록 위에 쌓인 상세와 곡 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
                     listOf(MusicAddNavKey),

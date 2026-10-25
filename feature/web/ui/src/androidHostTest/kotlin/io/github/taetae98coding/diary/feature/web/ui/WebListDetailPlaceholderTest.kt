@@ -96,7 +96,7 @@ class WebListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-004 더보기로 돌아갔다가 다시 진입하면 상세 영역의 웹 추가는 입력과 태그 선택이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-f3b028ee-28a1-48d8-a1aa-135eef2a1fc9 더보기로 돌아갔다가 다시 진입하면 상세 영역의 웹 추가는 입력과 태그 선택이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setWebNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -117,17 +117,17 @@ class WebListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 목록에서 연 웹 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 목록에서 연 웹 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = WebDetailNavKey(id = Uuid.random()))
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 추가에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 추가에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = Uuid.random()))
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = TagDetailNavKey(id = Uuid.random()))
     }
 

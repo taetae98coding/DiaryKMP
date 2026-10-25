@@ -67,7 +67,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-001 설정이 갖춰져 있으면 프롬프트 입력으로 시작한다") {
+        test("TC-25d935e9-1872-457d-9d58-087d86704c99 설정이 갖춰져 있으면 프롬프트 입력으로 시작한다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
@@ -85,7 +85,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-002 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다") {
+        test("TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다") {
             listOf(
                 COMPLETE_SETTING.copy(apiKey = ""),
                 COMPLETE_SETTING.copy(model = ""),
@@ -110,7 +110,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-003 설정을 확인하지 못하면 시작 동작을 제공하지 않는다") {
+        test("TC-89a9d719-1f85-46a3-abb4-9d2edb552fb6 설정을 확인하지 못하면 시작 동작을 제공하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel(settingResult = Result.failure(IllegalStateException("read failed")))
                 advanceUntilIdle()
@@ -126,7 +126,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-DOMAIN-001 인증 정보와 모델이 모두 있어야 시작할 수 있다") {
+        test("TC-6be65451-4f00-4dcf-bbb9-42443bb9ffbd 인증 정보와 모델이 모두 있어야 시작할 수 있다") {
             listOf(
                 COMPLETE_SETTING to MemoGeminiStep.PROMPT,
                 COMPLETE_SETTING.copy(systemPrompt = "") to MemoGeminiStep.PROMPT,
@@ -147,7 +147,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-004 프롬프트가 비어 있어도 생성을 실행한다") {
+        test("TC-634c4200-23c0-46b4-93ed-0627f341002f 프롬프트가 비어 있어도 생성을 실행한다") {
             runTest(mainDispatcher) {
                 val parameter = PARAMETER.copy(prompt = "")
                 val fetchMemoDraftUseCase = createFetchUseCase()
@@ -162,7 +162,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-005 생성하는 동안 진행 상태를 표시한다") {
+        test("TC-b1c391bd-de35-495f-8346-0a07ef6f7fe6 생성하는 동안 진행 상태를 표시한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
                 val viewModel =
@@ -192,7 +192,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-006 생성 중에는 같은 생성 요청을 처리하지 않는다") {
+        test("TC-513a5d46-2cf0-4247-b95e-0d30f6c0a9de 생성 중에는 같은 생성 요청을 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchMemoDraftUseCase =
                     mockk<FetchMemoDraftUseCase> {
@@ -210,7 +210,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-007 생성에 성공하면 결과를 확인할 수 있다") {
+        test("TC-7e318c4b-ead9-4441-9f6e-fab7d4ed4ae2 생성에 성공하면 결과를 확인할 수 있다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
@@ -228,7 +228,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-017 생성된 내용이 하나도 없어도 실패로 다루지 않는다") {
+        test("TC-75b0f674-af63-4ec0-b280-668fdbca6b45 생성된 내용이 하나도 없어도 실패로 다루지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel(draft = MemoDraft.EMPTY)
                 advanceUntilIdle()
@@ -245,7 +245,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-008 취소하면 요청을 멈추고 프롬프트 입력으로 돌아간다") {
+        test("TC-9bd9cf15-aeb8-4f21-ad73-2e0b0bd4614c 취소하면 요청을 멈추고 프롬프트 입력으로 돌아간다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
                 val viewModel =
@@ -271,7 +271,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-009 취소한 뒤 다시 생성할 수 있다") {
+        test("TC-cf48e3fc-d248-401d-9071-50664f845d32 취소한 뒤 다시 생성할 수 있다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
                 val answers =
@@ -300,7 +300,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-010 생성 실패의 원인을 구분해 알린다") {
+        test("TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 생성 실패의 원인을 구분해 알린다") {
             listOf(
                 GeminiApiKeyInvalidException() to MemoGeminiFailure.INVALID_API_KEY,
                 IllegalStateException("generate failed") to MemoGeminiFailure.UNKNOWN,
@@ -355,7 +355,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-014 반영해도 결과 확인 상태를 유지한다") {
+        test("TC-048257f1-7281-4c7f-8ef3-20c08483899e 반영해도 결과 확인 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
@@ -374,7 +374,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-019 닫으면 결과를 버린다") {
+        test("TC-0725149c-6215-42e7-b736-99bcc3c1b1fb 닫으면 결과를 버린다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
@@ -397,7 +397,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-025 도우미를 닫으면 반영 표시가 사라진다") {
+        test("TC-ae6f3e42-1063-44e2-ae80-5d51d07013d4 도우미를 닫으면 반영 표시가 사라진다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
@@ -419,7 +419,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-026 다른 화면에서 저장한 설정으로 다음 시작을 판정한다") {
+        test("TC-0ec6cbee-1d11-4ba6-821f-d497a54fa715 다른 화면에서 저장한 설정으로 다음 시작을 판정한다") {
             runTest(mainDispatcher) {
                 val settingFlow = MutableStateFlow(Result.success(COMPLETE_SETTING.copy(apiKey = "")))
                 val viewModel = createViewModel(settingFlow = settingFlow)
@@ -442,7 +442,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-020 생성 중에 닫으면 요청을 멈춘다") {
+        test("TC-90e1c2d1-7fc4-43a0-b09c-2623bb1975a6 생성 중에 닫으면 요청을 멈춘다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
                 val viewModel =
@@ -467,7 +467,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 uiState.draft shouldBe MemoDraft.EMPTY
             }
         }
-        test("TC-MEMO-GEMINI-FEATURE-030 다른 앱에 다녀와도 받아 둔 결과가 유지된다") {
+        test("TC-678af699-2eff-4bfc-b1d3-8bf813eee5c5 다른 앱에 다녀와도 받아 둔 결과가 유지된다") {
             runTest(mainDispatcher) {
                 val viewModel = createUnsubscribedViewModel(fetchMemoDraftUseCase = createFetchUseCase())
                 viewModel.uiState.test {
@@ -491,7 +491,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-GEMINI-FEATURE-030 다른 앱에 가 있는 동안 진행 중인 생성이 이어져 돌아오면 결과가 보인다") {
+        test("TC-678af699-2eff-4bfc-b1d3-8bf813eee5c5 다른 앱에 가 있는 동안 진행 중인 생성이 이어져 돌아오면 결과가 보인다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
                 val viewModel =

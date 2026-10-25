@@ -42,7 +42,7 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-018 목록에 곡이 있어도 다운로드를 실행할 수 있다`() {
+    fun `TC-f1bc9446-2add-480b-b066-1c019d30c3da 목록에 곡이 있어도 다운로드를 실행할 수 있다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)), onEvent = eventList::add)
 
@@ -53,7 +53,7 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-018 목록이 비어 있어도 다운로드를 실행할 수 있다`() {
+    fun `TC-f1bc9446-2add-480b-b066-1c019d30c3da 목록이 비어 있어도 다운로드를 실행할 수 있다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(onEvent = eventList::add)
 
@@ -72,63 +72,63 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-008 다운로드를 실행하지 않으면 어떤 곡에도 상태를 표시하지 않는다`() {
+    fun `TC-6dcfeff1-fa77-4c24-b7b3-711247d3fb7f 다운로드를 실행하지 않으면 어떤 곡에도 상태를 표시하지 않는다`() {
         setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE), testMusic(title = SECOND_TITLE)))
 
         composeRule.onAllNodesWithTag(MUSIC_DOWNLOAD_BADGE_TEST_TAG, useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-001 대기 중인 곡의 항목에서 대기를 확인한다`() {
+    fun `TC-d90cea15-1c9b-43a7-91f5-b845a89620b1 대기 중인 곡의 항목에서 대기를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Pending, description = DEFAULT_PENDING_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 먼저 받는 화면에서 50%로 멈춘 곡의 항목에서 45%를 확인한다`() {
+    fun `TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 먼저 받는 화면에서 50%로 멈춘 곡의 항목에서 45%를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = FIRST_PHASE_PROGRESS), description = DEFAULT_FIRST_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 이어서 받는 소리에서 100%로 멈춘 곡의 항목에서 99%를 확인한다`() {
+    fun `TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 이어서 받는 소리에서 100%로 멈춘 곡의 항목에서 99%를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = LATER_PHASE_PROGRESS), description = DEFAULT_LATER_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-018 백분율이 없는 진행 중인 곡의 항목에서 백분율 없이 진행 중임을 확인한다`() {
+    fun `TC-334447c1-2d84-467e-97ee-70601bfa2897 백분율이 없는 진행 중인 곡의 항목에서 백분율 없이 진행 중임을 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = null), description = DEFAULT_RUNNING_INDETERMINATE_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_FIRST_PHASE_RUNNING_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-018 한국어 환경에서 백분율이 없는 진행 중을 확인한다`() {
+    fun `TC-334447c1-2d84-467e-97ee-70601bfa2897 한국어 환경에서 백분율이 없는 진행 중을 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = null), description = KOREAN_RUNNING_INDETERMINATE_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-003 받기를 마친 곡의 항목에서 완료를 확인한다`() {
+    fun `TC-5f80d807-b6cc-422c-bd45-219ed3024342 받기를 마친 곡의 항목에서 완료를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Done, description = DEFAULT_DONE_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-004 받지 못한 곡의 항목에서 실패를 확인한다`() {
+    fun `TC-35cb138b-ea34-4376-9835-2ab00cafc3d8 받지 못한 곡의 항목에서 실패를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Failed, description = DEFAULT_FAILED_DESCRIPTION)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 한국어 환경에서 먼저 받는 화면에서 멈춘 곡의 45%를 확인한다`() {
+    fun `TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 한국어 환경에서 먼저 받는 화면에서 멈춘 곡의 45%를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = FIRST_PHASE_PROGRESS), description = KOREAN_FIRST_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 한국어 환경에서 이어서 받는 소리에서 멈춘 곡의 99%를 확인한다`() {
+    fun `TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 한국어 환경에서 이어서 받는 소리에서 멈춘 곡의 99%를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = LATER_PHASE_PROGRESS), description = KOREAN_LATER_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-005 실패한 곡과 완료된 곡을 함께 표시한다`() {
+    fun `TC-7c238724-e5ce-4219-98a8-899edbbeba65 실패한 곡과 완료된 곡을 함께 표시한다`() {
         val failed = testMusic(title = FIRST_TITLE)
         val done = testMusic(title = SECOND_TITLE)
 
@@ -149,24 +149,24 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-021 링크가 다른 영상으로 바뀐 곡에는 이전 다운로드 상태를 표시하지 않는다`() {
+    fun `TC-e94dda06-53a1-4033-a6b0-730ecf691bda 링크가 다른 영상으로 바뀐 곡에는 이전 다운로드 상태를 표시하지 않는다`() {
         assertStateAfterLinkChanged(changedLinkList = listOf(OTHER_VIDEO_LINK), badgeCount = 0)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-021 링크를 비운 곡에는 이전 다운로드 상태를 표시하지 않는다`() {
+    fun `TC-e94dda06-53a1-4033-a6b0-730ecf691bda 링크를 비운 곡에는 이전 다운로드 상태를 표시하지 않는다`() {
         assertStateAfterLinkChanged(changedLinkList = listOf(""), badgeCount = 0)
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-021 같은 영상을 가리키는 다른 형태의 링크로 바뀐 곡에는 다운로드 완료가 그대로 표시된다`() {
+    fun `TC-e94dda06-53a1-4033-a6b0-730ecf691bda 같은 영상을 가리키는 다른 형태의 링크로 바뀐 곡에는 다운로드 완료가 그대로 표시된다`() {
         assertStateAfterLinkChanged(changedLinkList = listOf(VIDEO_WATCH_LINK), badgeCount = 1)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-021 다른 영상으로 바꿨다가 원래 영상의 링크로 되돌린 곡에는 다운로드 완료가 다시 표시된다`() {
+    fun `TC-e94dda06-53a1-4033-a6b0-730ecf691bda 다른 영상으로 바꿨다가 원래 영상의 링크로 되돌린 곡에는 다운로드 완료가 다시 표시된다`() {
         assertStateAfterLinkChanged(changedLinkList = listOf(OTHER_VIDEO_LINK, VIDEO_SHORT_LINK), badgeCount = 1)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
@@ -193,7 +193,7 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-022 상태가 표시되지 않는 곡의 진행 중 다운로드도 다운로드 버튼의 진행 표시에 포함된다`() {
+    fun `TC-696fbe39-31e4-40aa-94ed-10f3e15f2064 상태가 표시되지 않는 곡의 진행 중 다운로드도 다운로드 버튼의 진행 표시에 포함된다`() {
         val music = testMusic(title = FIRST_TITLE, link = VIDEO_SHORT_LINK)
         val musicPagingDataFlow =
             setPlaylistHomeScaffold(
@@ -215,7 +215,7 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-007 다운로드 대상이 아닌 곡에는 상태를 표시하지 않는다`() {
+    fun `TC-25124a50-355c-40d3-811a-da323e0d0c40 다운로드 대상이 아닌 곡에는 상태를 표시하지 않는다`() {
         val target = testMusic(title = FIRST_TITLE)
         val withoutLink = testMusic(title = SECOND_TITLE, link = "")
 
@@ -228,7 +228,7 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-009 다운로드가 진행되는 동안에도 다른 조작을 실행할 수 있다`() {
+    fun `TC-bc09f442-9d34-4fe5-962a-445d859a461d 다운로드가 진행되는 동안에도 다른 조작을 실행할 수 있다`() {
         val music = testMusic(title = FIRST_TITLE)
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
 

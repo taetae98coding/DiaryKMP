@@ -105,7 +105,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             return (page as PagingSource.LoadResult.Page).data
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-013 삭제된 연락처는 연결이 남아 있어도 조회되지 않는다") {
+        test("TC-276c3f6e-95ad-47dc-b86d-b00c056a9355 삭제된 연락처는 연결이 남아 있어도 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -117,7 +117,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 TC-MEMO-CONTACT-INPUT-DOMAIN-019 조회한 연락처는 연결한 순서와 관계없이 이름 오름차순으로 정렬된다") {
+        test("TC-b36e07e0-76f3-4fc1-9256-07fc025947a1 TC-b0ea5543-aaa8-4293-a591-3872f9ad852e TC-fdd70132-3ae7-46e0-8cb8-bf4fb62a3a23 조회한 연락처는 연결한 순서와 관계없이 이름 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastContact = contact(name = LAST_CONTACT_NAME)
@@ -127,7 +127,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstContact, lastContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-012 즐겨찾기 여부는 연결된 연락처의 순서를 바꾸지 않는다") {
+        test("TC-3615b0c8-4c70-4d05-9608-96752eba531e 즐겨찾기 여부는 연결된 연락처의 순서를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastFavoriteContact = contact(name = LAST_CONTACT_NAME).copy(isFavorite = true)
@@ -137,7 +137,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstContact, lastFavoriteContact)
         }
 
-        test("TC-MEMO-CONTACT-DATA-009 가리키는 연락처가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-f54e50c2-7078-4ba8-909d-230c0786d5f3 가리키는 연락처가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val missingContactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -158,7 +158,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DATA-009 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-f54e50c2-7078-4ba8-909d-230c0786d5f3 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val missingMemoId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact()
@@ -174,7 +174,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DATA-012 메모가 내려받아지면 먼저 저장되어 있던 연결의 연락처가 함께 나타난다") {
+        test("TC-912afd5f-c6c7-45c5-9193-c1c3099567ee 메모가 내려받아지면 먼저 저장되어 있던 연결의 연락처가 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -205,7 +205,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-018 계정과 연결되지 않은 연락처는 메모의 연결된 연락처로 조회되지 않는다") {
+        test("TC-6481be89-d529-4a5b-b929-b76c5ca20617 계정과 연결되지 않은 연락처는 메모의 연결된 연락처로 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -223,7 +223,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-019 삭제된 연락처의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+        test("TC-35df8459-e6e4-408f-843a-158ec8afed78 삭제된 연락처의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -240,7 +240,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(contact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-001 선택할 수 있는 연락처는 계정과 연결된 삭제되지 않은 연락처다") {
+        test("TC-0f08e8cd-1ab3-4655-a5d4-5391a502ec87 선택할 수 있는 연락처는 계정과 연결된 삭제되지 않은 연락처다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableContact = contact()
@@ -252,7 +252,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(selectableContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-002 선택할 수 있는 연락처는 이름 오름차순으로 정렬된다") {
+        test("TC-769ad661-33e0-4e96-933f-49a4fd7f3651 선택할 수 있는 연락처는 이름 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val lastContact = contact(name = LAST_CONTACT_NAME)
             val firstContact = contact(name = FIRST_CONTACT_NAME)
@@ -261,7 +261,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-003 즐겨찾기는 선택 목록의 순서를 바꾸지 않는다") {
+        test("TC-5a11ca4c-ab2d-4e86-8dc1-c00ebde17200 즐겨찾기는 선택 목록의 순서를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val lastFavoriteContact = contact(name = LAST_CONTACT_NAME).copy(isFavorite = true)
             val firstContact = contact(name = FIRST_CONTACT_NAME)
@@ -279,7 +279,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-005 선택했더라도 삭제된 연락처는 선택 목록에 나타나지 않는다") {
+        test("TC-b5ecf46f-f58c-4a23-84dc-4d37c860c9a6 선택했더라도 삭제된 연락처는 선택 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptContact = contact()
@@ -291,7 +291,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(keptContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-016 TC-MEMO-CONTACT-INPUT-DATA-003 검색어는 이름과 설명으로 판정한다") {
+        test("TC-639ee47c-12bd-42c8-9049-82a4876ba114 TC-b6b7f72d-e74e-4337-98b9-a23e0921f9fb 검색어는 이름과 설명으로 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val nameMatchedContact = contact(name = "$SEARCH_QUERY-name")
             val descriptionMatchedContact =
@@ -314,7 +314,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedContact, nameMatchedContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-010 빈 검색어는 선택 목록을 좁히지 않는다") {
+        test("TC-5c6f6eca-3871-4a9b-9c6a-5ef289053cc4 빈 검색어는 선택 목록을 좁히지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             val lastContact = contact(name = LAST_CONTACT_NAME)
@@ -323,7 +323,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId, query = "") shouldBe listOf(firstContact, lastContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-011 검색어는 선택한 연락처에도 같은 기준으로 적용된다") {
+        test("TC-8f8caf09-14f9-47d9-abf5-21652601fbda 검색어는 선택한 연락처에도 같은 기준으로 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val matchedContact = contact(name = "$SEARCH_QUERY-name")
@@ -334,7 +334,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(selectedContact, matchedContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-001 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-44b6a6a2-3074-4198-9e3e-672ad114ee5f 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contactList =
                 List(CONTACT_COUNT) { index ->
@@ -356,7 +356,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-005 연락처가 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
+        test("TC-fb167467-8ef1-4575-bb94-2d086a298a3d 연락처가 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact))
@@ -369,7 +369,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, addedContact)
         }
 
-        test("TC-MEMO-DETAIL-DATA-048 TC-MEMO-CONTACT-INPUT-DATA-005 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 열려 있는 선택 목록에 스스로 반영된다") {
+        test("TC-ea5c5abd-977d-4f8f-98ab-cbb802d87138 TC-fb167467-8ef1-4575-bb94-2d086a298a3d 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 열려 있는 선택 목록에 스스로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact(name = FIRST_CONTACT_NAME)

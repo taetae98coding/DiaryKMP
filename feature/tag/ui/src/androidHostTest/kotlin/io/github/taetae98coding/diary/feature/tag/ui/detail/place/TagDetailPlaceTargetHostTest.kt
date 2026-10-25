@@ -40,7 +40,7 @@ class TagDetailPlaceTargetHostTest {
     private var targetMarker: Uuid? = null
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-008 상세 대상이 다른 태그로 바뀌어도 지도 모드와 옮겨 둔 지도 위치를 유지한다`() {
+    fun `TC-615383bc-ac38-46f9-a7c1-0b71e54933ed 상세 대상이 다른 태그로 바뀌어도 지도 모드와 옮겨 둔 지도 위치를 유지한다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>().toDiaryMapCoordinate()
         var id by mutableStateOf(Uuid.random())
@@ -64,7 +64,7 @@ class TagDetailPlaceTargetHostTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-036 다른 탭에 다녀와도 지도 위치, 확대 수준과 지도 제공자가 남는다`() {
+    fun `TC-09c12caf-5293-4592-81c4-0782ccd394ad 다른 탭에 다녀와도 지도 위치, 확대 수준과 지도 제공자가 남는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>().toDiaryMapCoordinate()
         var isPlaceTabSelected by mutableStateOf(true)

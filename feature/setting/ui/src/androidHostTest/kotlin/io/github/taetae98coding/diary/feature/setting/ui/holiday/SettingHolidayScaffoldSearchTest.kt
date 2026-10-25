@@ -54,7 +54,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-021 검색어를 입력하면 일치하는 항목만 순서와 선택 상태 그대로 표시한다`() {
+    fun `TC-57c64104-0f76-4d4f-b608-a9c0b20ee264 검색어를 입력하면 일치하는 항목만 순서와 선택 상태 그대로 표시한다`() {
         val firstMatched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val secondMatched = holidaySetting(isHoliday = false, isVisible = false, name = "설날 대체 공휴일")
         val unmatched = holidaySetting(isHoliday = true, isVisible = true, name = MEMORIAL_DAY_NAME)
@@ -75,7 +75,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-044 검색어는 입력을 멈출 때까지 기다리지 않고 곧바로 목록에 반영된다`() {
+    fun `TC-1e19db21-86fd-47a6-a984-ab8d6ace1e7e 검색어는 입력을 멈출 때까지 기다리지 않고 곧바로 목록에 반영된다`() {
         val matched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val unmatched = holidaySetting(isHoliday = true, isVisible = true, name = MEMORIAL_DAY_NAME)
         lateinit var state: SettingHolidayScaffoldState
@@ -97,7 +97,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-022 검색 결과가 없으면 빈 상태 안내를 표시하고 검색어를 수정할 수 있다`() {
+    fun `TC-1fa52f79-bc3c-49c3-ac5d-c7a0c7c52d40 검색 결과가 없으면 빈 상태 안내를 표시하고 검색어를 수정할 수 있다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         composeRule.setSettingHolidayScaffold(
             uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
@@ -117,7 +117,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-023 검색어를 모두 지우면 전체 목록으로 돌아간다`() {
+    fun `TC-5a6d606e-2251-4bbe-8f9f-16fa5c1f22f0 검색어를 모두 지우면 전체 목록으로 돌아간다`() {
         val matched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val unmatched = holidaySetting(isHoliday = false, isVisible = true, name = MEMORIAL_DAY_NAME)
         composeRule.setSettingHolidayScaffold(
@@ -134,7 +134,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-024 일괄 선택은 검색어가 비어 있을 때만 제공한다`() {
+    fun `TC-bdc35d12-62c6-4263-8e77-4db51d4cfe81 일괄 선택은 검색어가 비어 있을 때만 제공한다`() {
         composeRule.setSettingHolidayScaffold()
 
         composeRule.searchInputField().performTextInput(SEOLLAL_QUERY)
@@ -147,7 +147,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-025 필터링된 목록에서도 선택 상태를 바꿀 수 있다`() {
+    fun `TC-7b89eb5e-23d7-4110-9794-4d04f8607824 필터링된 목록에서도 선택 상태를 바꿀 수 있다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         val uiState = mutableStateOf(loadedUiState(holidaySettingList = listOf(holidaySetting)))
@@ -184,7 +184,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-DOMAIN-011 공백뿐인 검색어는 검색어가 없는 것으로 본다`() {
+    fun `TC-a02e529d-ed3b-4292-8c70-d585dc81e7ad 공백뿐인 검색어는 검색어가 없는 것으로 본다`() {
         val holidaySettingList =
             listOf(
                 holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME),
@@ -203,7 +203,7 @@ class SettingHolidayScaffoldSearchTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-026 화면에 진입해도 검색어 입력에 초점을 두지 않는다`() {
+    fun `TC-13965fae-546a-47f7-8f4b-ef081dbc3cf5 화면에 진입해도 검색어 입력에 초점을 두지 않는다`() {
         composeRule.setSettingHolidayScaffold()
 
         composeRule.waitForIdle()

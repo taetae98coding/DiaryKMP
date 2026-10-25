@@ -51,7 +51,7 @@ class TagDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-001 첫진입 시 조회한 제목이 상단 바와 입력 칸에 채워진다`() {
+    fun `TC-a51bbc33-302d-4e16-a3f9-3d4cd2c501f6 첫진입 시 조회한 제목이 상단 바와 입력 칸에 채워진다`() {
         val uiState = MutableStateFlow<TagDetailUiState>(TagDetailUiState.Loading)
         setTagDetailScreen(screenTestViewModel(uiState = uiState))
         composeRule.waitForIdle()
@@ -72,7 +72,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-068 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-75ee027a-01d9-4f54-8c5b-773df6fec5a4 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
         setTagDetailScreen(storedLoadedViewModel())
         composeRule.waitForIdle()
 
@@ -82,7 +82,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-022 조회할 수 없으면 로딩 상태를 유지한다`() {
+    fun `TC-18be6cac-d671-479d-bafc-87a099949731 조회할 수 없으면 로딩 상태를 유지한다`() {
         setTagDetailScreen(screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -96,7 +96,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-003 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-30d16c71-591c-4070-8d95-5319bcb05f79 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setTagDetailScreen(
             viewModel = screenTestViewModel(),
@@ -109,7 +109,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-004 입력 칸을 수정해도 상단 바 제목은 유지된다`() {
+    fun `TC-43a810db-4b08-4160-b96b-4632afdf1fe1 입력 칸을 수정해도 상단 바 제목은 유지된다`() {
         setTagDetailScreen(titleLoadedViewModel())
         composeRule.waitForIdle()
 
@@ -121,7 +121,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-005 화면 재생성 후에도 수정 중이던 내용이 유지된다`() {
+    fun `TC-4ba65230-3030-42c1-ba79-112023560c92 화면 재생성 후에도 수정 중이던 내용이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = storedLoadedViewModel()
         restorationTester.setContent {
@@ -164,7 +164,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-007 다른 태그를 선택하면 새 태그 내용으로 바뀐다`() {
+    fun `TC-d90dfd7b-9f08-4106-bc5b-6243d67fc4ac 다른 태그를 선택하면 새 태그 내용으로 바뀐다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = storedTagDetail()))
         setTagDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -191,7 +191,7 @@ class TagDetailScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-008 같은 태그 제목 변경은 상단 바에 반영하고 입력값은 유지한다`() {
+    fun `TC-c58fdf38-e167-45d0-80f6-b0f5b17dfc33 같은 태그 제목 변경은 상단 바에 반영하고 입력값은 유지한다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = storedTagDetail()))
         setTagDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -252,14 +252,14 @@ class TagDetailScreenUpdateTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-009 수정 버튼으로 수정을 실행해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-347205e6-8a83-41c7-9843-7d0bcdc0c5aa 수정 버튼으로 수정을 실행해도 수정 중이던 내용이 유지된다`() {
         assertUpdateRetainsInput {
             composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
         }
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-009 단축키로 수정을 실행해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-347205e6-8a83-41c7-9843-7d0bcdc0c5aa 단축키로 수정을 실행해도 수정 중이던 내용이 유지된다`() {
         assertUpdateRetainsInput {
             composeRule.titleInput().performKeyInput {
                 keyDown(Key.MetaLeft)
@@ -271,7 +271,7 @@ class TagDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-014 수정 버튼은 이모지 제목 설명 컬러 중 하나라도 저장 내용과 다를 때만 나타난다`() {
+    fun `TC-c89e5de3-73b0-44cf-8bc1-0474afde975a 수정 버튼은 이모지 제목 설명 컬러 중 하나라도 저장 내용과 다를 때만 나타난다`() {
         setTagDetailScreen(storedLoadedViewModel())
         composeRule.waitForIdle()
 
@@ -298,7 +298,7 @@ class TagDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-069 수정 저장에 실패하면 안내 없이 입력 내용을 유지하고 진행 상태를 해제해 다시 수정할 수 있다`() {
+    fun `TC-a472e4f6-4936-4858-b5f4-9e72540c8fd0 수정 저장에 실패하면 안내 없이 입력 내용을 유지하고 진행 상태를 해제해 다시 수정할 수 있다`() {
         val storedTag =
             Tag(
                 id = FIRST_TAG_ID,
@@ -339,7 +339,7 @@ class TagDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-011 수정을 처리하는 동안 수정 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-0c1d98e3-cb0b-4561-9dfb-cdcd85cdc3c0 수정을 처리하는 동안 수정 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isInProgress = true))
         setTagDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -415,7 +415,7 @@ class TagDetailScreenActionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-016 완료되지 않은 태그를 완료하면 완료 버튼이 다시 시작 동작으로 바뀐다`() {
+    fun `TC-aa21761d-2411-4041-b8a5-ded7a770d81b 완료되지 않은 태그를 완료하면 완료 버튼이 다시 시작 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isFinished = false))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.finish() } answers { uiState.value = uiState.value.copy(isFinished = true) }
@@ -432,7 +432,7 @@ class TagDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-017 완료된 태그를 다시 시작하면 완료 버튼이 완료 동작으로 바뀐다`() {
+    fun `TC-1753a9fa-be8a-469f-9068-0ca895dae589 완료된 태그를 다시 시작하면 완료 버튼이 완료 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isFinished = true))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.restart() } answers { uiState.value = uiState.value.copy(isFinished = false) }
@@ -449,7 +449,7 @@ class TagDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-019 태그를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
+    fun `TC-26fe06e0-1644-4d0b-9787-27d69f252e70 태그를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
         var navigateUpCount = 0
         val effectChannel = Channel<TagDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel =
@@ -516,13 +516,13 @@ class TagDetailScreenMessageTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-010 기본 환경 수정 성공 안내`() {
+    fun `TC-b38740b4-17e4-4360-8b43-e4ee5f0d1c79 기본 환경 수정 성공 안내`() {
         assertMessage(effect = TagDetailEffect.UpdateSucceeded, expectedMessage = DEFAULT_UPDATE_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-FEATURE-010 한국어 수정 성공 안내`() {
+    fun `TC-b38740b4-17e4-4360-8b43-e4ee5f0d1c79 한국어 수정 성공 안내`() {
         assertMessage(effect = TagDetailEffect.UpdateSucceeded, expectedMessage = KOREAN_UPDATE_SUCCEEDED_MESSAGE)
     }
 

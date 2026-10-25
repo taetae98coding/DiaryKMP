@@ -84,7 +84,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-024 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
+    fun `TC-dd50cd0c-69c1-4a40-ba16-8653ac1d369e 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
         val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
@@ -95,7 +95,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-023 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-06dcedfb-d6e1-4a4f-bfc1-24fc0f0c8de6 목록 위에 현재 정렬을 표시한다`() {
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
@@ -103,7 +103,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-024 정렬 선택을 열면 세 정렬을 고를 수 있다`() {
+    fun `TC-dd50cd0c-69c1-4a40-ba16-8653ac1d369e 정렬 선택을 열면 세 정렬을 고를 수 있다`() {
         setMemoTab(
             pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))),
             sortSheetState = DialogState(isVisible = true),
@@ -116,17 +116,17 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-025 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-e9d9a58a-5bd9-42d3-a9ae-8397ff5e1219 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_TITLE_SORT_LABEL, sort = ListSort.TITLE)
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-025 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-e9d9a58a-5bd9-42d3-a9ae-8397ff5e1219 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_RECENTLY_UPDATED_SORT_LABEL, sort = ListSort.RECENTLY_UPDATED)
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-025 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
+    fun `TC-e9d9a58a-5bd9-42d3-a9ae-8397ff5e1219 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
         setMemoTab(
             pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))),
             sort = ListSort.RECENTLY_UPDATED,
@@ -138,7 +138,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-026 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
+    fun `TC-defd4cd1-87db-4a08-9e0e-3322ee8cdfbe 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
         setMemoTab(pagingData = webMemoPagingData(itemList = emptyList()))
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithTag(DIARY_EMPTY_BOX_TEST_TAG).fetchSemanticsNodes().isNotEmpty()
@@ -148,7 +148,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-001 기간 유무와 시작 날짜에 따라 메모를 나누어 표시한다`() {
+    fun `TC-7749dbe9-8243-4b50-a014-84f28c2e9a66 기간 유무와 시작 날짜에 따라 메모를 나누어 표시한다`() {
         val date = LocalDate(year = 2026, month = 7, day = 19)
         val noDateMemo = webMemo(title = NO_DATE_TITLE)
         val allDayMemo = webMemo(title = ALL_DAY_TITLE, dateTime = allDayMemoDateTime(date))
@@ -198,7 +198,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-dd13dea1-359d-4ab0-b6cb-fd7ad30f7a4d 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setMemoTab(pagingData = webMemoPagingData(itemList = emptyList(), refresh = error))
 
@@ -211,7 +211,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-003 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-dd13dea1-359d-4ab0-b6cb-fd7ad30f7a4d 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
         val memo = webMemo(title = APPEND_ERROR_MEMO_TITLE)
         val error = LoadState.Error(IllegalStateException("Append failed"))
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo)), append = error))
@@ -222,7 +222,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-004 메모 카드를 선택하면 상세 이동을 요청한다`() {
+    fun `TC-3b668146-2140-4ee2-98b9-cb720f5fc543 메모 카드를 선택하면 상세 이동을 요청한다`() {
         val memo = webMemo(title = CLICK_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -234,7 +234,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-005 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
+    fun `TC-7eedea45-6f3c-4da5-ab8b-59acf40d31cb 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
         val memo = webMemo(title = FINISH_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -247,7 +247,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-005 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
+    fun `TC-7eedea45-6f3c-4da5-ab8b-59acf40d31cb 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
         val memo = webMemo(title = DELETE_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -260,7 +260,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DOMAIN-004 화면이 재생성되어도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-f11f74a9-9758-47c4-8069-a19b5bca7df3 화면이 재생성되어도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = MutableStateFlow(webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
         val restorationTester = StateRestorationTester(composeRule)
@@ -289,7 +289,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DOMAIN-004 창 너비가 바뀌어 배치가 달라져도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-f11f74a9-9758-47c4-8069-a19b5bca7df3 창 너비가 바뀌어 배치가 달라져도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = MutableStateFlow(webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
         val containerSize = mutableStateOf(CompactWindowSize)
@@ -334,7 +334,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DOMAIN-005 앱을 다시 실행해 상세 화면에 새로 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
+    fun `TC-869fa5bf-1d79-4627-81ad-9fca3f31b2c5 앱을 다시 실행해 상세 화면에 새로 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = MutableStateFlow(webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
         var launchCount by mutableIntStateOf(0)

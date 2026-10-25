@@ -31,7 +31,7 @@ class DiaryDescriptionInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-001 채워진 설명이 없으면 처음 표시될 때 입력 페이지가 보인다`() {
+    fun `TC-e3122ae7-a3b6-4e5d-bda8-06b079aac4cf 채워진 설명이 없으면 처음 표시될 때 입력 페이지가 보인다`() {
         setDiaryDescriptionInput()
 
         composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
@@ -54,7 +54,7 @@ class DiaryDescriptionInputTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-005 여러 줄의 설명을 입력할 수 있다`() {
+    fun `TC-1a137fdc-41e7-48d9-850d-40378fdfd39b 여러 줄의 설명을 입력할 수 있다`() {
         setDiaryDescriptionInput()
 
         composeRule.onNode(hasSetTextAction()).performTextInput(MULTILINE_TEXT)
@@ -72,7 +72,7 @@ class DiaryDescriptionInputTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-007 지우기 버튼을 누르면 내용이 모두 지워진다`() {
+    fun `TC-00e70cad-963f-42e7-9c23-cbbe4e814a68 지우기 버튼을 누르면 내용이 모두 지워진다`() {
         setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(INPUT_TEXT)
 

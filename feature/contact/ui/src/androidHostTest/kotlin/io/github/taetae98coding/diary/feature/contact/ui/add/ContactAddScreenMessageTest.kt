@@ -20,55 +20,55 @@ class ContactAddScreenMessageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-007 기본 환경 추가 성공 안내`() {
+    fun `TC-88536863-d156-4aa9-b193-9892b2f05bb0 기본 환경 추가 성공 안내`() {
         assertMessage(effect = ContactAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-ADD-FEATURE-007 한국어 추가 성공 안내`() {
+    fun `TC-88536863-d156-4aa9-b193-9892b2f05bb0 한국어 추가 성공 안내`() {
         assertMessage(effect = ContactAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 기본 환경 이름 미입력 안내`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 기본 환경 이름 미입력 안내`() {
         assertMessage(effect = ContactAddEffect.NameBlank, expectedMessage = DEFAULT_NAME_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-ADD-FEATURE-009 한국어 이름 미입력 안내`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 한국어 이름 미입력 안내`() {
         assertMessage(effect = ContactAddEffect.NameBlank, expectedMessage = KOREAN_NAME_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 기본 환경 전화번호 미입력 안내`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 기본 환경 전화번호 미입력 안내`() {
         assertMessage(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = DEFAULT_PHONE_NUMBER_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-ADD-FEATURE-009 한국어 전화번호 미입력 안내`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 한국어 전화번호 미입력 안내`() {
         assertMessage(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = KOREAN_PHONE_NUMBER_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 이름이 비어 있으면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 이름이 비어 있으면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
         assertBlankInput(effect = ContactAddEffect.NameBlank, expectedMessage = DEFAULT_NAME_BLANK_MESSAGE, name = "", phoneNumber = null)
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 이름이 공백 문자로만 이루어지면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 이름이 공백 문자로만 이루어지면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
         assertBlankInput(effect = ContactAddEffect.NameBlank, expectedMessage = DEFAULT_NAME_BLANK_MESSAGE, name = BLANK_TEXT, phoneNumber = null)
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 번호가 비어 있는 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 번호가 비어 있는 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
         assertBlankInput(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = DEFAULT_PHONE_NUMBER_BLANK_MESSAGE, name = TYPED_NAME, phoneNumber = "")
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-009 번호가 공백 문자로만 이루어진 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
+    fun `TC-70780959-f329-4665-b394-57daca3425ac 번호가 공백 문자로만 이루어진 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
         assertBlankInput(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = DEFAULT_PHONE_NUMBER_BLANK_MESSAGE, name = TYPED_NAME, phoneNumber = BLANK_TEXT)
     }
 

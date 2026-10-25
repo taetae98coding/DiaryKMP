@@ -27,7 +27,7 @@ class DeviceCountryRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-COUNTRY-DOMAIN-007 언어 설정에 적힌 지역으로 적용 국가를 정한다") {
+        test("TC-624458a6-d7b3-4d9e-9b51-ffbc2d1b8e14 언어 설정에 적힌 지역으로 적용 국가를 정한다") {
             val original = Locale.getDefault()
 
             try {

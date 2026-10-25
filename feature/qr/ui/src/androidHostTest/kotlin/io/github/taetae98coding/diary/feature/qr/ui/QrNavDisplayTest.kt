@@ -109,7 +109,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-015 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
+    fun `TC-f9bff6e7-f638-4c0d-99ea-f6279ca0b857 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -130,7 +130,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-057 QrScan 화면에서 텍스트 QR을 읽어 돌아오면 QR 탭과 텍스트 포맷으로 읽은 값을 보여 주고 제목과 설명은 그대로 둔다`() {
+    fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QrScan 화면에서 텍스트 QR을 읽어 돌아오면 QR 탭과 텍스트 포맷으로 읽은 값을 보여 주고 제목과 설명은 그대로 둔다`() {
         val scannedValue = qrTestFixtureMonkey.qrDetail().value
         val detail = qrTestFixtureMonkey.qrDetail()
         setQrNavDisplay()
@@ -148,7 +148,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-SCAN-FEATURE-007 QR을 읽으면 읽은 값을 넘기고 이전 화면으로 돌아간다`() {
+    fun `TC-39760b0f-24f6-411f-b977-dcb1265c1a75 QR을 읽으면 읽은 값을 넘기고 이전 화면으로 돌아간다`() {
         val scannedValue = qrTestFixtureMonkey.qrDetail().value
         setQrNavDisplay()
         openQrScanWithValue(value = qrTestFixtureMonkey.qrDetail().value)
@@ -162,7 +162,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-017 뒤로가기로 떠났다가 다시 들어오면 입력이 비어 있고 QR은 추가되지 않는다`() {
+    fun `TC-2e236283-4a78-4198-913a-42a6bcc3694b 뒤로가기로 떠났다가 다시 들어오면 입력이 비어 있고 QR은 추가되지 않는다`() {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -187,7 +187,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-013 QR 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-5e547ce5-43fa-4d25-9c52-91c6826d69ba QR 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val qrList = positionQrList()
         setQrNavDisplay(qrList = qrList)
         scrollToPositionQr(qrList)
@@ -201,7 +201,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-013 QR 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-5e547ce5-43fa-4d25-9c52-91c6826d69ba QR 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val qrList = positionQrList()
         setQrNavDisplay(qrList = qrList)
         scrollToPositionQr(qrList)
@@ -215,7 +215,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-034 목록의 QR을 선택하면 그 QR의 QrDetail 화면으로 이동한다`() {
+    fun `TC-faf59225-fd29-4e65-a963-5f79e88347ee 목록의 QR을 선택하면 그 QR의 QrDetail 화면으로 이동한다`() {
         val qrList = listOf(testQr(), testQr())
         setQrNavDisplay(qrList = qrList)
         waitUntilQrIsDisplayed(qrList.last())
@@ -228,7 +228,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-020 TC-QR-DETAIL-FEATURE-021 뒤로가기로 떠났다가 다시 선택하면 수정하지 않은 저장된 내용으로 다시 시작한다`() {
+    fun `TC-ff23013a-f4c3-484d-b4e7-e8207ea7ae8d TC-2e716a41-127e-4874-9212-a983f49da418 뒤로가기로 떠났다가 다시 선택하면 수정하지 않은 저장된 내용으로 다시 시작한다`() {
         val qr = testQr()
         setQrNavDisplay(qrList = listOf(qr))
         waitUntilQrIsDisplayed(qr)
@@ -252,7 +252,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-012 TC-QR-SCAN-FEATURE-007 QrDetail에서 QrScan으로 이동해 QR을 읽어 돌아오면 QR 값을 바꾼다`() {
+    fun `TC-3dfc9b71-b8a2-462d-a87b-22aa53d6755f TC-39760b0f-24f6-411f-b977-dcb1265c1a75 QrDetail에서 QrScan으로 이동해 QR을 읽어 돌아오면 QR 값을 바꾼다`() {
         val qr = testQr()
         val scannedValue = "https://example.com/scanned"
         setQrNavDisplay(qrList = listOf(qr))
@@ -272,7 +272,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-027 TC-QR-SCAN-FEATURE-006 QrScan 화면에서 읽지 않고 돌아오면 QrDetail의 입력, 포맷과 탭을 그대로 둔다`() {
+    fun `TC-af27db98-f08d-4920-a173-76a13cafb1c0 TC-f868d081-61f3-4ee0-b902-551b84aaea24 QrScan 화면에서 읽지 않고 돌아오면 QrDetail의 입력, 포맷과 탭을 그대로 둔다`() {
         val qr = testQr()
         val editedTitle = "edited-" + qr.detail.title
         setQrNavDisplay(qrList = listOf(qr))
@@ -298,7 +298,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-028 상세에서 삭제한 QR에는 QrHome의 삭제 안내와 실행 취소를 표시하지 않는다`() {
+    fun `TC-3dc4367d-fbd0-4936-90d4-13257b7d70ec 상세에서 삭제한 QR에는 QrHome의 삭제 안내와 실행 취소를 표시하지 않는다`() {
         val qr = testQr()
         detailEffect = QrDetailEffect.DeleteSucceeded
         setQrNavDisplay(qrList = listOf(qr))
@@ -315,7 +315,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-014 더보기로 나갔다 QR 바로가기로 다시 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-00427a56-819d-4a24-a374-818136412935 더보기로 나갔다 QR 바로가기로 다시 진입하면 목록의 맨 위부터 보여 준다`() {
         val qrList = positionQrList()
         setQrNavDisplay(qrList = qrList)
         scrollToPositionQr(qrList)
@@ -331,7 +331,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-014 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-00427a56-819d-4a24-a374-818136412935 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val qrList = positionQrList()
 
         setQrNavDisplay(qrList = qrList)

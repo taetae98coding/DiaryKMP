@@ -41,7 +41,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-005 목록에 나타나는 태그와 연결 여부를 표시한다`() {
+    fun `TC-6955c5ed-dd16-4f8e-b27c-07e7d5b5ab7f 목록에 나타나는 태그와 연결 여부를 표시한다`() {
         val linkedTag = entityTestTag(title = WORK_TAG_TITLE)
         val unlinkedTag = entityTestTag(title = EXERCISE_TAG_TITLE)
 
@@ -58,7 +58,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-006 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+    fun `TC-bce47fd4-e845-4aa6-8010-6d543de51881 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
         val tagPagingDataFlow = MutableStateFlow(refreshingEntityTagPagingData())
         var tagPagingItems: LazyPagingItems<Tag>? = null
         composeRule.setEntityTagPickerDialog(
@@ -80,7 +80,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-026 나타낼 태그가 있으면 목록과 함께 태그 추가 항목이 표시된다`() {
+    fun `TC-8037706b-864b-41f3-a552-f4761dab9ebe 나타낼 태그가 있으면 목록과 함께 태그 추가 항목이 표시된다`() {
         composeRule.setEntityTagPickerDialog(tagList = listOf(entityTestTag(title = WORK_TAG_TITLE)))
         composeRule.awaitEntityTagPickerRows()
 
@@ -88,7 +88,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-026 나타낼 태그가 없어도 태그 추가 항목이 표시된다`() {
+    fun `TC-8037706b-864b-41f3-a552-f4761dab9ebe 나타낼 태그가 없어도 태그 추가 항목이 표시된다`() {
         composeRule.setEntityTagPickerDialog(tagList = emptyList())
         composeRule.waitForIdle()
 
@@ -96,7 +96,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 태그 추가를 요청한다`() {
+    fun `TC-6397d89f-db81-4ca1-bbe0-13d8857d9eed 목록의 태그 추가 항목을 누르면 태그 추가를 요청한다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val addedIdList = mutableListOf<Uuid>()
         val removedIdList = mutableListOf<Uuid>()
@@ -118,7 +118,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-008 목록에서 태그를 누르면 연결을 요청한다`() {
+    fun `TC-51a413b9-ca9e-454e-afc7-6183017b3c1f 목록에서 태그를 누르면 연결을 요청한다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val exerciseTag = entityTestTag(title = EXERCISE_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
@@ -136,7 +136,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-009 목록에서 연결된 태그를 누르면 해제를 요청한다`() {
+    fun `TC-eba5daa8-8d3e-4003-9b60-82720604c453 목록에서 연결된 태그를 누르면 해제를 요청한다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val exerciseTag = entityTestTag(title = EXERCISE_TAG_TITLE)
         val unlinkedIdList = mutableListOf<Uuid>()
@@ -157,7 +157,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-014 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
+    fun `TC-95ad66fd-91b5-4afd-b5ca-57910c2c8090 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
         val tag = entityTestTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         composeRule.setEntityTagPickerDialog(
@@ -173,7 +173,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-015 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
+    fun `TC-f377bcc2-56dc-409b-805d-7b65e703d4bc 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val exerciseTag = entityTestTag(title = EXERCISE_TAG_TITLE)
         composeRule.setEntityTagPickerDialog(tagPagingData = appendFailedEntityTagPagingDataOf(listOf(workTag, exerciseTag)))
@@ -186,7 +186,7 @@ class EntityTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-015 첫 조회에 실패하면 목록 영역이 비어 있고 오류 안내가 표시되지 않는다`() {
+    fun `TC-f377bcc2-56dc-409b-805d-7b65e703d4bc 첫 조회에 실패하면 목록 영역이 비어 있고 오류 안내가 표시되지 않는다`() {
         var tagPagingItems: LazyPagingItems<Tag>? = null
         composeRule.setEntityTagPickerDialog(
             tagPagingData = refreshFailedEntityTagPagingData(),

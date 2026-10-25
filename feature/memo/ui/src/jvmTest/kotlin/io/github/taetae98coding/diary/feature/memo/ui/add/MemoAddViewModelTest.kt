@@ -43,7 +43,7 @@ class MemoAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-ADD-DOMAIN-002 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-34163b1f-6c82-4cdb-b647-76c72eeb7906 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = detail(titlePrefix = "first")
                 val secondDetail = detail(titlePrefix = "second")
@@ -159,7 +159,7 @@ class MemoAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-006 TC-MEMO-ADD-DOMAIN-008 태그와 장소를 선택하지 않아도 추가할 수 있다") {
+        test("TC-2ccf8ea0-9927-4e73-b8d1-a5f8c9122e46 TC-a632ab5b-934c-427c-8376-08a52e5cb182 태그와 장소를 선택하지 않아도 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val useCase = mockk<AddMemoUseCase>()
@@ -182,7 +182,7 @@ class MemoAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-012 TC-MEMO-ADD-DATA-014 TC-TAG-DETAIL-MEMO-DATA-005 전달받은 태그 선택을 그대로 추가 요청에 담는다") {
+        test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 TC-b26a374f-dbe3-4ad8-9e4f-b36db2d3d639 전달받은 태그 선택을 그대로 추가 요청에 담는다") {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -209,7 +209,7 @@ class MemoAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-013 전달받은 장소 선택을 그대로 추가 요청에 담는다") {
+        test("TC-5cd9d853-1b39-4712-9282-b33a84585338 전달받은 장소 선택을 그대로 추가 요청에 담는다") {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val placeIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())

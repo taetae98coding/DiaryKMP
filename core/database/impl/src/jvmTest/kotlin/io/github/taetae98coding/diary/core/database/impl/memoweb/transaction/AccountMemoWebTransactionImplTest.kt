@@ -120,7 +120,7 @@ class AccountMemoWebTransactionImplTest :
             )
         }
 
-        test("TC-MEMO-WEB-DOMAIN-001 하나의 메모에 여러 웹 항목을 연결해 저장한다") {
+        test("TC-1a2ab192-a0b7-4da2-b20a-f1fe12816f6c 하나의 메모에 여러 웹 항목을 연결해 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val webList = List(2) { web() }
@@ -130,7 +130,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder webList
         }
 
-        test("TC-MEMO-WEB-DOMAIN-002 같은 웹 항목을 여러 메모에 연결해도 서로 대체되지 않는다") {
+        test("TC-f172e0ca-a9cb-4fc5-b287-6c9f48f4a74e 같은 웹 항목을 여러 메모에 연결해도 서로 대체되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
             val firstMemo = memo()
@@ -144,7 +144,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = secondMemo.id) shouldBe listOf(web)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-003 같은 메모와 웹 항목의 연결을 다시 저장해도 한 건으로 유지된다") {
+        test("TC-23000646-3cfe-4f0b-ab0d-f8f46ba76aa5 같은 메모와 웹 항목의 연결을 다시 저장해도 한 건으로 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -156,7 +156,7 @@ class AccountMemoWebTransactionImplTest :
             findMemoWebList(memoId = memo.id) shouldHaveSize 1
         }
 
-        test("TC-MEMO-WEB-DOMAIN-004 연결할 웹 항목이 없으면 웹 연결 없이 메모만 저장된다") {
+        test("TC-a0441096-0392-4f22-91e0-ea125dda3403 연결할 웹 항목이 없으면 웹 연결 없이 메모만 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
 
@@ -167,7 +167,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-005 웹 항목을 삭제해도 메모와의 연결이 유지된다") {
+        test("TC-03e2d8f0-3d7a-4005-8516-666c596310d2 웹 항목을 삭제해도 메모와의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -179,7 +179,7 @@ class AccountMemoWebTransactionImplTest :
                 listOf(memoWeb(memoId = memo.id, webId = web.id, memo = memo))
         }
 
-        test("TC-MEMO-WEB-DOMAIN-006 메모를 완료하거나 삭제해도 웹 항목과의 연결이 유지된다") {
+        test("TC-168f96b6-1d06-44a5-a066-eabd23808177 메모를 완료하거나 삭제해도 웹 항목과의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(isFinished = false, isDeleted = false)
             val web = web()
@@ -193,7 +193,7 @@ class AccountMemoWebTransactionImplTest :
             findMemoWebList(memoId = memo.id) shouldBe listOf(memoWeb)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-007 메모의 제목·설명·컬러·기간 수정은 웹 연결을 바꾸지 않는다") {
+        test("TC-2bb3318d-a7ae-465e-a13c-2da99e6656a5 메모의 제목·설명·컬러·기간 수정은 웹 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -209,7 +209,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(web)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-007 웹 항목의 제목·설명·URL·요청 헤더 수정은 웹 연결을 바꾸지 않는다") {
+        test("TC-2bb3318d-a7ae-465e-a13c-2da99e6656a5 웹 항목의 제목·설명·URL·요청 헤더 수정은 웹 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -223,7 +223,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedWeb)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-008 TC-MEMO-DETAIL-DATA-025 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
+        test("TC-94a23fe8-0bf0-4ac9-a31a-054af7f2740e TC-20e23ee0-6926-4285-9161-5d9bf265aff7 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -245,7 +245,7 @@ class AccountMemoWebTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-WEB-DOMAIN-009 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
+        test("TC-5f22cbde-10b7-419e-8eb6-ee33dc756ebb 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -278,7 +278,7 @@ class AccountMemoWebTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-WEB-DOMAIN-010 삭제된 웹 항목은 메모의 연결된 웹 항목 조회에서 빠진다") {
+        test("TC-64fc31a2-f638-495f-a203-b0497272caef 삭제된 웹 항목은 메모의 연결된 웹 항목 조회에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptWeb = web()
@@ -290,7 +290,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptWeb)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-011 연결된 웹 항목은 제목 오름차순으로 조회된다") {
+        test("TC-424db2e8-0488-4798-9c86-fb32bbe220a6 연결된 웹 항목은 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstWeb = web().withTitle(title = "AAA")
@@ -301,7 +301,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(firstWeb, secondWeb, thirdWeb)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-012 웹 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-b7b2713c-252a-4b85-97e2-c1c3d7429a43 웹 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedMemo = memo().visible().withTitle(title = linkedTitle)
@@ -320,7 +320,7 @@ class AccountMemoWebTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-WEB-DOMAIN-013 메모 연결은 웹 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-a16d63cf-a08b-4faa-815a-df62eed62338 메모 연결은 웹 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -339,7 +339,7 @@ class AccountMemoWebTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-WEB-DOMAIN-014 웹 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
+        test("TC-7d1b07f5-5cd9-42a0-af88-7329d7a401fd 웹 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().visible().copy(primaryTagId = null)
             val web = web()
@@ -361,7 +361,7 @@ class AccountMemoWebTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-016 메모 연결은 태그로 웹 항목을 조회한 결과를 바꾸지 않는다") {
+        test("TC-dd93b454-76c7-4e98-958d-1e4f0df6c750 메모 연결은 태그로 웹 항목을 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().visible().copy(primaryTagId = null)
             val web = web()
@@ -384,7 +384,7 @@ class AccountMemoWebTransactionImplTest :
             webList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
+        test("TC-168f8f3a-4788-4319-afe6-07846b958092 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val removedWeb = web()
@@ -403,7 +403,7 @@ class AccountMemoWebTransactionImplTest :
             findPendingWebIdList(accountId = accountId) shouldBe listOf(removedWeb.id)
         }
 
-        test("TC-MEMO-WEB-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
+        test("TC-168f8f3a-4788-4319-afe6-07846b958092 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptWeb = web()
@@ -423,7 +423,7 @@ class AccountMemoWebTransactionImplTest :
             findPendingWebIdList(accountId = accountId) shouldBe listOf(addedWeb.id)
         }
 
-        test("TC-MEMO-WEB-DATA-001 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
+        test("TC-5da8e195-c179-4192-b20d-cbb725e4706a 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val memo = memo().copy(updatedAt = now, createdAt = now)
@@ -443,7 +443,7 @@ class AccountMemoWebTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-WEB-DATA-002 저장이 실패하면 메모와 계정 연결, 태그·웹·장소 연결이 모두 남지 않는다") {
+        test("TC-7067ee0e-2618-406d-b8cf-0b2dc33996c8 저장이 실패하면 메모와 계정 연결, 태그·웹·장소 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val placeId = fixtureMonkey.giveMeOne<Uuid>()
@@ -471,7 +471,7 @@ class AccountMemoWebTransactionImplTest :
             memoSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
+        test("TC-cb209341-52cf-45ed-b471-8a5173e57284 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val changedMemo = memo.copy(updatedAt = instant())
@@ -492,7 +492,7 @@ class AccountMemoWebTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-WEB-DATA-004 해제되지 않은 연결의 웹 항목만 메모의 웹 항목으로 조회된다") {
+        test("TC-3a637550-4db1-482e-91ac-6ff64ef6bd71 해제되지 않은 연결의 웹 항목만 메모의 웹 항목으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptWeb = web()
@@ -504,7 +504,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptWeb)
         }
 
-        test("TC-MEMO-DETAIL-DATA-024 웹 항목을 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
+        test("TC-858a06f1-a316-4252-9a7f-831cc0ea6505 웹 항목을 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -528,7 +528,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(web)
         }
 
-        test("TC-MEMO-DETAIL-DATA-028 복사본에 원본의 해제되지 않은 웹 연결만 복사 시점으로 저장된다") {
+        test("TC-9c7bd95c-487e-455e-944e-6a97d5782f22 복사본에 원본의 해제되지 않은 웹 연결만 복사 시점으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val keptWeb = web()
@@ -572,7 +572,7 @@ class AccountMemoWebTransactionImplTest :
             getWebList(accountId = accountId, memoId = source.id) shouldBe listOf(keptWeb)
         }
 
-        test("TC-MEMO-DETAIL-DATA-045 삭제된 웹 항목을 가리키는 원본 연결도 복사본에 만들어진다") {
+        test("TC-4864afda-0ca9-4c97-a5ea-031dd6d8cd72 삭제된 웹 항목을 가리키는 원본 연결도 복사본에 만들어진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val deletedWeb = web()
@@ -605,7 +605,7 @@ class AccountMemoWebTransactionImplTest :
             findMemoWebList(memoId = copy.id).map { memoWeb -> memoWeb.webId } shouldBe listOf(deletedWeb.id)
         }
 
-        test("TC-MEMO-WEB-DOMAIN-015 연결된 웹 항목의 제목은 메모 검색에 쓰이지 않는다") {
+        test("TC-8a8d0b58-a4de-45db-8417-f558aee6deb4 연결된 웹 항목의 제목은 메모 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
@@ -621,7 +621,7 @@ class AccountMemoWebTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-015 연결된 메모의 제목은 웹 검색에 쓰이지 않는다") {
+        test("TC-8a8d0b58-a4de-45db-8417-f558aee6deb4 연결된 메모의 제목은 웹 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().visible().withTitle(title = "memo-$query")
@@ -641,7 +641,7 @@ class AccountMemoWebTransactionImplTest :
             "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
         ).forEach { (label, change) ->
-            test("TC-MEMO-DETAIL-DOMAIN-009 $label 메모도 웹 연결을 만들 수 있다") {
+            test("TC-28ea6a21-60a4-41a4-aa24-6ac50f07241b $label 메모도 웹 연결을 만들 수 있다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = change(memo())
                 val web = web()

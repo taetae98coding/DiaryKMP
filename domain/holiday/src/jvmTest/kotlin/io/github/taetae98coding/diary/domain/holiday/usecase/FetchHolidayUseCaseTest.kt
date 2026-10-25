@@ -38,7 +38,7 @@ class FetchHolidayUseCaseTest :
             When("특정 연도의 공휴일 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-005 동기화한 공휴일을 성공 결과로 반환하고 요청한 연도를 전달한다") {
+                Then("TC-0b6eebe0-d03a-4889-b452-16e840d37ef6 동기화한 공휴일을 성공 결과로 반환하고 요청한 연도를 전달한다") {
                     result.shouldBeSuccess() shouldBe holidayList
                     coVerify(exactly = 1) { repository.fetch(country = HolidayCountry.KOREA, year = year) }
                 }
@@ -73,7 +73,7 @@ class FetchHolidayUseCaseTest :
             When("특정 연도의 공휴일 동기화를 요청한다") {
                 useCase(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-001 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-358d29f3-29e8-4f44-a03a-a5cfed370247 TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure
@@ -93,7 +93,7 @@ class FetchHolidayUseCaseTest :
             When("특정 연도의 공휴일 동기화를 요청한다") {
                 useCase(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-002 오류 보고가 남지 않는다") {
+                Then("TC-75aeb7c0-ad3a-4462-a042-81c9e9193458 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }
@@ -110,7 +110,7 @@ class FetchHolidayUseCaseTest :
             When("특정 연도의 공휴일 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-003 빈 공휴일 목록으로 성공하고 오류 보고는 남지 않는다") {
+                Then("TC-4f57f965-fec8-4b60-97bc-aee44f273779 빈 공휴일 목록으로 성공하고 오류 보고는 남지 않는다") {
                     result.shouldBeSuccess().shouldBeEmpty()
                     reportList.shouldBeEmpty()
                 }
@@ -126,7 +126,7 @@ class FetchHolidayUseCaseTest :
                 coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } throws failure
                 val result = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-004 실패 결과로 끝나 제공하지 않는 연도와 구분된다") {
+                Then("TC-b603a6c2-7ad9-4b9a-9da3-2ddac4f826ca 실패 결과로 끝나 제공하지 않는 연도와 구분된다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
                 }
             }
@@ -136,7 +136,7 @@ class FetchHolidayUseCaseTest :
                 coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns emptyList()
                 val result = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)(parameter = year)
 
-                Then("TC-HOLIDAY-FETCH-DOMAIN-004 빈 공휴일 목록을 담은 성공 결과로 끝나 실패와 구분된다") {
+                Then("TC-b603a6c2-7ad9-4b9a-9da3-2ddac4f826ca 빈 공휴일 목록을 담은 성공 결과로 끝나 실패와 구분된다") {
                     result.shouldBeSuccess().shouldBeEmpty()
                 }
             }

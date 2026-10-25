@@ -69,7 +69,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-024 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
+    fun `TC-a8d22234-500b-435a-ba55-e78b0cf8f531 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
         val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
@@ -80,7 +80,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-023 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-32871004-856e-4eb2-9c46-b78435047ad3 목록 위에 현재 정렬을 표시한다`() {
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SORT_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
@@ -88,7 +88,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-024 정렬 선택을 열면 세 정렬을 고를 수 있다`() {
+    fun `TC-a8d22234-500b-435a-ba55-e78b0cf8f531 정렬 선택을 열면 세 정렬을 고를 수 있다`() {
         setMemoTab(
             pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SORT_MEMO_TITLE)))),
             sortSheetState = DialogState(isVisible = true),
@@ -101,17 +101,17 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-025 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-89a5e403-8096-425d-9b90-9aad461340a0 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_TITLE_SORT_LABEL, sort = ListSort.TITLE)
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-025 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-89a5e403-8096-425d-9b90-9aad461340a0 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_RECENTLY_UPDATED_SORT_LABEL, sort = ListSort.RECENTLY_UPDATED)
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-025 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
+    fun `TC-89a5e403-8096-425d-9b90-9aad461340a0 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
         setMemoTab(
             pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SORT_MEMO_TITLE)))),
             sort = ListSort.RECENTLY_UPDATED,
@@ -123,7 +123,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-026 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
+    fun `TC-11c42449-492c-4ec5-ac27-15950718f822 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
         setMemoTab(pagingData = contactMemoPagingData(itemList = emptyList()))
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithTag(DIARY_EMPTY_BOX_TEST_TAG).fetchSemanticsNodes().isNotEmpty()
@@ -133,7 +133,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-001 기간 유무와 시작 날짜에 따라 메모를 나누어 표시한다`() {
+    fun `TC-d4e74aeb-1fff-467f-abda-e918e1749f82 기간 유무와 시작 날짜에 따라 메모를 나누어 표시한다`() {
         val date = LocalDate(year = 2026, month = 7, day = 19)
         val noDateMemo = contactMemo(title = NO_DATE_TITLE)
         val allDayMemo = contactMemo(title = ALL_DAY_TITLE, dateTime = allDayMemoDateTime(date))
@@ -183,7 +183,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-3503d5e5-d242-4b66-b80a-a5083962f72d 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setMemoTab(pagingData = contactMemoPagingData(itemList = emptyList(), refresh = error))
 
@@ -196,7 +196,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-003 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-3503d5e5-d242-4b66-b80a-a5083962f72d 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
         val memo = contactMemo(title = APPEND_ERROR_MEMO_TITLE)
         val error = LoadState.Error(IllegalStateException("Append failed"))
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo)), append = error))
@@ -207,7 +207,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-004 메모 카드를 선택하면 상세 이동을 요청한다`() {
+    fun `TC-5ed98ee3-7529-4c34-816e-563bee749255 메모 카드를 선택하면 상세 이동을 요청한다`() {
         val memo = contactMemo(title = CLICK_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -219,7 +219,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-005 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
+    fun `TC-a0aced72-b2fa-4865-816b-20875d1c2e50 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
         val memo = contactMemo(title = FINISH_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -232,7 +232,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-005 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
+    fun `TC-a0aced72-b2fa-4865-816b-20875d1c2e50 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
         val memo = contactMemo(title = DELETE_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))), onMemoListEvent = eventList::add)
@@ -245,7 +245,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DOMAIN-004 화면이 재생성되어도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-2e0e9f65-7c22-46c4-9ff6-f011943281dc 화면이 재생성되어도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = MutableStateFlow(contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) }))
         val restorationTester = StateRestorationTester(composeRule)
@@ -274,7 +274,7 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DOMAIN-005 앱을 다시 실행해 상세 화면에 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
+    fun `TC-1e48bac7-41ed-4382-8039-94767ce28981 앱을 다시 실행해 상세 화면에 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
         val titleList = positionMemoTitleList()
         setMemoTab(pagingData = contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) }))
         waitUntilMemoIsDisplayed(title = titleList.first())

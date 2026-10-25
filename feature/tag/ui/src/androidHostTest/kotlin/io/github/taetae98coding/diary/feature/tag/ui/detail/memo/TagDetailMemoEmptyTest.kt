@@ -45,7 +45,7 @@ class TagDetailMemoEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-021 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-7fc116b4-2815-4bf9-bcc3-8c2207d00b4d 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -55,7 +55,7 @@ class TagDetailMemoEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-021 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 메모가 없습니다이다`() {
+    fun `TC-7fc116b4-2815-4bf9-bcc3-8c2207d00b4d 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 메모가 없습니다이다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -63,14 +63,14 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-022 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-32e5ee3a-8a50-408b-ac41-0af38169e481 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setMemoTab(pagingData = loadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-023 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-2be74ae7-6baf-418e-8e6b-484d07156928 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnMemoTab(
             memoPagingData = loadedEmptyPagingData(),
             uiState = TagDetailUiState.Loading,
@@ -80,7 +80,7 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-024 빈 상태에서도 메모 추가를 실행할 수 있다`() {
+    fun `TC-fdd1006d-9d18-499a-a5c9-6bd6f0c333ce 빈 상태에서도 메모 추가를 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(
             memoPagingData = loadedEmptyPagingData(),
@@ -93,7 +93,7 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-026 빈 상태에서도 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-0465b724-d860-4532-a375-72fd2d248d58 빈 상태에서도 완료된 메모 확인을 실행할 수 있다`() {
         var finishedListClickCount = 0
         setMemoTab(pagingData = loadedEmptyPagingData(), onFinishedListClick = { finishedListClickCount += 1 })
 
@@ -103,7 +103,7 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-029 대상 태그를 조회하지 못해도 메모 추가와 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-60299940-63b4-4e9f-9009-f9a8a9d20489 대상 태그를 조회하지 못해도 메모 추가와 완료된 메모 확인을 실행할 수 있다`() {
         setScreenOnMemoTab(
             memoPagingData = loadedEmptyPagingData(),
             uiState = TagDetailUiState.Loading,

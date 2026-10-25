@@ -29,7 +29,7 @@ class YtDlpDownloaderTest :
     BehaviorSpec({
         Given("yt-dlp가 있고 내려받기가 성공한다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-003 가장 좋은 화질의 영상과 소리를 하나의 mp4로 합치도록 영상 ID의 링크를 맡긴다") {
+                Then("TC-b73bcff4-7728-4616-b88d-3f3a740a0eba 가장 좋은 화질의 영상과 소리를 하나의 mp4로 합치도록 영상 ID의 링크를 맡긴다") {
                     runTest {
                         val videoId = testVideoId()
                         val path = tempMusicFilePath(videoId = videoId)
@@ -60,7 +60,7 @@ class YtDlpDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-009 받는 도중에는 완성된 이름의 파일이 없고 끝난 뒤에만 완성된 이름이 된다") {
+                Then("TC-ee57b46c-6357-4700-8e5d-c963cb745ef5 받는 도중에는 완성된 이름의 파일이 없고 끝난 뒤에만 완성된 이름이 된다") {
                     runTest {
                         val videoId = testVideoId()
                         val path = tempMusicFilePath(videoId = videoId)
@@ -84,7 +84,7 @@ class YtDlpDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 진행 중이 된 때부터 백분율을 알린다") {
+                Then("TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 진행 중이 된 때부터 백분율을 알린다") {
                     runTest {
                         val videoId = testVideoId()
                         val path = tempMusicFilePath(videoId = videoId)
@@ -98,7 +98,7 @@ class YtDlpDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 화면을 받는 단계에서 도구가 50%를 알리면 45%를 알린다") {
+                Then("TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 화면을 받는 단계에서 도구가 50%를 알리면 45%를 알린다") {
                     runTest {
                         val videoId = testVideoId()
                         val progressList = mutableListOf<Float>()
@@ -111,7 +111,7 @@ class YtDlpDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 소리를 받는 단계에서 도구가 100%를 알리면 99%를 알린다") {
+                Then("TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 소리를 받는 단계에서 도구가 100%를 알리면 99%를 알린다") {
                     runTest {
                         val videoId = testVideoId()
                         val progressList = mutableListOf<Float>()
@@ -128,7 +128,7 @@ class YtDlpDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-017 영상과 소리를 합치는 동안 99%에 머물고 다른 백분율을 거치지 않고 끝난다") {
+                Then("TC-d7e83ba0-a2e3-4bac-b1a7-b19f872a3949 영상과 소리를 합치는 동안 99%에 머물고 다른 백분율을 거치지 않고 끝난다") {
                     runTest {
                         val videoId = testVideoId()
                         val progressList = mutableListOf<Float>()
@@ -163,7 +163,7 @@ class YtDlpDownloaderTest :
 
         Given("내려받기가 실패로 끝난다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-006 TC-MUSIC-DOWNLOAD-PROXY-DATA-006 받다 만 파일을 남기지 않는다") {
+                Then("TC-fb645f71-3566-4b33-ba55-307a8865ce79 TC-ec5526aa-e08c-44e8-b2ae-ac0b8cf43cc3 받다 만 파일을 남기지 않는다") {
                     runTest {
                         val videoId = testVideoId()
                         val path = tempMusicFilePath(videoId = videoId)
@@ -182,7 +182,7 @@ class YtDlpDownloaderTest :
 
         Given("yt-dlp가 없다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-005 실행하지 않고 실패로 끝난다") {
+                Then("TC-ee49eb44-ca70-4a6d-b8bb-d719c7f3f210 실행하지 않고 실패로 끝난다") {
                     runTest {
                         val videoId = testVideoId()
                         val commandRunner = mockk<CommandRunner>()

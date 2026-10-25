@@ -51,7 +51,7 @@ class JvmFileLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DOMAIN-003 없는 파일은 크기를 0으로 알리지 않고 읽을 수 없음을 알린다") {
+        test("TC-aab59fbf-b414-4195-aed3-3fecd5be4f91 없는 파일은 크기를 0으로 알리지 않고 읽을 수 없음을 알린다") {
             runTest {
                 val uri = fileUri(bytes = fileBytes())
                 val dataSource = JvmFileLocalDataSource(dispatcher = StandardTestDispatcher(testScheduler))
@@ -61,7 +61,7 @@ class JvmFileLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-023 올리려고 고른 원본 파일은 붙들거나 놓거나 남은 사본을 지워도 지우거나 바꾸지 않는다") {
+        test("TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 올리려고 고른 원본 파일은 붙들거나 놓거나 남은 사본을 지워도 지우거나 바꾸지 않는다") {
             runTest {
                 val bytes = fileBytes()
                 val uri = fileUri(bytes = bytes)

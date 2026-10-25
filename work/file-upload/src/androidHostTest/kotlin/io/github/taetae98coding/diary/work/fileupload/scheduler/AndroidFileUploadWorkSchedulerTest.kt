@@ -68,7 +68,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-016 맡긴 파일의 제목과 설명을 그대로 담아 올리기를 실행하고 끝나면 기기에 둔 제목과 설명을 지운다`() {
+    fun `TC-7b857317-8b88-407f-b455-1e794c6f039b 맡긴 파일의 제목과 설명을 그대로 담아 올리기를 실행하고 끝나면 기기에 둔 제목과 설명을 지운다`() {
         runTest(testDispatcher) {
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
             val request = request()
@@ -82,7 +82,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DATA-021 연결 조건 없이 요청하자 곧바로 올리기를 시작한다`() {
+    fun `TC-da0150d5-c73e-4076-a78f-514a8d001593 연결 조건 없이 요청하자 곧바로 올리기를 시작한다`() {
         runTest(testDispatcher) {
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
             val request = request()
@@ -98,7 +98,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-009 올리는 중인 파일이 끝나기 전에 다른 파일을 요청하면 앞선 파일만 올린다`() {
+    fun `TC-80d42ac1-f55b-4e98-99f3-4f7f49e4b1b7 올리는 중인 파일이 끝나기 전에 다른 파일을 요청하면 앞선 파일만 올린다`() {
         runTest(testDispatcher) {
             val pending = CompletableDeferred<Unit>()
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { pending.await() }
@@ -118,7 +118,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DATA-021 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝나 올리는 파일이 없는 상태가 된다`() {
+    fun `TC-da0150d5-c73e-4076-a78f-514a8d001593 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝나 올리는 파일이 없는 상태가 된다`() {
         runTest(testDispatcher) {
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } throws IOException(fixtureMonkey.giveMeOne<String>())
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
@@ -149,7 +149,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-017 게스트나 다른 계정이 확인되면 올리는 중인 올리기를 취소하고 붙들고 있던 파일을 돌려준다`() {
+    fun `TC-042ef401-f527-4521-ae60-76c65320e5ef 게스트나 다른 계정이 확인되면 올리는 중인 올리기를 취소하고 붙들고 있던 파일을 돌려준다`() {
         runTest(testDispatcher) {
             listOf<Uuid?>(null, fixtureMonkey.giveMeOne<Uuid>()).forEach { exceptAccountId ->
                 coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { awaitCancellation() }
@@ -170,7 +170,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-017 올리기를 시작한 계정이 확인되면 올리는 중인 올리기를 그대로 둔다`() {
+    fun `TC-042ef401-f527-4521-ae60-76c65320e5ef 올리기를 시작한 계정이 확인되면 올리는 중인 올리기를 그대로 둔다`() {
         runTest(testDispatcher) {
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { awaitCancellation() }
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
@@ -191,7 +191,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-019 다시 올릴 예정인 올리기는 게스트나 다른 계정이 확인되면 실행되지 않고 취소된다`() {
+    fun `TC-afd19178-519c-4dcd-976a-ba6c32a376a9 다시 올릴 예정인 올리기는 게스트나 다른 계정이 확인되면 실행되지 않고 취소된다`() {
         runTest(testDispatcher) {
             listOf<Uuid?>(null, fixtureMonkey.giveMeOne<Uuid>()).forEach { exceptAccountId ->
                 val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
@@ -210,7 +210,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-019 다시 올릴 예정인 올리기는 시작한 계정이 확인되면 그대로 남는다`() {
+    fun `TC-afd19178-519c-4dcd-976a-ba6c32a376a9 다시 올릴 예정인 올리기는 시작한 계정이 확인되면 그대로 남는다`() {
         runTest(testDispatcher) {
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
             val request = request()
@@ -225,7 +225,7 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DOMAIN-018 시작한 계정을 알 수 없는 앞선 버전의 올리기는 사용자 계정이 확인되어도 취소된다`() {
+    fun `TC-170a3945-c9d5-4712-b62e-8ae47164dd6d 시작한 계정을 알 수 없는 앞선 버전의 올리기는 사용자 계정이 확인되어도 취소된다`() {
         runTest(testDispatcher) {
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
             val request = request()

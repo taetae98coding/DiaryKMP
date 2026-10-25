@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileListDetailPaneTest :
     FunSpec({
-        test("TC-FILE-LIST-DETAIL-FEATURE-003 선택한 파일이 없거나 FileAdd로 이동했으면 상세 영역에 FileAdd가 놓인다") {
+        test("TC-7e1e3678-bffe-4341-9b07-82c444317948 선택한 파일이 없거나 FileAdd로 이동했으면 상세 영역에 FileAdd가 놓인다") {
             val backStackCases =
                 listOf(
                     listOf(FileHomeNavKey),
@@ -30,7 +30,7 @@ class FileListDetailPaneTest :
             }
         }
 
-        test("TC-FILE-LIST-DETAIL-FEATURE-004 FileDetail로 이동했으면 상세 영역에 FileAdd가 놓이지 않는다") {
+        test("TC-e8b1d116-f857-4329-acb8-5fd73bad2f05 FileDetail로 이동했으면 상세 영역에 FileAdd가 놓이지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, FileHomeNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),

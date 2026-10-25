@@ -35,7 +35,7 @@ class PlaceHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-011 기본 지도를 확인하기 전에는 본문에 지도를 표시하지 않는다`() {
+    fun `TC-999268d9-64bd-45cb-a8f7-301751f4dd80 기본 지도를 확인하기 전에는 본문에 지도를 표시하지 않는다`() {
         setPlaceHomeScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_PROVIDER_DESCRIPTION).assertDoesNotExist()
@@ -44,7 +44,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-011 기본 지도를 확인하기 전에는 뒤로가기와 검색, 보기 모드 전환, 장소 추가만 조작할 수 있다`() {
+    fun `TC-999268d9-64bd-45cb-a8f7-301751f4dd80 기본 지도를 확인하기 전에는 뒤로가기와 검색, 보기 모드 전환, 장소 추가만 조작할 수 있다`() {
         setPlaceHomeScaffold()
 
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe TOP_LEVEL_ACTION_COUNT
@@ -55,7 +55,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-014 장소 추가 버튼을 누르면 추가 이벤트를 한 번 전달한다`() {
+    fun `TC-0846968a-d00a-4664-a1a7-aece9a04f4a5 장소 추가 버튼을 누르면 추가 이벤트를 한 번 전달한다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(onEvent = { event -> eventList.add(event) })
 
@@ -66,14 +66,14 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-015 지도가 표시되지 않아도 장소 추가 버튼을 표시한다`() {
+    fun `TC-dbb61a95-0934-4d89-ab50-f2905f184905 지도가 표시되지 않아도 장소 추가 버튼을 표시한다`() {
         setPlaceHomeScaffold(uiStateProvider = { PlaceHomeUiState.Loading })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-003 뒤로가기 버튼을 누르면 뒤로가기 이벤트를 한 번 전달한다`() {
+    fun `TC-b6807ccb-d4d6-4776-89c6-88c98b70d542 뒤로가기 버튼을 누르면 뒤로가기 이벤트를 한 번 전달한다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(onEvent = { event -> eventList.add(event) })
 
@@ -84,7 +84,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-008 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
+    fun `TC-85250a22-544b-45f6-b5df-044013a86a44 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(
             uiStateProvider = { PlaceHomeUiState.Loading },
@@ -98,7 +98,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-021 지도가 표시되지 않으면 장소 카드를 표시하지 않는다`() {
+    fun `TC-415d2502-9395-4180-bdeb-eed7c2f15235 지도가 표시되지 않으면 장소 카드를 표시하지 않는다`() {
         setPlaceHomeScaffold(
             uiStateProvider = { PlaceHomeUiState.Loading },
             placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = List(PLACE_COUNT) { place() }) },
@@ -118,7 +118,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-052 검색 버튼을 누르면 검색 이벤트를 한 번 전달한다`() {
+    fun `TC-be17e8d9-736b-40c8-9704-01490fc3c0cf 검색 버튼을 누르면 검색 이벤트를 한 번 전달한다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(onEvent = { event -> eventList.add(event) })
 
@@ -129,7 +129,7 @@ class PlaceHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-053 지도가 표시되지 않아도 검색 버튼을 표시한다`() {
+    fun `TC-41fc41e1-dd6c-4625-924f-7c992bc83387 지도가 표시되지 않아도 검색 버튼을 표시한다`() {
         setPlaceHomeScaffold(uiStateProvider = { PlaceHomeUiState.Loading })
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_DESCRIPTION).assert(hasClickAction())

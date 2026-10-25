@@ -31,7 +31,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-047 로그인 정보를 가져오는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
+    fun `TC-f117a124-06f3-42eb-af49-da9a1bad9df5 로그인 정보를 가져오는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
         setDiaryWebView(session = DiaryWebSession(isPreparing = true))
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
@@ -39,7 +39,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-050 가져오는 중이 아니면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
+    fun `TC-fcdc5498-e502-467d-a4af-67e4bd7bc361 가져오는 중이 아니면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
         setDiaryWebView(session = DiaryWebSession())
 
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
@@ -62,7 +62,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-052 TC-WEB-DETAIL-FEATURE-053 가져오기가 시작되면 진행 표시로 바뀌고 끝나면 웹 표시 수단이 다시 열린다`() {
+    fun `TC-3a2b7c2b-d44c-4454-a6b0-42b409f82495 TC-46cc26ce-4c78-4aa8-881a-726c5004305b 가져오기가 시작되면 진행 표시로 바뀌고 끝나면 웹 표시 수단이 다시 열린다`() {
         setDiaryWebView(session = DiaryWebSession())
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
 
@@ -76,7 +76,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-049 가져오기가 실패로 끝나면 한 번 알리고 웹 표시 수단이 주소를 연다`() {
+    fun `TC-26869b48-2548-44ea-9c03-6ce75c277fc3 가져오기가 실패로 끝나면 한 번 알리고 웹 표시 수단이 주소를 연다`() {
         val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
 
         setDiaryWebView(session = DiaryWebSession(isPreparing = true), onSessionImportFailed = onSessionImportFailed)
@@ -87,7 +87,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-054 들어왔을 때 마지막 결과가 실패였으면 한 번 알린다`() {
+    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 결과가 실패였으면 한 번 알린다`() {
         val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
 
         setDiaryWebView(session = DiaryWebSession(failureId = 1), onSessionImportFailed = onSessionImportFailed)
@@ -117,7 +117,7 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-044 화면이 재생성되어도 이미 알린 실패를 다시 알리지 않는다`() {
+    fun `TC-dc502268-12a5-42b9-bbc2-399e4ee17155 화면이 재생성되어도 이미 알린 실패를 다시 알리지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
 

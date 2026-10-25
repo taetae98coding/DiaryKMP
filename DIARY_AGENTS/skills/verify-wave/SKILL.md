@@ -79,10 +79,12 @@ detekt는 모듈마다 자기 소스만 검사해 다른 모듈의 결과에 영
 추적 검토의 대상은 slug 단위로 정한다. 다음 중 하나라도 해당하면 그 slug를 대상에 넣는다.
 
 - `docs/spec/{client,common,server}/<slug>.md`, `docs/design/<slug>.md`, `docs/testcase/<slug>.md` 중 하나가 바뀌었다.
-- 바뀐 테스트 코드가 `TC-<SLUG>-...` ID를 참조한다.
+- 바뀐 테스트 코드가 참조하는 `TC-<UUID>` ID가 `docs/testcase/<slug>.md`에 있다. `rg -l <ID> docs/testcase`로 찾는다.
 - 바뀐 제품 코드가 그 slug의 스펙이 다루는 화면·기능에 속한다. 어느 slug인지는 [docs/spec/README.md](../../../docs/spec/README.md) 목록과 기능 이름으로 찾는다.
 
 대상 파일과 대상 slug가 모두 없으면 검토를 건너뛴다.
+
+바뀐 테스트 파일이 있으면 위 건너뛰기와 무관하게 이 세션이 문서에 없는 ID를 점검한다. 바뀐 테스트 파일 전체에서 `rg -o 'TC-[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}'`로 ID를 모으고, `docs/testcase`의 어느 문서에서도 찾지 못한 ID를 `테스트 코드 누락·불일치`로 `결과 반영`에 더한다. slug를 정할 수 없어 추적 검토가 찾지 못하기 때문이다. 이 점검은 재위임 때마다 다시 하고, 남은 ID는 `반복 제한`과 `통과 조건`에서 검토가 확인한 문제와 같이 센다.
 
 ### 검토 위임
 
@@ -118,14 +120,14 @@ detekt는 모듈마다 자기 소스만 검사해 다른 모듈의 결과에 영
 
 대상 slug: <slug 목록>
 
-먼저 `docs/README.md`, `docs/spec/README.md`, `docs/testcase/README.md`, `DIARY_AGENTS/skills/spec-wave/SKILL.md`, `DIARY_AGENTS/skills/testcase-wave/SKILL.md`, `DIARY_AGENTS/skills/testcode-wave/SKILL.md`를 읽는다. 각 slug의 `docs/spec/{client,common,server}/<slug>.md`, `docs/design/<slug>.md`, `docs/testcase/<slug>.md`와 그 문서가 링크하는 공통 문서를 읽고, 테스트 코드는 `TC-<SLUG>-` ID로 찾으며, 제품 코드는 기능 이름으로 찾는다.
+먼저 `docs/README.md`, `docs/spec/README.md`, `docs/testcase/README.md`, `DIARY_AGENTS/skills/spec-wave/SKILL.md`, `DIARY_AGENTS/skills/testcase-wave/SKILL.md`, `DIARY_AGENTS/skills/testcode-wave/SKILL.md`를 읽는다. 각 slug의 `docs/spec/{client,common,server}/<slug>.md`, `docs/design/<slug>.md`, `docs/testcase/<slug>.md`와 그 문서가 링크하는 공통 문서를 읽고, 테스트 코드는 테스트 케이스 문서의 각 `TC-<UUID>` ID를 `rg`로 검색해 찾으며, 제품 코드는 기능 이름으로 찾는다.
 
 다음 네 단계를 차례로 확인한다.
 
 1. 스펙: 정하지 않은 분기나 결과(빈틈), 같은 대상을 다르게 정한 다른 스펙(충돌), `docs/spec/README.md`의 `폴더 구분`에 맞지 않는 소유, `서술 수준`이 요구하는 항목(갱신 방식, 새로고침 방식, 표시 조건, 입력 저장 시점, 실행 경계)의 누락, 금지 용어.
 2. 구현: 제품 코드가 스펙과 디자인이 정한 동작과 다르게 동작하는 곳.
 3. 테스트 케이스: 스펙의 규칙 중 블랙박스로 검증할 수 있는데 케이스가 없는 것(누락), 스펙과 기대 결과가 다른 케이스, 근거 절이 스펙에 없는 케이스, 중복 ID, `작성하지 않는 이유`가 testcase-wave 기준에 맞지 않는 것.
-4. 테스트 코드: `작성하지 않는 이유`가 없는 케이스 중 그 ID를 이름에 포함한 테스트가 없는 것(누락), 케이스의 Given·When·Then과 다른 것을 검증하거나 기대 결과를 확인하지 않는 테스트, 문서에 없는 ID를 쓰는 테스트, testcode-wave 규칙 위반.
+4. 테스트 코드: `작성하지 않는 이유`가 없는 케이스 중 그 ID를 이름에 포함한 테스트가 없는 것(누락), 케이스의 Given·When·Then과 다른 것을 검증하거나 기대 결과를 확인하지 않는 테스트, testcode-wave 규칙 위반.
 
 근거를 확인할 수 없는 추측은 보고하지 않는다. 수정하지 않는다. 보고만 한다.
 

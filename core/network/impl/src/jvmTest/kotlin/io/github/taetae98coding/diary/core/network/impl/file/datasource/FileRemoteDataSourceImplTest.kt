@@ -104,7 +104,7 @@ class FileRemoteDataSourceImplTest :
             coVerify(exactly = 1) { transport.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
         }
 
-        test("TC-FILE-STORAGE-DATA-001 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {
+        test("TC-c3c9a856-e7b9-41c7-b35b-025cbe78c827 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {
             val size = fixtureMonkey.giveMeOne<Int>()
             val fileList = List(2) { fixtureMonkey.giveMeOne<FileRemoteEntity>() }
             val requestSlot = slot<FileListRequestRemoteEntity>()
@@ -126,7 +126,7 @@ class FileRemoteDataSourceImplTest :
             actual shouldBe fileList
         }
 
-        test("TC-FILE-STORAGE-DATA-002 이어서 불러올 때 마지막 파일의 올린 시각과 식별자를 보낸다") {
+        test("TC-e83464f1-ff45-45d4-b832-57f4b4f82143 이어서 불러올 때 마지막 파일의 올린 시각과 식별자를 보낸다") {
             val cursor = fixtureMonkey.giveMeOne<FileCursorRemoteEntity>()
             val requestSlot = slot<FileListRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
@@ -153,7 +153,7 @@ class FileRemoteDataSourceImplTest :
 
             json shouldBe """{"cursor":{"createdAt":"${cursor.createdAt}","id":"${cursor.id}"},"size":20}"""
         }
-        test("TC-FILE-STORAGE-DATA-030 파일 하나의 정보를 식별자로 요청하고, 찾을 수 없으면 찾을 수 없음으로 알린다") {
+        test("TC-2209b4c9-9d1b-41ca-a863-6c755564b60c 파일 하나의 정보를 식별자로 요청하고, 찾을 수 없으면 찾을 수 없음으로 알린다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val requestSlot = slot<FileIdRequestRemoteEntity>()
@@ -172,7 +172,7 @@ class FileRemoteDataSourceImplTest :
             shouldThrow<FileNotFoundRemoteException> { dataSource.read(id = id) }
         }
 
-        test("TC-FILE-STORAGE-DATA-031 정보 고치기는 식별자와 이름, 제목, 설명을 함께 보낸다") {
+        test("TC-cd6be59f-06d7-4587-ab0a-6668ae6dd1f4 정보 고치기는 식별자와 이름, 제목, 설명을 함께 보낸다") {
             val request = fixtureMonkey.giveMeOne<FileUpdateRequestRemoteEntity>()
             val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val requestSlot = slot<FileUpdateRequestRemoteEntity>()
@@ -187,7 +187,7 @@ class FileRemoteDataSourceImplTest :
             Json.encodeToString(request) shouldBe """{"id":"${request.id}","name":${Json.encodeToString(request.name)},"title":${Json.encodeToString(request.title)},"description":${Json.encodeToString(request.description)}}"""
         }
 
-        test("TC-FILE-DOWNLOAD-DATA-003 서버가 내준 임시 주소에서 받은 내용을 그대로 쓴다") {
+        test("TC-c8dace87-717c-4c9c-a6af-7c9edef184b1 서버가 내준 임시 주소에서 받은 내용을 그대로 쓴다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val content = fixtureMonkey.giveMeOne<ByteArray>()
             val url = "https://storage.example/${fixtureMonkey.giveMeOne<Int>()}"
@@ -203,7 +203,7 @@ class FileRemoteDataSourceImplTest :
             sink.readByteArray() shouldBe content
         }
 
-        test("TC-FILE-DOWNLOAD-FEATURE-003 임시 주소가 실패로 응답하거나 받은 내용이 알린 크기보다 짧으면 실패로 끝난다") {
+        test("TC-eff813ca-20ff-4336-a492-fa49b3a3374e 임시 주소가 실패로 응답하거나 받은 내용이 알린 크기보다 짧으면 실패로 끝난다") {
             listOf(
                 MockEngine { respond(content = "", status = HttpStatusCode.Forbidden) },
                 MockEngine { respond(content = byteArrayOf(1, 2), headers = headersOf(HttpHeaders.ContentLength, "5")) },

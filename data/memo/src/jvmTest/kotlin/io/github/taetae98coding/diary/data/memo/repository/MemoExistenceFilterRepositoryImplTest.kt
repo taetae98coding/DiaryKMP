@@ -26,7 +26,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class MemoExistenceFilterRepositoryImplTest :
     FunSpec({
-        test("TC-MEMO-HOME-DATA-011 유지된 유무 필터가 없으면 세 축을 전체로 조회한다") {
+        test("TC-c5680cae-322b-4917-86c4-31904d3eb10b 유지된 유무 필터가 없으면 세 축을 전체로 조회한다") {
             val localDataSource = mockk<MemoExistenceFilterLocalDataSource>()
             every { localDataSource.find() } returns flowOf(null)
             val repository = MemoExistenceFilterRepositoryImpl(memoExistenceFilterLocalDataSource = localDataSource)
@@ -59,7 +59,7 @@ class MemoExistenceFilterRepositoryImplTest :
             } shouldBe failure
         }
 
-        test("TC-MEMO-HOME-DATA-010 축 저장은 그 축의 값만 저장소에 전달한다") {
+        test("TC-76fa8f4d-5f72-4699-8501-75a9d2891d5d 축 저장은 그 축의 값만 저장소에 전달한다") {
             val localDataSource = mockk<MemoExistenceFilterLocalDataSource>()
             coEvery { localDataSource.upsertHasDate(hasDate = any()) } just Runs
             coEvery { localDataSource.upsertHasTag(hasTag = any()) } just Runs

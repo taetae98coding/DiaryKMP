@@ -50,7 +50,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SEARCH-HOME-FEATURE-002 질의를 입력하면 그 질의로 조회한 결과를 노출한다") {
+        test("TC-346988d0-4bef-426f-84c5-0f9054e4072e 질의를 입력하면 그 질의로 조회한 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList)))
@@ -67,7 +67,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-003 질의를 바꾸면 바뀐 질의의 결과를 노출한다") {
+        test("TC-bfe7428a-4630-4061-a412-7e2dfb88cd9a 질의를 바꾸면 바뀐 질의의 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val otherMemoList = listOf(searchMemo(title = "주간 회의록"))
@@ -98,7 +98,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-004 질의를 비우면 결과가 비워진다") {
+        test("TC-c4fe9d3f-01c4-4b1a-a7bb-2fd1ca334fdb 질의를 비우면 결과가 비워진다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList)))
@@ -119,7 +119,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-045 질의를 공백만 남기면 기다리지 않고 곧바로 결과가 비워진다") {
+        test("TC-9dc996e0-4713-42ff-825c-75ab1f1e7c8d 질의를 공백만 남기면 기다리지 않고 곧바로 결과가 비워진다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList)))
@@ -142,7 +142,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-048 처음 보는 유형은 받은 질의를 기다리지 않고 곧바로 반영한다") {
+        test("TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 처음 보는 유형은 받은 질의를 기다리지 않고 곧바로 반영한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "주간 회의록"))
                 val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(OTHER_QUERY to memoList)), isQueryShown = false)
@@ -159,7 +159,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-048 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 받은 질의를 곧바로 반영한다") {
+        test("TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 받은 질의를 곧바로 반영한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val otherMemoList = listOf(searchMemo(title = "주간 회의록"))
@@ -218,7 +218,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-019 메모리 정리 뒤 새로 만든 유형 결과는 빈 결과를 거치지 않고 알린 질의의 결과부터 보여 준다") {
+        test("TC-9ea84aad-f762-440e-81c7-030c8a398189 메모리 정리 뒤 새로 만든 유형 결과는 빈 결과를 거치지 않고 알린 질의의 결과부터 보여 준다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
                 val searchMemoUseCase = searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList))
@@ -260,7 +260,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-017 메모 결과를 조회하지 못하면 빈 결과를 노출한다") {
+        test("TC-a463251f-bc66-4f34-b83a-184e76b8e745 메모 결과를 조회하지 못하면 빈 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(searchMemoUseCase(failurePagingDataFlow()))
 
@@ -268,7 +268,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-011 저장된 항목이 바뀌면 보고 있는 유형의 결과가 갱신된다") {
+        test("TC-55b41830-5dd2-442f-ad02-4fb73a8e0e4f 저장된 항목이 바뀌면 보고 있는 유형의 결과가 갱신된다") {
             runTest(mainDispatcher) {
                 val first = searchMemo(title = "여름 여행 계획")
                 val second = searchMemo(title = "여행 준비물")

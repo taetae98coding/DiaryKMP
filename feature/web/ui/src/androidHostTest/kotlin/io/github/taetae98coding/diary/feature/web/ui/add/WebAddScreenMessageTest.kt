@@ -25,46 +25,46 @@ class WebAddScreenMessageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-006 기본 환경 추가 성공 안내`() {
+    fun `TC-4ac55fda-94a5-47c5-95f9-02b1174ebe39 기본 환경 추가 성공 안내`() {
         assertMessage(effect = WebAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-ADD-FEATURE-006 한국어 추가 성공 안내`() {
+    fun `TC-4ac55fda-94a5-47c5-95f9-02b1174ebe39 한국어 추가 성공 안내`() {
         assertMessage(effect = WebAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-008 기본 환경 제목 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 기본 환경 제목 미입력 안내`() {
         assertMessage(effect = WebAddEffect.TitleBlank, expectedMessage = DEFAULT_TITLE_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-ADD-FEATURE-008 한국어 제목 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 한국어 제목 미입력 안내`() {
         assertMessage(effect = WebAddEffect.TitleBlank, expectedMessage = KOREAN_TITLE_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-008 기본 환경 URL 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 기본 환경 URL 미입력 안내`() {
         assertMessage(effect = WebAddEffect.UrlBlank, expectedMessage = DEFAULT_URL_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-ADD-FEATURE-008 한국어 URL 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 한국어 URL 미입력 안내`() {
         assertMessage(effect = WebAddEffect.UrlBlank, expectedMessage = KOREAN_URL_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-008 기본 환경 헤더 이름 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 기본 환경 헤더 이름 미입력 안내`() {
         assertMessage(effect = WebAddEffect.HeaderNameBlank, expectedMessage = DEFAULT_HEADER_NAME_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-ADD-FEATURE-008 한국어 헤더 이름 미입력 안내`() {
+    fun `TC-d52a44ef-3403-440f-89a4-14d551346c81 한국어 헤더 이름 미입력 안내`() {
         assertMessage(effect = WebAddEffect.HeaderNameBlank, expectedMessage = KOREAN_HEADER_NAME_BLANK_MESSAGE)
     }
 

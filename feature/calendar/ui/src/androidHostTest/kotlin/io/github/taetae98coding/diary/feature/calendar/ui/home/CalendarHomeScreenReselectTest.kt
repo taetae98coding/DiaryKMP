@@ -37,7 +37,7 @@ class CalendarHomeScreenReselectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-010 캘린더 목적지를 다시 선택하면 오늘이 속한 달로 돌아간다`() {
+    fun `TC-7c88772e-21af-439d-a716-0c9ff1c84cc9 캘린더 목적지를 다시 선택하면 오늘이 속한 달로 돌아간다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -57,7 +57,7 @@ class CalendarHomeScreenReselectTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-010 이미 오늘이 속한 달을 보고 있으면 보던 달을 유지한다`() {
+    fun `TC-e8c22e00-ba72-44a3-af1b-6bae10c5d492 이미 오늘이 속한 달을 보고 있으면 보던 달을 유지한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val reselectEvent = reselectEvent()
         setCalendarHomeScreen(reselectEvent = reselectEvent)

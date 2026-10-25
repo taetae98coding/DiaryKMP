@@ -37,7 +37,7 @@ class PageFinishedMemoUseCaseTest :
                 )
 
             When("완료된 메모 목록 페이지를 조회한다") {
-                Then("TC-MEMO-FINISHED-LIST-DATA-001 현재 계정의 완료된 메모 페이지를 반환한다") {
+                Then("TC-a0437ed6-af73-40b1-9476-537e4aae6df0 현재 계정의 완료된 메모 페이지를 반환한다") {
                     useCase(parameter = ListSort.DEFAULT).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()
@@ -46,7 +46,7 @@ class PageFinishedMemoUseCaseTest :
                     verify(exactly = 1) { accountMemoRepository.pageFinished(account = account, sort = ListSort.DEFAULT) }
                 }
 
-                Then("TC-MEMO-FINISHED-LIST-DATA-002 태그 필터가 적용되는 목록 조회를 요청하지 않는다") {
+                Then("TC-0a5654f9-bf77-4a13-a609-e635dc4e57c6 태그 필터가 적용되는 목록 조회를 요청하지 않는다") {
                     useCase(parameter = ListSort.DEFAULT).test {
                         awaitItem()
                         awaitComplete()

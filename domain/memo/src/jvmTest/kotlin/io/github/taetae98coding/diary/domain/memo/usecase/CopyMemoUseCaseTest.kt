@@ -76,7 +76,7 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-MEMO-DETAIL-DATA-013 원본의 내용을 가진 새 메모를 현재 계정과 연결해 저장하고 복사본 식별자를 반환한다") {
+                Then("TC-bd60cef5-db8c-45ef-832d-69584bb995b4 원본의 내용을 가진 새 메모를 현재 계정과 연결해 저장하고 복사본 식별자를 반환한다") {
                     val result = useCase(parameter = source.id)
 
                     coVerify(exactly = 1) { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any()) }
@@ -90,7 +90,7 @@ class CopyMemoUseCaseTest :
                     memo.updatedAt shouldBe now
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-016 원본 메모와 원본의 태그 연결을 바꾸지 않는다") {
+                Then("TC-3b6dbf5c-2d5b-4df5-a232-6aac9ce5e9fc 원본 메모와 원본의 태그 연결을 바꾸지 않는다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()
@@ -139,7 +139,7 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-017 복사본을 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-8059acfd-60f0-43fa-a054-a64fd8a30d10 복사본을 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()
@@ -192,7 +192,7 @@ class CopyMemoUseCaseTest :
                     )
 
                 When("메모를 복사한다") {
-                    Then("TC-MEMO-DETAIL-DATA-014 복사본은 완료되지 않고 삭제되지 않은 상태로 저장된다") {
+                    Then("TC-6ab308a5-c9d6-45b5-80c8-93360160c4cf 복사본은 완료되지 않고 삭제되지 않은 상태로 저장된다") {
                         val result = useCase(parameter = source.id)
 
                         result.shouldBeSuccess()
@@ -242,7 +242,7 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-MEMO-DETAIL-DATA-015 원본의 연결된 태그와 대표 태그가 복사본에 저장된다") {
+                Then("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 원본의 연결된 태그와 대표 태그가 복사본에 저장된다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()
@@ -292,14 +292,14 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-MEMO-DETAIL-DATA-028 원본의 연결된 웹 항목이 복사본에 저장된다") {
+                Then("TC-9c7bd95c-487e-455e-944e-6a97d5782f22 원본의 연결된 웹 항목이 복사본에 저장된다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()
                     webIdSetSlot.captured shouldBe setOf(firstWebId, secondWebId)
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-029 원본의 웹 연결은 바뀌지 않는다") {
+                Then("TC-a96de431-de17-4616-83e4-4120aa0b7a74 원본의 웹 연결은 바뀌지 않는다") {
                     useCase(parameter = source.id).shouldBeSuccess()
 
                     coVerify(exactly = 0) {
@@ -399,14 +399,14 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-MEMO-DETAIL-DATA-039 원본의 연결된 장소가 복사본에 저장된다") {
+                Then("TC-cefb7901-6efe-4374-b3c9-e17dca8df9d7 원본의 연결된 장소가 복사본에 저장된다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()
                     placeIdSetSlot.captured shouldBe setOf(firstPlaceId, secondPlaceId)
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-041 원본의 장소 연결은 바뀌지 않는다") {
+                Then("TC-b52d0427-3143-4c4d-8ed8-56552666a312 원본의 장소 연결은 바뀌지 않는다") {
                     useCase(parameter = source.id).shouldBeSuccess()
 
                     coVerify(exactly = 0) {

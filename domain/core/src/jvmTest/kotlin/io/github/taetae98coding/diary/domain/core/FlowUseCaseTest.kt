@@ -29,7 +29,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 관찰한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-002 실패한 작업의 이름이 태그로, 실패 원인이 오류 정보로 남는다") {
+                Then("TC-28ec08f7-b94c-40aa-a1b8-fd3d949171ad 실패한 작업의 이름이 태그로, 실패 원인이 오류 정보로 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingFlowUseCase(throwable = failure)
 
@@ -51,7 +51,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 한 번 관찰한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-013 실패를 전달한 뒤 관찰이 끝나고 실패 로그는 한 번만 남는다") {
+                Then("TC-6562f13e-51d3-4c9c-a1c9-604783c587e8 실패를 전달한 뒤 관찰이 끝나고 실패 로그는 한 번만 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val values = fixtureMonkey.giveMeOne<List<String>>().ifEmpty { listOf(fixtureMonkey.giveMeOne<String>()) }
                     val useCase = EmitThenFailFlowUseCase(values = values, throwable = failure)
@@ -72,7 +72,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("바깥 작업을 관찰한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-014 실패는 결과로 전달되고 안쪽 작업 이름의 실패 로그 하나만 남는다") {
+                Then("TC-f8ba9a1c-4bbe-4a12-9e00-527a7a8fdcd6 실패는 결과로 전달되고 안쪽 작업 이름의 실패 로그 하나만 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = RelayingFlowUseCase(inner = FailingFlowUseCase(throwable = failure))
 
@@ -95,7 +95,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("같은 작업을 두 번 관찰한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-003 실패 로그가 두 번 남는다") {
+                Then("TC-ffab2916-0d70-4877-b321-ec59083a40e9 실패 로그가 두 번 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingFlowUseCase(throwable = failure)
 
@@ -116,7 +116,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 관찰한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-004 실패 로그가 남지 않는다") {
+                Then("TC-ab12ade8-95b3-443e-ba83-0b1fda65f82a 실패 로그가 남지 않는다") {
                     val useCase = SuccessFlowUseCase()
                     val parameter = fixtureMonkey.giveMeOne<String>()
 
@@ -135,7 +135,7 @@ class FlowUseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("관찰 중이던 작업을 중단한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-005 실패 로그가 남지 않는다") {
+                Then("TC-9f2cf9fb-cb64-462f-a7e3-efc210cd71ce 실패 로그가 남지 않는다") {
                     val useCase = AwaitCancellationFlowUseCase()
                     val parameter = fixtureMonkey.giveMeOne<String>()
 

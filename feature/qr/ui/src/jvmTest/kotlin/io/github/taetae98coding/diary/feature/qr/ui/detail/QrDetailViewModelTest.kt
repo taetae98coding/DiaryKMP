@@ -54,7 +54,7 @@ class QrDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-QR-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용과 기본 지도로 내용 상태를 만든다") {
+        test("TC-333ab481-c071-43fd-949b-d8cf7eab137a 조회에 성공하면 저장된 내용과 기본 지도로 내용 상태를 만든다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val provider = fixtureMonkey.giveMeOne<MapProvider>()
@@ -65,7 +65,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-004 조회할 수 없거나 조회에 실패하면 조회 중 상태를 유지한다") {
+        test("TC-5a5b29f7-020d-42cd-b72d-4d2d32798b6a 조회할 수 없거나 조회에 실패하면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
 
@@ -78,7 +78,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-018 저장 내용이 바뀌면 최신 저장 내용으로 내용 상태를 갱신한다") {
+        test("TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장 내용이 바뀌면 최신 저장 내용으로 내용 상태를 갱신한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val stored = MutableStateFlow(Result.success<Qr?>(qr))
@@ -93,7 +93,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-019 대상 QR이 삭제 상태가 되어도 내용 상태를 유지한다") {
+        test("TC-94215a34-ec84-474f-8e4e-9f1c803a4123 대상 QR이 삭제 상태가 되어도 내용 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val stored = MutableStateFlow(Result.success<Qr?>(qr))
@@ -107,7 +107,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-007 수정에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-6eac81d7-9218-4b4d-a57e-205557922e2e 수정에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val detail = fixtureMonkey.qrDetail()
@@ -128,7 +128,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-011 QR 값이 비어 있으면 QR 내용 미입력 Effect를 보낸다") {
+        test("TC-153eb53d-f3c0-40fc-90e8-dad2749d8e37 QR 값이 비어 있으면 QR 내용 미입력 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val detail = fixtureMonkey.qrDetail(value = "")
@@ -146,7 +146,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-009 수정에 실패하면 Effect 없이 진행 상태만 해제한다") {
+        test("TC-69797177-9c6a-4a07-9ba0-c2b3456f28cb 수정에 실패하면 Effect 없이 진행 상태만 해제한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
@@ -165,7 +165,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-008 TC-QR-DETAIL-FEATURE-016 수정과 삭제를 처리하는 동안 각각의 진행 상태를 표시한다") {
+        test("TC-84cc1f19-bc56-4814-a68f-4515f6341e96 TC-b92856e6-8878-4d39-a0f2-b7bc32b3e0d3 수정과 삭제를 처리하는 동안 각각의 진행 상태를 표시한다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
@@ -186,7 +186,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-015 삭제에 성공하면 삭제 Effect를 한 번 보낸다") {
+        test("TC-0aadb52b-f4a6-4bc0-8a09-5c9199f61191 삭제에 성공하면 삭제 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -203,7 +203,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-FEATURE-017 삭제에 실패하면 Effect 없이 진행 상태만 해제하고 다시 삭제할 수 있다") {
+        test("TC-cbfe4221-3939-44f4-9df0-58694614893d 삭제에 실패하면 Effect 없이 진행 상태만 해제하고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -225,7 +225,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-006 같은 종류의 요청은 처리 중에 다시 처리하지 않고 다른 종류는 제한하지 않는다") {
+        test("TC-b5ffe15e-b5a8-4f42-9fbf-6bec81e647ed 같은 종류의 요청은 처리 중에 다시 처리하지 않고 다른 종류는 제한하지 않는다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
@@ -247,7 +247,7 @@ class QrDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-006 삭제를 처리하는 동안 실행한 수정은 요청된다") {
+        test("TC-b5ffe15e-b5a8-4f42-9fbf-6bec81e647ed 삭제를 처리하는 동안 실행한 수정은 요청된다") {
             runTest(mainDispatcher) {
                 val qr = fixtureMonkey.qr(isDeleted = false)
                 val updateQrUseCase = mockk<UpdateQrUseCase>()

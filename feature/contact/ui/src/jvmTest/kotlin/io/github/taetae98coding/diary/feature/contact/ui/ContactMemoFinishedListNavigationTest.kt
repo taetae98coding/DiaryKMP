@@ -23,7 +23,7 @@ import kotlin.uuid.Uuid
 
 class ContactMemoFinishedListNavigationTest :
     FunSpec({
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-001 TC-CONTACT-DETAIL-MEMO-FEATURE-031 ContactMemoFinishedList 화면은 연락처 배치에 참여하지 않고 목록·상세 배치의 목록 pane이다") {
+        test("TC-5f1f1653-fb84-43b8-a141-9c607a7509cb TC-1f3e8381-66d9-46b9-8a42-f08940011448 ContactMemoFinishedList 화면은 연락처 배치에 참여하지 않고 목록·상세 배치의 목록 pane이다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedListKey = ContactMemoFinishedListNavKey(contactId = contactId)
             val backStack = listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), finishedListKey)
@@ -32,7 +32,7 @@ class ContactMemoFinishedListNavigationTest :
             backStack.isContactListDetailPane(finishedListKey) shouldBe false
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-011 TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-017 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 ContactDetail로 돌아간다") {
+        test("TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 TC-5ecf6737-24b8-40d6-a688-4586275ef513 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 ContactDetail로 돌아간다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val detailCases =
                 listOf(
@@ -50,7 +50,7 @@ class ContactMemoFinishedListNavigationTest :
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-001 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
+        test("TC-596310d4-4fae-4202-8fe4-836b51aaded6 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val openCases =
                 listOf(
@@ -70,7 +70,7 @@ class ContactMemoFinishedListNavigationTest :
             }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
+        test("TC-a1f401a9-7510-4695-9b53-528000c3ef8f 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack = finishedListBackStack(contactId = contactId, finishedDetailKeyList = emptyList())
@@ -81,7 +81,7 @@ class ContactMemoFinishedListNavigationTest :
                 listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId), MemoDetailNavKey(id = memoId))
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-004 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
+        test("TC-3f4ed8d9-89a8-4af4-8fd3-b085c6961e97 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack =
@@ -96,7 +96,7 @@ class ContactMemoFinishedListNavigationTest :
                 listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId), MemoDetailNavKey(id = selectedId))
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
+        test("TC-4be4919a-3bf7-40a7-966e-bb19deac0d00 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val openCases =
                 listOf(

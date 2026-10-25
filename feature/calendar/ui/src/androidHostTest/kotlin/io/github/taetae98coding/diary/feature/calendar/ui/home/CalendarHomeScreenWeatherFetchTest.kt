@@ -50,7 +50,7 @@ class CalendarHomeScreenWeatherFetchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-020 화면이 표시되면 현재 위치의 날씨를 동기화한다`() {
+    fun `TC-b42c8d89-6747-4104-a560-b1d2ea5f6a8f 화면이 표시되면 현재 위치의 날씨를 동기화한다`() {
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(weatherViewModel = weatherViewModel)
@@ -60,7 +60,7 @@ class CalendarHomeScreenWeatherFetchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-022 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
+    fun `TC-aac88cdb-1fb7-4741-9e2f-6a0b96e28565 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } returns
             Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -94,7 +94,7 @@ class CalendarHomeScreenWeatherFetchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-024 달을 이동해도 날씨를 다시 동기화하지 않는다`() {
+    fun `TC-60b12cd8-8411-4099-8982-386a0dd21f09 달을 이동해도 날씨를 다시 동기화하지 않는다`() {
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(weatherViewModel = weatherViewModel)

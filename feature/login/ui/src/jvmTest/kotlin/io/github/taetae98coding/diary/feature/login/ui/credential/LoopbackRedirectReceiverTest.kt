@@ -23,7 +23,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class LoopbackRedirectReceiverTest :
     FunSpec({
-        test("TC-LOGIN-DATA-013 로컬 수신 주소로 돌아온 idToken과 이번 시도의 상태 값을 이번 시도의 인증 결과로 받고 결과 페이지를 표시한다") {
+        test("TC-3b0309cb-52e6-4c3b-9873-659955f314c5 로컬 수신 주소로 돌아온 idToken과 이번 시도의 상태 값을 이번 시도의 인증 결과로 받고 결과 페이지를 표시한다") {
             val idToken = "id-token-${fixtureMonkey.nonBlankString()}"
 
             LoopbackRedirectReceiver(locale = Locale.KOREAN).use { receiver ->
@@ -41,7 +41,7 @@ class LoopbackRedirectReceiverTest :
             }
         }
 
-        test("TC-LOGIN-DATA-016 로컬 수신 주소로 돌아온 Google 인가 코드와 이번 시도의 코드 확인 값, 수신 주소를 인증 결과로 받고 결과 페이지를 표시한다") {
+        test("TC-918b515f-895e-404c-b961-0519c08dfaab 로컬 수신 주소로 돌아온 Google 인가 코드와 이번 시도의 코드 확인 값, 수신 주소를 인증 결과로 받고 결과 페이지를 표시한다") {
             val code = "code-${fixtureMonkey.nonBlankString()}"
             val clientId = "${fixtureMonkey.giveMeOne<Long>().toULong()}.apps.googleusercontent.com"
 
@@ -62,7 +62,7 @@ class LoopbackRedirectReceiverTest :
             }
         }
 
-        test("TC-LOGIN-DATA-017 응답을 받아 기다리기를 마친 로컬 수신 주소는 더 이상 요청을 받지 않는다") {
+        test("TC-a0e45890-762c-4fa3-b70b-dc7f4f623d9e 응답을 받아 기다리기를 마친 로컬 수신 주소는 더 이상 요청을 받지 않는다") {
             val receiver = LoopbackRedirectReceiver()
             val redirectUri = receiver.redirectUri
 
@@ -74,7 +74,7 @@ class LoopbackRedirectReceiverTest :
             shouldThrow<ConnectException> { get(redirectUri) }
         }
 
-        test("TC-LOGIN-DATA-018 오류 응답을 그대로 받고 결과 페이지에는 오류 내용 없이 기본 문구를 표시한다") {
+        test("TC-bc491e20-5986-4a32-a558-8752e1e9a095 오류 응답을 그대로 받고 결과 페이지에는 오류 내용 없이 기본 문구를 표시한다") {
             val error = "error-${fixtureMonkey.nonBlankString()}"
             val state = "state-${fixtureMonkey.nonBlankString()}"
 

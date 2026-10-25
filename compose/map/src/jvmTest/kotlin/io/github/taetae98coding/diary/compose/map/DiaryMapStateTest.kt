@@ -109,7 +109,7 @@ class DiaryMapStateTest :
             state.bounds.shouldBeNull()
         }
 
-        test("TC-DIARY-MAP-DOMAIN-034: 지도가 알려온 카메라의 보이는 영역을 확인한다") {
+        test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 카메라의 보이는 영역을 확인한다") {
             val bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()
             val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = bounds)
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -119,7 +119,7 @@ class DiaryMapStateTest :
             state.bounds shouldBe bounds
         }
 
-        test("TC-DIARY-MAP-DOMAIN-035: 알려온 카메라에 보이는 영역이 없으면 영역이 없는 것으로 다룬다") {
+        test("TC-5cd1c7e9-0a1e-4eb4-a461-faea1bbf63d2: 알려온 카메라에 보이는 영역이 없으면 영역이 없는 것으로 다룬다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()))
 
@@ -277,7 +277,7 @@ class DiaryMapStateTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-045 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
+        test("TC-c37cd3e5-4f57-4948-a671-c7f24ea37f50 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
             runTest {
                 val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
                 val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()

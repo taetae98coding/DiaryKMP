@@ -19,7 +19,7 @@ class WebAddScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-010 화면이 재생성되어도 작성 중이던 내용을 유지한다`() {
+    fun `TC-fc3b2fe6-cb88-475f-88e5-4d9467a16e5d 화면이 재생성되어도 작성 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             WebAddScreenTestTheme {

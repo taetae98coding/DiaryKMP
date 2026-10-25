@@ -24,7 +24,7 @@ class WebAddScreenFailureTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-021 저장에 실패하면 안내 없이 작성 내용과 고른 태그를 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+    fun `TC-6c11aac7-aa84-47c4-a3a3-2711644f7393 저장에 실패하면 안내 없이 작성 내용과 고른 태그를 유지하고 같은 내용으로 다시 추가할 수 있다`() {
         val tag = webTestTag(title = SELECTED_TAG_TITLE)
         val useCase = mockk<AddWebUseCase>()
         coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))

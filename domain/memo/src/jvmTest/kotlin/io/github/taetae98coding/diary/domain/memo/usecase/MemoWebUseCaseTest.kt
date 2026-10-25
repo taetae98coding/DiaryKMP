@@ -36,7 +36,7 @@ class MemoWebUseCaseTest :
             every { clock.now() } returns now
 
             When("웹 항목를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-024 메모와 그 웹 항목의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
+                Then("TC-858a06f1-a316-4252-9a7f-831cc0ea6505 메모와 그 웹 항목의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -61,7 +61,7 @@ class MemoWebUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-026 TC-MEMO-WEB-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-f77630ce-437e-4210-9c94-155dfcab66a0 TC-16582126-e239-4cef-91b8-c8ac38486eda 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val useCase =
                         AddMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -85,7 +85,7 @@ class MemoWebUseCaseTest :
             }
 
             When("웹 항목를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-025 메모와 그 웹 항목의 연결을 해제 상태와 해제 시점으로 저장한다") {
+                Then("TC-20e23ee0-6926-4285-9161-5d9bf265aff7 메모와 그 웹 항목의 연결을 해제 상태와 해제 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -124,7 +124,7 @@ class MemoWebUseCaseTest :
             every { clock.now() } returns now
 
             When("웹 항목를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-027 저장한 웹 연결을 되돌리지 않는다") {
+                Then("TC-ea37a9e5-9ce0-467b-b523-ac575b70000d 저장한 웹 연결을 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -148,7 +148,7 @@ class MemoWebUseCaseTest :
             }
 
             When("웹 항목를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-027 저장한 웹 연결 해제를 되돌리지 않는다") {
+                Then("TC-ea37a9e5-9ce0-467b-b523-ac575b70000d 저장한 웹 연결 해제를 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =

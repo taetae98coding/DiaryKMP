@@ -45,7 +45,7 @@ class AccountChecklistItemTransactionImplTest :
             database.close()
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-008 TC-CHECKLIST-DETAIL-DATA-004 TC-CHECKLIST-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 현재 계정과 연결된 체크리스트에 체크 항목을 넣으면 항목과 계정 연결을 업로드 대기로 저장하고 체크리스트는 바꾸지 않는다") {
+        test("TC-93f77e96-7b62-406b-8564-b3ddc37fbbfb TC-a0aea019-81b3-42f1-a8fc-133ba9b26542 TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 현재 계정과 연결된 체크리스트에 체크 항목을 넣으면 항목과 계정 연결을 업로드 대기로 저장하고 체크리스트는 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
@@ -63,7 +63,7 @@ class AccountChecklistItemTransactionImplTest :
                 listOf(AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = item.id, isDirty = true))
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-001 현재 계정과 연결되지 않은 체크리스트에는 체크 항목을 넣지 않는다") {
+        test("TC-fd1241c1-0667-4741-a1de-10602a660b42 현재 계정과 연결되지 않은 체크리스트에는 체크 항목을 넣지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
@@ -77,7 +77,7 @@ class AccountChecklistItemTransactionImplTest :
         }
 
         listOf(true, false).forEach { isChecked ->
-            test("TC-CHECKLIST-DETAIL-DOMAIN-007 TC-CHECKLIST-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 체크 여부를 $isChecked 로 바꾸면 그 항목의 수정 시각과 함께 저장하고 업로드 대기로 기록한다") {
+            test("TC-7becaae5-50d1-46ca-874a-97280e482e04 TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 체크 여부를 $isChecked 로 바꾸면 그 항목의 수정 시각과 함께 저장하고 업로드 대기로 기록한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val checklist = fixtureMonkey.localChecklist(isDeleted = false)
                 val item = fixtureMonkey.localChecklistItem(isChecked = !isChecked, isDeleted = false, checklistId = checklist.id)
@@ -99,7 +99,7 @@ class AccountChecklistItemTransactionImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-010 TC-CHECKLIST-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 항목 빼기는 삭제 여부와 수정 시각을 저장하고 항목과 계정 연결을 남긴다") {
+        test("TC-d7bffc1e-30a6-4f1a-8dae-588da8f7d911 TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 항목 빼기는 삭제 여부와 수정 시각을 저장하고 항목과 계정 연결을 남긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val item = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
@@ -115,7 +115,7 @@ class AccountChecklistItemTransactionImplTest :
                 listOf(AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = item.id, isDirty = true))
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-001 다른 계정의 체크 항목은 바꾸지 않는다") {
+        test("TC-fd1241c1-0667-4741-a1de-10602a660b42 다른 계정의 체크 항목은 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
@@ -129,7 +129,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findChecklistItemList() shouldBe listOf(item)
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-001 다른 계정과만 연결된 체크리스트는 리셋하지 않는다") {
+        test("TC-fd1241c1-0667-4741-a1de-10602a660b42 다른 계정과만 연결된 체크리스트는 리셋하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
@@ -144,7 +144,7 @@ class AccountChecklistItemTransactionImplTest :
                 listOf(AccountChecklistItemLocalEntity(accountId = otherAccountId, checklistItemId = item.id, isDirty = false))
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-011 TC-CHECKLIST-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 리셋은 체크된 미삭제 항목만 체크하지 않음으로 바꾸고 바꾼 항목만 수정 시각과 업로드 대기를 기록한다") {
+        test("TC-c81f2cd3-659c-4d52-b6b4-571337e12f0b TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 리셋은 체크된 미삭제 항목만 체크하지 않음으로 바꾸고 바꾼 항목만 수정 시각과 업로드 대기를 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val otherChecklist = fixtureMonkey.localChecklist(isDeleted = false)
@@ -190,7 +190,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findAccountChecklistItemList() shouldBe
                 listOf(AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = item.id, isDirty = false))
         }
-        test("TC-CHECKLIST-DETAIL-DATA-001 기기에 없는 체크리스트에는 항목을 넣거나 리셋하지 않는다") {
+        test("TC-fd1241c1-0667-4741-a1de-10602a660b42 기기에 없는 체크리스트에는 항목을 넣거나 리셋하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val missingChecklistId = fixtureMonkey.giveMeOne<Uuid>()
             val item = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = missingChecklistId)
@@ -202,7 +202,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findAccountChecklistItemList() shouldBe emptyList()
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-009 같은 내용의 항목도 다른 식별 정보의 새 항목으로 저장한다") {
+        test("TC-3d921233-a531-41b1-b83d-2c31a1a8bc30 같은 내용의 항목도 다른 식별 정보의 새 항목으로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val content = fixtureMonkey.giveMeOne<String>()
@@ -215,7 +215,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findChecklistItemList() shouldBe listOf(existing, added).sortedBy { it.id.toString() }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-002 삭제 상태인 체크리스트에서 항목을 바꿔도 체크리스트는 삭제 상태로 남는다") {
+        test("TC-7c4b3430-9fee-4392-910d-658b3307c5a8 삭제 상태인 체크리스트에서 항목을 바꿔도 체크리스트는 삭제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = true)
             val item = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
@@ -233,7 +233,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findChecklistList() shouldBe listOf(checklist)
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-004 항목 넣기의 저장이 실패하면 새 항목과 계정 연결 중 어느 것도 남지 않는다") {
+        test("TC-a0aea019-81b3-42f1-a8fc-133ba9b26542 항목 넣기의 저장이 실패하면 새 항목과 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
@@ -252,7 +252,7 @@ class AccountChecklistItemTransactionImplTest :
             database.findAccountChecklistItemList() shouldBe emptyList()
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-003 리셋의 저장이 도중에 실패하면 모든 항목이 체크된 채로 남는다") {
+        test("TC-827eaa71-b4ae-4a73-b7c2-84062a8552ec 리셋의 저장이 도중에 실패하면 모든 항목이 체크된 채로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val itemList = List(3) { fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id) }

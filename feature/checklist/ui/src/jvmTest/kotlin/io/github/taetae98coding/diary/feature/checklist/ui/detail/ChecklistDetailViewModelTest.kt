@@ -47,7 +47,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-001 조회에 성공하면 저장된 제목과 설명으로 내용 표시 상태가 된다") {
+        test("TC-ad2f259f-b081-4960-8a73-f4f580b1b753 조회에 성공하면 저장된 제목과 설명으로 내용 표시 상태가 된다") {
             runTest(mainDispatcher) {
                 val checklist = fixtureMonkey.checklist(isDeleted = false)
                 val viewModel = viewModel(checklist = flowOf(Result.success(checklist)), id = checklist.id)
@@ -59,7 +59,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-004 대상 체크리스트가 없거나 조회에 실패하면 조회 중 상태를 유지한다") {
+        test("TC-ecf387d2-03d7-42e3-a607-c955f7b00752 대상 체크리스트가 없거나 조회에 실패하면 조회 중 상태를 유지한다") {
             listOf<Result<Checklist?>>(Result.success(null), Result.failure(IllegalStateException())).forEach { result ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(checklist = flowOf(result))
@@ -73,7 +73,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-003 조회가 끝나지 않으면 조회 중 상태다") {
+        test("TC-dd99c2ba-8c3d-43f9-b917-2018af7063f4 조회가 끝나지 않으면 조회 중 상태다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(checklist = emptyFlow())
 
@@ -85,7 +85,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-034 저장된 제목이 다른 경로에서 바뀌면 바뀐 제목으로 갱신한다") {
+        test("TC-3eb8b261-f734-4f7d-a894-d55aeae3c8fd 저장된 제목이 다른 경로에서 바뀌면 바뀐 제목으로 갱신한다") {
             runTest(mainDispatcher) {
                 val checklist = fixtureMonkey.checklist(isDeleted = false)
                 val changed = checklist.copy(detail = fixtureMonkey.checklistDetail())
@@ -103,7 +103,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-036 대상 체크리스트가 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
+        test("TC-5d2eaa57-6b77-4ff5-864c-fc563eab34bc 대상 체크리스트가 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val checklist = fixtureMonkey.checklist(isDeleted = false)
                 val checklistFlow = MutableStateFlow(Result.success<Checklist?>(checklist))
@@ -122,7 +122,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-026 수정에 성공하면 입력한 내용으로 수정을 한 번 요청하고 성공을 한 번 알린다") {
+        test("TC-09f51c5f-c2fc-4b70-8fc0-f223cd0c8496 수정에 성공하면 입력한 내용으로 수정을 한 번 요청하고 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val detail = fixtureMonkey.checklistDetail()
@@ -140,7 +140,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-027 수정을 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
+        test("TC-cc83beda-9642-4d59-8661-12a415c67e7c 수정을 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
                 val checklist = fixtureMonkey.checklist(isDeleted = false)
                 val gate = CompletableDeferred<Unit>()
@@ -164,7 +164,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-028 수정에 실패하면 안내 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
+        test("TC-c93605ca-6b04-4408-85c5-55f71d6b6638 수정에 실패하면 안내 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.checklistDetail()
                 val updateChecklistUseCase = mockk<UpdateChecklistUseCase>()
@@ -183,7 +183,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-030 삭제에 성공하면 삭제를 한 번 요청하고 화면을 떠나도록 한 번 알린다") {
+        test("TC-95a0e2bf-e1e2-4e69-b3d1-77f9eaa4ee7d 삭제에 성공하면 삭제를 한 번 요청하고 화면을 떠나도록 한 번 알린다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
@@ -200,7 +200,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-031 삭제를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
+        test("TC-ff222760-12c7-4ef6-a3e9-cea2a7ad15da 삭제를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
                 val checklist = fixtureMonkey.checklist(isDeleted = false)
                 val gate = CompletableDeferred<Unit>()
@@ -224,7 +224,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-032 삭제에 실패하면 화면에 머무르고 다시 삭제할 수 있다") {
+        test("TC-ec088c83-4fba-4ce9-99fe-b65e4ebae0b6 삭제에 실패하면 화면에 머무르고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
@@ -243,7 +243,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-013 수정이나 삭제를 처리하는 동안 같은 종류는 다시 요청하지 않고 다른 종류는 요청한다") {
+        test("TC-dbb55974-a5c4-4272-b99b-52ecb3c30bf0 수정이나 삭제를 처리하는 동안 같은 종류는 다시 요청하지 않고 다른 종류는 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val gate = CompletableDeferred<Unit>()

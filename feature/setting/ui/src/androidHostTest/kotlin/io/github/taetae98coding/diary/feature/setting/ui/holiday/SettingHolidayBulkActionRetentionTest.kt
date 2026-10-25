@@ -22,7 +22,7 @@ class SettingHolidayBulkActionRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-039 검색어를 지워 동작 버튼이 다시 나타나면 접힌 상태다`() {
+    fun `TC-467569dd-e127-4197-94db-8290f6f908f5 검색어를 지워 동작 버튼이 다시 나타나면 접힌 상태다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true)
         composeRule.setSettingHolidayScaffold(uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)))
 
@@ -41,7 +41,7 @@ class SettingHolidayBulkActionRetentionTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-041 화면이 재생성되면 펼쳐 둔 일괄 선택이 접힌다`() {
+    fun `TC-aff3cf1f-05fc-4f81-959e-229e22962593 화면이 재생성되면 펼쳐 둔 일괄 선택이 접힌다`() {
         val uiState = loadedUiState(holidaySettingList = listOf(holidaySetting(isHoliday = true, isVisible = true)))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -66,7 +66,7 @@ class SettingHolidayBulkActionRetentionTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-043 화면이 재생성되어도 검색어와 필터링된 목록이 유지된다`() {
+    fun `TC-2102865f-7e39-4fd2-8507-8b05da0d2b3f 화면이 재생성되어도 검색어와 필터링된 목록이 유지된다`() {
         val matched = holidaySetting(isHoliday = true, isVisible = true)
         val unmatched = holidaySetting(isHoliday = true, isVisible = true)
         val uiState = loadedUiState(holidaySettingList = listOf(matched, unmatched))

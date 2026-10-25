@@ -37,7 +37,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-009 알림을 표시하면 그 제목과 채널, 앱 알림 아이콘의 알림이 하나 발생한다`() {
+    fun `TC-8bd47d8e-d759-4876-a1b2-be83de3bddb7 알림을 표시하면 그 제목과 채널, 앱 알림 아이콘의 알림이 하나 발생한다`() {
         val notification = fixtureMonkey.giveMeOne<RemoteNotification>()
 
         presenter.present(notification)
@@ -50,7 +50,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-008 본문이 비어 있으면 알림에 본문 문구를 두지 않는다`() {
+    fun `TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3 본문이 비어 있으면 알림에 본문 문구를 두지 않는다`() {
         presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>().copy(body = ""))
 
         val extras = shadowOf(notificationManager()).allNotifications.single().extras
@@ -60,7 +60,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-008 본문이 있으면 알림 본문에 그대로 담고 펼치면 전체가 보이는 긴 글 스타일을 쓴다`() {
+    fun `TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3 본문이 있으면 알림 본문에 그대로 담고 펼치면 전체가 보이는 긴 글 스타일을 쓴다`() {
         val body = "- first\n- second\n- third"
 
         presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>().copy(body = body))
@@ -72,7 +72,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-003 알림을 선택하면 앱의 시작 지점을 열고 선택한 알림은 사라진다`() {
+    fun `TC-32789430-ba38-42d7-b2a3-22f563e53c61 알림을 선택하면 앱의 시작 지점을 열고 선택한 알림은 사라진다`() {
         presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>())
 
         val posted = shadowOf(notificationManager()).allNotifications.single()
@@ -83,7 +83,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-004 같은 tag의 알림을 여러 번 표시해도 나중 알림 하나만 남는다`() {
+    fun `TC-2a9d4211-fb15-455a-a888-72323919b7b9 같은 tag의 알림을 여러 번 표시해도 나중 알림 하나만 남는다`() {
         val notification = fixtureMonkey.giveMeOne<RemoteNotification>()
         val laterTitle = "later ${notification.title}"
 
@@ -97,7 +97,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-004 tag가 다른 알림은 서로 대신하지 않는다`() {
+    fun `TC-2a9d4211-fb15-455a-a888-72323919b7b9 tag가 다른 알림은 서로 대신하지 않는다`() {
         val notification = fixtureMonkey.giveMeOne<RemoteNotification>()
 
         presenter.present(notification)
@@ -107,7 +107,7 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-011 지우지 않은 이전 날의 알림은 다음 날 알림이 대신한다`() {
+    fun `TC-27fed418-d09e-4354-b82b-ec4e75307dce 지우지 않은 이전 날의 알림은 다음 날 알림이 대신한다`() {
         val previousDay = fixtureMonkey.giveMeOne<RemoteNotification>()
         val nextDay = fixtureMonkey.giveMeOne<RemoteNotification>().copy(title = "next ${previousDay.title}", tag = previousDay.tag)
 

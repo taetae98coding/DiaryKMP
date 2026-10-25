@@ -36,11 +36,11 @@ class MemoExistenceFilterLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MEMO-HOME-DATA-011 저장된 유무 필터가 없으면 조회 결과가 없다") {
+        test("TC-c5680cae-322b-4917-86c4-31904d3eb10b 저장된 유무 필터가 없으면 조회 결과가 없다") {
             dataSource.find().first().shouldBeNull()
         }
 
-        test("TC-MEMO-HOME-DATA-010 한 축을 바꿔도 다른 축의 상태는 그대로 유지된다") {
+        test("TC-76fa8f4d-5f72-4699-8501-75a9d2891d5d 한 축을 바꿔도 다른 축의 상태는 그대로 유지된다") {
             dataSource.upsertHasDate(hasDate = true)
             dataSource.upsertHasTag(hasTag = false)
 
@@ -54,7 +54,7 @@ class MemoExistenceFilterLocalDataSourceImplTest :
                 )
         }
 
-        test("TC-MEMO-HOME-FEATURE-036 축을 전체로 되돌리면 그 축만 비운다") {
+        test("TC-e1809211-a095-4491-8368-160d00b7b157 축을 전체로 되돌리면 그 축만 비운다") {
             dataSource.upsertHasDate(hasDate = true)
             dataSource.upsertHasTag(hasTag = true)
 
@@ -68,14 +68,14 @@ class MemoExistenceFilterLocalDataSourceImplTest :
                 )
         }
 
-        test("TC-MEMO-HOME-FEATURE-037 저장된 유무 필터 상태는 새로 조회를 시작해도 유지된다") {
+        test("TC-482234a7-ebb5-48b8-8351-7ceed4987334 저장된 유무 필터 상태는 새로 조회를 시작해도 유지된다") {
             dataSource.upsertHasPlace(hasPlace = true)
 
             dataSource.find().first()?.hasPlace shouldBe true
             dataSource.find().first()?.hasPlace shouldBe true
         }
 
-        test("TC-MEMO-HOME-DATA-008 데이터베이스를 닫고 다시 열어도 유무 필터 상태를 유지한다") {
+        test("TC-1bc331a6-2db6-46f3-a08f-2688a64ecf56 데이터베이스를 닫고 다시 열어도 유무 필터 상태를 유지한다") {
             val file = File.createTempFile("memo-existence-filter", ".db")
 
             try {
@@ -106,7 +106,7 @@ class MemoExistenceFilterLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-HOME-DATA-009 유무 필터 상태 변경은 동기화 업로드 대기 목록에 나타나지 않는다") {
+        test("TC-20d8a16c-4b36-4fbe-9b46-be1607c6e8df 유무 필터 상태 변경은 동기화 업로드 대기 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             dataSource.upsertHasDate(hasDate = true)

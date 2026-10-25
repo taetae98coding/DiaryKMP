@@ -72,7 +72,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-022 설정을 확인하지 못하면 입력과 저장 기능을 제공하지 않는다`() {
+    fun `TC-8cb37358-a8e6-4600-ac68-aeb09bf93d5e 설정을 확인하지 못하면 입력과 저장 기능을 제공하지 않는다`() {
         setScaffold(uiState = SettingGeminiUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_API_KEY_LABEL).assertDoesNotExist()
@@ -83,7 +83,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-001 저장된 설정을 입력된 상태로 표시한다`() {
+    fun `TC-b7f4e2f9-6e46-467f-a334-663f7169f362 저장된 설정을 입력된 상태로 표시한다`() {
         val setting =
             GeminiSetting(
                 apiKey = STORED_API_KEY,
@@ -98,7 +98,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-002 저장된 설정이 없으면 비어 있는 상태로 표시한다`() {
+    fun `TC-8449e39b-5c2c-4c7c-9b9b-7f95beb2cd6c 저장된 설정이 없으면 비어 있는 상태로 표시한다`() {
         setScaffold(uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
 
         composeRule.modelRow().assertContentDescriptionContains(DEFAULT_MODEL_UNSELECTED, substring = true)
@@ -114,7 +114,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-013 목록을 받아 오기 전에는 목록에 없는 모델 안내를 표시하지 않는다`() {
+    fun `TC-24cfa575-fea7-46cf-b140-9c3993db8233 목록을 받아 오기 전에는 목록에 없는 모델 안내를 표시하지 않는다`() {
         val setting = GeminiSetting.EMPTY.copy(model = MODEL_ID)
         setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
 
@@ -124,7 +124,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-012 목록에 없는 모델을 알리되 선택은 유지한다`() {
+    fun `TC-962ee82a-4fd2-475d-85eb-19a1c2f2fc10 목록에 없는 모델을 알리되 선택은 유지한다`() {
         val setting = GeminiSetting.EMPTY.copy(model = REMOVED_MODEL_ID)
         setScaffold(
             uiState = SettingGeminiUiState.Content(setting = setting),
@@ -171,7 +171,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-016 저장하는 동안 진행 상태를 표시한다`() {
+    fun `TC-17c7f47a-b67b-4041-a191-1d5970ccc131 저장하는 동안 진행 상태를 표시한다`() {
         setScaffold(
             uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY, isInProgress = true),
             initialSetting = GeminiSetting.EMPTY.copy(apiKey = STORED_API_KEY),
@@ -181,7 +181,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-024 편집 값이 저장된 설정과 같으면 저장 동작을 제공하지 않는다`() {
+    fun `TC-e84391f2-0ded-4490-9087-57dc56b22d96 편집 값이 저장된 설정과 같으면 저장 동작을 제공하지 않는다`() {
         val setting = GeminiSetting(apiKey = STORED_API_KEY, model = MODEL_ID, systemPrompt = STORED_SYSTEM_PROMPT)
         setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
 
@@ -190,7 +190,7 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-024 저장한 적이 없고 아무것도 입력하지 않으면 저장 동작을 제공하지 않는다`() {
+    fun `TC-e84391f2-0ded-4490-9087-57dc56b22d96 저장한 적이 없고 아무것도 입력하지 않으면 저장 동작을 제공하지 않는다`() {
         setScaffold(uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY), initialSetting = GeminiSetting.EMPTY)
 
         composeRule.onNodeWithText(DEFAULT_API_KEY_LABEL).assertExists()

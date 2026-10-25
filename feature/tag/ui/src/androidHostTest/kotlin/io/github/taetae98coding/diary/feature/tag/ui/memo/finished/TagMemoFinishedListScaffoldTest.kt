@@ -54,7 +54,7 @@ class TagMemoFinishedListScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-003 상단 바에 대상 태그 표시와 완료된 메모 목록 표시를 함께 제공한다`() {
+    fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 상단 바에 대상 태그 표시와 완료된 메모 목록 표시를 함께 제공한다`() {
         setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertIsDisplayed()
@@ -62,7 +62,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-003 이모지가 비어 있으면 상단 바에 제목만 표시한다`() {
+    fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 이모지가 비어 있으면 상단 바에 제목만 표시한다`() {
         setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = TAG_TITLE))
 
         composeRule.onNodeWithText(TAG_TITLE).assertIsDisplayed()
@@ -71,7 +71,7 @@ class TagMemoFinishedListScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-003 한국어 환경에서 완료된 메모 목록 표시는 완료된 메모다`() {
+    fun `TC-48ca7beb-c171-45cb-a825-6b3394694fc4 한국어 환경에서 완료된 메모 목록 표시는 완료된 메모다`() {
         setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = EMOJI_WITH_TAG_TITLE))
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertIsDisplayed()
@@ -79,7 +79,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-004 태그 표시가 비어 있어도 완료된 메모 목록 표시와 뒤로가기는 유지한다`() {
+    fun `TC-6cb1435c-44a9-48e1-8e79-d69dd8c363d7 태그 표시가 비어 있어도 완료된 메모 목록 표시와 뒤로가기는 유지한다`() {
         setTagMemoFinishedListScaffold()
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertDoesNotExist()
@@ -89,7 +89,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-005 태그 표시가 바뀌면 바뀐 표시를 사용한다`() {
+    fun `TC-35229e7a-b0e8-408f-99f4-d1792e806bdd 태그 표시가 바뀌면 바뀐 표시를 사용한다`() {
         val title = mutableStateOf(TAG_TITLE)
         setTagMemoFinishedListScaffold(uiStateProvider = { TagMemoFinishedListUiState(title = title.value) })
 
@@ -111,7 +111,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-012 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-016 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
+    fun `TC-9619be5f-90f5-4926-93ea-39feb76558ed TC-adf79acc-8a88-4f10-847f-bb9c2ab76aa0 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
         setTagMemoFinishedListScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
@@ -125,7 +125,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-002 TC-TAG-MEMO-FINISHED-LIST-FEATURE-006 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
+    fun `TC-cd70d10f-2a9a-4c3c-91a4-ef62a1791aa2 TC-20d0e29b-873a-420b-8344-eb043c908669 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
         val date = LocalDate(year = 2026, month = 7, day = 19)
         val noDateMemo = tagMemo(title = NO_DATE_TITLE)
         val allDayMemo = tagMemo(title = ALL_DAY_TITLE, dateTime = allDayMemoDateTime(date))
@@ -184,7 +184,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-007 시작 날짜가 오늘인 메모의 날짜 그룹은 오늘임을 알린다`() {
+    fun `TC-0246934b-22db-43fe-9ada-696af8b5ad3a 시작 날짜가 오늘인 메모의 날짜 그룹은 오늘임을 알린다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val memo = tagMemo(title = TODAY_MEMO_TITLE, dateTime = allDayMemoDateTime(today))
         setTagMemoFinishedListScaffold(
@@ -204,7 +204,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-42496419-842a-4b68-9aa6-0ff6f578a011 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setTagMemoFinishedListScaffold(
             pagingData = tagMemoPagingData(itemList = emptyList(), refresh = error),
@@ -217,7 +217,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-42496419-842a-4b68-9aa6-0ff6f578a011 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
         val memo = tagMemo(title = APPEND_ERROR_MEMO_TITLE)
         val error = LoadState.Error(IllegalStateException("Append failed"))
         setTagMemoFinishedListScaffold(
@@ -234,7 +234,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-019 메모 카드를 선택하면 상세 이동을 요청한다`() {
+    fun `TC-36db9a95-4aca-46f5-b4b8-2ab947e67cc7 메모 카드를 선택하면 상세 이동을 요청한다`() {
         val memo = tagMemo(title = CLICK_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagMemoFinishedListScaffold(
@@ -249,7 +249,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-016 왼쪽에서 오른쪽 스와이프는 다시 시작을 요청한다`() {
+    fun `TC-4ff545fd-dc92-439d-b2a5-90942a03e819 왼쪽에서 오른쪽 스와이프는 다시 시작을 요청한다`() {
         val memo = tagMemo(title = RESTART_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagMemoFinishedListScaffold(
@@ -265,7 +265,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-017 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
+    fun `TC-7d012eef-54c2-404e-82a1-fd4e2a9f1977 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
         val memo = tagMemo(title = DELETE_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagMemoFinishedListScaffold(
@@ -281,7 +281,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-011 상단 바 뒤로가기는 화면 닫기를 요청한다`() {
+    fun `TC-c0fde30f-f541-42cc-b592-8b551e504abc 상단 바 뒤로가기는 화면 닫기를 요청한다`() {
         val eventList = mutableListOf<TagMemoFinishedListScaffoldEvent>()
         setTagMemoFinishedListScaffold(onEvent = eventList::add)
 

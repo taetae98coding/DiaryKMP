@@ -107,7 +107,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-013 곡 상세 위에서 추가 버튼으로 연 곡 추가는 빈 입력으로 시작한다`() {
+    fun `TC-c0bed6d3-755f-4187-8d31-8845604c4c23 곡 상세 위에서 추가 버튼으로 연 곡 추가는 빈 입력으로 시작한다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         composeRule.fillPlaceholder()
@@ -123,7 +123,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-009 상세 영역에서 뒤로가면 곡 추가로 되돌아간다`() {
+    fun `TC-ea2d2487-a6bc-482f-ac6e-4c18279e061a 상세 영역에서 뒤로가면 곡 추가로 되돌아간다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         composeRule.onNodeWithText(music.detail.title).performClick()
@@ -139,7 +139,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-012 곡 상세 위에서 연 곡 추가에서 뒤로가면 이전 곡 상세로 돌아간다`() {
+    fun `TC-8af8f6ba-c9cb-4cd0-a5a5-389033a1373a 곡 상세 위에서 연 곡 추가에서 뒤로가면 이전 곡 상세로 돌아간다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         openAddOnDetail(music = music)
@@ -152,7 +152,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-001 목록과 상세를 함께 쓰는 환경에서는 곡 목록과 곡 추가를 함께 표시한다`() {
+    fun `TC-d050e4fb-5c08-45e7-919c-cb932e42263f 목록과 상세를 함께 쓰는 환경에서는 곡 목록과 곡 추가를 함께 표시한다`() {
         val music = testMusic(title = listedMusicTitle())
 
         setPlaylistNavDisplay(music = music)
@@ -164,7 +164,7 @@ class PlaylistListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-002 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-aa493d72-2aa1-4e8b-b9ac-0dd146d5a082 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
 
@@ -179,7 +179,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-008 목록에서 곡을 선택하면 목록을 유지한 채 상세 영역이 그 곡의 상세로 바뀐다`() {
+    fun `TC-2745dd6f-a834-4115-8f14-a6fd53a1dc7d 목록에서 곡을 선택하면 목록을 유지한 채 상세 영역이 그 곡의 상세로 바뀐다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
 
@@ -192,7 +192,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-010 상세에서 곡을 삭제하면 상세 영역이 곡 추가로 되돌아간다`() {
+    fun `TC-2be87e24-6163-436f-a44a-998a3cec59b7 상세에서 곡을 삭제하면 상세 영역이 곡 추가로 되돌아간다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         composeRule.onNodeWithText(music.detail.title).performClick()
@@ -208,7 +208,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-011 곡 상세가 놓인 동안 곡 추가를 실행하면 상세 영역이 곡 추가로 바뀐다`() {
+    fun `TC-67658cd1-9707-4adc-9ee1-a370604faae2 곡 상세가 놓인 동안 곡 추가를 실행하면 상세 영역이 곡 추가로 바뀐다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
 
@@ -221,7 +221,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-014 곡 상세가 놓인 동안 다른 곡을 고르면 교체하고 뒤로가면 곡 추가로 돌아간다`() {
+    fun `TC-d7aaa386-5c2b-4908-81d9-16d4eb8006bb 곡 상세가 놓인 동안 다른 곡을 고르면 교체하고 뒤로가면 곡 추가로 돌아간다`() {
         val first = testMusic(title = "a-${listedMusicTitle()}")
         val second = testMusic(title = "b-${listedMusicTitle()}")
         setPlaylistNavDisplay(musicList = listOf(first, second))
@@ -242,7 +242,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-016 곡 상세 위에서 연 곡 추가가 놓인 동안 다른 곡을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+    fun `TC-c41335b9-dce4-40f5-8581-5930af99d5e3 곡 상세 위에서 연 곡 추가가 놓인 동안 다른 곡을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
         val first = testMusic(title = "a-${listedMusicTitle()}")
         val second = testMusic(title = "b-${listedMusicTitle()}")
         val typedTitle = "typed-title-${fixtureMonkey.giveMeOne<Int>()}"
@@ -267,7 +267,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-033 상세에 열린 곡을 목록에서 밀어 삭제해도 상세 영역은 그 곡의 상세로 남는다`() {
+    fun `TC-6dadd803-f2f1-42ce-9aac-41d8a9891bb5 상세에 열린 곡을 목록에서 밀어 삭제해도 상세 영역은 그 곡의 상세로 남는다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         composeRule.onNodeWithText(music.detail.title).performClick()
@@ -283,7 +283,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-015 곡을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
+    fun `TC-4a4529a5-993c-4387-b6f8-e7a870c96eaf 곡을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
 
@@ -295,7 +295,7 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-DOMAIN-006 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
+    fun `TC-ffecf0be-2458-4005-8e41-182612a5a590 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
         composeRule.onNodeWithText(music.detail.title).performClick()

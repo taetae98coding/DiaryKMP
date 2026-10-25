@@ -59,7 +59,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-DATA-017 화면이 표시되면 두 달 전 1일부터 두 달 후 마지막 날까지의 메모를 조회한다") {
+        test("TC-6b7c5b67-f8b8-4ec1-9711-854908d6578c 화면이 표시되면 두 달 전 1일부터 두 달 후 마지막 날까지의 메모를 조회한다") {
             runTest(mainDispatcher) {
                 val expectedDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
@@ -104,7 +104,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-018 표시 중인 달이 바뀌면 이동한 달 기준의 조회 기간으로 다시 조회한다") {
+        test("TC-996fdd54-bfc4-4427-86ee-c51f893d6ba4 표시 중인 달이 바뀌면 이동한 달 기준의 조회 기간으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val julyDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
@@ -132,7 +132,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-019 메모 조회가 실패하면 메모 없이 표시한다") {
+        test("TC-2082ce29-485b-44a2-888a-ec09be4c5ac1 메모 조회가 실패하면 메모 없이 표시한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarMemoUseCase>()
                 every { useCase(parameter = any()) } returns
@@ -171,7 +171,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 있으면 필터 적용 상태를 노출한다") {
+        test("TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 있으면 필터 적용 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val selectedTagList = listOf(tag())
                 val viewModel =
@@ -191,7 +191,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 없으면 필터 적용 상태를 노출하지 않는다") {
+        test("TC-a5c69eb9-d97f-45a6-b738-838199170318 선택한 태그가 없으면 필터 적용 상태를 노출하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     memoViewModel(
@@ -247,7 +247,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-MEMO-MOVE-FEATURE-017 같은 메모의 이동이 진행 중일 때 다시 이동하면 MoveMemoUseCase를 한 번만 호출한다") {
+        test("TC-6b7c3697-cefd-48a6-945e-01bd023210fe 같은 메모의 이동이 진행 중일 때 다시 이동하면 MoveMemoUseCase를 한 번만 호출한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val moveMemoUseCase = mockk<MoveMemoUseCase>()

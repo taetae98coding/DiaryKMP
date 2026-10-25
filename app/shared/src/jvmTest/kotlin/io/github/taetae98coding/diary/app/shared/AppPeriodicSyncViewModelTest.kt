@@ -42,7 +42,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-059 TC-DATA-SYNC-DOMAIN-083 TC-DATA-SYNC-DOMAIN-088 인증 여부와 관계없이 바뀐 계정을 주기 동기화 예약 계기로 전달한다") {
+        test("TC-cc07f234-2c6a-4021-a650-4a0161718819 TC-b7fbbed2-9c57-498e-91dd-d578a86ea847 TC-a4e73b81-e32d-4898-8ad2-2d9a37112d55 인증 여부와 관계없이 바뀐 계정을 주기 동기화 예약 계기로 전달한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
                 val pendingAccount = account.copy(isSessionValid = false, isSessionPending = true)
@@ -63,7 +63,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-057 같은 계정이 다시 확인되기만 하면 주기 동기화 예약 계기가 발생하지 않는다") {
+        test("TC-6469282a-59e0-4ac6-8976-a566838d6669 같은 계정이 다시 확인되기만 하면 주기 동기화 예약 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account), Result.success(account)))
@@ -85,7 +85,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약을 요청하면 예약 UseCase를 실행한다") {
+        test("TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 주기 동기화 예약을 요청하면 예약 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
                 coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)

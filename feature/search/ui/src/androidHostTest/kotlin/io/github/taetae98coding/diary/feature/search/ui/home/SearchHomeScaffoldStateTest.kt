@@ -22,7 +22,7 @@ class SearchHomeScaffoldStateTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SEARCH-HOME-DOMAIN-010 화면이 재생성되어도 질의와 유형 선택을 유지한다`() {
+    fun `TC-0d83a3fb-c4c4-4d6a-b4b9-595222b4c7aa 화면이 재생성되어도 질의와 유형 선택을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: SearchHomeScaffoldState
 

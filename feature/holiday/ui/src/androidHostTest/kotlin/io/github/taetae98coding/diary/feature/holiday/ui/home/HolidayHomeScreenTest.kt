@@ -61,7 +61,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-6e779545-009e-453f-9790-a6ee1bb77d3f 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -75,7 +75,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-010 연차 개수를 바꾸면 황금연휴 목록이 다시 표시된다`() {
+    fun `TC-98170ff0-175e-4251-a386-325ea596a469 연차 개수를 바꾸면 황금연휴 목록이 다시 표시된다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -102,7 +102,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-026 공휴일이 준비되는 동안 로딩 표시가 나타난다`() {
+    fun `TC-cbdbe3e8-22bb-4827-ae3e-750d6320b15c 공휴일이 준비되는 동안 로딩 표시가 나타난다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -118,7 +118,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-027 준비가 끝나면 별도 조작 없이 본문이 목록으로 바뀐다`() {
+    fun `TC-7340b670-20c5-40b3-9c2b-7f9b22d3a618 준비가 끝나면 별도 조작 없이 본문이 목록으로 바뀐다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -136,7 +136,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-028 기본 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
+    fun `TC-e831cd29-4700-401b-b4aa-7c72caaeb398 기본 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = previousYearFailFetchHolidayUseCase(),
@@ -149,7 +149,7 @@ class HolidayHomeScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-HOLIDAY-HOME-FEATURE-028 한국어 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
+    fun `TC-e831cd29-4700-401b-b4aa-7c72caaeb398 한국어 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = previousYearFailFetchHolidayUseCase(),
@@ -160,7 +160,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-029 재시도를 선택하면 다시 받아와 목록이 표시된다`() {
+    fun `TC-f6e59f73-a19b-4aeb-873b-eadd2da24ff5 재시도를 선택하면 다시 받아와 목록이 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
@@ -184,7 +184,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-056 준비가 끝났지만 황금연휴가 없으면 안내 없이 빈 목록이 표시된다`() {
+    fun `TC-093eb581-c75d-4390-9a5b-8d5d59feaf64 준비가 끝났지만 황금연휴가 없으면 안내 없이 빈 목록이 표시된다`() {
         composeRule.setHolidayHomeScreen(targetYear = targetYear)
 
         composeRule.onAllNodesWithText(text = PERIOD_SEPARATOR, substring = true).assertCountEquals(0)

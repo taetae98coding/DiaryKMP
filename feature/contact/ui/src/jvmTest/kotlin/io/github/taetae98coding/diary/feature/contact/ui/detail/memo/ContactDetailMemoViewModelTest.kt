@@ -61,7 +61,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
         }
 
         listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
-            test("TC-CONTACT-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+            test("TC-89a5e403-8096-425d-9b90-9aad461340a0 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
                 runTest(mainDispatcher) {
                     val contactId = fixtureMonkey.giveMeOne<Uuid>()
                     val memo = memo()
@@ -84,7 +84,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-001 연락처별 메모 paging에 주입된 연락처 ID를 전달한다") {
+        test("TC-32411d04-27aa-4911-bd6d-5339b9846d2f 연락처별 메모 paging에 주입된 연락처 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -102,7 +102,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-3503d5e5-d242-4b66-b80a-a5083962f72d 연락처별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
@@ -122,7 +122,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-3503d5e5-d242-4b66-b80a-a5083962f72d 연락처별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()

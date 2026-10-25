@@ -35,7 +35,7 @@ class CalendarHomeScaffoldShortcutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-010 왼쪽 방향키를 누르면 이전 달로 이동한다`() {
+    fun `TC-9ad8fe94-13f9-4de8-982e-7c2ec21de09d 왼쪽 방향키를 누르면 이전 달로 이동한다`() {
         setCalendarHomeScaffold(initialYearMonth = JULY_2026)
 
         composeRule.onRoot().performKeyInput {
@@ -50,7 +50,7 @@ class CalendarHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-011 오른쪽 방향키를 누르면 다음 달로 이동한다`() {
+    fun `TC-67b5e007-7ab3-4d02-b122-b96bae07fffc 오른쪽 방향키를 누르면 다음 달로 이동한다`() {
         setCalendarHomeScaffold(initialYearMonth = JULY_2026)
 
         composeRule.onRoot().performKeyInput {
@@ -65,7 +65,7 @@ class CalendarHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-012 이동 범위를 벗어나는 방향키 입력은 무시된다`() {
+    fun `TC-9f4a2be3-9870-4477-bd90-fc0fd5dd2dac 이동 범위를 벗어나는 방향키 입력은 무시된다`() {
         val minYearMonth = YearMonth(year = 1, month = Month.JANUARY)
 
         composeRule.setContent {

@@ -51,7 +51,7 @@ class CalendarHomeScreenLocationPermissionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOCATION-PERMISSION-FEATURE-001 위치 권한이 허용되어 있지 않으면 캘린더 홈 화면 진입 시 시스템 위치 권한 요청이 시작된다`() {
+    fun `TC-10a4a484-8faf-47bb-a8ac-b3f2be41b57a 위치 권한이 허용되어 있지 않으면 캘린더 홈 화면 진입 시 시스템 위치 권한 요청이 시작된다`() {
         val registry = permissionResultRegistry(result = DENIED_RESULT)
 
         setCalendarHomeScreen(
@@ -64,7 +64,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-FEATURE-002 위치 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
+    fun `TC-506408d4-fedb-4f6b-b3b1-4e2605c904fd 위치 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
         val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
@@ -80,7 +80,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 허용해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+    fun `TC-588cc03a-b172-4c30-82b8-2ab4e5c5ca28 요청을 허용해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val registry = permissionResultRegistry(result = GRANTED_RESULT)
 
         setCalendarHomeScreen(
@@ -95,7 +95,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 거부해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+    fun `TC-588cc03a-b172-4c30-82b8-2ab4e5c5ca28 요청을 거부해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val registry = permissionResultRegistry(result = DENIED_RESULT)
 
         setCalendarHomeScreen(
@@ -110,7 +110,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-025 위치 권한 요청에서 정확한 위치를 허용하면 현재 위치의 날씨를 다시 동기화한다`() {
+    fun `TC-791d3475-68f2-4124-ba31-1ac6ff05de62 위치 권한 요청에서 정확한 위치를 허용하면 현재 위치의 날씨를 다시 동기화한다`() {
         val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
@@ -124,7 +124,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-025 위치 권한 요청에서 대략적인 위치만 허용해도 현재 위치의 날씨를 다시 동기화한다`() {
+    fun `TC-791d3475-68f2-4124-ba31-1ac6ff05de62 위치 권한 요청에서 대략적인 위치만 허용해도 현재 위치의 날씨를 다시 동기화한다`() {
         val registry = permissionResultRegistry(result = COARSE_ONLY_GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
@@ -138,7 +138,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-037 위치 권한이 이미 허용되어 있으면 권한을 계기로 날씨를 다시 동기화하지 않는다`() {
+    fun `TC-8e8515d7-f295-47ee-8c0b-b4445ffde22c 위치 권한이 이미 허용되어 있으면 권한을 계기로 날씨를 다시 동기화하지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
         val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
@@ -153,7 +153,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-026 위치 권한 요청을 거부하면 날씨를 다시 동기화하지 않는다`() {
+    fun `TC-e87ceff1-6e52-434c-b892-b4ff8a2266a2 위치 권한 요청을 거부하면 날씨를 다시 동기화하지 않는다`() {
         val registry = permissionResultRegistry(result = DENIED_RESULT)
         val weatherViewModel = weatherViewModel()
 
@@ -167,7 +167,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-052 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화가 끝난 뒤 한 번 더 동기화한다`() {
+    fun `TC-5a2d8b68-b630-4611-a547-45ff9b401814 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화가 끝난 뒤 한 번 더 동기화한다`() {
         val fetchGate = CompletableDeferred<Unit>()
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {

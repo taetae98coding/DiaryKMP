@@ -49,7 +49,7 @@ class TagDetailNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-011 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 태그의 TagDetail로 돌아간다`() {
+    fun `TC-c0fde30f-f541-42cc-b592-8b551e504abc 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 태그의 TagDetail로 돌아간다`() {
         val tagId = fixtureId()
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
         setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to fixtureText(prefix = "Tag")))
@@ -65,7 +65,7 @@ class TagDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-024 대상 태그가 완료되었거나 삭제되었어도 완료된 메모 목록으로 이동할 수 있다`() {
+    fun `TC-7c9b0e0e-2c9c-4487-acce-d768a25e15e6 대상 태그가 완료되었거나 삭제되었어도 완료된 메모 목록으로 이동할 수 있다`() {
         val tagId = fixtureId()
         val title = fixtureText(prefix = "Tag")
         // 삭제된 태그는 상세 대상 태그로 조회되지 않으므로 태그를 불러오지 못한 상태로 둔다.
@@ -95,7 +95,7 @@ class TagDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-010 완료된 메모가 없어도 메모 탭의 완료된 메모 확인으로 같은 태그의 TagMemoFinishedList 화면으로 이동한다`() {
+    fun `TC-b532f962-adb3-401f-80ac-2e69664f439e 완료된 메모가 없어도 메모 탭의 완료된 메모 확인으로 같은 태그의 TagMemoFinishedList 화면으로 이동한다`() {
         val tagId = fixtureId()
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
         setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to fixtureText(prefix = "Tag")))
@@ -109,7 +109,7 @@ class TagDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-058 연결한 태그의 상세에서 뒤로 돌아오면 이전 태그의 상세가 고치던 제목을 유지한다`() {
+    fun `TC-bd0d9d82-488f-4cde-8dd0-fc6aaa6ebfbf 연결한 태그의 상세에서 뒤로 돌아오면 이전 태그의 상세가 고치던 제목을 유지한다`() {
         val firstId = fixtureId()
         val secondId = fixtureId()
         val titleMap = mapOf(firstId to fixtureText(prefix = "FirstTag"), secondId to fixtureText(prefix = "SecondTag"))
@@ -127,7 +127,7 @@ class TagDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-059 연결이 순환해 같은 태그의 상세가 다시 열려도 새 화면이고 뒤로가면 거쳐 온 상세로 차례로 돌아간다`() {
+    fun `TC-f85a48d5-b69a-419e-9358-68a25040b4fb 연결이 순환해 같은 태그의 상세가 다시 열려도 새 화면이고 뒤로가면 거쳐 온 상세로 차례로 돌아간다`() {
         val firstId = fixtureId()
         val secondId = fixtureId()
         val titleMap = mapOf(firstId to fixtureText(prefix = "FirstTag"), secondId to fixtureText(prefix = "SecondTag"))

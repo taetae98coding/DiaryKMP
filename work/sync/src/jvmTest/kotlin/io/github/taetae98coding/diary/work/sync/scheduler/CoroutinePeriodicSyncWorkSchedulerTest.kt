@@ -25,7 +25,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
     BehaviorSpec({
         Given("주기 동기화가 예약되어 있지 않다") {
             When("인증된 사용자 계정으로 주기 동기화가 예약된다") {
-                Then("TC-DATA-SYNC-DOMAIN-056 TC-DATA-SYNC-DOMAIN-060 예약 직후에는 실행되지 않고 주기가 지나면 한 번 실행된다") {
+                Then("TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 TC-16de5077-3cce-4a3f-a51d-55d6f357de46 예약 직후에는 실행되지 않고 주기가 지나면 한 번 실행된다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -49,7 +49,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
             }
 
             When("주기 동기화가 예약되어 실행된다") {
-                Then("TC-SYNC-REFRESH-FEATURE-011 실행되는 동안에도 진행 표시 대상인 실행 중 상태가 되지 않는다") {
+                Then("TC-16116bd8-e994-44d9-8a67-4d3920488939 실행되는 동안에도 진행 표시 대상인 실행 중 상태가 되지 않는다") {
                     runTest {
                         val syncWork = mockk<SyncWork>()
                         coEvery { syncWork.doWork() } coAnswers { awaitCancellation() }
@@ -76,7 +76,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
 
         Given("인증된 사용자 계정으로 주기 동기화가 예약되어 있다") {
             When("다음 실행까지 주기가 남지 않은 시점에 계정이 다시 확인된다") {
-                Then("TC-DATA-SYNC-DOMAIN-057 TC-DATA-SYNC-DOMAIN-058 다음 실행 시각이 뒤로 미뤄지지 않고 예약한 시점으로부터 한 주기 뒤에 한 번 실행된다") {
+                Then("TC-6469282a-59e0-4ac6-8976-a566838d6669 TC-c52f665c-e8d8-45a8-a3aa-28ed08b2e5cf 다음 실행 시각이 뒤로 미뤄지지 않고 예약한 시점으로부터 한 주기 뒤에 한 번 실행된다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -99,7 +99,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
             }
 
             When("로그아웃되어 주기 동기화 예약이 해제된다") {
-                Then("TC-DATA-SYNC-DOMAIN-059 주기가 지나도 동기화가 실행되지 않는다") {
+                Then("TC-cc07f234-2c6a-4021-a650-4a0161718819 주기가 지나도 동기화가 실행되지 않는다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -121,7 +121,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
             }
 
             When("주기가 돌아와 동기화가 실패한다") {
-                Then("TC-DATA-SYNC-DOMAIN-061 예약이 유지되어 다음 주기에 다시 실행된다") {
+                Then("TC-d44c3656-3097-4c89-a4a3-9afb6c702f18 예약이 유지되어 다음 주기에 다시 실행된다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -150,7 +150,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
 
         Given("동기화가 끝나는 데 시간이 걸리는 주기 동기화가 예약되어 있다") {
             When("주기가 돌아와 주기 동기화가 실행되고 끝난다") {
-                Then("TC-DATA-SYNC-DOMAIN-091 끝난 시점부터 다음 주기를 센다") {
+                Then("TC-bf08b1cb-ac1b-4394-968d-45a34be0cc2c 끝난 시점부터 다음 주기를 센다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -182,7 +182,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
 
         Given("다른 계기로 시작된 동기화가 진행 중이고 주기 동기화가 예약되어 있다") {
             When("주기가 돌아와 주기 동기화가 실행된다") {
-                Then("TC-DATA-SYNC-DOMAIN-063 진행 중이던 동기화가 취소되지 않는다") {
+                Then("TC-82abafa0-6d03-47ef-8573-9b4654fd045f 진행 중이던 동기화가 취소되지 않는다") {
                     runTest {
                         var startCount = 0
                         var cancelCount = 0
@@ -223,7 +223,7 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
 
         Given("주기 동기화가 실행되어 진행 중이다") {
             When("다른 동기화 계기가 발생해 동기화가 요청된다") {
-                Then("TC-DATA-SYNC-DOMAIN-064 진행 중이던 주기 동기화가 취소되지 않는다") {
+                Then("TC-b31869f4-8236-4dd1-8b15-f1f4c1971dec 진행 중이던 주기 동기화가 취소되지 않는다") {
                     runTest {
                         var startCount = 0
                         var cancelCount = 0

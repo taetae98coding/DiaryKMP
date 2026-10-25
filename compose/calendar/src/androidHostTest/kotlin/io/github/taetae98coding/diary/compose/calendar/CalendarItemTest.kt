@@ -30,7 +30,7 @@ class CalendarItemTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-FEATURE-009 배치하는 화면이 지정한 아이템이 표시된다`() {
+    fun `TC-e6c9f7ec-89fc-4828-b95e-803df8b82aa5 배치하는 화면이 지정한 아이템이 표시된다`() {
         setCalendar {
             group { textItem(text = FIRST_ITEM_TEXT, start = july(day = 6), endInclusive = july(day = 8)) }
         }
@@ -39,14 +39,14 @@ class CalendarItemTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-010 아이템을 지정하지 않으면 날짜만 표시된다`() {
+    fun `TC-7141c112-246a-4b3e-882b-dbbd07a70441 아이템을 지정하지 않으면 날짜만 표시된다`() {
         setCalendar {}
 
         allTexts().size shouldBe DAY_OF_WEEK_COUNT + DAYS_PER_CALENDAR
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-011 아이템 지정이 바뀌면 표시가 갱신된다`() {
+    fun `TC-0efa4db3-121a-40be-90fd-d152b74f5ef9 아이템 지정이 바뀌면 표시가 갱신된다`() {
         var itemText by mutableStateOf(FIRST_ITEM_TEXT)
         composeRule.setContent {
             DiaryTheme {
@@ -64,7 +64,7 @@ class CalendarItemTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-012 달을 이동하면 이동한 달과 겹치는 아이템만 표시된다`() {
+    fun `TC-f232b5e2-2094-4185-ad23-d28cb8635ac7 달을 이동하면 이동한 달과 겹치는 아이템만 표시된다`() {
         setCalendar {
             group {
                 textItem(text = FIRST_ITEM_TEXT, start = july(day = 6), endInclusive = july(day = 8))

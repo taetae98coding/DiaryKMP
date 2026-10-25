@@ -39,7 +39,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CHECKLIST-ADD-FEATURE-010 추가에 성공하면 입력한 제목, 설명과 항목으로 추가를 요청하고 성공을 한 번 알린다") {
+        test("TC-bc713440-0005-43de-9923-2097f1f33358 추가에 성공하면 입력한 제목, 설명과 항목으로 추가를 요청하고 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
@@ -56,7 +56,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-ADD-FEATURE-011 추가를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
+        test("TC-49dc8390-b403-4ba5-a76a-853c521be665 추가를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val gate = CompletableDeferred<Unit>()
@@ -79,7 +79,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-ADD-FEATURE-012 저장에 실패하면 안내 없이 진행 상태만 해제한다") {
+        test("TC-fb408e72-941f-425f-91a2-d88d18702f7f 저장에 실패하면 안내 없이 진행 상태만 해제한다") {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
@@ -96,7 +96,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-ADD-FEATURE-013 제목이 비어 있어 추가하지 않으면 제목 입력이 필요함을 한 번 알린다") {
+        test("TC-e59eaf14-df79-4587-a34f-775b4ffa7492 제목이 비어 있어 추가하지 않으면 제목 입력이 필요함을 한 번 알린다") {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
@@ -112,7 +112,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-ADD-DOMAIN-014 추가를 처리하는 동안 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-04d54679-3918-49e7-915a-5216f0623b18 추가를 처리하는 동안 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val gate = CompletableDeferred<Unit>()

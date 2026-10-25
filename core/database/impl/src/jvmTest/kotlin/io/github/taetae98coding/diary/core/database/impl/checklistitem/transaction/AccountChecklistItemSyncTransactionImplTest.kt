@@ -50,7 +50,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             database.close()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-087 업로드 대상은 그 계정의 업로드 대기 체크 항목뿐이고 게스트 상태에서 만든 체크 항목은 포함되지 않는다") {
+        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 업로드 대상은 그 계정의 업로드 대기 체크 항목뿐이고 게스트 상태에서 만든 체크 항목은 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val guestChecklist = fixtureMonkey.localChecklist(isDeleted = false)
@@ -62,7 +62,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(item)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 TC-DATA-SYNC-DOMAIN-027 업로드한 수정 시각이 그대로면 동기화 완료가 되고, 그사이 체크가 바뀌었으면 업로드 대기로 남는다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드한 수정 시각이 그대로면 동기화 완료가 되고, 그사이 체크가 바뀌었으면 업로드 대기로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val unchanged = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
@@ -80,7 +80,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).map { item -> item.id } shouldBe listOf(changed.id)
         }
 
-        test("TC-DATA-SYNC-DATA-022 TC-DATA-SYNC-DATA-023 TC-DATA-SYNC-DATA-028 내려받은 체크 항목은 항목 하나 단위로 수정 시각을 비교해 반영하고 체크 항목 커서만 전진한다") {
+        test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 TC-5dd13cc9-5011-41cf-bfae-1314fe0084b6 내려받은 체크 항목은 항목 하나 단위로 수정 시각을 비교해 반영하고 체크 항목 커서만 전진한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val local = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
@@ -97,7 +97,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CHECKLIST) shouldBe 0L
         }
 
-        test("TC-DATA-SYNC-DATA-025 체크리스트보다 먼저 내려받은 체크 항목도 계정과 연결되어 동기화 완료로 저장된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 체크리스트보다 먼저 내려받은 체크 항목도 계정과 연결되어 동기화 완료로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pulled = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false)
 
@@ -108,7 +108,7 @@ class AccountChecklistItemSyncTransactionImplTest :
                 listOf(AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = pulled.id, isDirty = false))
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
-        test("TC-DATA-SYNC-DATA-022 서버의 수정 시각이 기기와 같으면 서버 내용을 반영한다") {
+        test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기와 같으면 서버 내용을 반영한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val local = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
@@ -125,7 +125,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             "같음" to 0.seconds,
             "이른" to (-1).seconds,
         ).forEach { (label, offset) ->
-            test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val checklist = fixtureMonkey.localChecklist(isDeleted = false)
                 val local = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
@@ -138,7 +138,7 @@ class AccountChecklistItemSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 체크 항목과 커서가 모두 반영되지 않는다") {
+        test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 체크 항목과 커서가 모두 반영되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val failingDatabase = spyk(database)
             every { failingDatabase.syncCursorDao() } throws ChecklistItemSyncTestException()

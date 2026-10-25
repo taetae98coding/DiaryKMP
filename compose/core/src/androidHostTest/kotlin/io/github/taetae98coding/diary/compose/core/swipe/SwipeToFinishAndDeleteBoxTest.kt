@@ -40,7 +40,7 @@ class SwipeToFinishAndDeleteBoxTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-001 좌에서 우로 스와이프하면 완료 동작을 한 번 실행한다`() {
+    fun `TC-e2cabc4b-8dfd-425a-ad86-704a912d2565 좌에서 우로 스와이프하면 완료 동작을 한 번 실행한다`() {
         var finishCount = 0
         var deleteCount = 0
         setSwipeToFinishAndDeleteBox(
@@ -56,7 +56,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-002 우에서 좌로 스와이프하면 삭제 동작을 한 번 실행한다`() {
+    fun `TC-d68667c2-0f08-4b3b-81b9-52e2e0f225bb 우에서 좌로 스와이프하면 삭제 동작을 한 번 실행한다`() {
         var finishCount = 0
         var deleteCount = 0
         setSwipeToFinishAndDeleteBox(
@@ -72,7 +72,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 시작 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+    fun `TC-d6814ed1-6d4d-4ed5-83c3-cbfa5b99012b 시작 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
         var finishCount = 0
         setSwipeToFinishAndDeleteBox(onFinish = { finishCount += 1 })
 
@@ -89,7 +89,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 끝 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+    fun `TC-d6814ed1-6d4d-4ed5-83c3-cbfa5b99012b 끝 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
         var deleteCount = 0
         setSwipeToFinishAndDeleteBox(onDelete = { deleteCount += 1 })
 
@@ -124,7 +124,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-004 실행 기준을 넘지 않은 스와이프는 아무 동작도 실행하지 않는다`() {
+    fun `TC-cd720d0b-08b4-409c-9302-1216aeb668f5 실행 기준을 넘지 않은 스와이프는 아무 동작도 실행하지 않는다`() {
         var finishCount = 0
         var deleteCount = 0
         setSwipeToFinishAndDeleteBox(
@@ -147,7 +147,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-005 스와이프가 비활성화된 카드는 스와이프해도 동작이 실행되지 않는다`() {
+    fun `TC-e3a160ed-b8ed-4fc4-b093-9c35f9b4a61c 스와이프가 비활성화된 카드는 스와이프해도 동작이 실행되지 않는다`() {
         var finishCount = 0
         var deleteCount = 0
         setSwipeToFinishAndDeleteBox(
@@ -166,7 +166,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-001 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
+    fun `TC-8e09f82b-f00e-4a05-80c9-ad686dc4a674 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
         val firstKey = fixtureMonkey.giveMeOne<Long>()
         var key by mutableStateOf(firstKey)
         var finishCount = 0
@@ -197,7 +197,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-002 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시되고 동작을 다시 실행하지 않는다`() {
+    fun `TC-4ab185ab-69a1-43fc-ba66-3bfcd937a724 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시되고 동작을 다시 실행하지 않는다`() {
         val key = fixtureMonkey.giveMeOne<Long>()
         var isShown by mutableStateOf(true)
         var finishCount = 0

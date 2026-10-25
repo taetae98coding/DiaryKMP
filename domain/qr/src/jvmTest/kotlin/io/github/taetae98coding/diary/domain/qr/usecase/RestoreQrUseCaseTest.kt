@@ -54,14 +54,14 @@ class RestoreQrUseCaseTest :
                 )
 
             When("QR의 삭제를 실행 취소한다") {
-                Then("TC-QR-HOME-DOMAIN-010 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
+                Then("TC-25f352ed-dd23-4043-8e14-b32fa4a0354c 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-9f59d662-8251-4eb6-85e1-8fd2875148cf 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -88,7 +88,7 @@ class RestoreQrUseCaseTest :
                 )
 
             When("QR의 삭제를 실행 취소한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-9f59d662-8251-4eb6-85e1-8fd2875148cf 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -137,7 +137,7 @@ class RestoreQrUseCaseTest :
                 )
 
             When("QR의 삭제를 실행 취소한다") {
-                Then("TC-QR-HOME-DATA-005 게스트 계정 기준으로 기기에 반영한다") {
+                Then("TC-94764581-fbce-4dbc-9cc0-a28ccf406f27 게스트 계정 기준으로 기기에 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -161,7 +161,7 @@ class RestoreQrUseCaseTest :
                 )
 
             When("QR의 삭제를 실행 취소한다") {
-                Then("TC-QR-HOME-DOMAIN-011 실행 취소가 성공으로 다뤄지지 않고 QR의 삭제 여부를 바꾸지 않는다") {
+                Then("TC-bf0b6d18-be2d-4885-b6aa-c9710edb5286 실행 취소가 성공으로 다뤄지지 않고 QR의 삭제 여부를 바꾸지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

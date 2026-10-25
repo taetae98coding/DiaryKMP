@@ -44,7 +44,7 @@ class ChromeCookieLocalDataSourceImplTest :
             snapshotParentDirectory.deleteRecursively()
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-001 암호화된 쿠키 값을 풀어 제공한다") {
+        test("TC-55ec15b6-9aa0-4f2d-b34f-eeef8d32647d 암호화된 쿠키 값을 풀어 제공한다") {
             runTest {
                 val key = randomAesKey()
                 val value = "value-${fixtureMonkey.giveMeOne<String>()}"
@@ -57,7 +57,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-013 암호화되지 않은 쿠키 값은 그대로 제공하고 키체인을 읽지 않는다") {
+        test("TC-411c94b1-4dbe-4a9b-aa54-7beed3636e78 암호화되지 않은 쿠키 값은 그대로 제공하고 키체인을 읽지 않는다") {
             runTest {
                 val database = createDatabase(ChromeCookieTestRow(hostKey = "example.com", name = "plain", value = "plain-value"))
                 val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, keyProvider = { error("keychain must not be read") }, dispatcher = StandardTestDispatcher(testScheduler))
@@ -66,7 +66,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-012 저장소의 쿠키를 도메인과 관계없이 모두 제공한다") {
+        test("TC-a1ca0e47-c4ce-4231-8f15-19561f72c4fa 저장소의 쿠키를 도메인과 관계없이 모두 제공한다") {
             runTest {
                 val key = randomAesKey()
                 val database =
@@ -84,7 +84,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-003 특정 상위 사이트 안에서만 쓰는 쿠키는 제공하지 않는다") {
+        test("TC-a2f07176-1089-47fa-8ae5-b737dd857a4e 특정 상위 사이트 안에서만 쓰는 쿠키는 제공하지 않는다") {
             runTest {
                 val key = randomAesKey()
                 val database =
@@ -103,7 +103,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-004 쿠키 속성을 Chrome 저장소의 값대로 제공한다") {
+        test("TC-597e1490-e906-48e8-88d7-fe0483c73dc7 쿠키 속성을 Chrome 저장소의 값대로 제공한다") {
             runTest {
                 val key = randomAesKey()
                 val expiresAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Instant>().toEpochMilliseconds())
@@ -144,7 +144,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-015 사이트가 확인되지 않는 쿠키는 실패 없이 빼고 제공한다") {
+        test("TC-2f5f8752-a1a0-4f01-bd00-601b8d50014f 사이트가 확인되지 않는 쿠키는 실패 없이 빼고 제공한다") {
             runTest {
                 val key = randomAesKey()
                 val database =
@@ -172,7 +172,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-005 암호화 키를 얻지 못하면 실패로 알린다") {
+        test("TC-82b3011d-8d45-4343-9fe3-496e68836a76 암호화 키를 얻지 못하면 실패로 알린다") {
             runTest {
                 val key = randomAesKey()
                 val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue("1", ".example.com", key)))
@@ -184,7 +184,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-006 쿠키 저장소가 없으면 실패로 알린다") {
+        test("TC-c0ca3603-f3fa-4bdc-9d5c-15dcd3b126c0 쿠키 저장소가 없으면 실패로 알린다") {
             runTest {
                 val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = createTempDirectory("diary-missing"), key = randomAesKey(), dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -194,7 +194,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-007 읽기가 끝나면 복사본을 남기지 않고 원래 저장소를 바꾸지 않는다") {
+        test("TC-6157876d-097d-4a44-9db7-e03dc00c21bb 읽기가 끝나면 복사본을 남기지 않고 원래 저장소를 바꾸지 않는다") {
             runTest {
                 val key = randomAesKey()
                 val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue("1", ".example.com", key)))
@@ -223,7 +223,7 @@ class ChromeCookieLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-012 요청한 프로필 폴더의 저장소만 읽는다") {
+        test("TC-f760b33d-11cf-47cd-9d3b-0e06bcb0b0a0 요청한 프로필 폴더의 저장소만 읽는다") {
             runTest {
                 val userDataDirectory = createDatabase(ChromeCookieTestRow(hostKey = "example.com", name = "default", value = "1"))
                 val otherPath = userDataDirectory.resolve("Profile 1").resolve("Cookies")

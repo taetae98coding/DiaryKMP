@@ -22,7 +22,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
             DiaryLogger.add(delegate = CrashlyticsDiaryLoggerDelegate())
 
             When("오류 정보와 메시지를 지정한 오류 보고 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-013 어디에도 오류 보고가 남지 않고 전달은 오류 없이 완료된다") {
+                Then("TC-014db60d-c53a-4112-b488-8eccd6671edc 어디에도 오류 보고가 남지 않고 전달은 오류 없이 완료된다") {
                     // 빈 문자열이 생성되면 검증이 무의미해지므로 접두사로 비어 있지 않음을 보장한다.
                     val message = "message${fixtureMonkey.giveMeOne<Int>()}"
                     val errorMessage = "error${fixtureMonkey.giveMeOne<Int>()}"
@@ -46,7 +46,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
             DiaryLogger.add(delegate = CrashlyticsDiaryLoggerDelegate(record = record))
 
             When("오류 보고 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-001 오류 보고 기록 수단이 그 로그를 남긴다") {
+                Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 오류 보고 기록 수단이 그 로그를 남긴다") {
                     clearMocks(record)
                     val log = CrashlyticsLog(message = fixtureMonkey.giveMeOne<String>(), throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>()))
 
@@ -58,7 +58,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
             }
 
             When("오류 보고 로그가 아닌 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-001 TC-APP-LOGGING-DOMAIN-003 오류 보고 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
+                Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 TC-b318e051-d005-425c-b1ef-c4f61d5a9f95 오류 보고 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
                     clearMocks(record)
 
                     shouldNotThrowAny {

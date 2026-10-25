@@ -75,7 +75,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-032 새로고침으로 받은 장소가 보이는 영역 안에 있으면 목록에 나타난다`() {
+    fun `TC-0a79258f-5fd4-4075-a970-23465689b975 새로고침으로 받은 장소가 보이는 영역 안에 있으면 목록에 나타난다`() {
         val place = viewModeTestPlace()
         val receivedPlace = viewModeTestPlace()
         val uiStateFlow = MutableStateFlow(loadedUiState(listOf(place)))
@@ -90,7 +90,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-033 새로고침이 실패해도 표시 중인 장소는 유지되고 실패 안내가 없다`() {
+    fun `TC-9dfeddc3-4efa-4f20-bff6-3c9810bb41b2 새로고침이 실패해도 표시 중인 장소는 유지되고 실패 안내가 없다`() {
         val basePlace = viewModeTestPlace()
         val place = basePlace.copy(detail = basePlace.detail.copy(title = "RefreshPlace${basePlace.id.toHexString()}"))
         val syncUiState = MutableStateFlow(SyncRefreshUiState())
@@ -174,7 +174,7 @@ class PlaceHomeRefreshTest {
     private fun exists(matcher: SemanticsMatcher): Boolean = composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 지도 모드의 목록에서 장소를 눌러 지도를 옮길 수 있다`() {
+    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 지도 모드의 목록에서 장소를 눌러 지도를 옮길 수 있다`() {
         val place = viewModeTestPlace()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setPlaceList(
@@ -190,7 +190,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 지도 모드의 목록에서 지도 가운데에 있는 장소를 눌러 상세로 이동할 수 있다`() {
+    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 지도 모드의 목록에서 지도 가운데에 있는 장소를 눌러 상세로 이동할 수 있다`() {
         val place = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -209,7 +209,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 목록 모드의 목록에서 장소를 선택해 상세로 이동할 수 있다`() {
+    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 목록 모드의 목록에서 장소를 선택해 상세로 이동할 수 있다`() {
         val place = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         composeRule.setContent {
@@ -230,7 +230,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 장소 추가로 이동할 수 있다`() {
+    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 장소 추가로 이동할 수 있다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         composeRule.setContent {
             ViewModeTestPlaceHomeScaffold(
@@ -250,7 +250,7 @@ class PlaceHomeRefreshTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-035 새로고침 중에 보이는 영역이 바뀌면 목록은 곧바로 갱신된다`() {
+    fun `TC-fadd65fd-b49e-4f02-9d8a-1d8f4122be2f 새로고침 중에 보이는 영역이 바뀌면 목록은 곧바로 갱신된다`() {
         val beforePlace = viewModeTestPlace()
         val afterPlace = viewModeTestPlace()
         val uiStateFlow = MutableStateFlow(loadedUiState(listOf(beforePlace)))

@@ -39,7 +39,7 @@ class AccountTagLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-002 태그 목록은 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회된다") {
+        test("TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d 태그 목록은 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val bravoTag =
                 selectableTag()
@@ -69,7 +69,7 @@ class AccountTagLocalDataSourceImplTest :
                 listOf(alphaTag, bravoTag, charlieTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-003 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-36238c18-3987-4f50-9051-4272285d7c16 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -89,7 +89,7 @@ class AccountTagLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(PAGE_SIZE).take(PAGE_SIZE)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-001 선택 목록 페이지 조회도 계정과 연결되고 완료·삭제되지 않은 태그만 가져온다") {
+        test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 선택 목록 페이지 조회도 계정과 연결되고 완료·삭제되지 않은 태그만 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableTag = selectableTag()
@@ -103,7 +103,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(selectableTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-004 선택한 식별자의 선택할 수 있는 태그만 제목 오름차순으로 조회한다") {
+        test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택한 식별자의 선택할 수 있는 태그만 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedLastTag = selectableTag().withTitle("Zebra")
             val selectedFirstTag = selectableTag().withTitle("Alpha")
@@ -123,7 +123,7 @@ class AccountTagLocalDataSourceImplTest :
                 ).first() shouldBe listOf(selectedFirstTag, selectedLastTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-004 선택한 식별자가 없으면 빈 목록을 조회한다") {
+        test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택한 식별자가 없으면 빈 목록을 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             transaction.upsert(accountId = accountId, tagList = listOf(selectableTag()), tagLinkList = emptyList())
@@ -131,7 +131,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.get(accountId = accountId, tagIdSet = emptySet()).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-015 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
+        test("TC-5eaf66e6-583e-4d17-9bdc-e1a9fd38bf34 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleTag = selectableTag().withDetail(emoji = "", title = "Travel", description = "")
             val emojiTag = selectableTag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
@@ -152,7 +152,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-005 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
+        test("TC-ecf420f3-f92b-4577-8542-1b176636869a 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -169,7 +169,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.page(accountId = accountId, query = "travel", sort = ListSortLocalEntity.DEFAULT).loadPage(loadSize = PAGE_SIZE).data shouldBe listOf(target)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-002 태그가 추가되거나 상태가 바뀌면 태그 목록 조회 결과가 갱신된다") {
+        test("TC-a79a3e06-9752-4c82-8ff3-8e9b880c87ec 태그가 추가되거나 상태가 바뀌면 태그 목록 조회 결과가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = selectableTag()
 

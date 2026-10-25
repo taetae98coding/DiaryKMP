@@ -36,7 +36,7 @@ class FindMusicUseCaseTest :
                     )
 
                 When("대상 식별자로 곡을 조회한다") {
-                    Then("TC-MUSIC-DETAIL-DOMAIN-001 삭제 여부와 관계없이 현재 계정의 곡을 전달한다") {
+                    Then("TC-089834cb-924c-4e13-ab94-cf51b620a5eb 삭제 여부와 관계없이 현재 계정의 곡을 전달한다") {
                         useCase(parameter = music.id).first().shouldBeSuccess(music)
                     }
                 }
@@ -57,7 +57,7 @@ class FindMusicUseCaseTest :
                 )
 
             When("대상 식별자로 곡을 조회한다") {
-                Then("TC-MUSIC-DETAIL-DATA-001 조회되는 곡이 없다") {
+                Then("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 조회되는 곡이 없다") {
                     useCase(parameter = musicId).first().shouldBeSuccess(null)
                 }
             }

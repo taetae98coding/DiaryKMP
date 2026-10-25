@@ -56,7 +56,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-010 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
+    fun `TC-9e01404b-fd4a-4c29-a173-785dc7b22d51 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<EntityMemoFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(entityMemoPagingData(itemList = emptyList()))
@@ -72,7 +72,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-016 다시 시작하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6 다시 시작하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -88,7 +88,7 @@ class EntityMemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-016 다시 시작하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6 다시 시작하면 한국어 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -101,7 +101,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-017 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-de3ead05-f69f-4c5e-9001-934c11e284b1 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -117,7 +117,7 @@ class EntityMemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-017 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-de3ead05-f69f-4c5e-9001-934c11e284b1 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -130,7 +130,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-018 다시 시작 실행 취소는 메모 완료를 요청하고 메모가 목록에 다시 나타난다`() {
+    fun `TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 다시 시작 실행 취소는 메모 완료를 요청하고 메모가 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -146,7 +146,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-018 삭제 실행 취소는 메모 복구를 요청하고 메모가 목록에 다시 나타난다`() {
+    fun `TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 삭제 실행 취소는 메모 복구를 요청하고 메모가 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -162,7 +162,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-025 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+    fun `TC-f49e34ff-45b1-4a1a-b06e-05f92c5b9cb6 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
         val environment = screenTestEnvironment()
         val otherMemoId = fixtureId()
         justRun { environment.viewModel.restore(id = otherMemoId) }
@@ -187,7 +187,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-026 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-5dcc4207-b802-40d5-9843-b50c0dcd0051 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = screenTestEnvironment()
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -205,7 +205,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-019 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-6176bb69-c13d-4d94-8d82-ec488cf53c3c 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigatedMemoId: Uuid? = null
         setEntityMemoFinishedListScreen(
@@ -220,7 +220,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-011 뒤로가기 버튼을 선택하면 화면을 떠난다`() {
+    fun `TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 뒤로가기 버튼을 선택하면 화면을 떠난다`() {
         val environment = screenTestEnvironment()
         var navigateUpCount = 0
         setEntityMemoFinishedListScreen(
@@ -234,7 +234,7 @@ class EntityMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-020 화면으로 돌아오면 바뀐 오늘에 맞춰 오늘 날짜 그룹 표시를 갱신한다`() {
+    fun `TC-8c7e68b3-5164-4fd7-adfb-d3536e43f4e1 화면으로 돌아오면 바뀐 오늘에 맞춰 오늘 날짜 그룹 표시를 갱신한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
 

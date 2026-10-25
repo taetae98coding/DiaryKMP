@@ -49,7 +49,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-009 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
+    fun `TC-86a56bc9-6142-4548-800e-9fa991a76358 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -60,7 +60,7 @@ class WebDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-009 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
+    fun `TC-86a56bc9-6142-4548-800e-9fa991a76358 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
         setScreenOnMemoTab(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(KOREAN_MEMO_ADD_DESCRIPTION).assertExists()
@@ -77,7 +77,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-016 웹 항목 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+    fun `TC-6d7309a6-7f48-4448-9be9-4cf4af1d8fd8 웹 항목 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
         var navigateToMemoAddCount = 0
         setScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -92,7 +92,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-008 대상 웹 항목의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
+    fun `TC-ecc627a7-6fe3-419b-a568-e36af1feea29 대상 웹 항목의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
         // 계정과 연결되지 않은 웹 항목은 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰되고, 삭제된 웹 항목은 내용 표시 상태로 관찰된다.
         val uiStateList = listOf(content(), WebDetailUiState.Loading)
         val uiStateFlow = MutableStateFlow<WebDetailUiState>(uiStateList.first())
@@ -114,7 +114,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-004 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-3b668146-2140-4ee2-98b9-cb720f5fc543 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = webMemo(title = SCREEN_MEMO_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnMemoTab(
@@ -129,7 +129,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-005 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
+    fun `TC-7eedea45-6f3c-4da5-ab8b-59acf40d31cb 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -145,7 +145,7 @@ class WebDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-005 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-7eedea45-6f3c-4da5-ab8b-59acf40d31cb 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -159,7 +159,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-006 완료 실행 취소는 메모 다시 시작을 요청한다`() {
+    fun `TC-a3c82f38-858b-45ff-8cfa-9feae2dbe2c5 완료 실행 취소는 메모 다시 시작을 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -172,7 +172,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-006 삭제 실행 취소는 메모 복구를 요청한다`() {
+    fun `TC-a3c82f38-858b-45ff-8cfa-9feae2dbe2c5 삭제 실행 취소는 메모 복구를 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -185,7 +185,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
         setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
@@ -196,7 +196,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DATA-006 TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목을 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+    fun `TC-7057f8c9-004a-4fe9-b4de-f7de13059840 TC-a34b4471-6584-4100-89d1-0315e72f16be 대상 웹 항목을 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setWebDetailMemoScreen(
             viewModel = memoScreenWebViewModel(MutableStateFlow(WebDetailUiState.Loading)),
             memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = INDEPENDENT_MEMO_TITLE)))),
@@ -209,7 +209,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DOMAIN-003 다른 탭에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-db3a70ba-7e25-4c0e-8b3b-cc75653040cb 다른 탭에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = List(POSITION_MEMO_COUNT) { index -> "$POSITION_MEMO_TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}" }
         setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
         waitUntilMemoIsDisplayed(title = titleList.first())
@@ -226,7 +226,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+    fun `TC-10049629-6e7f-4bd7-bc3f-48db9559007f 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -240,7 +240,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+    fun `TC-10049629-6e7f-4bd7-bc3f-48db9559007f 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -254,7 +254,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-b1ece23a-1e6a-4030-8bb3-89f4aa911eed 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }

@@ -66,7 +66,7 @@ class UpdateTagUseCaseTest :
                     )
 
                 When("이모지, 설명, 컬러만 바꿔 수정한다") {
-                    Then("TC-TAG-DETAIL-DOMAIN-001 기존 제목을 유지하고 이모지, 설명, 컬러는 수정한 내용으로 저장한다") {
+                    Then("TC-a214e230-45e0-4918-aa20-be9319bfc281 기존 제목을 유지하고 이모지, 설명, 컬러는 수정한 내용으로 저장한다") {
                         val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = blankTitle)
 
                         val result = useCase(parameter = UpdateTagUseCase.Parameter(id = tagId, detail = detail))
@@ -113,7 +113,7 @@ class UpdateTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 수정한다") {
-                Then("TC-TAG-DETAIL-DATA-001 이모지, 제목, 설명, 컬러와 저장 시각으로 현재 계정의 태그를 갱신한다") {
+                Then("TC-04559128-3d87-4938-b162-ac671aa75a3e 이모지, 제목, 설명, 컬러와 저장 시각으로 현재 계정의 태그를 갱신한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateTagUseCase.Parameter(id = tagId, detail = detail))
@@ -126,7 +126,7 @@ class UpdateTagUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-TAG-DETAIL-DOMAIN-004 이모지를 비우면 빈 이모지로 갱신한다") {
+                Then("TC-5f7c962f-a564-4c68-8680-a5ebf8e70e95 이모지를 비우면 빈 이모지로 갱신한다") {
                     val detail =
                         fixtureMonkey
                             .giveMeOne<TagDetail>()
@@ -200,7 +200,7 @@ class UpdateTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 수정한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 태그 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 태그 갱신 후 동기화를 한 번 요청한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateTagUseCase.Parameter(id = tagId, detail = detail))

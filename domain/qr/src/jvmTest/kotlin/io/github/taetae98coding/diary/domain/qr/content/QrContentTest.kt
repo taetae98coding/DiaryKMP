@@ -9,7 +9,7 @@ import kotlinx.datetime.LocalDateTime
 
 class QrContentTest :
     FunSpec({
-        test("TC-QR-ADD-DOMAIN-018 필수 입력이 성립하면 포맷별 규칙대로 QR 값을 만든다") {
+        test("TC-25b096cf-c44b-4e92-bb39-0cd8b34c408d 필수 입력이 성립하면 포맷별 규칙대로 QR 값을 만든다") {
             val caseList =
                 listOf(
                     QrContent.Url(url = "https://a.com") to "https://a.com",
@@ -77,7 +77,7 @@ class QrContentTest :
             }
         }
 
-        test("TC-QR-ADD-DOMAIN-019 포맷 규칙이 정한 글자는 바꿔 담는다") {
+        test("TC-dfe280f9-8e19-4900-ab6b-a43d4f501962 포맷 규칙이 정한 글자는 바꿔 담는다") {
             val caseList =
                 listOf(
                     QrContent.Contact(name = "a,b;c\\d", address = "1층\n2호") to
@@ -108,7 +108,7 @@ class QrContentTest :
             }
         }
 
-        test("TC-QR-ADD-DOMAIN-020 텍스트와 Wi-Fi 외의 입력은 앞뒤 공백을 지워 담고 Wi-Fi의 이름과 비밀번호는 그대로 담는다") {
+        test("TC-2817dc3d-9cbc-45e0-95e3-ec1c8c3d72a7 텍스트와 Wi-Fi 외의 입력은 앞뒤 공백을 지워 담고 Wi-Fi의 이름과 비밀번호는 그대로 담는다") {
             val caseList =
                 listOf(
                     QrContent.Url(url = "  https://a.com  ") to "https://a.com",
@@ -124,7 +124,7 @@ class QrContentTest :
             }
         }
 
-        test("TC-QR-ADD-DOMAIN-022 위치 좌표는 소수 여섯째 자리로 반올림하고 끝의 0을 빼고 담는다") {
+        test("TC-d34277ed-16f0-4d4a-a0d9-793e2a5d347b 위치 좌표는 소수 여섯째 자리로 반올림하고 끝의 0을 빼고 담는다") {
             val caseList =
                 listOf(
                     QrContent.Location(latitude = "37.12345678", longitude = "127.1234564") to "geo:37.123457,127.123456",

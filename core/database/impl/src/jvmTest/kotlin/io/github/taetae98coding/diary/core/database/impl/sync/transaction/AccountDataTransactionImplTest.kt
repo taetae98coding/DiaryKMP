@@ -318,7 +318,7 @@ class AccountDataTransactionImplTest :
             fillAccountState(accountId = accountId, entity = entity)
         }
 
-        test("TC-DATA-SYNC-DATA-035 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
+        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 
@@ -332,7 +332,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-036 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
+        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
@@ -357,7 +357,7 @@ class AccountDataTransactionImplTest :
             countRow(table = "memo_existence_filter") shouldBe 1
         }
 
-        test("TC-DATA-SYNC-DATA-051 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
+        test("TC-775f15b7-762d-4817-ad69-41b01e6aa9c4 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val entity = fillEntity(accountId = accountId, isDirty = true)
@@ -378,7 +378,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열여섯 종류가 모두 기본 커서로 조회된다") {
+        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 열여섯 종류가 모두 기본 커서로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 

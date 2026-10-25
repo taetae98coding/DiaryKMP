@@ -32,7 +32,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GetCalendarHolidayUseCaseTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-VISIBILITY-DOMAIN-001 노출 설정을 한 번도 고르지 않았다") {
+        Given("TC-a7ffbff2-87bb-450a-b08d-0ec3cd03753c 노출 설정을 한 번도 고르지 않았다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true)
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME, isHoliday = false)
@@ -49,7 +49,7 @@ class GetCalendarHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DOMAIN-002 두 연도에 같은 이름의 공휴일이 저장되어 있고 그 이름을 숨김으로 골랐다") {
+        Given("TC-08cfa73e-dc3b-4d9c-a7d5-cf361ac863d0 두 연도에 같은 이름의 공휴일이 저장되어 있고 그 이름을 숨김으로 골랐다") {
             val previousYearMidsummerDay = holiday(name = MIDSUMMER_DAY_NAME, start = july(year = 2025, day = 20))
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME, start = july(year = 2026, day = 20))
             val useCase =
@@ -70,7 +70,7 @@ class GetCalendarHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DOMAIN-003 이름이 다른 두 공휴일 중 하나만 숨김으로 골랐다") {
+        Given("TC-b6020ac2-ca51-49ef-a009-894019f9ec3c 이름이 다른 두 공휴일 중 하나만 숨김으로 골랐다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val independenceMovementDay = holiday(name = INDEPENDENCE_MOVEMENT_DAY_NAME)
             val substituteDay = holiday(name = SUBSTITUTE_INDEPENDENCE_MOVEMENT_DAY_NAME)
@@ -116,7 +116,7 @@ class GetCalendarHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-017 연도별 조회가 이름 순이 아닌 순서로 공휴일을 제공하고 그중 하나를 숨김으로 골랐다") {
+        Given("TC-d75dc9ef-4660-4ee1-b111-b23db989bc89 연도별 조회가 이름 순이 아닌 순서로 공휴일을 제공하고 그중 하나를 숨김으로 골랐다") {
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME, start = july(year = 2026, day = 15))
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME, start = july(year = 2026, day = 17))
             val liberationDay = holiday(name = LIBERATION_DAY_NAME, start = LocalDate(year = 2026, month = Month.AUGUST, day = 15))
@@ -135,7 +135,7 @@ class GetCalendarHolidayUseCaseTest :
         }
 
         // 2026년 2월 6일은 금요일이므로 금요일부터 일요일까지 쉬는 날 사흘이 이어져 황금연휴가 된다.
-        Given("TC-HOLIDAY-VISIBILITY-DOMAIN-005 황금연휴에 포함되는 공휴일을 숨김으로 골랐다") {
+        Given("TC-8d52ec80-8f44-46a8-8b24-c5e8763c13b5 황금연휴에 포함되는 공휴일을 숨김으로 골랐다") {
             val lunarNewYear = holiday(name = LUNAR_NEW_YEAR_NAME, start = LocalDate(year = 2026, month = Month.FEBRUARY, day = 6))
             val holidayRepository = holidayRepositoryByStartYear(listOf(lunarNewYear))
             val calendarHolidayUseCase =

@@ -13,7 +13,7 @@ import java.net.URI
 
 class GoogleMapHtmlTest :
     FunSpec({
-        test("TC-DIARY-MAP-DOMAIN-007: 유효한 인증 정보로 지도 영역 전체를 사용하는 지도를 기기 안에서만 제공한다") {
+        test("TC-06902c42-4b31-42d0-99e0-11b915d091d2: 유효한 인증 정보로 지도 영역 전체를 사용하는 지도를 기기 안에서만 제공한다") {
             val apiKey = "test-key_123"
 
             MapHttpServer().use { server ->
@@ -35,7 +35,7 @@ class GoogleMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-012: Google 지도가 제공하는 지도 컨트롤과 조작을 모두 켠 지도를 만든다") {
+        test("TC-c22b4b88-5039-456b-b604-2101295cbf53: Google 지도가 제공하는 지도 컨트롤과 조작을 모두 켠 지도를 만든다") {
             val html = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = null))
 
             val enabledOptions =
@@ -57,7 +57,7 @@ class GoogleMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-043: 현 위치 표시를 켜지 않은 지도를 만든다") {
+        test("TC-0c69edba-8ded-4d61-9af6-2d965bb2c242: 현 위치 표시를 켜지 않은 지도를 만든다") {
             val html = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = null))
 
             val myLocationKeywordList =
@@ -74,7 +74,7 @@ class GoogleMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-023: 초기 위치를 지정하면 그 위치와 동네 수준 확대를 지도 문서에 담는다") {
+        test("TC-f332d25c-769c-4896-bf0f-54d0aa3f85ef: 초기 위치를 지정하면 그 위치와 동네 수준 확대를 지도 문서에 담는다") {
             val camera =
                 DiaryMapCamera(
                     latitude = -33.8688,
@@ -90,7 +90,7 @@ class GoogleMapHtmlTest :
             html shouldContain "center = { lat: diaryMapCamera.latitude, lng: diaryMapCamera.longitude }"
         }
 
-        test("TC-DIARY-MAP-DOMAIN-024: 초기 위치를 지정하지 않으면 지도 문서에 시작 위치를 담지 않는다") {
+        test("TC-3d55c280-9116-4775-be0b-1397e7722fdb: 초기 위치를 지정하지 않으면 지도 문서에 시작 위치를 담지 않는다") {
             val html = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = null))
 
             html shouldContain "var diaryMapCamera = null;"
@@ -115,7 +115,7 @@ class GoogleMapHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-008: 인증 정보가 유효한 형식이 아니면 지도를 요청하지 않는다") {
+        test("TC-e2e262dc-1629-4f18-8206-e6f7cc246812: 인증 정보가 유효한 형식이 아니면 지도를 요청하지 않는다") {
             val apiKeys =
                 listOf(
                     "",

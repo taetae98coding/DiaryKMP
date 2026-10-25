@@ -54,7 +54,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-LINK-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-bafce675-468e-430e-b1ca-2721e029fcd5 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val item = tag()
@@ -79,7 +79,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-030 저장된 연결의 도착 태그를 연결 대상으로 표시한다") {
+        test("TC-35995748-4049-436d-af96-2e0466241b9e 저장된 연결의 도착 태그를 연결 대상으로 표시한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedTagList = List(2) { tag() }
@@ -92,7 +92,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-035 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
+        test("TC-f24a43a2-e275-4227-bca6-8d2f9793e98f 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tag = tag()
@@ -113,7 +113,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-031 태그를 연결하면 상세 대상 태그를 출발 태그로 연결을 만든다") {
+        test("TC-664344b5-d1b5-422d-a12c-ea7dcbe45e2e 태그를 연결하면 상세 대상 태그를 출발 태그로 연결을 만든다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val toTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -130,7 +130,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-032 연결을 해제하면 상세 대상 태그를 출발 태그로 연결을 해제한다") {
+        test("TC-6e01ef75-9bf3-4f5d-9dc4-60ea526233da 연결을 해제하면 상세 대상 태그를 출발 태그로 연결을 해제한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val toTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -147,7 +147,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-070 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
+        test("TC-7b2f9da6-18a5-4195-a84e-51403986e506 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedTag = tag()
@@ -253,7 +253,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-TAG-LINK-INPUT-DATA-005 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-6c8807b6-281d-4167-abf4-d79272febec2 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(2) { tag() }
@@ -281,7 +281,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-LINK-INPUT-DOMAIN-009 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
+        test("TC-88b1423e-e248-41cb-bd1a-a0f70736ca67 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedTagList = List(2) { tag() }
@@ -302,7 +302,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
     }
 
     private fun restorationTests() {
-        test("TC-TAG-LINK-INPUT-DOMAIN-015 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-41c3b709-42e1-4340-8f1a-8fc2c0e68cec 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(2) { tag() }

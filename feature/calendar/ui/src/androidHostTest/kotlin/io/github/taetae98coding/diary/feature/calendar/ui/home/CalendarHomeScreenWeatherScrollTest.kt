@@ -53,7 +53,7 @@ class CalendarHomeScreenWeatherScrollTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-073 아이템을 모두 볼 수 없는 주에서도 처음 도착한 날씨가 표시된다`() {
+    fun `TC-679e86c3-3412-44db-8659-7b09b0839317 아이템을 모두 볼 수 없는 주에서도 처음 도착한 날씨가 표시된다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         setCalendarHomeScreen(
             weatherReportFlow = weatherReportFlow,
@@ -68,7 +68,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-074 사용자가 아이템을 스크롤해 둔 주에서도 처음 도착한 날씨가 표시된다`() {
+    fun `TC-c9774069-3be8-4227-944e-a6315052987d 사용자가 아이템을 스크롤해 둔 주에서도 처음 도착한 날씨가 표시된다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
         setCalendarHomeScreen(
@@ -86,7 +86,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-009 날씨를 처음 표시한 뒤에는 날씨가 갱신되어도 아이템 스크롤을 되돌리지 않는다`() {
+    fun `TC-7c07c475-cdf6-442e-b920-9c157cf124a7 날씨를 처음 표시한 뒤에는 날씨가 갱신되어도 아이템 스크롤을 되돌리지 않는다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
         setCalendarHomeScreen(
@@ -106,7 +106,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-018 날씨가 사라졌다가 다시 채워져도 아이템 스크롤을 되돌리지 않는다`() {
+    fun `TC-7e7f7b8b-d0c4-455c-9734-b07e2cf9fd26 날씨가 사라졌다가 다시 채워져도 아이템 스크롤을 되돌리지 않는다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
         setCalendarHomeScreen(
@@ -128,7 +128,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-010 화면이 재생성되어도 이미 표시 중인 날씨로는 아이템 스크롤을 되돌리지 않는다`() {
+    fun `TC-d0759a55-0eba-4fc3-81c1-be4e891e9401 화면이 재생성되어도 이미 표시 중인 날씨로는 아이템 스크롤을 되돌리지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val memoList = memoList()
         restorationTester.setContent(
@@ -148,7 +148,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-011 화면이 재생성된 뒤 처음 도착한 날씨는 아이템 스크롤을 되돌린다`() {
+    fun `TC-9e6d3430-8a3b-458a-b822-1c6bdb77af4a 화면이 재생성된 뒤 처음 도착한 날씨는 아이템 스크롤을 되돌린다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
@@ -170,7 +170,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-020 다른 화면에서 돌아온 뒤 처음 도착한 날씨는 아이템 스크롤을 되돌린다`() {
+    fun `TC-cc603e36-eda4-4dc5-bc27-83a09cbf0463 다른 화면에서 돌아온 뒤 처음 도착한 날씨는 아이템 스크롤을 되돌린다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
         val isShown = mutableStateOf(true)
@@ -196,7 +196,7 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-021 다른 앱에 다녀온 뒤 도착한 날씨는 아이템 스크롤을 되돌리지 않는다`() {
+    fun `TC-f73154eb-dc68-4ad3-9ae4-b5f686bdf67b 다른 앱에 다녀온 뒤 도착한 날씨는 아이템 스크롤을 되돌리지 않는다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         val memoList = memoList()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)

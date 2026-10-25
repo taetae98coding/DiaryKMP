@@ -24,35 +24,35 @@ class PlaceAddScreenMessageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-005 기본 환경 추가 성공 안내`() {
+    fun `TC-f3fccf17-885e-4620-9f20-482189daef9e 기본 환경 추가 성공 안내`() {
         assertMessage(effect = PlaceAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-ADD-FEATURE-005 한국어 추가 성공 안내`() {
+    fun `TC-f3fccf17-885e-4620-9f20-482189daef9e 한국어 추가 성공 안내`() {
         assertMessage(effect = PlaceAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-008 기본 환경 제목 미입력 안내`() {
+    fun `TC-276fe0b6-4c7a-420e-825c-dc7a061e21a7 기본 환경 제목 미입력 안내`() {
         assertMessage(effect = PlaceAddEffect.TitleBlank, expectedMessage = DEFAULT_TITLE_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-ADD-FEATURE-008 한국어 제목 미입력 안내`() {
+    fun `TC-276fe0b6-4c7a-420e-825c-dc7a061e21a7 한국어 제목 미입력 안내`() {
         assertMessage(effect = PlaceAddEffect.TitleBlank, expectedMessage = KOREAN_TITLE_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-009 기본 환경 좌표 오류 안내`() {
+    fun `TC-839f33f5-6c41-4342-8bbb-203f3dd09e38 기본 환경 좌표 오류 안내`() {
         assertMessage(effect = PlaceAddEffect.CoordinateInvalid, expectedMessage = DEFAULT_COORDINATE_INVALID_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-ADD-FEATURE-009 한국어 좌표 오류 안내`() {
+    fun `TC-839f33f5-6c41-4342-8bbb-203f3dd09e38 한국어 좌표 오류 안내`() {
         assertMessage(effect = PlaceAddEffect.CoordinateInvalid, expectedMessage = KOREAN_COORDINATE_INVALID_MESSAGE)
     }
 

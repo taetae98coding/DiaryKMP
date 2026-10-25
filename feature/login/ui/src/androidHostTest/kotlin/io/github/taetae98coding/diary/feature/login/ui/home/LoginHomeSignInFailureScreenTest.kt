@@ -18,7 +18,7 @@ class LoginHomeSignInFailureScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOGIN-FEATURE-007 기본 Google credential 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 기본 Google credential 실패 안내`() {
         composeRule.assertGoogleCredentialFailureMessage(
             buttonDescription = DEFAULT_GOOGLE_BUTTON_DESCRIPTION,
             expectedMessage = DEFAULT_SIGN_IN_FAILED_MESSAGE,
@@ -27,7 +27,7 @@ class LoginHomeSignInFailureScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-LOGIN-FEATURE-007 한국어 Google credential 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 한국어 Google credential 실패 안내`() {
         composeRule.assertGoogleCredentialFailureMessage(
             buttonDescription = KOREAN_GOOGLE_BUTTON_DESCRIPTION,
             expectedMessage = KOREAN_SIGN_IN_FAILED_MESSAGE,
@@ -35,7 +35,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-007 기본 Apple credential 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 기본 Apple credential 실패 안내`() {
         composeRule.assertAppleCredentialFailureMessage(
             buttonDescription = DEFAULT_APPLE_BUTTON_DESCRIPTION,
             expectedMessage = DEFAULT_SIGN_IN_FAILED_MESSAGE,
@@ -44,7 +44,7 @@ class LoginHomeSignInFailureScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-LOGIN-FEATURE-007 한국어 Apple credential 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 한국어 Apple credential 실패 안내`() {
         composeRule.assertAppleCredentialFailureMessage(
             buttonDescription = KOREAN_APPLE_BUTTON_DESCRIPTION,
             expectedMessage = KOREAN_SIGN_IN_FAILED_MESSAGE,
@@ -52,7 +52,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-007 기본 앱 로그인 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 기본 앱 로그인 실패 안내`() {
         composeRule.assertAppSignInFailureMessage(
             buttonDescription = DEFAULT_GOOGLE_BUTTON_DESCRIPTION,
             expectedMessage = DEFAULT_SIGN_IN_FAILED_MESSAGE,
@@ -61,7 +61,7 @@ class LoginHomeSignInFailureScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-LOGIN-FEATURE-007 한국어 앱 로그인 실패 안내`() {
+    fun `TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb 한국어 앱 로그인 실패 안내`() {
         composeRule.assertAppSignInFailureMessage(
             buttonDescription = KOREAN_GOOGLE_BUTTON_DESCRIPTION,
             expectedMessage = KOREAN_SIGN_IN_FAILED_MESSAGE,
@@ -69,7 +69,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-DATA-005 Google 로그인을 취소하면 앱 로그인을 요청하지 않는다`() {
+    fun `TC-25a9711e-e27a-46be-8344-3a37971e6f26 Google 로그인을 취소하면 앱 로그인을 요청하지 않는다`() {
         composeRule.assertNoAppSignInRequest(
             buttonDescription = DEFAULT_GOOGLE_BUTTON_DESCRIPTION,
             googleFailure = GoogleCredentialsUserCancelException(),
@@ -77,7 +77,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-DATA-005 Google 인증 결과를 받지 못하면 앱 로그인을 요청하지 않는다`() {
+    fun `TC-25a9711e-e27a-46be-8344-3a37971e6f26 Google 인증 결과를 받지 못하면 앱 로그인을 요청하지 않는다`() {
         composeRule.assertNoAppSignInRequest(
             buttonDescription = DEFAULT_GOOGLE_BUTTON_DESCRIPTION,
             googleFailure = GoogleCredentialsException(),
@@ -85,7 +85,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-DATA-005 Apple 로그인을 취소하면 앱 로그인을 요청하지 않는다`() {
+    fun `TC-25a9711e-e27a-46be-8344-3a37971e6f26 Apple 로그인을 취소하면 앱 로그인을 요청하지 않는다`() {
         composeRule.assertNoAppSignInRequest(
             buttonDescription = DEFAULT_APPLE_BUTTON_DESCRIPTION,
             appleFailure = AppleCredentialsUserCancelException(),
@@ -93,7 +93,7 @@ class LoginHomeSignInFailureScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-DATA-005 Apple 인증 결과를 받지 못하면 앱 로그인을 요청하지 않는다`() {
+    fun `TC-25a9711e-e27a-46be-8344-3a37971e6f26 Apple 인증 결과를 받지 못하면 앱 로그인을 요청하지 않는다`() {
         composeRule.assertNoAppSignInRequest(
             buttonDescription = DEFAULT_APPLE_BUTTON_DESCRIPTION,
             appleFailure = AppleCredentialsException(),

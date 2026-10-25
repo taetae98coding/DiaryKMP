@@ -59,7 +59,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-001 상세 대상 태그로 조회한 목록을 그대로 전달한다") {
+        test("TC-68f91887-9083-475d-815a-be0bbbbc9fa1 상세 대상 태그로 조회한 목록을 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val itemList = List(2) { item() }
@@ -83,7 +83,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-002 상세 대상 태그로만 조회한다") {
+        test("TC-6d577b03-3e3d-4397-adb0-3cc423bcec12 상세 대상 태그로만 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -108,7 +108,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-021 지도 모드의 목록에는 보이는 영역 안의 장소만 남고 영역 밖의 장소는 나타나지 않는다") {
+        test("TC-8243e022-52a0-4d7c-b764-a3ee5f9c965e 지도 모드의 목록에는 보이는 영역 안의 장소만 남고 영역 밖의 장소는 나타나지 않는다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -135,7 +135,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-009 지도 모드는 대상 태그와 보이는 영역을 기준으로 조회한 장소를 노출한다") {
+        test("TC-91c58f1b-a800-4028-90b3-e6b6e9fa953c 지도 모드는 대상 태그와 보이는 영역을 기준으로 조회한 장소를 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -158,7 +158,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-034 표시 범위를 바꿔도 보고 있던 지도 영역을 그대로 쓴다") {
+        test("TC-4c9da472-7698-4c44-9b72-81f2e2887a25 표시 범위를 바꿔도 보고 있던 지도 영역을 그대로 쓴다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -185,7 +185,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 장소 목록을 각 범위 기준으로 다시 조회한다") {
+        test("TC-6e914ebb-0357-4604-87f2-6dc4438a9e03 표시 범위를 넓혔다 되돌리면 장소 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val selfPlaceList = List(2) { item() }
@@ -209,7 +209,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
                 }
             }
         }
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-010 목록 모드는 보이는 영역 밖의 장소도 노출한다") {
+        test("TC-4544d96c-500c-4c7b-82bc-83e74cb32cf6 목록 모드는 보이는 영역 밖의 장소도 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -241,7 +241,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-008 지도 모드의 목록은 영역 안 장소가 한 페이지보다 많아도 한 번에 모두 조회한다") {
+        test("TC-4a4dd24a-ceb3-4905-b07e-2a55d2749637 지도 모드의 목록은 영역 안 장소가 한 페이지보다 많아도 한 번에 모두 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -263,7 +263,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-024 보이는 영역을 확인하기 전에는 지도 모드의 목록을 조회하지 않는다") {
+        test("TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 보이는 영역을 확인하기 전에는 지도 모드의 목록을 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
@@ -279,7 +279,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-025 보이는 영역이 바뀌면 바뀐 영역으로 다시 조회한다") {
+        test("TC-bfb27e9f-3201-4ee7-861f-fd9c26ee3584 보이는 영역이 바뀌면 바뀐 영역으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val firstBounds = bounds()
@@ -307,7 +307,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-033 정렬을 바꾸면 두 보기 모드의 조회에 함께 적용된다") {
+        test("TC-1335953b-f1a2-4ad9-adf5-f4f1459b190a 정렬을 바꾸면 두 보기 모드의 조회에 함께 적용된다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -359,7 +359,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 지도 모드의 조회가 실패하면 빈 목록을 노출한다") {
+        test("TC-86a673d2-f136-4633-a5b5-a02c9417252f 지도 모드의 조회가 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -379,7 +379,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-86a673d2-f136-4633-a5b5-a02c9417252f 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -399,7 +399,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 이어서 불러오기에 실패해도 이미 불러온 장소를 그대로 노출한다") {
+        test("TC-86a673d2-f136-4633-a5b5-a02c9417252f 이어서 불러오기에 실패해도 이미 불러온 장소를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val placeList = List(2) { item() }
@@ -417,7 +417,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 조회가 성공한 뒤 다시 조회하다 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
+        test("TC-86a673d2-f136-4633-a5b5-a02c9417252f 조회가 성공한 뒤 다시 조회하다 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val placeList = List(2) { item() }
@@ -481,7 +481,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-038 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-92903379-bc52-4bad-8c9a-fe9055f0e396 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -498,7 +498,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-043 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-5e317aae-d4da-4972-a4ce-53ad464cf901 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -514,7 +514,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-040 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-2d118d0a-ac53-41f3-b4ea-8a6a05fbda7a 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()

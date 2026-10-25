@@ -44,7 +44,7 @@ class TagDetailPlaceListPositionTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-013 화면이 회전하거나 창 크기가 바뀌어도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-a54d2b80-925e-49f4-9f54-435133d2cfeb 화면이 회전하거나 창 크기가 바뀌어도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
         val restorationTester = StateRestorationTester(composeRule)
@@ -58,7 +58,7 @@ class TagDetailPlaceListPositionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-013 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-a54d2b80-925e-49f4-9f54-435133d2cfeb 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
         composeRule.setContent { PlaceTab(placePagingDataFlow = placePagingDataFlow) }
@@ -73,7 +73,7 @@ class TagDetailPlaceListPositionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-013 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-a54d2b80-925e-49f4-9f54-435133d2cfeb 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
         var isTagDetailOnTop by mutableStateOf(true)
@@ -97,7 +97,7 @@ class TagDetailPlaceListPositionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-013 다른 탭을 선택한 뒤 장소 탭으로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-a54d2b80-925e-49f4-9f54-435133d2cfeb 다른 탭을 선택한 뒤 장소 탭으로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
@@ -113,7 +113,7 @@ class TagDetailPlaceListPositionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-014 지도 모드에 다녀오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
+    fun `TC-af0e8779-540e-4ce5-94db-01c53de0a11a 지도 모드에 다녀오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
         val placeList = placeList()
         val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
         composeRule.setContent { PlaceTab(placePagingDataFlow = placePagingDataFlow) }
@@ -129,7 +129,7 @@ class TagDetailPlaceListPositionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-014 화면을 떠난 뒤 다시 들어오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
+    fun `TC-af0e8779-540e-4ce5-94db-01c53de0a11a 화면을 떠난 뒤 다시 들어오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
         val placeList = placeList()
         val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
         var isTagDetailVisible by mutableStateOf(true)

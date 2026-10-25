@@ -71,7 +71,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-019 화면이 재생성되어도 바꾼 모든 입력을 유지한다`() {
+    fun `TC-78791b8f-d31d-4c12-8344-5429561913bc 화면이 재생성되어도 바꾼 모든 입력을 유지한다`() {
         val stored = storedDetail()
         val input = editedInput()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
@@ -99,7 +99,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-019 재생성 직후 다시 조회하는 동안에도 바꾼 입력을 잃지 않는다`() {
+    fun `TC-78791b8f-d31d-4c12-8344-5429561913bc 재생성 직후 다시 조회하는 동안에도 바꾼 입력을 잃지 않는다`() {
         val stored = storedDetail()
         val input = editedInput()
         val restoredUiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Loading)
@@ -131,7 +131,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-020 화면을 떠난 뒤 같은 연락처에 다시 들어오면 저장된 내용으로 다시 시작한다`() {
+    fun `TC-eaa0d3cf-24b5-47c0-b968-beab1d53116a 화면을 떠난 뒤 같은 연락처에 다시 들어오면 저장된 내용으로 다시 시작한다`() {
         val stored = storedDetail()
         val input = editedInput()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
@@ -170,7 +170,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-009 수정에 실패하면 안내 없이 입력을 유지하고 다시 수정할 수 있다`() {
+    fun `TC-26e85c64-7227-4259-9ae3-5de6f31e6c54 수정에 실패하면 안내 없이 입력을 유지하고 다시 수정할 수 있다`() {
         val stored = storedDetail()
         val input = editedInput()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
@@ -188,7 +188,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-010 이름을 비운 채 수정하면 비운 이름과 바꾼 설명으로 수정하고 성공을 알린다`() {
+    fun `TC-2f5e9a91-c345-4b33-be1c-9209710b562b 이름을 비운 채 수정하면 비운 이름과 바꾼 설명으로 수정하고 성공을 알린다`() {
         val stored = storedDetail()
         val description = "설명-${fixtureMonkey.giveMeOne<String>()}"
         val viewModel = effectViewModel(stored = stored, effect = ContactDetailEffect.UpdateSucceeded)
@@ -205,7 +205,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-046 이름을 비운 채 수정해도 수정 동작이 계속 제공된다`() {
+    fun `TC-08ca0893-554b-4489-9dcb-9f90da46d790 이름을 비운 채 수정해도 수정 동작이 계속 제공된다`() {
         val stored = storedDetail()
         val viewModel = effectViewModel(stored = stored, effect = ContactDetailEffect.UpdateSucceeded)
         composeRule.setContactDetailScreen(viewModel = viewModel)
@@ -219,7 +219,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-012 번호가 비어 있는 전화번호 항목이 있으면 전화번호 입력을 알리고 입력을 유지한다`() {
+    fun `TC-05f2c60c-85f8-49b0-bd88-edb5f89dc2b5 번호가 비어 있는 전화번호 항목이 있으면 전화번호 입력을 알리고 입력을 유지한다`() {
         val stored = storedDetail()
         val input = editedInput()
         val viewModel = effectViewModel(stored = stored, effect = ContactDetailEffect.PhoneNumberBlank)
@@ -234,7 +234,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-045 전화번호 미입력으로 수정하면 보고 있던 입력에 초점을 그대로 둔다`() {
+    fun `TC-186b58f0-9ae4-4a97-94fc-623434fc2d55 전화번호 미입력으로 수정하면 보고 있던 입력에 초점을 그대로 둔다`() {
         val stored = storedDetail()
         val viewModel = effectViewModel(stored = stored, effect = ContactDetailEffect.PhoneNumberBlank)
         composeRule.setContactDetailScreen(viewModel = viewModel)
@@ -249,7 +249,7 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-021 입력을 바꾼 채 뒤로가면 수정 없이 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-569aca85-a747-4a6e-8e65-79a07ae1b288 입력을 바꾼 채 뒤로가면 수정 없이 진입하기 전 화면으로 돌아간다`() {
         val stored = storedDetail()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
         var navigateUpCount = 0
@@ -265,17 +265,17 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-047 즐겨찾기인 연락처는 화면이 재생성되어도 즐겨찾기 표시를 유지한다`() {
+    fun `TC-253d84b3-3a0f-4903-8237-9306829e693b 즐겨찾기인 연락처는 화면이 재생성되어도 즐겨찾기 표시를 유지한다`() {
         assertFavoriteRestored(isFavorite = true, expectedDescription = DEFAULT_UNFAVORITE_DESCRIPTION)
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-047 즐겨찾기가 아닌 연락처는 화면이 재생성되어도 즐겨찾기가 아닌 표시를 유지한다`() {
+    fun `TC-253d84b3-3a0f-4903-8237-9306829e693b 즐겨찾기가 아닌 연락처는 화면이 재생성되어도 즐겨찾기가 아닌 표시를 유지한다`() {
         assertFavoriteRestored(isFavorite = false, expectedDescription = DEFAULT_FAVORITE_DESCRIPTION)
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-048 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-ef7f75d7-17b5-4ed2-94dc-bfd8c64c1141 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = List(MEMO_COUNT) { index -> "메모-$index-${fixtureMonkey.giveMeOne<Int>()}" }
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = storedDetail())))
         composeRule.setContactDetailScreen(

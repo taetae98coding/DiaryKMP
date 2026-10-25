@@ -34,7 +34,7 @@ class ProxyMusicDownloaderTest :
     BehaviorSpec({
         Given("프록시가 파일 전체와 크기를 응답한다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-008 저장된 주소로 그 곡의 영상 ID를 요청한다") {
+                Then("TC-f7128f19-0082-40a7-9242-51b66e8623f9 저장된 주소로 그 곡의 영상 ID를 요청한다") {
                     runTest {
                         val target = testDownloadTarget()
                         val engine = fileEngine()
@@ -49,7 +49,7 @@ class ProxyMusicDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DATA-009 받은 내용을 영상 ID의 파일로 저장하고 받다 만 파일은 남기지 않는다") {
+                Then("TC-529a2ebf-c20e-4ea8-9b13-d57d6a44f919 받은 내용을 영상 ID의 파일로 저장하고 받다 만 파일은 남기지 않는다") {
                     runTest {
                         val target = testDownloadTarget()
                         val path = tempMusicFilePath(target.videoId)
@@ -63,7 +63,7 @@ class ProxyMusicDownloaderTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-019 응답의 크기에 대해 받은 만큼을 백분율로 알린다") {
+                Then("TC-2e0849ff-ecd5-44d3-bdda-886a8b22489f 응답의 크기에 대해 받은 만큼을 백분율로 알린다") {
                     runTest {
                         val target = testDownloadTarget()
                         val progressList = mutableListOf<Float>()
@@ -80,7 +80,7 @@ class ProxyMusicDownloaderTest :
 
         Given("프록시가 파일 전체를 응답하지만 받은 파일을 둘 자리에 저장할 수 없다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 받은 파일을 저장하지 못하면 실패로 끝나고 파일이 남지 않는다") {
+                Then("TC-35cb138b-ea34-4376-9835-2ab00cafc3d8 받은 파일을 저장하지 못하면 실패로 끝나고 파일이 남지 않는다") {
                     runTest {
                         val target = testDownloadTarget()
                         val directory = createTempDirectory("diary-music").resolve("missing")
@@ -102,7 +102,7 @@ class ProxyMusicDownloaderTest :
 
         Given("프록시가 실패로 응답한다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-011 실패로 끝나고 파일이 남지 않는다") {
+                Then("TC-c65829b7-f603-40d1-b897-de7305fa478e 실패로 끝나고 파일이 남지 않는다") {
                     runTest {
                         val statusList = listOf(HttpStatusCode.InternalServerError, HttpStatusCode.BadRequest)
 
@@ -123,7 +123,7 @@ class ProxyMusicDownloaderTest :
 
         Given("프록시가 파일을 일부까지만 전달한 뒤 끊긴다") {
             When("영상을 받으면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-006 실패로 끝나고 파일이 남지 않는다") {
+                Then("TC-fb645f71-3566-4b33-ba55-307a8865ce79 실패로 끝나고 파일이 남지 않는다") {
                     runTest {
                         val target = testDownloadTarget()
                         val path = tempMusicFilePath(target.videoId)

@@ -65,7 +65,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DATA-001 태그별 완료 메모 paging에 주입된 태그 ID를 전달한다") {
+        test("TC-13388ef2-d0eb-4e06-b53c-4c0c12428706 태그별 완료 메모 paging에 주입된 태그 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -83,7 +83,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-003 조회한 태그의 이모지와 제목을 상단 바 제목으로 노출한다") {
+        test("TC-48ca7beb-c171-45cb-a825-6b3394694fc4 조회한 태그의 이모지와 제목을 상단 바 제목으로 노출한다") {
             listOf(
                 tagDetail(emoji = TAG_EMOJI, title = TAG_TITLE) to "$TAG_EMOJI $TAG_TITLE",
                 tagDetail(emoji = "", title = TAG_TITLE) to TAG_TITLE,
@@ -104,7 +104,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-004 태그를 조회할 수 없거나 조회에 실패하면 상단 바 태그 표시를 비운다") {
+        test("TC-6cb1435c-44a9-48e1-8e79-d69dd8c363d7 태그를 조회할 수 없거나 조회에 실패하면 상단 바 태그 표시를 비운다") {
             listOf<Result<Tag?>>(
                 Result.success(null),
                 Result.failure(IllegalStateException()),
@@ -125,7 +125,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-005 태그의 저장 이모지나 제목이 바뀌면 상단 바 표시를 갱신한다") {
+        test("TC-35229e7a-b0e8-408f-99f4-d1792e806bdd 태그의 저장 이모지나 제목이 바뀌면 상단 바 표시를 갱신한다") {
             runTest(mainDispatcher) {
                 val tag =
                     tag(isFinished = false, isDeleted = false)
@@ -151,7 +151,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DOMAIN-001 태그의 완료·삭제 상태는 화면 상태에 영향을 주지 않는다") {
+        test("TC-e7a82908-76dc-471d-9b48-d875210e218e 태그의 완료·삭제 상태는 화면 상태에 영향을 주지 않는다") {
             listOf(
                 tag(isFinished = false, isDeleted = false),
                 tag(isFinished = true, isDeleted = false),
@@ -172,7 +172,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
@@ -192,7 +192,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
+        test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -210,7 +210,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -234,7 +234,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-016 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
+        test("TC-4ff545fd-dc92-439d-b2a5-90942a03e819 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -253,7 +253,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-021 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
+        test("TC-82349e81-70b6-4d7d-859c-4832bb63094c 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -269,7 +269,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-018 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
+        test("TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -287,7 +287,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-017 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
+        test("TC-7d012eef-54c2-404e-82a1-fd4e2a9f1977 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -306,7 +306,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-021 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
+        test("TC-82349e81-70b6-4d7d-859c-4832bb63094c 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -322,7 +322,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-018 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
+        test("TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()

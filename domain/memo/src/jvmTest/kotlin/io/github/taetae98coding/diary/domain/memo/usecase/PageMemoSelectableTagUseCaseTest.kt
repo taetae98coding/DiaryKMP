@@ -57,7 +57,7 @@ class PageMemoSelectableTagUseCaseTest :
                 }
             }
 
-            When("TC-MEMO-TAG-INPUT-DOMAIN-016 공백만 있는 검색어로 선택 목록을 조회한다") {
+            When("TC-9ff9ab22-ab73-4d46-8b47-802496786cfe 공백만 있는 검색어로 선택 목록을 조회한다") {
                 Then("검색어가 없는 것과 같게 조회한다") {
                     useCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = memoId, query = "   "))
                         .first()

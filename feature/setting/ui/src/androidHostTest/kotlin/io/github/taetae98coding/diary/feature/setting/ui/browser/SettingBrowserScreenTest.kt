@@ -28,7 +28,7 @@ class SettingBrowserScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-001 바꾼 선택을 되돌리지 않고 뒤로가기 동작으로 이전 화면으로 돌아간다`() {
+    fun `TC-ea755929-3e47-49eb-8fa6-fb8faafdb8e5 바꾼 선택을 되돌리지 않고 뒤로가기 동작으로 이전 화면으로 돌아간다`() {
         val profile = fixtureMonkey.chromeProfileList(size = 1).single()
         var navigateUpCount = 0
         val viewModel = screenTestViewModel(profile = profile, selectedProfileDirectory = "")
@@ -47,7 +47,7 @@ class SettingBrowserScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-004 프로필을 고르면 그 프로필 선택을 한 번 실행한다`() {
+    fun `TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 프로필을 고르면 그 프로필 선택을 한 번 실행한다`() {
         val profile = fixtureMonkey.chromeProfileList(size = 1).single()
         val viewModel = screenTestViewModel(profile = profile, selectedProfileDirectory = "")
         setSettingBrowserScreen(viewModel = viewModel)
@@ -60,7 +60,7 @@ class SettingBrowserScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-004 선택 안 함을 고르면 선택 해제를 한 번 실행한다`() {
+    fun `TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 선택 안 함을 고르면 선택 해제를 한 번 실행한다`() {
         val profile = fixtureMonkey.chromeProfileList(size = 1).single()
         val viewModel = screenTestViewModel(profile = profile, selectedProfileDirectory = profile.directory)
         setSettingBrowserScreen(viewModel = viewModel)

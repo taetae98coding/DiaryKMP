@@ -31,7 +31,7 @@ class SearchHomeQueryScrollEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-026 질의를 바꾸면 결과 목록이 맨 위에서 다시 시작한다`() {
+    fun `TC-fbb7a40f-3348-4c9b-83a0-4fcc904ddb14 질의를 바꾸면 결과 목록이 맨 위에서 다시 시작한다`() {
         val query = mutableStateOf(QUERY)
         val listState = setMemoListWithScrollEffect(query = query)
 
@@ -44,7 +44,7 @@ class SearchHomeQueryScrollEffectTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-049 앞뒤 공백만 바꾼 질의도 결과 목록이 맨 위에서 다시 시작한다`() {
+    fun `TC-48a5aed0-afed-4845-88b6-f791952df640 앞뒤 공백만 바꾼 질의도 결과 목록이 맨 위에서 다시 시작한다`() {
         val query = mutableStateOf(QUERY)
         val listState = setMemoListWithScrollEffect(query = query)
 

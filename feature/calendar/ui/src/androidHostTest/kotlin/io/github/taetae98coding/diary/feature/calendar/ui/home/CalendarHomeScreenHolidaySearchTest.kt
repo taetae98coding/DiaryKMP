@@ -51,7 +51,7 @@ class CalendarHomeScreenHolidaySearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-022 공휴일 이름을 누르면 그 이름으로 검색한 결과가 브라우저에서 열린다`() {
+    fun `TC-d0d7d300-a790-4810-977a-6ee00d081122 공휴일 이름을 누르면 그 이름으로 검색한 결과가 브라우저에서 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         setCalendarHomeScreen(
@@ -76,7 +76,7 @@ class CalendarHomeScreenHolidaySearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-023 여러 주에 나뉘어 표시된 공휴일 이름은 어느 조각을 눌러도 같은 검색 결과가 열린다`() {
+    fun `TC-74b42d0e-352a-4e60-b4d9-3c091c991585 여러 주에 나뉘어 표시된 공휴일 이름은 어느 조각을 눌러도 같은 검색 결과가 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         setCalendarHomeScreen(
@@ -106,7 +106,7 @@ class CalendarHomeScreenHolidaySearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-024 공휴일 이름을 눌러도 보던 달과 공휴일 표시가 유지된다`() {
+    fun `TC-c9f6595a-3fbd-4490-babe-133ef6e9db27 공휴일 이름을 눌러도 보던 달과 공휴일 표시가 유지된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             holidayList = listOf(holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, date = july(day = 17))),
@@ -120,7 +120,7 @@ class CalendarHomeScreenHolidaySearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-110 공휴일 선택에서 브라우저를 열지 못하면 화면이 유지되고 검색 결과를 열지 못했다고 알린다`() {
+    fun `TC-a2cbcdd7-3dbe-4aae-9ee5-dde3fb0f0aed 공휴일 선택에서 브라우저를 열지 못하면 화면이 유지되고 검색 결과를 열지 못했다고 알린다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())

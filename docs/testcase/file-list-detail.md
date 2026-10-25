@@ -6,32 +6,32 @@
 
 표시 비율 조절의 공통 행동과 유지 기준은 [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)에 위임되어 있다. 한 화면만 사용하는 환경에서 파일 목록에서 FileAdd나 FileDetail로 이동하는 케이스는 [FileHome 테스트 케이스](./file-home.md)에서, 상세 영역에서 파일을 올리는 케이스는 [FileAdd 테스트 케이스](./file-add.md)에서, 상세 영역에서 파일 정보를 고치고 내려받는 케이스는 [FileDetail 테스트 케이스](./file-detail.md)에서, 올리기가 끝났을 때 어느 화면을 보고 있는 것으로 판정하는지는 [파일 올리기 알림 테스트 케이스](./file-upload-notification.md)에서 다룬다.
 
-상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 결과를 FileAdd가 알리는 것은 [FileAdd 테스트 케이스](./file-add.md)의 올리기 결과 케이스가, 두 파일 화면을 함께 표시할 때 FileAdd를 보고 있는 것으로 판정하는 것은 [파일 올리기 알림 테스트 케이스](./file-upload-notification.md)의 TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-006이 다룬다.
+상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 결과를 FileAdd가 알리는 것은 [FileAdd 테스트 케이스](./file-add.md)의 올리기 결과 케이스가, 두 파일 화면을 함께 표시할 때 FileAdd를 보고 있는 것으로 판정하는 것은 [파일 올리기 알림 테스트 케이스](./file-upload-notification.md)의 TC-21415d63-709f-4d61-9ead-743e437adff3이 다룬다.
 
 ## feature
 
-### TC-FILE-LIST-DETAIL-FEATURE-001: 목록과 상세를 함께 쓰는 환경에서는 두 영역을 함께 표시한다
+### TC-7689a1a6-3e58-4736-b647-7db6963633b2: 목록과 상세를 함께 쓰는 환경에서는 두 영역을 함께 표시한다
 
 - 근거: `feature > 함께 사용과 단독 사용`
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이고 로그인한 상태다.
 - When: 사용자가 FileHome 화면에 진입한다.
 - Then: 파일 목록을 유지한 채 상세 영역에 FileAdd가 함께 표시된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-002: 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다
+### TC-7a418dcf-96fc-4eb2-851d-494e31e91387: 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다
 
 - 근거: `feature > 함께 사용과 단독 사용`
 - Given: 목록과 상세를 함께 사용할 수 없는 환경이고 로그인한 상태다.
 - When: 사용자가 파일 목록 또는 FileAdd를 사용한다.
 - Then: 현재 사용하는 화면만 단독으로 표시된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-003: 상세 영역에 FileAdd가 놓이면 목록에서 추가 수단을 제공하지 않는다
+### TC-7e1e3678-bffe-4341-9b07-82c444317948: 상세 영역에 FileAdd가 놓이면 목록에서 추가 수단을 제공하지 않는다
 
 - 근거: `feature > 추가 진입 수단`
 - Given: 로그인한 상태이고 상세 영역에 FileAdd가 놓여 있다.
 - When: 사용자가 파일 목록에서 실행할 수 있는 동작을 확인한다.
 - Then: 파일 추가 동작이 제공되지 않는다. 추가 단축키를 눌러도 추가가 실행되지 않는다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-004: 상세 영역에 FileAdd가 놓여 있지 않으면 목록에서 추가 수단을 제공한다
+### TC-e8b1d116-f857-4329-acb8-5fd73bad2f05: 상세 영역에 FileAdd가 놓여 있지 않으면 목록에서 추가 수단을 제공한다
 
 - 근거: `feature > 추가 진입 수단`
 - Given: 로그인한 상태이고 상세 영역이 테스트 데이터의 상태다.
@@ -44,7 +44,7 @@
 | 상세 영역을 함께 표시하지 않음 |
 | FileDetail이 놓여 있음 |
 
-### TC-FILE-LIST-DETAIL-FEATURE-005: 목록과 함께 표시되면 상세 영역의 화면에서 뒤로가기 수단을 제공하지 않는다
+### TC-68250e6a-ee8d-434b-8f3e-c3e66a787f4b: 목록과 함께 표시되면 상세 영역의 화면에서 뒤로가기 수단을 제공하지 않는다
 
 - 근거: `feature > 함께 사용할 때의 행동`
 - Given: 파일 목록과 테스트 데이터의 화면이 함께 표시되어 있다.
@@ -57,7 +57,7 @@
 | FileAdd |
 | FileDetail |
 
-### TC-FILE-LIST-DETAIL-FEATURE-006: 단독으로 표시되면 그 화면에서 뒤로가기 수단을 제공한다
+### TC-b3a7960f-8eef-4979-814a-c3d29c8ee0e4: 단독으로 표시되면 그 화면에서 뒤로가기 수단을 제공한다
 
 - 근거: `feature > 함께 사용과 단독 사용`
 - Given: 테스트 데이터의 화면이 단독으로 표시되어 있다.
@@ -70,49 +70,49 @@
 | FileAdd |
 | FileDetail |
 
-### TC-FILE-LIST-DETAIL-FEATURE-007: 목록에서 파일을 선택하면 상세 영역이 그 파일의 FileDetail로 바뀐다
+### TC-e3e8c3de-6912-43b5-a584-e0623ecdc26a: 목록에서 파일을 선택하면 상세 영역이 그 파일의 FileDetail로 바뀐다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 FileAdd가 함께 표시되어 있다.
 - When: 사용자가 목록에서 파일 하나를 선택한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 그 파일의 FileDetail로 바뀐다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-008: 상세 영역에서 뒤로가면 FileAdd로 되돌아간다
+### TC-e810d0ab-2004-4514-8d74-590ba541f912: 상세 영역에서 뒤로가면 FileAdd로 되돌아간다
 
 - 근거: `feature > 뒤로가기`
 - Given: 파일 목록과 선택한 파일의 FileDetail이 함께 표시되어 있다.
 - When: 사용자가 상세 영역에서 시스템 뒤로가기를 실행한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 FileAdd로 되돌아간다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-009: FileDetail이 놓인 동안 파일 추가를 실행하면 상세 영역이 FileAdd로 바뀐다
+### TC-c93a7a45-a0f0-4805-84e0-8fe72a3c63c1: FileDetail이 놓인 동안 파일 추가를 실행하면 상세 영역이 FileAdd로 바뀐다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 선택한 파일의 FileDetail이 함께 표시되어 있고 올리는 중인 파일이 없다.
 - When: 사용자가 목록에서 파일 추가를 실행한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 FileAdd로 바뀌며 선택한 파일이 없는 상태가 된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-010: FileDetail 위에서 연 FileAdd에서 뒤로가면 이전 FileDetail로 돌아간다
+### TC-91d24273-310d-44e6-bfc0-9f03c8df9c23: FileDetail 위에서 연 FileAdd에서 뒤로가면 이전 FileDetail로 돌아간다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 선택한 파일의 FileDetail이 함께 표시된 상태에서 사용자가 목록의 파일 추가를 실행해 상세 영역에 FileAdd가 놓여 있다.
 - When: 사용자가 상세 영역에서 시스템 뒤로가기를 실행한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 FileAdd를 열기 전에 보던 파일의 FileDetail로 돌아간다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-011: FileDetail 위에서 연 FileAdd는 빈 입력으로 시작한다
+### TC-872d944e-87d5-468c-a55c-4d855f6e4d4b: FileDetail 위에서 연 FileAdd는 빈 입력으로 시작한다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 상세 영역이 함께 표시되고, 선택한 파일이 없을 때의 FileAdd에 제목과 설명을 적고 파일을 고른 뒤 목록에서 파일을 골라 상세 영역에 FileDetail이 놓여 있다.
 - When: 사용자가 목록에서 파일 추가를 실행한다.
 - Then: 목록은 그대로 유지되고, 상세 영역에 놓인 FileAdd의 제목과 설명이 비어 있으며 고른 파일 없음으로 표시된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-012: FileDetail이 놓인 동안 다른 파일을 고르면 앞 파일의 FileDetail을 쌓지 않고 교체한다
+### TC-3138af23-fb7b-408c-8a86-92eead539d42: FileDetail이 놓인 동안 다른 파일을 고르면 앞 파일의 FileDetail을 쌓지 않고 교체한다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 FileAdd가 함께 표시되어 있고 목록에 파일 A와 파일 B가 있다.
 - When: 사용자가 목록에서 파일 A를 고른 뒤 파일 B를 고르고, 시스템 뒤로가기를 사용한다.
 - Then: 파일 B를 고르면 상세 영역이 파일 B의 FileDetail로 바뀌고, 뒤로가기를 사용하면 파일 A의 FileDetail이 아니라 FileAdd로 되돌아가며 목록은 그대로 유지된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-013: 목록에서 연 FileAdd가 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다
+### TC-d314030a-4b36-4de7-b07b-eb59d6d8cd8b: 목록에서 연 FileAdd가 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이고, 테스트 데이터의 상태에서 목록의 파일 추가로 연 FileAdd가 상세 영역에 놓여 있으며 그 FileAdd에 제목을 적어 두었다.
@@ -125,7 +125,7 @@
 | 상세 영역에 파일 A의 FileDetail이 놓여 있었음 |
 | 한 영역만 표시되던 동안 목록에서 FileAdd를 열었고, 그 뒤 창이 넓어짐 |
 
-### TC-FILE-LIST-DETAIL-FEATURE-014: 파일을 고르지 않은 상태에서 뒤로가면 `더보기`로 돌아간다
+### TC-1e76486e-2f0c-4a6a-bbce-5f40539596f1: 파일을 고르지 않은 상태에서 뒤로가면 `더보기`로 돌아간다
 
 - 근거: `feature > 뒤로가기`
 - Given: 파일 목록과 테스트 데이터의 상세 영역이 함께 표시되어 있다.
@@ -138,7 +138,7 @@
 | 선택한 파일이 없을 때의 FileAdd |
 | 게스트 상태라 비어 있음 |
 
-### TC-FILE-LIST-DETAIL-FEATURE-015: 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 `더보기`로 돌아간다
+### TC-ef8a7743-df68-44e9-8a97-a56e91fba5cf: 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 `더보기`로 돌아간다
 
 - 근거: `feature > 뒤로가기`
 - Given: 파일 목록과 테스트 데이터의 화면이 함께 표시되어 있다.
@@ -152,14 +152,14 @@
 | 목록에서 연 FileAdd |
 | FileDetail |
 
-### TC-FILE-LIST-DETAIL-FEATURE-016: 상세 영역에 FileDetail이 놓인 동안 끝난 올리기의 실패는 목록에서 알린다
+### TC-0af65ecc-01ad-4693-83bb-945d52fa4fb7: 상세 영역에 FileDetail이 놓인 동안 끝난 올리기의 실패는 목록에서 알린다
 
 - 근거: `feature > 올리기 결과를 알리는 화면`
 - Given: 사용자 언어가 한국어이고, 파일 목록과 선택한 파일의 FileDetail이 함께 표시된 동안 올리는 중이다.
 - When: 올리기가 그 밖의 이유로 실패한다.
 - Then: 목록 영역에 `파일을 올리지 못했습니다` 안내가 표시되고 상세 영역에는 FileDetail이 그대로 남는다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-017: 상세 영역의 화면이 계정 변경으로 닫히면 뒤로가기를 실행한 것과 같이 되돌아간다
+### TC-1bd00936-52b0-4d58-b4d4-f84c9fe30902: 상세 영역의 화면이 계정 변경으로 닫히면 뒤로가기를 실행한 것과 같이 되돌아간다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 테스트 데이터의 상세 영역 화면이 함께 표시되어 있다.
@@ -172,35 +172,35 @@
 | FileDetail | 다른 사용자 | 선택한 파일이 없을 때의 FileAdd로 되돌아간다 |
 | FileDetail을 보다가 목록에서 연 FileAdd | 게스트 | FileAdd와 그 아래의 FileDetail이 모두 닫히고 상세 영역이 비어 있다 |
 
-### TC-FILE-LIST-DETAIL-FEATURE-018: FileDetail 위에서 연 FileAdd가 놓인 동안 다른 사용자로 바뀌면 FileAdd는 남고 뒤로가면 FileDetail이 닫힌다
+### TC-c5b955f9-725d-406e-8813-5798ce866445: FileDetail 위에서 연 FileAdd가 놓인 동안 다른 사용자로 바뀌면 FileAdd는 남고 뒤로가면 FileDetail이 닫힌다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 선택한 파일의 FileDetail이 함께 표시된 상태에서 목록의 파일 추가로 연 FileAdd가 상세 영역에 놓여 있고, 그 FileAdd에 제목을 적어 두었다.
 - When: 계정이 다른 사용자로 바뀐 뒤 사용자가 상세 영역에서 시스템 뒤로가기를 실행한다.
 - Then: 계정이 바뀐 뒤에도 상세 영역에는 FileAdd와 적어 둔 제목이 그대로 남고, 뒤로가기를 실행하면 FileDetail이 다시 보이지 않고 상세 영역이 선택한 파일이 없을 때의 FileAdd로 돌아간다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-019: 선택 전 FileAdd에서 올리기를 시작해도 상세 영역은 FileAdd로 남는다
+### TC-2fd4f0fe-865d-4c52-95e8-e8054c97dc8d: 선택 전 FileAdd에서 올리기를 시작해도 상세 영역은 FileAdd로 남는다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 선택한 파일이 없을 때의 FileAdd가 함께 표시되고, FileAdd에 제목을 적고 파일을 골랐다. 올리기 요청이 받아들여지도록 설정되어 있다.
 - When: 사용자가 FileAdd에서 올리기를 실행한다.
 - Then: 목록과 상세 영역의 FileAdd가 그대로 표시되고, FileAdd의 제목이 비고 고른 파일 없음으로 표시된다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-020: 선택 전 FileAdd에서 올린 파일은 성공하면 같은 화면의 목록에 나타난다
+### TC-9c8360d6-d01d-4e46-92e8-97ae6585cfea: 선택 전 FileAdd에서 올린 파일은 성공하면 같은 화면의 목록에 나타난다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 사용자 언어가 한국어이고, 파일 목록과 선택한 파일이 없을 때의 FileAdd가 함께 표시된 동안 올리는 중이다. 목록을 다시 불러오면 서버가 방금 올린 파일을 맨 앞에 담아 돌려주도록 설정되어 있다.
 - When: 올리기가 성공으로 끝난다.
 - Then: 상세 영역의 FileAdd에 `파일을 올렸습니다.` 안내가 표시되고 FileAdd가 그대로 남으며, 목록에 방금 올린 파일이 나타난다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-021: 올리는 중에도 목록에서 파일을 선택해 상세 영역에 FileDetail을 연다
+### TC-57f0766c-de93-4842-95fb-78154c61fa71: 올리는 중에도 목록에서 파일을 선택해 상세 영역에 FileDetail을 연다
 
 - 근거: `feature > 상세 영역의 구성`
 - Given: 파일 목록과 상세 영역이 함께 표시된 동안 올리는 중이다.
 - When: 사용자가 목록에서 파일 하나를 선택한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 그 파일의 FileDetail로 바뀐다.
 
-### TC-FILE-LIST-DETAIL-FEATURE-022: 목록에서 연 FileAdd를 닫아도 선택 전 FileAdd의 작성 내용이 남는다
+### TC-28f6f7bf-80cc-467a-8f3a-b5a40ddda245: 목록에서 연 FileAdd를 닫아도 선택 전 FileAdd의 작성 내용이 남는다
 
 - 근거: `feature > 상세 영역의 구성`, `domain > 유지와 초기화 기준`
 - Given: 파일 목록과 상세 영역이 함께 표시되고, 선택한 파일이 없을 때의 FileAdd에 제목과 설명을 적고 파일을 고른 뒤, 목록에서 파일 A를 골라 연 FileDetail 위에 목록의 파일 추가로 FileAdd를 열어 두었다.
@@ -215,7 +215,7 @@
 
 ## domain
 
-### TC-FILE-LIST-DETAIL-DOMAIN-001: 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 목록과 함께 표시하지 않는다
+### TC-93ef7888-533c-419e-ab80-d0ca6304a6f8: 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 목록과 함께 표시하지 않는다
 
 - 근거: `domain > 배치에 참여하는 화면`
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
@@ -228,7 +228,7 @@
 | FileAdd |
 | FileDetail |
 
-### TC-FILE-LIST-DETAIL-DOMAIN-002: 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록과 함께 표시한다
+### TC-675a9714-031d-420a-8df3-639645c0a8c6: 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록과 함께 표시한다
 
 - 근거: `domain > 배치에 참여하는 화면`
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
@@ -242,63 +242,63 @@
 | FileDetail |
 | FileDetail을 본 뒤 목록에서 연 FileAdd |
 
-### TC-FILE-LIST-DETAIL-DOMAIN-003: `더보기`로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다
+### TC-efa25862-1b55-4fd6-ad3f-ab31b4149ca3: `더보기`로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 상세 영역에 선택한 파일의 FileDetail이 놓여 있다.
 - When: 사용자가 파일 목록의 뒤로가기 동작으로 `더보기` 화면으로 돌아갔다가 파일 화면에 다시 진입한다.
 - Then: 상세 영역에는 FileDetail이 아니라 선택한 파일이 없을 때의 FileAdd가 놓인다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-004: `더보기`로 돌아갔다가 다시 진입하면 상세 영역의 FileAdd는 빈 상태로 시작한다
+### TC-dbd90688-c4d1-468e-a939-728e3263703b: `더보기`로 돌아갔다가 다시 진입하면 상세 영역의 FileAdd는 빈 상태로 시작한다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 선택한 파일이 없어 상세 영역에 FileAdd가 놓여 있다. 사용자가 FileAdd에 제목과 설명을 적고 파일을 골랐다.
 - When: 사용자가 `더보기` 화면으로 돌아갔다가 파일 화면에 다시 진입한다.
 - Then: 상세 영역의 FileAdd는 제목과 설명이 비어 있고 고른 파일이 없다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-005: 배치를 떠나기 전에는 상세 영역에서 FileDetail을 보고 돌아와도 FileAdd의 작성 내용이 남는다
+### TC-49230831-151f-434d-b14a-22fef676ed93: 배치를 떠나기 전에는 상세 영역에서 FileDetail을 보고 돌아와도 FileAdd의 작성 내용이 남는다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 선택한 파일이 없어 상세 영역에 FileAdd가 놓여 있다. 사용자가 FileAdd에 제목과 설명을 적고 파일을 골랐다.
 - When: 사용자가 목록에서 파일을 골라 상세 영역에서 FileDetail을 본 뒤 뒤로가기를 사용해 FileAdd로 돌아온다.
 - Then: FileAdd에 적어 두던 제목과 설명, 고른 파일이 그대로 남아 있다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-006: 게스트가 되면 선택한 파일이 없을 때의 상세 영역을 비우고 작성 내용을 남기지 않는다
+### TC-86d19c58-91c6-426c-bc18-470661404a39: 게스트가 되면 선택한 파일이 없을 때의 상세 영역을 비우고 작성 내용을 남기지 않는다
 
 - 근거: `domain > 계정 상태에 따른 상세 영역`
 - Given: 목록과 상세 영역이 함께 표시되고 선택한 파일이 없어 상세 영역에 FileAdd가 놓여 있다. 사용자가 FileAdd에 제목을 적고 파일을 골랐다.
 - When: 계정이 게스트가 되고, 그 뒤 다시 사용자가 된다.
 - Then: 게스트인 동안 상세 영역에는 FileAdd가 표시되지 않고, 다시 사용자가 되면 상세 영역의 FileAdd는 제목이 비어 있고 고른 파일이 없다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-007: 계정 상태를 확정하지 않은 동안에는 상세 영역의 FileAdd와 작성 내용을 그대로 둔다
+### TC-dde99079-94ce-4220-93cd-88b9078538ac: 계정 상태를 확정하지 않은 동안에는 상세 영역의 FileAdd와 작성 내용을 그대로 둔다
 
 - 근거: `domain > 계정 상태에 따른 상세 영역`
 - Given: 목록과 상세 영역이 함께 표시되고 선택한 파일이 없어 상세 영역에 FileAdd가 놓여 있다. 사용자가 FileAdd에 제목을 적었다.
 - When: 계정 상태를 게스트·사용자로 확정하지 않은 상태가 된다.
 - Then: 상세 영역에 FileAdd와 적어 둔 제목이 그대로 남는다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-008: 화면이 재생성되어도 상세 선택을 유지한다
+### TC-cca9e6c2-7793-45a7-88e9-b83b66b8f98c: 화면이 재생성되어도 상세 선택을 유지한다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 목록에서 고른 파일의 FileDetail이 상세 영역에 놓여 있다.
 - When: 화면이 재생성된다.
 - Then: 목록과 함께 상세 영역에 같은 파일의 FileDetail이 놓여 있고, 상세 영역에서 뒤로가면 FileAdd로 되돌아간다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-009: 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다
+### TC-d74e781c-d7cb-4d80-a96d-c3c66fa897c7: 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 목록에서 고른 파일의 FileDetail이 상세 영역에 놓여 있다.
 - When: 앱이 백그라운드에 있는 동안 시스템이 앱을 정리했다가 다시 만든다.
 - Then: 목록과 함께 상세 영역에 같은 파일의 FileDetail이 놓여 있고, 상세 영역에서 뒤로가면 FileAdd로 되돌아간다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-010: 앱이 백그라운드에 다녀와도 상세 선택을 유지한다
+### TC-6fbc8782-e3e3-4c31-8f30-856af745434f: 앱이 백그라운드에 다녀와도 상세 선택을 유지한다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고 목록에서 고른 파일의 FileDetail이 상세 영역에 놓여 있다.
 - When: 앱이 백그라운드에 갔다가 같은 화면으로 돌아온다.
 - Then: 목록과 함께 상세 영역에 같은 파일의 FileDetail이 놓여 있고, 상세 영역에서 뒤로가면 FileAdd로 되돌아간다.
 
-### TC-FILE-LIST-DETAIL-DOMAIN-011: 상세 영역의 화면이 바뀌어도 목록은 보던 자리를 유지하고 다시 불러오지 않는다
+### TC-f460776c-ceec-4447-8e4b-c1260ee8047a: 상세 영역의 화면이 바뀌어도 목록은 보던 자리를 유지하고 다시 불러오지 않는다
 
 - 근거: `domain > 유지와 초기화 기준`
 - Given: 목록과 상세 영역이 함께 표시되고, 사용자가 목록을 아래로 이동해 앞부분의 파일이 보이지 않는다.
@@ -307,6 +307,6 @@
 
 ## 작성하지 않는 이유
 
-`더보기`로 돌아갔다가 다시 진입했을 때 상세 선택이 초기화되는 결과는 TC-FILE-LIST-DETAIL-DOMAIN-003에서 다룬다. 앱을 다시 실행했을 때의 상세 선택 초기화는 앱 프로세스를 끝내고 다시 띄워야 관찰할 수 있어 자동화하지 않으며, 프로세스 재시작을 제어할 수 있는 테스트 환경이 갖춰지면 자동화한다.
+`더보기`로 돌아갔다가 다시 진입했을 때 상세 선택이 초기화되는 결과는 TC-efa25862-1b55-4fd6-ad3f-ab31b4149ca3에서 다룬다. 앱을 다시 실행했을 때의 상세 선택 초기화는 앱 프로세스를 끝내고 다시 띄워야 관찰할 수 있어 자동화하지 않으며, 프로세스 재시작을 제어할 수 있는 테스트 환경이 갖춰지면 자동화한다.
 
-두 영역의 표시 비율 조절과 조절 중 즉시 반영, 화면 재생성·백그라운드 복귀 후 비율 유지, `더보기`로 돌아갔다가 다시 진입하거나 앱을 다시 실행한 뒤의 기본 비율 초기화는 실제 화면 크기와 실행 경계를 함께 판정해야 한다. 같은 경계에서 상세 선택이 유지되는지는 TC-FILE-LIST-DETAIL-DOMAIN-008, TC-FILE-LIST-DETAIL-DOMAIN-009, TC-FILE-LIST-DETAIL-DOMAIN-010이 따로 검증한다. 현재 테스트 환경에서는 결정적으로 자동화할 수 없으며, 화면 크기와 실행 경계를 제어·관찰할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.
+두 영역의 표시 비율 조절과 조절 중 즉시 반영, 화면 재생성·백그라운드 복귀 후 비율 유지, `더보기`로 돌아갔다가 다시 진입하거나 앱을 다시 실행한 뒤의 기본 비율 초기화는 실제 화면 크기와 실행 경계를 함께 판정해야 한다. 같은 경계에서 상세 선택이 유지되는지는 TC-cca9e6c2-7793-45a7-88e9-b83b66b8f98c, TC-d74e781c-d7cb-4d80-a96d-c3c66fa897c7, TC-6fbc8782-e3e3-4c31-8f30-856af745434f이 따로 검증한다. 현재 테스트 환경에서는 결정적으로 자동화할 수 없으며, 화면 크기와 실행 경계를 제어·관찰할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.

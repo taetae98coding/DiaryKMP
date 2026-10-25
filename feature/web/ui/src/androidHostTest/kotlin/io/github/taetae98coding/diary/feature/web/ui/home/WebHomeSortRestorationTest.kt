@@ -53,7 +53,7 @@ class WebHomeSortRestorationTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-013 화면이 재생성되어도 고른 정렬을 유지한다`() {
+    fun `TC-44fefef4-aef9-4729-b618-72635e672b10 화면이 재생성되어도 고른 정렬을 유지한다`() {
         val first = testWeb(title = "A-${fixtureMonkey.giveMeOne<String>()}")
         val second = testWeb(title = "B-${fixtureMonkey.giveMeOne<String>()}")
         val pageWebUseCase = mockk<PageWebUseCase>()
@@ -98,7 +98,7 @@ class WebHomeSortRestorationTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-014 시스템이 앱을 정리했다가 다시 만들면 정렬은 제목순으로 돌아가고 보던 목록 위치는 복원한다`() {
+    fun `TC-cc70976d-2ecd-446f-8233-28029ccd900a 시스템이 앱을 정리했다가 다시 만들면 정렬은 제목순으로 돌아가고 보던 목록 위치는 복원한다`() {
         val titleOrderList = List(RESTORATION_WEB_COUNT) { index -> testWeb(title = "웹-${index.toString().padStart(length = 2, padChar = '0')}") }
         val recentOrderList = titleOrderList.reversed()
         val pageWebUseCase = mockk<PageWebUseCase>()

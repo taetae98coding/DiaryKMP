@@ -11,14 +11,14 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class TagDetailScopeStateTest :
     FunSpec({
-        test("TC-TAG-DETAIL-FEATURE-048 새로 만든 상태는 이 태그만 범위로 시작한다") {
+        test("TC-1110555d-8e6c-4822-b18a-29ed6e4bd4bd 새로 만든 상태는 이 태그만 범위로 시작한다") {
             val state = TagDetailScopeState(sheetState = DialogState())
 
             state.scope shouldBe TagScope.SELF
             state.isApplied shouldBe false
         }
 
-        test("TC-TAG-DETAIL-FEATURE-049 고른 범위가 그대로 유지된다") {
+        test("TC-8d95a383-bdbc-441b-9966-8a94d0a4620c 고른 범위가 그대로 유지된다") {
             listOf(TagScope.SELF, TagScope.CHILD, TagScope.DESCENDANT).forEach { scope ->
                 val state = TagDetailScopeState(sheetState = DialogState())
 

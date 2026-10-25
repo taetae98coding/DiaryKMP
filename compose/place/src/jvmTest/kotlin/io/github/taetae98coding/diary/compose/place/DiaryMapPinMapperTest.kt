@@ -14,7 +14,7 @@ import kotlin.uuid.Uuid
 class DiaryMapPinMapperTest :
     FunSpec({
         test(
-            "TC-PLACE-HOME-FEATURE-024, TC-MEMO-PLACE-CARD-FEATURE-018 장소는 좌표 위치에 컬러 색과 제목 라벨을 가진 핀으로 변환된다",
+            "TC-c4fdf19e-6b46-4b2f-9cb8-cb7a20e2e956, TC-b4820f67-50fa-4e61-a61e-f86dabc63a79 장소는 좌표 위치에 컬러 색과 제목 라벨을 가진 핀으로 변환된다",
         ) {
             val place = place()
 
@@ -25,7 +25,7 @@ class DiaryMapPinMapperTest :
             pin.label shouldBe place.detail.title
         }
 
-        test("TC-PLACE-HOME-DOMAIN-015, TC-MEMO-PLACE-CARD-DOMAIN-016 핀의 식별 값은 그 장소의 식별자다") {
+        test("TC-846bef63-ecc0-4f27-8bd4-c5672bb2db4e, TC-324e8d9b-1ec9-4829-82a9-4b300b72947d 핀의 식별 값은 그 장소의 식별자다") {
             val placeList = List(2) { place() }
 
             val pinList = placeList.map { place -> place.toDiaryMapPin() }

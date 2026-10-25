@@ -25,7 +25,7 @@ class WebAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-001 화면에 처음 진입하면 입력이 모두 비어 있다`() {
+    fun `TC-fe19e883-bb55-485e-aeeb-877d451211c8 화면에 처음 진입하면 입력이 모두 비어 있다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
 
         composeRule.titleInput().assert(hasText(""))
@@ -35,7 +35,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-002 제목, 설명, URL을 입력할 수 있다`() {
+    fun `TC-a5ad8168-73d4-4980-abfd-0ea67e3f1a22 제목, 설명, URL을 입력할 수 있다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
 
         composeRule.titleInput().performTextInput(TYPED_TITLE)
@@ -49,7 +49,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-003 요청 헤더 항목을 추가해 이름과 값을 입력할 수 있다`() {
+    fun `TC-affd8325-9b59-4502-b1d3-2a0e7622111d 요청 헤더 항목을 추가해 이름과 값을 입력할 수 있다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
 
         composeRule.addHeaderRow()
@@ -68,7 +68,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-004 헤더 항목을 삭제해도 다른 입력은 유지된다`() {
+    fun `TC-40f0fdfd-e919-459b-8351-037fdf36da1c 헤더 항목을 삭제해도 다른 입력은 유지된다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
         composeRule.fillAllInput()
 
@@ -84,7 +84,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-005 추가에 성공하면 다음 웹 항목을 작성할 수 있는 상태로 초기화한다`() {
+    fun `TC-56c151c4-31f8-49b3-aaf5-2bce6e2fdf2d 추가에 성공하면 다음 웹 항목을 작성할 수 있는 상태로 초기화한다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.AddSucceeded(id = Uuid.random())))
         composeRule.fillAllInput()
 
@@ -97,22 +97,22 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-009 제목이 공백이면 작성 내용은 유지된다`() {
+    fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 제목이 공백이면 작성 내용은 유지된다`() {
         assertInvalidInputRetainsInput(effect = WebAddEffect.TitleBlank)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-009 URL이 공백이면 작성 내용은 유지된다`() {
+    fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 URL이 공백이면 작성 내용은 유지된다`() {
         assertInvalidInputRetainsInput(effect = WebAddEffect.UrlBlank)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-009 헤더 이름이 공백이면 작성 내용은 유지된다`() {
+    fun `TC-a098780b-a0b9-430e-8a0f-dbd7a48042d3 헤더 이름이 공백이면 작성 내용은 유지된다`() {
         assertInvalidInputRetainsInput(effect = WebAddEffect.HeaderNameBlank)
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-012 뒤로가면 이전 화면으로 돌아간다`() {
+    fun `TC-9fef072d-9df7-49c4-818a-10e90efbfbc5 뒤로가면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setWebAddScreen(
             viewModel = screenTestViewModel(),
@@ -142,7 +142,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기 버튼이 표시된다`() {
+    fun `TC-ef33482d-22c5-4945-b15b-bec7fc4591a6 단독으로 표시되면 뒤로가기 버튼이 표시된다`() {
         setWebAddScreen(
             viewModel = screenTestViewModel(),
             componentVisible = WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = true),
@@ -152,7 +152,7 @@ class WebAddScreenTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-3a01fd1f-f851-4443-b779-47da4cec2406 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         setWebAddScreen(
             viewModel = screenTestViewModel(),
             componentVisible = WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = false),

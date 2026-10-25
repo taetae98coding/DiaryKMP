@@ -35,7 +35,7 @@ import kotlin.time.Instant
 
 class WeatherRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-WEATHER-FETCH-DOMAIN-001: 섭씨 단위로 요청한다") {
+        test("TC-59f63492-20a9-468c-8c7a-8b2363c484a3: 섭씨 단위로 요청한다") {
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
@@ -48,7 +48,7 @@ class WeatherRemoteDataSourceImplTest :
             engine.requestHistory.size shouldBe 2
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-007: 날씨 설명을 영어로 요청한다") {
+        test("TC-4d91bb03-6ebb-4c54-9d49-cd6ce7aacfc3: 날씨 설명을 영어로 요청한다") {
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
@@ -61,7 +61,7 @@ class WeatherRemoteDataSourceImplTest :
             engine.requestHistory.size shouldBe 2
         }
 
-        test("TC-WEATHER-FETCH-DATA-001: 위치와 인증 정보를 담아 현재 날씨를 요청한다") {
+        test("TC-78a2e5fa-13b9-4052-b009-5b917bba0354: 위치와 인증 정보를 담아 현재 날씨를 요청한다") {
             val config = WeatherNetworkTestKoinModule.config
             val latitude = randomLatitude()
             val longitude = randomLongitude()
@@ -76,7 +76,7 @@ class WeatherRemoteDataSourceImplTest :
             request.url.parameters["appid"] shouldBe config.appId
         }
 
-        test("TC-WEATHER-FETCH-DATA-002: 성공 응답의 현재 날씨를 그대로 전달한다") {
+        test("TC-44a2b660-16be-47d0-a74b-35c8d6910701: 성공 응답의 현재 날씨를 그대로 전달한다") {
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val engine = createEngine(currentWeatherContent = Json.encodeToString(currentWeather))
             val dataSource = createDataSource(engine)
@@ -86,7 +86,7 @@ class WeatherRemoteDataSourceImplTest :
             actual shouldBe currentWeather
         }
 
-        test("TC-WEATHER-FETCH-DATA-004: 위치와 인증 정보를 담아 시간대별 예보를 요청한다") {
+        test("TC-556cb679-ec05-4c96-ac35-1fcbf8e3320f: 위치와 인증 정보를 담아 시간대별 예보를 요청한다") {
             val config = WeatherNetworkTestKoinModule.config
             val latitude = randomLatitude()
             val longitude = randomLongitude()
@@ -101,7 +101,7 @@ class WeatherRemoteDataSourceImplTest :
             request.url.parameters["appid"] shouldBe config.appId
         }
 
-        test("TC-WEATHER-FETCH-DATA-005: 성공 응답의 예보 항목을 시각 순서대로 그대로 전달한다") {
+        test("TC-1d6fddee-fdd6-4b3d-a2cb-e89fbcd086e6: 성공 응답의 예보 항목을 시각 순서대로 그대로 전달한다") {
             val forecast =
                 fixtureMonkey.giveMeOne<ForecastRemoteEntity>().let { entity ->
                     entity.copy(list = List(5) { fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>() })
@@ -114,7 +114,7 @@ class WeatherRemoteDataSourceImplTest :
             actual shouldBe forecast
         }
 
-        test("TC-WEATHER-FETCH-DATA-007: 원격 조회 실패를 그대로 알린다") {
+        test("TC-43a4d42c-fa41-4cba-adc9-e11227f74923: 원격 조회 실패를 그대로 알린다") {
             listOf(
                 HttpStatusCode.Unauthorized,
                 HttpStatusCode.BadRequest,
@@ -132,7 +132,7 @@ class WeatherRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-021: 위치와 인증 정보를 담아 지역명을 요청한다") {
+        test("TC-fe58d96a-c870-41d9-a66b-9cec9bbade4c: 위치와 인증 정보를 담아 지역명을 요청한다") {
             val config = WeatherNetworkTestKoinModule.config
             val latitude = randomLatitude()
             val longitude = randomLongitude()
@@ -147,7 +147,7 @@ class WeatherRemoteDataSourceImplTest :
             request.url.parameters["appid"] shouldBe config.appId
         }
 
-        test("TC-WEATHER-FETCH-DATA-022: 지역명 조회 실패를 그대로 알린다") {
+        test("TC-aa260d65-82ae-4878-828e-44806b38592c: 지역명 조회 실패를 그대로 알린다") {
             listOf(
                 HttpStatusCode.Unauthorized,
                 HttpStatusCode.BadRequest,

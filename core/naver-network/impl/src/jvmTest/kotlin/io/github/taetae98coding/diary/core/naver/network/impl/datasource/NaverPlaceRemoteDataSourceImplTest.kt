@@ -38,7 +38,7 @@ import org.koin.plugin.module.dsl.koinApplication
 
 class NaverPlaceRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-NAVER-PLACE-SEARCH-DOMAIN-001: 검색은 최대 개수인 5개를 요청한다") {
+        test("TC-889be8f1-9ebe-4cff-8efd-2ed6e4df1787: 검색은 최대 개수인 5개를 요청한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -50,7 +50,7 @@ class NaverPlaceRemoteDataSourceImplTest :
                 .parameters["display"] shouldBe "5"
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-001: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
+        test("TC-d9e62edd-3a31-459f-906d-e1eec4600fa5: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
             val config = NaverNetworkTestKoinModule.config
             val query = fixtureMonkey.giveMeOne<String>()
             val engine = createSuccessEngine(emptyList())
@@ -65,7 +65,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             request.headers["X-Naver-Client-Secret"] shouldBe config.clientSecret
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-002: 성공 응답의 장소 목록을 그대로 전달한다") {
+        test("TC-aaf83532-f0e7-4b82-9f40-fcb849c82688: 성공 응답의 장소 목록을 그대로 전달한다") {
             val places = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(5)
             val engine = createSuccessEngine(places)
             val dataSource = createDataSource(engine)
@@ -75,7 +75,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             actual shouldBe places
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-003: 결과가 없으면 빈 목록을 성공으로 전달한다") {
+        test("TC-b5af7a6d-60fe-47fd-bf96-587e75e53d52: 결과가 없으면 빈 목록을 성공으로 전달한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -84,7 +84,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             actual shouldBe emptyList()
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-004: 원격 조회 실패를 그대로 알린다") {
+        test("TC-195a3979-27f2-474e-b3f1-7ae43959315d: 원격 조회 실패를 그대로 알린다") {
             listOf(
                 HttpStatusCode.Unauthorized,
                 HttpStatusCode.BadRequest,
@@ -99,7 +99,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-006: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
+        test("TC-2eff41ae-28e1-4305-a906-620d864e6476: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
             val places = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(3)
             val items =
                 JsonArray(

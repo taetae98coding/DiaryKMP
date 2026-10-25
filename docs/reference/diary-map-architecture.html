@@ -418,7 +418,7 @@
     <p>
       <code>moveCamera</code>는 <code>bounds = camera.bounds</code>로 <b>덮어쓴다</b>. 즉 보이는 영역이 없는 카메라가 오면 영역은 <code>null</code>로 돌아간다.
       SDK가 최초 로드에서 보이는 영역을 주지 못하는 경우가 실제로 있어(아래 <a href="#contrast">대조표</a>), 이 정책을 명시적으로 테스트로 고정해 두었다
-      (<code>TC-DIARY-MAP-DOMAIN-034</code>, <code>035</code>).
+      (<code>TC-3f774f94-c465-4866-ba04-c7e5304e4cac</code>, <code>035</code>).
     </p>
 
     <h3>저장과 복원</h3>
@@ -965,7 +965,7 @@ window.diaryGoogleMapReady = <span class="f">new</span> <span class="v">Promise<
           <tr><td><code>jvmTest</code></td><td><code>MapPinHtmlTest</code>, <code>MapSpotHtmlTest</code>, <code>MapMessageTest</code></td><td>핀·지점 직렬화와 이스케이프, 문서 메시지 파싱의 관용성, <code>handleMapMessage</code>의 분배(표시 중이 아닌 핀 누르기는 전달하지 않음)</td></tr>
           <tr><td><code>jvmTest</code></td><td><code>DiaryMapProviderListTest</code></td><td>전환 항목 순서를 enum 선언 순서에서 분리</td></tr>
           <tr><td><code>androidHostTest</code></td><td><code>DiaryMapOverlayLayoutTest</code>, <code>DiaryMapCardLayoutTest</code>, <code>DiaryMapProviderSelectorTest</code>, <code>DiaryMapProviderTabRowTest</code> (+ Localization)</td><td>두 배치의 겹침 여부와 영역 분할, 전환 컨트롤의 선택 이동·유지, 한국어/기본 문구</td></tr>
-          <tr><td><code>androidHostTest</code></td><td><code>DiaryMapStateRestorationTest</code></td><td><code>rememberDiaryMapState</code>가 화면 재생성(<code>StateRestorationTester</code>) 뒤 지도가 알려온 위치와 확대 수준을 되살림(<code>TC-DIARY-MAP-DOMAIN-046</code>)</td></tr>
+          <tr><td><code>androidHostTest</code></td><td><code>DiaryMapStateRestorationTest</code></td><td><code>rememberDiaryMapState</code>가 화면 재생성(<code>StateRestorationTester</code>) 뒤 지도가 알려온 위치와 확대 수준을 되살림(<code>TC-ffe3d6a4-1504-4305-b8f8-f39fd2889ecd</code>)</td></tr>
         </tbody>
       </table>
     </div>

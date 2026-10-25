@@ -54,14 +54,14 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-010 TC-PLACE-HOME-DOMAIN-028 삭제 여부와 수정 시각만 바꾼다") {
+                Then("TC-76611214-e640-4cba-a148-fcff540c273f TC-7eb7f0a0-106f-43a5-9545-b77857570eda 삭제 여부와 수정 시각만 바꾼다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 TC-PLACE-HOME-DATA-006 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-e4322045-cda0-47a9-a446-deb2016075f6 TC-10d80d9e-bd2b-4b0c-bcbc-41caf10bd1cd 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -100,7 +100,7 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-010 삭제는 성공으로 전달되고 기기에 반영한 삭제를 되돌리지 않는다") {
+                Then("TC-8f437e19-20e2-49ef-b3d9-bb9f0f74746e 삭제는 성공으로 전달되고 기기에 반영한 삭제를 되돌리지 않는다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
@@ -170,7 +170,7 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 삭제를 성공으로 다루지 않고 저장 실패를 전달한다") {
+                Then("TC-6d7ec354-4dd3-4336-9f46-42ddff1469ee 삭제를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = Uuid.random())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

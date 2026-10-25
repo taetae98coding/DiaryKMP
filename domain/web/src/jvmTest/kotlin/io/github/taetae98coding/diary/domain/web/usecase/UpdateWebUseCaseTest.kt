@@ -58,7 +58,7 @@ class UpdateWebUseCaseTest :
                 )
 
             When("제목, 설명, URL과 요청 헤더를 모두 바꿔 수정한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-023 입력한 내용과 수정 시점을 반영한다") {
+                Then("TC-da45cc0a-9853-4492-9172-92bd687a1baf 입력한 내용과 수정 시점을 반영한다") {
                     val detail = detail(headerList = listOf(WebHeader(name = "Authorization", value = "Bearer token")))
 
                     useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -67,7 +67,7 @@ class UpdateWebUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-WEB-DETAIL-DOMAIN-026 이름이 같은 헤더도 합치지 않고 입력한 순서대로 반영한다") {
+                Then("TC-80bd44b0-a1aa-4c8e-9098-29fe4b97563f 이름이 같은 헤더도 합치지 않고 입력한 순서대로 반영한다") {
                     val first = WebHeader(name = "Accept", value = "text/html")
                     val second = WebHeader(name = "Accept", value = "application/json")
                     val third = WebHeader(name = "X-Region", value = "")
@@ -83,7 +83,7 @@ class UpdateWebUseCaseTest :
                     detailSlot.captured.headerList shouldBe listOf(first, second, third)
                 }
 
-                Then("TC-WEB-DETAIL-DOMAIN-023 설명과 요청 헤더를 비운 수정도 그대로 반영한다") {
+                Then("TC-da45cc0a-9853-4492-9172-92bd687a1baf 설명과 요청 헤더를 비운 수정도 그대로 반영한다") {
                     useCase(
                         parameter =
                             UpdateWebUseCase.Parameter(
@@ -96,7 +96,7 @@ class UpdateWebUseCaseTest :
                     detailSlot.captured.headerList shouldBe emptyList()
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-335846fb-942b-4b3d-aa52-2bb3b2e38aa4 TC-c6828a34-6fdc-4319-b79c-5a9a022b2ea7 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -104,7 +104,7 @@ class UpdateWebUseCaseTest :
             }
 
             When("제목이나 URL을 비운 채 수정한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-025 저장된 기존 제목과 URL을 사용한다") {
+                Then("TC-27705886-bde0-4657-b8ff-78b17b433fc0 저장된 기존 제목과 URL을 사용한다") {
                     listOf(
                         Triple("", "https://changed.example.com", "빈 제목"),
                         Triple("   ", "https://changed.example.com", "공백 제목"),
@@ -136,7 +136,7 @@ class UpdateWebUseCaseTest :
                     detailSlot.captured.url shouldBe stored.detail.url
                 }
 
-                Then("TC-WEB-DETAIL-DOMAIN-025 설명과 요청 헤더는 입력한 대로 반영한다") {
+                Then("TC-27705886-bde0-4657-b8ff-78b17b433fc0 설명과 요청 헤더는 입력한 대로 반영한다") {
                     val header = WebHeader(name = "Accept", value = "text/html")
                     val description = "description-${fixtureMonkey.giveMeOne<String>()}"
 
@@ -170,7 +170,7 @@ class UpdateWebUseCaseTest :
                     )
 
                 When("제목과 URL도 함께 바꿔 수정한다") {
-                    Then("TC-WEB-DETAIL-DOMAIN-024 헤더 이름 공백 예외로 실패하고 아무 내용도 수정하지 않는다") {
+                    Then("TC-113bac4d-f3e5-4286-b41c-78cb56b81cb7 헤더 이름 공백 예외로 실패하고 아무 내용도 수정하지 않는다") {
                         val headerList =
                             listOf(
                                 WebHeader(name = "Authorization", value = "Bearer token"),
@@ -204,7 +204,7 @@ class UpdateWebUseCaseTest :
                 )
 
             When("웹 항목을 수정한다") {
-                Then("TC-WEB-DETAIL-DATA-013 게스트 계정 기준으로 기기에만 수정을 반영한다") {
+                Then("TC-fc0c7076-0894-4610-802f-ee24fb9612ac 게스트 계정 기준으로 기기에만 수정을 반영한다") {
                     useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess()
 
                     coVerify(exactly = 1) {
@@ -258,7 +258,7 @@ class UpdateWebUseCaseTest :
                 )
 
             When("웹 항목을 수정한다") {
-                Then("TC-WEB-DETAIL-DATA-010 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail()))
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

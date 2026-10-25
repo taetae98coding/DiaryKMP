@@ -31,7 +31,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class FileDownloadSettingLocalDataSourceImplTest :
     FunSpec({
-        test("TC-SETTING-FILE-DATA-002 한 번도 고르지 않았으면 고른 폴더가 없다") {
+        test("TC-76624134-bce5-4b1e-83e1-e02281c9ffed 한 번도 고르지 않았으면 고른 폴더가 없다") {
             runTest {
                 withDataStore(path = tempSettingPath()) { dataStore ->
                     FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).getDirectory().first() shouldBe null
@@ -39,7 +39,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-SETTING-FILE-DATA-001 저장한 폴더는 저장소를 다시 열어도 유지된다") {
+        test("TC-786bc68f-5f47-40d0-975b-a7463878d6d4 저장한 폴더는 저장소를 다시 열어도 유지된다") {
             runTest {
                 val path = tempSettingPath()
                 val directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>())
@@ -54,7 +54,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-SETTING-FILE-DATA-003 되돌린 뒤에는 고른 폴더가 없다") {
+        test("TC-89660e14-4b3d-4a19-bb56-7b5f27a5b744 되돌린 뒤에는 고른 폴더가 없다") {
             runTest {
                 withDataStore(path = tempSettingPath()) { dataStore ->
                     val dataSource = FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore)
@@ -67,7 +67,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-SETTING-FILE-DATA-004 저장된 값을 읽지 못하면 고른 폴더가 없는 것이 아니라 실패로 알린다") {
+        test("TC-2f29a22e-d3a9-4e80-8e50-2b477d7e10e6 저장된 값을 읽지 못하면 고른 폴더가 없는 것이 아니라 실패로 알린다") {
             runTest {
                 val dataStore = mockk<DataStore<FileDownloadSettingData>>()
                 every { dataStore.data } returns flow { throw IllegalStateException("read") }

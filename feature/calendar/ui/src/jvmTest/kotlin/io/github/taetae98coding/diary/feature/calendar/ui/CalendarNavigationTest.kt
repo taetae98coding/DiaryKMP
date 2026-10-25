@@ -12,7 +12,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 
 class CalendarNavigationTest :
     FunSpec({
-        test("TC-CALENDAR-HOME-FEATURE-085 태그 추가를 누르면 필터를 닫고 TagAdd 화면으로 이동한다") {
+        test("TC-5e48b2cd-da3e-49eb-b2eb-4add737877af 태그 추가를 누르면 필터를 닫고 TagAdd 화면으로 이동한다") {
             val backStack = NavBackStack<ScreenNavKey>(CalendarHomeNavKey, CalendarHomeFilterNavKey)
 
             backStack.navigateToTagAddFromFilter()
@@ -20,7 +20,7 @@ class CalendarNavigationTest :
             backStack shouldContainExactly listOf(CalendarHomeNavKey, TagAddNavKey())
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-095 TagAdd 화면에서 돌아오면 필터가 다시 열리지 않고 추가한 태그를 선택으로 돌려받지 않는다") {
+        test("TC-a35e1483-802b-4acd-97a6-4f079a17b36b TagAdd 화면에서 돌아오면 필터가 다시 열리지 않고 추가한 태그를 선택으로 돌려받지 않는다") {
             val backStack = NavBackStack<ScreenNavKey>(CalendarHomeNavKey, CalendarHomeFilterNavKey)
 
             backStack.navigateToTagAddFromFilter()

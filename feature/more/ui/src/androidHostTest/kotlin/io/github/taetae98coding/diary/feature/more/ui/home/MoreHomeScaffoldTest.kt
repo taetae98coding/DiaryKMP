@@ -41,7 +41,7 @@ class MoreHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-003 확인 중 상태에서는 라벨과 계정 동작을 표시하지 않는다`() {
+    fun `TC-6b475d6c-6db4-40b4-b94c-c264ee4dd0ff 확인 중 상태에서는 라벨과 계정 동작을 표시하지 않는다`() {
         setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.Loading })
 
         composeRule.onNodeWithText(DEFAULT_GUEST_LABEL).assertDoesNotExist()
@@ -58,7 +58,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MORE-HOME-FEATURE-004 한국어 게스트 상태에서 게스트 라벨과 로그인 동작을 표시한다`() {
+    fun `TC-e729252d-e685-40c7-822f-415ffc2bc211 한국어 게스트 상태에서 게스트 라벨과 로그인 동작을 표시한다`() {
         setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.Guest })
 
         composeRule.onNodeWithText("게스트").assertExists()
@@ -66,7 +66,7 @@ class MoreHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-004 기본 게스트 상태에서 게스트 라벨과 로그인 동작을 표시한다`() {
+    fun `TC-e729252d-e685-40c7-822f-415ffc2bc211 기본 게스트 상태에서 게스트 라벨과 로그인 동작을 표시한다`() {
         setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.Guest })
 
         composeRule.onNodeWithText(DEFAULT_GUEST_LABEL).assertExists()
@@ -75,7 +75,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MORE-HOME-FEATURE-005 한국어 사용자 상태에서 이메일과 로그아웃 동작을 표시한다`() {
+    fun `TC-80391dc1-86ca-4991-a4c6-51777cfb7225 한국어 사용자 상태에서 이메일과 로그아웃 동작을 표시한다`() {
         setMoreHomeScaffold(
             accountUiStateProvider = {
                 MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)
@@ -88,7 +88,7 @@ class MoreHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-005 기본 사용자 상태에서 이메일과 로그아웃 동작을 표시한다`() {
+    fun `TC-80391dc1-86ca-4991-a4c6-51777cfb7225 기본 사용자 상태에서 이메일과 로그아웃 동작을 표시한다`() {
         setMoreHomeScaffold(
             accountUiStateProvider = {
                 MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)
@@ -102,7 +102,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko-$MENU_VISIBLE_QUALIFIERS")
-    fun `TC-MORE-HOME-FEATURE-008 한국어 환경에서 한글이 아닌 이름을 앞에 두고 가나다순으로 표시한다`() {
+    fun `TC-d8498b35-3179-40aa-ba7a-4b09ba63871f 한국어 환경에서 한글이 아닌 이름을 앞에 두고 가나다순으로 표시한다`() {
         setMoreHomeScaffold()
 
         inReadingOrder(KOREAN_MENU_LABELS) shouldBe KOREAN_MENU_LABELS
@@ -110,7 +110,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-008 기본 환경에서 메뉴 항목을 한국어 이름과 같은 순서로 표시한다`() {
+    fun `TC-d8498b35-3179-40aa-ba7a-4b09ba63871f 기본 환경에서 메뉴 항목을 한국어 이름과 같은 순서로 표시한다`() {
         setMoreHomeScaffold()
 
         inReadingOrder(DEFAULT_MENU_LABELS) shouldBe DEFAULT_MENU_LABELS
@@ -118,7 +118,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-009 각 메뉴 항목을 선택할 수 있다`() {
+    fun `TC-d0d4ae5c-9b6d-45df-9dc4-1b50a8ab005a 각 메뉴 항목을 선택할 수 있다`() {
         setMoreHomeScaffold()
 
         DEFAULT_MENU_LABELS.forEach { label ->

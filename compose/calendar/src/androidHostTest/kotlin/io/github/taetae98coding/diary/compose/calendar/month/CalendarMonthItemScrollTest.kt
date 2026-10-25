@@ -37,7 +37,7 @@ class CalendarMonthItemScrollTest {
     private val scrollToTopFlow = MutableStateFlow(false)
 
     @Test
-    fun `TC-CALENDAR-MONTH-FEATURE-003 되돌리기를 요청하면 여섯 주가 모두 첫 아이템 줄부터 다시 보인다`() {
+    fun `TC-ffae68f7-f960-491b-a8d1-fd884b2ab2b0 되돌리기를 요청하면 여섯 주가 모두 첫 아이템 줄부터 다시 보인다`() {
         val itemScrollState = CalendarItemScrollState()
         setCalendarMonth(itemScrollState = itemScrollState)
         scrollToLastItemOfEachWeek()

@@ -47,7 +47,7 @@ class TagMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
+    fun `TC-80dc456e-1256-41b6-9760-5a524c376a51 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
@@ -64,7 +64,7 @@ class TagMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-005 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-762bd757-ca59-46fe-8465-a294ff2be17d 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
@@ -80,7 +80,7 @@ class TagMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
+    fun `TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
@@ -99,7 +99,7 @@ class TagMemoFinishedListLayoutTest {
     // 다른 메모를 고르면 앞 상세를 쌓지 않고 바꾸는 것은 feature:tag:ui의 전환 테스트가 다루므로, 여기서는 바뀐 뒤의 전환 이력에서 뒤로가기 결과만 본다.
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
+    fun `TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
@@ -121,7 +121,7 @@ class TagMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-018 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 TagDetail로 돌아간다`() {
+    fun `TC-16070905-ee83-4cd0-81c4-a2b2df72c7be 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 TagDetail로 돌아간다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)

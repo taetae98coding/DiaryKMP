@@ -67,7 +67,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-001 TC-WEB-DETAIL-FEATURE-058 조회 중에는 제목과 본문 영역을 표시하지 않고 탭 줄은 표시한다`() {
+    fun `TC-43a42162-c097-4b5c-923a-12c3dae536be TC-9fefbcc7-d4f5-4852-85ac-cfbb935982fe 조회 중에는 제목과 본문 영역을 표시하지 않고 탭 줄은 표시한다`() {
         setWebDetailScaffold(uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertExists()
@@ -78,7 +78,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-018 조회 중에는 수정과 외부로 열기, 삭제를 실행할 수 없다`() {
+    fun `TC-3951b74d-8561-4622-b5ca-d8834051f239 조회 중에는 수정과 외부로 열기, 삭제를 실행할 수 없다`() {
         setWebDetailScaffold(uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
@@ -87,7 +87,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-016 외부로 열기를 선택하면 외부로 열기 행동을 한 번 전달한다`() {
+    fun `TC-b66fd1fc-9dae-4e34-9b0f-ab6dc1661181 외부로 열기를 선택하면 외부로 열기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(onEvent = eventList::add)
@@ -97,7 +97,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 삭제를 선택하면 삭제 행동을 한 번 전달한다`() {
+    fun `TC-35ae4b6d-4860-445b-9469-595ebb1fac84 삭제를 선택하면 삭제 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(onEvent = eventList::add)
@@ -107,7 +107,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-019 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-2d129da1-13b5-4b78-8c21-7f4d7b3e30ce 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
         setWebDetailScaffold(uiState = testContentUiState().copy(isDeleteInProgress = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assert(hasClickAction())
@@ -115,7 +115,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-022 삭제를 처리하는 동안에도 탭 전환과 정보 확인, 외부로 열기, 뒤로가기를 할 수 있다`() {
+    fun `TC-3fa7af0b-2cfa-4983-99a1-f445b7b0375c 삭제를 처리하는 동안에도 탭 전환과 정보 확인, 외부로 열기, 뒤로가기를 할 수 있다`() {
         val detail = testWebDetail()
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
@@ -139,7 +139,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-018 삭제를 처리하는 동안에도 다시 시도를 실행할 수 있다`() {
+    fun `TC-db488f40-cbc9-4a6e-899a-3675dc1f63eb 삭제를 처리하는 동안에도 다시 시도를 실행할 수 있다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -154,7 +154,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-002 조회에 성공하면 저장된 제목과 설명, URL, 요청 헤더가 입력에 채워진다`() {
+    fun `TC-845589d7-8df3-4e2c-8fa5-445b64cc7c43 조회에 성공하면 저장된 제목과 설명, URL, 요청 헤더가 입력에 채워진다`() {
         val detail =
             testWebDetail(
                 headerList =
@@ -176,7 +176,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-004 이름이 같은 요청 헤더도 저장된 순서대로 각각 채운다`() {
+    fun `TC-ec51968b-28a4-4b33-83bf-bf8712d9edc1 이름이 같은 요청 헤더도 저장된 순서대로 각각 채운다`() {
         val detail =
             testWebDetail(
                 headerList =
@@ -196,7 +196,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-022 설명이 비어 있거나 요청 헤더가 없으면 빈 상태로 채운다`() {
+    fun `TC-3662cedc-36dc-4db9-9fd1-cca4fa966cba 설명이 비어 있거나 요청 헤더가 없으면 빈 상태로 채운다`() {
         val detail = testWebDetail(description = "", headerList = emptyList())
 
         setWebDetailScaffold(uiState = testContentUiState(detail = detail), detail = detail, initialTab = WebDetailTab.FORM)
@@ -212,7 +212,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-024 입력이 저장 내용과 다를 때만 수정 동작을 제공한다`() {
+    fun `TC-ed5f7e67-ca83-4085-bcac-dfff466a11c3 입력이 저장 내용과 다를 때만 수정 동작을 제공한다`() {
         val detail = testWebDetail()
 
         setWebDetailScaffold(uiState = testContentUiState(detail = detail), detail = detail, initialTab = WebDetailTab.FORM)
@@ -232,7 +232,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-024 수정을 선택하면 수정 행동을 한 번 전달한다`() {
+    fun `TC-ed5f7e67-ca83-4085-bcac-dfff466a11c3 수정을 선택하면 수정 행동을 한 번 전달한다`() {
         val detail = testWebDetail()
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
@@ -295,7 +295,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-025 수정을 처리하는 동안 수정 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-20f251f9-ef69-48b6-bf83-9574256c4eb5 수정을 처리하는 동안 수정 버튼이 진행 표시로 바뀐다`() {
         val detail = testWebDetail()
 
         setWebDetailScaffold(
@@ -311,7 +311,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-007 불러오지 못하면 안내와 다시 시도를 표시한다`() {
+    fun `TC-acb441f8-9fa4-4db2-9d10-094a22bce6c8 불러오지 못하면 안내와 다시 시도를 표시한다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
 
         composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
@@ -321,7 +321,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-008 불러오지 못해도 웹 항목 정보를 확인하고 수정할 수 있다`() {
+    fun `TC-c93d5adc-18e3-472a-aac2-9adc316ac75e 불러오지 못해도 웹 항목 정보를 확인하고 수정할 수 있다`() {
         val detail = testWebDetail(headerList = listOf(WebHeader(name = FIRST_HEADER_NAME, value = FIRST_HEADER_VALUE)))
 
         setWebDetailScaffold(
@@ -343,7 +343,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-009 다시 시도를 선택하면 다시 시도 행동을 한 번 전달한다`() {
+    fun `TC-04087944-e03c-4f27-a985-1fd686cb0d0b 다시 시도를 선택하면 다시 시도 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -357,7 +357,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-012 불러오는 동안에도 웹 항목 정보를 확인하고 수정하고 뒤로갈 수 있다`() {
+    fun `TC-dba61c49-dcfe-4e84-9d12-fb1e074eec45 불러오는 동안에도 웹 항목 정보를 확인하고 수정하고 뒤로갈 수 있다`() {
         val detail = testWebDetail()
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
@@ -380,7 +380,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-015 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-e1733a76-37b3-4b77-99f3-56f3e513418c 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(onEvent = eventList::add)
@@ -424,7 +424,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-037 TC-WEB-DETAIL-FEATURE-044 URL 방식으로 시작하고 진행 표시와 실패 안내를 두지 않는다`() {
+    fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 TC-352c9739-961f-418f-970b-7c55112c4f5f URL 방식으로 시작하고 진행 표시와 실패 안내를 두지 않는다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure)
 
         composeRule.onNodeWithText(DEFAULT_URL_VIEW_MODE_LABEL).assertExists()
@@ -433,7 +433,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-038 표시 방식 컨트롤을 누르면 두 방식과 URL 방식 안내를 표시한다`() {
+    fun `TC-9a62f156-6524-42e5-966d-cee1ed80388e 표시 방식 컨트롤을 누르면 두 방식과 URL 방식 안내를 표시한다`() {
         setWebDetailScaffold()
         composeRule.openViewModeSheet()
 
@@ -444,7 +444,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-039 응답 본문 방식을 고르면 선택 목록이 닫히고 그 방식으로 표시된다`() {
+    fun `TC-34cefdb6-6c57-48f8-ad6e-850b7d805025 응답 본문 방식을 고르면 선택 목록이 닫히고 그 방식으로 표시된다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, onEvent = eventList::add)
@@ -461,7 +461,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-054 탭을 바꿨다가 웹 페이지 탭으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 탭을 바꿨다가 웹 페이지 탭으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(session = DiaryWebSession(failureId = 1), onEvent = eventList::add)
@@ -474,7 +474,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-054 표시 방식을 오갔다가 URL 방식으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 표시 방식을 오갔다가 URL 방식으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -491,7 +491,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-070 응답 본문 방식을 보는 동안 실패하면 URL 방식으로 바꿀 때 한 번 알린다`() {
+    fun `TC-0a9f75ba-e039-4d5f-bf22-a9546dfb11c2 응답 본문 방식을 보는 동안 실패하면 URL 방식으로 바꿀 때 한 번 알린다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -510,7 +510,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-070 웹 정보 수정 탭을 보는 동안 실패하면 웹 페이지 탭을 고를 때 한 번 알린다`() {
+    fun `TC-0a9f75ba-e039-4d5f-bf22-a9546dfb11c2 웹 정보 수정 탭을 보는 동안 실패하면 웹 페이지 탭을 고를 때 한 번 알린다`() {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -528,7 +528,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-044 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+    fun `TC-dc502268-12a5-42b9-bbc2-399e4ee17155 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
         val uiState = testContentUiState()
@@ -553,7 +553,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-066 응답 본문 방식에서는 가져오기가 시작되어도 표시가 바뀌지 않고 URL 방식으로 바꾸면 진행 상태를 거친다`() {
+    fun `TC-d32b61fb-d3a1-451c-8c14-d78139dcea15 응답 본문 방식에서는 가져오기가 시작되어도 표시가 바뀌지 않고 URL 방식으로 바꾸면 진행 상태를 거친다`() {
         SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1))
         val uiState = testContentUiState()
         composeRule.setContent {
@@ -582,7 +582,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-041 URL 방식으로 되돌리면 응답 본문 대신 URL 방식으로 표시한다`() {
+    fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌리면 응답 본문 대신 URL 방식으로 표시한다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
         composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
 
@@ -591,7 +591,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-042 현재 방식과 같은 방식을 골라도 선택 목록만 닫힌다`() {
+    fun `TC-b4010620-0eef-46fe-9eed-5f32a1c7a83b 현재 방식과 같은 방식을 골라도 선택 목록만 닫힌다`() {
         setWebDetailScaffold()
         composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
 
@@ -600,7 +600,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-043 선택 목록을 닫으면 표시 방식이 바뀌지 않는다`() {
+    fun `TC-6def3b2b-4a98-4376-b996-c4f6024de366 선택 목록을 닫으면 표시 방식이 바뀌지 않는다`() {
         setWebDetailScaffold()
         composeRule.openViewModeSheet()
         composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertExists()
@@ -612,7 +612,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-042 화면을 떠났다 다시 들어오면 기본 표시 방식으로 시작한다`() {
+    fun `TC-35bb269d-5a09-42d7-b7f7-622525348f05 화면을 떠났다 다시 들어오면 기본 표시 방식으로 시작한다`() {
         val uiState = testContentUiState()
         var screenKey by mutableStateOf(0)
         composeRule.setContent {
@@ -639,7 +639,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-046 불러오기에 실패해도 표시 방식을 바꿀 수 있다`() {
+    fun `TC-f0cd4c9c-e998-4a88-b3e4-086e4e043833 불러오기에 실패해도 표시 방식을 바꿀 수 있다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
 
         composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertExists()
@@ -651,7 +651,7 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-018 조회 중에는 표시 방식을 바꿀 수 없다`() {
+    fun `TC-3951b74d-8561-4622-b5ca-d8834051f239 조회 중에는 표시 방식을 바꿀 수 없다`() {
         setWebDetailScaffold(uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_VIEW_MODE_DESCRIPTION).assertDoesNotExist()

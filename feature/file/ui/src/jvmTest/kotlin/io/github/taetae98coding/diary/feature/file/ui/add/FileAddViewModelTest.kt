@@ -62,7 +62,7 @@ class FileAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-ADD-FEATURE-001 처음에는 고른 파일이 없고 올리는 중이 아니다") {
+        test("TC-b2c327f8-dfbf-4980-a61a-2ac6582903b6 처음에는 고른 파일이 없고 올리는 중이 아니다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 
@@ -73,7 +73,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-002 파일을 고르면 읽은 이름과 크기의 파일이 고른 파일이 된다") {
+        test("TC-0751a03c-734b-4264-adcb-ece99ed4ed1b 파일을 고르면 읽은 이름과 크기의 파일이 고른 파일이 된다") {
             runTest(mainDispatcher) {
                 val uri = fixtureMonkey.fileUri()
                 val source = fixtureMonkey.fileUploadSource().copy(uri = uri)
@@ -89,7 +89,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-003 이미 고른 파일이 있어도 다시 고르면 새 파일로 바뀐다") {
+        test("TC-0c908f3c-7a9d-4a76-82c6-2c23c2dbc398 이미 고른 파일이 있어도 다시 고르면 새 파일로 바뀐다") {
             runTest(mainDispatcher) {
                 val first = fixtureMonkey.fileUploadSource()
                 val second = fixtureMonkey.fileUploadSource()
@@ -108,7 +108,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-005 고를 수 없는 파일을 고르면 이유를 알리고 이전에 고른 파일을 둔다") {
+        test("TC-c89e24fb-6233-4119-80c9-9444a789c6d6 고를 수 없는 파일을 고르면 이유를 알리고 이전에 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val previous = fixtureMonkey.fileUploadSource()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
@@ -138,7 +138,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-006 TC-FILE-ADD-FEATURE-007 TC-FILE-ADD-FEATURE-008 올리기 성립 조건을 어기면 이유를 알리고 고른 파일을 둔다") {
+        test("TC-13958209-1811-4ea0-b20a-56f57c8a9f75 TC-3dc2f4fc-8d3e-4a5b-9348-d5c731e2e72e TC-e9ed04a3-cd3b-48fd-900c-a41bcca35a4a 올리기 성립 조건을 어기면 이유를 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
@@ -168,7 +168,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-009 올리기를 실행하면 고른 파일과 입력한 제목·설명으로 맡기고 고른 파일을 비운다") {
+        test("TC-4c8c007d-7359-4fa6-9caf-57f28b16a319 올리기를 실행하면 고른 파일과 입력한 제목·설명으로 맡기고 고른 파일을 비운다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
                 val title = "title-${fixtureMonkey.giveMeOne<String>()}"
@@ -198,7 +198,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-011 올리는 중에는 진행 중이고 올리기를 실행해도 새로 맡기지 않는다") {
+        test("TC-50400477-91a5-4e1e-ad53-9b488e23801c 올리는 중에는 진행 중이고 올리기를 실행해도 새로 맡기지 않는다") {
             runTest(mainDispatcher) {
                 listOf(
                     FileUploadState.Uploading(percent = null),
@@ -225,7 +225,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-011 이 화면에서 맡기는 동안과 올리는 동안 진행 중이다") {
+        test("TC-50400477-91a5-4e1e-ad53-9b488e23801c 이 화면에서 맡기는 동안과 올리는 동안 진행 중이다") {
             runTest(mainDispatcher) {
                 val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Idle))
                 val requested = CompletableDeferred<Unit>()
@@ -257,7 +257,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-012 올리는 중에도 파일을 고를 수 있다") {
+        test("TC-2bdb00f3-e9db-459e-a33a-82f72bcf4a92 올리는 중에도 파일을 고를 수 있다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
@@ -276,7 +276,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-013 화면을 보는 동안 끝난 올리기의 결과를 알리고 고른 파일은 둔다") {
+        test("TC-f33a3f46-e611-4fd6-b6a4-453ca777497a 화면을 보는 동안 끝난 올리기의 결과를 알리고 고른 파일은 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
@@ -316,7 +316,7 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-ADD-FEATURE-016 TC-FILE-ADD-FEATURE-018 올리기를 맡기지 못하면 올리지 못했다고 알리고 고른 파일을 둔다") {
+        test("TC-a1099bb4-240a-42f7-9476-8fc329821611 TC-4828e410-703c-4644-a5aa-6bc44c948b6b 올리기를 맡기지 못하면 올리지 못했다고 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()

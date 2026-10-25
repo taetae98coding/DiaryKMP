@@ -56,7 +56,7 @@ class WebDetailPageExternalChangeTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-007 URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
+    fun `TC-bbf59348-1a5e-45fd-9e10-c40393dd2eb5 URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
         val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
         var uiState: WebDetailUiState by mutableStateOf(initial)
         composeRule.setContent {
@@ -88,7 +88,7 @@ class WebDetailPageExternalChangeTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-055 수정으로 URL이 바뀌어도 로그인 정보를 다시 가져오지 않고 새 주소를 연다`() {
+    fun `TC-65d715a6-48b8-4cb9-992e-0d7bb6b42725 수정으로 URL이 바뀌어도 로그인 정보를 다시 가져오지 않고 새 주소를 연다`() {
         val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
         var uiState: WebDetailUiState by mutableStateOf(initial)
         SingletonDiaryWebSession.set(DiaryWebSession(importCount = IMPORTED_COUNT))

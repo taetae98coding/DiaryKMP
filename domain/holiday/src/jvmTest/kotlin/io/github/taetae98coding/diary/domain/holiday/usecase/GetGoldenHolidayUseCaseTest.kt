@@ -27,7 +27,7 @@ private val fixtureMonkey: FixtureMonkey =
 // 2026년 2월 1일은 일요일이므로 2월 7일과 14일은 토요일, 2월 8일과 15일은 일요일이다.
 class GetGoldenHolidayUseCaseTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-HOME-DOMAIN-001 금요일 하루가 공휴일이고 연차 개수가 0이다") {
+        Given("TC-c905ec8c-fa4b-4e57-90d3-3da6a413391d 금요일 하루가 공휴일이고 연차 개수가 0이다") {
             val holiday = holiday(start = february(day = 6))
 
             When("2026년의 황금연휴를 구한다") {
@@ -46,7 +46,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-002 목요일 하루가 공휴일이고 연차 개수가 0이다") {
+        Given("TC-fa16860e-d9ec-4ba0-9e88-47d33d7cdb71 목요일 하루가 공휴일이고 연차 개수가 0이다") {
             val holiday = holiday(start = february(day = 5))
 
             When("2026년의 황금연휴를 구한다") {
@@ -58,7 +58,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-003 목요일 하루가 공휴일이고 연차 개수가 1이다") {
+        Given("TC-d312fa82-cea4-4381-a8bb-b6fcbb216073 목요일 하루가 공휴일이고 연차 개수가 1이다") {
             val holiday = holiday(start = february(day = 5))
 
             When("2026년의 황금연휴를 구한다") {
@@ -77,7 +77,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-004 저장된 공휴일이 없다") {
+        Given("TC-c20b5261-4568-4716-874d-5f4f5f43d22a 저장된 공휴일이 없다") {
             When("연차 개수를 바꿔 가며 2026년의 황금연휴를 구한다") {
                 Then("연차를 모두 써도 황금연휴가 하나도 나오지 않는다") {
                     listOf(1, 5).forEach { annualLeaveCount ->
@@ -87,7 +87,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-005 수요일 하루가 공휴일이고 연차 개수가 1이다") {
+        Given("TC-e296afa0-c5eb-4a96-9183-785e3c813fed 수요일 하루가 공휴일이고 연차 개수가 1이다") {
             val holiday = holiday(start = february(day = 4))
 
             When("2026년의 황금연휴를 구한다") {
@@ -99,7 +99,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-006 목요일 하루가 공휴일이고 연차 개수가 2다") {
+        Given("TC-04922a2e-919b-4094-a90c-92c69d379024 목요일 하루가 공휴일이고 연차 개수가 2다") {
             val holiday = holiday(start = february(day = 5))
 
             When("2026년의 황금연휴를 구한다") {
@@ -116,7 +116,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-007 목요일부터 금요일까지가 공휴일이고 연차 개수가 0이다") {
+        Given("TC-c77ffb46-7734-4c47-a1aa-aaf1193a2952 목요일부터 금요일까지가 공휴일이고 연차 개수가 0이다") {
             val holiday = holiday(start = february(day = 12), endInclusive = february(day = 13))
 
             When("2026년의 황금연휴를 구한다") {
@@ -135,7 +135,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-008 설날이 저장되어 있고 연차 개수가 3이다") {
+        Given("TC-2b87bdf1-5234-4535-baa6-b7afc0451202 설날이 저장되어 있고 연차 개수가 3이다") {
             val holiday = holiday(start = february(day = 16), endInclusive = february(day = 18))
 
             When("2026년의 황금연휴를 구한다") {
@@ -156,7 +156,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-016 가장 긴 대안이 여러 개인 항목이 나온다") {
+        Given("TC-76b4613f-e489-4583-ab76-f46b9cc3d7a5 가장 긴 대안이 여러 개인 항목이 나온다") {
             val holiday = holiday(start = february(day = 16), endInclusive = february(day = 18))
 
             When("2026년의 황금연휴를 구한다") {
@@ -172,7 +172,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-FEATURE-057 설날이 저장되어 있고 연차 개수가 5다") {
+        Given("TC-0b587150-9316-4af1-a4b1-19134d6da877 설날이 저장되어 있고 연차 개수가 5다") {
             val holiday = holiday(start = february(day = 16), endInclusive = february(day = 18))
 
             When("2026년의 황금연휴를 구한다") {
@@ -185,7 +185,7 @@ class GetGoldenHolidayUseCaseTest :
         }
 
         // 2023년 12월 31일은 일요일, 2024년 1월 1일은 월요일이다.
-        Given("TC-HOLIDAY-HOME-DOMAIN-021 2023년 12월 29일 금요일이 공휴일이고 연차 개수가 1이다") {
+        Given("TC-5fe560ba-6f25-47a9-a59a-ec9fa7fc012f 2023년 12월 29일 금요일이 공휴일이고 연차 개수가 1이다") {
             val holiday = holiday(start = LocalDate(year = 2023, month = Month.DECEMBER, day = 29))
 
             When("2024년의 황금연휴를 구한다") {
@@ -201,7 +201,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-017 날짜를 공유하지 않는 공휴일이 두 개 저장되어 있다") {
+        Given("TC-5984e991-92e7-48d1-baad-22388b5dee2e 날짜를 공유하지 않는 공휴일이 두 개 저장되어 있다") {
             val februaryHoliday = holiday(start = february(day = 6))
             val septemberHoliday = holiday(start = LocalDate(year = 2026, month = Month.SEPTEMBER, day = 25))
 
@@ -219,7 +219,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-018 전국동시지방선거가 수요일, 현충일이 그 주 토요일이고 연차 개수가 2다") {
+        Given("TC-4f83ce12-eb15-4c13-b3e3-f2394a29a1e7 전국동시지방선거가 수요일, 현충일이 그 주 토요일이고 연차 개수가 2다") {
             val election = holiday(start = june(day = 3))
             val memorialDay = holiday(start = june(day = 6))
 
@@ -239,7 +239,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-019 전국동시지방선거와 현충일이 저장되어 있고 연차 개수가 3이다") {
+        Given("TC-8e471181-bd68-40f7-95ec-767a679d100d 전국동시지방선거와 현충일이 저장되어 있고 연차 개수가 3이다") {
             val election = holiday(start = june(day = 3))
             val memorialDay = holiday(start = june(day = 6))
 
@@ -259,7 +259,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-009 9월 공휴일이 2월 공휴일보다 먼저 저장되어 있고 연차 개수가 0이다") {
+        Given("TC-29648ead-4fa2-4225-b7dc-7d0fda0493d8 9월 공휴일이 2월 공휴일보다 먼저 저장되어 있고 연차 개수가 0이다") {
             val septemberHoliday = holiday(start = LocalDate(year = 2026, month = Month.SEPTEMBER, day = 25))
             val februaryHoliday = holiday(start = february(day = 6))
 
@@ -280,7 +280,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-010 2026년 12월 31일과 2027년 1월 1일이 공휴일이고 연차 개수가 0이다") {
+        Given("TC-42aa1cd5-d722-4b13-ae49-4caf12cea29e 2026년 12월 31일과 2027년 1월 1일이 공휴일이고 연차 개수가 0이다") {
             val endOfYearHoliday = holiday(start = LocalDate(year = 2026, month = Month.DECEMBER, day = 31))
             val newYearHoliday = holiday(start = LocalDate(year = 2027, month = Month.JANUARY, day = 1))
             val holidayList = listOf(endOfYearHoliday, newYearHoliday)
@@ -298,7 +298,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-011 금요일 하루가 공휴일 여부가 거짓으로 저장되어 있고 연차 개수가 0이다") {
+        Given("TC-0d758d68-09e8-430b-ad8b-4551c3da6e9a 금요일 하루가 공휴일 여부가 거짓으로 저장되어 있고 연차 개수가 0이다") {
             val anniversary = holiday(start = february(day = 6), isHoliday = false)
 
             When("2026년의 황금연휴를 구한다") {
@@ -310,7 +310,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-012 화요일부터 목요일까지가 공휴일이고 연차 개수가 0이다") {
+        Given("TC-92aebd98-4e49-43cf-80ec-8e107650c87b 화요일부터 목요일까지가 공휴일이고 연차 개수가 0이다") {
             val holiday = holiday(start = february(day = 10), endInclusive = february(day = 12))
 
             When("2026년의 황금연휴를 구한다") {
@@ -349,7 +349,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-020 2025년 기독탄신일과 2026년 신정이 저장되어 있고 연차 개수가 4다") {
+        Given("TC-11f27bf4-2720-4e7f-afdd-3956c57b6a5e 2025년 기독탄신일과 2026년 신정이 저장되어 있고 연차 개수가 4다") {
             val christmas = holiday(start = LocalDate(year = 2025, month = Month.DECEMBER, day = 25))
             val newYear = holiday(start = LocalDate(year = 2026, month = Month.JANUARY, day = 1))
 
@@ -371,7 +371,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-014 공휴일이 아닌 이름과 공휴일이 함께 저장되어 있다") {
+        Given("TC-79547aaa-f0f6-4b23-9020-d4cbba2f8630 공휴일이 아닌 이름과 공휴일이 함께 저장되어 있다") {
             val holiday = holiday(start = february(day = 6))
             val anniversary = holiday(start = february(day = 7), isHoliday = false)
 
@@ -385,7 +385,7 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DOMAIN-015 연휴 기간과 겹치지 않는 공휴일이 함께 저장되어 있다") {
+        Given("TC-ac7384e3-eb58-4776-9424-508473b365fb 연휴 기간과 겹치지 않는 공휴일이 함께 저장되어 있다") {
             val holiday = holiday(start = february(day = 6))
             val otherHoliday = holiday(start = february(day = 25))
 

@@ -27,7 +27,7 @@ class RoutineHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-002 루틴 추가 버튼을 선택하면 루틴 추가 화면으로 이동한다`() {
+    fun `TC-175699d1-4329-40f4-8317-e54965c7acf5 루틴 추가 버튼을 선택하면 루틴 추가 화면으로 이동한다`() {
         var navigateToAddCount = 0
         setRoutineHomeScreen(navigateToAdd = { navigateToAddCount += 1 })
 
@@ -37,7 +37,7 @@ class RoutineHomeScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-003 Cmd A 단축키를 입력하면 루틴 추가 화면으로 한 번 이동한다`() {
+    fun `TC-48b15011-3834-4587-903a-6a7d361d0783 Cmd A 단축키를 입력하면 루틴 추가 화면으로 한 번 이동한다`() {
         var navigateToAddCount = 0
         setRoutineHomeScreen(navigateToAdd = { navigateToAddCount += 1 })
 
@@ -47,7 +47,7 @@ class RoutineHomeScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-003 추가 버튼을 표시하지 않으면 단축키로도 이동하지 않는다`() {
+    fun `TC-1c7abf77-eef1-4700-9622-4b0330cc60ba 추가 버튼을 표시하지 않으면 단축키로도 이동하지 않는다`() {
         var navigateToAddCount = 0
         setRoutineHomeScreen(
             navigateToAdd = { navigateToAddCount += 1 },

@@ -11,7 +11,7 @@ import kotlin.uuid.Uuid
 
 class PlaylistListDetailPaneTest :
     FunSpec({
-        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-003 선택한 곡이 없거나 곡 추가로 이동했으면 상세 영역에 곡 추가가 놓인다") {
+        test("TC-2cf159ed-2747-40af-ab57-aa96e9079869 선택한 곡이 없거나 곡 추가로 이동했으면 상세 영역에 곡 추가가 놓인다") {
             val backStackCases =
                 listOf(
                     listOf(PlaylistHomeNavKey),
@@ -24,7 +24,7 @@ class PlaylistListDetailPaneTest :
             }
         }
 
-        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-004 곡 상세로 이동했으면 상세 영역에 곡 추가가 놓이지 않는다") {
+        test("TC-8587f193-ec41-4ea5-9a77-8261f025672f 곡 상세로 이동했으면 상세 영역에 곡 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = Uuid.random())),

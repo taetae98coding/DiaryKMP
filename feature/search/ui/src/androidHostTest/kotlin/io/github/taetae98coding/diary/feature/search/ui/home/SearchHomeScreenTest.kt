@@ -67,7 +67,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 메모 시작 유형이면 메모 결과를 먼저 본다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 메모 시작 유형이면 메모 결과를 먼저 본다`() {
         val memo = resultMemo()
         val tag = resultTag()
 
@@ -78,7 +78,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 태그 시작 유형이면 태그 결과를 먼저 본다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 태그 시작 유형이면 태그 결과를 먼저 본다`() {
         val memo = resultMemo()
         val tag = resultTag()
 
@@ -93,7 +93,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 장소 시작 유형이면 장소 결과를 먼저 본다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 장소 시작 유형이면 장소 결과를 먼저 본다`() {
         val memo = resultMemo()
         val place = resultPlace()
 
@@ -108,7 +108,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 웹 시작 유형이면 웹 결과를 먼저 본다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 웹 시작 유형이면 웹 결과를 먼저 본다`() {
         val memo = resultMemo()
         val web = resultWeb()
 
@@ -123,7 +123,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-015 시작 유형이 아니어도 다른 유형의 결과를 채운다`() {
+    fun `TC-81dbea76-4318-43e8-a5b1-c48cd824b574 시작 유형이 아니어도 다른 유형의 결과를 채운다`() {
         val memo = resultMemo()
 
         composeRule.setSearchHomeScreen(memoList = listOf(memo), initialType = SearchHomeType.WEB)
@@ -133,7 +133,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 태그 유형으로 바꾸면 태그 결과를 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 태그 유형으로 바꾸면 태그 결과를 본다`() {
         val memo = resultMemo()
         val tag = resultTag()
 
@@ -145,7 +145,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 장소 유형으로 바꾸면 장소 결과를 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 장소 유형으로 바꾸면 장소 결과를 본다`() {
         val memo = resultMemo()
         val place = resultPlace()
 
@@ -157,7 +157,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 웹 유형으로 바꾸면 웹 결과를 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 웹 유형으로 바꾸면 웹 결과를 본다`() {
         val memo = resultMemo()
         val web = resultWeb()
 
@@ -169,7 +169,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-007 유형을 바꿔도 질의가 유지된다`() {
+    fun `TC-10cbe4a5-b4e2-4025-aff1-050b0ed7dbcb 유형을 바꿔도 질의가 유지된다`() {
         val tag = resultTag()
 
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
@@ -181,7 +181,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-011 메모 결과가 비어 있어도 태그 결과를 확인한다`() {
+    fun `TC-0fa9270b-5438-40f2-b9ee-c5656931b232 메모 결과가 비어 있어도 태그 결과를 확인한다`() {
         val tag = resultTag()
 
         composeRule.setSearchHomeScreen(tagList = listOf(tag))
@@ -196,7 +196,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-012 메모 결과를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 메모 결과를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = resultMemo()
         val idList = mutableListOf<Uuid>()
 
@@ -211,7 +211,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-012 태그 결과를 선택하면 그 태그의 상세로 이동한다`() {
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 태그 결과를 선택하면 그 태그의 상세로 이동한다`() {
         val tag = resultTag()
         val idList = mutableListOf<Uuid>()
 
@@ -227,7 +227,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-012 장소 결과를 선택하면 그 장소의 상세로 이동한다`() {
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 장소 결과를 선택하면 그 장소의 상세로 이동한다`() {
         val place = resultPlace()
         val idList = mutableListOf<Uuid>()
 
@@ -243,7 +243,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-012 웹 결과를 선택하면 그 웹 항목의 상세로 이동한다`() {
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 웹 결과를 선택하면 그 웹 항목의 상세로 이동한다`() {
         val web = resultWeb()
         val idList = mutableListOf<Uuid>()
 
@@ -259,7 +259,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-014 뒤로가기를 선택하면 화면을 벗어난다`() {
+    fun `TC-2408d17d-c93d-4e9d-88e9-73c3e1fbcfa0 뒤로가기를 선택하면 화면을 벗어난다`() {
         var navigateUpCount = 0
 
         composeRule.setSearchHomeScreen(navigateUp = { navigateUpCount += 1 })
@@ -269,7 +269,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-021 화면에 들어오면 검색어 입력에 초점을 맞춘다`() {
+    fun `TC-ca8f6ff7-7dcc-4863-9b93-f82f6f60fea9 화면에 들어오면 검색어 입력에 초점을 맞춘다`() {
         composeRule.setSearchHomeScreen()
 
         composeRule.onNode(hasSetTextAction()).assertIsFocused()
@@ -292,7 +292,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-027 질의를 고쳤다가 반영되기 전에 원래 검색어로 되돌리면 보던 자리를 유지한다`() {
+    fun `TC-5ba18e02-61f0-43c9-9907-aab1af80dc42 질의를 고쳤다가 반영되기 전에 원래 검색어로 되돌리면 보던 자리를 유지한다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
         val extraText = "추가-${fixtureMonkey.giveMeOne<String>()}"
 
@@ -313,7 +313,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-028 결과를 선택해 상세 화면에 다녀와도 보던 자리를 유지한다`() {
+    fun `TC-23a5a27a-c358-46a0-b89e-bd14c1dab6ab 결과를 선택해 상세 화면에 다녀와도 보던 자리를 유지한다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
         var isShown by mutableStateOf(true)
         val navigatedIdList = mutableListOf<Uuid>()
@@ -341,7 +341,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-029 고친 질의가 반영된 뒤 원래 검색어로 되돌리면 처음부터 본다`() {
+    fun `TC-d7d17ab4-2d4a-4d77-9ede-15770879555d 고친 질의가 반영된 뒤 원래 검색어로 되돌리면 처음부터 본다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
 
         composeRule.setSearchHomeScreen(memoList = memoList)
@@ -359,7 +359,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-022 상세에서 돌아오면 질의 입력에 초점을 다시 두지 않는다`() {
+    fun `TC-a6fb035f-f68b-4e5c-abf1-f347ca181f9a 상세에서 돌아오면 질의 입력에 초점을 다시 두지 않는다`() {
         val memo = resultMemo()
         var isShown by mutableStateOf(true)
 
@@ -381,7 +381,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-046 상세에서 돌아와도 질의와 보고 있던 유형이 그대로 유지된다`() {
+    fun `TC-4903adcf-92a1-4f19-9f69-a220f55b7260 상세에서 돌아와도 질의와 보고 있던 유형이 그대로 유지된다`() {
         val tag = resultTag()
         val navigatedIdList = mutableListOf<Uuid>()
         var isShown by mutableStateOf(true)
@@ -410,7 +410,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-047 앱이 백그라운드에 다녀와도 질의와 보고 있던 유형이 그대로 유지된다`() {
+    fun `TC-2cdbd59e-a0d9-4ce2-b161-c6ed4c46d540 앱이 백그라운드에 다녀와도 질의와 보고 있던 유형이 그대로 유지된다`() {
         val place = resultPlace()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
@@ -434,7 +434,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-DOMAIN-019 메모리 정리 뒤 복원해도 질의와 유형을 유지하고 곧바로 그 질의의 결과를 보여 준다`() {
+    fun `TC-9ea84aad-f762-440e-81c7-030c8a398189 메모리 정리 뒤 복원해도 질의와 유형을 유지하고 곧바로 그 질의의 결과를 보여 준다`() {
         val place = resultPlace()
         val restorationTester = StateRestorationTester(composeRule)
         composeRule.setSearchHomeScreen(placeList = listOf(place), restorationTester = restorationTester)
@@ -458,7 +458,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-DOMAIN-020 메모리 정리 뒤 복원하면 각 유형에서 고른 정렬이 처음 정렬로 돌아간다`() {
+    fun `TC-21971de1-16bd-49cc-aec1-7b35f40b8bb7 메모리 정리 뒤 복원하면 각 유형에서 고른 정렬이 처음 정렬로 돌아간다`() {
         val place = resultPlace()
         val restorationTester = StateRestorationTester(composeRule)
         composeRule.setSearchHomeScreen(placeList = listOf(place), restorationTester = restorationTester)
@@ -492,7 +492,7 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-023 질의가 결과에 반영되기 전에는 결과 없음을 알리지 않는다`() {
+    fun `TC-7cdf61eb-1e03-42c3-939a-207c24d54ddd 질의가 결과에 반영되기 전에는 결과 없음을 알리지 않는다`() {
         composeRule.setSearchHomeScreen(isQueryAppliedImmediately = false)
         inputQuery()
 

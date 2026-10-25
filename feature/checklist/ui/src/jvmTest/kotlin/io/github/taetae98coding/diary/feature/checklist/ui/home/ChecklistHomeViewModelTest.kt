@@ -49,7 +49,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CHECKLIST-HOME-FEATURE-006 조회한 체크리스트 페이지를 진행 정도와 함께 그대로 노출한다") {
+        test("TC-5458d371-b068-4e29-b8b4-0b48ef52c120 조회한 체크리스트 페이지를 진행 정도와 함께 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val summaryList = listOf(summary(), summary())
                 val viewModel = viewModel(pageChecklistUseCase = pageChecklistUseCase(summaryListFlow = flowOf(Result.success(summaryList))))
@@ -58,7 +58,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-DATA-002 체크리스트 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-861a291e-2dec-411e-9a64-fdfc48607696 체크리스트 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(pageChecklistUseCase = pageChecklistUseCase(summaryListFlow = flowOf(Result.failure(IllegalStateException()))))
@@ -67,7 +67,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-FEATURE-008 체크리스트를 추가하면 별도 조작 없이 그 체크리스트가 든 목록을 노출한다") {
+        test("TC-9d075582-e4a5-464d-b83b-2ad2a4e23669 체크리스트를 추가하면 별도 조작 없이 그 체크리스트가 든 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val existing = summary()
                 val added = summary()
@@ -85,7 +85,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 체크 항목이 바뀌면 진행 정도가 바뀐 목록을 노출한다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 체크 항목이 바뀌면 진행 정도가 바뀐 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val before = summary()
                 val after = before.copy(checkedCount = before.checkedCount + 1, totalCount = before.totalCount + 1)
@@ -103,7 +103,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-FEATURE-019 삭제에 성공하면 그 체크리스트의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-c7d4827a-f896-4048-b403-21e2cf5f12c9 삭제에 성공하면 그 체크리스트의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
@@ -120,7 +120,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-FEATURE-024 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-388cee7d-d25c-4b17-bba6-85048cb39130 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
@@ -156,7 +156,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-FEATURE-020 실행 취소하면 그 체크리스트의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-c68a8936-d158-4027-8c75-49723b99d0e1 실행 취소하면 그 체크리스트의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreChecklistUseCase = mockk<RestoreChecklistUseCase>()
@@ -190,7 +190,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-008 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-17730eb2-1d22-4810-99d2-aca75dfe6c84 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreChecklistUseCase = mockk<RestoreChecklistUseCase>()

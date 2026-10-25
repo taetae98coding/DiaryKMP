@@ -30,7 +30,7 @@ class PlaceCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-018 장소 카드에 제목과 주소를 표시한다`() {
+    fun `TC-964e27af-7d54-4aa9-8b49-6b1108fc3f7c 장소 카드에 제목과 주소를 표시한다`() {
         val place = place(title = title(), address = address())
 
         setPlaceCard(place)
@@ -62,7 +62,7 @@ class PlaceCardTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-042 자리 표시 카드는 제목과 주소를 비워 표시한다`() {
+    fun `TC-886b7185-ca97-4b0c-9cec-193ad3d6846e 자리 표시 카드는 제목과 주소를 비워 표시한다`() {
         val place = place(title = title(), address = address())
 
         setPlaceCard(place = null)
@@ -86,7 +86,7 @@ class PlaceCardTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-043 TC-SEARCH-HOME-FEATURE-013 TC-TAG-DETAIL-PLACE-FEATURE-003 자리 표시 카드는 선택할 수 없다`() {
+    fun `TC-1be24c68-03eb-4258-90f7-71356643c87b TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 TC-9191b292-7609-48f2-aa21-6a461ee24c8e 자리 표시 카드는 선택할 수 없다`() {
         var clickCount = 0
 
         setPlaceCard(place = null, onClick = { clickCount++ })

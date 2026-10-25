@@ -48,7 +48,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-ENTITY-TAG-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
@@ -64,7 +64,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-035 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {
+        test("TC-758840d9-7f22-4450-86af-2db4f22b0bee 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(initialTagId = null)
 
@@ -73,7 +73,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-036 고른 태그는 선택 상태로만 반영되고 장소·태그 연결은 만들어지지 않는다") {
+        test("TC-8835af89-2ffc-42a4-8b05-e98346c1dc89 고른 태그는 선택 상태로만 반영되고 장소·태그 연결은 만들어지지 않는다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val pageTagUseCase = pageTagUseCase()
@@ -105,7 +105,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-TAG-INPUT-FEATURE-009 연결된 태그의 해제를 요청하면 선택에서 빠진다") {
+        test("TC-eba5daa8-8d3e-4003-9b60-82720604c453 연결된 태그의 해제를 요청하면 선택에서 빠진다") {
             runTest(mainDispatcher) {
                 val firstTag = tag()
                 val secondTag = tag()
@@ -120,7 +120,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-008 초기 태그가 있으면 그 태그를 고른 상태로 시작한다") {
+        test("TC-77c6a3f5-8288-4cc9-a13c-9866c7e24b2b 초기 태그가 있으면 그 태그를 고른 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = listOf(tag))
@@ -134,7 +134,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-003 TC-TAG-DETAIL-PLACE-FEATURE-009 TC-PLACE-ADD-DOMAIN-024 표시 기준에서 빠진 태그는 연결 대상에서 제외된다") {
+        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 TC-c1083b09-0d4d-4932-8aa3-ce91ff37f036 TC-341e2c33-996a-4083-8855-689652ba9c56 표시 기준에서 빠진 태그는 연결 대상에서 제외된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = emptyList())
@@ -149,7 +149,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-ab820c4b-068f-4fbd-bd6f-eb7357bbfb20 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allTagList = List(2) { tag() }

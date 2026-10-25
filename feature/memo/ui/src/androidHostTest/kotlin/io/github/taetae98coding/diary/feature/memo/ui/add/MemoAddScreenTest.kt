@@ -59,7 +59,7 @@ class MemoAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-052 진입하면 제목 입력 칸에 자동으로 초점이 맞춰진다`() {
+    fun `TC-cf356390-beb8-4ea9-b387-06aa1af53f20 진입하면 제목 입력 칸에 자동으로 초점이 맞춰진다`() {
         setMemoAddScreen(screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -68,7 +68,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-026 목록과 함께 표시되는 메모 추가는 진입할 때 입력 초점을 두지 않는다`() {
+    fun `TC-6156db00-1c47-4908-af8c-c81dab335a25 목록과 함께 표시되는 메모 추가는 진입할 때 입력 초점을 두지 않는다`() {
         setMemoAddScreen(viewModels = screenTestViewModel(), isStandalone = false)
 
         composeRule.waitForIdle()
@@ -78,7 +78,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-073 설명을 미리보기로 보던 중 추가에 성공하면 설명 입력 상태로 돌아간다`() {
+    fun `TC-bac34989-87b8-422d-b009-6f614d170163 설명을 미리보기로 보던 중 추가에 성공하면 설명 입력 상태로 돌아간다`() {
         val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
         every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
@@ -97,7 +97,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-005 TC-CONTACT-DETAIL-MEMO-FEATURE-021 TC-PLACE-DETAIL-MEMO-FEATURE-021 TC-WEB-DETAIL-MEMO-FEATURE-021 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-a6baf1a0-fcf7-4d4c-beb0-649aeca097ca TC-29f72dc2-15f1-426b-880c-9697c055beb8 TC-d58e8805-d2ad-42f2-a534-5ff654141413 TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoAddScreen(
             viewModels = screenTestViewModel(),
@@ -110,14 +110,14 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-006 추가 버튼으로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
+    fun `TC-60846fde-5515-44df-b895-b5032fe9a6e0 추가 버튼으로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
         assertSuccessClearsInput {
             composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         }
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-006 단축키로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
+    fun `TC-60846fde-5515-44df-b895-b5032fe9a6e0 단축키로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
         assertSuccessClearsInput {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().performKeyInput {
                 keyDown(Key.MetaLeft)
@@ -129,27 +129,27 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-009 제목이 비어 있으면 입력한 설명을 유지한 채 제목에 초점을 맞춘다`() {
+    fun `TC-5afbe001-838b-4ce5-90c2-7aac88079d4b 제목이 비어 있으면 입력한 설명을 유지한 채 제목에 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialInput = "")
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-009 공백만 입력하면 제목과 설명을 유지한 채 제목에 초점을 맞춘다`() {
+    fun `TC-5afbe001-838b-4ce5-90c2-7aac88079d4b 공백만 입력하면 제목과 설명을 유지한 채 제목에 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialInput = WHITESPACE_TITLE)
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-053 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-ad600e79-c8b9-456c-83b2-7c28fea0baca 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         assertFocusMovesToTitle(effect = MemoAddEffect.AddSucceeded)
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-054 제목 미입력으로 추가하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-4991cf3a-7048-4c13-97fa-c95b44213486 제목 미입력으로 추가하면 제목 입력으로 초점을 옮긴다`() {
         assertFocusMovesToTitle(effect = MemoAddEffect.TitleBlank)
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-011 진입하면 날짜·시간 입력이 스위치가 꺼진 상태로 표시된다`() {
+    fun `TC-97d15054-fbd5-4499-8c8b-4a78a6dfb008 진입하면 날짜·시간 입력이 스위치가 꺼진 상태로 표시된다`() {
         setMemoAddScreen(screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -161,7 +161,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-013 추가에 성공해도 날짜·시간 입력의 선택 내용이 유지된다`() {
+    fun `TC-9e34c0bb-9121-4b75-b39d-f9d149ededf0 추가에 성공해도 날짜·시간 입력의 선택 내용이 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
         val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
@@ -312,7 +312,7 @@ class MemoAddScreenInitialDateTimeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-047 캘린더 홈이나 황금연휴 화면에서 기간을 선택해 진입하면 그 기간이 종일 기간으로 입력되어 있다`() {
+    fun `TC-3b72c5a0-3f82-4331-bf55-b0ef5e191b62 캘린더 홈이나 황금연휴 화면에서 기간을 선택해 진입하면 그 기간이 종일 기간으로 입력되어 있다`() {
         val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
         val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
         setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
@@ -324,7 +324,7 @@ class MemoAddScreenInitialDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 시간대 선택`() {
+    fun `TC-2f637348-763e-43d7-b8aa-6dc1b23135f7 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 시간대 선택`() {
         val date = LocalDate(year = 2026, month = Month.JULY, day = 14)
         setMemoAddScreen(
             initialDateTime =
@@ -345,7 +345,7 @@ class MemoAddScreenInitialDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 날짜 선택`() {
+    fun `TC-2f637348-763e-43d7-b8aa-6dc1b23135f7 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 날짜 선택`() {
         val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
         val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
         setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
@@ -401,24 +401,24 @@ class MemoAddScreenMessageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-007 기본 환경 추가 성공 안내`() {
+    fun `TC-f7d3e320-8d73-41df-810b-87bd78ee527d 기본 환경 추가 성공 안내`() {
         assertMessage(effect = MemoAddEffect.AddSucceeded, expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-ADD-FEATURE-007 한국어 추가 성공 안내`() {
+    fun `TC-f7d3e320-8d73-41df-810b-87bd78ee527d 한국어 추가 성공 안내`() {
         assertMessage(effect = MemoAddEffect.AddSucceeded, expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-010 기본 환경 제목 미입력 안내`() {
+    fun `TC-9145811e-8821-44d1-92bc-fae055ad21da 기본 환경 제목 미입력 안내`() {
         assertMessage(effect = MemoAddEffect.TitleBlank, expectedMessage = DEFAULT_TITLE_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-ADD-FEATURE-010 한국어 제목 미입력 안내`() {
+    fun `TC-9145811e-8821-44d1-92bc-fae055ad21da 한국어 제목 미입력 안내`() {
         assertMessage(effect = MemoAddEffect.TitleBlank, expectedMessage = KOREAN_TITLE_BLANK_MESSAGE)
     }
 

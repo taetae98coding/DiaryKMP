@@ -26,11 +26,11 @@ class SignInWithGoogleUseCaseTest :
                 When("해당 credential로 로그인을 요청한다") {
                     val result = useCase(parameter = credential)
 
-                    Then("TC-LOGIN-DOMAIN-001 ${case.name} 성공 Result를 반환한다") {
+                    Then("TC-07c80ae1-4094-4c95-b69f-099f23115843 ${case.name} 성공 Result를 반환한다") {
                         result.shouldBeSuccess()
                     }
 
-                    Then("TC-LOGIN-DOMAIN-001 ${case.name} credential을 한 번 전달한다") {
+                    Then("TC-07c80ae1-4094-4c95-b69f-099f23115843 ${case.name} credential을 한 번 전달한다") {
                         coVerify(exactly = 1) {
                             repository.create(credential)
                         }
@@ -51,7 +51,7 @@ class SignInWithGoogleUseCaseTest :
             When("해당 credential로 로그인을 요청한다") {
                 useCase(parameter = credential)
 
-                Then("TC-LOGIN-DOMAIN-003 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-208c5ffb-a9a7-4ba5-8121-09d2a615fa0d TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure
@@ -71,7 +71,7 @@ class SignInWithGoogleUseCaseTest :
             When("해당 credential로 로그인을 요청한다") {
                 useCase(parameter = credential)
 
-                Then("TC-LOGIN-DOMAIN-004 오류 보고가 남지 않는다") {
+                Then("TC-436f1bc0-4dfe-4077-aa2b-6ae7550cea4a 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }

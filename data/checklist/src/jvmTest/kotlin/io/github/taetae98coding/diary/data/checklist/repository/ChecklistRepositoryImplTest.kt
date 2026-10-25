@@ -43,7 +43,7 @@ import kotlin.uuid.Uuid
 
 class ChecklistRepositoryImplTest :
     FunSpec({
-        test("TC-CHECKLIST-ADD-DATA-001 TC-CHECKLIST-ADD-DOMAIN-012 체크리스트와 체크 항목을 현재 계정 식별자와 로컬 모델로 바꿔 함께 저장한다") {
+        test("TC-e0a4bfe4-2f96-43c3-82ba-b5596d4c80c5 TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 체크리스트와 체크 항목을 현재 계정 식별자와 로컬 모델로 바꿔 함께 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val checklist = fixtureMonkey.checklist(isDeleted = false)
             val itemList = List(2) { fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id) }
@@ -58,7 +58,7 @@ class ChecklistRepositoryImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-002 수정의 기기 저장이 실패하면 실패를 그대로 전달한다") {
+        test("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 수정의 기기 저장이 실패하면 실패를 그대로 전달한다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), checklistId = any(), detail = any(), updatedAt = any()) } throws throwable
@@ -74,7 +74,7 @@ class ChecklistRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-001 체크리스트 하나를 삭제 여부와 관계없이 도메인 모델로 바꿔 전달하고, 없으면 없음을 전달한다") {
+        test("TC-3b75e95e-f535-4154-bfeb-5e95f65cdea4 체크리스트 하나를 삭제 여부와 관계없이 도메인 모델로 바꿔 전달하고, 없으면 없음을 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val checklist = fixtureMonkey.checklist(isDeleted = true)
             val missingId = fixtureMonkey.giveMeOne<Uuid>()
@@ -87,7 +87,7 @@ class ChecklistRepositoryImplTest :
             repository.find(account = account, checklistId = missingId).first().shouldBeNull()
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-004 체크 항목 목록을 고른 정렬의 로컬 정렬로 조회해 도메인 모델로 전달한다") {
+        test("TC-289d5d96-f27f-49bf-8b57-dbc8e44c77e6 체크 항목 목록을 고른 정렬의 로컬 정렬로 조회해 도메인 모델로 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val checklistId = fixtureMonkey.giveMeOne<Uuid>()
             val itemList = List(2) { fixtureMonkey.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId) }
@@ -120,7 +120,7 @@ class ChecklistRepositoryImplTest :
             repository.updateDeleted(account = account, itemId = item.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
             repository.updateAllChecked(account = account, checklistId = item.checklistId, isChecked = false, updatedAt = updatedAt) shouldBe 2
         }
-        test("TC-CHECKLIST-ADD-DATA-002 체크리스트 추가의 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-22a04f2e-eeb4-482f-b03a-23437e354955 체크리스트 추가의 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any()) } throws throwable
@@ -135,7 +135,7 @@ class ChecklistRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-CHECKLIST-HOME-DATA-001 체크리스트 목록 페이지 조회는 현재 계정의 로컬 체크리스트를 진행 정도와 함께 도메인 모델로 바꿔 전달한다") {
+        test("TC-ffcb4f61-636d-4088-9c8d-3f376f926bbf 체크리스트 목록 페이지 조회는 현재 계정의 로컬 체크리스트를 진행 정도와 함께 도메인 모델로 바꿔 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localList =
                 List(2) { index ->
@@ -148,7 +148,7 @@ class ChecklistRepositoryImplTest :
             repository.page(account = account).first().items() shouldBe localList.map { local -> local.toDomain() }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-006 수정 요청은 제목, 설명과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
+        test("TC-409178d7-4cde-4230-a644-9c60981ea503 수정 요청은 제목, 설명과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val checklistId = fixtureMonkey.giveMeOne<Uuid>()
             val detail = fixtureMonkey.checklistDetail()
@@ -163,7 +163,7 @@ class ChecklistRepositoryImplTest :
         }
 
         listOf(true, false).forEach { isDeleted ->
-            test("TC-CHECKLIST-HOME-DATA-004 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
+            test("TC-bc9ac9d1-bc92-4acc-a8ef-eee1dbedb8cc 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
                 val account = fixtureMonkey.giveMeOne<Account.User>()
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val updatedAt = fixtureMonkey.giveMeOne<Instant>()
@@ -177,7 +177,7 @@ class ChecklistRepositoryImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-002 체크 항목 변경의 기기 저장이 실패하면 실패를 그대로 전달한다") {
+        test("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 체크 항목 변경의 기기 저장이 실패하면 실패를 그대로 전달한다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val transaction = mockk<AccountChecklistItemTransaction>()
             coEvery { transaction.updateAllChecked(accountId = any(), checklistId = any(), isChecked = any(), updatedAt = any()) } throws throwable

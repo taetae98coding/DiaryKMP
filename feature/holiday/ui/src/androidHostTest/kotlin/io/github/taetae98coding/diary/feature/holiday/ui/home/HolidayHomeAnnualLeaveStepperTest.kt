@@ -27,7 +27,7 @@ class HolidayHomeAnnualLeaveStepperTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-004 기본 환경에서 연차 라벨과 기본 연차 개수를 표시한다`() {
+    fun `TC-88441f0e-e28c-41db-9a24-011a2154e77f 기본 환경에서 연차 라벨과 기본 연차 개수를 표시한다`() {
         setHolidayHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_ANNUAL_LEAVE_LABEL).assertExists()
@@ -36,7 +36,7 @@ class HolidayHomeAnnualLeaveStepperTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-HOLIDAY-HOME-FEATURE-004 한국어 환경에서 연차 라벨과 기본 연차 개수를 표시한다`() {
+    fun `TC-88441f0e-e28c-41db-9a24-011a2154e77f 한국어 환경에서 연차 라벨과 기본 연차 개수를 표시한다`() {
         setHolidayHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_ANNUAL_LEAVE_LABEL).assertExists()
@@ -61,7 +61,7 @@ class HolidayHomeAnnualLeaveStepperTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-006 늘리기 동작을 선택하면 연차 개수가 하나 는다`() {
+    fun `TC-105a5761-c99f-4c15-8a4a-52206b6a59fb 늘리기 동작을 선택하면 연차 개수가 하나 는다`() {
         setHolidayHomeScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick()
@@ -70,7 +70,7 @@ class HolidayHomeAnnualLeaveStepperTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-007 줄이기 동작을 선택하면 연차 개수가 하나 준다`() {
+    fun `TC-c4b992eb-91b9-4839-95a7-b585cd3d7df0 줄이기 동작을 선택하면 연차 개수가 하나 준다`() {
         setHolidayHomeScaffold()
 
         repeat(2) { composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick() }
@@ -80,7 +80,7 @@ class HolidayHomeAnnualLeaveStepperTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-008 연차 개수가 가장 작은 값이면 줄이기 동작을 선택할 수 없다`() {
+    fun `TC-20f7cbec-2f83-4a85-a0bb-4167819af0b7 연차 개수가 가장 작은 값이면 줄이기 동작을 선택할 수 없다`() {
         setHolidayHomeScaffold()
 
         composeRule.onNodeWithText("0").assertExists()
@@ -88,7 +88,7 @@ class HolidayHomeAnnualLeaveStepperTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-019 연차 개수에는 상한이 없다`() {
+    fun `TC-4e21d6ee-7429-4b58-aa40-290de27fe263 연차 개수에는 상한이 없다`() {
         setHolidayHomeScaffold()
 
         repeat(CLICK_COUNT) { composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick() }

@@ -37,7 +37,7 @@ class PlaylistHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-004 조회한 곡을 목록에 표시한다`() {
+    fun `TC-97f58e54-aa0d-407e-b435-dc552077fa0c 조회한 곡을 목록에 표시한다`() {
         val music = testMusic(title = MUSIC_TITLE, artist = MUSIC_ARTIST)
 
         setPlaylistHomeScreen(musicList = listOf(music))
@@ -47,7 +47,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-014 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-4f4be13e-7d7d-4f0f-9a92-592307a5fa81 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         var navigateUpCount = 0
 
         setPlaylistHomeScreen(navigateUp = { navigateUpCount += 1 })
@@ -58,7 +58,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-006 곡 추가를 선택하면 곡 추가 화면으로 이동한다`() {
+    fun `TC-61313533-3370-4dcc-9f6d-48121804db99 곡 추가를 선택하면 곡 추가 화면으로 이동한다`() {
         var navigateToAddCount = 0
 
         setPlaylistHomeScreen(navigateToAdd = { navigateToAddCount += 1 })
@@ -69,7 +69,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-015 목록의 곡을 선택하면 그 곡의 상세 화면으로 이동한다`() {
+    fun `TC-cdffb691-2c41-4b33-a6da-8c243b81a200 목록의 곡을 선택하면 그 곡의 상세 화면으로 이동한다`() {
         val music = testMusic(title = MUSIC_TITLE, artist = MUSIC_ARTIST)
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -81,7 +81,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-008 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-b33a6b98-eb07-418b-9686-9ae2b3850279 목록을 당기면 새로고침을 요청한다`() {
         val syncViewModel = syncViewModel()
 
         setPlaylistHomeScreen(musicList = listOf(testMusic(title = MUSIC_TITLE)), syncViewModel = syncViewModel)
@@ -92,7 +92,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-DOMAIN-020 목록을 당겨 새로고침해도 곡의 다운로드 상태가 그대로 유지된다`() {
+    fun `TC-e1bac529-07e2-4782-a84f-43c7943ad242 목록을 당겨 새로고침해도 곡의 다운로드 상태가 그대로 유지된다`() {
         val done = testMusic(title = MUSIC_TITLE)
         val failed = testMusic(title = MUSIC_ARTIST)
         val musicPagingDataFlow = MutableStateFlow(musicPagingDataOf(listOf(done, failed)))

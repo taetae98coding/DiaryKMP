@@ -24,7 +24,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class JvmFileDownloadLocalDataSourceTest :
     FunSpec({
-        test("TC-FILE-DOWNLOAD-FEATURE-001 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 받은 내용을 그대로 저장한다") {
+        test("TC-fa368167-d81a-4307-a63d-7e49c56ec884 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 받은 내용을 그대로 저장한다") {
             runTest {
                 val bytes = fixtureMonkey.giveMeOne<ByteArray>()
                 val chosen = Files.createTempDirectory("chosen").toFile()
@@ -43,7 +43,7 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-DOWNLOAD-DOMAIN-005 같은 이름이 있으면 덮어쓰지 않고 겹치지 않는 가장 작은 번호의 이름으로 저장한다") {
+        test("TC-f9cd7730-015c-4120-aa0a-dda6e46df8b0 같은 이름이 있으면 덮어쓰지 않고 겹치지 않는 가장 작은 번호의 이름으로 저장한다") {
             runTest {
                 listOf(
                     emptyList<String>() to "report.pdf",
@@ -69,7 +69,7 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-DOWNLOAD-FEATURE-002 고른 폴더에 쓸 수 없으면 기본 위치에 대신 저장하지 않고 저장 위치 실패로 끝난다") {
+        test("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 고른 폴더에 쓸 수 없으면 기본 위치에 대신 저장하지 않고 저장 위치 실패로 끝난다") {
             runTest {
                 val defaultDirectory = Files.createTempDirectory("default").toFile()
                 val missing = Files.createTempDirectory("missing").toFile().also(File::delete)
@@ -86,7 +86,7 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-DOWNLOAD-DOMAIN-002 받는 도중 실패하거나 멈추면 쓰던 파일을 남기지 않는다") {
+        test("TC-c23b3f37-81ef-42d6-bcf3-5563583e7157 받는 도중 실패하거나 멈추면 쓰던 파일을 남기지 않는다") {
             runTest {
                 listOf(IllegalStateException("connection"), CancellationException("left")).forEach { exception ->
                     val directory = Files.createTempDirectory("partial").toFile()
@@ -107,7 +107,7 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
-        test("TC-FILE-DOWNLOAD-FEATURE-002 기본 위치를 만들 수 없으면 저장 위치 실패로 끝난다") {
+        test("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 기본 위치를 만들 수 없으면 저장 위치 실패로 끝난다") {
             runTest {
                 val blocker = Files.createTempFile("blocker", ".txt").toFile()
 

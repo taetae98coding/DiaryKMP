@@ -52,7 +52,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-DATA-032 화면이 표시되면 두 달 전 1일부터 두 달 후 마지막 날까지의 생일을 조회한다") {
+        test("TC-d5ce4ab8-f6a0-46d8-80e7-c71d9344edf9 화면이 표시되면 두 달 전 1일부터 두 달 후 마지막 날까지의 생일을 조회한다") {
             runTest(mainDispatcher) {
                 val expectedDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
@@ -97,7 +97,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-033 표시 중인 달이 바뀌면 이동한 달 기준의 조회 기간으로 다시 조회한다") {
+        test("TC-86a81141-e952-4b3b-996d-cec95473c636 표시 중인 달이 바뀌면 이동한 달 기준의 조회 기간으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val julyDateRange =
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
@@ -125,7 +125,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-034 생일 조회가 실패하면 생일 없이 표시한다") {
+        test("TC-cb6f457b-3630-438b-903e-a6e92d58e816 생일 조회가 실패하면 생일 없이 표시한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns
@@ -164,7 +164,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-038 화면이 표시되면 생일 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
+        test("TC-048bc868-d72f-417c-bc8c-9606a5c4ec81 화면이 표시되면 생일 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
             val expectedYearListByYearMonth =
                 listOf(
                     YearMonth(year = 2026, month = Month.JULY) to listOf(2026),
@@ -190,7 +190,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-039 표시 중인 달이 바뀌면 이동한 달의 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
+        test("TC-dffdc5ac-8c4a-4763-a5fd-4a4fd5e59bb6 표시 중인 달이 바뀌면 이동한 달의 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
             runTest(mainDispatcher) {
                 val fetchLunarUseCase = fetchLunarUseCase()
                 val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
@@ -205,7 +205,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-048 음력 자료 동기화가 진행 중이어도 새로 요청한다") {
+        test("TC-6faad95e-ebe2-46bb-babd-927f02021377 음력 자료 동기화가 진행 중이어도 새로 요청한다") {
             runTest(mainDispatcher) {
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
                 coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
@@ -221,7 +221,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-055 같은 달의 음력 자료 동기화가 진행 중일 때 다시 지정하면 새로 요청하지 않는다") {
+        test("TC-8383f1be-8bbb-4f7b-9bb1-24b028059a8c 같은 달의 음력 자료 동기화가 진행 중일 때 다시 지정하면 새로 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
                 coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
@@ -241,7 +241,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
+        test("TC-ce299deb-8db7-4394-8913-ebf42203542c 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
             runTest(mainDispatcher) {
                 val birthdayList = listOf(birthday())
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()

@@ -42,13 +42,13 @@ class SearchTagUseCaseTest :
                 )
 
             When("질의로 태그를 검색한다") {
-                Then("TC-SEARCH-HOME-DOMAIN-002 현재 계정의 검색 결과를 페이지로 전달한다") {
+                Then("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 현재 계정의 검색 결과를 페이지로 전달한다") {
                     val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
                 }
 
-                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-f5cf35ea-6c4b-44ce-98c9-7e74630d7a70 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
@@ -71,7 +71,7 @@ class SearchTagUseCaseTest :
                 )
 
             When("질의로 태그를 검색한다") {
-                Then("TC-SEARCH-HOME-DOMAIN-015 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
+                Then("TC-9340ee09-dab8-45c0-9f68-8fc24d788378 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
                     val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
@@ -89,7 +89,7 @@ class SearchTagUseCaseTest :
                 )
 
             When("빈 질의로 태그를 검색한다") {
-                Then("TC-SEARCH-HOME-DOMAIN-001 결과가 비어 있고 검색을 요청하지 않는다") {
+                Then("TC-414698a7-cd5f-402b-a542-d9369f88dce2 결과가 비어 있고 검색을 요청하지 않는다") {
                     listOf("", " ", "   ").forEach { query ->
                         val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = query, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
@@ -113,7 +113,7 @@ class SearchTagUseCaseTest :
                 )
 
             When("질의로 태그를 검색한다") {
-                Then("TC-SEARCH-HOME-DOMAIN-009 계정 조회 실패를 전달하고 검색을 요청하지 않는다") {
+                Then("TC-c0df0eeb-3fdb-49a4-bdac-6302eff2f7a3 계정 조회 실패를 전달하고 검색을 요청하지 않는다") {
                     useCase(parameter = SearchTagUseCase.Parameter(query = QUERY, sort = ListSort.TITLE))
                         .first()
                         .shouldBeFailure()

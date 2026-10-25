@@ -6,7 +6,7 @@ import java.nio.file.Paths
 
 class JvmCalendarDatabasePathTest :
     FunSpec({
-        test("TC-JVM-DATABASE-STORAGE-DATA-003 캘린더 자료를 그 환경의 저장 위치에 둔다") {
+        test("TC-0e0520d4-9745-466c-a0ed-d058bd1b67c5 캘린더 자료를 그 환경의 저장 위치에 둔다") {
             val userHome = Paths.get("/Users/user")
             val cases =
                 mapOf(

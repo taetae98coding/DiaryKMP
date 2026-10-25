@@ -22,7 +22,7 @@ class MusicCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-015 준비된 곡 카드는 눌러 선택할 수 있다`() {
+    fun `TC-cdffb691-2c41-4b33-a6da-8c243b81a200 준비된 곡 카드는 눌러 선택할 수 있다`() {
         var clickCount = 0
 
         setMusicCard(music = testMusic(title = MUSIC_TITLE), onClick = { clickCount += 1 })
@@ -33,7 +33,7 @@ class MusicCardTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-016 아직 준비되지 않은 자리는 선택할 수 없다`() {
+    fun `TC-cfb83cbe-157a-4fad-bad9-a47793c6cd59 아직 준비되지 않은 자리는 선택할 수 없다`() {
         var clickCount = 0
 
         setMusicCard(music = null, onClick = { clickCount += 1 })

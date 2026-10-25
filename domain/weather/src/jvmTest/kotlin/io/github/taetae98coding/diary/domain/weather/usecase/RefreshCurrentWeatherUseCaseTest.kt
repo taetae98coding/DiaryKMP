@@ -26,7 +26,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class RefreshCurrentWeatherUseCaseTest :
     BehaviorSpec({
-        Given("TC-WEATHER-FETCH-DOMAIN-020 현재 위치의 날씨 동기화가 성공하도록 준비되어 있다") {
+        Given("TC-44f121e6-fb34-456f-b5c3-df7604d2fb20 현재 위치의 날씨 동기화가 성공하도록 준비되어 있다") {
             val repository = mockk<WeatherRepository>()
             coEvery { repository.refresh() } just Runs
             val useCase = RefreshCurrentWeatherUseCase(weatherRepository = repository)
@@ -68,7 +68,7 @@ class RefreshCurrentWeatherUseCaseTest :
             When("위치 권한 허용을 계기로 현재 날씨 동기화를 요청한다") {
                 useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-016 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-b055c0df-989b-4953-b7a9-b3b24c17334a TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure
@@ -87,7 +87,7 @@ class RefreshCurrentWeatherUseCaseTest :
             When("위치 권한 허용을 계기로 현재 날씨 동기화를 요청한다") {
                 useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-017 오류 보고가 남지 않는다") {
+                Then("TC-ebc481d2-6b8f-4bc6-a2e2-36931ce3f977 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }

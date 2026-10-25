@@ -13,7 +13,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class AppleWebSignInRequestFactoryTest :
     FunSpec({
-        test("TC-LOGIN-DATA-010 로그인 요청은 서버 콜백 주소, 이번 시도의 nonce, 복귀 주소를 담는다") {
+        test("TC-d0a6a2b3-9ae1-4ea7-9318-976bb99e0020 로그인 요청은 서버 콜백 주소, 이번 시도의 nonce, 복귀 주소를 담는다") {
             val config = fixtureMonkey.appleCredentialsConfig()
             val returnUri = "http://127.0.0.1:${fixtureMonkey.giveMeOne<Int>().toUInt()}/callback"
             val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
@@ -32,7 +32,7 @@ class AppleWebSignInRequestFactoryTest :
             AppleWebSignInState.decodeReturnUri(request.state) shouldBe returnUri
         }
 
-        test("TC-LOGIN-DATA-011 새 로그인 시도는 새로운 nonce와 상태 값을 사용한다") {
+        test("TC-8863804f-e996-4934-9845-5dbb496a9704 새 로그인 시도는 새로운 nonce와 상태 값을 사용한다") {
             val factory = AppleWebSignInRequestFactory(config = fixtureMonkey.appleCredentialsConfig())
             val returnUri = "io.github.taetae98coding.diary://apple-sign-in-${fixtureMonkey.giveMeOne<String>()}"
 

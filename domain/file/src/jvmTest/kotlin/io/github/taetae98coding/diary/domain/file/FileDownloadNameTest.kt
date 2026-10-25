@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class FileDownloadNameTest :
     FunSpec({
-        test("TC-FILE-DOWNLOAD-DOMAIN-004 파일 이름에 쓸 수 없는 글자는 _로 바꿔 저장한다") {
+        test("TC-f32cfd05-b47c-42da-b74c-0541b4e9d2ab 파일 이름에 쓸 수 없는 글자는 _로 바꿔 저장한다") {
             listOf(
                 "report.pdf" to "report.pdf",
                 "a/b\\c.txt" to "a_b_c.txt",
@@ -19,7 +19,7 @@ class FileDownloadNameTest :
             }
         }
 
-        test("TC-FILE-DOWNLOAD-DOMAIN-005 겹칠 때 붙이는 번호는 확장자 앞에, 확장자가 없으면 이름 끝에 붙인다") {
+        test("TC-f9cd7730-015c-4120-aa0a-dda6e46df8b0 겹칠 때 붙이는 번호는 확장자 앞에, 확장자가 없으면 이름 끝에 붙인다") {
             listOf(
                 Triple("report.pdf", 1, "report (1).pdf"),
                 Triple("report.pdf", 2, "report (2).pdf"),

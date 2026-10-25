@@ -38,21 +38,21 @@ class WebDetailTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-032 조회 중에는 태그 입력을 표시하지 않는다`() {
+    fun `TC-992adeb8-0708-44cf-a7bc-968992df0347 조회 중에는 태그 입력을 표시하지 않는다`() {
         setWebDetailScreen(uiState = WebDetailUiState.Loading, selectFormTab = false)
 
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-032 조회가 끝나면 태그 입력을 표시한다`() {
+    fun `TC-992adeb8-0708-44cf-a7bc-968992df0347 조회가 끝나면 태그 입력을 표시한다`() {
         setWebDetailScreen()
 
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-034 태그를 연결해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
+    fun `TC-d525909f-0c24-4462-968d-7ee148f6b37b 태그를 연결해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
         val selectableTag = webTestTag(title = SELECTABLE_TAG_TITLE)
         setWebDetailScreen(selectableTagList = listOf(selectableTag))
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
@@ -63,7 +63,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-035 태그를 연결해도 웹 페이지를 다시 불러오지 않는다`() {
+    fun `TC-022191e8-945d-40bd-842b-8544e389db9b 태그를 연결해도 웹 페이지를 다시 불러오지 않는다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
         setWebDetailScreen(
             pageViewModel = pageViewModel,
@@ -82,7 +82,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-036 연결한 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
+    fun `TC-2220edc3-28ff-4d31-bc61-15f7e4ae6242 연결한 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
         val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setWebDetailScreen(
@@ -97,7 +97,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-036 태그를 연결해도 입력 중인 내용은 바뀌지 않는다`() {
+    fun `TC-47eeb79e-35f7-48f5-9b08-a33ecc63b013 태그를 연결해도 입력 중인 내용은 바뀌지 않는다`() {
         setWebDetailScreen(selectableTagList = listOf(webTestTag(title = SELECTABLE_TAG_TITLE)))
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
         composeRule.urlInput().performTextReplacement(TYPED_URL)
@@ -110,7 +110,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-024 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setWebDetailScreen(navigateToTagAdd = { tagAddCount += 1 })
 
@@ -122,7 +122,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-013 연결할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
+    fun `TC-fabf498e-c08a-4be2-bebc-687386bce4cd 연결할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
         val finishedTag = webTestTag(title = LINKED_TAG_TITLE).copy(isFinished = true)
         var tagAddCount = 0
         setWebDetailScreen(
@@ -139,7 +139,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
+    fun `TC-6397d89f-db81-4ca1-bbe0-13d8857d9eed 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setWebDetailScreen(
             selectableTagList = listOf(webTestTag(title = SELECTABLE_TAG_TITLE)),
@@ -156,7 +156,7 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그가 돌아왔을 때 상세 대상 웹 항목에 연결된다`() {
+    fun `TC-4efa8874-4b68-4a4f-a21d-6799efec18a2 TagAdd 화면에서 추가한 태그가 돌아왔을 때 상세 대상 웹 항목에 연결된다`() {
         val addedTag = webTestTag(title = SELECTABLE_TAG_TITLE)
         val tagViewModel = detailTagScreenTestViewModel()
         val resultEventBus = ResultEventBus()

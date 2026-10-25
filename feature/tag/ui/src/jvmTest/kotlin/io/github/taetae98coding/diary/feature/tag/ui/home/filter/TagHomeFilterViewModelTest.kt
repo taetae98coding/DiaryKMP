@@ -39,7 +39,7 @@ class TagHomeFilterViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-HOME-FEATURE-027 저장된 필터 선택이 꺼져 있으면 꺼진 상태를 노출한다") {
+        test("TC-ddf3850b-a348-43e0-8574-d522000b9e7f 저장된 필터 선택이 꺼져 있으면 꺼진 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(false))))
 
@@ -50,7 +50,7 @@ class TagHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-030 저장된 필터 선택이 켜져 있으면 켜진 상태를 노출한다") {
+        test("TC-ca4e614b-4a87-4964-a002-4b57f24ecf8f 저장된 필터 선택이 켜져 있으면 켜진 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(true))))
 
@@ -93,7 +93,7 @@ class TagHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-028 최상위 태그만 보기를 켜면 필터를 켜는 동작을 한 번 실행한다") {
+        test("TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 최상위 태그만 보기를 켜면 필터를 켜는 동작을 한 번 실행한다") {
             runTest(mainDispatcher) {
                 val enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase()
                 val viewModel = viewModel(enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase)
@@ -105,7 +105,7 @@ class TagHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-035 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
+        test("TC-fd202d3f-bd1c-4a25-b1ec-644ac4a06a85 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
             listOf(false, true).forEach { savedValue ->
                 runTest(mainDispatcher) {
                     val enableTopLevelTagFilterUseCase = mockk<EnableTopLevelTagFilterUseCase>()
@@ -133,7 +133,7 @@ class TagHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-029 최상위 태그만 보기를 끄면 필터를 끄는 동작을 한 번 실행한다") {
+        test("TC-a9dac55d-0689-4876-b138-7041b9950710 최상위 태그만 보기를 끄면 필터를 끄는 동작을 한 번 실행한다") {
             runTest(mainDispatcher) {
                 val disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase()
                 val viewModel = viewModel(disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase)

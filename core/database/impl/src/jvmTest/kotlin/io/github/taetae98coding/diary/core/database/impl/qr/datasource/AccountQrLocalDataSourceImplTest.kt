@@ -79,7 +79,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId) shouldBe expected
         }
 
-        test("TC-QR-HOME-DOMAIN-005 TC-QR-HOME-DOMAIN-007 삭제되지 않은 계정의 QR만 제목 오름차순으로 조회된다") {
+        test("TC-58922c74-a4b9-435e-8f72-35840001e716 TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 삭제되지 않은 계정의 QR만 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
@@ -92,7 +92,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
 
-        test("TC-QR-HOME-DOMAIN-007 설명과 QR 값은 정렬 순서를 바꾸지 않는다") {
+        test("TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 설명과 QR 값은 정렬 순서를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE, description = LAST_QR_TITLE, value = LAST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE, description = FIRST_QR_TITLE, value = FIRST_QR_TITLE)
@@ -101,7 +101,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
 
-        test("TC-QR-HOME-DOMAIN-007 수정 시각은 정렬 순서를 바꾸지 않는다") {
+        test("TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 수정 시각은 정렬 순서를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val lastQr = qr(title = LAST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
@@ -110,7 +110,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
 
-        test("TC-QR-HOME-DOMAIN-005 다른 계정의 QR만 저장되어 있으면 빈 목록으로 조회된다") {
+        test("TC-58922c74-a4b9-435e-8f72-35840001e716 다른 계정의 QR만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(qr()))
@@ -118,7 +118,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId).shouldBeEmpty()
         }
 
-        test("TC-QR-HOME-DATA-001 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
+        test("TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val qrList = List(3) { index -> qr(title = "$index-${fixtureMonkey.giveMeOne<String>()}") }
             qrTransaction.upsert(accountId = accountId, qrList = qrList)
@@ -137,7 +137,7 @@ class AccountQrLocalDataSourceImplTest :
             nextPage.data shouldBe qrList.drop(2)
         }
 
-        test("TC-QR-HOME-DOMAIN-008 저장된 QR의 변화가 페이지 조회에 반영된다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 저장된 QR의 변화가 페이지 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val qr = qr()
             val renamedQr = qr.copy(detail = qr.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
@@ -154,7 +154,7 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
-        test("TC-QR-HOME-DOMAIN-008 노출 기준을 만족하는 QR을 추가하면 제목 순서에 맞는 자리에 나타난다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 노출 기준을 만족하는 QR을 추가하면 제목 순서에 맞는 자리에 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
@@ -166,7 +166,7 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
-        test("TC-QR-HOME-DOMAIN-008 목록에 있는 QR이 삭제 상태로 바뀌면 목록에서 사라진다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR이 삭제 상태로 바뀌면 목록에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
@@ -178,7 +178,7 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
-        test("TC-QR-HOME-DOMAIN-008 서버에서 내려받은 QR은 노출 기준과 정렬 기준에 따라 목록에 반영된다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 서버에서 내려받은 QR은 노출 기준과 정렬 기준에 따라 목록에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
@@ -191,7 +191,7 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
-        test("TC-QR-HOME-DOMAIN-008 실행 취소한 QR은 제목 오름차순에 맞는 자리로 다시 조회된다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 실행 취소한 QR은 제목 오름차순에 맞는 자리로 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
@@ -206,7 +206,7 @@ class AccountQrLocalDataSourceImplTest :
             pagedQrs(accountId) shouldBe listOf(firstQr, middleQr.copy(updatedAt = restoredAt), lastQr)
         }
 
-        test("TC-QR-HOME-DOMAIN-008 목록에 있는 QR의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
@@ -220,7 +220,7 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-001 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
+        test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val qr = qr().copy(isDeleted = true)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
@@ -236,7 +236,7 @@ class AccountQrLocalDataSourceImplTest :
             dataSource.find(accountId = fixtureMonkey.giveMeOne<Uuid>(), qrId = qr.id).first().shouldBeNull()
         }
 
-        test("TC-QR-DETAIL-FEATURE-018 찾은 QR은 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
+        test("TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 찾은 QR은 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val qr = qr()
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))

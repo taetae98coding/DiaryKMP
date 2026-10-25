@@ -8,35 +8,35 @@
 
 ## feature
 
-### TC-ROUTINE-HOME-FEATURE-001: 표시할 루틴이 없으면 빈 상태 안내를 표시한다
+### TC-ee387456-97a9-4cd6-a8fb-987ae93517aa: 표시할 루틴이 없으면 빈 상태 안내를 표시한다
 
 - 근거: `feature > 빈 상태`
 - Given: 노출 기준을 만족하는 루틴이 하나도 없다.
 - When: RoutineHome 화면이 표시된다.
 - Then: 목록 자리에 아직 루틴이 없으며 새로 추가할 수 있음을 알리는 안내가 표시된다.
 
-### TC-ROUTINE-HOME-FEATURE-002: 루틴 추가를 선택하면 RoutineAdd로 이동한다
+### TC-175699d1-4329-40f4-8317-e54965c7acf5: 루틴 추가를 선택하면 RoutineAdd로 이동한다
 
 - 근거: `feature > 루틴 추가로 이동`
 - Given: RoutineHome 화면이 표시되어 있다.
 - When: 사용자가 루틴 추가를 선택한다.
 - Then: RoutineAdd 화면으로 한 번 이동한다.
 
-### TC-ROUTINE-HOME-FEATURE-003: 추가 단축키를 사용하면 RoutineAdd로 이동한다
+### TC-48b15011-3834-4587-903a-6a7d361d0783: 추가 단축키를 사용하면 RoutineAdd로 이동한다
 
 - 근거: `feature > 루틴 추가로 이동`
 - Given: 물리 키보드를 사용할 수 있고 RoutineHome 화면이 표시되어 있다.
 - When: 사용자가 추가 단축키를 누른다.
 - Then: RoutineAdd 화면으로 한 번 이동한다.
 
-### TC-ROUTINE-HOME-FEATURE-004: 빈 상태에서도 루틴 추가와 당겨서 새로고침을 실행할 수 있다
+### TC-ae2fda6d-823e-44ac-85a9-5cfb4bf175f5: 빈 상태에서도 루틴 추가와 당겨서 새로고침을 실행할 수 있다
 
 - 근거: `feature > 빈 상태`
 - Given: RoutineHome 화면에 빈 상태 안내가 표시되어 있다.
 - When: 사용자가 화면에서 실행할 수 있는 동작을 확인한다.
 - Then: 루틴 추가 동작과 당겨서 새로고침 동작이 모두 제공된다.
 
-### TC-ROUTINE-HOME-FEATURE-005: 새로고침이 진행되는 동안에도 빈 상태 안내를 유지한다
+### TC-292acd00-bf41-4124-b178-a1860e3bb171: 새로고침이 진행되는 동안에도 빈 상태 안내를 유지한다
 
 - 근거: `feature > 빈 상태`
 - Given: RoutineHome 화면에 빈 상태 안내가 표시되어 있다.

@@ -64,7 +64,7 @@ class PlaceDetailMemoPlaceholderTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-002 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
+    fun `TC-a6b21a94-34a6-4648-b8b0-afe3caba21ab 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val loadedMemoTitle = "PlaceMemoLoaded${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
         val memo = placeMemo(title = loadedMemoTitle)

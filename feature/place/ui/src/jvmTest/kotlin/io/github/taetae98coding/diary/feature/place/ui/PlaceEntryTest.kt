@@ -18,7 +18,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlaceEntryTest :
     FunSpec({
-        test("TC-TAG-DETAIL-PLACE-FEATURE-035 TagDetail 장소 탭에서 이어진 장소 추가와 장소 상세는 목록·상세 배치에 참여하지 않는다") {
+        test("TC-0716933d-7223-4e1f-8374-751bae112bab TagDetail 장소 탭에서 이어진 장소 추가와 장소 상세는 목록·상세 배치에 참여하지 않는다") {
             val tagDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
             val addKey = PlaceAddNavKey(initialTagId = tagDetailKey.id)

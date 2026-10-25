@@ -31,7 +31,7 @@ class EntityMemoFinishedListRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DOMAIN-006 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-48d89365-1aa3-4c0b-90cc-e3cd69ab605f 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
         val titlePrefix = fixtureText(prefix = "FinishedMemo")
         val memoList = List(MEMO_COUNT) { index -> entityMemo(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState())
@@ -75,7 +75,7 @@ class EntityMemoFinishedListRestorationTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DOMAIN-009 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+    fun `TC-ee4da67f-66c0-484c-ad0e-f7f24952c402 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
         val titlePrefix = fixtureText(prefix = "FinishedMemo")
         val memoList = List(MEMO_COUNT) { index -> entityMemo(title = "${titlePrefix}Index$index") }
         var nextViewModel = sortableViewModel(memoList = memoList)

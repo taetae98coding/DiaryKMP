@@ -2,11 +2,11 @@
 
 기준 스펙: [데스크톱 앱 데이터 저장 위치 스펙](../spec/client/jvm-database-storage.md)
 
-앱 설정을 그 환경의 저장 위치에 두고 개발 환경과 운영 환경이 서로의 설정을 공유하지 않는 케이스는 [SettingMap 테스트 케이스](./setting-map.md)의 `TC-SETTING-MAP-DATA-006`과 [SettingBrowser 테스트 케이스](./setting-browser.md)의 `TC-SETTING-BROWSER-DATA-006`이 다룬다. 앱 설정은 한 저장 영역을 함께 쓰므로 이 문서에 같은 케이스를 두지 않는다.
+앱 설정을 그 환경의 저장 위치에 두고 개발 환경과 운영 환경이 서로의 설정을 공유하지 않는 케이스는 [SettingMap 테스트 케이스](./setting-map.md)의 `TC-ed3a40a4-f5dd-4773-a6c9-98521ec66ec8`과 [SettingBrowser 테스트 케이스](./setting-browser.md)의 `TC-64e07364-2bf6-48ca-9310-24ba84efa879`이 다룬다. 앱 설정은 한 저장 영역을 함께 쓰므로 이 문서에 같은 케이스를 두지 않는다.
 
 ## data
 
-### TC-JVM-DATABASE-STORAGE-DATA-001: 환경에 맞는 데이터 저장 위치를 선택한다
+### TC-eeadacf6-ec33-4aa2-a248-0ba79aa60735: 환경에 맞는 데이터 저장 위치를 선택한다
 
 - 근거: `data > 환경별 저장 위치`
 - Given: 사용자의 홈 폴더가 `/Users/user`이고, 실행 중인 앱의 환경과 그 환경의 저장 위치 이름이 주어져 있다.
@@ -19,14 +19,14 @@
   | 개발 | `DiaryDev` | `/Users/user/Library/Application Support/DiaryDev/diary.db` |
   | 운영 | `Diary` | `/Users/user/Library/Application Support/Diary/diary.db` |
 
-### TC-JVM-DATABASE-STORAGE-DATA-002: 개발 환경과 운영 환경의 저장 위치를 분리한다
+### TC-f725c335-e15d-4411-aaae-72b543402133: 개발 환경과 운영 환경의 저장 위치를 분리한다
 
 - 근거: `data > 환경별 저장 위치`
 - Given: 같은 사용자의 `Library/Application Support` 폴더에서 개발 환경과 운영 환경의 데이터 저장 위치를 정할 수 있다.
 - When: 두 환경의 데이터 저장 위치를 각각 정한다.
 - Then: 개발 환경과 운영 환경은 서로 다른 저장 위치를 쓴다.
 
-### TC-JVM-DATABASE-STORAGE-DATA-003: 캘린더에 쓰는 자료를 그 환경의 저장 위치에 둔다
+### TC-0e0520d4-9745-466c-a0ed-d058bd1b67c5: 캘린더에 쓰는 자료를 그 환경의 저장 위치에 둔다
 
 - 근거: `data > 환경별 저장 위치`
 - Given: 사용자의 홈 폴더가 `/Users/user`이고, 실행 중인 앱의 환경과 그 환경의 저장 위치 이름이 주어져 있다.
@@ -39,7 +39,7 @@
   | 개발 | `DiaryDev` | `/Users/user/Library/Application Support/DiaryDev/calendar.db` |
   | 운영 | `Diary` | `/Users/user/Library/Application Support/Diary/calendar.db` |
 
-### TC-JVM-DATABASE-STORAGE-DATA-004: 앱이 내려받아 보관하는 파일을 그 환경의 저장 위치에 둔다
+### TC-9cf0dcfd-c823-4e15-ba98-6e26de922081: 앱이 내려받아 보관하는 파일을 그 환경의 저장 위치에 둔다
 
 - 근거: `data > 환경별 저장 위치`
 - Given: 사용자의 홈 폴더가 `/Users/user`이고, 실행 중인 앱의 환경과 그 환경의 저장 위치 이름이 주어져 있다.

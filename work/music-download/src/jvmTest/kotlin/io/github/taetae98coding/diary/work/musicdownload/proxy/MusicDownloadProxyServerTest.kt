@@ -23,7 +23,7 @@ class MusicDownloadProxyServerTest :
     BehaviorSpec({
         Given("이 기기에 사설 IPv4 주소가 하나 있다") {
             When("프록시를 시작하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DOMAIN-004 TC-MUSIC-DOWNLOAD-PROXY-DOMAIN-001 운영체제가 고른 포트로 제공 중이 되고 사설 IPv4 주소로만 후보를 만든다") {
+                Then("TC-fd8d1d71-0ff6-4706-ba3f-1b5b2aa4715d TC-b9614192-d606-4c32-8f38-08037a66ce61 운영체제가 고른 포트로 제공 중이 되고 사설 IPv4 주소로만 후보를 만든다") {
                     runTest(timeout = START_TIMEOUT_MILLIS.milliseconds) {
                         val server = server(scope = backgroundScope, dispatcher = StandardTestDispatcher(testScheduler))
 
@@ -39,7 +39,7 @@ class MusicDownloadProxyServerTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DOMAIN-005 시작한 뒤 네트워크가 바뀌어도 후보를 바꾸지 않고 주소를 다시 확인하지 않는다") {
+                Then("TC-235fe843-9481-46ab-99ca-6e4bb38f1f68 시작한 뒤 네트워크가 바뀌어도 후보를 바꾸지 않고 주소를 다시 확인하지 않는다") {
                     runTest(timeout = START_TIMEOUT_MILLIS.milliseconds) {
                         var addressLookupCount = 0
                         val addressListQueue =

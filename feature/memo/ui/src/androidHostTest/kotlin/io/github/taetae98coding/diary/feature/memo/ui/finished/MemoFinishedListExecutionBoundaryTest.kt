@@ -44,7 +44,7 @@ class MemoFinishedListExecutionBoundaryTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-033 메모 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
+    fun `TC-94e06abf-6415-418e-9698-47c44d9a201a 메모 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
         val memoList = memoList()
         val viewModel = screenTestViewModel(memoList = memoList)
         val navigatedIdList = mutableListOf<Uuid>()
@@ -76,7 +76,7 @@ class MemoFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DOMAIN-010 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-6fc9d134-11ac-4968-8c0c-04e32074aa6e 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
         val memoList = memoList()
         val viewModel = screenTestViewModel(memoList = memoList, sort = ListSort.TITLE)
         composeRule.setContent { FinishedList(viewModel = viewModel, navigateToDetail = {}) }

@@ -59,7 +59,7 @@ class RoutineListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-001 목록과 상세를 함께 쓰는 환경에서는 루틴 목록과 루틴 추가를 함께 표시한다`() {
+    fun `TC-8c88c858-2072-400f-a879-00952bb3e90e 목록과 상세를 함께 쓰는 환경에서는 루틴 목록과 루틴 추가를 함께 표시한다`() {
         setRoutineNavDisplay()
 
         composeRule.onNodeWithText(DEFAULT_HOME_TITLE).assertExists()
@@ -70,7 +70,7 @@ class RoutineListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-002 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-8beb00fb-4162-4842-b012-03becf084f00 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
         setRoutineNavDisplay()
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()

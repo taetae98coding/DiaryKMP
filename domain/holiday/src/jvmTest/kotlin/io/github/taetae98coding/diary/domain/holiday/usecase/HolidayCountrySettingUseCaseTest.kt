@@ -36,7 +36,7 @@ private data class ToggleCase(
 
 class HolidayCountrySettingUseCaseTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-001 저장소가 기기값만 고른 기본 상태를 제공한다") {
+        Given("TC-cd205cd1-fae2-4c27-8565-fb3a889c32df 저장소가 기기값만 고른 기본 상태를 제공한다") {
             val deviceCountry = fixtureMonkey.giveMeOne<HolidayCountry>()
             val useCase = countrySettingUseCase(optionSet = setOf(HolidayCountryOption.DEVICE), deviceCountry = deviceCountry)
 
@@ -50,7 +50,7 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-002 고른 선택지와 기기 지역이 준비되어 있다") {
+        Given("TC-809d9bb5-a454-4f34-81b5-91619a9881b9 고른 선택지와 기기 지역이 준비되어 있다") {
             val caseList =
                 listOf(
                     CountryCase(setOf(HolidayCountryOption.DEVICE), HolidayCountry.KOREA, setOf(HolidayCountry.KOREA)),
@@ -84,7 +84,7 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-003 기기값만 고른 상태이고 기기 지역이 한국이다") {
+        Given("TC-313e4e58-2c09-4cf8-98d3-fcb288929f01 기기값만 고른 상태이고 기기 지역이 한국이다") {
             val deviceCountryRepository = mockk<DeviceCountryRepository>()
             coEvery { deviceCountryRepository.read() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
             val useCase =
@@ -107,7 +107,7 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DOMAIN-006 기기값만 고른 상태이고 기기 지역이 한국인 채로 적용 국가를 계속 조회하고 있다") {
+        Given("TC-fb342438-e76c-4fc8-8bec-408e7a5226a7 기기값만 고른 상태이고 기기 지역이 한국인 채로 적용 국가를 계속 조회하고 있다") {
             val deviceCountryRepository = mockk<DeviceCountryRepository>()
             coEvery { deviceCountryRepository.read() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
             val useCase =
@@ -130,7 +130,7 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DATA-003 고른 선택지를 조회하고 있다") {
+        Given("TC-404a8641-a0d5-463b-bc42-537e012fe935 고른 선택지를 조회하고 있다") {
             val optionSetFlow = MutableStateFlow(setOf(HolidayCountryOption.DEVICE))
             val useCase = countrySettingUseCase(optionSetFlow = optionSetFlow, deviceCountry = HolidayCountry.KOREA)
 
@@ -147,7 +147,7 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-COUNTRY-DATA-001 테스트 데이터의 선택지를 고른 상태다") {
+        Given("TC-30244e86-4f5d-431c-80d3-11ed649a4c1b 테스트 데이터의 선택지를 고른 상태다") {
             val caseList =
                 listOf(
                     ToggleCase(setOf(HolidayCountryOption.DEVICE), HolidayCountryOption.KOREA, isAdded = true),

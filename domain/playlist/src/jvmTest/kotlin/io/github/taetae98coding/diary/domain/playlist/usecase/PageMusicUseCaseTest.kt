@@ -39,7 +39,7 @@ class PageMusicUseCaseTest :
                 )
 
             When("곡 목록을 페이지로 조회한다") {
-                Then("TC-PLAYLIST-HOME-DOMAIN-001 TC-PLAYLIST-HOME-DATA-001 현재 계정의 곡을 페이지로 전달한다") {
+                Then("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 현재 계정의 곡을 페이지로 전달한다") {
                     val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe musicList
@@ -59,7 +59,7 @@ class PageMusicUseCaseTest :
                 )
 
             When("곡 목록을 페이지로 조회한다") {
-                Then("TC-PLAYLIST-HOME-DOMAIN-002 노출할 곡을 전달하지 않고 곡 목록을 조회하지 않는다") {
+                Then("TC-eec208df-edc3-444d-8910-bd2f4ad43521 노출할 곡을 전달하지 않고 곡 목록을 조회하지 않는다") {
                     useCase(parameter = ListSort.TITLE)
                         .first()
                         .shouldBeFailure()

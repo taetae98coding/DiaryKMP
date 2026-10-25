@@ -41,7 +41,7 @@ class TagHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-001 목록에 태그 제목을 카드로 표시한다`() {
+    fun `TC-e6f864f3-7c11-46a2-ab25-a7d0c59047a2 목록에 태그 제목을 카드로 표시한다`() {
         val tagList = listOf(tag(title = FIRST_TITLE), tag(title = SECOND_TITLE))
 
         setTagHomeScaffold(tagList = tagList)
@@ -119,7 +119,7 @@ class TagHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-013 TC-TAG-HOME-FEATURE-014 완료된 태그 버튼을 누르면 완료 목록 열기 행동을 전달한다`() {
+    fun `TC-f9ef0bbd-cc67-4cdf-a22f-58c75c647f0c TC-7599ebd9-5c96-4381-910d-e38976770e54 완료된 태그 버튼을 누르면 완료 목록 열기 행동을 전달한다`() {
         val eventList = mutableListOf<TagHomeScaffoldEvent>()
         setTagHomeScaffold(onEvent = eventList::add)
 
@@ -130,14 +130,14 @@ class TagHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-013 한국어 환경에서 완료된 태그 버튼 이름은 완료된 태그이다`() {
+    fun `TC-f9ef0bbd-cc67-4cdf-a22f-58c75c647f0c 한국어 환경에서 완료된 태그 버튼 이름은 완료된 태그이다`() {
         setTagHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_FINISHED_LIST_BUTTON_LABEL).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-039 격자의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
+    fun `TC-02c58564-cd30-479e-9e3e-950f995c6271 격자의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val tagListEventList = mutableListOf<TagListEvent>()
         setTagHomeScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)
@@ -149,7 +149,7 @@ class TagHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-040 격자의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
+    fun `TC-f04ed4ba-9160-49b3-9119-2b067c786ac8 격자의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val tagListEventList = mutableListOf<TagListEvent>()
         setTagHomeScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)

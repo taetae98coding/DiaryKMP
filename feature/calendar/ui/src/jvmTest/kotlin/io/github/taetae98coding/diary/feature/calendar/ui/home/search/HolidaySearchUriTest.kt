@@ -7,7 +7,7 @@ private const val NAVER_SEARCH_URI = "https://search.naver.com/search.naver?quer
 
 class HolidaySearchUriTest :
     FunSpec({
-        test("TC-CALENDAR-HOME-DOMAIN-001 공휴일 이름으로 Naver 통합검색 주소를 만든다") {
+        test("TC-9439e8d8-87f4-4804-b752-c79e55145555 공휴일 이름으로 Naver 통합검색 주소를 만든다") {
             listOf(
                 "제헌절" to "%EC%A0%9C%ED%97%8C%EC%A0%88",
                 "New Year" to "New%20Year",

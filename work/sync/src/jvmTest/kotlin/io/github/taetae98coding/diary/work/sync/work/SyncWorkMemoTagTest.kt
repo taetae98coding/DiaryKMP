@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkMemoTagTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 TC-MEMO-TAG-DATA-005 모든 태그와 메모 요청이 성공한 뒤 메모 태그 전용 요청을 시작한다") {
+        test("TC-674eebce-610c-4b46-8dce-79aef5252327 TC-a9efeffe-18b3-4fcc-bac1-17582ac2f0c7 모든 태그와 메모 요청이 성공한 뒤 메모 태그 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -34,7 +34,7 @@ class SyncWorkMemoTagTest :
             requestOrder shouldContainExactly listOf("tag", "memo", "memoTag", "memoTag")
         }
 
-        test("TC-MEMO-TAG-DATA-006 해제된 연결도 해제 상태로 업로드된다") {
+        test("TC-9db5005d-255a-4671-8188-8b9726fa69e9 해제된 연결도 해제 상태로 업로드된다") {
             val memoTagList = listOf(memoTag().copy(isDeleted = true), memoTag().copy(isDeleted = false))
             val context = context(memoTagList = memoTagList)
             val requests = mutableListOf<List<MemoTagRemoteEntity>>()

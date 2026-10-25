@@ -36,7 +36,7 @@ class SettingPlaylistScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-014 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-74dc722a-89cb-4ad7-ad07-c14e9514261e 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setScreen(navigateUp = { navigateUpCount += 1 })
 
@@ -47,7 +47,7 @@ class SettingPlaylistScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-009 저장을 실행하면 입력한 주소로 저장을 요청한다`() {
+    fun `TC-add84e31-1f7d-4282-8e59-4f2c9483eb3c 저장을 실행하면 입력한 주소로 저장을 요청한다`() {
         val viewModel = viewModel(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
         setScreen(viewModel = viewModel)
 
@@ -60,7 +60,7 @@ class SettingPlaylistScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-016 저장하지 않고 뒤로가면 확인 없이 떠나고 저장하지 않는다`() {
+    fun `TC-885785ac-394d-4cd6-8fe0-cdbe5471ec98 저장하지 않고 뒤로가면 확인 없이 떠나고 저장하지 않는다`() {
         var navigateUpCount = 0
         val viewModel = viewModel(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
         setScreen(viewModel = viewModel, navigateUp = { navigateUpCount += 1 })
@@ -75,7 +75,7 @@ class SettingPlaylistScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-012 저장에 성공하면 입력을 유지하고 성공을 알린다`() {
+    fun `TC-7fa11d70-a289-4ad6-9e49-6755b5eac1e5 저장에 성공하면 입력을 유지하고 성공을 알린다`() {
         val uiState = MutableStateFlow<SettingPlaylistUiState>(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
         val effect = MutableSharedFlow<SettingPlaylistEffect>(extraBufferCapacity = 1)
         setScreen(viewModel = viewModel(uiState = uiState, effect = effect))
@@ -95,7 +95,7 @@ class SettingPlaylistScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-013 저장에 실패하면 입력을 유지하고 실패를 알린다`() {
+    fun `TC-2817b1b7-db7b-4300-85ee-fb49c9b2f54c 저장에 실패하면 입력을 유지하고 실패를 알린다`() {
         val uiState = MutableStateFlow<SettingPlaylistUiState>(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
         val effect = MutableSharedFlow<SettingPlaylistEffect>(extraBufferCapacity = 1)
         setScreen(viewModel = viewModel(uiState = uiState, effect = effect))
@@ -112,7 +112,7 @@ class SettingPlaylistScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-021 다른 앱에 다녀와도 입력 중이던 주소를 유지한다`() {
+    fun `TC-010790ad-0dda-4a9d-8a8a-57d320cf68ba 다른 앱에 다녀와도 입력 중이던 주소를 유지한다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val viewModel = viewModel(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
         composeRule.setContent {

@@ -28,7 +28,7 @@ class RoutineAddScreenRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-005 화면이 재생성되어도 입력 중이던 제목과 설명을 유지한다`() {
+    fun `TC-1a4c0e5b-a267-4f3a-98fe-4a6ea261e3c4 화면이 재생성되어도 입력 중이던 제목과 설명을 유지한다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val restorationTester = StateRestorationTester(composeRule)
@@ -52,7 +52,7 @@ class RoutineAddScreenRestorationTest {
     }
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-008 메모리 정리 뒤 복원해도 작성 중이던 제목과 설명을 모두 복원한다`() {
+    fun `TC-84d2562f-324f-4d75-ad50-6c3362f8c240 메모리 정리 뒤 복원해도 작성 중이던 제목과 설명을 모두 복원한다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val restorationTester = StateRestorationTester(composeRule)

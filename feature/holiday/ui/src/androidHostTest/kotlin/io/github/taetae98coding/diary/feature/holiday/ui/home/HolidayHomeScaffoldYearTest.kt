@@ -40,7 +40,7 @@ class HolidayHomeScaffoldYearTest {
     private var targetYear by mutableStateOf<Int?>(null)
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-016 년도를 이동하면 제목과 목록이 이동한 년도로 바뀐다`() {
+    fun `TC-bd77cf90-eac1-4a44-ab84-f0b579ec6f47 년도를 이동하면 제목과 목록이 이동한 년도로 바뀐다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state, uiStateFor = ::goldenHolidayUiState)
 
@@ -55,7 +55,7 @@ class HolidayHomeScaffoldYearTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-017 년도를 이동해도 연차 개수는 유지된다`() {
+    fun `TC-004244ec-2570-4688-9519-671a2fa42170 년도를 이동해도 연차 개수는 유지된다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 
@@ -69,7 +69,7 @@ class HolidayHomeScaffoldYearTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-DOMAIN-013 1년보다 이전 년도로는 이동할 수 없다`() {
+    fun `TC-ed6a3ba9-cfbc-4f01-9c1c-de26633cba97 1년보다 이전 년도로는 이동할 수 없다`() {
         val state = HolidayHomeScaffoldState(initialYear = FIRST_YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 

@@ -59,7 +59,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-e8585246-11c9-43eb-bbcb-161bedc3adec 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setChecklistHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
@@ -67,21 +67,21 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-013 한국어 환경에서 체크리스트 추가는 접근성 이름으로 제공된다`() {
+    fun `TC-4b68839e-346d-49ba-8d18-224629361af9 한국어 환경에서 체크리스트 추가는 접근성 이름으로 제공된다`() {
         setChecklistHomeScaffold()
 
         composeRule.onNode(hasClickAction() and hasContentDescription(KOREAN_ADD_DESCRIPTION)).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-013 기본 환경에서 체크리스트 추가는 접근성 이름으로 제공된다`() {
+    fun `TC-4b68839e-346d-49ba-8d18-224629361af9 기본 환경에서 체크리스트 추가는 접근성 이름으로 제공된다`() {
         setChecklistHomeScaffold()
 
         composeRule.onNode(hasClickAction() and hasContentDescription(DEFAULT_ADD_DESCRIPTION)).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-006 계정에 저장된 체크리스트를 제목과 진행 정도로 표시한다`() {
+    fun `TC-5458d371-b068-4e29-b8b4-0b48ef52c120 계정에 저장된 체크리스트를 제목과 진행 정도로 표시한다`() {
         val summaryList = listOf(testChecklistSummary(checkedCount = 1, totalCount = 3), testChecklistSummary(checkedCount = 2, totalCount = 5))
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList))
 
@@ -98,7 +98,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-006 한국어 환경에서 진행 정도를 접근성 설명으로 읽는다`() {
+    fun `TC-5458d371-b068-4e29-b8b4-0b48ef52c120 한국어 환경에서 진행 정도를 접근성 설명으로 읽는다`() {
         val summary = testChecklistSummary(checkedCount = 2, totalCount = 4)
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
@@ -115,7 +115,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-005 제목, 뒤로가기, 체크리스트 목록과 체크리스트 추가 외의 정보와 동작을 두지 않는다`() {
+    fun `TC-e8a23b29-084b-427e-9d4c-242c59e6f9e6 제목, 뒤로가기, 체크리스트 목록과 체크리스트 추가 외의 정보와 동작을 두지 않는다`() {
         val summary = testChecklistSummary(checkedCount = 1, totalCount = 2)
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
@@ -126,7 +126,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-007 체크리스트 카드에는 제목과 진행 정도 외의 글을 표시하지 않는다`() {
+    fun `TC-27d32d69-4e6c-453c-b626-5bd76d802b22 체크리스트 카드에는 제목과 진행 정도 외의 글을 표시하지 않는다`() {
         val summary = testChecklistSummary()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
@@ -136,7 +136,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-009 목록의 체크리스트를 선택하면 그 체크리스트의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
+    fun `TC-d3047469-1345-4506-aa74-4099ec6046b5 목록의 체크리스트를 선택하면 그 체크리스트의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         val summaryList = listOf(testChecklistSummary(), testChecklistSummary())
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList), onEvent = eventList::add)
@@ -156,17 +156,17 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-011 체크리스트가 표시된 목록에서 추가를 누르면 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-afb6e890-81f2-4e2e-a4b7-a23693cc162c 체크리스트가 표시된 목록에서 추가를 누르면 추가 이벤트를 한 번 내보낸다`() {
         assertAddClicked(pagingData = checklistPagingDataOf(listOf(testChecklistSummary())))
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-011 빈 상태에서 추가를 누르면 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-afb6e890-81f2-4e2e-a4b7-a23693cc162c 빈 상태에서 추가를 누르면 추가 이벤트를 한 번 내보낸다`() {
         assertAddClicked(pagingData = checklistPagingDataOf(emptyList()))
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-012 Cmd A 단축키를 입력하면 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-87d171a3-bf58-47a6-965a-bbec13ae30a9 Cmd A 단축키를 입력하면 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         setChecklistHomeScaffold(onEvent = eventList::add)
 
@@ -182,7 +182,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-LIST-DETAIL-FEATURE-003 상세 영역에 체크리스트 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
+    fun `TC-a158b1ef-7cea-44cb-a193-a2775085f6be 상세 영역에 체크리스트 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         setChecklistHomeScaffold(
             onEvent = eventList::add,
@@ -202,14 +202,14 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-LIST-DETAIL-FEATURE-004 상세 영역에 체크리스트 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
+    fun `TC-1acd4129-8246-4cf5-bdd5-08ee0b9e92f7 상세 영역에 체크리스트 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
         setChecklistHomeScaffold(componentVisible = ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-027 상세 영역에 체크리스트 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+    fun `TC-f68665b5-f231-47dc-bf9d-9b13e5ededfc 상세 영역에 체크리스트 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         setChecklistHomeScaffold(
             onEvent = eventList::add,
@@ -223,7 +223,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-003 뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
+    fun `TC-a9197365-1fbf-436d-8b29-cb1fcb7cbb85 뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         setChecklistHomeScaffold(onEvent = eventList::add)
 
@@ -235,7 +235,7 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-014 표시할 체크리스트가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-fbe60747-2470-4c3b-93c5-b20b71db28cb 표시할 체크리스트가 없으면 빈 상태 안내를 표시한다`() {
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -244,7 +244,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-014 기본 환경에서 빈 상태 안내를 표시한다`() {
+    fun `TC-fbe60747-2470-4c3b-93c5-b20b71db28cb 기본 환경에서 빈 상태 안내를 표시한다`() {
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -252,7 +252,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-015 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-33300289-b2ba-4cfb-bde5-5eb69e962158 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setChecklistHomeScaffold(pagingData = loadingChecklistPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
@@ -260,7 +260,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-016 표시할 체크리스트가 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-97186cfc-09b1-4ed3-81c1-0a5415e6aa9a 표시할 체크리스트가 있으면 빈 상태 안내를 표시하지 않는다`() {
         val summary = testChecklistSummary()
         setChecklistHomeScaffold(pagingData = checklistPagingDataOf(listOf(summary)))
 
@@ -269,7 +269,7 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DATA-002 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
+    fun `TC-861a291e-2dec-411e-9a64-fdfc48607696 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
         val snackbarHostState = SnackbarHostState()
         setChecklistHomeScaffold(pagingData = failedChecklistPagingData(), snackbarHostState = snackbarHostState)
 
@@ -280,17 +280,17 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-017 체크리스트가 표시된 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-cf5344b6-e2ce-4548-a4eb-5b8446509b5b 체크리스트가 표시된 목록을 당기면 새로고침을 요청한다`() {
         assertRefreshRequested(pagingData = checklistPagingDataOf(listOf(testChecklistSummary())))
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-017 빈 상태 안내가 표시된 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-cf5344b6-e2ce-4548-a4eb-5b8446509b5b 빈 상태 안내가 표시된 목록을 당기면 새로고침을 요청한다`() {
         assertRefreshRequested(pagingData = checklistPagingDataOf(emptyList()))
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-018 새로고침이 실행되는 동안 진행이 표시되고 끝나면 사라진다`() {
+    fun `TC-f2bfc1c3-f78e-4673-a09a-602fc845e077 새로고침이 실행되는 동안 진행이 표시되고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setChecklistHomeScaffold(
             pagingData = checklistPagingDataOf(listOf(testChecklistSummary())),

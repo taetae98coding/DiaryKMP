@@ -120,7 +120,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-001 추가 항목을 누르면 선택할 수 있는 웹 목록이 열린다`() {
+    fun `TC-7d49b3ab-3e88-4679-b310-c578b24f36c9 추가 항목을 누르면 선택할 수 있는 웹 목록이 열린다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
@@ -137,7 +137,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-003 TC-MEMO-WEB-INPUT-FEATURE-031 선택할 수 있는 웹 항목이 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 WebAdd 이동을 요청한다`() {
+    fun `TC-5590412d-9887-4f1c-b2ca-36577da63ad6 TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택할 수 있는 웹 항목이 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 WebAdd 이동을 요청한다`() {
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
             viewModels = screenTestRealViewModel(webList = emptyList()),
@@ -151,7 +151,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-004 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
+    fun `TC-b2244317-117b-4155-b9d9-b878e91f13e0 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
             viewModels = screenTestViewModel(webPagingData = MutableStateFlow(refreshingWebPagingData())),
@@ -165,7 +165,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-032 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+    fun `TC-bafc6159-4597-4eb4-a68d-dcfb894022d0 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
             viewModels = screenTestViewModel(webPagingData = MutableStateFlow(refreshFailedWebPagingData())),
@@ -179,7 +179,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-005 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
         val webPagingData = MutableStateFlow(refreshingWebPagingData())
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestViewModel(webPagingData = webPagingData))
         composeRule.openWebPicker()
@@ -193,7 +193,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-011 목록에서 고른 웹 항목이 웹 입력의 칩으로 나타난다`() {
+    fun `TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa 목록에서 고른 웹 항목이 웹 입력의 칩으로 나타난다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(webList = listOf(web)))
 
@@ -203,7 +203,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-063 WebDetail 메모 탭에서 진입하면 대상 웹 항목이 웹 입력에 선택되어 있다`() {
+    fun `TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 WebDetail 메모 탭에서 진입하면 대상 웹 항목이 웹 입력에 선택되어 있다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(initialWebId = web.id, webList = listOf(web)))
 
@@ -211,7 +211,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-014 목록을 닫아도 반영한 선택이 유지된다`() {
+    fun `TC-ba1c1bda-1357-4a6c-a004-437169008a5b 목록을 닫아도 반영한 선택이 유지된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(webList = webList))
 
@@ -223,7 +223,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-007 목록의 웹 추가 항목을 누르면 목록이 닫히고 WebAdd 이동을 요청한다`() {
+    fun `TC-831b69ad-9b42-40fa-834e-ac184481a10b 목록의 웹 추가 항목을 누르면 목록이 닫히고 WebAdd 이동을 요청한다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL))
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
@@ -241,7 +241,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-016 웹 칩을 누르면 WebDetail 이동을 요청한다`() {
+    fun `TC-93954c1c-00de-4de6-8a0c-d51dd840051c 웹 칩을 누르면 WebDetail 이동을 요청한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val clickedIdList = mutableListOf<Uuid>()
         composeRule.setMemoAddScreenForWeb(
@@ -257,7 +257,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-DATA-017 웹 항목을 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
+    fun `TC-39d11685-666b-46e5-aaed-3787e0e630c0 웹 항목을 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(webList = listOf(web), addMemoUseCase = addMemoUseCase))
@@ -268,7 +268,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-056 추가에 성공해도 선택한 웹 항목이 유지된다`() {
+    fun `TC-4096d9c0-d848-48e6-a6af-118abfb70770 추가에 성공해도 선택한 웹 항목이 유지된다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Uuid.random())
@@ -284,7 +284,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-021 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+    fun `TC-085cb4bd-d3e7-4248-aa68-6236dcab4f31 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
         val webList =
             List(WEB_TEST_PICKER_COUNT) { index ->
                 testWeb(title = "$WEB_TEST_PICKER_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
@@ -324,7 +324,7 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-008 WebAdd 화면에서 추가한 웹 항목 하나가 돌아왔을 때 선택된다`() {
+    fun `TC-ba8ee5a5-89bc-4c15-8ab1-f5e4f488d8d2 WebAdd 화면에서 추가한 웹 항목 하나가 돌아왔을 때 선택된다`() {
         val selectedWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val resultEventBus = ResultEventBus()
@@ -342,7 +342,7 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-008 WebAdd 화면에서 추가한 웹 항목 여러 개가 돌아왔을 때 모두 선택된다`() {
+    fun `TC-ba8ee5a5-89bc-4c15-8ab1-f5e4f488d8d2 WebAdd 화면에서 추가한 웹 항목 여러 개가 돌아왔을 때 모두 선택된다`() {
         val selectedWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val firstAddedWeb = testWeb(title = FIRST_ADDED_WEB_TITLE)
         val secondAddedWeb = testWeb(title = SECOND_ADDED_WEB_TITLE)
@@ -363,7 +363,7 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-009 웹 항목을 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
+    fun `TC-037c0c8d-7de6-409c-b346-a64b40772c2f 웹 항목을 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
@@ -383,7 +383,7 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-010 WebAdd 화면에서 돌아와도 웹 선택 목록이 저절로 열리지 않는다`() {
+    fun `TC-6558659d-5a97-4ce9-bf58-a25061bd3d24 WebAdd 화면에서 돌아와도 웹 선택 목록이 저절로 열리지 않는다`() {
         val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForWeb(
@@ -403,7 +403,7 @@ class MemoAddScreenWebAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-DOMAIN-019 이 입력에서 이동하지 않은 WebAdd 화면의 웹 항목은 자동 선택되지 않는다`() {
+    fun `TC-333a4d79-55b8-44d7-8de6-0439c80d048f 이 입력에서 이동하지 않은 WebAdd 화면의 웹 항목은 자동 선택되지 않는다`() {
         val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForWeb(

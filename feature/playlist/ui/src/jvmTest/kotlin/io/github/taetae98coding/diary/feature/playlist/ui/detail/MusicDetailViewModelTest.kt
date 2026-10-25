@@ -55,7 +55,7 @@ class MusicDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-001 조회에 성공하면 저장된 곡을 내용 표시 상태로 전달한다") {
+        test("TC-7bed6726-c5fb-4bbb-a9cd-d3fbb9b763d4 조회에 성공하면 저장된 곡을 내용 표시 상태로 전달한다") {
             runTest(mainDispatcher) {
                 val music = music()
                 val viewModel = viewModel(id = music.id, music = music)
@@ -69,7 +69,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-002 TC-MUSIC-DETAIL-FEATURE-003 곡을 조회할 수 없으면 조회 중 상태를 유지한다") {
+        test("TC-418fdb5f-3a74-468a-a30a-7110fb585c24 TC-06f5e020-4087-4297-9504-8472dd1b762d 곡을 조회할 수 없으면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(music = null)
 
@@ -82,7 +82,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-024 대상 곡이 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
+        test("TC-0c2c9c05-bd19-4f01-bbc1-8634c245be67 대상 곡이 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val music = music()
                 val musicFlow = MutableStateFlow<Result<Music?>>(Result.success(music))
@@ -103,7 +103,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-023 저장된 제목이 바뀌면 내용 표시 상태의 제목이 갱신된다") {
+        test("TC-1b34c164-6cc9-496d-b3ec-6c173ac0afd6 저장된 제목이 바뀌면 내용 표시 상태의 제목이 갱신된다") {
             runTest(mainDispatcher) {
                 val music = music()
                 val renamed = music.copy(detail = music.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
@@ -125,7 +125,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-007 수정에 성공하면 성공 Effect를 한 번 보낸다") {
+        test("TC-0aee8edc-ff76-4fa3-93a6-65a162a9b45b 수정에 성공하면 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<UpdateMusicUseCase>()
                 coEvery { useCase(any()) } returns Result.success(1)
@@ -141,7 +141,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-010 링크 형식이 성립하지 않으면 링크 형식 Effect를 보낸다") {
+        test("TC-2d9e4d4d-0af3-4df2-9bc8-cb83bdba7cf5 링크 형식이 성립하지 않으면 링크 형식 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<UpdateMusicUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(MusicLinkNotYoutubeException())
@@ -157,7 +157,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-008 TC-MUSIC-DETAIL-FEATURE-009 수정을 처리하는 동안 진행 상태를 유지하고 실패해도 해제한다") {
+        test("TC-f453fd31-eee2-42b8-bf14-94ab5693f604 TC-abbc197b-b8ec-44d8-b4ef-e1b1ab4cfc6d 수정을 처리하는 동안 진행 상태를 유지하고 실패해도 해제한다") {
             runTest(mainDispatcher) {
                 val music = music()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -189,7 +189,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-021 삭제에 성공하면 삭제 성공 Effect를 한 번 보낸다") {
+        test("TC-ca8e572f-1080-4a8e-91c0-e4ac4de48a43 삭제에 성공하면 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<DeleteMusicUseCase>()
                 coEvery { useCase(any()) } returns Result.success(1)
@@ -205,7 +205,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-020 TC-MUSIC-DETAIL-FEATURE-022 삭제를 처리하는 동안 진행 상태를 유지하고 실패해도 해제한다") {
+        test("TC-5821617e-dd84-4d81-a046-c09757c3cee6 TC-4deab72f-3495-4fda-ac27-98130928f0a0 삭제를 처리하는 동안 진행 상태를 유지하고 실패해도 해제한다") {
             runTest(mainDispatcher) {
                 val music = music()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -237,7 +237,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-020 삭제를 처리하는 동안에도 수정과 불러오기를 실행한다") {
+        test("TC-5821617e-dd84-4d81-a046-c09757c3cee6 삭제를 처리하는 동안에도 수정과 불러오기를 실행한다") {
             runTest(mainDispatcher) {
                 val deleteCompletion = CompletableDeferred<Result<Int>>()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
@@ -268,7 +268,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-012 TC-MUSIC-DETAIL-FEATURE-013 다시 불러오기에 성공하면 불러온 값 Effect만 보낸다") {
+        test("TC-0048b9b6-69e2-47f9-8551-c7ad8a5c3e4f TC-25f3da4c-db8c-4913-9855-9a06da0dc324 다시 불러오기에 성공하면 불러온 값 Effect만 보낸다") {
             runTest(mainDispatcher) {
                 val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
                 val fetchYoutubeVideoUseCase = mockk<FetchYoutubeVideoUseCase>()
@@ -301,7 +301,7 @@ class MusicDetailViewModelTest : FunSpec() {
             MusicLinkBlankException() to MusicDetailEffect.LinkBlank,
             MusicLinkNotYoutubeException() to MusicDetailEffect.LinkNotYoutube,
         ).forEach { (throwable, expected) ->
-            test("TC-MUSIC-DETAIL-FEATURE-031 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
+            test("TC-d7bfce7e-9215-4a4b-b359-bc67b377b3ce 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
                 runTest(mainDispatcher) {
                     val useCase = mockk<FetchYoutubeVideoUseCase>()
                     coEvery { useCase(any()) } returns Result.failure(throwable)
@@ -318,7 +318,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-032 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
+        test("TC-1975ff66-3587-47d3-b1e7-57d24a284022 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException("fetch failed"))
@@ -334,7 +334,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-010 수정 처리 중 전달된 수정 요청은 처리하지 않는다") {
+        test("TC-d0f4ecb8-0869-4067-8fe9-0244d8e4b1b5 수정 처리 중 전달된 수정 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = fixtureMonkey.giveMeOne<MusicDetail>()
                 val secondDetail = fixtureMonkey.giveMeOne<MusicDetail>()
@@ -361,7 +361,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-010 삭제 처리 중 전달된 삭제 요청은 처리하지 않는다") {
+        test("TC-d0f4ecb8-0869-4067-8fe9-0244d8e4b1b5 삭제 처리 중 전달된 삭제 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Int>>()
                 val useCase = mockk<DeleteMusicUseCase>()
@@ -385,7 +385,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-010 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
+        test("TC-d0f4ecb8-0869-4067-8fe9-0244d8e4b1b5 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<YoutubeVideo>>()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
@@ -409,7 +409,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-011 수정을 처리하는 동안에도 삭제와 불러오기를 실행한다") {
+        test("TC-58452686-1ab1-4484-a6b3-064be2317bc6 수정을 처리하는 동안에도 삭제와 불러오기를 실행한다") {
             runTest(mainDispatcher) {
                 val updateCompletion = CompletableDeferred<Result<Int>>()
                 val updateMusicUseCase = mockk<UpdateMusicUseCase>()

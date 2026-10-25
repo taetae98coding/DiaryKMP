@@ -28,7 +28,7 @@ class MemoGeminiTopBarActionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-003 설정을 확인하지 못하면 시작 동작을 표시하지 않는다`() {
+    fun `TC-89a9d719-1f85-46a3-abb4-9d2edb552fb6 설정을 확인하지 못하면 시작 동작을 표시하지 않는다`() {
         setTopBar(isButtonVisible = false)
 
         composeRule.onNodeWithContentDescription(DEFAULT_BUTTON_DESCRIPTION).assertDoesNotExist()
@@ -60,7 +60,7 @@ class MemoGeminiTopBarActionTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-003 MemoDetail에서 설정을 확인하지 못하면 시작 동작을 표시하지 않는다`() {
+    fun `TC-89a9d719-1f85-46a3-abb4-9d2edb552fb6 MemoDetail에서 설정을 확인하지 못하면 시작 동작을 표시하지 않는다`() {
         setDetailTopBar(isButtonVisible = false)
 
         composeRule.onNodeWithContentDescription(DEFAULT_BUTTON_DESCRIPTION).assertDoesNotExist()

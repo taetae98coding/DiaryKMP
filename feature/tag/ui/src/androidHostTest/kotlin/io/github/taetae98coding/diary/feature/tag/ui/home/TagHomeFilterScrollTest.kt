@@ -46,7 +46,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-050 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
+    fun `TC-322ea784-4063-48d7-b96f-c631b64b1505 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val tagPagingData = MutableStateFlow(tagPagingDataOf(allTagList))
@@ -60,7 +60,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-034 필터를 켜면 좁힌 결과가 놓일 때 목록을 처음부터 다시 본다`() {
+    fun `TC-4b1b2ee2-4c1b-490b-a55d-2ffc118c9620 필터를 켜면 좁힌 결과가 놓일 때 목록을 처음부터 다시 본다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val tagListState = mutableStateOf(allTagList)
@@ -78,7 +78,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-034 필터를 켠 결과가 바꾸기 전과 같아도 그 결과가 놓이면 목록을 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
+    fun `TC-4b1b2ee2-4c1b-490b-a55d-2ffc118c9620 필터를 켠 결과가 바꾸기 전과 같아도 그 결과가 놓이면 목록을 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val resultState = mutableStateOf(allTagList to false)
@@ -118,7 +118,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-034 필터를 끄면 전체 결과가 놓일 때 목록을 처음부터 다시 본다`() {
+    fun `TC-4b1b2ee2-4c1b-490b-a55d-2ffc118c9620 필터를 끄면 전체 결과가 놓일 때 목록을 처음부터 다시 본다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val narrowedTagList = allTagList.take(NARROWED_TAG_COUNT)
         val isApplied = mutableStateOf(true)
@@ -137,7 +137,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-051 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
+    fun `TC-da0b0b43-c09c-4331-adf4-8d18775f3b55 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val tagListState = mutableStateOf(allTagList)
@@ -152,7 +152,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-052 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
+    fun `TC-7fbb7bf1-2ee1-46f1-b749-bc71a4c61362 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val filterUiState = mutableStateOf(TagHomeScaffoldFilterUiState())
         val tagListState = mutableStateOf(allTagList)

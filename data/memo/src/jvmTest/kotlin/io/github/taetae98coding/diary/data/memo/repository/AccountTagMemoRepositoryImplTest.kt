@@ -64,7 +64,7 @@ class AccountTagMemoRepositoryImplTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DATA-001 태그별 완료 메모 페이지는 현재 계정과 태그의 로컬 완료 페이지를 도메인 모델로 변환한다") {
+        test("TC-13388ef2-d0eb-4e06-b53c-4c0c12428706 태그별 완료 메모 페이지는 현재 계정과 태그의 로컬 완료 페이지를 도메인 모델로 변환한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val localMemoList = listOf(memo(), memo())

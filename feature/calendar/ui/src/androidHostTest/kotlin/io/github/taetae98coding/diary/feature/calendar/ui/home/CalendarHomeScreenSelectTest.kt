@@ -37,7 +37,7 @@ class CalendarHomeScreenSelectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-035 날짜 칸을 길게 눌러 선택을 완료하면 그 하루로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-5f97274e-8f33-4b25-9b24-9c9673d30622 날짜 칸을 길게 눌러 선택을 완료하면 그 하루로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setCalendarHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -48,7 +48,7 @@ class CalendarHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-036 드래그로 기간을 선택해 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-dc0c1ed3-1a13-4b81-ad6d-4f3366b7fe9f 드래그로 기간을 선택해 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setCalendarHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -60,7 +60,7 @@ class CalendarHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-092 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-13cdf97a-1a5d-44ec-af41-1b1fc64a1e70 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setCalendarHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -73,7 +73,7 @@ class CalendarHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-093 기간을 선택하는 도중 화면이 재생성되면 MemoAdd 화면 이동이 요청되지 않고 선택이 남지 않는다`() {
+    fun `TC-28deef41-3a37-401c-9000-42e444e49442 기간을 선택하는 도중 화면이 재생성되면 MemoAdd 화면 이동이 요청되지 않고 선택이 남지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var capturedState: CalendarHomeScaffoldState? = null
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
@@ -94,7 +94,7 @@ class CalendarHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-047 MemoAdd 화면으로 이동하면 캘린더의 선택이 해제된다`() {
+    fun `TC-7e58064a-3683-47c5-aed9-09db962d5660 MemoAdd 화면으로 이동하면 캘린더의 선택이 해제된다`() {
         var capturedState: CalendarHomeScaffoldState? = null
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setCalendarHomeScreen(

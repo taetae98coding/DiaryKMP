@@ -22,7 +22,7 @@ class ContactAddHometownTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-028 고향을 입력한 뒤 지우면 비어 있는 상태로 되돌아간다`() {
+    fun `TC-8e75dc3a-b1dc-471c-95fa-f7519d4f2608 고향을 입력한 뒤 지우면 비어 있는 상태로 되돌아간다`() {
         composeRule.setContactAddScreen()
 
         composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
@@ -35,7 +35,7 @@ class ContactAddHometownTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-029 고향은 입력한 문자를 그대로 반영한다`() {
+    fun `TC-2942f5b4-95e6-40f5-b14d-cd885626d2e3 고향은 입력한 문자를 그대로 반영한다`() {
         composeRule.setContactAddScreen()
 
         HOMETOWN_CASE_LIST.forEach { hometown ->
@@ -48,7 +48,7 @@ class ContactAddHometownTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-029 형식을 검사하지 않으므로 어떤 문자를 넣어도 오류로 표시하지 않는다`() {
+    fun `TC-2942f5b4-95e6-40f5-b14d-cd885626d2e3 형식을 검사하지 않으므로 어떤 문자를 넣어도 오류로 표시하지 않는다`() {
         composeRule.setContactAddScreen()
 
         composeRule.hometownInput().performTextInput(INVALID_LOOKING_HOMETOWN)

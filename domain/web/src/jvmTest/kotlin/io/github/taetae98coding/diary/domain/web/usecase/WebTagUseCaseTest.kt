@@ -40,7 +40,7 @@ class WebTagUseCaseTest :
             every { clock.now() } returns now
 
             When("웹 항목에 태그를 연결한다") {
-                Then("TC-WEB-TAG-DOMAIN-001 현재 계정의 연결로 저장한다") {
+                Then("TC-db74bb38-a1d5-445f-9731-1a4585cc47ba 현재 계정의 연결로 저장한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -65,7 +65,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-66a6f319-4748-437b-8fb2-4b65ec0d5c0a TC-51ef66dc-6d05-47c9-9de3-0344fa78c83d 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
@@ -94,7 +94,7 @@ class WebTagUseCaseTest :
             }
 
             When("연결을 해제한다") {
-                Then("TC-WEB-TAG-DOMAIN-007 현재 계정의 연결을 해제 상태로 저장한다") {
+                Then("TC-4103b438-d654-41af-9549-c615fb7aba9b 현재 계정의 연결을 해제 상태로 저장한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -119,7 +119,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-66a6f319-4748-437b-8fb2-4b65ec0d5c0a TC-51ef66dc-6d05-47c9-9de3-0344fa78c83d 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
@@ -148,7 +148,7 @@ class WebTagUseCaseTest :
             }
 
             When("연결된 태그를 조회한다") {
-                Then("TC-WEB-TAG-DOMAIN-009 현재 계정의 연결된 태그를 그대로 전달한다") {
+                Then("TC-0bc7baaf-dfbd-4bdc-81bb-8a77b3d1fab9 현재 계정의 연결된 태그를 그대로 전달한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagList = List(2) { tag() }
                     every {

@@ -59,7 +59,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-013 기본 지도가 바뀌면 바뀐 기본 지도를 제공한다") {
+        test("TC-c36cb49f-9268-4f8f-87d8-739aff86b0c0 기본 지도가 바뀌면 바뀐 기본 지도를 제공한다") {
             runTest(mainDispatcher) {
                 val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val viewModel = viewModel(defaultMapProvider = providerFlow)
@@ -75,7 +75,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-012 저장된 기본 지도를 초기 제공자로 제공한다") {
+        test("TC-ea06b448-7258-4a91-896f-770126cc82c9 저장된 기본 지도를 초기 제공자로 제공한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(provider)))
@@ -89,7 +89,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-011 기본 지도를 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-999268d9-64bd-45cb-a8f7-301751f4dd80 기본 지도를 읽지 못하면 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.failure(IllegalStateException("read error"))))
 
@@ -102,7 +102,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-016 현재 위치를 확인하기 전에는 확인 중 상태를 유지한다") {
+        test("TC-4145cf13-a46a-49ff-a4e9-1dd664d1dfc6 현재 위치를 확인하기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
 
@@ -114,7 +114,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-001 확인한 현재 위치를 초기 위치로 제공한다") {
+        test("TC-6820291e-9fa6-4433-9fc5-f9fc8678ad9f 확인한 현재 위치를 초기 위치로 제공한다") {
             listOf(
                 Coordinate(latitude = 37.5666102, longitude = 126.9783881),
                 Coordinate(latitude = -33.8688, longitude = -70.6693),
@@ -135,7 +135,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-017 TC-PLACE-HOME-DOMAIN-002 현재 위치를 확인하지 못하면 초기 위치 없이 제공한다") {
+        test("TC-81e06589-57c5-4da7-b7c4-a119f1144eb6 TC-564ff075-70de-459b-b666-ab65219952d0 현재 위치를 확인하지 못하면 초기 위치 없이 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -151,7 +151,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-003 같은 화면에서 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
+        test("TC-a09ee357-336c-4a05-80e8-69a21423fe5b 같은 화면에서 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
             runTest(mainDispatcher) {
                 val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
@@ -175,7 +175,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-004 새 화면에서는 현재 위치를 새로 확인한다") {
+        test("TC-b99ac0e5-0432-4967-b457-1ea27a37b0d8 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
                 val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()

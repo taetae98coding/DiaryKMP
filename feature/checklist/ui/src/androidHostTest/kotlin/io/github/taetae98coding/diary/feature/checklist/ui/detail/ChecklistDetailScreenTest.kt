@@ -72,7 +72,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용으로 화면을 채운다`() {
+    fun `TC-ad2f259f-b081-4960-8a73-f4f580b1b753 조회에 성공하면 저장된 내용으로 화면을 채운다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true), item(CHARGER))))
 
         composeRule.onNode(topBarTitle(TRIP), useUnmergedTree = true).assertExists()
@@ -84,7 +84,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-002 진입할 때 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-82a87e9d-2aa2-47a9-9e3b-ed2ff975dbbb 진입할 때 어느 입력에도 초점을 두지 않는다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT))))
 
         composeRule.titleInput().assertIsNotFocused()
@@ -93,7 +93,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-003 TC-CHECKLIST-DETAIL-FEATURE-004 조회 중에는 로딩만 보이고 입력과 동작을 실행할 수 없다`() {
+    fun `TC-dd99c2ba-8c3d-43f9-b917-2018af7063f4 TC-ecf387d2-03d7-42e3-a607-c955f7b00752 조회 중에는 로딩만 보이고 입력과 동작을 실행할 수 없다`() {
         val environment = ChecklistDetailTestEnvironment()
         environment.uiState.value = ChecklistDetailUiState.Loading
         setScreen(environment)
@@ -104,7 +104,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-005 화면에는 정해진 입력과 동작만 둔다`() {
+    fun `TC-dfe51071-5833-4a21-896e-c2af08120f69 화면에는 정해진 입력과 동작만 둔다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         setScreen(environment)
         composeRule.titleInput().performTextInput("2")
@@ -129,7 +129,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-006 체크 항목이 없으면 빈 상태 안내를 표시하고 다른 동작은 그대로 쓸 수 있다`() {
+    fun `TC-f31a7738-9ef8-413d-821c-34b150e0955e 체크 항목이 없으면 빈 상태 안내를 표시하고 다른 동작은 그대로 쓸 수 있다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -141,7 +141,7 @@ class ChecklistDetailScreenTest {
 
     @Test
     @Config(qualifiers = "ko-w480dp-h1200dp")
-    fun `TC-CHECKLIST-DETAIL-FEATURE-006 한국어 환경에서 빈 상태 안내를 표시한다`() {
+    fun `TC-f31a7738-9ef8-413d-821c-34b150e0955e 한국어 환경에서 빈 상태 안내를 표시한다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = emptyList()))
 
         composeRule.onNodeWithText("아직 체크 항목이 없습니다").assertExists()
@@ -149,14 +149,14 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-007 체크 항목을 불러오는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-271b9278-c2bc-42c9-a49c-f801d7fb1abb 체크 항목을 불러오는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = emptyList(), isLoaded = false))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-008 체크 항목을 선택하면 확인 없이 그 항목의 체크 변경을 한 번 요청한다`() {
+    fun `TC-91c04294-1047-4551-ac4e-49792a4ffa10 체크 항목을 선택하면 확인 없이 그 항목의 체크 변경을 한 번 요청한다`() {
         val unchecked = item(PASSPORT)
         val checked = item(CHARGER, isChecked = true)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(unchecked, checked))
@@ -173,7 +173,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-008 저장된 체크 상태가 바뀌면 항목이 바뀐 상태로 보인다`() {
+    fun `TC-91c04294-1047-4551-ac4e-49792a4ffa10 저장된 체크 상태가 바뀌면 항목이 바뀐 상태로 보인다`() {
         val passport = item(PASSPORT)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         setScreen(environment)
@@ -185,17 +185,17 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-009 추가순에서는 체크한 항목이 자리를 지킨다`() {
+    fun `TC-bc6e8087-3fd7-4dbd-9132-ab9adebf4561 추가순에서는 체크한 항목이 자리를 지킨다`() {
         assertCheckedItemOrder(sort = ChecklistItemSort.ADDED, expected = listOf("A", "B", "C"))
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-009 체크 안 된 항목 우선에서는 체크한 항목이 체크된 묶음으로 옮겨진다`() {
+    fun `TC-bc6e8087-3fd7-4dbd-9132-ab9adebf4561 체크 안 된 항목 우선에서는 체크한 항목이 체크된 묶음으로 옮겨진다`() {
         assertCheckedItemOrder(sort = ChecklistItemSort.UNCHECKED_FIRST, expected = listOf("B", "C", "A"))
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-010 체크 변경을 저장하지 못하면 안내 없이 저장된 상태를 보여 주고 다시 선택할 수 있다`() {
+    fun `TC-1338f2e3-c194-4674-94c8-1080d348f33e 체크 변경을 저장하지 못하면 안내 없이 저장된 상태를 보여 주고 다시 선택할 수 있다`() {
         val passport = item(PASSPORT)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         setScreen(environment)
@@ -211,17 +211,17 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-011 항목 넣기를 선택하면 넣기를 요청하고 성공하면 항목 입력이 비워지고 초점이 남는다`() {
+    fun `TC-24f673e1-181e-4255-830d-ed71b458017d 항목 넣기를 선택하면 넣기를 요청하고 성공하면 항목 입력이 비워지고 초점이 남는다`() {
         assertItemAdded { composeRule.onNodeWithContentDescription(DEFAULT_ITEM_ADD).performClick() }
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-011 입력을 마치는 키를 누르면 넣기를 요청하고 성공하면 항목 입력이 비워지고 초점이 남는다`() {
+    fun `TC-24f673e1-181e-4255-830d-ed71b458017d 입력을 마치는 키를 누르면 넣기를 요청하고 성공하면 항목 입력이 비워지고 초점이 남는다`() {
         assertItemAdded { composeRule.itemInput().performImeAction() }
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-012 항목 입력이 비어 있거나 공백뿐이면 항목을 넣지 않는다`() {
+    fun `TC-b9666151-e8be-46fb-9531-dffcdce9e34c 항목 입력이 비어 있거나 공백뿐이면 항목을 넣지 않는다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT)))
         setScreen(environment)
 
@@ -236,7 +236,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-013 항목 넣기를 저장하지 못하면 항목 입력을 그대로 둔다`() {
+    fun `TC-3909f080-7f22-4bc3-b8b2-ac3c67c7cd3f 항목 넣기를 저장하지 못하면 항목 입력을 그대로 둔다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT)))
         setScreen(environment)
         composeRule.itemInput().performTextInput(UMBRELLA)
@@ -251,7 +251,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-014 항목을 빼면 확인 없이 그 항목의 빼기를 한 번 요청하고 목록에서 사라진다`() {
+    fun `TC-1ffe5e8c-f3fa-47c8-99fe-09c4183e2269 항목을 빼면 확인 없이 그 항목의 빼기를 한 번 요청하고 목록에서 사라진다`() {
         val passport = item(PASSPORT)
         val charger = item(CHARGER)
         val umbrella = item(UMBRELLA)
@@ -270,7 +270,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-015 항목 빼기를 저장하지 못하면 안내 없이 항목이 남는다`() {
+    fun `TC-e2a22549-de97-4584-b123-e360ac322a56 항목 빼기를 저장하지 못하면 안내 없이 항목이 남는다`() {
         val passport = item(PASSPORT)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         setScreen(environment)
@@ -283,7 +283,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-016 체크된 항목이 있을 때만 리셋을 실행할 수 있다`() {
+    fun `TC-5ab08f6f-bc21-44ac-b28b-5f555cc7b256 체크된 항목이 있을 때만 리셋을 실행할 수 있다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true), item(CHARGER)))
         setScreen(environment)
         composeRule.onNodeWithContentDescription(DEFAULT_RESET).assertIsEnabled()
@@ -298,7 +298,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-017 리셋을 선택하면 되묻고 확정하면 리셋을 한 번 요청한다`() {
+    fun `TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 리셋을 선택하면 되묻고 확정하면 리셋을 한 번 요청한다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         setScreen(environment)
 
@@ -317,7 +317,7 @@ class ChecklistDetailScreenTest {
 
     @Test
     @Config(qualifiers = "ko-w480dp-h1200dp")
-    fun `TC-CHECKLIST-DETAIL-FEATURE-017 한국어 환경에서 리셋 확인 문구를 표시한다`() {
+    fun `TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 한국어 환경에서 리셋 확인 문구를 표시한다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true))))
 
         composeRule.onNodeWithContentDescription("체크 모두 해제").performClick()
@@ -330,12 +330,12 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-018 리셋 확인에서 취소를 고르면 리셋을 요청하지 않는다`() {
+    fun `TC-af0e0cfc-cb4f-4e6c-8472-caece55c6954 리셋 확인에서 취소를 고르면 리셋을 요청하지 않는다`() {
         assertResetCancelled { composeRule.onNodeWithText(DEFAULT_RESET_CANCEL).performClick() }
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-018 리셋 확인을 닫으면 리셋을 요청하지 않는다`() {
+    fun `TC-af0e0cfc-cb4f-4e6c-8472-caece55c6954 리셋 확인을 닫으면 리셋을 요청하지 않는다`() {
         assertResetCancelled {
             // 확인 밖을 누르거나 뒤로가기로 닫는 것은 모두 다이얼로그 창의 닫기 요청으로 전달된다.
             composeRule.runOnIdle { (ShadowDialog.getLatestDialog() as ComponentDialog).onBackPressedDispatcher.onBackPressed() }
@@ -343,7 +343,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-019 리셋을 처리하는 동안 진행 상태를 표시한다`() {
+    fun `TC-13c34f1c-d8a2-4156-b876-acf69b25f0be 리셋을 처리하는 동안 진행 상태를 표시한다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         environment.itemUiState.value = environment.itemUiState.value.copy(isResetInProgress = true)
         setScreen(environment)
@@ -352,7 +352,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-020 리셋은 입력 중이던 내용을 바꾸지 않는다`() {
+    fun `TC-482f9e15-6f4b-4f03-b6d3-3a0234154b3e 리셋은 입력 중이던 내용을 바꾸지 않는다`() {
         val passport = item(PASSPORT, isChecked = true)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         setScreen(environment)
@@ -372,7 +372,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-021 리셋을 저장하지 못하면 안내 없이 진행 상태만 해제하고 다시 리셋할 수 있다`() {
+    fun `TC-0a0cf3fa-afb8-48dd-9d97-5cca495ff251 리셋을 저장하지 못하면 안내 없이 진행 상태만 해제하고 다시 리셋할 수 있다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         environment.itemUiState.value = environment.itemUiState.value.copy(isResetInProgress = true)
         setScreen(environment)
@@ -387,7 +387,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-022 처음 정렬은 추가순이고 체크 안 된 항목 우선으로 바꾸면 그 순서로 보인다`() {
+    fun `TC-931c50e0-f873-486a-96a9-7ba8a3d655cd 처음 정렬은 추가순이고 체크 안 된 항목 우선으로 바꾸면 그 순서로 보인다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val c = item("C", isChecked = true)
@@ -406,7 +406,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-041 정렬을 바꾸면 체크 항목 목록의 처음부터 새 순서를 보여 준다`() {
+    fun `TC-00354446-9886-48e8-a480-72a8fb3e86d0 정렬을 바꾸면 체크 항목 목록의 처음부터 새 순서를 보여 준다`() {
         val itemList = scrollItemList()
         val target = itemList[SCROLL_TARGET_INDEX]
         val environment = ChecklistDetailTestEnvironment(itemList = itemList)
@@ -441,14 +441,14 @@ class ChecklistDetailScreenTest {
 
     @Test
     @Config(qualifiers = "ko-w480dp-h1200dp")
-    fun `TC-CHECKLIST-DETAIL-FEATURE-022 한국어 환경에서 정렬 이름을 표시한다`() {
+    fun `TC-931c50e0-f873-486a-96a9-7ba8a3d655cd 한국어 환경에서 정렬 이름을 표시한다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT))))
 
         composeRule.onNodeWithText("추가순", useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-023 고를 수 있는 정렬은 추가순과 체크 안 된 항목 우선뿐이다`() {
+    fun `TC-d01abf35-c791-4730-9d8f-e906e6ebfb87 고를 수 있는 정렬은 추가순과 체크 안 된 항목 우선뿐이다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT))))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT).performClick()
@@ -462,14 +462,14 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-024 체크 항목이 없으면 정렬을 바꿀 수 없다`() {
+    fun `TC-f968f090-9b80-4513-bc53-479d40ed7093 체크 항목이 없으면 정렬을 바꿀 수 없다`() {
         setScreen(ChecklistDetailTestEnvironment(itemList = emptyList()))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-025 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
+    fun `TC-700675c5-deb4-4704-88cf-23dacbad0ee8 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT)))
         setScreen(environment)
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE).assertDoesNotExist()
@@ -495,7 +495,7 @@ class ChecklistDetailScreenTest {
 
     @Test
     @Config(qualifiers = "ko-w480dp-h1200dp")
-    fun `TC-CHECKLIST-DETAIL-FEATURE-026 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공하며 제목이 바뀐다`() {
+    fun `TC-09f51c5f-c2fc-4b70-8fc0-f223cd0c8496 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공하며 제목이 바뀐다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT)))
         setScreen(environment)
         composeRule.titleInput().performTextReplacement(JEJU)
@@ -515,7 +515,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-027 수정을 처리하는 동안 진행 상태를 표시한다`() {
+    fun `TC-cc83beda-9642-4d59-8661-12a415c67e7c 수정을 처리하는 동안 진행 상태를 표시한다`() {
         val environment = ChecklistDetailTestEnvironment()
         environment.uiState.value = ChecklistDetailUiState.Content(id = environment.id, detail = ChecklistDetail(TRIP, WEEKEND), isUpdateInProgress = true)
         setScreen(environment)
@@ -526,7 +526,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-028 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
+    fun `TC-c93605ca-6b04-4408-85c5-55f71d6b6638 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
         val environment = ChecklistDetailTestEnvironment()
         setScreen(environment)
         composeRule.titleInput().performTextReplacement(JEJU)
@@ -543,12 +543,12 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-029 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
+    fun `TC-5e265c6d-6463-47ab-9cc2-cfe3cce3f033 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
         assertBlankTitleUpdate(title = "")
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-029 제목을 공백뿐으로 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
+    fun `TC-5e265c6d-6463-47ab-9cc2-cfe3cce3f033 제목을 공백뿐으로 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
         assertBlankTitleUpdate(title = "   ")
     }
 
@@ -570,7 +570,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-030 삭제를 선택하면 확인 없이 삭제를 요청하고 성공하면 이전 화면으로 한 번 돌아간다`() {
+    fun `TC-95a0e2bf-e1e2-4e69-b3d1-77f9eaa4ee7d 삭제를 선택하면 확인 없이 삭제를 요청하고 성공하면 이전 화면으로 한 번 돌아간다`() {
         val environment = ChecklistDetailTestEnvironment()
         var navigateUpCount = 0
         setScreen(environment, navigateUp = { navigateUpCount += 1 })
@@ -586,7 +586,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-031 삭제를 처리하는 동안 진행 상태를 표시한다`() {
+    fun `TC-ff222760-12c7-4ef6-a3e9-cea2a7ad15da 삭제를 처리하는 동안 진행 상태를 표시한다`() {
         val environment = ChecklistDetailTestEnvironment()
         environment.uiState.value = ChecklistDetailUiState.Content(id = environment.id, detail = ChecklistDetail(TRIP, WEEKEND), isDeleteInProgress = true)
         setScreen(environment)
@@ -595,7 +595,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-032 삭제에 실패하면 화면에 머무르고 다시 삭제할 수 있다`() {
+    fun `TC-ec088c83-4fba-4ce9-99fe-b65e4ebae0b6 삭제에 실패하면 화면에 머무르고 다시 삭제할 수 있다`() {
         val environment = ChecklistDetailTestEnvironment()
         var navigateUpCount = 0
         setScreen(environment, navigateUp = { navigateUpCount += 1 })
@@ -611,7 +611,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-034 TC-CHECKLIST-DETAIL-DOMAIN-005 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
+    fun `TC-3eb8b261-f734-4f7d-a894-d55aeae3c8fd TC-a1ce754c-949a-40eb-854b-c8bb35324acb 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT)))
         setScreen(environment)
         composeRule.titleInput().performTextReplacement(MY_TITLE)
@@ -628,7 +628,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-DOMAIN-005 입력을 바꾸지 않았어도 저장된 내용이 바뀌면 처음 채운 값을 유지한다`() {
+    fun `TC-a1ce754c-949a-40eb-854b-c8bb35324acb 입력을 바꾸지 않았어도 저장된 내용이 바뀌면 처음 채운 값을 유지한다`() {
         val environment = ChecklistDetailTestEnvironment()
         setScreen(environment)
 
@@ -640,7 +640,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-035 다른 경로에서 바뀐 체크 항목은 목록에 바로 나타난다`() {
+    fun `TC-b1fba11a-2793-40a4-b7df-24d0e36b311f 다른 경로에서 바뀐 체크 항목은 목록에 바로 나타난다`() {
         val passport = item(PASSPORT)
         val charger = item(CHARGER)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
@@ -660,7 +660,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-037 뒤로가면 반영하지 않은 내용을 저장하지 않고 이전 화면으로 돌아간다`() {
+    fun `TC-fbda84ec-5ff3-4745-a058-3891d59f1884 뒤로가면 반영하지 않은 내용을 저장하지 않고 이전 화면으로 돌아간다`() {
         val environment = ChecklistDetailTestEnvironment()
         var navigateUpCount = 0
         setScreen(environment, navigateUp = { navigateUpCount += 1 })
@@ -676,7 +676,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-039 수정 성공 피드백은 화면이 재생성되면 다시 표시하지 않는다`() {
+    fun `TC-242dc079-1a1c-47b4-98b5-7005f1e4baf3 수정 성공 피드백은 화면이 재생성되면 다시 표시하지 않는다`() {
         val environment = ChecklistDetailTestEnvironment()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ScreenContent(environment = environment) }
@@ -692,7 +692,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-040 변경을 처리하거나 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-cd9bd4a2-901c-4541-b570-e90b7f824bd1 변경을 처리하거나 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
         val itemList = scrollItemList()
         val target = itemList[SCROLL_TARGET_INDEX]
         val environment = ChecklistDetailTestEnvironment(itemList = itemList)
@@ -742,7 +742,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-042 체크 안 된 항목 우선에서 체크를 해제하면 체크 안 된 묶음으로 옮겨진다`() {
+    fun `TC-8e7f2d7c-9793-4755-b532-61076e324ce1 체크 안 된 항목 우선에서 체크를 해제하면 체크 안 된 묶음으로 옮겨진다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val c = item("C", isChecked = true)
@@ -759,7 +759,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-042 체크 안 된 항목 우선에서 넣은 항목은 체크 안 된 묶음의 끝에 놓인다`() {
+    fun `TC-8e7f2d7c-9793-4755-b532-61076e324ce1 체크 안 된 항목 우선에서 넣은 항목은 체크 안 된 묶음의 끝에 놓인다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val environment = uncheckedFirstEnvironment(listOf(b, a))
@@ -775,7 +775,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-042 체크 안 된 항목 우선에서 항목을 빼도 남은 항목은 정렬 기준을 따른다`() {
+    fun `TC-8e7f2d7c-9793-4755-b532-61076e324ce1 체크 안 된 항목 우선에서 항목을 빼도 남은 항목은 정렬 기준을 따른다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val c = item("C")
@@ -791,7 +791,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-042 체크 안 된 항목 우선에서 리셋하면 추가순으로 놓인다`() {
+    fun `TC-8e7f2d7c-9793-4755-b532-61076e324ce1 체크 안 된 항목 우선에서 리셋하면 추가순으로 놓인다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val c = item("C", isChecked = true)
@@ -809,7 +809,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-043 리셋 확인이 열린 동안 체크된 항목이 모두 사라져도 확인은 열려 있고 확정해도 바뀌는 항목이 없다`() {
+    fun `TC-b2156b98-d08e-4d5d-9f05-d0b6dd102a65 리셋 확인이 열린 동안 체크된 항목이 모두 사라져도 확인은 열려 있고 확정해도 바뀌는 항목이 없다`() {
         val passport = item(PASSPORT, isChecked = true)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         setScreen(environment)
@@ -835,7 +835,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-DOMAIN-014 화면이 재생성되어도 입력, 정렬과 리셋 확인을 유지한다`() {
+    fun `TC-b70b7617-9672-4dd8-b503-8da70f3cfce0 화면이 재생성되어도 입력, 정렬과 리셋 확인을 유지한다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         environment.itemUiState.value = environment.itemUiState.value.copy(sort = ChecklistItemSort.UNCHECKED_FIRST)
         val restorationTester = StateRestorationTester(composeRule)
@@ -857,7 +857,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-DOMAIN-015 시스템이 앱을 되살리면 입력은 복원하고 정렬은 처음으로, 리셋 확인은 닫힌 채 시작한다`() {
+    fun `TC-a4312274-e3e0-4f1a-86d0-c510baefba8c 시스템이 앱을 되살리면 입력은 복원하고 정렬은 처음으로, 리셋 확인은 닫힌 채 시작한다`() {
         val before = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         before.itemUiState.value = before.itemUiState.value.copy(sort = ChecklistItemSort.UNCHECKED_FIRST)
         val after = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)), id = before.id)
@@ -919,7 +919,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-036 대상 체크리스트가 삭제 상태가 되어도 입력이 남고 모든 동작을 실행할 수 있다`() {
+    fun `TC-5d2eaa57-6b77-4ff5-864c-fc563eab34bc 대상 체크리스트가 삭제 상태가 되어도 입력이 남고 모든 동작을 실행할 수 있다`() {
         val passport = item(PASSPORT, isChecked = true)
         val charger = item(CHARGER)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport, charger))
@@ -951,7 +951,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-044 항목 넣기를 처리하는 동안 진행 상태를 표시하고 항목 입력과 다른 동작은 그대로 쓸 수 있다`() {
+    fun `TC-9fadccf2-e1cf-4678-bd7d-c79144f2b643 항목 넣기를 처리하는 동안 진행 상태를 표시하고 항목 입력과 다른 동작은 그대로 쓸 수 있다`() {
         val passport = item(PASSPORT)
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(passport))
         environment.itemUiState.value = environment.itemUiState.value.copy(isAddInProgress = true)
@@ -967,7 +967,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-045 지금 선택된 정렬을 다시 골라도 순서가 바뀌지 않는다`() {
+    fun `TC-ebf22b3d-d198-4533-8b04-12b96691f7e9 지금 선택된 정렬을 다시 골라도 순서가 바뀌지 않는다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item("A", isChecked = true), item("B"), item("C", isChecked = true)))
         setScreen(environment)
 
@@ -982,7 +982,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-046 정렬을 고른 뒤 항목이 모두 없어졌다가 다시 생겨도 고른 정렬을 유지한다`() {
+    fun `TC-7884b5f4-c64b-4bb7-8b16-00b41bcbfcdc 정렬을 고른 뒤 항목이 모두 없어졌다가 다시 생겨도 고른 정렬을 유지한다`() {
         val a = item("A", isChecked = true)
         val b = item("B")
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(a, b))

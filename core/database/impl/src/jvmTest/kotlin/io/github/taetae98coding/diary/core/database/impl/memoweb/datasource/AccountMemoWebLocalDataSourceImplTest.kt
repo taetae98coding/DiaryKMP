@@ -107,7 +107,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             return (page as PagingSource.LoadResult.Page).data
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-010 삭제된 웹 항목은 연결이 남아 있어도 조회되지 않는다") {
+        test("TC-55bbe837-e22f-4c82-b395-3a3e6b83bd66 삭제된 웹 항목은 연결이 남아 있어도 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -119,7 +119,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-030 TC-MEMO-WEB-DOMAIN-011 TC-MEMO-WEB-INPUT-DOMAIN-018 조회한 웹 항목은 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
+        test("TC-e76b1675-49db-42aa-a50a-f6b4adf775b7 TC-424db2e8-0488-4798-9c86-fb32bbe220a6 TC-6960fd0c-8e84-4220-9a04-2ed98fc35e59 조회한 웹 항목은 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastWeb = web(title = LAST_WEB_TITLE)
@@ -129,7 +129,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstWeb, lastWeb)
         }
 
-        test("TC-MEMO-WEB-DATA-009 가리키는 웹 항목이 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-e9444682-39b7-4828-85f9-91c1f76ca31b 가리키는 웹 항목이 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val missingWebId = fixtureMonkey.giveMeOne<Uuid>()
@@ -150,7 +150,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DATA-009 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-e9444682-39b7-4828-85f9-91c1f76ca31b 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val missingMemoId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
@@ -166,7 +166,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DATA-012 메모가 내려받아지면 먼저 저장되어 있던 연결의 웹 항목이 함께 나타난다") {
+        test("TC-afeca13f-3b78-49ec-99c8-88d6b05d4efa 메모가 내려받아지면 먼저 저장되어 있던 연결의 웹 항목이 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -197,7 +197,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-017 계정과 연결되지 않은 웹 항목은 메모의 연결된 웹 항목으로 조회되지 않는다") {
+        test("TC-07d54a79-48a2-45ce-8a51-1cf82a5e46b6 계정과 연결되지 않은 웹 항목은 메모의 연결된 웹 항목으로 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -215,7 +215,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-018 같은 태그와 연결되어 있어도 메모와 웹 항목은 연결되지 않는다") {
+        test("TC-236e3acd-9fd1-45fe-842a-4be76c62464d 같은 태그와 연결되어 있어도 메모와 웹 항목은 연결되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -253,7 +253,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-019 삭제된 웹 항목의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+        test("TC-27e5b63c-9169-4794-8b00-967e2599601c 삭제된 웹 항목의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -270,7 +270,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(web)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-001 선택할 수 있는 웹 항목은 계정과 연결된 삭제되지 않은 웹 항목이다") {
+        test("TC-89d8de55-5bef-4789-a0b0-231ef02fe974 선택할 수 있는 웹 항목은 계정과 연결된 삭제되지 않은 웹 항목이다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableWeb = web()
@@ -282,7 +282,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(selectableWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-002 선택할 수 있는 웹 항목은 제목 오름차순으로 정렬된다") {
+        test("TC-901baeec-4bf8-43d0-b255-4713ee5c5b6f 선택할 수 있는 웹 항목은 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val lastWeb = web(title = LAST_WEB_TITLE)
             val firstWeb = web(title = FIRST_WEB_TITLE)
@@ -291,7 +291,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(firstWeb, lastWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-004 선택했더라도 삭제된 웹 항목은 선택 목록에 나타나지 않는다") {
+        test("TC-a5bb5bdd-231e-4510-b72e-b0e944ae0f0c 선택했더라도 삭제된 웹 항목은 선택 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptWeb = web()
@@ -303,7 +303,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(keptWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-015 TC-MEMO-WEB-INPUT-DATA-003 검색어는 제목과 설명으로 판정한다") {
+        test("TC-500023fc-2d3f-40da-ab0e-9653e681213d TC-96152606-17bd-4fe8-93b7-6ccdbc6f759c 검색어는 제목과 설명으로 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleMatchedWeb = web(title = "$SEARCH_QUERY-title")
             val descriptionMatchedWeb =
@@ -327,7 +327,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedWeb, titleMatchedWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-009 빈 검색어는 선택 목록을 좁히지 않는다") {
+        test("TC-970b49fd-805e-4068-96d4-009765bb586c 빈 검색어는 선택 목록을 좁히지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstWeb = web(title = FIRST_WEB_TITLE)
             val lastWeb = web(title = LAST_WEB_TITLE)
@@ -336,7 +336,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId, query = "") shouldBe listOf(firstWeb, lastWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-010 검색어는 선택한 웹 항목에도 같은 기준으로 적용된다") {
+        test("TC-47b094bf-6b6d-49a9-bc8b-432bff85c22c 검색어는 선택한 웹 항목에도 같은 기준으로 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val matchedWeb = web(title = "$SEARCH_QUERY-title")
@@ -347,7 +347,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(selectedWeb, matchedWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-001 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-2ff0fb38-aad4-48fe-8c2c-2ed28995761a 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val webList =
                 List(WEB_COUNT) { index ->
@@ -369,7 +369,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-005 웹 항목이 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
+        test("TC-4c802fe3-ab30-4d77-85f9-ca5c61f79ecd 웹 항목이 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstWeb = web(title = FIRST_WEB_TITLE)
             webTransaction.upsert(accountId = accountId, webList = listOf(firstWeb), webTagList = emptyList())
@@ -382,7 +382,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(firstWeb, addedWeb)
         }
 
-        test("TC-MEMO-DETAIL-DATA-031 TC-MEMO-WEB-INPUT-DATA-005 저장된 웹 항목의 제목이 바뀌면 연결된 웹 항목 조회와 열려 있는 선택 목록에 스스로 반영된다") {
+        test("TC-5bf8bc46-ce01-4c59-ad16-6b7d53a5890e TC-4c802fe3-ab30-4d77-85f9-ca5c61f79ecd 저장된 웹 항목의 제목이 바뀌면 연결된 웹 항목 조회와 열려 있는 선택 목록에 스스로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web(title = FIRST_WEB_TITLE)

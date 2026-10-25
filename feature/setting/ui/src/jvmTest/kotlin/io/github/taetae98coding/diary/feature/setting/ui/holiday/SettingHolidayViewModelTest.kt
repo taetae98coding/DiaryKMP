@@ -56,7 +56,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-006 저장된 공휴일 목록과 선택 상태를 제공한다") {
+        test("TC-aad46f37-24f2-4c33-9979-0d8849541987 저장된 공휴일 목록과 선택 상태를 제공한다") {
             runTest(mainDispatcher) {
                 val holidaySettingList =
                     listOf(
@@ -81,7 +81,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-008 공휴일을 선택하면 그 이름의 전환을 한 번 요청하고 저장된 결과가 반영되면 목표 상태로 바뀐다") {
+        test("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 공휴일을 선택하면 그 이름의 전환을 한 번 요청하고 저장된 결과가 반영되면 목표 상태로 바뀐다") {
             listOf(true, false).forEach { isVisible ->
                 runTest(mainDispatcher) {
                     val target = fixtureMonkey.holidaySetting(index = 0, isVisible = isVisible)
@@ -118,7 +118,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-009 전체 선택을 실행하고 저장된 결과가 반영되면 모든 항목이 선택 상태가 된다") {
+        test("TC-e13f36f5-758e-483b-86a5-ab234a2c2a53 전체 선택을 실행하고 저장된 결과가 반영되면 모든 항목이 선택 상태가 된다") {
             runTest(mainDispatcher) {
                 val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0, isVisible = true), fixtureMonkey.holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
@@ -148,7 +148,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-010 전체 해제를 실행하고 저장된 결과가 반영되면 모든 항목이 선택 해제 상태가 된다") {
+        test("TC-c1bd92b8-0b4d-4d34-ac8f-6df87c943300 전체 해제를 실행하고 저장된 결과가 반영되면 모든 항목이 선택 해제 상태가 된다") {
             runTest(mainDispatcher) {
                 val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0, isVisible = true), fixtureMonkey.holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
@@ -178,7 +178,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-011 쉬는 날만 선택을 실행하고 저장된 결과가 반영되면 쉬는 날 항목만 선택 상태가 된다") {
+        test("TC-c0011ed6-170c-41a4-a9b9-e9332ebce715 쉬는 날만 선택을 실행하고 저장된 결과가 반영되면 쉬는 날 항목만 선택 상태가 된다") {
             runTest(mainDispatcher) {
                 val holidaySettingList =
                     listOf(
@@ -212,7 +212,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-018 원본 목록과 선택 상태가 바뀌면 최신 상태를 제공한다") {
+        test("TC-c549c6d4-53dc-4417-bc0b-8fdd8ec854b3 원본 목록과 선택 상태가 바뀌면 최신 상태를 제공한다") {
             runTest(mainDispatcher) {
                 val first = fixtureMonkey.holidaySetting(index = 0, isVisible = true)
                 val initialList = listOf(first)
@@ -277,7 +277,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-032 확인 중에도 일괄 선택을 실행한다") {
+        test("TC-80005293-ab12-40ee-995f-9eddf6f9068d 확인 중에도 일괄 선택을 실행한다") {
             runTest(mainDispatcher) {
                 val selectAllHolidayUseCase = mockk<SelectAllHolidayUseCase>()
                 val unselectAllHolidayUseCase = mockk<UnselectAllHolidayUseCase>()
@@ -370,7 +370,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-042 설정이나 공휴일을 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-3a7123da-a0e2-4897-b3d4-8c63d4e4f7c2 설정이나 공휴일을 읽지 못하면 확인 중 상태를 유지한다") {
             val caseList =
                 listOf(
                     Result.failure<HolidayCountrySetting>(IllegalStateException("read error")) to
@@ -395,7 +395,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-035 국가 선택지 변경은 해당 선택지로 전용 UseCase를 실행한다") {
+        test("TC-cb51594b-3830-46fc-8328-73a3f2384489 국가 선택지 변경은 해당 선택지로 전용 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val toggleHolidayCountryOptionUseCase = mockk<ToggleHolidayCountryOptionUseCase>()
                 coEvery { toggleHolidayCountryOptionUseCase(parameter = any()) } returns Result.success(Unit)
@@ -435,7 +435,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-038 국가 설정이 바뀌면 바뀐 설정과 목록을 제공한다") {
+        test("TC-73b4649e-03ff-4c72-acf8-ce05ab1ae48d 국가 설정이 바뀌면 바뀐 설정과 목록을 제공한다") {
             runTest(mainDispatcher) {
                 val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
                 val bothList = koreaList + fixtureMonkey.holidaySetting(index = 1)
@@ -462,7 +462,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-046 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 이전 지역 기준을 그대로 보여 준다") {
+        test("TC-2fa1eea2-8ede-4799-b2e7-3a256656639b 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 이전 지역 기준을 그대로 보여 준다") {
             runTest(mainDispatcher) {
                 val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
                 val unitedStatesList = listOf(fixtureMonkey.holidaySetting(index = 1))
@@ -492,7 +492,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-047 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역으로 다시 표시한다") {
+        test("TC-b5eb4725-954e-40a1-9757-74836d837235 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역으로 다시 표시한다") {
             runTest(mainDispatcher) {
                 val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
                 val unitedStatesList = listOf(fixtureMonkey.holidaySetting(index = 1))

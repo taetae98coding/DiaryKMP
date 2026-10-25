@@ -28,7 +28,7 @@ class WebCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-001 웹 카드에 제목과 URL을 표시한다`() {
+    fun `TC-3743b05e-be76-4e63-a0df-984a4fcc040a 웹 카드에 제목과 URL을 표시한다`() {
         val web = web(title = title(), description = description(), url = url())
 
         setWebCard(web)
@@ -38,7 +38,7 @@ class WebCardTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-009 웹 카드는 설명을 표시하지 않는다`() {
+    fun `TC-2eb4136a-bf7a-48e9-8984-ca726f39321d 웹 카드는 설명을 표시하지 않는다`() {
         val web = web(title = title(), description = description(), url = url())
 
         setWebCard(web)
@@ -47,7 +47,7 @@ class WebCardTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-017 웹 카드를 누르면 선택이 전달된다`() {
+    fun `TC-8392b3db-4a35-4d67-bc3b-fcc40f266178 웹 카드를 누르면 선택이 전달된다`() {
         var clickCount = 0
         val web = web(title = title(), description = description(), url = url())
 
@@ -70,7 +70,7 @@ class WebCardTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-007 TC-SEARCH-HOME-FEATURE-013 TC-TAG-DETAIL-WEB-FEATURE-003 자리 표시 카드는 선택할 수 없다`() {
+    fun `TC-c8dac39f-af18-4aa8-a725-62d08b64ab77 TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 TC-57cb5770-96c5-47c2-ae52-8446db57ad58 자리 표시 카드는 선택할 수 없다`() {
         var clickCount = 0
 
         setWebCard(web = null, onClick = { clickCount++ })

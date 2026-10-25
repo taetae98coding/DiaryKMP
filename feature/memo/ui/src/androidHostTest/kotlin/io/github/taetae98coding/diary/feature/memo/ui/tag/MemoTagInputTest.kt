@@ -37,7 +37,7 @@ class MemoTagInputTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-013 선택한 태그의 이모지나 제목이 바뀌면 태그 칩에 반영된다`() {
+    fun `TC-506909e0-1741-417b-857c-d733d121ebb2 선택한 태그의 이모지나 제목이 바뀌면 태그 칩에 반영된다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val otherTag = testTag(title = EXERCISE_TAG_TITLE)
         val renamedTag = tag.copy(detail = tag.detail.copy(emoji = RENAMED_TAG_EMOJI, title = RENAMED_TAG_TITLE))
@@ -102,7 +102,7 @@ class MemoTagInputTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-022 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+    fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         var addClickCount = 0
         composeRule.setMemoTagInput(
@@ -118,7 +118,7 @@ class MemoTagInputTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-022 대표 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+    fun `TC-bc8f0644-67fb-42ed-a0d2-51d37a8ed57f 대표 태그 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         var addClickCount = 0
         composeRule.setMemoTagInput(
@@ -172,7 +172,7 @@ class MemoTagInputAddChipTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-028 선택한 태그가 없거나 여러 개여도 태그 추가 항목이 표시된다`() {
+    fun `TC-37983c15-cd49-4a4f-86f5-6ae1f971f6a6 선택한 태그가 없거나 여러 개여도 태그 추가 항목이 표시된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val selectTagList = composeRule.setMemoTagInputWithSelection()
 
@@ -194,7 +194,7 @@ class MemoTagInputNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-021 태그 칩을 누르면 그 태그를 대상으로 상세 이동을 요청한다`() {
+    fun `TC-39d55be9-24bb-4cf6-a389-20fa8a9896be 태그 칩을 누르면 그 태그를 대상으로 상세 이동을 요청한다`() {
         val primaryTag = testTag(title = WORK_TAG_TITLE)
         val otherTag = testTag(title = EXERCISE_TAG_TITLE)
         val clickedTagIdList = mutableListOf<Uuid>()
@@ -213,7 +213,7 @@ class MemoTagInputNavigationTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-TAG-INPUT-FEATURE-021 한국어 환경에서 태그 칩에 상세 이동 동작 이름을 제공한다`() {
+    fun `TC-39d55be9-24bb-4cf6-a389-20fa8a9896be 한국어 환경에서 태그 칩에 상세 이동 동작 이름을 제공한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
 
         composeRule.setMemoTagInput(

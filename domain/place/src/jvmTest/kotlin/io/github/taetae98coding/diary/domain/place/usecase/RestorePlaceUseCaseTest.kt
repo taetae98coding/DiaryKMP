@@ -54,14 +54,14 @@ class RestorePlaceUseCaseTest :
                 )
 
             When("장소의 삭제를 실행 취소한다") {
-                Then("TC-PLACE-HOME-DOMAIN-029 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
+                Then("TC-a7a4a342-6b57-4a95-a489-f5fc749a8d51 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-HOME-DATA-006 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-10d80d9e-bd2b-4b0c-bcbc-41caf10bd1cd TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -87,7 +87,7 @@ class RestorePlaceUseCaseTest :
                 )
 
             When("장소의 삭제를 실행 취소한다") {
-                Then("TC-PLACE-HOME-DATA-007 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
+                Then("TC-16e51486-aeea-4803-aacf-6fe9f83e6c95 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -111,7 +111,7 @@ class RestorePlaceUseCaseTest :
                 )
 
             When("장소의 삭제를 실행 취소한다") {
-                Then("TC-PLACE-HOME-DOMAIN-030 실행 취소가 성공으로 다뤄지지 않고 장소의 삭제 여부를 바꾸지 않는다") {
+                Then("TC-71fd8e18-3a06-4d57-aade-0cd5052a8bf8 실행 취소가 성공으로 다뤄지지 않고 장소의 삭제 여부를 바꾸지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -142,7 +142,7 @@ class RestorePlaceUseCaseTest :
                 )
 
             When("장소의 삭제를 실행 취소한다") {
-                Then("TC-PLACE-HOME-DATA-008 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-1d674d6a-2a5f-4ad1-8203-5c3d96de8d90 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

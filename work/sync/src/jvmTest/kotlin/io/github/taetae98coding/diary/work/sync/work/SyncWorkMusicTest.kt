@@ -33,7 +33,7 @@ class SyncWorkMusicTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 곡 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 곡 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val musicList = musics(size = itemCount)
                 val context = context(musicList = musicList)
                 val requests = mutableListOf<List<MusicRemoteEntity>>()
@@ -48,7 +48,7 @@ class SyncWorkMusicTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-007 삭제된 곡도 삭제 상태로 업로드된다") {
+        test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 삭제된 곡도 삭제 상태로 업로드된다") {
             val musicList = listOf(music(isDeleted = true), music(isDeleted = false))
             val context = context(musicList = musicList)
             val requests = mutableListOf<List<MusicRemoteEntity>>()
@@ -62,7 +62,7 @@ class SyncWorkMusicTest :
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 곡 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 곡 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
             val musicList = musics(size = 101)
             val context = context(musicList = musicList)
 
@@ -82,7 +82,7 @@ class SyncWorkMusicTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 곡 업로드가 실패하면 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 곡 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(musicList = musics(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.musicRemoteDataSource.push(any()) } throws failure
@@ -96,7 +96,7 @@ class SyncWorkMusicTest :
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 태그 업로드가 실패해도 곡은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그 업로드가 실패해도 곡은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -112,7 +112,7 @@ class SyncWorkMusicTest :
             coVerify(exactly = 3) { context.musicRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DATA-017 TC-DATA-SYNC-DATA-020 곡 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 곡 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = musicPulls(usnList = listOf(4L, 6L))
             val secondPullList = musicPulls(usnList = listOf(9L))
@@ -140,7 +140,7 @@ class SyncWorkMusicTest :
             coVerify(exactly = 3) { context.musicRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 곡만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 곡만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

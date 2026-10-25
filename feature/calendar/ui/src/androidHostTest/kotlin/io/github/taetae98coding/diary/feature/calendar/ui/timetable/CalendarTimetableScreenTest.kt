@@ -79,7 +79,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-001 하루 형식은 시작 날짜 하나를 표시한다`() {
+    fun `TC-46a5627d-359f-4313-854b-2052367c8f39 하루 형식은 시작 날짜 하나를 표시한다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
 
         composeRule.onNodeWithText("Wed").assertIsDisplayed()
@@ -90,7 +90,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-002 주간 형식은 시작 주의 일요일부터 토요일까지 표시한다`() {
+    fun `TC-ded9b942-76a7-4b50-a149-3aa835fd9704 주간 형식은 시작 주의 일요일부터 토요일까지 표시한다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.WEEK, date = september(day = 20))
 
         for (day in 20..26) composeRule.onNodeWithText(day.toString()).assertIsDisplayed()
@@ -101,7 +101,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-003 두 달에 걸친 주는 일요일이 속한 달을 안내한다`() {
+    fun `TC-1b31b8be-e0ee-42d0-95bb-64ffa8492261 두 달에 걸친 주는 일요일이 속한 달을 안내한다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.WEEK, date = september(day = 27))
 
         composeRule.onNodeWithText(SEPTEMBER_2026_TITLE).assertIsDisplayed()
@@ -110,7 +110,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-004 다음 날로 넘기면 년도와 월 안내가 이동한 날짜 기준으로 바뀐다`() {
+    fun `TC-888e8a2e-3dfb-4bb7-b24c-2e458230fcfc 다음 날로 넘기면 년도와 월 안내가 이동한 날짜 기준으로 바뀐다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 30))
 
         swipePageLeft()
@@ -121,7 +121,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-029 시각이 있는 기간의 메모는 여러 날에 걸쳐도 시간대 영역에, 종일 기간의 메모는 종일 영역에 표시된다`() {
+    fun `TC-0fade908-39be-46d8-beda-d3efb5574f17 시각이 있는 기간의 메모는 여러 날에 걸쳐도 시간대 영역에, 종일 기간의 메모는 종일 영역에 표시된다`() {
         val meeting = memo(title = MEETING_TITLE, dateTime = timed(day = 23, startHour = 10, endHour = 11))
         val vacation = memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 22)..september(day = 24)))
         val trip =
@@ -166,7 +166,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-010 메모를 선택하면 그 메모의 MemoDetail 화면으로 이동을 요청한다`() {
+    fun `TC-0e302b13-4099-4c35-8eb9-8d55a3a8bc8b 메모를 선택하면 그 메모의 MemoDetail 화면으로 이동을 요청한다`() {
         val meeting = memo(title = MEETING_TITLE, dateTime = timed(day = 23, startHour = 10, endHour = 11))
         val vacation = memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 23)..september(day = 23)))
         val navigatedIdList = mutableListOf<Uuid>()
@@ -184,7 +184,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-011 메모가 준비되면 별도 조작 없이 표시된다`() {
+    fun `TC-d1b86178-c85a-4c3f-ac73-776452a16211 메모가 준비되면 별도 조작 없이 표시된다`() {
         val memoListFlow = MutableStateFlow(emptyList<CalendarMemo>())
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -200,7 +200,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-012 메모가 없어도 빈 상태 안내 없이 시간대 안내를 보여 준다`() {
+    fun `TC-0d6e68b9-54e5-4c7b-b91f-da487984ec09 메모가 없어도 빈 상태 안내 없이 시간대 안내를 보여 준다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
 
         val hourLabelList = (1..11).map { hour -> "$hour AM" } + "12 PM" + (1..11).map { hour -> "$hour PM" }
@@ -222,7 +222,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-015 뒤로가기를 누르면 이전 화면으로 돌아가기를 요청한다`() {
+    fun `TC-a3d108ce-793d-40ec-8a34-52294a8e7a14 뒤로가기를 누르면 이전 화면으로 돌아가기를 요청한다`() {
         var navigateUpCount = 0
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -236,7 +236,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-016 화면이 재생성되어도 보던 형식과 날짜를 유지한다`() {
+    fun `TC-747c658f-80b2-49a1-8541-be4625f703f1 화면이 재생성되어도 보던 형식과 날짜를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var latestState: CalendarTimetableScaffoldState? = null
         setTimetableScreen(
@@ -257,7 +257,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-019 주간 형식에서 여러 날에 걸친 종일 메모는 어느 날짜 부분을 선택해도 같은 메모로 이동을 요청한다`() {
+    fun `TC-2bf85a4f-e7d6-4109-bd30-99363d6013c4 주간 형식에서 여러 날에 걸친 종일 메모는 어느 날짜 부분을 선택해도 같은 메모로 이동을 요청한다`() {
         val vacation = memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 21)..september(day = 24)))
         val navigatedIdList = mutableListOf<Uuid>()
         setTimetableScreen(
@@ -286,7 +286,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-030 주간 형식에서 여러 날에 걸친 시각 메모는 어느 날짜 부분을 선택해도 같은 메모로 이동을 요청한다`() {
+    fun `TC-fce59f00-84df-4193-84be-047a5bcd031d 주간 형식에서 여러 날에 걸친 시각 메모는 어느 날짜 부분을 선택해도 같은 메모로 이동을 요청한다`() {
         val night =
             memo(
                 title = NIGHT_TITLE,
@@ -314,7 +314,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-020 시간표에서는 태그 필터를 열 수 없다`() {
+    fun `TC-af8ca7cb-3853-4b83-a38e-198f7f8b571f 시간표에서는 태그 필터를 열 수 없다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
 
         composeRule.onAllNodesWithContentDescription(FILTER_CONTENT_DESCRIPTION, substring = true).assertCountEquals(0)
@@ -323,7 +323,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-021 메모의 기간이 바뀌어 자리가 달라지면 별도 조작 없이 바뀐 자리에 표시된다`() {
+    fun `TC-d64011bb-0cdf-4822-be9d-794160bae919 메모의 기간이 바뀌어 자리가 달라지면 별도 조작 없이 바뀐 자리에 표시된다`() {
         val meeting = memo(title = MEETING_TITLE, dateTime = timed(day = 23, startHour = 10, endHour = 11))
         val memoListFlow = MutableStateFlow(listOf(meeting))
         setTimetableScreen(
@@ -343,7 +343,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-022 다른 앱에 다녀와도 보던 형식과 날짜를 유지한다`() {
+    fun `TC-9ed5b6e9-5878-4130-bc43-b14f4cd8818b 다른 앱에 다녀와도 보던 형식과 날짜를 유지한다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -363,7 +363,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-DATA-001 날짜를 옮기면 옮긴 날짜의 조회 기간으로 메모를 다시 조회한다`() {
+    fun `TC-1fa8af84-2706-49ca-8383-77f1b734d6bc 날짜를 옮기면 옮긴 날짜의 조회 기간으로 메모를 다시 조회한다`() {
         val viewModel = timetableViewModel(memoListFlow = MutableStateFlow(emptyList()))
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -378,7 +378,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-024 공휴일 이름은 공휴일 여부와 관계없이 종일 영역에 표시된다`() {
+    fun `TC-eab72d0b-f584-4583-b169-338de9432b1b 공휴일 이름은 공휴일 여부와 관계없이 종일 영역에 표시된다`() {
         val chuseok = holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 26))
         val anniversary = holiday(name = ANNIVERSARY, isHoliday = false, dateRange = september(day = 21)..september(day = 21))
         setTimetableScreen(
@@ -397,7 +397,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-025 공휴일이 준비되면 별도 조작 없이 이름이 표시된다`() {
+    fun `TC-e413ce3b-8a73-46ed-ad60-333797e1c268 공휴일이 준비되면 별도 조작 없이 이름이 표시된다`() {
         val holidayListFlow = MutableStateFlow<List<Holiday>>(emptyList())
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 25), holidayListFlow = holidayListFlow)
         composeRule.onNodeWithText(CHUSEOK).assertDoesNotExist()
@@ -409,7 +409,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-026 공휴일 이름을 선택하면 그 이름의 검색 결과를 브라우저에서 연다`() {
+    fun `TC-63d0de0e-e3a4-4931-91b8-5b9b5e2d7808 공휴일 이름을 선택하면 그 이름의 검색 결과를 브라우저에서 연다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -425,7 +425,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-031 브라우저를 열지 못하면 시간표를 유지하고 검색 결과를 열지 못했다고 알린다`() {
+    fun `TC-2302faa8-0e50-44f8-8bcb-d637e6159ecc 브라우저를 열지 못하면 시간표를 유지하고 검색 결과를 열지 못했다고 알린다`() {
         val errorMessage = fixtureMonkey.nonBlankString()
         val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(errorMessage) }
         setTimetableScreen(
@@ -447,7 +447,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-028 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 시간대`() {
+    fun `TC-fd9b33ec-ecd4-41ec-a73e-8dc35c017ef7 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 시간대`() {
         val requestList = mutableListOf<MemoDateTime>()
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
         val tenY = hourLabelCenterY(label = "10 AM")
@@ -476,7 +476,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-028 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 날짜`() {
+    fun `TC-fd9b33ec-ecd4-41ec-a73e-8dc35c017ef7 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 날짜`() {
         val requestList = mutableListOf<MemoDateTime>()
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
         val position =
@@ -497,7 +497,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-023 시간표를 아래로 당겨도 새로고침이 시작되지 않는다`() {
+    fun `TC-afe6d0e6-7033-4671-b16b-4c119120ccfa 시간표를 아래로 당겨도 새로고침이 시작되지 않는다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
 
         repeat(PULL_SWIPE_COUNT) { composeRule.onRoot().performTouchInput { swipeDown() } }

@@ -97,7 +97,7 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-001 처음 표시되면 제목 설명 좌표 입력이 모두 비어 있다`() {
+    fun `TC-7e2d31c7-b8db-4c66-96de-3afeab9a475e 처음 표시되면 제목 설명 좌표 입력이 모두 비어 있다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size shouldBe TEXT_INPUT_COUNT
@@ -107,7 +107,7 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-002 입력한 제목 설명 주소 좌표와 고른 컬러가 그대로 표시된다`() {
+    fun `TC-09fcaa73-8a6a-4ef5-8578-a5461d2b2704 입력한 제목 설명 주소 좌표와 고른 컬러가 그대로 표시된다`() {
         lateinit var state: PlaceFormState
         lateinit var coroutineScope: CoroutineScope
         composeRule.setContent {
@@ -143,7 +143,7 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-003 좌표에 음수와 소수점을 입력할 수 있다`() {
+    fun `TC-ea8d40aa-657c-4c4d-ab1e-d3c0d3f0638d 좌표에 음수와 소수점을 입력할 수 있다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].performTextInput(NEGATIVE_DECIMAL)
@@ -154,7 +154,7 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-006 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-68a08b9a-ae59-4857-b38f-42601a414559 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         composeRule.setPlaceAddScaffold(uiStateProvider = { PlaceAddUiState(isInProgress = true) })
 
         composeRule
@@ -184,7 +184,7 @@ class PlaceAddScaffoldLabelTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-ADD-FEATURE-002 한국어 좌표 입력 이름은 위도와 경도이다`() {
+    fun `TC-09fcaa73-8a6a-4ef5-8578-a5461d2b2704 한국어 좌표 입력 이름은 위도와 경도이다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onNodeWithText(KOREAN_LATITUDE_LABEL).assertExists()
@@ -192,7 +192,7 @@ class PlaceAddScaffoldLabelTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-002 기본 좌표 입력 이름은 Latitude와 Longitude이다`() {
+    fun `TC-09fcaa73-8a6a-4ef5-8578-a5461d2b2704 기본 좌표 입력 이름은 Latitude와 Longitude이다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onNodeWithText(DEFAULT_LATITUDE_LABEL).assertExists()
@@ -201,14 +201,14 @@ class PlaceAddScaffoldLabelTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-ADD-FEATURE-002 한국어 주소 입력 이름은 주소이다`() {
+    fun `TC-09fcaa73-8a6a-4ef5-8578-a5461d2b2704 한국어 주소 입력 이름은 주소이다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onNodeWithText(KOREAN_ADDRESS_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-002 기본 주소 입력 이름은 Address이다`() {
+    fun `TC-09fcaa73-8a6a-4ef5-8578-a5461d2b2704 기본 주소 입력 이름은 Address이다`() {
         composeRule.setPlaceAddScaffold()
 
         composeRule.onNodeWithText(DEFAULT_ADDRESS_LABEL).assertExists()

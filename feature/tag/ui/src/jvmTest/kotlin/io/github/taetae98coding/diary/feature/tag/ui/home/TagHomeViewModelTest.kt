@@ -60,7 +60,7 @@ class TagHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-HOME-DATA-005 조회한 태그 페이지를 그대로 노출한다") {
+        test("TC-2494c80a-80ea-42d8-91d6-e2efd58aced2 조회한 태그 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.success(tagList))))
@@ -69,7 +69,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-038 이어서 불러오기에 실패해도 이미 불러온 태그를 그대로 노출한다") {
+        test("TC-3fdaec2b-1986-4602-b277-4613a60d9aaf 이어서 불러오기에 실패해도 이미 불러온 태그를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
@@ -86,7 +86,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-053 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
+        test("TC-80e11865-b035-466b-a033-fb40cd48e688 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val tagListFlow = MutableStateFlow(Result.success(tagList))
@@ -117,7 +117,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-037 필터를 켜 두면 필터가 적용된 상태를 노출한다") {
+        test("TC-c225bd89-fb41-49c4-921d-e7cb880ae95f 필터를 켜 두면 필터가 적용된 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(true))))
 
@@ -139,7 +139,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-037 필터를 끄면 필터가 적용되지 않은 상태를 노출한다") {
+        test("TC-c225bd89-fb41-49c4-921d-e7cb880ae95f 필터를 끄면 필터가 적용되지 않은 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val isTopLevelOnly = MutableStateFlow(true)
                 val viewModel =
@@ -173,7 +173,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-039 완료에 성공하면 그 태그의 완료를 요청하고 완료 안내를 한 번 보낸다") {
+        test("TC-02c58564-cd30-479e-9e3e-950f995c6271 완료에 성공하면 그 태그의 완료를 요청하고 완료 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
@@ -190,7 +190,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-040 삭제에 성공하면 그 태그의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-f04ed4ba-9160-49b3-9119-2b067c786ac8 삭제에 성공하면 그 태그의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
@@ -207,7 +207,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-046 완료가 저장되지 못하면 완료 안내를 보내지 않는다") {
+        test("TC-ee112726-f436-4381-840a-b69f9e199319 완료가 저장되지 못하면 완료 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
@@ -223,7 +223,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-046 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-ee112726-f436-4381-840a-b69f9e199319 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
@@ -239,7 +239,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-041 완료를 실행 취소하면 그 태그의 다시 시작을 한 번 요청하고 안내를 보내지 않는다") {
+        test("TC-26185d25-e46b-42e4-8ef7-b64293bff745 완료를 실행 취소하면 그 태그의 다시 시작을 한 번 요청하고 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
@@ -256,7 +256,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-042 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 한 번 요청하고 안내를 보내지 않는다") {
+        test("TC-718b7a0b-4fe2-4546-8606-427f71a89780 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 한 번 요청하고 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreTagUseCase = mockk<RestoreTagUseCase>()
@@ -273,7 +273,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-DOMAIN-018 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-9ea1e569-f3f7-4928-a7c8-fe559cecadce 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreTagUseCase = mockk<RestoreTagUseCase>()

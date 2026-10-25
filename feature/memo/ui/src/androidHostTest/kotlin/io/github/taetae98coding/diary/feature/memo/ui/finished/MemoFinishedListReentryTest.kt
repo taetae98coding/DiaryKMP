@@ -86,7 +86,7 @@ class MemoFinishedListReentryTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DOMAIN-009 MemoHome 목록으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
+    fun `TC-1fdc28f0-6b47-4173-9d2f-e4ad19f185bd MemoHome 목록으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
         val itemList = memoItemList()
         setMemoNavDisplay(itemList = itemList)
         composeRule.onNodeWithContentDescription(SORT_DESCRIPTION).performClick()
