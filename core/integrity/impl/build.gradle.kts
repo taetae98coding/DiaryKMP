@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.convention.core.impl)
-    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.primitive.android.host.test)
 }
 
 kotlin {
