@@ -46,7 +46,7 @@ class DeleteTagUseCaseTest :
                 )
 
             When("태그를 삭제한다") {
-                Then("TC-TAG-DETAIL-DATA-002 TC-TAG-HOME-DOMAIN-016 현재 계정의 태그를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
+                Then("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 TC-8ab554b9-88a3-421d-abb5-fee3a7bfb7ec 현재 계정의 태그를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = tagId)
@@ -108,7 +108,7 @@ class DeleteTagUseCaseTest :
                 )
 
             When("태그를 삭제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 태그 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 태그 갱신 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeSuccess(1)

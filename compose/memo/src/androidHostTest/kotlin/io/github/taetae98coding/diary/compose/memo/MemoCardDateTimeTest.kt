@@ -55,56 +55,56 @@ class MemoCardDateTimeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-010 한국어 환경에서 하루 종일 기간은 날짜를 한 번만 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 한국어 환경에서 하루 종일 기간은 날짜를 한 번만 표시한다`() {
         assertDateTimeText(ALL_DAY_SINGLE, "2026. 7. 19.")
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기본 환경에서 하루 종일 기간은 날짜를 한 번만 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기본 환경에서 하루 종일 기간은 날짜를 한 번만 표시한다`() {
         assertDateTimeText(ALL_DAY_SINGLE, "Jul 19, 2026")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-010 한국어 환경에서 여러 날 종일 기간은 시작과 종료 날짜를 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 한국어 환경에서 여러 날 종일 기간은 시작과 종료 날짜를 표시한다`() {
         assertDateTimeText(ALL_DAY_RANGE, "2026. 7. 19. ~ 2026. 7. 21.")
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기본 환경에서 여러 날 종일 기간은 시작과 종료 날짜를 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기본 환경에서 여러 날 종일 기간은 시작과 종료 날짜를 표시한다`() {
         assertDateTimeText(ALL_DAY_RANGE, "Jul 19, 2026 ~ Jul 21, 2026")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-010 한국어 환경에서 같은 날 시각 기간은 종료의 날짜를 생략한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 한국어 환경에서 같은 날 시각 기간은 종료의 날짜를 생략한다`() {
         assertDateTimeText(SAME_DAY_AFTERNOON, "2026. 7. 19. 오후 1:30 ~ 오후 3:00")
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기본 환경에서 같은 날 시각 기간은 종료의 날짜를 생략한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기본 환경에서 같은 날 시각 기간은 종료의 날짜를 생략한다`() {
         assertDateTimeText(SAME_DAY_AFTERNOON, "Jul 19, 2026 1:30 PM ~ 3:00 PM")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-010 한국어 환경에서 정오를 지나는 같은 날 기간도 오전·오후를 모두 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 한국어 환경에서 정오를 지나는 같은 날 기간도 오전·오후를 모두 표시한다`() {
         assertDateTimeText(SAME_DAY_ACROSS_NOON, "2026. 7. 19. 오전 11:30 ~ 오후 3:00")
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기본 환경에서 정오를 지나는 같은 날 기간도 오전·오후를 모두 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기본 환경에서 정오를 지나는 같은 날 기간도 오전·오후를 모두 표시한다`() {
         assertDateTimeText(SAME_DAY_ACROSS_NOON, "Jul 19, 2026 11:30 AM ~ 3:00 PM")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-010 한국어 환경에서 다른 날 시각 기간은 종료의 날짜와 시각을 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 한국어 환경에서 다른 날 시각 기간은 종료의 날짜와 시각을 표시한다`() {
         assertDateTimeText(OTHER_DAY, "2026. 7. 19. 오후 1:30 ~ 2026. 7. 20. 오전 9:00")
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기본 환경에서 다른 날 시각 기간은 종료의 날짜와 시각을 표시한다`() {
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기본 환경에서 다른 날 시각 기간은 종료의 날짜와 시각을 표시한다`() {
         assertDateTimeText(OTHER_DAY, "Jul 19, 2026 1:30 PM ~ Jul 20, 2026 9:00 AM")
     }
 

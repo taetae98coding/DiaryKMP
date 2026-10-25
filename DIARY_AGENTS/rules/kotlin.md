@@ -2,13 +2,7 @@
 
 ## 주석
 
-주석은 코드에서 유추하기 어려운 것만 남긴다. 다음 경우에만 쓴다.
-
-- 코드가 왜 그렇게 되어 있는지 코드만으로는 알 수 없는 경우(제약, 우회, 트레이드오프, 그 자리에 있어야 하는 이유)
-- 플랫폼이나 라이브러리의 비직관적 동작에 맞춘 처리
-- 되돌리면 안 되는 결정이라 이력을 남겨야 하는 경우
-
-무엇인지 설명하는 주석이 필요하다고 느껴지면 먼저 이름을 고친다.
+주석은 코드만으로 알 수 없는 이유(제약, 우회, 플랫폼·라이브러리의 비직관적 동작, 되돌리면 안 되는 결정)만 남긴다. 선언 이름을 되풀이하는 KDoc은 쓰지 않는다.
 
 다음은 이유를 담고 있어도 주석으로 남기지 않는다.
 
@@ -18,13 +12,6 @@
 - 할 일(`TODO`, `FIXME`)을 제외한, 아직 정하지 않았거나 후속 범위라는 메모. 정하지 않은 범위는 스펙이 소유한다.
 
 ⚠️ 비권장 예시 — 선언 이름으로 알 수 있는 내용을 KDoc으로 다시 적는다:
-
-```kotlin
-/** 진행을 보고하도록 요청된 동기화가 실행 중인지. */
-public val isProgressReported: Flow<Boolean>
-```
-
-⚠️ 비권장 예시:
 
 ```kotlin
 public interface SyncManager {
@@ -150,18 +137,6 @@ internal abstract class DiaryDatabase : RoomDatabase() {
 ## Explicit backing field
 
 내부에서만 변경하고 외부에는 읽기 전용 상위 타입으로 노출하는 프로퍼티는, 비공개 프로퍼티와 공개 프로퍼티를 쌍으로 선언하지 않고 explicit backing field(`field = ...`)로 선언한다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-internal class CalendarHomeWeatherViewModel : ViewModel() {
-    private val mutableIsLoading = MutableStateFlow(false)
-
-    val isLoading: StateFlow<Boolean> = mutableIsLoading.asStateFlow()
-}
-```
-
-✅ 권장 예시:
 
 ```kotlin
 val isLoading: StateFlow<Boolean>

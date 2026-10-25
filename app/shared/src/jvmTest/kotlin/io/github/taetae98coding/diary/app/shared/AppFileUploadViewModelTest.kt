@@ -41,7 +41,7 @@ class AppFileUploadViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-STORAGE-DOMAIN-017 확인된 계정 상태를 바뀔 때마다 한 번씩 전달하고 확인하지 못한 동안은 전달하지 않는다") {
+        test("TC-042ef401-f527-4521-ae60-76c65320e5ef 확인된 계정 상태를 바뀔 때마다 한 번씩 전달하고 확인하지 못한 동안은 전달하지 않는다") {
             runTest(mainDispatcher) {
                 val user = fixtureMonkey.giveMeOne<Account.User>()
                 val viewModel =

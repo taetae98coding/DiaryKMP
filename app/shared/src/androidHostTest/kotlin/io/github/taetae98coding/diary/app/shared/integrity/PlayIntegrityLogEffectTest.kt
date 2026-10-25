@@ -37,7 +37,7 @@ class PlayIntegrityLogEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-010 앱이 활성 상태가 될 때마다 확인한다`() {
+    fun `TC-09a7d8bf-6294-4edf-b420-535dd1cb599f 앱이 활성 상태가 될 때마다 확인한다`() {
         val log = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setEffect(log = log, initialState = Lifecycle.State.CREATED)
 
@@ -54,7 +54,7 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-013 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다`() {
+    fun `TC-fb41f96e-50de-45e0-b1d1-e87ea9b47824 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다`() {
         val log = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setEffect(log = log, initialState = Lifecycle.State.RESUMED)
 
@@ -65,7 +65,7 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-011 확인 중 앱이 백그라운드로 가도 끝까지 진행해 로그를 남긴다`() {
+    fun `TC-716347f4-e6aa-4442-a8ac-8b1181db6dea 확인 중 앱이 백그라운드로 가도 끝까지 진행해 로그를 남긴다`() {
         val serverResponse = CompletableDeferred<Unit>()
         val logList = recordPlayIntegrityLog()
         val repository = mockk<PlayIntegrityRepository>()
@@ -85,7 +85,7 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-016 화면이 재생성되어 다시 보이게 되면 한 번 더 확인한다`() {
+    fun `TC-eac86abe-6b25-4f0c-89b4-6df3d0025c32 화면이 재생성되어 다시 보이게 되면 한 번 더 확인한다`() {
         val log = mockk<() -> Unit>(relaxed = true)
         val restorationTester = setRestorableEffect(log = log)
 
@@ -97,7 +97,7 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다`() {
+    fun `TC-dfa93adf-50b7-4a19-9850-cc6f8bc5a24a 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다`() {
         val serverResponse = CompletableDeferred<Unit>()
         val logList = recordPlayIntegrityLog()
         var callCount = 0

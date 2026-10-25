@@ -13,6 +13,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
+import java.io.File
 
 class LunarLocalDataSourceImplTest :
     FunSpec({
@@ -38,7 +39,7 @@ class LunarLocalDataSourceImplTest :
             dataSource.get(dateRange = LocalDate(2026, 12, 30)..LocalDate(2027, 1, 2)).first().shouldBeEmpty()
         }
 
-        test("TC-LUNAR-FETCH-DATA-011 기간에 드는 양력 날짜의 음력 날짜만 양력 날짜 순으로 제공한다") {
+        test("TC-a91b1486-fe75-4256-8eaf-0bdfaf2cdc51 기간에 드는 양력 날짜의 음력 날짜만 양력 날짜 순으로 제공한다") {
             val yearEndList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 12, 29), endInclusive = LocalDate(2026, 12, 31))
             val yearStartList = lunarDateList(solarYear = 2027, start = LocalDate(2027, 1, 1), endInclusive = LocalDate(2027, 1, 3))
             transaction.upsert(solarYear = 2027, lunarDateList = yearStartList.reversed())
@@ -48,14 +49,14 @@ class LunarLocalDataSourceImplTest :
                 (yearEndList + yearStartList).filter { lunarDate -> lunarDate.solar in LocalDate(2026, 12, 30)..LocalDate(2027, 1, 2) }
         }
 
-        test("TC-LUNAR-FETCH-DATA-012 캐시되지 않은 연도의 날짜는 결과에 들지 않는다") {
+        test("TC-2f4157c1-cb9e-43c8-85c6-61e38e2c4bcb 캐시되지 않은 연도의 날짜는 결과에 들지 않는다") {
             val yearEndList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 12, 30), endInclusive = LocalDate(2026, 12, 31))
             transaction.upsert(solarYear = 2026, lunarDateList = yearEndList)
 
             dataSource.get(dateRange = LocalDate(2026, 12, 30)..LocalDate(2027, 1, 2)).first() shouldBe yearEndList
         }
 
-        test("TC-LUNAR-FETCH-DATA-013 조회 중인 기간의 캐시가 교체되면 새 목록을 제공한다") {
+        test("TC-2730ea45-f36d-4536-8ee7-6fc92d30093b 조회 중인 기간의 캐시가 교체되면 새 목록을 제공한다") {
             val lunarDateList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23))
 
             dataSource.get(dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)).test {
@@ -65,6 +66,28 @@ class LunarLocalDataSourceImplTest :
 
                 awaitItem() shouldBe lunarDateList
                 cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-773ac8b1-05c8-4bce-8240-bf68add5e489 데스크톱 앱에서 저장소를 닫고 다시 열어도 저장한 음력 자료가 남는다") {
+            val file = File.createTempFile("lunar", ".db")
+
+            try {
+                val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+                val lunarDateList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23))
+                val firstDatabase = calendarFileDatabase(file)
+                LunarTransactionImpl(database = firstDatabase).upsert(solarYear = 2026, lunarDateList = lunarDateList)
+                firstDatabase.close()
+
+                val secondDatabase = calendarFileDatabase(file)
+
+                try {
+                    LunarLocalDataSourceImpl(database = secondDatabase).get(dateRange = dateRange).first() shouldBe lunarDateList
+                } finally {
+                    secondDatabase.close()
+                }
+            } finally {
+                file.delete()
             }
         }
     })

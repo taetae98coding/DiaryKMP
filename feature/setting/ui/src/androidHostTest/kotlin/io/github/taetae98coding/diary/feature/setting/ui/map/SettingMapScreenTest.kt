@@ -24,7 +24,7 @@ class SettingMapScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아가고 기본 지도는 그대로 둔다`() {
+    fun `TC-c37e4ed2-e073-46bf-9293-6aa3db8ceaba 뒤로가기 동작을 선택하면 이전 화면으로 돌아가고 기본 지도는 그대로 둔다`() {
         var navigateUpCount = 0
         val viewModel = screenTestViewModel(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         setSettingMapScreen(
@@ -40,7 +40,7 @@ class SettingMapScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-008 선택되어 있지 않은 줄을 선택하면 기본 지도가 저장된다`() {
+    fun `TC-5675f575-9e4c-44ce-9b35-6a1ff32ac7aa 선택되어 있지 않은 줄을 선택하면 기본 지도가 저장된다`() {
         var navigateUpCount = 0
         val viewModel = screenTestViewModel(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         every { viewModel.selectDefaultProvider(any()) } returns Unit

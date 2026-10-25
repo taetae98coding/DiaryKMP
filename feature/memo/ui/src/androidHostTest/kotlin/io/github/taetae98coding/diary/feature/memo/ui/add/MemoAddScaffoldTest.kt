@@ -74,7 +74,7 @@ class MemoAddScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-009 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-da2eb63f-3bb6-4a44-b2c4-80837c756b1f 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         setMemoAddScaffold(componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
@@ -82,7 +82,7 @@ class MemoAddScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-008 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-684b59e1-a8bd-4eca-82eb-5f2d79e5cad1 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setMemoAddScaffold(uiStateProvider = { MemoAddUiState(isInProgress = true) })
 
         composeRule
@@ -94,7 +94,7 @@ class MemoAddScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-001 본문에 장소 카드를 표시한다`() {
+    fun `TC-649e3b47-a249-4368-837b-e9dd21aecd2a 본문에 장소 카드를 표시한다`() {
         setMemoAddScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_DESCRIPTION).assertExists()

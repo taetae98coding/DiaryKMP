@@ -55,7 +55,7 @@ class SettingMapScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-011 기본 지도를 확인하기 전에는 설정 영역을 표시하지 않는다`() {
+    fun `TC-b3d3d71c-dc8b-4df2-a279-68e891d1d5ac 기본 지도를 확인하기 전에는 설정 영역을 표시하지 않는다`() {
         setSettingMapScaffold(uiStateProvider = { SettingMapUiState.Loading })
 
         composeRule.onNodeWithText(DEFAULT_DEFAULT_PROVIDER_LABEL).assertDoesNotExist()
@@ -66,7 +66,7 @@ class SettingMapScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-012 본문에 지도를 표시하지 않는다`() {
+    fun `TC-85456ee1-fd92-4429-bcb9-f2997a960aa4 본문에 지도를 표시하지 않는다`() {
         val uiState = mutableStateOf<SettingMapUiState>(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         setSettingMapScaffold(uiStateProvider = { uiState.value })
 

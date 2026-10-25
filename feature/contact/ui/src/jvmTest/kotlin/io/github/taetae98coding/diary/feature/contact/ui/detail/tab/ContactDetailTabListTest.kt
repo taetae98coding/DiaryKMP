@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 
 class ContactDetailTabListTest :
     FunSpec({
-        test("TC-CONTACT-DETAIL-FEATURE-033 탭은 연락처 디테일, 메모 순서다") {
+        test("TC-9977790f-2803-4d46-9065-e763fb15adfc 탭은 연락처 디테일, 메모 순서다") {
             contactDetailTabList shouldContainExactly listOf(ContactDetailTab.DETAIL, ContactDetailTab.MEMO)
         }
 

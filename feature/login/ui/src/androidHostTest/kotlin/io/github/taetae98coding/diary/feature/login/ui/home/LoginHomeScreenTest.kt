@@ -30,7 +30,7 @@ class LoginHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOGIN-FEATURE-001 뒤로가기 선택 시 이전 화면으로 돌아간다`() {
+    fun `TC-532981c4-18f3-4d1a-bbc2-37689b26fb9f 뒤로가기 선택 시 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
@@ -43,7 +43,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-014 앱 로그인 처리 중에도 이전 화면으로 돌아갈 수 있다`() {
+    fun `TC-56edd934-9a22-4d83-b348-176f7027fb87 앱 로그인 처리 중에도 이전 화면으로 돌아갈 수 있다`() {
         var navigateUpCount = 0
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(LoginHomeUiState(isInProgress = true))),
@@ -56,7 +56,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-004 Google 로그인 흐름 시작`() {
+    fun `TC-cc06c3c7-3563-432b-85f4-1e2ebef86ed5 Google 로그인 흐름 시작`() {
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
@@ -79,7 +79,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-004 Apple 로그인 흐름 시작`() {
+    fun `TC-cc06c3c7-3563-432b-85f4-1e2ebef86ed5 Apple 로그인 흐름 시작`() {
         val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
@@ -102,7 +102,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-006 Google 취소는 오류로 안내하지 않는다`() {
+    fun `TC-d706775c-402c-4029-8b07-4757e11f0aa4 Google 취소는 오류로 안내하지 않는다`() {
         val googleCredentialsManager = mockGoogleCredentialsManager()
         coEvery { googleCredentialsManager.signIn() } throws GoogleCredentialsUserCancelException()
         composeRule.setLoginHomeScreen(
@@ -121,7 +121,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-006 Apple 취소는 오류로 안내하지 않는다`() {
+    fun `TC-d706775c-402c-4029-8b07-4757e11f0aa4 Apple 취소는 오류로 안내하지 않는다`() {
         val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } throws AppleCredentialsUserCancelException()
         composeRule.setLoginHomeScreen(
@@ -140,7 +140,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-013 Google 로그인 성공 시 이전 화면으로 돌아간다`() {
+    fun `TC-8bb48c53-91c9-48a5-b1c5-2de1255812e1 Google 로그인 성공 시 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
@@ -165,7 +165,7 @@ class LoginHomeScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-013 Apple 로그인 성공 시 이전 화면으로 돌아간다`() {
+    fun `TC-8bb48c53-91c9-48a5-b1c5-2de1255812e1 Apple 로그인 성공 시 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)

@@ -27,7 +27,7 @@ class TagMemoFinishedListEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-013 완료된 메모가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-f9dd49d2-5123-4716-9e2d-1af97ea680f5 완료된 메모가 없으면 빈 상태 안내를 표시한다`() {
         setTagMemoFinishedListScaffold(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -36,28 +36,28 @@ class TagMemoFinishedListEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-013 한국어 환경에서 빈 상태 안내는 이 태그에서 완료한 메모가 없습니다이다`() {
+    fun `TC-f9dd49d2-5123-4716-9e2d-1af97ea680f5 한국어 환경에서 빈 상태 안내는 이 태그에서 완료한 메모가 없습니다이다`() {
         setTagMemoFinishedListScaffold(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-013 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
+    fun `TC-f9dd49d2-5123-4716-9e2d-1af97ea680f5 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
         setTagMemoFinishedListScaffold(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(DEFAULT_ADD_EMPTY_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-014 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-b9d2625c-d89e-44b6-b128-7089c0aba4b3 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setTagMemoFinishedListScaffold(pagingData = loadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-015 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-70a3c5cf-1c13-471d-8225-3ef5859b3336 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setTagMemoFinishedListScaffold(
             pagingData = loadedEmptyPagingData(),
             uiState = TagMemoFinishedListUiState(),

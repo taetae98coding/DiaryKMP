@@ -64,7 +64,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-061 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-7ab7b9e7-1d38-4e85-8468-5ebff35fc3c1 목록 위에 현재 정렬을 표시한다`() {
         setMemoHomeScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -72,7 +72,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-062 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
+    fun `TC-13a50aa3-5a0a-46a3-9898-e41d4c905d79 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
         setMemoHomeScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
@@ -87,7 +87,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-049 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-25383175-6ee7-47c8-bff0-e35f904e57a4 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setMemoHomeScaffold(onEvent = eventList::add, sortSheetState = sortSheetState)
@@ -100,7 +100,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-050 최근 수정순을 고르면 그 정렬을 전달한다`() {
+    fun `TC-d3ccb9f9-704c-4adc-814d-7f45194004c9 최근 수정순을 고르면 그 정렬을 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setMemoHomeScaffold(onEvent = eventList::add, sortSheetState = sortSheetState)
@@ -113,12 +113,12 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-049 제목순을 고르면 목록이 제목 오름차순으로 바뀌고 정렬 컨트롤이 제목순을 알린다`() {
+    fun `TC-25383175-6ee7-47c8-bff0-e35f904e57a4 제목순을 고르면 목록이 제목 오름차순으로 바뀌고 정렬 컨트롤이 제목순을 알린다`() {
         assertSortSelection(sort = ListSort.TITLE, sortLabel = DEFAULT_TITLE_SORT)
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-050 최근 수정순을 고르면 목록이 수정 시각 내림차순으로 바뀐다`() {
+    fun `TC-d3ccb9f9-704c-4adc-814d-7f45194004c9 최근 수정순을 고르면 목록이 수정 시각 내림차순으로 바뀐다`() {
         assertSortSelection(sort = ListSort.RECENTLY_UPDATED, sortLabel = DEFAULT_RECENTLY_UPDATED_SORT)
     }
 
@@ -159,7 +159,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-052 정렬을 바꿔도 필터로 걸러진 같은 메모가 순서만 바뀌어 표시된다`() {
+    fun `TC-ec9e1134-0566-46bd-9e09-e79332e4eef6 정렬을 바꿔도 필터로 걸러진 같은 메모가 순서만 바뀌어 표시된다`() {
         val titlePrefix = "SortMemo${fixtureMonkey.giveMeOne<Int>()}"
         val firstMemo = fixtureMonkey.memo(title = "${titlePrefix}First")
         val secondMemo = fixtureMonkey.memo(title = "${titlePrefix}Second")
@@ -235,7 +235,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-063 목록이 비어 있으면 정렬 컨트롤 없이 완료된 메모 확인 동작만 남는다`() {
+    fun `TC-02154a5c-8bd5-4e69-9331-fe4bcf1860c6 목록이 비어 있으면 정렬 컨트롤 없이 완료된 메모 확인 동작만 남는다`() {
         setMemoHomeScaffold(memoPagingData = memoPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

@@ -25,7 +25,7 @@ class ReadFileUploadSourceUseCaseTest :
     BehaviorSpec({
         Given("고른 파일의 크기가 테스트 데이터와 같다") {
             When("그 파일을 고른다") {
-                Then("TC-FILE-ADD-FEATURE-005 50MB 이하는 고른 파일이 되고 넘으면 크기 초과로 실패한다") {
+                Then("TC-c89e24fb-6233-4119-80c9-9444a789c6d6 50MB 이하는 고른 파일이 되고 넘으면 크기 초과로 실패한다") {
                     mapOf(
                         0L to true,
                         MAX_SIZE to true,
@@ -56,7 +56,7 @@ class ReadFileUploadSourceUseCaseTest :
             When("그 파일을 고른다") {
                 val result = ReadFileUploadSourceUseCase(fileRepository = fileRepository)(parameter = uri)
 
-                Then("TC-FILE-ADD-FEATURE-005 읽지 못했다는 실패로 끝난다") {
+                Then("TC-c89e24fb-6233-4119-80c9-9444a789c6d6 읽지 못했다는 실패로 끝난다") {
                     result.shouldBeFailure().shouldBeInstanceOf<FileUnreadableException>()
                 }
             }

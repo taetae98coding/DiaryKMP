@@ -24,7 +24,7 @@ class CoroutineSyncWorkSchedulerTest :
     BehaviorSpec({
         Given("실행할 동기화 작업이 준비되어 있다") {
             When("동기화가 요청된다") {
-                Then("TC-DATA-SYNC-DOMAIN-016 TC-DATA-SYNC-DOMAIN-044 요청은 곧바로 끝나고 네트워크 연결 확인 없이 동기화 작업이 백그라운드에서 한 번 실행된다") {
+                Then("TC-9de575b5-94b7-496c-b39f-c8d262a09bb0 TC-295b9ed5-8003-4997-8eb8-62691ff56835 요청은 곧바로 끝나고 네트워크 연결 확인 없이 동기화 작업이 백그라운드에서 한 번 실행된다") {
                     runTest {
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
@@ -47,7 +47,7 @@ class CoroutineSyncWorkSchedulerTest :
 
         Given("동기화 작업이 진행 중이다") {
             When("동기화가 다시 요청된다") {
-                Then("TC-DATA-SYNC-DOMAIN-018 TC-SYNC-REFRESH-DOMAIN-009 TC-PLACE-HOME-DOMAIN-018 진행 중이던 동기화 작업은 취소되고 새 동기화 작업이 한 번 새로 시작된다") {
+                Then("TC-7cdabcdd-1312-4b27-a209-d5ef12be0568 TC-1f820570-271d-47fe-afe1-2e6d8126d8dd TC-275fafd6-960d-488f-ab7b-c1ac00e662d8 진행 중이던 동기화 작업은 취소되고 새 동기화 작업이 한 번 새로 시작된다") {
                     runTest {
                         var startCount = 0
                         var cancelCount = 0
@@ -83,7 +83,7 @@ class CoroutineSyncWorkSchedulerTest :
 
         Given("실행할 동기화 작업이 준비되어 있다") {
             When("동기화가 요청되어 실행되고 끝난다") {
-                Then("TC-SYNC-REFRESH-DOMAIN-002 실행되는 동안 실행 중 상태가 되고 끝나면 남은 작업이 없는 상태가 된다") {
+                Then("TC-486caf69-48e9-462b-9a8f-9ff3074bc0f2 실행되는 동안 실행 중 상태가 되고 끝나면 남은 작업이 없는 상태가 된다") {
                     runTest {
                         val syncWork = mockk<SyncWork>()
                         coEvery { syncWork.doWork() } coAnswers { }
@@ -106,7 +106,7 @@ class CoroutineSyncWorkSchedulerTest :
 
         Given("동기화 작업이 진행 중이다") {
             When("동기화가 다시 요청된다") {
-                Then("TC-SYNC-REFRESH-DOMAIN-009 TC-PLACE-HOME-DOMAIN-018 이어진 작업이 실행되는 동안 실행 중 상태가 유지된다") {
+                Then("TC-1f820570-271d-47fe-afe1-2e6d8126d8dd TC-275fafd6-960d-488f-ab7b-c1ac00e662d8 이어진 작업이 실행되는 동안 실행 중 상태가 유지된다") {
                     runTest {
                         val syncWork = mockk<SyncWork>()
                         coEvery { syncWork.doWork() } coAnswers { awaitCancellation() }
@@ -131,7 +131,7 @@ class CoroutineSyncWorkSchedulerTest :
 
         Given("실행 중인 동기화 작업이 성공 또는 실패로 끝나도록 준비되어 있다") {
             When("동기화가 요청되어 실행되고 끝난다") {
-                Then("TC-SYNC-REFRESH-FEATURE-005 성공이든 실패든 끝나면 남은 작업이 없는 상태가 된다") {
+                Then("TC-19d9feda-6635-4b91-a41f-448cb4703f92 성공이든 실패든 끝나면 남은 작업이 없는 상태가 된다") {
                     // 성공은 실패 원인 없이, 실패는 실패 원인을 던지며 끝난다.
                     val failureList: List<Throwable?> = listOf(null, IllegalStateException("sync failure"))
 

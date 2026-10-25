@@ -21,7 +21,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class YoutubeVideoRepositoryImplTest :
     FunSpec({
-        test("TC-MUSIC-ADD-DATA-008 입력한 링크로 영상 정보를 조회해 제목과 채널 이름을 전달한다") {
+        test("TC-a4483895-1bff-43b1-98af-3787cc0ca408 입력한 링크로 영상 정보를 조회해 제목과 채널 이름을 전달한다") {
             val remote = fixtureMonkey.giveMeOne<YoutubeVideoRemoteEntity>()
             val remoteDataSource = mockk<YoutubeVideoRemoteDataSource>()
             coEvery { remoteDataSource.read(link = YOUTUBE_LINK) } returns remote
@@ -37,7 +37,7 @@ class YoutubeVideoRepositoryImplTest :
             coVerify(exactly = 1) { remoteDataSource.read(link = YOUTUBE_LINK) }
         }
 
-        test("TC-MUSIC-ADD-DATA-009 조회 실패를 그대로 전파한다") {
+        test("TC-c5c2a1a7-9368-4c94-90a5-8f64decd79c8 조회 실패를 그대로 전파한다") {
             val throwable = IllegalStateException("fetch-${fixtureMonkey.giveMeOne<String>()}")
             val remoteDataSource = mockk<YoutubeVideoRemoteDataSource>()
             coEvery { remoteDataSource.read(link = any()) } throws throwable

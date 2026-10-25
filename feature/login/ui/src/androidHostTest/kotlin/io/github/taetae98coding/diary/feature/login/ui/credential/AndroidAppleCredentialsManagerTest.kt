@@ -33,7 +33,7 @@ class AndroidAppleCredentialsManagerTest {
     private val returnUri = "io.github.taetae98coding.diary.dev://$APPLE_SIGN_IN_REDIRECT_HOST"
 
     @Test
-    fun `TC-LOGIN-FEATURE-022 응답 없이 브라우저에서 앱으로 돌아오면 취소로 처리한다`() =
+    fun `TC-86dee46f-aeb7-420e-9d67-28230edc8116 응답 없이 브라우저에서 앱으로 돌아오면 취소로 처리한다`() =
         runTest {
             val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED, UnconfinedTestDispatcher(testScheduler))
             val launchedUrlList = mutableListOf<String>()
@@ -48,7 +48,7 @@ class AndroidAppleCredentialsManagerTest {
         }
 
     @Test
-    fun `TC-LOGIN-FEATURE-023 앱으로 돌아오기 전에 도착한 인증 결과로 로그인한다`() =
+    fun `TC-9d7843cf-9a4c-40b6-86fb-1c2408dfa172 앱으로 돌아오기 전에 도착한 인증 결과로 로그인한다`() =
         runTest {
             val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED, UnconfinedTestDispatcher(testScheduler))
             val launchedUrlList = mutableListOf<String>()
@@ -66,7 +66,7 @@ class AndroidAppleCredentialsManagerTest {
         }
 
     @Test
-    fun `TC-LOGIN-FEATURE-023 앱으로 돌아온 직후에 도착한 인증 결과도 취소로 처리하지 않는다`() =
+    fun `TC-9d7843cf-9a4c-40b6-86fb-1c2408dfa172 앱으로 돌아온 직후에 도착한 인증 결과도 취소로 처리하지 않는다`() =
         runTest {
             val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED, UnconfinedTestDispatcher(testScheduler))
             val launchedUrlList = mutableListOf<String>()
@@ -89,7 +89,7 @@ class AndroidAppleCredentialsManagerTest {
             val manager = manager(lifecycleOwner.lifecycle, launchedUrlList::add)
 
             val signIn = async(start = CoroutineStart.UNDISPATCHED) { runCatching { manager.signIn() } }
-            val state = launchedUrlList.single().toUri().getQueryParameter(AppleWebSignInResponse.STATE_PARAMETER)
+            val state = launchedUrlList.single().toUri().getQueryParameter(AuthorizationResponseParameter.STATE)
             AppleSignInRedirectRelay.deliver("$returnUri?error=user_cancelled_authorize&state=$state".toUri())
             runCurrent()
 
@@ -119,8 +119,8 @@ class AndroidAppleCredentialsManagerTest {
     ) = returnUri
         .toUri()
         .buildUpon()
-        .appendQueryParameter(AppleWebSignInResponse.ID_TOKEN_PARAMETER, idToken)
-        .appendQueryParameter(AppleWebSignInResponse.STATE_PARAMETER, authorizationUrl.toUri().getQueryParameter(AppleWebSignInResponse.STATE_PARAMETER))
+        .appendQueryParameter(AuthorizationResponseParameter.ID_TOKEN, idToken)
+        .appendQueryParameter(AuthorizationResponseParameter.STATE, authorizationUrl.toUri().getQueryParameter(AuthorizationResponseParameter.STATE))
         .build()
 
     private fun TestScope.leaveAndReturn(lifecycleOwner: TestLifecycleOwner) {

@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 
 class PlaceHomeScaffoldStateTest :
     FunSpec({
-        test("TC-PLACE-HOME-FEATURE-036 TC-PLACE-HOME-DOMAIN-023 새 화면은 지도 모드로 시작한다") {
+        test("TC-6e8c1c58-3b06-481a-a8cd-f214abf35584 TC-cb8ecf01-7e1a-4a58-b38c-8bb28afd285a 새 화면은 지도 모드로 시작한다") {
             PlaceHomeScaffoldState().viewMode shouldBe PlaceHomeViewMode.MAP
         }
 

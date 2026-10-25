@@ -26,7 +26,7 @@ class RequestFileUploadUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정이 제목과 설명을 적고 파일을 골랐다") {
             When("올리기를 요청한다") {
-                Then("TC-FILE-ADD-DOMAIN-002 그 계정으로 고른 파일을 적은 제목과 설명 그대로 올리도록 맡긴다") {
+                Then("TC-a25d66ad-88de-44be-a1e9-eac0dee184fe 그 계정으로 고른 파일을 적은 제목과 설명 그대로 올리도록 맡긴다") {
                     listOf(
                         " 회의록 " to "첫 줄\n둘째 줄",
                         "회의록" to "",
@@ -52,7 +52,7 @@ class RequestFileUploadUseCaseTest :
 
         Given("제목이 비어 있거나 공백만 있다") {
             When("파일을 고른 채 올리기를 요청한다") {
-                Then("TC-FILE-ADD-FEATURE-006 제목이 없다는 실패로 끝나고 올리기를 맡기지 않는다") {
+                Then("TC-13958209-1811-4ea0-b20a-56f57c8a9f75 제목이 없다는 실패로 끝나고 올리기를 맡기지 않는다") {
                     listOf("", "  ").forEach { title ->
                         val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
                         val useCase = useCase(fileUploadManager = fileUploadManager)
@@ -69,7 +69,7 @@ class RequestFileUploadUseCaseTest :
                 val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
                 val result = useCase(fileUploadManager = fileUploadManager)(parameter = RequestFileUploadUseCase.Parameter(uri = null, title = "", description = ""))
 
-                Then("TC-FILE-ADD-FEATURE-008 파일보다 제목이 없다는 실패를 먼저 알린다") {
+                Then("TC-e9ed04a3-cd3b-48fd-900c-a41bcca35a4a 파일보다 제목이 없다는 실패를 먼저 알린다") {
                     result.shouldBeFailure().shouldBeInstanceOf<FileTitleBlankException>()
                 }
             }
@@ -81,7 +81,7 @@ class RequestFileUploadUseCaseTest :
             When("올리기를 요청한다") {
                 val result = useCase(fileUploadManager = fileUploadManager)(parameter = RequestFileUploadUseCase.Parameter(uri = null, title = "회의록", description = ""))
 
-                Then("TC-FILE-ADD-FEATURE-007 파일을 고르지 않았다는 실패로 끝나고 올리기를 맡기지 않는다") {
+                Then("TC-3dc2f4fc-8d3e-4a5b-9348-d5c731e2e72e 파일을 고르지 않았다는 실패로 끝나고 올리기를 맡기지 않는다") {
                     result.shouldBeFailure().shouldBeInstanceOf<FileNotSelectedException>()
                     coVerify(exactly = 0) { fileUploadManager.requestUpload(content = any(), accountId = any()) }
                 }
@@ -90,7 +90,7 @@ class RequestFileUploadUseCaseTest :
 
         Given("계정 상태가 게스트이거나 확정되지 않았다") {
             When("제목을 적고 파일을 고른 채 올리기를 요청한다") {
-                Then("TC-FILE-ADD-FEATURE-016 올리기를 맡기지 않고 실패로 끝난다") {
+                Then("TC-a1099bb4-240a-42f7-9476-8fc329821611 올리기를 맡기지 않고 실패로 끝난다") {
                     listOf<Result<Account>>(
                         Result.success(Account.Guest),
                         Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),

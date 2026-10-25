@@ -60,7 +60,7 @@ class TagDetailMemoTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-025 기본 환경 완료된 메모 확인 버튼을 표시한다`() {
+    fun `TC-5acadd24-9424-4b51-ac4a-457d5593ba85 기본 환경 완료된 메모 확인 버튼을 표시한다`() {
         setTagDetailMemoTab()
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assert(hasClickAction())
@@ -68,14 +68,14 @@ class TagDetailMemoTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-025 한국어 환경 완료된 메모 확인 버튼을 표시한다`() {
+    fun `TC-5acadd24-9424-4b51-ac4a-457d5593ba85 한국어 환경 완료된 메모 확인 버튼을 표시한다`() {
         setTagDetailMemoTab()
 
         composeRule.onNodeWithText(KOREAN_FINISHED_LIST_LABEL).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-025 완료된 메모 확인 버튼을 선택하면 완료된 메모 목록 이동을 요청한다`() {
+    fun `TC-5acadd24-9424-4b51-ac4a-457d5593ba85 완료된 메모 확인 버튼을 선택하면 완료된 메모 목록 이동을 요청한다`() {
         var finishedListClickCount = 0
         setTagDetailMemoTab(onFinishedListClick = { finishedListClickCount += 1 })
 
@@ -101,7 +101,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-003 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
+    fun `TC-2991e08b-63dd-4752-b878-9e688f528e50 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
         val date = LocalDate(year = 2026, month = 7, day = 19)
         val noDateMemo = tagMemo(title = NO_DATE_TITLE)
         val allDayMemo = tagMemo(title = ALL_DAY_TITLE, dateTime = allDayMemoDateTime(date))
@@ -160,7 +160,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-006 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setTagDetailMemoTab(
             pagingData = tagMemoPagingData(itemList = emptyList(), refresh = error),
@@ -175,7 +175,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-006 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
         val memo = tagMemo(title = APPEND_ERROR_MEMO_TITLE)
         val error = LoadState.Error(IllegalStateException("Append failed"))
         setTagDetailMemoTab(
@@ -192,7 +192,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-007 메모 카드를 선택하면 상세 이동을 요청한다`() {
+    fun `TC-77fd4748-f506-4646-ab89-9af39d0f983f 메모 카드를 선택하면 상세 이동을 요청한다`() {
         val memo = tagMemo(title = CLICK_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagDetailMemoTab(
@@ -210,7 +210,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 왼쪽에서 오른쪽 스와이프는 완료를 요청한다`() {
         val memo = tagMemo(title = FINISH_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagDetailMemoTab(
@@ -229,7 +229,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
         val memo = tagMemo(title = DELETE_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setTagDetailMemoTab(

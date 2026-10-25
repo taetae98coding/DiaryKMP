@@ -1,5 +1,8 @@
 name: Release
 
+# main은 test를 통과한 PR만 머지되므로 배포에서는 테스트를 다시 돌리지 않는다.
+# 버전은 빌드 잡마다 작업 트리에만 적용하고, 두 플랫폼 배포가 모두 성공하거나 이미 올라가 있을 때만 커밋·태그한다.
+# 그래서 실패한 뒤 같은 입력으로 다시 실행하면 같은 버전이 계산되고, 이미 올라간 플랫폼은 건너뛴다.
 on:
   workflow_dispatch:
     inputs:
@@ -17,11 +20,6 @@ on:
         required: false
         type: boolean
         default: true
-      bump:
-        description: 버전을 올려 커밋·태그하고 GitHub Release를 만든다. 끄면 main의 현재 버전을 그대로 다시 빌드한다(실패한 플랫폼 재배포용)
-        required: false
-        type: boolean
-        default: true
 
 concurrency:
   group: release
@@ -33,26 +31,18 @@ permissions:
 env:
   BUILD_LOGIC: build-logic/convention/src/main/kotlin/io/github/taetae98coding/diary/buildlogic/BuildLogic.kt
   PBXPROJ: iosApp/DiaryApp.xcodeproj/project.pbxproj
+  PLAY_PACKAGE: io.github.taetae98coding.diary
+  ASC_APP_ID: '6737837814'
 
 jobs:
-  test:
-    name: 🧪 테스트
-    uses: ./.github/workflows/test.yml
-    secrets:
-      LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
-
   version:
-    name: 🔢 버전 올림
-    needs: test
-    runs-on: self-hosted
-    permissions:
-      contents: write
+    name: 🔢 버전 계산
+    runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.bump.outputs.version }}
-      build: ${{ steps.bump.outputs.build }}
-      sha: ${{ steps.commit.outputs.sha }}
+      version: ${{ steps.next.outputs.version }}
+      build: ${{ steps.next.outputs.build }}
     steps:
-      # 테스트를 통과한 커밋 위에 버전 커밋을 만들어야 하므로 실행을 시작한 커밋을 가져온다.
+      # 이미 쓴 버전인지 태그로 확인하므로 태그까지 가져온다.
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
         with:
@@ -60,25 +50,24 @@ jobs:
           fetch-depth: 0
           clean: true
 
-      - id: bump
+      - id: next
         name: 🔢 다음 버전 계산
         env:
           INPUT_VERSION: ${{ inputs.version }}
-          BUMP: ${{ inputs.bump }}
+          ANDROID: ${{ inputs.android }}
+          IOS: ${{ inputs.ios }}
         run: |
           set -euo pipefail
+          if [ "$ANDROID" != "true" ] && [ "$IOS" != "true" ]; then
+            echo "::error::배포할 플랫폼을 하나 이상 골라야 합니다."
+            exit 1
+          fi
+
           current_name=$(sed -nE 's/.*VERSION_NAME: String = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' "$BUILD_LOGIC")
           current_code=$(sed -nE 's/.*VERSION_CODE: Int = ([0-9]+).*/\1/p' "$BUILD_LOGIC")
           if [ -z "$current_name" ] || [ -z "$current_code" ]; then
             echo "::error::$BUILD_LOGIC 에서 현재 버전을 읽지 못했습니다."
             exit 1
-          fi
-
-          if [ "$BUMP" != "true" ]; then
-            echo "버전을 올리지 않고 현재 $current_name ($current_code)을 다시 빌드한다."
-            echo "version=$current_name" >> "$GITHUB_OUTPUT"
-            echo "build=$current_code" >> "$GITHUB_OUTPUT"
-            exit 0
           fi
 
           if [ -n "$INPUT_VERSION" ]; then
@@ -102,77 +91,66 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "build=$build" >> "$GITHUB_OUTPUT"
 
-      - id: commit
-        name: 🏷️ 버전 커밋·태그 push
-        env:
-          VERSION: ${{ steps.bump.outputs.version }}
-          BUILD: ${{ steps.bump.outputs.build }}
-          BUMP: ${{ inputs.bump }}
-        run: |
-          set -euo pipefail
-          if [ "$BUMP" != "true" ]; then
-            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # self-hosted macOS 러너의 BSD sed와 GNU sed의 -i 문법이 달라 perl로 치환한다.
-          perl -pi -e 's/(VERSION_CODE: Int = )\d+/${1}$ENV{BUILD}/' "$BUILD_LOGIC"
-          perl -pi -e 's/(VERSION_NAME: String = ")[\d.]+(")/${1}$ENV{VERSION}${2}/' "$BUILD_LOGIC"
-          perl -pi -e 's/(CURRENT_PROJECT_VERSION = )\d+;/${1}$ENV{BUILD};/' "$PBXPROJ"
-          perl -pi -e 's/(MARKETING_VERSION = )[\d.]+;/${1}$ENV{VERSION};/' "$PBXPROJ"
-          git diff --stat
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore: 앱을 $VERSION ($BUILD) 버전으로 올린다"
-          git tag -a "$VERSION" -m "$VERSION ($BUILD)"
-          # 테스트 중에 main이 앞서 나갔다면 fast-forward가 아니어서 push가 실패하고 배포를 멈춘다.
-          git push origin HEAD:main
-          git push origin "$VERSION"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  release:
-    name: 📝 GitHub Release
+  check:
+    name: 🔎 스토어 중복 확인
     needs: version
-    # bump=false면 새 태그가 없으므로 만들 Release도 없다.
-    if: inputs.bump
-    runs-on: self-hosted
-    permissions:
-      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ steps.play.outputs.exists }}
+      ios: ${{ steps.asc.outputs.exists }}
     steps:
-      # 직전 태그와의 차이로 노트를 만들므로 태그까지 모두 가져온다.
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.version.outputs.sha }}
-          fetch-depth: 0
+          ref: ${{ github.sha }}
           clean: true
 
-      - name: 🚀 Release 생성
+      # Play는 versionCode를 트랙과 무관하게 한 번만 받으므로 같은 번호가 있으면 이미 배포된 것으로 본다.
+      - id: play
+        name: 🤖 Play에 같은 versionCode가 있는지 확인
+        if: inputs.android
         env:
-          GH_TOKEN: ${{ github.token }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          BUILD: ${{ needs.version.outputs.build }}
+        run: |
+          set -euo pipefail
+          exists=$(python3 .github/scripts/store_build_exists.py play "$PLAY_PACKAGE" "$BUILD")
+          echo "Play versionCode $BUILD 존재: $exists"
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
+      - id: asc
+        name: 🍎 App Store Connect에 같은 빌드가 있는지 확인
+        if: inputs.ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           VERSION: ${{ needs.version.outputs.version }}
           BUILD: ${{ needs.version.outputs.build }}
         run: |
           set -euo pipefail
-          # 러너에 git-cliff가 없어 npm 배포본을 버전을 고정해 실행한다. HEAD가 이번 태그이므로 --current가 직전 태그부터의 커밋을 고른다.
-          npx --yes git-cliff@2.14.2 --current --output "$RUNNER_TEMP/release-notes.md"
-          gh release create "$VERSION" \
-            --verify-tag \
-            --title "$VERSION ($BUILD)" \
-            --notes-file "$RUNNER_TEMP/release-notes.md"
+          exists=$(python3 .github/scripts/store_build_exists.py asc "$ASC_APP_ID" "$VERSION" "$BUILD")
+          echo "App Store Connect $VERSION ($BUILD) 존재: $exists"
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
 
   android:
     name: 🤖 Android → Play 내부 테스트
-    needs: version
-    if: inputs.android
-    runs-on: [self-hosted, releaseAndroid]
+    needs: [version, check]
+    if: inputs.android && needs.check.outputs.android != 'true'
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.version.outputs.sha }}
+          ref: ${{ github.sha }}
           clean: true
+
+      - name: 🔢 버전 적용
+        uses: ./.github/actions/apply-version
+        with:
+          version: ${{ needs.version.outputs.version }}
+          build: ${{ needs.version.outputs.build }}
 
       - name: 🧰 빌드 환경 준비
         uses: ./.github/actions/setup
@@ -209,7 +187,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: io.github.taetae98coding.diary
+          packageName: ${{ env.PLAY_PACKAGE }}
           releaseFiles: app/android/build/outputs/bundle/realRelease/android-real-release.aab
           releaseName: ${{ needs.version.outputs.version }} (${{ needs.version.outputs.build }})
           tracks: internal
@@ -221,38 +199,35 @@ jobs:
 
   ios:
     name: 🍎 iOS → TestFlight
-    needs: version
-    if: inputs.ios
-    runs-on: [self-hosted, releaseiOS]
+    needs: [version, check]
+    if: inputs.ios && needs.check.outputs.ios != 'true'
+    runs-on: macos-latest
     timeout-minutes: 150
     steps:
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.version.outputs.sha }}
+          ref: ${{ github.sha }}
           clean: true
 
-      - name: 🛠️ Xcode 27 선택
+      - name: 🔢 버전 적용
+        uses: ./.github/actions/apply-version
+        with:
+          version: ${{ needs.version.outputs.version }}
+          build: ${{ needs.version.outputs.build }}
+
+      # 특정 Xcode를 고정하지 않고 이미지 기본 Xcode로 빌드하되, iOS SDK가 프로젝트의 최소 지원 버전보다 낮으면 archive 전에 멈춘다.
+      - name: 🛠️ Xcode 확인
         run: |
           set -euo pipefail
-          # 개발 머신의 xcode-select 설정을 바꾸지 않도록 이 잡에서만 DEVELOPER_DIR로 고른다.
-          xcode=""
-          for app in /Applications/Xcode_27*.app /Applications/Xcode.app; do
-            [ -d "$app" ] || continue
-            # head로 파이프를 먼저 닫으면 xcodebuild가 남은 줄을 쓰다 abort하므로 출력을 모두 받은 뒤 확인한다.
-            version="$(DEVELOPER_DIR="$app/Contents/Developer" xcodebuild -version 2>/dev/null || true)"
-            if [[ "$version" == "Xcode 27"* ]]; then
-              xcode="$app"
-              break
-            fi
-          done
-          if [ -z "$xcode" ]; then
-            echo "::error::러너에 Xcode 27이 없습니다."
-            ls -d /Applications/Xcode*.app
+          xcodebuild -version
+          target=$(sed -nE 's/.*IPHONEOS_DEPLOYMENT_TARGET = ([0-9.]+);.*/\1/p' "$PBXPROJ" | sort -uV | tail -1)
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          echo "iOS SDK $sdk, 최소 지원 버전 $target"
+          if [ "$(printf '%s\n%s\n' "$target" "$sdk" | sort -V | head -1)" != "$target" ]; then
+            echo "::error::기본 Xcode의 iOS SDK($sdk)가 최소 지원 버전($target)보다 낮습니다."
             exit 1
           fi
-          echo "DEVELOPER_DIR=$xcode/Contents/Developer" >> "$GITHUB_ENV"
-          DEVELOPER_DIR="$xcode/Contents/Developer" xcodebuild -version
 
       - name: 🧰 빌드 환경 준비
         uses: ./.github/actions/setup
@@ -279,8 +254,8 @@ jobs:
           cp "iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryApp Real.xcscheme" \
              iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryAppRealCI.xcscheme
 
-      # 러너가 launchd 서비스로 돌면 로그인 키체인의 키에 접근하지 못해(errSecInternalComponent) codesign이 실패한다.
-      # CI 전용 개발 인증서를 임시 키체인에 넣고 archive 동안만 검색 목록을 그 키체인으로 바꾼다. 배포 서명은 export에서 클라우드 서명을 받는다.
+      # 호스팅 러너의 로그인 키체인에는 서명 인증서가 없으므로 CI 전용 개발 인증서를 임시 키체인에 넣고 검색 목록을 그 키체인으로 바꾼다.
+      # 배포 서명은 export에서 클라우드 서명을 받는다.
       - name: 🔑 임시 키체인에 CI 서명 인증서 준비
         env:
           IOS_CI_SIGNING_P12_BASE64: ${{ secrets.IOS_CI_SIGNING_P12_BASE64 }}
@@ -318,7 +293,7 @@ jobs:
             -scheme DiaryAppRealCI \
             -configuration RealRelease \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath "$CI_DERIVED_DATA" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
@@ -364,3 +339,59 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/diary-ci.keychain-db" 2>/dev/null || true
           rm -f local.properties iosApp/Firebase/real/GoogleService-Info.plist iosApp/Config/RealLocal.xcconfig
           rm -rf "$RUNNER_TEMP/asc" "$RUNNER_TEMP/Diary.xcarchive" "$RUNNER_TEMP/export"
+
+  finalize:
+    name: 🏷️ 버전 커밋·태그·GitHub Release
+    needs: [version, check, android, ios]
+    # 두 플랫폼이 모두 올라갔거나(성공), 이미 올라가 있거나 배포 대상이 아니어서(skip) 스토어와 저장소의 버전이 어긋나지 않을 때만 남긴다.
+    if: >-
+      !cancelled()
+      && needs.version.result == 'success'
+      && needs.check.result == 'success'
+      && contains(fromJSON('["success", "skipped"]'), needs.android.result)
+      && contains(fromJSON('["success", "skipped"]'), needs.ios.result)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # 직전 태그와의 차이로 노트를 만들므로 태그까지 모두 가져온다.
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          clean: true
+
+      - name: 🔢 버전 적용
+        uses: ./.github/actions/apply-version
+        with:
+          version: ${{ needs.version.outputs.version }}
+          build: ${{ needs.version.outputs.build }}
+
+      - name: 🏷️ 버전 커밋·태그 push
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: 앱을 $VERSION ($BUILD) 버전으로 올린다"
+          git tag -a "$VERSION" -m "$VERSION ($BUILD)"
+          # 배포 중에 main이 앞서 나갔다면 fast-forward가 아니어서 push가 실패한다. 태그는 main에 들어간 커밋에만 단다.
+          git push origin HEAD:main
+          git push origin "$VERSION"
+
+      - name: 🚀 Release 생성
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+        run: |
+          set -euo pipefail
+          # 러너에 git-cliff가 없어 npm 배포본을 버전을 고정해 실행한다. HEAD가 이번 태그이므로 --current가 직전 태그부터의 커밋을 고른다.
+          npx --yes git-cliff@2.14.2 --current --output "$RUNNER_TEMP/release-notes.md"
+          gh release create "$VERSION" \
+            --verify-tag \
+            --title "$VERSION ($BUILD)" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"

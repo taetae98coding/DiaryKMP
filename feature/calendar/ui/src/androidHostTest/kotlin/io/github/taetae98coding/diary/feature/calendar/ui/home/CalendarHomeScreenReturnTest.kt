@@ -46,7 +46,7 @@ class CalendarHomeScreenReturnTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-041 다른 앱에서 돌아오면 현재 위치의 날씨를 다시 동기화한다`() {
+    fun `TC-81c7fedf-d308-4a4e-934a-4d13608ba74e 다른 앱에서 돌아오면 현재 위치의 날씨를 다시 동기화한다`() {
         val weatherViewModel = weatherViewModel()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         setCalendarHomeScreen(weatherViewModel = weatherViewModel, lifecycleOwner = lifecycleOwner)
@@ -60,7 +60,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-041 다른 화면에서 돌아오면 현재 위치의 날씨를 다시 동기화한다`() {
+    fun `TC-81c7fedf-d308-4a4e-934a-4d13608ba74e 다른 화면에서 돌아오면 현재 위치의 날씨를 다시 동기화한다`() {
         val weatherViewModel = weatherViewModel()
         val screen = setCalendarHomeScreen(weatherViewModel = weatherViewModel)
         composeRule.waitForIdle()
@@ -73,7 +73,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-042 다른 앱에 다녀오는 것만으로는 공휴일을 다시 동기화하지 않는다`() {
+    fun `TC-a62116da-a1bf-4aa4-9d83-dcb5cea6fa62 다른 앱에 다녀오는 것만으로는 공휴일을 다시 동기화하지 않는다`() {
         val holidayViewModel = holidayViewModel()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         setCalendarHomeScreen(
@@ -90,7 +90,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-043 다른 화면에서 돌아오면 그 시점의 표시 중인 달을 기준으로 공휴일을 다시 동기화하고 표시한다`() {
+    fun `TC-c623f8d0-7608-4f24-9e52-7bbf8b47534f 다른 화면에서 돌아오면 그 시점의 표시 중인 달을 기준으로 공휴일을 다시 동기화하고 표시한다`() {
         val holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(listOf(winterHoliday())))
         val screen = setCalendarHomeScreen(holidayViewModel = holidayViewModel, initialYearMonth = DECEMBER_2026)
         moveToNextMonth()
@@ -104,7 +104,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-044 화면이 재생성되면 그 시점의 표시 중인 달을 기준으로 공휴일을 다시 동기화하고 표시한다`() {
+    fun `TC-c73f3ff4-e4b4-4181-bbef-94eaea0ea2e5 화면이 재생성되면 그 시점의 표시 중인 달을 기준으로 공휴일을 다시 동기화하고 표시한다`() {
         val holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(listOf(winterHoliday())))
         val restorationTester = StateRestorationTester(composeRule)
         setCalendarHomeScreen(
@@ -124,7 +124,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-045 다른 화면에서 돌아오면 그 시점의 표시 중인 달을 기준으로 음력 자료를 다시 동기화한다`() {
+    fun `TC-305af74d-3edd-4f5c-bd10-c9a5c81e8585 다른 화면에서 돌아오면 그 시점의 표시 중인 달을 기준으로 음력 자료를 다시 동기화한다`() {
         val fetchLunarUseCase = fetchLunarUseCase()
         val screen =
             setCalendarHomeScreen(
@@ -142,7 +142,7 @@ class CalendarHomeScreenReturnTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-046 화면이 재생성되면 그 시점의 표시 중인 달을 기준으로 음력 자료를 다시 동기화한다`() {
+    fun `TC-cd24ab15-aa65-4576-ac15-6e213f630258 화면이 재생성되면 그 시점의 표시 중인 달을 기준으로 음력 자료를 다시 동기화한다`() {
         val fetchLunarUseCase = fetchLunarUseCase()
         val restorationTester = StateRestorationTester(composeRule)
         setCalendarHomeScreen(

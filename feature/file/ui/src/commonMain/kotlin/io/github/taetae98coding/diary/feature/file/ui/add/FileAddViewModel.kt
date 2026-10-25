@@ -110,6 +110,10 @@ internal class FileAddViewModel(
         }
     }
 
+    fun clearSelectedFile() {
+        selectedFile.value = null
+    }
+
     fun startViewing() {
         if (isViewing) return
         isViewing = true

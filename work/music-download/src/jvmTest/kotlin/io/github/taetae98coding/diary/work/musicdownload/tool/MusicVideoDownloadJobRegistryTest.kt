@@ -26,7 +26,7 @@ class MusicVideoDownloadJobRegistryTest :
     BehaviorSpec({
         Given("한 영상을 받는 중이다") {
             When("같은 영상을 다시 요청하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-007 새로 받지 않고 같은 결과를 함께 받는다") {
+                Then("TC-89076056-a077-4e05-bcab-b567f7e2d906 새로 받지 않고 같은 결과를 함께 받는다") {
                     runTest {
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
@@ -47,7 +47,7 @@ class MusicVideoDownloadJobRegistryTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-013 작업이 실패하면 합류한 요청 모두 실패 결과를 받는다") {
+                Then("TC-4b91dc4e-ba16-476b-906b-7dab9ef4c368 작업이 실패하면 합류한 요청 모두 실패 결과를 받는다") {
                     runTest {
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
@@ -97,7 +97,7 @@ class MusicVideoDownloadJobRegistryTest :
             }
 
             When("같은 영상의 작업에 합류하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-007 새로 받지 않고 진행 중인 작업의 결과를 받는다") {
+                Then("TC-89076056-a077-4e05-bcab-b567f7e2d906 새로 받지 않고 진행 중인 작업의 결과를 받는다") {
                     runTest {
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
@@ -119,7 +119,7 @@ class MusicVideoDownloadJobRegistryTest :
             }
 
             When("다른 영상을 요청하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-010 첫 영상이 끝나기를 기다리지 않고 함께 받는다") {
+                Then("TC-eaa26512-a870-4325-9960-a9b020fb8aab 첫 영상이 끝나기를 기다리지 않고 함께 받는다") {
                     runTest {
                         val first = testVideoId()
                         val second = testVideoId()
@@ -142,7 +142,7 @@ class MusicVideoDownloadJobRegistryTest :
             }
 
             When("요청한 쪽이 기다리기를 그만두면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-008 받기를 멈추지 않고 끝까지 받는다") {
+                Then("TC-1eb83d1c-c85f-43ce-b342-6dfc0d159761 받기를 멈추지 않고 끝까지 받는다") {
                     runTest {
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()

@@ -35,7 +35,7 @@ class QrHomeListRestorationTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-012 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
+    fun `TC-fe8f6f5c-8caf-4478-b2cc-43530355b74c 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
         val qrList = restorationQrList()
         val pagingDataFlow = MutableStateFlow(qrPagingDataOf(qrList))
         val restorationTester = StateRestorationTester(composeRule)
@@ -59,7 +59,7 @@ class QrHomeListRestorationTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DOMAIN-013 앱이 백그라운드에 갔다가 돌아와도 보던 목록 위치를 유지한다`() {
+    fun `TC-5e547ce5-43fa-4d25-9c52-91c6826d69ba 앱이 백그라운드에 갔다가 돌아와도 보던 목록 위치를 유지한다`() {
         val qrList = restorationQrList()
         val pagingDataFlow = MutableStateFlow(qrPagingDataOf(qrList))
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)

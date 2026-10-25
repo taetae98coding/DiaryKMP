@@ -8,16 +8,16 @@
 
 ```mermaid
 flowchart TD
-    Trigger["확인 계기<br/>TC-PLAY-INTEGRITY-LOGGING-DOMAIN-010"] --> Platform{"Android인가"}
-    Platform -- 아니오 --> Skip["확인하지 않음<br/>TC-PLAY-INTEGRITY-LOGGING-DOMAIN-007"]
+    Trigger["확인 계기<br/>TC-09a7d8bf-6294-4edf-b420-535dd1cb599f"] --> Platform{"Android인가"}
+    Platform -- 아니오 --> Skip["확인하지 않음<br/>TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48"]
     Platform -- 예 --> Token["Google Play에<br/>무결성 확인 정보 요청"]
-    Token -- 실패 --> TokenFail["로그 없이 끝<br/>TC-PLAY-INTEGRITY-LOGGING-DOMAIN-008"]
+    Token -- 실패 --> TokenFail["로그 없이 끝<br/>TC-20072077-72da-437e-bd3a-7874cfc5c4d4"]
     Token -- 성공 --> Server["서버에 판정 결과 요청"]
-    Server -- 실패 --> ServerFail["로그 없이 끝<br/>TC-PLAY-INTEGRITY-LOGGING-DOMAIN-009"]
-    Server -- 성공 --> Log["판정 결과를<br/>원격 분석 로그로 남김<br/>TC-PLAY-INTEGRITY-LOGGING-DOMAIN-001"]
+    Server -- 실패 --> ServerFail["로그 없이 끝<br/>TC-38f0fd49-9bdf-435a-aef3-ca084756c93f"]
+    Server -- 성공 --> Log["판정 결과를<br/>원격 분석 로그로 남김<br/>TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc"]
 ```
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-001: 판정 결과를 계층 없이 원격 분석 로그로 남긴다
+### TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc: 판정 결과를 계층 없이 원격 분석 로그로 남긴다
 
 - 근거: `client > domain > 계층 없는 전달`, `client > domain > 원격 분석 로그`
 - Given: Google Play가 무결성 확인 정보를 발급하고, 서버가 테스트 데이터의 항목을 여러 단계로 묶은 판정 결과를 돌려준다.
@@ -41,21 +41,21 @@ flowchart TD
 | `environmentDetails.appAccessRiskVerdict.appsDetected` | `apps_detected` |
 | `environmentDetails.playProtectVerdict` | `play_protect_verdict` |
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-002: 같은 이름의 항목은 바로 위 묶음 이름을 붙여 구분한다
+### TC-c3ad60a7-c833-4b99-a0dd-c8f8be604bf9: 같은 이름의 항목은 바로 위 묶음 이름을 붙여 구분한다
 
 - 근거: `client > domain > 계층 없는 전달`
 - Given: 서버가 돌려준 판정 결과의 `deviceIntegrity.deviceRecall.values.flag`와 `deviceIntegrity.deviceRecall.writeDates.flag`처럼 서로 다른 묶음에 같은 이름의 항목이 있다.
 - When: 판정을 확인한다.
 - Then: 로그에 `values_flag`와 `write_dates_flag`가 각자의 값으로 남고, 이름이 겹치지 않는 다른 항목은 가장 안쪽 이름 그대로 남는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-003: 여러 값을 가진 항목은 받은 순서대로 쉼표로 잇는다
+### TC-772fd425-f1a4-4fb1-8dde-c660ed352753: 여러 값을 가진 항목은 받은 순서대로 쉼표로 잇는다
 
 - 근거: `client > domain > 계층 없는 전달`
 - Given: 서버가 돌려준 `deviceRecognitionVerdict`가 `MEETS_BASIC_INTEGRITY`, `MEETS_DEVICE_INTEGRITY` 순서의 두 값을 가진다.
 - When: 판정을 확인한다.
 - Then: 로그의 `device_recognition_verdict` 값은 문자열 `MEETS_BASIC_INTEGRITY,MEETS_DEVICE_INTEGRITY`다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-004: 값의 종류를 지켜 전달한다
+### TC-c656ccf9-2168-433e-a76d-679a9be989fd: 값의 종류를 지켜 전달한다
 
 - 근거: `client > domain > 계층 없는 전달`
 - Given: 서버가 돌려준 판정 결과에 테스트 데이터의 값이 있다.
@@ -70,7 +70,7 @@ flowchart TD
 | 참 | 문자열 `true` |
 | 거짓 | 문자열 `false` |
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-005: 값이 비어 있는 항목은 담지 않는다
+### TC-c5632ab5-b9ef-470e-80b3-68cb37d79349: 값이 비어 있는 항목은 담지 않는다
 
 - 근거: `client > domain > 계층 없는 전달`
 - Given: 서버가 돌려준 판정 결과에 테스트 데이터의 빈 항목과 값이 있는 `appRecognitionVerdict`가 함께 있다.
@@ -85,56 +85,56 @@ flowchart TD
 | 아래 항목이 하나도 없는 묶음 `deviceAttributes` |
 | 값이 없음으로 온 `deviceRecognitionVerdict` |
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-006: 알려지지 않은 새 항목도 그대로 전달한다
+### TC-98a93ae9-5005-44bc-8854-9fa1303ea6de: 알려지지 않은 새 항목도 그대로 전달한다
 
 - 근거: `server > data > 판정 결과 요청 처리`, `client > domain > 계층 없는 전달`
 - Given: 서버가 돌려준 판정 결과에 이 문서의 표에 없는 항목 `environmentDetails.newVerdict`가 값 `NEW_VALUE`로 담겨 있다.
 - When: 판정을 확인한다.
 - Then: 로그에 `new_verdict`가 `NEW_VALUE`로 남는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-007: Android가 아닌 플랫폼에서는 확인하지 않는다
+### TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48: Android가 아닌 플랫폼에서는 확인하지 않는다
 
 - 근거: `client > domain > 확인하는 기기`
 - Given: 실행 중인 플랫폼이 데스크톱 앱이다.
 - When: 판정을 확인한다.
 - Then: 서버로 판정 결과 요청이 발생하지 않고, 원격 분석 로그가 남지 않으며, 오류 없이 끝난다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-008: 무결성 확인 정보를 받지 못하면 로그 없이 끝낸다
+### TC-20072077-72da-437e-bd3a-7874cfc5c4d4: 무결성 확인 정보를 받지 못하면 로그 없이 끝낸다
 
 - 근거: `client > domain > 실패 처리`
 - Given: Android에서 Google Play가 무결성 확인 정보 발급에 실패한다.
 - When: 판정을 확인한다.
 - Then: 서버로 판정 결과 요청이 발생하지 않고, 원격 분석 로그와 오류 보고가 남지 않으며, 확인은 오류 없이 끝난다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-009: 서버가 판정 결과를 돌려주지 못하면 로그 없이 끝낸다
+### TC-38f0fd49-9bdf-435a-aef3-ca084756c93f: 서버가 판정 결과를 돌려주지 못하면 로그 없이 끝낸다
 
 - 근거: `client > domain > 실패 처리`
 - Given: Google Play가 무결성 확인 정보를 발급하고, 서버가 판정 결과 요청에 실패로 답한다.
 - When: 판정을 확인한다.
 - Then: 원격 분석 로그와 오류 보고가 남지 않고, 확인은 오류 없이 끝난다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-010: 앱이 활성 상태가 될 때마다 확인한다
+### TC-09a7d8bf-6294-4edf-b420-535dd1cb599f: 앱이 활성 상태가 될 때마다 확인한다
 
 - 근거: `client > domain > 확인 계기`
 - Given: Android 앱이 실행되어 있고 아직 활성 상태가 된 적이 없다.
 - When: 앱이 활성 상태가 되고, 백그라운드로 갔다가, 다시 활성 상태가 된다.
 - Then: 판정 확인이 활성 상태가 될 때마다 한 번씩, 모두 두 번 일어나고 백그라운드로 갈 때는 일어나지 않는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-011: 확인 중 백그라운드로 가도 끝까지 진행해 로그를 남긴다
+### TC-716347f4-e6aa-4442-a8ac-8b1181db6dea: 확인 중 백그라운드로 가도 끝까지 진행해 로그를 남긴다
 
 - 근거: `client > domain > 실행 경계`
 - Given: Android 앱이 활성 상태가 되어 판정 확인이 시작되었고, 서버가 아직 답하지 않았다.
 - When: 앱이 백그라운드로 간 뒤 서버가 판정 결과를 돌려준다.
 - Then: 확인이 취소되지 않고 끝까지 진행되어, 사건 종류가 `play_integrity`인 원격 분석 로그가 한 번 남는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-013: 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다
+### TC-fb41f96e-50de-45e0-b1d1-e87ea9b47824: 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다
 
 - 근거: `client > domain > 확인 계기`
 - Given: Android 앱이 활성 상태이고 판정 확인이 한 번 일어났다.
 - When: 앱이 보이는 채로 포커스를 잃었다가 다시 얻는다.
 - Then: 판정 확인이 더 일어나지 않는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-012: 원격 분석 한도를 넘는 부분은 잘라서 남긴다
+### TC-24de6c0f-cb72-49c9-96ab-3ed18e7b2be8: 원격 분석 한도를 넘는 부분은 잘라서 남긴다
 
 - 근거: `client > domain > 원격 분석 로그`, [앱 로깅 스펙](../spec/client/app-logging.md)의 `domain > 원격 분석 기록`
 - Given: 원격 분석 로그의 값에 테스트 데이터처럼 원격 분석 한도를 넘는 부분이 있다.
@@ -148,9 +148,9 @@ flowchart TD
 | 41자인 값 이름 | 앞 40자 이름으로 남는다 |
 | 101자인 문자열 값 | 앞 100자 값으로 남는다 |
 
-한도에 맞추는 규칙은 판정 결과 로그만의 규칙이 아니라 [앱 로깅](../spec/client/app-logging.md)의 `원격 분석 기록`이 모든 원격 분석 로그에 정한 것이다. 한도 바로 안쪽 값과 빈 값을 포함한 경계 케이스는 [앱 로깅 테스트 케이스](./app-logging.md)의 TC-APP-LOGGING-DOMAIN-015, TC-APP-LOGGING-DOMAIN-016이 갖고, 이 케이스는 그 가운데 판정 결과 로그에서 한도를 넘는 세 경우만 다룬다.
+한도에 맞추는 규칙은 판정 결과 로그만의 규칙이 아니라 [앱 로깅](../spec/client/app-logging.md)의 `원격 분석 기록`이 모든 원격 분석 로그에 정한 것이다. 한도 바로 안쪽 값과 빈 값을 포함한 경계 케이스는 [앱 로깅 테스트 케이스](./app-logging.md)의 TC-d6278947-afea-410b-9c8f-b52d5fa26ddf, TC-9ca25520-098d-42a8-8338-c39c0c9ad24d이 갖고, 이 케이스는 그 가운데 판정 결과 로그에서 한도를 넘는 세 경우만 다룬다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-014: 로그인 여부와 관계없이 같은 계기에 같은 방식으로 확인한다
+### TC-64de650a-a972-4986-b3c6-7761053d1658: 로그인 여부와 관계없이 같은 계기에 같은 방식으로 확인한다
 
 - 근거: `client > domain > 확인하는 기기`
 - Given: Android에서 현재 계정이 테스트 데이터의 상태다.
@@ -165,7 +165,7 @@ flowchart TD
 
 - 작성하지 않는 이유: 계정 상태는 실제 로그인 세션으로만 정해지고, 로그인 세션은 서버로 보내는 요청에 Supabase가 붙이는 인증 정보로만 판정 확인과 이어진다. 실제 로그인 세션과 Supabase 없이 게스트와 로그인한 사용자의 요청을 만들어 비교할 수 없다. 로그인 세션을 게스트와 사용자로 바꿔 가며 서버로 나가는 요청을 관찰할 수 있는 서버 함수 호출 테스트 환경이 마련되면 작성한다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-015: Google Play 밖에서 설치했거나 Google Play 서비스가 없는 기기에서도 확인을 시도한다
+### TC-005eb12c-c4fe-44c8-b278-0fa2c54b823e: Google Play 밖에서 설치했거나 Google Play 서비스가 없는 기기에서도 확인을 시도한다
 
 - 근거: `client > domain > 확인하는 기기`
 - Given: Android 기기가 테스트 데이터의 환경이다.
@@ -178,23 +178,23 @@ flowchart TD
 | Google Play 밖에서 설치한 앱 |
 | Google Play 서비스가 없는 기기 |
 
-- 작성하지 않는 이유: 판정 값을 Google이 정하므로 실제 기기와 Google Play 서버가 있어야 결과를 판정할 수 있다. 무결성 확인 정보 발급 실패는 TC-PLAY-INTEGRITY-LOGGING-DOMAIN-008이 덮는다. 실제 기기 환경별로 Google Play 응답을 받을 수 있는 기기 테스트 환경이 갖춰지면 자동화한다.
+- 작성하지 않는 이유: 판정 값을 Google이 정하므로 실제 기기와 Google Play 서버가 있어야 결과를 판정할 수 있다. 무결성 확인 정보 발급 실패는 TC-20072077-72da-437e-bd3a-7874cfc5c4d4이 덮는다. 실제 기기 환경별로 Google Play 응답을 받을 수 있는 기기 테스트 환경이 갖춰지면 자동화한다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-016: 화면이 재생성되어 다시 보이게 되면 한 번 더 확인한다
+### TC-eac86abe-6b25-4f0c-89b4-6df3d0025c32: 화면이 재생성되어 다시 보이게 되면 한 번 더 확인한다
 
 - 근거: `client > domain > 확인 계기`
 - Given: Android 앱이 활성 상태이고 판정 확인이 한 번 일어났다.
 - When: 화면 회전으로 화면이 재생성되어 다시 보이게 된다.
 - Then: 판정 확인이 한 번 더 일어난다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020: 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다
+### TC-dfa93adf-50b7-4a19-9850-cc6f8bc5a24a: 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다
 
 - 근거: `client > domain > 실행 경계`
 - Given: Android 앱이 활성 상태가 되어 판정 확인이 시작되었고, 서버가 아직 답하지 않았다.
 - When: 화면이 재생성된 뒤 서버가 판정 결과를 돌려준다.
 - Then: 먼저 시작한 확인이 취소되지 않고 끝까지 진행되어, 그 확인의 `play_integrity` 원격 분석 로그가 한 번 남는다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-017: 확인 중 앱 프로세스가 종료되면 로그를 남기지 않고 실패로 보지 않는다
+### TC-4114d370-08d1-48e8-8035-8109753f0bdb: 확인 중 앱 프로세스가 종료되면 로그를 남기지 않고 실패로 보지 않는다
 
 - 근거: `client > domain > 실행 경계`
 - Given: Android 앱이 활성 상태가 되어 판정 확인이 시작되었고, 서버가 아직 답하지 않았다.
@@ -202,7 +202,7 @@ flowchart TD
 - Then: 그 계기의 원격 분석 로그와 오류 보고가 남지 않는다.
 - 작성하지 않는 이유: 앱 프로세스 종료가 필요해 유닛 테스트로 결정적으로 검증할 수 없다. 프로세스를 종료하고 다시 시작할 수 있는 기기 테스트 환경이 갖춰지면 자동화한다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-018: Android에서 판정 결과 로그가 Google Analytics 4에 남는다
+### TC-27adeb73-d480-4d3f-9868-bab6b8d8be51: Android에서 판정 결과 로그가 Google Analytics 4에 남는다
 
 - 근거: `client > domain > 원격 분석 로그`
 - Given: Android에서 원격 분석 기록 수단이 등록되어 있고 판정 확인이 성공한다.
@@ -210,31 +210,30 @@ flowchart TD
 - Then: Google Analytics 4에 사건 종류가 `play_integrity`인 사건이 한 번 기록된다.
 - 작성하지 않는 이유: 실제 Google Analytics 4 속성에 기록된 사건을 조회해야 판정할 수 있다. 기록 수단의 플랫폼 제약은 [앱 로깅 테스트 케이스](./app-logging.md)가 다룬다. 테스트용 Google Analytics 4 속성과 그 기록을 조회하는 수단이 갖춰지면 자동화한다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-019: 준비가 무효가 되면 그 계기는 실패로 끝나고 다음 계기에 다시 준비한다
+### TC-3e0082f8-6e96-4f1f-ae14-648babc4b671: 준비가 무효가 되면 그 계기는 실패로 끝나고 다음 계기에 다시 준비한다
 
 - 근거: `client > domain > 확인 계기`, `client > domain > 실패 처리`
 - Given: Android에서 Google Play에 확인을 요청할 준비를 한 번 마쳤고, Google Play가 다음 요청에 준비가 더 이상 유효하지 않다고 알린다.
 - When: 앱이 활성 상태가 되어 판정을 확인하고, 그 뒤 다시 활성 상태가 된다.
 - Then: 첫 계기는 로그와 오류 보고 없이 끝나고, 다음 계기에서 확인 준비를 다시 한 뒤 무결성 확인 정보를 요청한다.
-- 작성하지 않는 이유: 준비가 무효라는 알림은 Google Play 라이브러리가 공개 생성 수단 없이 만드는 오류여서 단위 테스트에서 그 응답을 만들 수 없다. 라이브러리가 테스트용 응답을 제공하거나 확인 준비를 앱이 제어할 수 있는 경계로 감싸게 되면 자동화한다.
 
 ## data
 
-### TC-PLAY-INTEGRITY-LOGGING-DATA-001: 서버에 무결성 확인 정보와 패키지 이름을 보내고 받은 판정 결과를 구조 그대로 돌려준다
+### TC-21a18142-dfc1-4643-ae8e-2e6c223c2342: 서버에 무결성 확인 정보와 패키지 이름을 보내고 받은 판정 결과를 구조 그대로 돌려준다
 
 - 근거: `client > data > 판정 결과 요청`, `common > data > 판정 결과 요청`
 - Given: 서버가 여러 단계로 묶인 판정 결과로 답한다.
 - When: 무결성 확인 정보와 패키지 이름으로 판정 결과를 요청한다.
 - Then: 서버 요청에 그 무결성 확인 정보와 패키지 이름이 담기고, 서버가 답한 판정 결과가 구조를 바꾸지 않은 채 돌아온다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DATA-002: 확인마다 새 무작위 값을 요청 확인 값으로 담는다
+### TC-0b08e592-db52-4ec0-b462-0aadca7cb1e8: 확인마다 새 무작위 값을 요청 확인 값으로 담는다
 
 - 근거: `client > domain > 요청 확인 값`
 - Given: Android에서 Google Play가 무결성 확인 정보를 발급한다.
 - When: 판정을 두 번 확인한다.
 - Then: 두 번의 무결성 확인 정보 요청에 담긴 요청 확인 값이 서로 다르다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DATA-003: 서버는 무결성 확인 정보나 앱 패키지 이름이 비어 있는 요청을 거절한다
+### TC-a821133c-6269-4aca-a334-1863548a34ca: 서버는 무결성 확인 정보나 앱 패키지 이름이 비어 있는 요청을 거절한다
 
 - 근거: `server > data > 판정 결과 요청 처리`
 - Given: 서버에 테스트 데이터의 판정 결과 요청이 로그인 세션 없이 도착한다.
@@ -250,7 +249,7 @@ flowchart TD
 
 - 작성하지 않는 이유: 서버의 요청 검증 규칙이어서 서버 함수 실행 환경에서만 판정할 수 있고, 그 환경은 저장소의 자동 검증 절차에 포함되어 있지 않다. 서버 함수 테스트 러너가 검증 절차에 들어오면 자동화한다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DATA-004: 서버는 Google이 풀지 않은 정보에 판정 결과 없이 실패를 돌려준다
+### TC-c81cb21e-cd32-421e-99c0-9b7265457634: 서버는 Google이 풀지 않은 정보에 판정 결과 없이 실패를 돌려준다
 
 - 근거: `server > data > 판정 결과 요청 처리`
 - Given: 서버에 다른 앱이 발급받았거나 위조한 무결성 확인 정보가 담긴 요청이 도착한다.

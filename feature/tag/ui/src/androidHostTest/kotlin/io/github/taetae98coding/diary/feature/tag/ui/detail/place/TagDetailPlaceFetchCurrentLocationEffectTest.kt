@@ -16,7 +16,7 @@ class TagDetailPlaceFetchCurrentLocationEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-004 목록 모드에 머무르는 동안에는 현재 위치를 확인하지 않는다`() {
+    fun `TC-8518e890-4572-4a3f-bf66-036a511ccf9e 목록 모드에 머무르는 동안에는 현재 위치를 확인하지 않는다`() {
         val mapViewModel = mockk<TagDetailPlaceMapViewModel>(relaxed = true)
         setEffect(state = TagDetailPlaceState(), mapViewModel = mapViewModel)
 
@@ -24,7 +24,7 @@ class TagDetailPlaceFetchCurrentLocationEffectTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-003 처음 지도 모드로 바꿀 때 현재 위치를 확인한다`() {
+    fun `TC-bb0136dd-2d35-4563-a5bd-ecf2e9e8a76c 처음 지도 모드로 바꿀 때 현재 위치를 확인한다`() {
         val state = TagDetailPlaceState()
         val mapViewModel = mockk<TagDetailPlaceMapViewModel>(relaxed = true)
         setEffect(state = state, mapViewModel = mapViewModel)
@@ -36,7 +36,7 @@ class TagDetailPlaceFetchCurrentLocationEffectTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-005 목록 모드로 되돌린 뒤 다시 지도 모드로 바꿀 때만 확인을 요청한다`() {
+    fun `TC-efccf1d0-a4ca-4aa2-8366-52fa1f9234d1 목록 모드로 되돌린 뒤 다시 지도 모드로 바꿀 때만 확인을 요청한다`() {
         val state = TagDetailPlaceState()
         val mapViewModel = mockk<TagDetailPlaceMapViewModel>(relaxed = true)
         setEffect(state = state, mapViewModel = mapViewModel)

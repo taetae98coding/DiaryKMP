@@ -43,7 +43,7 @@ class ContactDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-017 저장된 이름이 바뀌면 화면 제목만 갱신하고 입력은 덮어쓰지 않는다`() {
+    fun `TC-dafe2fc2-77a4-4701-b471-701945e5d7c3 저장된 이름이 바뀌면 화면 제목만 갱신하고 입력은 덮어쓰지 않는다`() {
         val id = Uuid.random()
         val stored = testContactDetail(name = CONTACT_NAME)
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
@@ -64,7 +64,7 @@ class ContactDetailScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-002 같은 연락처의 저장 내용이 바뀌어도 입력을 다시 채우지 않는다`() {
+    fun `TC-2957350d-6626-496a-88b5-14324123a7b6 같은 연락처의 저장 내용이 바뀌어도 입력을 다시 채우지 않는다`() {
         val id = Uuid.random()
         val stored = testContactDetail(name = CONTACT_NAME)
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
@@ -83,7 +83,7 @@ class ContactDetailScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-002 저장된 생일이 다른 경로에서 바뀌어도 입력 중인 생일은 덮어쓰지 않는다`() {
+    fun `TC-2957350d-6626-496a-88b5-14324123a7b6 저장된 생일이 다른 경로에서 바뀌어도 입력 중인 생일은 덮어쓰지 않는다`() {
         val id = Uuid.random()
         val birthdayRange = fixtureMonkey.giveMeOne<LocalDateRange>()
         val stored = testContactDetail(name = CONTACT_NAME, birthday = ContactBirthday(date = birthdayRange.start, calendar = ContactBirthdayCalendar.SOLAR))
@@ -107,7 +107,7 @@ class ContactDetailScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-019 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
+    fun `TC-78791b8f-d31d-4c12-8344-5429561913bc 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
         val id = Uuid.random()
         val stored = testContactDetail(name = CONTACT_NAME)
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
@@ -119,6 +119,7 @@ class ContactDetailScreenTest {
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = viewModel(uiState = uiState),
@@ -155,7 +156,7 @@ class ContactDetailScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-013 삭제에 성공하면 화면을 떠난다`() {
+    fun `TC-e62577b8-fca8-450e-914a-51e85aa357a5 삭제에 성공하면 화면을 떠난다`() {
         val effect = MutableStateFlow<ContactDetailEffect?>(null)
         var navigateUpCount = 0
 
@@ -182,6 +183,7 @@ class ContactDetailScreenTest {
                     navigateUp = navigateUp,
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = viewModel(uiState = uiState, effect = effect),

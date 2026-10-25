@@ -30,7 +30,7 @@ class CalendarHomeScreenHolidayTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-001 화면이 표시되면 표시 중인 달의 연도 공휴일을 동기화한다`() {
+    fun `TC-5e2b8be4-a6f5-4410-9fce-9e9579dfadbb 화면이 표시되면 표시 중인 달의 연도 공휴일을 동기화한다`() {
         val yearMonth = YearMonth(year = 2026, month = Month.JULY)
         val holidayViewModel = holidayViewModel()
 
@@ -44,7 +44,7 @@ class CalendarHomeScreenHolidayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-002 표시 중인 달이 바뀌면 이동한 달의 연도 공휴일을 동기화한다`() {
+    fun `TC-849af435-b059-414a-86ab-c95b40a3a99e 표시 중인 달이 바뀌면 이동한 달의 연도 공휴일을 동기화한다`() {
         val initialYearMonth = YearMonth(year = 2026, month = Month.DECEMBER)
         val nextYearMonth = YearMonth(year = 2027, month = Month.JANUARY)
         val holidayViewModel = holidayViewModel()

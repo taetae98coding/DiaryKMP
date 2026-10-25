@@ -34,7 +34,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-012 날씨 날짜와 겹치지 않는 메모 제목은 날씨 아이템과 같은 줄에 놓인다`() {
+    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 메모 제목은 날씨 아이템과 같은 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
@@ -45,7 +45,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-012 날씨 날짜와 겹치지 않는 공휴일 이름은 날씨 아이템과 같은 줄에 놓인다`() {
+    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 공휴일 이름은 날씨 아이템과 같은 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             holidayList = listOf(holiday()),
@@ -55,7 +55,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-013 날씨 날짜와 겹치는 메모가 있으면 메모 제목과 공휴일 이름이 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 메모가 있으면 메모 제목과 공휴일 이름이 날씨 아이템보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 13), endInclusive = july(day = 14))),
@@ -68,7 +68,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-013 날씨 날짜와 겹치는 공휴일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 공휴일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
@@ -80,7 +80,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "w411dp-h1600dp")
-    fun `TC-CALENDAR-HOME-DOMAIN-014 메모끼리 겹치면 날씨와 겹치지 않아도 메모 제목이 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-9f2d5978-242e-4f7d-bc28-a4c1afbf462a 메모끼리 겹치면 날씨와 겹치지 않아도 메모 제목이 날씨 아이템보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather()),
             memoList =
@@ -97,7 +97,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-014 메모와 공휴일이 서로 겹치면 날씨와 겹치지 않아도 아래 줄에 놓인다`() {
+    fun `TC-9f2d5978-242e-4f7d-bc28-a4c1afbf462a 메모와 공휴일이 서로 겹치면 날씨와 겹치지 않아도 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 18))),
@@ -108,7 +108,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-015 주마다 겹침을 따로 판단해 한 주는 같은 줄을 공유하고 다른 주는 아래 줄에 놓는다`() {
+    fun `TC-6ea2a96d-0a9d-46cb-8a26-063e9fbbe4c3 주마다 겹침을 따로 판단해 한 주는 같은 줄을 공유하고 다른 주는 아래 줄에 놓는다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather(), nextSundayWeather()),
             memoList =
@@ -123,7 +123,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-016 주 밖으로 벗어난 기간은 겹침 판단에 넣지 않는다`() {
+    fun `TC-624af8a0-b403-4d91-b11d-30459c96a059 주 밖으로 벗어난 기간은 겹침 판단에 넣지 않는다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), nextSundayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 20))),
@@ -134,7 +134,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-012 날씨 날짜와 겹치지 않는 생일은 날씨 아이템과 같은 줄에 놓인다`() {
+    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 생일은 날씨 아이템과 같은 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             birthdayList = listOf(birthday(date = july(day = 16))),
@@ -144,7 +144,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-013 날씨 날짜와 겹치는 생일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 생일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
@@ -157,7 +157,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DOMAIN-017 표시 대상이 바뀌어 겹침 여부가 달라지면 그 주의 그룹 구성을 다시 정한다`() {
+    fun `TC-7d11ff7e-82f0-4a6c-bd39-37379ee43259 표시 대상이 바뀌어 겹침 여부가 달라지면 그 주의 그룹 구성을 다시 정한다`() {
         val memoListFlow = MutableStateFlow(listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))))
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),

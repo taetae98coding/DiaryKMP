@@ -25,7 +25,7 @@ private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9
 
 class YoutubeVideoRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-MUSIC-ADD-DATA-008 oEmbed 응답의 영상 제목과 채널 이름을 그대로 제공한다") {
+        test("TC-a4483895-1bff-43b1-98af-3787cc0ca408 oEmbed 응답의 영상 제목과 채널 이름을 그대로 제공한다") {
             val dataSource = createDataSource(createSuccessEngine())
 
             val actual = dataSource.read(link = YOUTUBE_LINK)
@@ -37,7 +37,7 @@ class YoutubeVideoRemoteDataSourceImplTest :
                 )
         }
 
-        test("TC-MUSIC-ADD-DATA-008 입력한 링크를 담은 oEmbed URL로 요청한다") {
+        test("TC-a4483895-1bff-43b1-98af-3787cc0ca408 입력한 링크를 담은 oEmbed URL로 요청한다") {
             val engine = createSuccessEngine()
             val dataSource = createDataSource(engine)
 
@@ -54,14 +54,14 @@ class YoutubeVideoRemoteDataSourceImplTest :
             HttpStatusCode.Unauthorized,
             HttpStatusCode.InternalServerError,
         ).forEach { status ->
-            test("TC-MUSIC-ADD-DATA-009 조회할 수 없는 응답은 실패로 전달한다: $status") {
+            test("TC-c5c2a1a7-9368-4c94-90a5-8f64decd79c8 조회할 수 없는 응답은 실패로 전달한다: $status") {
                 val dataSource = createDataSource(MockEngine { respondError(status) })
 
                 shouldThrowAny { dataSource.read(link = YOUTUBE_LINK) }
             }
         }
 
-        test("TC-MUSIC-ADD-DATA-009 네트워크를 사용할 수 없으면 실패로 전달한다") {
+        test("TC-c5c2a1a7-9368-4c94-90a5-8f64decd79c8 네트워크를 사용할 수 없으면 실패로 전달한다") {
             val dataSource = createDataSource(MockEngine { throw java.io.IOException("network unavailable") })
 
             shouldThrowAny { dataSource.read(link = YOUTUBE_LINK) }

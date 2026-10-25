@@ -5,6 +5,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.core.testing.finishedAndDeletedCaseList
@@ -30,9 +31,14 @@ public fun FixtureMonkey.memo(
         .sample()
         .copy(primaryTagId = primaryTagId)
 
-public fun FixtureMonkey.memo(title: String): Memo =
+public fun FixtureMonkey.memo(title: String): Memo = memo(title = title, dateTime = null)
+
+public fun FixtureMonkey.memo(
+    title: String,
+    dateTime: MemoDateTime?,
+): Memo =
     giveMeKotlinBuilder<Memo>()
-        .setExp(Memo::detail, giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
+        .setExp(Memo::detail, giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime))
         .setExp(Memo::updatedAt, giveMeOne<Instant>())
         .setExp(Memo::createdAt, giveMeOne<Instant>())
         .sample()

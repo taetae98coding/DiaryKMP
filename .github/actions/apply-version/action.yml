@@ -1,0 +1,36 @@
+name: 🔢 버전 적용
+description: 배포할 버전 이름과 빌드 번호를 Android·iOS 빌드 설정에 써 넣는다. 커밋은 하지 않는다
+
+inputs:
+  version:
+    description: 버전 이름(예. 2.1.0)
+    required: true
+  build:
+    description: 빌드 번호(Android versionCode, iOS CFBundleVersion)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: 🔢 버전 적용
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        BUILD: ${{ inputs.build }}
+        BUILD_LOGIC: build-logic/convention/src/main/kotlin/io/github/taetae98coding/diary/buildlogic/BuildLogic.kt
+        PBXPROJ: iosApp/DiaryApp.xcodeproj/project.pbxproj
+      run: |
+        set -euo pipefail
+        # BSD sed와 GNU sed의 -i 문법이 달라 러너 OS와 무관하게 동작하는 perl로 치환한다.
+        perl -pi -e 's/(VERSION_CODE: Int = )\d+/${1}$ENV{BUILD}/' "$BUILD_LOGIC"
+        perl -pi -e 's/(VERSION_NAME: String = ")[\d.]+(")/${1}$ENV{VERSION}${2}/' "$BUILD_LOGIC"
+        perl -pi -e 's/(CURRENT_PROJECT_VERSION = )\d+;/${1}$ENV{BUILD};/' "$PBXPROJ"
+        perl -pi -e 's/(MARKETING_VERSION = )[\d.]+;/${1}$ENV{VERSION};/' "$PBXPROJ"
+        # 치환 패턴이 파일 형식 변경으로 어긋나면 예전 버전으로 빌드되므로 결과를 확인한다.
+        grep -q "VERSION_CODE: Int = $BUILD\$" "$BUILD_LOGIC"
+        grep -q "VERSION_NAME: String = \"$VERSION\"" "$BUILD_LOGIC"
+        if grep -E 'CURRENT_PROJECT_VERSION = |MARKETING_VERSION = ' "$PBXPROJ" | grep -v -F -e "= $BUILD;" -e "= $VERSION;"; then
+          echo "::error::$PBXPROJ 에 $VERSION ($BUILD)로 바뀌지 않은 버전이 남아 있습니다."
+          exit 1
+        fi
+        git diff --stat

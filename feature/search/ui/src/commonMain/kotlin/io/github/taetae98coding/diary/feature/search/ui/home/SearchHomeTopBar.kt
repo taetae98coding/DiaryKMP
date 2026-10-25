@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.search.ui.Res
@@ -22,18 +20,20 @@ internal fun SearchHomeTopBar(
     val navigateUpContentDescription = stringResource(Res.string.search_navigate_up_button_content_description)
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
-            DiaryTopBarTitle.Search(
+        title = {
+            SearchTitle(
                 state = state.queryState,
                 placeholder = placeholder,
                 focusRequester = state.focusRequester,
-            ),
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            NavigateUp(
                 onClick = { onEvent(SearchHomeScaffoldEvent.ClickNavigateUp) },
-            ),
+                contentDescription = navigateUpContentDescription,
+            )
+        },
     )
 }
 

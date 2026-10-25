@@ -36,7 +36,7 @@ class DiaryDescriptionInputTabTest {
     private lateinit var scope: CoroutineScope
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-002 미리보기 탭을 선택하면 미리보기 페이지가 표시된다`() {
+    fun `TC-79548a66-ffd2-4b51-a052-cec18c7a7a8a 미리보기 탭을 선택하면 미리보기 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -51,7 +51,7 @@ class DiaryDescriptionInputTabTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-003 입력 탭을 선택하면 입력 페이지가 표시된다`() {
+    fun `TC-d01856b1-5116-4367-b192-3023644dfd94 입력 탭을 선택하면 입력 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -67,7 +67,7 @@ class DiaryDescriptionInputTabTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-001 채워진 설명이 없으면 처음 표시될 때 입력 탭이 선택되어 있다`() {
+    fun `TC-e3122ae7-a3b6-4e5d-bda8-06b079aac4cf 채워진 설명이 없으면 처음 표시될 때 입력 탭이 선택되어 있다`() {
         setDiaryDescriptionInput()
 
         composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()

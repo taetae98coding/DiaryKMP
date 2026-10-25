@@ -47,7 +47,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 있을 때 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
+    fun `TC-c6e8c411-91bc-4b0b-b38e-dbd5ac99fcb7 나타낼 태그가 있을 때 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         setEntityTagInputWithPicker(tagList = tagList)
 
@@ -58,7 +58,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-010 목록을 닫아도 반영된 연결이 유지된다`() {
+    fun `TC-4d07376f-7234-4583-ba32-327cd1741d4b 목록을 닫아도 반영된 연결이 유지된다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val exerciseTag = entityTestTag(title = EXERCISE_TAG_TITLE)
         setEntityTagInputWithPicker(tagList = listOf(workTag, exerciseTag), selectedTagList = listOf(exerciseTag))
@@ -76,7 +76,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-013 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
+    fun `TC-7b0dae4c-d853-4a73-b773-a3de25993f71 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
         val tagList = List(TAG_COUNT) { index -> entityTestTag(title = tagTitle(index)) }
         setEntityTagInputWithPicker(tagList = tagList)
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
@@ -91,7 +91,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-016 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+    fun `TC-d413d37a-c580-40ec-949c-a40bf7b2f9c7 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
         val tagList = List(TAG_COUNT) { index -> entityTestTag(title = tagTitle(index)) }
         setEntityTagInputWithPicker(tagList = tagList)
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
@@ -108,7 +108,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-017 화면이 재생성되어도 태그 선택 목록의 열림 상태가 유지된다`() {
+    fun `TC-f4b3e2c8-9c00-4b73-be4c-f5f5479b24e5 화면이 재생성되어도 태그 선택 목록의 열림 상태가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val tagPagingDataFlow = MutableStateFlow(entityTagPagingDataOf(listOf(entityTestTag(title = WORK_TAG_TITLE))))
         restorationTester.setContent {
@@ -141,7 +141,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-004 태그가 복구되면 유지되어 있던 연결이 다시 나타난다`() {
+    fun `TC-71d58634-9629-4149-805c-c8482f8d3e5c 태그가 복구되면 유지되어 있던 연결이 다시 나타난다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val updateSelectedTagList = composeRule.setEntityTagInputWithTagList()
 
@@ -154,7 +154,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-008 앞뒤 공백만 있는 검색어는 목록을 좁히지 않는다`() {
+    fun `TC-89c40b2b-4bce-4968-8bbe-2823fd8a806f 앞뒤 공백만 있는 검색어는 목록을 좁히지 않는다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         composeRule.setEntityTagPickerDialog(tagList = tagList)
         composeRule.awaitEntityTagPickerRows()
@@ -168,7 +168,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-012 목록에는 대표 태그를 지정하는 동작이 없다`() {
+    fun `TC-df28ce32-bdbb-4615-9ead-b7ec6e292ce0 목록에는 대표 태그를 지정하는 동작이 없다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         composeRule.setEntityTagPickerDialog(tagList = tagList)
         composeRule.awaitEntityTagPickerRows()
@@ -182,7 +182,7 @@ class EntityTagPickerDialogHostTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DATA-003 저장된 태그가 바뀌면 태그 입력과 태그 선택 목록에 함께 반영된다`() {
+    fun `TC-2957233a-dd62-4930-b6bb-29bf13335217 저장된 태그가 바뀌면 태그 입력과 태그 선택 목록에 함께 반영된다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         var selectedTagList by mutableStateOf(listOf(workTag))
         val tagPagingDataFlow = MutableStateFlow(entityTagPagingDataOf(listOf(workTag)))

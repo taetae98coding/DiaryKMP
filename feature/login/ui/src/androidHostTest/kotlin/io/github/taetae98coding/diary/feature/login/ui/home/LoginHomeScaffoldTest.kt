@@ -68,7 +68,7 @@ class LoginHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-020 두 로그인 버튼을 함께 표시한다`() {
+    fun `TC-6151a49c-575b-4e8a-80f7-c4fc2b073328 두 로그인 버튼을 함께 표시한다`() {
         setLoginHomeScaffold()
 
         composeRule.onNodeWithContentDescription(SCAFFOLD_TEST_DEFAULT_APPLE_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -76,7 +76,7 @@ class LoginHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-014 진행 중 로딩 표시와 상단 바를 유지한다`() {
+    fun `TC-56edd934-9a22-4d83-b348-176f7027fb87 진행 중 로딩 표시와 상단 바를 유지한다`() {
         val events = mutableListOf<LoginHomeScaffoldEvent>()
         setLoginHomeScaffold(
             uiStateProvider = { LoginHomeUiState(isInProgress = true) },

@@ -29,7 +29,6 @@ import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
@@ -136,10 +135,12 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeFilterEntry() {
 }
 
 private fun EntryProviderScope<ScreenNavKey>.tagFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<TagFinishedListNavKey> {
+    entry<TagFinishedListNavKey>(
+        metadata = tagFinishedListPaneMetadata(),
+    ) {
         TagFinishedListScreen(
-            navigateUp = { backStack.removeLastOrNull() },
-            navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
+            navigateUp = backStack::navigateUpFromTagFinishedList,
+            navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
             tagViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
@@ -214,9 +215,8 @@ internal fun tagMemoFinishedListPaneMetadata(key: TagMemoFinishedListNavKey): Ma
         detailPlaceholder = { TagMemoFinishedListDetailPlaceholder() },
     ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
-private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
-    if (isTagListDetailPane(key)) {
-        ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
-    } else {
-        emptyMap()
-    }
+private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> {
+    val sceneKey = tagDetailPaneSceneKey(key) ?: return emptyMap()
+
+    return ListDetailSceneStrategy.detailPane(sceneKey = sceneKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
+}

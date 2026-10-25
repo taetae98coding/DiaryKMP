@@ -21,7 +21,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkTagLinkTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 TC-TAG-LINK-DATA-004 모든 태그 요청이 성공한 뒤 태그 연결 전용 요청을 시작한다") {
+        test("TC-674eebce-610c-4b46-8dce-79aef5252327 TC-18dd6df9-d911-4ca8-b778-d94c1429ab8c 모든 태그 요청이 성공한 뒤 태그 연결 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 101),
@@ -55,7 +55,7 @@ class SyncWorkTagLinkTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 태그 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 태그 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val tagLinkList = tagLinks(size = itemCount)
                 val context = context(tagLinkList = tagLinkList)
                 val requests = mutableListOf<List<TagLinkRemoteEntity>>()
@@ -70,7 +70,7 @@ class SyncWorkTagLinkTest :
             }
         }
 
-        test("TC-TAG-LINK-DATA-005 해제된 연결도 해제 상태로 업로드된다") {
+        test("TC-55fff8f9-a4b8-4317-b304-34d00687a865 해제된 연결도 해제 상태로 업로드된다") {
             val tagLinkList = listOf(tagLink(isDeleted = true), tagLink(isDeleted = false))
             val context = context(tagLinkList = tagLinkList)
             val requests = mutableListOf<List<TagLinkRemoteEntity>>()
@@ -84,7 +84,7 @@ class SyncWorkTagLinkTest :
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 태그 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 태그 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
             val tagLinkList = tagLinks(size = 101)
             val context = context(tagLinkList = tagLinkList)
 
@@ -104,7 +104,7 @@ class SyncWorkTagLinkTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 태그 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 태그 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(tagLinkList = tagLinks(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.tagLinkRemoteDataSource.push(any()) } throws failure
@@ -118,7 +118,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 0) { context.tagLinkRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 태그 업로드가 실패하면 태그 연결을 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 업로드가 실패하면 태그 연결을 시도하지 않는다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -135,7 +135,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 0) { context.tagLinkRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 메모 업로드가 실패해도 태그 연결은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 메모 업로드가 실패해도 태그 연결은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -156,7 +156,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 3) { context.tagLinkRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 태그 연결 업로드가 실패해도 메모와 메모·태그 연결은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그 연결 업로드가 실패해도 메모와 메모·태그 연결은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -180,7 +180,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 3) { context.memoTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-TAG-LINK-DATA-006 태그 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-4b6965f3-bda3-4b32-9b08-009f2a266eea 태그 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = tagLinkPulls(usnList = listOf(4L, 6L))
             val secondPullList = tagLinkPulls(usnList = listOf(9L))
@@ -208,7 +208,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 3) { context.tagLinkRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-038 태그 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
+        test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 태그 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
             runTest {
                 val context = context()
                 val callOrder = mutableListOf<String>()
@@ -250,7 +250,7 @@ class SyncWorkTagLinkTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-039 TC-DATA-SYNC-DOMAIN-040 태그 연결 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
+        test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 태그 연결 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
             val failure = TestException(fixtureMonkey.giveMeOne())
             val tagPullList = tagPulls(usnList = listOf(3L))
@@ -284,7 +284,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

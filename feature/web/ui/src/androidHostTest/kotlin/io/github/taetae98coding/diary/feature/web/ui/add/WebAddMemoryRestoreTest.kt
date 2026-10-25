@@ -29,7 +29,7 @@ class WebAddMemoryRestoreTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-022 TagDetail 웹 탭에서 진입했으면 복원 뒤 입력은 남고 태그는 그 탭의 태그만 선택된다`() {
+    fun `TC-4c4a3a10-81da-4dc8-abb9-bc27174952fb TagDetail 웹 탭에서 진입했으면 복원 뒤 입력은 남고 태그는 그 탭의 태그만 선택된다`() {
         val initialTag = webTestTag(title = INITIAL_TAG_TITLE)
         val otherTag = webTestTag(title = OTHER_TAG_TITLE)
 
@@ -41,7 +41,7 @@ class WebAddMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-022 그 밖의 경로로 진입했으면 복원 뒤 입력은 남고 선택된 태그가 없다`() {
+    fun `TC-4c4a3a10-81da-4dc8-abb9-bc27174952fb 그 밖의 경로로 진입했으면 복원 뒤 입력은 남고 선택된 태그가 없다`() {
         val otherTag = webTestTag(title = OTHER_TAG_TITLE)
 
         assertMemoryRestore(

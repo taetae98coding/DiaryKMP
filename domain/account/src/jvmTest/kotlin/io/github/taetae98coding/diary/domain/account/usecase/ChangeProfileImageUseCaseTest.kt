@@ -35,7 +35,7 @@ class ChangeProfileImageUseCaseTest :
                     coVerify(exactly = 0) { repository.refresh() }
                 }
 
-                Then("TC-PROFILE-IMAGE-DOMAIN-002 이미지는 JPEG로 바꾸고, 남긴 이미지의 최대 변 길이는 1024px이고 화질은 90이다") {
+                Then("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 이미지는 JPEG로 바꾸고, 남긴 이미지의 최대 변 길이는 1024px이고 화질은 90이다") {
                     coVerify(exactly = 1) {
                         repository.updateProfileImage(uri = parameter.uri, format = ImageFormat.JPEG, cropRegion = parameter.cropRegion, maxSideLength = MAX_SIDE_LENGTH_PX, quality = QUALITY_PERCENT)
                     }
@@ -52,7 +52,7 @@ class ChangeProfileImageUseCaseTest :
             When("고른 사진의 위치와 남길 영역으로 프로필 이미지 반영을 시작한다") {
                 val result = useCase(parameter)
 
-                Then("TC-PROFILE-IMAGE-DATA-004 TC-PROFILE-IMAGE-DATA-006 실패가 그대로 전달된다") {
+                Then("TC-b30a3679-9bec-4f64-9a6a-edea7a7044d5 TC-c7376fd5-1cbc-435a-b5d6-d76143f20b76 실패가 그대로 전달된다") {
                     result.shouldBeFailure()
                 }
             }

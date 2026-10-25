@@ -12,7 +12,8 @@ internal fun SettingHomeScreen(
     navigateToMap: () -> Unit,
     navigateToGemini: () -> Unit,
     navigateToBrowser: () -> Unit,
-    navigateToDownload: () -> Unit,
+    navigateToPlaylist: () -> Unit,
+    navigateToFile: () -> Unit,
     viewModel: SettingHomeViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -31,7 +32,8 @@ internal fun SettingHomeScreen(
                         SettingHomeItem.MAP -> navigateToMap()
                         SettingHomeItem.GEMINI -> navigateToGemini()
                         SettingHomeItem.BROWSER -> navigateToBrowser()
-                        SettingHomeItem.DOWNLOAD -> navigateToDownload()
+                        SettingHomeItem.PLAYLIST -> navigateToPlaylist()
+                        SettingHomeItem.FILE -> navigateToFile()
                     }
                 }
             }

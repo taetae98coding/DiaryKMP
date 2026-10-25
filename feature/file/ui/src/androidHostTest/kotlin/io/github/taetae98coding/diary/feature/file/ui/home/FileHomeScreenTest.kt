@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -49,10 +51,12 @@ import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RefreshFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
+import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailTestScreen
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -104,7 +108,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-003 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-265cd00c-e425-422d-8afc-8e7fbbd9c701 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
 
         setFileHomeScreen(navigateUp = { navigateUpCount += 1 })
@@ -115,7 +119,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-010 처음 불러오기 실패 후 다시 시도하면 불러오는 중을 표시하고 목록을 처음부터 다시 불러온다`() {
+    fun `TC-1c5350e0-97bf-485b-adac-25069bde7bd8 처음 불러오기 실패 후 다시 시도하면 불러오는 중을 표시하고 목록을 처음부터 다시 불러온다`() {
         val file = fixtureMonkey.diaryFile()
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -134,7 +138,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-012 목록의 끝으로 이동하면 다음 파일을 이어서 불러와 붙인다`() {
+    fun `TC-5bc8c5b1-a167-4dc8-947e-8800be9555df 목록의 끝으로 이동하면 다음 파일을 이어서 불러와 붙인다`() {
         val fileList = fileList(count = 25)
         val server = server(pageList = fileList.chunked(PAGE_SIZE))
 
@@ -152,7 +156,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-013 이어서 불러오기에 실패하면 목록 끝에 실패 안내를 표시하고 이미 나타난 파일은 그대로 남는다`() {
+    fun `TC-a487c7b4-8ae1-40cf-8b98-84f6003dc4db 이어서 불러오기에 실패하면 목록 끝에 실패 안내를 표시하고 이미 나타난 파일은 그대로 남는다`() {
         val fileList = fileList(count = PAGE_SIZE)
         val server = server()
         coEvery { server(0) } returns fileList
@@ -170,7 +174,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-014 이어서 불러오기 실패 후 다시 시도하면 이어서 다시 불러와 기존 목록 뒤에 붙인다`() {
+    fun `TC-e1268149-3bf6-4a84-8b06-aaeaa625dfe5 이어서 불러오기 실패 후 다시 시도하면 이어서 다시 불러와 기존 목록 뒤에 붙인다`() {
         val fileList = fileList(count = 25)
         val pageList = fileList.chunked(PAGE_SIZE)
         val server = server()
@@ -190,7 +194,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-020 이어서 불러오는 동안 목록 끝에 불러오는 중을 표시하고 이미 나타난 파일은 그대로 남는다`() {
+    fun `TC-37eee6d1-c7dd-42b2-aa50-28681089396d 이어서 불러오는 동안 목록 끝에 불러오는 중을 표시하고 이미 나타난 파일은 그대로 남는다`() {
         val fileList = fileList(count = PAGE_SIZE)
         val server = server()
         coEvery { server(0) } returns fileList
@@ -207,7 +211,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-047 처음 불러오는 중에 파일 추가를 선택하면 FileAdd로 이동한다`() {
+    fun `TC-136eb686-fefb-4b3a-9cde-fa8e6f8a5a29 처음 불러오는 중에 파일 추가를 선택하면 FileAdd로 이동한다`() {
         val server = server()
         coEvery { server(0) } coAnswers { awaitCancellation() }
 
@@ -215,7 +219,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-047 처음 불러오기에 실패했을 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
+    fun `TC-136eb686-fefb-4b3a-9cde-fa8e6f8a5a29 처음 불러오기에 실패했을 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
         val server = server()
         coEvery { server(0) } throws failure()
 
@@ -223,17 +227,17 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-047 빈 상태에서 파일 추가를 선택하면 FileAdd로 이동한다`() {
+    fun `TC-136eb686-fefb-4b3a-9cde-fa8e6f8a5a29 빈 상태에서 파일 추가를 선택하면 FileAdd로 이동한다`() {
         assertAddNavigatesToFileAdd(server = server(pageList = listOf(emptyList())))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-047 파일 목록이 표시될 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
+    fun `TC-136eb686-fefb-4b3a-9cde-fa8e6f8a5a29 파일 목록이 표시될 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
         assertAddNavigatesToFileAdd(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-048 올리는 중에는 파일 추가 자리에 진행 중 표시를 보이고 FileAdd로 이동하지 않는다`() {
+    fun `TC-9707e7f6-f68f-4a28-8701-f2759b92ad40 올리는 중에는 파일 추가 자리에 진행 중 표시를 보이고 FileAdd로 이동하지 않는다`() {
         val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
         startUpload()
         clickAdd()
@@ -243,7 +247,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-049 FileAdd를 보는 동안 올리기에 성공하면 목록을 다시 불러오고 돌아왔을 때 처음부터 보인다`() {
+    fun `TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 목록을 다시 불러오고 돌아왔을 때 처음부터 보인다`() {
         val fileList = fileList(count = 30)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val server = server()
@@ -268,7 +272,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-050 FileAdd를 보는 동안 다시 불러오기에 실패하면 돌아왔을 때 이전 목록만 보이고 안내는 없다`() {
+    fun `TC-ad53df91-30c2-4c79-ba3d-f0f479def34a FileAdd를 보는 동안 다시 불러오기에 실패하면 돌아왔을 때 이전 목록만 보이고 안내는 없다`() {
         val file = fixtureMonkey.diaryFile()
         val server = server()
         coEvery { server(0) } returns listOf(file) andThenThrows failure()
@@ -289,7 +293,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-051 FileAdd에서 돌아오면 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+    fun `TC-c776256b-8864-4d45-8cdf-11baa7f6a735 FileAdd에서 돌아오면 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
         val fileList = fileList(count = 30)
         val server = server(pageList = fileList.chunked(PAGE_SIZE))
         var isFileHomeVisible by mutableStateOf(true)
@@ -308,14 +312,59 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-018 올리기에 성공하면 이전 목록을 둔 채 다시 불러와 목록의 처음으로 돌아가 올린 파일을 맨 앞에 보여 준다`() {
+    fun `TC-479329a4-daad-47b5-8490-2cfab581c160 FileDetail에서 돌아오면 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+        val fileList = fileList(count = 30)
+        val server = server(pageList = fileList.chunked(PAGE_SIZE))
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).performClick()
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        screen.navigateToDetailIdList shouldBe listOf(fileList[PAGE_SIZE - 1].id)
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
+        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-d245f500-5b99-44e1-ac98-895acf0ae06d FileDetail을 보는 동안 올리기에 성공해도 목록을 다시 불러오지 않는다`() {
+        val fileList = fileList(count = 30)
+        val server = server(pageList = fileList.chunked(PAGE_SIZE))
+        val upload = FileUploadMocks()
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server, upload = upload)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        startUpload()
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        // FileDetail은 파일 화면이 아니므로 결과는 이 화면에 전달되지 않고 알림으로 간다.
+        composeRule.runOnIdle { upload.finishWithoutEvent() }
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
+        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기에 성공하면 이전 목록을 둔 채 다시 불러와 목록의 처음으로 돌아가 올린 파일을 맨 앞에 보여 준다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
         assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(uploaded), expectedFirst = uploaded)
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-018 다른 기기에서 더 늦게 올린 파일이 앞에 있어도 올리기에 성공하면 목록의 처음으로 돌아간다`() {
+    fun `TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 다른 기기에서 더 늦게 올린 파일이 앞에 있어도 올리기에 성공하면 목록의 처음으로 돌아간다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val otherDevice = fixtureMonkey.diaryFile(name = "other-device.txt")
 
@@ -323,7 +372,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-019 올리기에 실패하면 크기 초과를 구분해 알리고 목록을 유지하며 다시 추가할 수 있다`() {
+    fun `TC-f0d423c5-b463-4cef-9f6c-b17e5e1946d9 올리기에 실패하면 크기 초과를 구분해 알리고 목록을 유지하며 다시 추가할 수 있다`() {
         val file = fixtureMonkey.diaryFile()
         val server = server(pageList = listOf(listOf(file)))
         val upload = FileUploadMocks()
@@ -347,7 +396,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-021 올리는 동안에도 목록을 확인하고 이동할 수 있다`() {
+    fun `TC-ac8f8f6c-d3c0-4919-b527-181082f86ddb 올리는 동안에도 목록을 확인하고 이동할 수 있다`() {
         val fileList = fileList(count = 30)
 
         setFileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
@@ -360,7 +409,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-023 목록이 보이는 상태에서 올리기 성공 뒤 다시 불러오기에 실패하면 보던 자리의 이전 목록을 두고 다시 시도와 함께 알린다`() {
+    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보일 때 올리기 뒤 다시 불러오기에 실패하면 보던 자리의 이전 목록을 두고 다시 시도와 함께 알린다`() {
         val fileList = fileList(count = 30)
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
@@ -381,7 +430,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-023 목록이 보이는 상태에서 당겨서 새로고침하다 실패하면 이전 목록을 두고 다시 시도와 함께 알린다`() {
+    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보이는 상태에서 당겨서 새로고침하다 실패하면 이전 목록을 두고 다시 시도와 함께 알린다`() {
         val fileList = fileList(count = 30)
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
@@ -399,7 +448,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-024 올리는 동안 계정이 바뀌면 올리기를 중단하고 결과를 알리지 않는다`() {
+    fun `TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 올리는 동안 계정이 바뀌면 올리기를 중단하고 결과를 알리지 않는다`() {
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
         val upload = FileUploadMocks()
 
@@ -420,7 +469,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-024 올리는 동안 게스트가 되면 올리기를 중단하고 파일 추가 대신 로그인 안내를 표시한다`() {
+    fun `TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 올리는 동안 게스트가 되면 올리기를 중단하고 파일 추가 대신 로그인 안내를 표시한다`() {
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
         val upload = FileUploadMocks()
 
@@ -440,7 +489,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-025 올리는 동안 뒤로가면 이전 화면으로 돌아가고 올리기는 이어진다`() {
+    fun `TC-39aeb1ba-bc6f-407b-8b72-cd9755f4f19c 올리는 동안 뒤로가면 이전 화면으로 돌아가고 올리기는 이어진다`() {
         var navigateUpCount = 0
         val upload = FileUploadMocks()
 
@@ -454,7 +503,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-026 다시 불러오기 실패 안내의 다시 시도를 선택하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
+    fun `TC-3d0441c3-f1c5-4e9e-9868-2d5b65062d2c 다시 불러오기 실패 안내의 다시 시도를 선택하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
         val fileList = fileList(count = 5)
         val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
         val response = CompletableDeferred<List<DiaryFile>>()
@@ -482,7 +531,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-028 파일 목록에서 당겨서 새로고침하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
+    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 당겨서 새로고침하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
         val fileList = fileList(count = 5)
         val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
         val response = CompletableDeferred<List<DiaryFile>>()
@@ -504,7 +553,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-029 빈 상태에서 당기면 처음 불러오기와 같이 불러오는 중을 표시한다`() {
+    fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 빈 상태에서 당기면 처음 불러오기와 같이 불러오는 중을 표시한다`() {
         val server = server()
         val response = CompletableDeferred<List<DiaryFile>>()
         coEvery { server(0) } returns emptyList<DiaryFile>() coAndThen { response.await() }
@@ -513,7 +562,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-029 처음 불러오기 실패에서 당기면 처음 불러오기와 같이 불러오는 중을 표시한다`() {
+    fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 처음 불러오기 실패에서 당기면 처음 불러오기와 같이 불러오는 중을 표시한다`() {
         val server = server()
         val response = CompletableDeferred<List<DiaryFile>>()
         coEvery { server(0) } throws failure() coAndThen { response.await() }
@@ -522,7 +571,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-030 목록을 처음 불러오는 중에는 당겨도 다시 요청하지 않는다`() {
+    fun `TC-c1ac5f0a-f179-41ac-bea3-879844a2b02f 목록을 처음 불러오는 중에는 당겨도 다시 요청하지 않는다`() {
         val server = server()
         coEvery { server(0) } coAnswers { awaitCancellation() }
 
@@ -534,7 +583,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-031 다시 불러오는 동안 다시 당겨도 불러오기는 한 번만 진행된다`() {
+    fun `TC-8d5f4d26-8a00-45ab-abdc-4bc9e109bf42 다시 불러오는 동안 다시 당겨도 불러오기는 한 번만 진행된다`() {
         val server = server()
         coEvery { server(0) } returns fileList(count = 5) coAndThen { awaitCancellation() }
 
@@ -546,7 +595,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-032 화면에 들어오기 전에 시작한 올리기가 끝나지 않았으면 진행 중 표시를 보이고 다시 추가할 수 없다`() {
+    fun `TC-36571a73-b36c-45e1-bde6-3929ed3f2b6e 화면에 들어오기 전에 시작한 올리기가 끝나지 않았으면 진행 중 표시를 보이고 다시 추가할 수 없다`() {
         val upload = FileUploadMocks()
         upload.state.value = FileUploadState.Uploading(percent = null)
 
@@ -558,28 +607,28 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-033 빈 상태에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
+    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 빈 상태에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
         assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null, next = Result.success(listOf(uploaded)))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-033 처음 불러오기 실패에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
+    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 처음 불러오기 실패에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
         assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = failure(), next = Result.success(listOf(uploaded)))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-033 빈 상태에서 올리기 성공 뒤 다시 불러오기에 실패하면 스낵바 대신 본문에 실패 안내를 표시한다`() {
+    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 빈 상태에서 올리기 성공 뒤 다시 불러오기에 실패하면 스낵바 대신 본문에 실패 안내를 표시한다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
         assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null, next = Result.failure(failure()))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-034 목록을 처음 불러오는 중에 올리기에 성공하면 처음부터 다시 불러온다`() {
+    fun `TC-b86219a5-e39f-45d9-975e-18d1698f4c3c 목록을 처음 불러오는 중에 올리기에 성공하면 처음부터 다시 불러온다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -601,26 +650,84 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-035 목록의 파일을 선택해도 아무 일도 일어나지 않는다`() {
+    fun `TC-4bdd8bc6-139d-4990-8f2f-9f1419454924 목록의 파일을 선택하면 그 파일의 FileDetail 화면으로 이동한다`() {
         val file = fixtureMonkey.diaryFile()
-        var navigateUpCount = 0
 
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))), navigateUp = { navigateUpCount += 1 })
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file, fixtureMonkey.diaryFile()))))
         composeRule.onNodeWithText(file.name).performClick()
         composeRule.waitForIdle()
 
-        navigateUpCount shouldBe 0
+        screen.navigateToDetailIdList shouldBe listOf(file.id)
         screen.navigateToAddCount shouldBe 0
-        composeRule.onNodeWithText(file.name).assertExists()
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-036 화면을 보고 있지 않을 때 끝난 올리기의 결과는 화면에 들어와도 알리지 않는다`() {
+    fun `TC-4bdd8bc6-139d-4990-8f2f-9f1419454924 올리는 중에도 목록의 파일을 선택하면 FileDetail 화면으로 이동한다`() {
+        val file = fixtureMonkey.diaryFile()
+
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))))
+        startUpload()
+        composeRule.onNodeWithText(file.name).performClick()
+        composeRule.waitForIdle()
+
+        screen.navigateToDetailIdList shouldBe listOf(file.id)
+    }
+
+    @Test
+    fun `TC-7062b208-3784-4e82-b622-75fc8ac830db FileDetail에서 고친 제목과 파일 이름이 목록에 다시 불러오지 않고 보인다`() {
+        val fileList = fileList(count = 3)
+        val target = fileList[1].copy(title = OLD_TITLE, name = OLD_NAME)
+        val shownList = listOf(fileList[0], target, fileList[2])
+        val server = server(pageList = listOf(shownList))
+        val updated = MutableStateFlow<Map<Uuid, DiaryFile>>(emptyMap())
+
+        setFileHomeScreen(server = server, updated = updated)
+        composeRule.onNodeWithText(OLD_TITLE).assertExists()
+        composeRule.runOnIdle { updated.value = mapOf(target.id to target.copy(title = NEW_TITLE, name = NEW_NAME)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(NEW_TITLE).assertExists()
+        composeRule.onNodeWithText(NEW_NAME).assertExists()
+        composeRule.onNodeWithText(OLD_TITLE).assertDoesNotExist()
+        assertAbove(upper = fileList[0], lower = fileList[2])
+        val newTop = composeRule.onNodeWithText(NEW_NAME).getUnclippedBoundsInRoot().top
+        (composeRule.onNodeWithText(fileList[0].name).getUnclippedBoundsInRoot().top < newTop) shouldBe true
+        (newTop < composeRule.onNodeWithText(fileList[2].name).getUnclippedBoundsInRoot().top) shouldBe true
+    }
+
+    @Test
+    fun `TC-44fcf1ca-d962-4253-9a4a-e633d0d1588c 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값으로 보인다`() {
+        val target = fixtureMonkey.diaryFile()
+        val updated = MutableStateFlow(mapOf(target.id to target.copy(title = NEW_TITLE)))
+        val server = server()
+        var requestCount = 0
+        // 고친 뒤 시작한 불러오기가 그 파일을 받아 오면 저장소가 덧씌운 값을 걷는다.
+        coEvery { server(0) } coAnswers {
+            requestCount += 1
+            if (requestCount == 1) {
+                listOf(target)
+            } else {
+                updated.value = emptyMap()
+                listOf(target.copy(title = OTHER_DEVICE_TITLE))
+            }
+        }
+
+        setFileHomeScreen(server = server, updated = updated)
+        composeRule.onNodeWithText(NEW_TITLE).assertExists()
+        pull()
+
+        composeRule.onNodeWithText(OTHER_DEVICE_TITLE).assertExists()
+        composeRule.onNodeWithText(NEW_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면을 보고 있지 않을 때 끝난 올리기의 결과는 화면에 들어와도 알리지 않는다`() {
         assertFinishedWhileAwayIsNotNotified()
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-001 목록의 계정이 바뀌면 이전 계정의 파일 없이 새 계정의 목록을 처음부터 보여 준다`() {
+    fun `TC-093a77f7-1e9e-4ea6-9d9d-f418f6fee728 목록의 계정이 바뀌면 이전 계정의 파일 없이 새 계정의 목록을 처음부터 보여 준다`() {
         val accountA = fixtureMonkey.giveMeOne<Account.User>()
         val accountB = fixtureMonkey.giveMeOne<Account.User>().copy(id = fixtureMonkey.giveMeOne<Uuid>())
         val fileListA = fileList(count = 30)
@@ -651,7 +758,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-002 사용자에서 게스트로 바뀌면 목록 대신 로그인 안내를 표시한다`() {
+    fun `TC-5c4fce25-16e8-4b9b-b877-7be680796430 사용자에서 게스트로 바뀌면 목록 대신 로그인 안내를 표시한다`() {
         val file = fixtureMonkey.diaryFile()
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
 
@@ -671,7 +778,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-004 화면이 재생성되어도 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+    fun `TC-b8d761da-c33c-4c46-8e54-220f2c264da6 화면이 재생성되어도 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
         val fileList = fileList(count = 30)
         val server = server(pageList = fileList.chunked(PAGE_SIZE))
         val screen = fileHomeScreen(server = server)
@@ -689,7 +796,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-004 앱이 백그라운드에 다녀와도 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+    fun `TC-b8d761da-c33c-4c46-8e54-220f2c264da6 앱이 백그라운드에 다녀와도 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
         val fileList = fileList(count = 30)
         val server = server(pageList = fileList.chunked(PAGE_SIZE))
         val screen = fileHomeScreen(server = server)
@@ -712,17 +819,42 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-005 화면을 떠났다가 다시 들어오면 목록을 처음부터 다시 불러와 처음부터 보여 준다`() {
+    fun `TC-2ccaa189-1939-4b2f-8e70-7e1723e3e24c 화면을 떠났다가 다시 들어오면 목록을 처음부터 다시 불러와 처음부터 보여 준다`() {
         assertReentryReloadsFromTop(isUploading = false)
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-005 떠나기 전에 시작한 올리기가 끝나지 않았으면 다시 들어와도 진행 중 표시를 보인다`() {
+    fun `TC-2ccaa189-1939-4b2f-8e70-7e1723e3e24c 떠나기 전에 시작한 올리기가 끝나지 않았으면 다시 들어와도 진행 중 표시를 보인다`() {
         assertReentryReloadsFromTop(isUploading = true)
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-006 올리는 동안 화면이 재생성되어도 진행 표시와 결과 반영이 이어진다`() {
+    fun `TC-02575c48-f965-4cac-bb7b-8ead46ecc395 앱을 다시 실행하면 목록을 처음부터 다시 불러와 처음부터 보여 준다`() {
+        val fileList = fileList(count = 30)
+        val relaunchedServer = server(pageList = fileList.chunked(PAGE_SIZE))
+        var launchCount by mutableIntStateOf(0)
+        var nextScreen = fileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
+        // 앱을 다시 실행하면 저장된 화면 상태와 화면 상태 홀더가 모두 사라지므로, 새 화면으로 저장 상태 없이 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val screen = remember { nextScreen }
+                screen.Content()
+            }
+        }
+        composeRule.waitForIdle()
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
+        nextScreen = fileHomeScreen(server = relaunchedServer)
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { relaunchedServer(0) }
+        composeRule.onNodeWithText(fileList.first().name).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-7770e14f-351e-4847-aa5f-5dc29decb9c6 올리는 동안 화면이 재생성되어도 진행 표시와 결과 반영이 이어진다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val server = server()
         coEvery { server(0) } returns listOf(fixtureMonkey.diaryFile()) andThen listOf(uploaded)
@@ -745,7 +877,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-006 올리는 동안 앱이 백그라운드에 다녀와도 진행 표시와 결과 반영이 이어진다`() {
+    fun `TC-7770e14f-351e-4847-aa5f-5dc29decb9c6 올리는 동안 앱이 백그라운드에 다녀와도 진행 표시와 결과 반영이 이어진다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val server = server()
         coEvery { server(0) } returns listOf(fixtureMonkey.diaryFile()) andThen listOf(uploaded)
@@ -772,7 +904,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-009 계정 상태를 확인하지 못하면 본문을 비우고 따로 알리지 않으며 올리기는 이어진다`() {
+    fun `TC-cfdfb082-926f-421d-82cb-0dc590b0b2bd 계정 상태를 확인하지 못하면 본문을 비우고 따로 알리지 않으며 올리기는 이어진다`() {
         val file = fixtureMonkey.diaryFile()
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
         val upload = FileUploadMocks()
@@ -790,7 +922,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-010 계정 상태를 잠시 확인하지 못했다가 같은 계정으로 돌아오면 목록을 다시 불러오지 않는다`() {
+    fun `TC-ebdf6ffc-9d03-4d2f-8ca0-0bd02cf8e9b6 계정 상태를 잠시 확인하지 못했다가 같은 계정으로 돌아오면 목록을 다시 불러오지 않는다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val file = fixtureMonkey.diaryFile()
         val server = server(pageList = listOf(listOf(file)))
@@ -808,7 +940,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-011 게스트에서 사용자로 바뀌면 목록을 불러오고 파일 추가를 제공한다`() {
+    fun `TC-cce0fe3f-3e69-41d7-906b-c03ce2110e67 게스트에서 사용자로 바뀌면 목록을 불러오고 파일 추가를 제공한다`() {
         val file = fixtureMonkey.diaryFile()
         val server = server(pageList = listOf(listOf(file)))
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Account.Guest))
@@ -830,7 +962,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-012 화면이 재생성되면 보이던 안내가 닫히고 다시 나타나지 않는다`() {
+    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 화면이 재생성되면 보이던 안내가 닫히고 다시 나타나지 않는다`() {
         val upload = FileUploadMocks()
         val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
         val tester = StateRestorationTester(composeRule)
@@ -848,7 +980,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-012 앱이 백그라운드에 다녀와도 보이던 안내가 남는다`() {
+    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 앱이 백그라운드에 다녀와도 보이던 안내가 남는다`() {
         val upload = FileUploadMocks()
         val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
@@ -875,7 +1007,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-013 시스템이 앱을 정리했다가 다시 만들면 목록을 처음부터 다시 불러오고 보던 파일이 앞부분에 있으면 그 자리를 되살린다`() {
+    fun `TC-75eedda4-ed45-448b-878c-f4dbc5d4c991 시스템이 앱을 정리했다가 다시 만들면 목록을 처음부터 다시 불러오고 보던 파일이 앞부분에 있으면 그 자리를 되살린다`() {
         val fileList = fileList(count = 30)
         val restoredServer = server(pageList = fileList.chunked(PAGE_SIZE))
         var screen = fileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
@@ -896,7 +1028,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-013 시스템이 앱을 정리했다가 다시 만들면 보던 파일이 새로 불러온 앞부분에 없을 때 그 끝 부분을 보여 주고 이어서 불러온다`() {
+    fun `TC-75eedda4-ed45-448b-878c-f4dbc5d4c991 시스템이 앱을 정리했다가 다시 만들면 보던 파일이 새로 불러온 앞부분에 없을 때 그 끝 부분을 보여 주고 이어서 불러온다`() {
         val fileList = fileList(count = 30)
         val restoredServer = server(pageList = fileList.chunked(PAGE_SIZE))
         var screen = fileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
@@ -917,7 +1049,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001 앱이 화면 앞에 있고 FileHome을 표시하는 동안만 보고 있다고 알린다`() {
+    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 앱이 화면 앞에 있고 FileHome을 표시하는 동안만 보고 있다고 알린다`() {
         val upload = FileUploadMocks()
         val screen = fileHomeScreen(server = server(pageList = listOf(emptyList())), upload = upload)
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
@@ -943,6 +1075,32 @@ class FileHomeScreenTest {
         composeRule.runOnIdle { isShown = false }
         composeRule.waitForIdle()
         coVerify(exactly = 2) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+    }
+
+    @Test
+    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 앱이 화면 앞에 있어도 FileHome에서 연 FileDetail을 보는 동안은 보고 있지 않다고 알린다`() {
+        val upload = FileUploadMocks()
+        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
+        val detailScreen = FileDetailTestScreen()
+        var isDetailShown by mutableStateOf(false)
+
+        composeRule.setContent {
+            val holder = rememberSaveableStateHolder()
+
+            if (isDetailShown) {
+                detailScreen.Content()
+            } else {
+                holder.SaveableStateProvider(key = FILE_HOME_KEY) { screen.Content() }
+            }
+        }
+        composeRule.waitForIdle()
+        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+
+        composeRule.runOnIdle { isDetailShown = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = any()) }
     }
 
     private fun assertUploadSucceededReturnsToTop(
@@ -1071,7 +1229,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-037 다시 불러오기에 실패한 뒤 당겨서 새로고침으로 다시 시도한다`() {
+    fun `TC-083ace49-3cec-4a6d-af2f-b90fa7a59d57 다시 불러오기에 실패한 뒤 당겨서 새로고침으로 다시 시도한다`() {
         val fileList = fileList(count = 5)
         val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
         val server = server()
@@ -1090,7 +1248,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-038 다시 불러오기에 성공하면 목록 끝에서 다시 이어서 불러온다`() {
+    fun `TC-fd67a697-fc1b-49bb-9cfb-3805164296eb 다시 불러오기에 성공하면 목록 끝에서 다시 이어서 불러온다`() {
         val fileList = fileList(count = 25)
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure() andThen fileList.take(PAGE_SIZE)
@@ -1109,7 +1267,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-039 다시 불러오는 동안 올리기에 성공하면 처음부터 다시 불러와 처음으로 돌아간다`() {
+    fun `TC-a81de861-ef29-434d-a558-91b824444920 다시 불러오는 동안 올리기에 성공하면 처음부터 다시 불러와 처음으로 돌아간다`() {
         val fileList = fileList(count = 30)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val pending = CompletableDeferred<List<DiaryFile>>()
@@ -1134,7 +1292,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-040 다시 불러오는 동안 안내의 다시 시도를 선택해도 새로 요청하지 않는다`() {
+    fun `TC-c5d6336e-fae4-4a03-8595-a378ac001646 다시 불러오는 동안 안내의 다시 시도를 선택해도 새로 요청하지 않는다`() {
         val fileList = fileList(count = 5)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1151,7 +1309,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-015 게스트가 되었다가 같은 계정으로 다시 로그인하면 목록을 처음부터 보여 준다`() {
+    fun `TC-8179e973-096f-4660-8c93-3c27ca946b5d 게스트가 되었다가 같은 계정으로 다시 로그인하면 목록을 처음부터 보여 준다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val fileList = fileList(count = 30)
         val secondServer = server(pageList = fileList.chunked(PAGE_SIZE))
@@ -1177,7 +1335,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-012 화면이 재생성되면 다시 불러오기 실패 안내가 닫히고 다시 나타나지 않는다`() {
+    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 화면이 재생성되면 다시 불러오기 실패 안내가 닫히고 다시 나타나지 않는다`() {
         val fileList = fileList(count = 1)
         val server = server()
         coEvery { server(0) } returns fileList andThenThrows failure()
@@ -1197,7 +1355,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-018 다시 불러오기에 실패한 뒤 화면이 재생성되어도 이전 목록이 남는다`() {
+    fun `TC-8b3a326d-d0ac-4dbb-94d8-b611b54c6df2 다시 불러오기에 실패한 뒤 화면이 재생성되어도 이전 목록이 남는다`() {
         val fileList = fileList(count = 5)
         val server = server()
         coEvery { server(0) } returns fileList andThenThrows failure()
@@ -1218,7 +1376,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-042 다시 불러오기에 실패한 뒤 남은 목록의 끝에서도 이어서 불러온다`() {
+    fun `TC-b2dd6ad4-a6b2-4f35-a71f-31ff212f0a1e 다시 불러오기에 실패한 뒤 남은 목록의 끝에서도 이어서 불러온다`() {
         val fileList = fileList(count = 25)
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
@@ -1235,7 +1393,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-012 앱이 백그라운드에 다녀와도 다시 불러오기 실패 안내가 남는다`() {
+    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 앱이 백그라운드에 다녀와도 다시 불러오기 실패 안내가 남는다`() {
         val fileList = fileList(count = 1)
         val server = server()
         coEvery { server(0) } returns fileList andThenThrows failure()
@@ -1259,7 +1417,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-016 본문의 처음 불러오기 실패 안내는 화면이 재생성되어도 그대로 보인다`() {
+    fun `TC-2570a905-6ff4-4ab4-a0f0-7fb2c60d2e87 본문의 처음 불러오기 실패 안내는 화면이 재생성되어도 그대로 보인다`() {
         val server = server()
         coEvery { server(0) } throws failure()
         val screen = fileHomeScreen(server = server)
@@ -1276,7 +1434,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-016 목록 끝의 이어서 불러오기 실패 안내는 화면이 재생성되어도 그대로 보인다`() {
+    fun `TC-2570a905-6ff4-4ab4-a0f0-7fb2c60d2e87 목록 끝의 이어서 불러오기 실패 안내는 화면이 재생성되어도 그대로 보인다`() {
         val fileList = fileList(count = PAGE_SIZE)
         val server = server()
         coEvery { server(0) } returns fileList
@@ -1297,7 +1455,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-017 계정 상태를 확정하지 않은 동안 올리기에 실패하면 실패 안내를 표시한다`() {
+    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기에 실패하면 실패 안내를 표시한다`() {
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
         val upload = FileUploadMocks()
 
@@ -1312,7 +1470,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-017 계정 상태를 확정하지 않은 동안 올리기에 성공하면 다시 불러온 목록을 계정이 확인된 뒤 보여 준다`() {
+    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기에 성공하면 다시 불러온 목록을 계정이 확인된 뒤 보여 준다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val before = fileList(count = 1)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
@@ -1337,7 +1495,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-043 다시 불러오는 중에 계정이 바뀌면 앞선 계정의 파일이 새 목록에 나타나지 않는다`() {
+    fun `TC-00615cba-60ba-4905-9cea-bd710accd007 다시 불러오는 중에 계정이 바뀌면 앞선 계정의 파일이 새 목록에 나타나지 않는다`() {
         val accountA = fixtureMonkey.giveMeOne<Account.User>()
         val accountB = fixtureMonkey.giveMeOne<Account.User>().copy(id = fixtureMonkey.giveMeOne<Uuid>())
         val fileListA = fileList(count = 5)
@@ -1366,7 +1524,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-044 올리기 성공으로 다시 불러오는 동안 당겨도 새로 요청하지 않는다`() {
+    fun `TC-62b45f1e-b35d-40df-bc94-1aa52c84c45d 올리기 성공으로 다시 불러오는 동안 당겨도 새로 요청하지 않는다`() {
         val fileList = fileList(count = 5)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val pending = CompletableDeferred<List<DiaryFile>>()
@@ -1384,7 +1542,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-045 당겨서 다시 불러오는 동안에도 이전 목록을 끝까지 이동할 수 있다`() {
+    fun `TC-99ab8ac1-35ca-4ea4-abcb-85912746b65f 당겨서 다시 불러오는 동안에도 이전 목록을 끝까지 이동할 수 있다`() {
         val fileList = fileList(count = 30)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1400,7 +1558,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-017 계정 상태를 확정하지 않은 동안 올리기 뒤 다시 불러오기에 실패하면 알리지 않고 계정이 확인되면 이전 목록을 보여 준다`() {
+    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기 뒤 다시 불러오기에 실패하면 알리지 않고 계정이 확인되면 이전 목록을 보여 준다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val before = fileList(count = 1)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
@@ -1424,7 +1582,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-017 계정 상태를 확정하지 않은 동안 빈 상태에서 올리기 뒤 다시 불러오기에 실패하면 계정이 확인된 뒤 본문에 실패 안내를 보여 준다`() {
+    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 빈 목록에서 계정 확정 전 올리기 성공 뒤 다시 불러오기에 실패하면 계정 확인 뒤 본문에 실패 안내를 보여 준다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val server = server()
@@ -1450,7 +1608,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-019 당겨서 다시 불러오는 중에 화면이 재생성되어도 진행 표시가 보인다`() {
+    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 당겨서 다시 불러오는 중에 화면이 재생성되어도 진행 표시가 보인다`() {
         val fileList = fileList(count = 5)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1469,7 +1627,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-019 당겨서 다시 불러오는 중에 화면이 재생성된 뒤 실패하면 재생성된 화면에서 알린다`() {
+    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 당겨서 다시 불러오는 중에 화면이 재생성된 뒤 실패하면 재생성된 화면에서 알린다`() {
         val fileList = fileList(count = 5)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1492,7 +1650,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-DOMAIN-019 올리기 성공으로 다시 불러오는 중에 화면이 재생성되어도 새 목록이 나타나면 처음으로 돌아간다`() {
+    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 올리기 성공으로 다시 불러오는 중에 화면이 재생성되어도 새 목록이 나타나면 처음으로 돌아간다`() {
         val fileList = fileList(count = 30)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val pending = CompletableDeferred<List<DiaryFile>>()
@@ -1525,6 +1683,7 @@ class FileHomeScreenTest {
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
+        updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
         val screen =
             fileHomeScreen(
@@ -1533,6 +1692,7 @@ class FileHomeScreenTest {
                 accountFlow = accountFlow,
                 navigateUp = navigateUp,
                 upload = upload,
+                updated = updated,
             )
 
         composeRule.setContent { screen.Content() }
@@ -1547,7 +1707,10 @@ class FileHomeScreenTest {
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
+        updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
+        val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
+        every { getUpdatedFileUseCase(parameter = Unit) } returns updated.map { fileMap -> Result.success(fileMap) }
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
         val uploadViewModel = upload.viewModel()
@@ -1560,6 +1723,7 @@ class FileHomeScreenTest {
                 FileHomeViewModel(
                     getAccountUseCase = getAccountUseCase,
                     pageFileUseCase = pageFileUseCase(paging = paging),
+                    getUpdatedFileUseCase = getUpdatedFileUseCase,
                 ),
             uploadViewModel = uploadViewModel,
             refreshViewModel = FileHomeRefreshViewModel(refreshFileUseCase = refreshFileUseCase(server = server, paging = paging)),
@@ -1637,6 +1801,11 @@ class FileHomeScreenTest {
         private const val RETRY = "다시 시도"
         private const val UPLOAD_TOO_LARGE_MESSAGE = "50MB 이하 파일만 올릴 수 있습니다."
         private const val UPLOAD_FAILED_MESSAGE = "파일을 올리지 못했습니다."
+        private const val OLD_TITLE = "옛 제목"
+        private const val NEW_TITLE = "새 제목"
+        private const val OLD_NAME = "old.txt"
+        private const val NEW_NAME = "new.txt"
+        private const val OTHER_DEVICE_TITLE = "다른 기기 제목"
     }
 }
 
@@ -1649,12 +1818,16 @@ private class FileHomeTestScreen(
     var navigateToAddCount: Int = 0
         private set
 
+    val navigateToDetailIdList: MutableList<Uuid> = mutableListOf()
+
     @Composable
     fun Content() {
         DiaryTheme {
             FileHomeScreen(
                 navigateUp = navigateUp,
                 navigateToAdd = { navigateToAddCount += 1 },
+                navigateToDetail = { id -> navigateToDetailIdList += id },
+                componentVisibleProvider = { FileHomeScaffoldComponentVisible() },
                 fileViewModel = fileViewModel,
                 uploadViewModel = uploadViewModel,
                 refreshViewModel = refreshViewModel,

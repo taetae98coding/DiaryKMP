@@ -14,17 +14,16 @@ public fun DiaryNavigateUpTopBar(
     modifier: Modifier = Modifier,
     navigateUpContentDescription: String? = null,
     isNavigateUpVisibleProvider: () -> Boolean = { true },
-    actions: List<DiaryTopBarAction> = emptyList(),
+    actions: @Composable DiaryTopBarActionScope.() -> Unit = {},
 ) {
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        navigateUp =
+        navigationIcon = {
             if (isNavigateUpVisibleProvider()) {
-                DiaryTopBarNavigateUp(contentDescription = navigateUpContentDescription, onClick = onNavigateUp)
-            } else {
-                null
-            },
+                NavigateUp(onClick = onNavigateUp, contentDescription = navigateUpContentDescription)
+            }
+        },
         actions = actions,
     )
 }

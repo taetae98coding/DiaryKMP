@@ -11,10 +11,15 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistItemList
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistList
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
+import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -56,7 +61,7 @@ class DiaryDatabaseMigrationTest :
             directory.deleteRecursively()
         }
 
-        test("TC-DATA-SYNC-DATA-053 앱을 업데이트해도 기기에 저장된 데이터와 동기화 상태가 남는다") {
+        test("TC-20a28b81-a5c0-457d-821b-b734aa885427 앱을 업데이트해도 기기에 저장된 데이터와 동기화 상태가 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo =
                 fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).let { memo ->
@@ -64,12 +69,14 @@ class DiaryDatabaseMigrationTest :
                 }
             val usn = fixtureMonkey.giveMeOne<Long>()
             val qr = fixtureMonkey.localQr(isDeleted = false)
+            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val checklistItem = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
 
             helper.createDatabase(version = 1).use { connection ->
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 3).close()
+            helper.runMigrationsAndValidate(version = 4).close()
 
             val database =
                 Room
@@ -82,12 +89,20 @@ class DiaryDatabaseMigrationTest :
 
                 AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
                 database.findQrList() shouldBe listOf(qr)
+
+                AccountChecklistTransactionImpl(database = database).upsert(
+                    accountId = accountId,
+                    checklist = checklist,
+                    itemList = listOf(checklistItem),
+                )
+                database.findChecklistList() shouldBe listOf(checklist)
+                database.findChecklistItemList() shouldBe listOf(checklistItem)
             } finally {
                 database.close()
             }
         }
 
-        test("TC-CONTACT-ADD-DATA-016 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
+        test("TC-0b67c147-01b1-4f5f-8b63-d27db810cc3f 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
             val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
@@ -113,7 +128,7 @@ class DiaryDatabaseMigrationTest :
             }
         }
 
-        test("TC-CONTACT-ADD-DATA-015 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
+        test("TC-635c851c-6f40-43f2-be72-fbb7849562c1 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val birthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
             val noBirthdayContactId = fixtureMonkey.giveMeOne<Uuid>()

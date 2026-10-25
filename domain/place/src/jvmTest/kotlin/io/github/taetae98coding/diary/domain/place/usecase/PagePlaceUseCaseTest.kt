@@ -60,7 +60,7 @@ class PagePlaceUseCaseTest :
                     accountPlaceRepository = accountPlaceRepository,
                 )
 
-            When("TC-MEMO-PLACE-CARD-DOMAIN-021 공백만 있는 검색어로 장소 목록을 페이지로 조회한다") {
+            When("TC-cda116a9-739a-4c75-8747-49ee08e64212 공백만 있는 검색어로 장소 목록을 페이지로 조회한다") {
                 Then("검색어가 없는 것과 같게 조회한다") {
                     useCase(parameter = "   ").first().shouldBeSuccess()
 

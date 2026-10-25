@@ -42,7 +42,7 @@ class SearchHomeTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SEARCH-HOME-FEATURE-003 질의를 바꾸면 바뀐 질의의 결과를 노출한다") {
+        test("TC-bfe7428a-4630-4061-a412-7e2dfb88cd9a 질의를 바꾸면 바뀐 질의의 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val itemList = listOf(searchTag(title = "여행 항목"))
                 val otherItemList = listOf(searchTag(title = "회의 항목"))
@@ -73,7 +73,7 @@ class SearchHomeTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-017 태그 결과를 조회하지 못하면 빈 결과를 노출한다") {
+        test("TC-a463251f-bc66-4f34-b83a-184e76b8e745 태그 결과를 조회하지 못하면 빈 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(searchTagUseCase(failurePagingDataFlow()))
 

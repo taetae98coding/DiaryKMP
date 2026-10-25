@@ -58,7 +58,10 @@
 | CalendarText 컴포넌트 | [client](./client/calendar-text.md) | — | — | [CalendarText 디자인](../design/calendar-text.md) |
 | CalendarTimetable 화면 | [client](./client/calendar-timetable.md) | — | — | [CalendarTimetable 디자인](../design/calendar-timetable.md) |
 | CalendarWeekOfMonth 컴포넌트 | [client](./client/calendar-week-of-month.md) | — | — | [CalendarWeekOfMonth 디자인](../design/calendar-week-of-month.md) |
+| ChecklistAdd 화면 | [client](./client/checklist-add.md) | — | — | [ChecklistAdd 디자인](../design/checklist-add.md) |
+| ChecklistDetail 화면 | [client](./client/checklist-detail.md) | — | — | [ChecklistDetail 디자인](../design/checklist-detail.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
+| Checklist 목록·상세 배치 | [client](./client/checklist-list-detail.md) | — | — | [Checklist 목록·상세 배치 디자인](../design/checklist-list-detail.md) |
 | Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | — |
 | Contact 목록·상세 배치 | [client](./client/contact-list-detail.md) | — | — | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |
 | ContactAdd 화면 | [client](./client/contact-add.md) | — | — | [ContactAdd 디자인](../design/contact-add.md) |
@@ -68,7 +71,9 @@
 | DDayHome 화면 | [client](./client/dday-home.md) | — | — | [DDayHome 디자인](../design/dday-home.md) |
 | DiaryMap 컴포넌트 | [client](./client/diary-map.md) | — | — | [DiaryMap 디자인](../design/diary-map.md) |
 | FileAdd 화면 | [client](./client/file-add.md) | — | — | [FileAdd 디자인](../design/file-add.md) |
+| FileDetail 화면 | [client](./client/file-detail.md) | — | — | [FileDetail 디자인](../design/file-detail.md) |
 | FileHome 화면 | [client](./client/file-home.md) | — | — | [FileHome 디자인](../design/file-home.md) |
+| File 목록·상세 배치 | [client](./client/file-list-detail.md) | — | — | [File 목록·상세 배치 디자인](../design/file-list-detail.md) |
 | Gemini 모델 목록 조회 | [client](./client/gemini-model-list.md) | — | — | — |
 | Google 장소 검색 | [client](./client/google-place-search.md) | — | — | — |
 | HolidayHome 화면 | [client](./client/holiday-home.md) | — | — | [HolidayHome 디자인](../design/holiday-home.md) |
@@ -76,6 +81,7 @@
 | MemoAdd 화면 | [client](./client/memo-add.md) | — | — | [MemoAdd 디자인](../design/memo-add.md) |
 | MemoDetail 화면 | [client](./client/memo-detail.md) | — | — | [MemoDetail 디자인](../design/memo-detail.md) |
 | MemoFinishedList 화면 | [client](./client/memo-finished-list.md) | — | — | [MemoFinishedList 디자인](../design/memo-finished-list.md) |
+| MemoFinishedList 목록·상세 배치 | [client](./client/memo-finished-list-detail.md) | — | — | [MemoFinishedList 목록·상세 배치 디자인](../design/memo-finished-list-detail.md) |
 | MemoHome 목록 | [client](./client/memo-home.md) | — | — | [MemoHome 디자인](../design/memo-home.md) |
 | MoreHome 화면 | [client](./client/more-home.md) | — | — | [MoreHome 디자인](../design/more-home.md) |
 | MusicAdd 화면 | [client](./client/music-add.md) | — | — | [MusicAdd 디자인](../design/music-add.md) |
@@ -92,17 +98,19 @@
 | QrDetail 화면 | [client](./client/qr-detail.md) | — | — | [QrDetail 디자인](../design/qr-detail.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
 | QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
+| QR 목록·상세 배치 | [client](./client/qr-list-detail.md) | — | — | [QR 목록·상세 배치 디자인](../design/qr-list-detail.md) |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
 | RoutineAdd 화면 | [client](./client/routine-add.md) | — | — | [RoutineAdd 디자인](../design/routine-add.md) |
 | RoutineHome 화면 | [client](./client/routine-home.md) | — | — | [RoutineHome 디자인](../design/routine-home.md) |
 | SearchHome 화면 | [client](./client/search-home.md) | — | — | [SearchHome 디자인](../design/search-home.md) |
 | Setting 목록·상세 배치 | [client](./client/setting-list-detail.md) | — | — | [Setting 목록·상세 배치 디자인](../design/setting-list-detail.md) |
 | SettingBrowser 화면 | [client](./client/setting-browser.md) | — | — | [SettingBrowser 디자인](../design/setting-browser.md) |
-| SettingDownload 화면 | [client](./client/setting-download.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
+| SettingFile 화면 | [client](./client/setting-file.md) | — | — | [SettingFile 디자인](../design/setting-file.md) |
 | SettingGemini 화면 | [client](./client/setting-gemini.md) | — | — | [SettingGemini 디자인](../design/setting-gemini.md) |
 | SettingHoliday 화면 | [client](./client/setting-holiday.md) | — | — | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
+| SettingPlaylist 화면 | [client](./client/setting-playlist.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
@@ -111,6 +119,7 @@
 | TagDetail 장소 탭 | [client](./client/tag-detail-place.md) | — | — | [TagDetail 장소 탭 디자인](../design/tag-detail-place.md) |
 | TagDetail 화면 | [client](./client/tag-detail.md) | — | — | [TagDetail 디자인](../design/tag-detail.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
 | TagFinishedList 화면 | [client](./client/tag-finished-list.md) | — | — | [TagFinishedList 디자인](../design/tag-finished-list.md) |
+| TagFinishedList 목록·상세 배치 | [client](./client/tag-finished-list-detail.md) | — | — | [TagFinishedList 목록·상세 배치 디자인](../design/tag-finished-list-detail.md) |
 | TagHome 목록 | [client](./client/tag-home.md) | — | — | [TagHome 디자인](../design/tag-home.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | TagMemoFinishedList 목록·상세 배치 | [client](./client/tag-memo-finished-list-detail.md) | — | — | [TagMemoFinishedList 목록·상세 배치 디자인](../design/tag-memo-finished-list-detail.md) |
 | TagMemoFinishedList 화면 | [client](./client/tag-memo-finished-list.md) | — | — | [TagMemoFinishedList 디자인](../design/tag-memo-finished-list.md) |
@@ -124,7 +133,7 @@
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
 | 곡 다운로드 | [client](./client/music-download.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
-| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
+| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
@@ -177,6 +186,7 @@
 | 태그 연결 | [client](./client/tag-link.md) | [common](./common/tag-link.md) | — | — |
 | 태그 연결 입력 컴포넌트 | [client](./client/tag-link-input.md) | — | — | [태그 연결 입력 디자인](../design/tag-link-input.md) |
 | 태그 필터 | [client](./client/tag-filter.md) | — | — | [태그 필터 디자인](../design/tag-filter.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
+| 파일 내려받기 | [client](./client/file-download.md) | — | — | [FileDetail 디자인](../design/file-detail.md) |
 | 파일 보관 | [client](./client/file-storage.md) | [common](./common/file-storage.md) | [server](./server/file-storage.md) | — |
 | 파일 올리기 알림 | [client](./client/file-upload-notification.md) | — | — | [파일 올리기 알림 디자인](../design/file-upload-notification.md) |
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
@@ -184,6 +194,8 @@
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |
 | 항목 상세 메모 탭 공통 | [client](./client/entity-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
 | 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | — |
+| 항목 완료 메모 목록 화면 | [client](./client/entity-memo-finished-list.md) | — | — | [항목 완료 메모 목록 화면 디자인](../design/entity-memo-finished-list.md) |
+| 항목 완료 메모 목록·상세 배치 | [client](./client/entity-memo-finished-list-detail.md) | — | — | [항목 완료 메모 목록·상세 배치 디자인](../design/entity-memo-finished-list-detail.md) |
 | 항목 연결 공통 | [client](./client/entity-link.md) | [common](./common/entity-link.md) | — | — |
 | 항목 추가 화면 공통 | [client](./client/entity-add.md) | — | — | [항목 추가 화면 공통 디자인](../design/entity-add.md) |
 | 항목 태그 연결 공통 | [client](./client/entity-tag.md) | [common](./common/entity-tag.md) | — | — |

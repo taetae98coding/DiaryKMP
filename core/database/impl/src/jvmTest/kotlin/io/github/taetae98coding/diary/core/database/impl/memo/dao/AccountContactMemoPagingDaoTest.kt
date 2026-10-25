@@ -164,7 +164,7 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = contactId) shouldBe expectedIds
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-001 현재 계정의 대상 연락처와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
+        test("TC-f932ba9b-87b1-4b71-b956-7db7c57145ad TC-32411d04-27aa-4911-bd6d-5339b9846d2f 현재 계정의 대상 연락처와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
@@ -185,7 +185,7 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DOMAIN-001 대상 연락처를 삭제하거나 즐겨찾기를 바꿔도 연결된 미완료 메모는 계속 조회된다") {
+        test("TC-dc9c01de-fd68-47ff-81e9-36b5962f2662 대상 연락처를 삭제하거나 즐겨찾기를 바꿔도 연결된 미완료 메모는 계속 조회된다") {
             val changeList: List<(ContactLocalEntity) -> ContactLocalEntity> =
                 listOf(
                     { contact -> contact.copy(isDeleted = true, updatedAt = instant()) },
@@ -204,7 +204,7 @@ class AccountContactMemoPagingDaoTest :
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-002 연락처별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-72edfa5c-e54e-49a9-a949-37b8c46f7ba2 연락처별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
@@ -307,7 +307,7 @@ class AccountContactMemoPagingDaoTest :
                 )
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-003 TC-CONTACT-DETAIL-MEMO-DATA-004 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
+        test("TC-6ece710e-8eba-4fc2-852e-546aa1792671 TC-203a5bfe-d507-405c-8c0e-0bef7e9e416a 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val targetMemo = memo()
@@ -324,7 +324,7 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-003 TC-CONTACT-DETAIL-MEMO-DATA-004 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
+        test("TC-6ece710e-8eba-4fc2-852e-546aa1792671 TC-203a5bfe-d507-405c-8c0e-0bef7e9e416a 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val targetMemo = memo()
@@ -341,7 +341,7 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-003 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
+        test("TC-6ece710e-8eba-4fc2-852e-546aa1792671 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val targetMemo = memo()
@@ -355,7 +355,7 @@ class AccountContactMemoPagingDaoTest :
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-003 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
+        test("TC-6ece710e-8eba-4fc2-852e-546aa1792671 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val targetMemo = memo()
@@ -369,7 +369,7 @@ class AccountContactMemoPagingDaoTest :
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-003 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
+        test("TC-6ece710e-8eba-4fc2-852e-546aa1792671 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val movingMemo =

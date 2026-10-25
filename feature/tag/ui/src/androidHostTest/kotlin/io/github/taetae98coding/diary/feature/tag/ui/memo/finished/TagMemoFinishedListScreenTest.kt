@@ -58,7 +58,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-010 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
+    fun `TC-b532f962-adb3-401f-80ac-2e69664f439e 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<TagMemoFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(tagMemoPagingData(itemList = emptyList()))
@@ -74,7 +74,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-016 다시 시작하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-4ff545fd-dc92-439d-b2a5-90942a03e819 다시 시작하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -90,7 +90,7 @@ class TagMemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-016 다시 시작하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-4ff545fd-dc92-439d-b2a5-90942a03e819 다시 시작하면 한국어 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -103,7 +103,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-017 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-7d012eef-54c2-404e-82a1-fd4e2a9f1977 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -119,7 +119,7 @@ class TagMemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-017 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-7d012eef-54c2-404e-82a1-fd4e2a9f1977 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -132,7 +132,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-018 다시 시작 실행 취소는 메모 완료를 요청한다`() {
+    fun `TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 다시 시작 실행 취소는 메모 완료를 요청한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -146,7 +146,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-018 삭제 실행 취소는 메모 복구를 요청한다`() {
+    fun `TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 삭제 실행 취소는 메모 복구를 요청한다`() {
         val environment = screenTestEnvironment()
         setTagMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -160,7 +160,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-019 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-36db9a95-4aca-46f5-b4b8-2ab947e67cc7 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigatedMemoId: Uuid? = null
         setTagMemoFinishedListScreen(
@@ -175,7 +175,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-011 뒤로가기 버튼을 선택하면 화면을 떠난다`() {
+    fun `TC-c0fde30f-f541-42cc-b592-8b551e504abc 뒤로가기 버튼을 선택하면 화면을 떠난다`() {
         val environment = screenTestEnvironment()
         var navigateUpCount = 0
         setTagMemoFinishedListScreen(
@@ -189,7 +189,7 @@ class TagMemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-020 화면으로 돌아오면 바뀐 오늘에 맞춰 오늘 날짜 그룹 표시를 갱신한다`() {
+    fun `TC-9686e918-8309-4598-bb7c-1cdad1437438 화면으로 돌아오면 바뀐 오늘에 맞춰 오늘 날짜 그룹 표시를 갱신한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
 

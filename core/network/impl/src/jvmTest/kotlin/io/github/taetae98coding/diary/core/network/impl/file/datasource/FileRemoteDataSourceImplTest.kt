@@ -7,11 +7,18 @@ import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFile
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.file.exception.FileNotFoundRemoteException
+import io.github.taetae98coding.diary.core.network.impl.file.entity.FileDownloadResponseRemoteEntity
+import io.github.taetae98coding.diary.core.network.impl.file.entity.FileIdRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.file.entity.FileListRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.file.entity.FileListResponseRemoteEntity
+import io.github.taetae98coding.diary.core.network.impl.file.entity.FileUpdateRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.file.transport.FileUploadTransport
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
+import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -33,6 +40,7 @@ import io.mockk.slot
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
+import kotlinx.io.readByteArray
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.uuid.Uuid
@@ -57,7 +65,7 @@ class FileRemoteDataSourceImplTest :
             coEvery {
                 transport.upload(name = name, title = title, description = description, mimeType = mimeType, contentLength = contentLength, accountId = accountId, openContent = openContent, onSent = onSent)
             } returns response
-            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport)
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport, httpClient = mockk())
 
             val actual =
                 dataSource.upload(
@@ -80,7 +88,7 @@ class FileRemoteDataSourceImplTest :
             val transport = mockk<FileUploadTransport>(relaxUnitFun = true)
             every { transport.getContinuedUpload() } returns flowOf(upload)
             every { transport.getContinuedUploadResult() } returns flowOf(result)
-            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport)
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport, httpClient = mockk())
 
             dataSource.getContinuedUpload().test {
                 awaitItem() shouldBe upload
@@ -96,7 +104,7 @@ class FileRemoteDataSourceImplTest :
             coVerify(exactly = 1) { transport.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
         }
 
-        test("TC-FILE-STORAGE-DATA-001 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {
+        test("TC-c3c9a856-e7b9-41c7-b35b-025cbe78c827 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {
             val size = fixtureMonkey.giveMeOne<Int>()
             val fileList = List(2) { fixtureMonkey.giveMeOne<FileRemoteEntity>() }
             val requestSlot = slot<FileListRequestRemoteEntity>()
@@ -110,7 +118,7 @@ class FileRemoteDataSourceImplTest :
                     requestTimeout = any(),
                 )
             } returns httpResponse(body = Json.encodeToString(FileListResponseRemoteEntity(fileList = fileList)))
-            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk())
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk())
 
             val actual = dataSource.readList(cursor = null, size = size)
 
@@ -118,7 +126,7 @@ class FileRemoteDataSourceImplTest :
             actual shouldBe fileList
         }
 
-        test("TC-FILE-STORAGE-DATA-002 이어서 불러올 때 마지막 파일의 올린 시각과 식별자를 보낸다") {
+        test("TC-e83464f1-ff45-45d4-b832-57f4b4f82143 이어서 불러올 때 마지막 파일의 올린 시각과 식별자를 보낸다") {
             val cursor = fixtureMonkey.giveMeOne<FileCursorRemoteEntity>()
             val requestSlot = slot<FileListRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
@@ -131,7 +139,7 @@ class FileRemoteDataSourceImplTest :
                     requestTimeout = any(),
                 )
             } returns httpResponse(body = Json.encodeToString(FileListResponseRemoteEntity(fileList = emptyList())))
-            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk())
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk())
 
             dataSource.readList(cursor = cursor, size = 20)
 
@@ -144,6 +152,83 @@ class FileRemoteDataSourceImplTest :
             val json = Json.encodeToString(FileListRequestRemoteEntity(cursor = cursor, size = 20))
 
             json shouldBe """{"cursor":{"createdAt":"${cursor.createdAt}","id":"${cursor.id}"},"size":20}"""
+        }
+        test("TC-2209b4c9-9d1b-41ca-a863-6c755564b60c 파일 하나의 정보를 식별자로 요청하고, 찾을 수 없으면 찾을 수 없음으로 알린다") {
+            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val requestSlot = slot<FileIdRequestRemoteEntity>()
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-file-get", body = capture(requestSlot), typeInfo = any(), headers = any(), requestTimeout = any())
+            } returns httpResponse(body = Json.encodeToString(file))
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk())
+
+            dataSource.read(id = id) shouldBe file
+            requestSlot.captured shouldBe FileIdRequestRemoteEntity(id = id)
+
+            coEvery {
+                supabaseFunction(function = "v1-file-get", body = any<FileIdRequestRemoteEntity>(), typeInfo = any(), headers = any(), requestTimeout = any())
+            } throws SupabaseFunctionException(statusCode = 404)
+            shouldThrow<FileNotFoundRemoteException> { dataSource.read(id = id) }
+        }
+
+        test("TC-cd6be59f-06d7-4587-ab0a-6668ae6dd1f4 정보 고치기는 식별자와 이름, 제목, 설명을 함께 보낸다") {
+            val request = fixtureMonkey.giveMeOne<FileUpdateRequestRemoteEntity>()
+            val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val requestSlot = slot<FileUpdateRequestRemoteEntity>()
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-file-update", body = capture(requestSlot), typeInfo = any(), headers = any(), requestTimeout = any())
+            } returns httpResponse(body = Json.encodeToString(file))
+            val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk())
+
+            dataSource.update(id = request.id, name = request.name, title = request.title, description = request.description) shouldBe file
+            requestSlot.captured shouldBe request
+            Json.encodeToString(request) shouldBe """{"id":"${request.id}","name":${Json.encodeToString(request.name)},"title":${Json.encodeToString(request.title)},"description":${Json.encodeToString(request.description)}}"""
+        }
+
+        test("TC-c8dace87-717c-4c9c-a6af-7c9edef184b1 서버가 내준 임시 주소에서 받은 내용을 그대로 쓴다") {
+            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val content = fixtureMonkey.giveMeOne<ByteArray>()
+            val url = "https://storage.example/${fixtureMonkey.giveMeOne<Int>()}"
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-file-download", body = FileIdRequestRemoteEntity(id = id), typeInfo = any(), headers = any(), requestTimeout = any())
+            } returns httpResponse(body = Json.encodeToString(FileDownloadResponseRemoteEntity(url = url)))
+            val httpClient = HttpClient(MockEngine { request -> if (request.url.toString() == url) respond(content = content) else respond(content = "", status = HttpStatusCode.NotFound) })
+            val sink = Buffer()
+
+            FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = httpClient).download(id = id, sink = sink)
+
+            sink.readByteArray() shouldBe content
+        }
+
+        test("TC-eff813ca-20ff-4336-a492-fa49b3a3374e 임시 주소가 실패로 응답하거나 받은 내용이 알린 크기보다 짧으면 실패로 끝난다") {
+            listOf(
+                MockEngine { respond(content = "", status = HttpStatusCode.Forbidden) },
+                MockEngine { respond(content = byteArrayOf(1, 2), headers = headersOf(HttpHeaders.ContentLength, "5")) },
+            ).forEach { engine ->
+                val supabaseFunction = mockk<SupabaseFunction>()
+                coEvery {
+                    supabaseFunction(function = "v1-file-download", body = any<FileIdRequestRemoteEntity>(), typeInfo = any(), headers = any(), requestTimeout = any())
+                } returns httpResponse(body = Json.encodeToString(FileDownloadResponseRemoteEntity(url = "https://storage.example/file")))
+
+                shouldThrowAny {
+                    FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = HttpClient(engine))
+                        .download(id = fixtureMonkey.giveMeOne<Uuid>(), sink = Buffer())
+                }
+            }
+        }
+
+        test("내려받기 주소를 찾을 수 없으면 찾을 수 없음으로 알린다") {
+            val supabaseFunction = mockk<SupabaseFunction>()
+            coEvery {
+                supabaseFunction(function = "v1-file-download", body = any<FileIdRequestRemoteEntity>(), typeInfo = any(), headers = any(), requestTimeout = any())
+            } throws SupabaseFunctionException(statusCode = 404)
+
+            shouldThrow<FileNotFoundRemoteException> {
+                FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk()).download(id = fixtureMonkey.giveMeOne<Uuid>(), sink = Buffer())
+            }
         }
     })
 

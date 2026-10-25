@@ -37,7 +37,7 @@ class FindWebUseCaseTest :
                 )
 
             When("상세 대상 웹 항목을 조회한다") {
-                Then("TC-WEB-DETAIL-DATA-001 현재 계정의 웹 항목을 전달한다") {
+                Then("TC-ea191f75-92fb-4e2f-a799-4fab5e3e3d38 현재 계정의 웹 항목을 전달한다") {
                     useCase(parameter = web.id).first().shouldBeSuccess() shouldBe web
                 }
             }
@@ -57,7 +57,7 @@ class FindWebUseCaseTest :
                 )
 
             When("상세 대상 웹 항목을 조회한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-001 조회되는 웹 항목이 없다") {
+                Then("TC-33c93631-0b2b-48e2-91b7-f693c8043345 조회되는 웹 항목이 없다") {
                     useCase(parameter = webId).first().shouldBeSuccess().shouldBeNull()
                 }
             }
@@ -75,7 +75,7 @@ class FindWebUseCaseTest :
                 )
 
             When("상세 대상 웹 항목을 조회한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-002 실패를 그대로 전달한다") {
+                Then("TC-bfaaa099-4f3f-430f-835a-81ccb01b0c6a 실패를 그대로 전달한다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .first()
                         .shouldBeFailure()

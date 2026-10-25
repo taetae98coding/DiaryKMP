@@ -36,7 +36,7 @@ class GetMemoTagUseCaseTest :
                 )
 
             When("메모의 태그를 조회한다") {
-                Then("TC-MEMO-DETAIL-FEATURE-033 현재 계정의 메모에 연결된 태그를 전달한다") {
+                Then("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 현재 계정의 메모에 연결된 태그를 전달한다") {
                     useCase(parameter = memoId).first().shouldBeSuccess(tagList)
                 }
             }

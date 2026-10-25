@@ -2,12 +2,15 @@ package io.github.taetae98coding.diary.compose.tag
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -65,7 +68,7 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-015 TC-TAG-FINISHED-LIST-FEATURE-014 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
+    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
         val tag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
 
         setTagCard(tag = null)
@@ -96,7 +99,7 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-016 TC-TAG-FINISHED-LIST-FEATURE-015 TC-SEARCH-HOME-FEATURE-013 자리 표시 카드는 선택할 수 없다`() {
+    fun `TC-f7afc78a-1b0f-48f3-b488-22d190b0130e TC-b0231338-6fe8-4df1-9392-fce90f7711f6 TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 자리 표시 카드는 선택할 수 없다`() {
         var clickCount = 0
 
         setTagCard(tag = null, onClick = { clickCount += 1 })
@@ -105,6 +108,31 @@ class TagCardTest {
         composeRule.waitForIdle()
 
         clickCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-5c13d3ed-4d6b-43c3-b434-2ffa97b75334 TC-aa7644ae-95fc-4af9-8aa5-14a62c2f7417 카드 폭보다 긴 제목의 태그는 이모지와 제목이 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
+        val baseTag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+        val tag = baseTag.copy(detail = baseTag.detail.copy(emoji = EMOJI, title = LONG_TITLE))
+        val emojiWithTitle = tag.detail.emojiWithTitle
+
+        setTagCard(tag)
+
+        val cardWidth =
+            composeRule
+                .onNodeWithTag(TAG_CARD_TEST_TAG)
+                .fetchSemanticsNode()
+                .size.width
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = emojiWithTitle, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        (textLayoutResult.size.width > cardWidth) shouldBe true
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe emojiWithTitle.length
     }
 
     private fun tag(colorArgb: Int): Tag =
@@ -137,5 +165,7 @@ class TagCardTest {
 
     private companion object {
         private const val BESIDE_INDICATOR_OFFSET = 4f
+        private const val EMOJI = "🏃"
+        private val LONG_TITLE = "LongTagCardTitle".repeat(20)
     }
 }

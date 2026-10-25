@@ -50,7 +50,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-048 태그 필터에 전체 태그와 선택 여부를 표시한다`() {
+    fun `TC-6f17aa62-bea3-43a3-8326-f74db698660a 태그 필터에 전체 태그와 선택 여부를 표시한다`() {
         val tagList = listOf(tag(title = FIRST_TAG_TITLE), tag(title = SECOND_TAG_TITLE))
 
         setBottomSheetContent(
@@ -63,7 +63,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-056 필터 칩에 이모지와 제목을 함께 표시한다`() {
+    fun `TC-cb8879fd-e66b-4a71-b669-63389d14c135 필터 칩에 이모지와 제목을 함께 표시한다`() {
         val tagList =
             listOf(
                 tag(title = FIRST_TAG_TITLE, emoji = TAG_EMOJI),
@@ -78,7 +78,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-049 선택되지 않은 태그를 누르면 선택 Event를 전달한다`() {
+    fun `TC-a2875f01-2a62-49e3-9c26-8efdca098261 선택되지 않은 태그를 누르면 선택 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -92,7 +92,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-051 선택된 태그를 누르면 선택 해제 Event를 전달한다`() {
+    fun `TC-c23ef9af-019a-4817-a559-2e8ed41cfc09 선택된 태그를 누르면 선택 해제 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -107,7 +107,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-082 지우기를 누르면 선택 전체 해제 Event를 전달한다`() {
+    fun `TC-efd8e7dc-b217-44f8-b3d8-64d62806ef15 지우기를 누르면 선택 전체 해제 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -122,7 +122,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-083 TC-CALENDAR-HOME-DOMAIN-019 보이는 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
+    fun `TC-e637f434-20f6-4733-b310-e193c60c7163 TC-8c9b3391-704b-4fe7-aef3-92547492cfbf 보이는 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -137,7 +137,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-084 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
+    fun `TC-8749ddd0-f38d-465b-8fa0-d60938c99cb2 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagList = listOf(tag(title = FIRST_TAG_TITLE)))
 
         composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
@@ -145,28 +145,28 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-084 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
+    fun `TC-8749ddd0-f38d-465b-8fa0-d60938c99cb2 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-084 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
+    fun `TC-8749ddd0-f38d-465b-8fa0-d60938c99cb2 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = refreshingTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-084 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
+    fun `TC-8749ddd0-f38d-465b-8fa0-d60938c99cb2 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = failedTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-085 태그 추가 칩을 누르면 태그 추가 Event만 전달한다`() {
+    fun `TC-5e48b2cd-da3e-49eb-b2eb-4add737877af 태그 추가 칩을 누르면 태그 추가 Event만 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -180,7 +180,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-098 태그를 조회하지 못하면 오류 안내 없이 태그 추가 칩만 표시한다`() {
+    fun `TC-ec235ab8-30cc-4fd6-b94c-32cdbbc3217f 태그를 조회하지 못하면 오류 안내 없이 태그 추가 칩만 표시한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag)))
         val failedTagPagingFlow = MutableStateFlow(failedTagPagingData())
@@ -199,7 +199,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-099 태그의 이모지, 제목이나 컬러가 바뀌면 필터에 반영하고 선택 여부를 유지한다`() {
+    fun `TC-10be1733-fa94-481d-8aea-c7b6f7e4ea52 태그의 이모지, 제목이나 컬러가 바뀌면 필터에 반영하고 선택 여부를 유지한다`() {
         val selectedTag = tag(title = FIRST_TAG_TITLE)
         val unselectedTag = tag(title = SECOND_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag, unselectedTag)))
@@ -228,7 +228,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-100 필터를 연 채로 태그가 추가되면 필터에 바로 나타난다`() {
+    fun `TC-09613f11-35d8-4373-a624-1fd11cb13684 필터를 연 채로 태그가 추가되면 필터에 바로 나타난다`() {
         val selectedTag = tag(title = FIRST_TAG_TITLE)
         val addedTag = tag(title = SECOND_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag)))

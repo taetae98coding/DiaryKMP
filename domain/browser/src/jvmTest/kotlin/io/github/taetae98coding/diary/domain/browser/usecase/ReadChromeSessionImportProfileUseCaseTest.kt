@@ -27,7 +27,7 @@ class ReadChromeSessionImportProfileUseCaseTest :
             When("가져올 프로필을 찾는다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-001 프로필 목록을 읽지 않고 없음을 전달한다") {
+                Then("TC-28a823a4-ff9e-4e9d-8cc3-ae5a24beec28 프로필 목록을 읽지 않고 없음을 전달한다") {
                     result shouldBe Result.success(null)
                     coVerify(exactly = 0) { profileRepository.readProfileList() }
                 }
@@ -44,7 +44,7 @@ class ReadChromeSessionImportProfileUseCaseTest :
                 When("선택이 '$profileDirectory' 인 상태에서 가져올 프로필을 찾는다") {
                     val result = useCase(parameter = Unit)
 
-                    Then("TC-CHROME-SESSION-IMPORT-DOMAIN-002 선택과 목록을 읽지 않고 없음을 전달한다") {
+                    Then("TC-1878bd0c-2199-45d6-a744-4decc665fdc1 선택과 목록을 읽지 않고 없음을 전달한다") {
                         result shouldBe Result.success(null)
                         coVerify(exactly = 0) { settingRepository.getProfileDirectory() }
                         coVerify(exactly = 0) { profileRepository.readProfileList() }
@@ -61,7 +61,7 @@ class ReadChromeSessionImportProfileUseCaseTest :
             When("가져올 프로필을 찾는다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-011 없음을 전달한다") {
+                Then("TC-274d9001-9be0-48aa-9f61-60919aed0e4d 없음을 전달한다") {
                     result shouldBe Result.success(null)
                 }
             }
@@ -74,7 +74,7 @@ class ReadChromeSessionImportProfileUseCaseTest :
             When("가져올 프로필을 찾는다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-012 그 프로필을 전달한다") {
+                Then("TC-f760b33d-11cf-47cd-9d3b-0e06bcb0b0a0 그 프로필을 전달한다") {
                     result shouldBe Result.success(profileList.last())
                 }
             }
@@ -88,7 +88,7 @@ class ReadChromeSessionImportProfileUseCaseTest :
             When("가져올 프로필을 찾는다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-014 실패를 전달한다") {
+                Then("TC-21c5be38-ff6a-40ca-a5d7-6be6c79b105f 실패를 전달한다") {
                     result.shouldBeFailure()
                 }
             }

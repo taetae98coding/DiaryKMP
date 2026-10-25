@@ -57,7 +57,7 @@ class CalendarHomeScreenWeatherTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-037 날씨가 준비되면 조작 없이 캘린더 표시가 반영된다`() {
+    fun `TC-14768ecb-20a2-4957-b332-443106246455 날씨가 준비되면 조작 없이 캘린더 표시가 반영된다`() {
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -84,7 +84,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-038 캘린더에 보이는 주와 겹치지 않는 날짜의 날씨는 표시되지 않는다`() {
+    fun `TC-150b4b4d-d2ad-4950-a585-6cd96e1cdd98 캘린더에 보이는 주와 겹치지 않는 날짜의 날씨는 표시되지 않는다`() {
         val weather =
             calendarWeather(
                 date = july(day = 15),
@@ -112,7 +112,7 @@ class CalendarHomeScreenWeatherTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "w840dp-h900dp")
-    fun `TC-CALENDAR-HOME-FEATURE-040 오늘 날짜의 모든 날씨 아이콘과 현재 기온이 표시된다`() {
+    fun `TC-1020d8a1-0e40-42b9-aba8-04a1242da437 오늘 날짜의 모든 날씨 아이콘과 현재 기온이 표시된다`() {
         val weather =
             calendarWeather(
                 date = july(day = 15),
@@ -151,7 +151,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-041 오늘이 아닌 날짜의 모든 날씨 아이콘과 최저 최고 기온이 표시된다`() {
+    fun `TC-141a0841-2fba-4903-ba97-22f6cc0d3c09 오늘이 아닌 날짜의 모든 날씨 아이콘과 최저 최고 기온이 표시된다`() {
         val weather =
             calendarWeather(
                 date = july(day = 16),
@@ -171,7 +171,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-062 온도 표시가 없는 날짜는 날씨 아이콘만 표시된다`() {
+    fun `TC-e7ee237a-2c9e-4efb-91ee-a632bf7c8e29 온도 표시가 없는 날짜는 날씨 아이콘만 표시된다`() {
         val weather =
             calendarWeather(
                 date = july(day = 16),
@@ -189,7 +189,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-042 한 번에 보이지 않는 날씨 아이콘을 가로로 스크롤해 확인한다`() {
+    fun `TC-c9866073-5352-4222-aff1-c6f4cc89bc1f 한 번에 보이지 않는 날씨 아이콘을 가로로 스크롤해 확인한다`() {
         val descriptionList = List(size = WEATHER_ICON_COUNT) { index -> "$WEATHER_DESCRIPTION_PREFIX$index" }
         val weather =
             calendarWeather(
@@ -214,7 +214,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-043 연속된 같은 날씨 이미지만 하나로 표시한다`() {
+    fun `TC-dad0bf60-c4e0-402b-9cc1-f527bab70e97 연속된 같은 날씨 이미지만 하나로 표시한다`() {
         val firstSunnyDescription = "첫 번째 맑음"
         val consecutiveSunnyDescription = "연속 맑음"
         val cloudyDescription = "흐림"
@@ -255,7 +255,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-097 각 날씨의 아이콘은 대표 상태의 아이콘을 사용한다`() {
+    fun `TC-d67526b6-3c62-467b-aaa2-dffcf5863d8b 각 날씨의 아이콘은 대표 상태의 아이콘을 사용한다`() {
         val weather =
             CalendarWeather(
                 date = july(day = 15),

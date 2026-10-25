@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDate
 
 class TimetablePageTest :
     FunSpec({
-        test("TC-TIMETABLE-DOMAIN-001 주간 형식의 표시 날짜는 지정한 날짜가 속한 주의 일요일부터 토요일까지다") {
+        test("TC-d25e5ade-3f25-41f2-bcec-1d192b68d947 주간 형식의 표시 날짜는 지정한 날짜가 속한 주의 일요일부터 토요일까지다") {
             val week = date(month = 9, day = 20)..date(month = 9, day = 26)
             val caseList =
                 listOf(
@@ -50,7 +50,7 @@ class TimetablePageTest :
             TimetableType.WEEK.dateRangeAt(page - 1) shouldBe date(month = 9, day = 13)..date(month = 9, day = 19)
         }
 
-        test("TC-TIMETABLE-DOMAIN-014 이동 범위보다 이른 날짜를 지정하면 이동 범위의 처음을 표시한다") {
+        test("TC-7223e27b-90ce-4ee1-a169-45b767234a89 이동 범위보다 이른 날짜를 지정하면 이동 범위의 처음을 표시한다") {
             val earlyDate = LocalDate(year = 0, month = 12, day = 1)
 
             TimetableState(type = TimetableType.DAY, initialDate = earlyDate).currentDateRange shouldBe

@@ -60,7 +60,7 @@ class PlaceSearchRepositoryImplTest :
             } shouldBe throwable
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-005 네이버 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
+        test("TC-723e26ea-30ae-44f5-afac-07ace5e60932 네이버 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
             val query = query()
             val remoteList = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(PLACE_COUNT)
             val dataSource = mockk<NaverPlaceRemoteDataSource>()
@@ -112,7 +112,7 @@ class PlaceSearchRepositoryImplTest :
             coVerify(exactly = 1) { dataSource.search(query = query, locationBias = null) }
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-006 Google 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
+        test("TC-6c825776-996f-4050-a771-d3db0185cd19 Google 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
             val query = query()
             val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
             val dataSource = mockk<GooglePlaceRemoteDataSource>()
@@ -125,7 +125,7 @@ class PlaceSearchRepositoryImplTest :
             coVerify(exactly = 2) { dataSource.search(query = query, locationBias = null) }
         }
 
-        test("TC-NAVER-PLACE-SEARCH-DATA-006 네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("TC-2eff41ae-28e1-4305-a906-620d864e6476 네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
             val remoteList =
                 fixtureMonkey
@@ -142,7 +142,7 @@ class PlaceSearchRepositoryImplTest :
             actual[1].coordinate.isRepresentable shouldBe false
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-007 Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
             val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
             val withoutCoordinate = remoteList[1].copy(location = GooglePlaceLocationRemoteEntity())

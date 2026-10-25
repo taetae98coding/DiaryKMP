@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.ui.Res
@@ -28,29 +25,25 @@ internal fun MemoAddTopBar(
     val geminiContentDescription = stringResource(Res.string.memo_gemini_button_content_description)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        navigateUp =
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(MemoAddScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
-        actions =
-            buildList {
-                if (geminiUiStateProvider().isButtonVisible) {
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.AUTO_AWESOME,
-                            contentDescription = geminiContentDescription,
-                            onClick = { onEvent(MemoAddScaffoldEvent.ClickGemini) },
-                        ),
-                    )
-                }
-            },
+            }
+        },
+        actions = {
+            if (geminiUiStateProvider().isButtonVisible) {
+                IconAction(
+                    icon = DiaryTopBarIcon.AUTO_AWESOME,
+                    contentDescription = geminiContentDescription,
+                    onClick = { onEvent(MemoAddScaffoldEvent.ClickGemini) },
+                )
+            }
+        },
     )
 }
 

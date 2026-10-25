@@ -33,6 +33,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.todayIn
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -42,6 +46,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Clock
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -61,7 +66,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-6e779545-009e-453f-9790-a6ee1bb77d3f 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -75,7 +80,27 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-010 연차 개수를 바꾸면 황금연휴 목록이 다시 표시된다`() {
+    fun `TC-47c2f345-8b49-40df-ba0c-4cdda8cbce62 화면을 처음 열면 오늘이 속한 년도가 표시된다`() {
+        // 표시된 년도가 실제 올해가 아니라 주입한 시계의 올해를 따르는지 가르도록, 실제 올해와 다른 년도로 시계를 고정한다.
+        val actualYear = Clock.System.todayIn(TimeZone.currentSystemDefault()).year
+        val clockYear = actualYear + CLOCK_YEAR_OFFSET
+        val clock = mockk<Clock>()
+        every { clock.now() } returns LocalDateTime(year = clockYear, month = 6, day = 15, hour = 12, minute = 0).toInstant(TimeZone.currentSystemDefault())
+
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(year = clockYear),
+            clock = clock,
+        )
+
+        composeRule.onNodeWithText(clockYear.toString()).assertExists()
+        composeRule.onNodeWithText(actualYear.toString()).assertDoesNotExist()
+        composeRule.onNodeWithText((clockYear - 1).toString()).assertDoesNotExist()
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+    }
+
+    @Test
+    fun `TC-98170ff0-175e-4251-a386-325ea596a469 연차 개수를 바꾸면 황금연휴 목록이 다시 표시된다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -102,7 +127,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-026 공휴일이 준비되는 동안 로딩 표시가 나타난다`() {
+    fun `TC-cbdbe3e8-22bb-4827-ae3e-750d6320b15c 공휴일이 준비되는 동안 로딩 표시가 나타난다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -118,7 +143,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-027 준비가 끝나면 별도 조작 없이 본문이 목록으로 바뀐다`() {
+    fun `TC-7340b670-20c5-40b3-9c2b-7f9b22d3a618 준비가 끝나면 별도 조작 없이 본문이 목록으로 바뀐다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
@@ -136,7 +161,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-028 기본 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
+    fun `TC-e831cd29-4700-401b-b4aa-7c72caaeb398 기본 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = previousYearFailFetchHolidayUseCase(),
@@ -149,7 +174,7 @@ class HolidayHomeScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-HOLIDAY-HOME-FEATURE-028 한국어 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
+    fun `TC-e831cd29-4700-401b-b4aa-7c72caaeb398 한국어 환경에서 공휴일을 받아오지 못하면 오류 안내와 재시도 동작이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = previousYearFailFetchHolidayUseCase(),
@@ -160,7 +185,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-029 재시도를 선택하면 다시 받아와 목록이 표시된다`() {
+    fun `TC-f6e59f73-a19b-4aeb-873b-eadd2da24ff5 재시도를 선택하면 다시 받아와 목록이 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
@@ -184,7 +209,7 @@ class HolidayHomeScreenTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-056 준비가 끝났지만 황금연휴가 없으면 안내 없이 빈 목록이 표시된다`() {
+    fun `TC-093eb581-c75d-4390-9a5b-8d5d59feaf64 준비가 끝났지만 황금연휴가 없으면 안내 없이 빈 목록이 표시된다`() {
         composeRule.setHolidayHomeScreen(targetYear = targetYear)
 
         composeRule.onAllNodesWithText(text = PERIOD_SEPARATOR, substring = true).assertCountEquals(0)
@@ -197,6 +222,7 @@ class HolidayHomeScreenTest {
     private companion object {
         private const val HOLIDAY_NAME = "공휴일"
         private const val PERIOD_SEPARATOR = " ~ "
+        private const val CLOCK_YEAR_OFFSET = 5
 
         private fun suspendedFetchHolidayUseCase(completion: CompletableDeferred<Result<List<Holiday>>>): FetchHolidayUseCase =
             mockk<FetchHolidayUseCase>().also { useCase ->

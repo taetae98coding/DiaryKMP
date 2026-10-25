@@ -3,9 +3,7 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.Res
@@ -22,16 +20,15 @@ internal fun MoreHomeTopBar(
     val settingContentDescription = stringResource(Res.string.more_setting_button_content_description)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        actions =
-            listOf(
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.SETTING,
-                    contentDescription = settingContentDescription,
-                    onClick = { onEvent(MoreHomeScaffoldEvent.ClickSetting) },
-                ),
-            ),
+        actions = {
+            IconAction(
+                icon = DiaryTopBarIcon.SETTING,
+                contentDescription = settingContentDescription,
+                onClick = { onEvent(MoreHomeScaffoldEvent.ClickSetting) },
+            )
+        },
     )
 }
 

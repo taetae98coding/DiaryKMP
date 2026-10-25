@@ -42,7 +42,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-HOME-FEATURE-028 당겨서 다시 불러오는 동안 새로고침 중이고 끝나면 새로고침 중이 아니다") {
+        test("TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 당겨서 다시 불러오는 동안 새로고침 중이고 끝나면 새로고침 중이 아니다") {
             runTest(mainDispatcher) {
                 val response = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<RefreshFileUseCase>()
@@ -61,7 +61,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-031 다시 불러오는 동안 다시 요청하면 다시 불러오지 않는다") {
+        test("TC-8d5f4d26-8a00-45ab-abdc-4bc9e109bf42 다시 불러오는 동안 다시 요청하면 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshFileUseCase>()
                 coEvery { useCase(parameter = Unit) } coAnswers { awaitCancellation() }
@@ -76,7 +76,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-023 다시 불러오기에 실패하면 실패를 한 번 알리고 새로고침 중이 아니다") {
+        test("TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 다시 불러오기에 실패하면 실패를 한 번 알리고 새로고침 중이 아니다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshFileUseCase>()
                 coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -94,7 +94,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-039 다시 불러오는 동안 올리기에 성공하면 진행 중이던 불러오기를 멈추고 진행 표시 없이 다시 불러와 처음으로 돌아갈 준비를 한다") {
+        test("TC-a81de861-ef29-434d-a558-91b824444920 다시 불러오는 동안 올리기에 성공하면 진행 중이던 불러오기를 멈추고 진행 표시 없이 다시 불러와 처음으로 돌아갈 준비를 한다") {
             runTest(mainDispatcher) {
                 val firstFileIdBefore = fixtureMonkey.giveMeOne<Uuid>()
                 val useCase = mockk<RefreshFileUseCase>()
@@ -132,7 +132,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-043 계정이 바뀌어 다시 불러오기를 그만두면 실패를 알리지 않고 새로고침 중이 아니다") {
+        test("TC-00615cba-60ba-4905-9cea-bd710accd007 계정이 바뀌어 다시 불러오기를 그만두면 실패를 알리지 않고 새로고침 중이 아니다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshFileUseCase>()
                 coEvery { useCase(parameter = Unit) } coAnswers { awaitCancellation() }
@@ -150,7 +150,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-044 올리기 성공으로 다시 불러오는 동안 당겨도 다시 불러오지 않는다") {
+        test("TC-62b45f1e-b35d-40df-bc94-1aa52c84c45d 올리기 성공으로 다시 불러오는 동안 당겨도 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshFileUseCase>()
                 coEvery { useCase(parameter = Unit) } coAnswers { awaitCancellation() }
@@ -167,7 +167,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-018 올리기 뒤 다시 불러오는 동안에는 새로고침 진행을 표시하지 않는다") {
+        test("TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기 뒤 다시 불러오는 동안에는 새로고침 진행을 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val response = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<RefreshFileUseCase>()
@@ -183,7 +183,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-049 FileAdd를 보는 동안 올리기에 성공하면 진행 표시 없이 다시 불러와 처음으로 돌아갈 준비를 한다") {
+        test("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 진행 표시 없이 다시 불러와 처음으로 돌아갈 준비를 한다") {
             runTest(mainDispatcher) {
                 val firstFileIdBefore = fixtureMonkey.giveMeOne<Uuid>()
                 val useCase = mockk<RefreshFileUseCase>()
@@ -202,7 +202,7 @@ class FileHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-050 FileAdd를 보는 동안 성공한 올리기 뒤 다시 불러오기에 실패해도 알리지 않는다") {
+        test("TC-ad53df91-30c2-4c79-ba3d-f0f479def34a FileAdd를 보는 동안 성공한 올리기 뒤 다시 불러오기에 실패해도 알리지 않는다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RefreshFileUseCase>()
                 coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))

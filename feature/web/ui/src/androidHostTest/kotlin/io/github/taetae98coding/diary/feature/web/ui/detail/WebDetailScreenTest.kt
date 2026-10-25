@@ -1,9 +1,16 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -12,6 +19,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -53,7 +61,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-037 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
+    fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
         val pageViewModel = pageViewModel()
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -63,7 +71,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-004 TC-WEB-DETAIL-FEATURE-040 응답 본문 방식을 고르면 웹 페이지 불러오기를 한 번 시작한다`() {
+    fun `TC-be0b371e-cba7-4075-80dc-9745d8a16755 TC-91db69f6-f373-4821-96d4-5307ce48c70f 응답 본문 방식을 고르면 웹 페이지 불러오기를 한 번 시작한다`() {
         val pageViewModel = pageViewModel()
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -73,7 +81,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-041 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
+    fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -85,7 +93,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-009 다시 시도를 선택하면 다시 불러오기를 한 번 실행한다`() {
+    fun `TC-04087944-e03c-4f27-a985-1fd686cb0d0b 다시 시도를 선택하면 다시 불러오기를 한 번 실행한다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Failure)
 
         setWebDetailScreen(pageViewModel = pageViewModel)
@@ -97,7 +105,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-015 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-e1733a76-37b3-4b77-99f3-56f3e513418c 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
 
         setWebDetailScreen(navigateUp = { navigateUpCount++ })
@@ -107,7 +115,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-006 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
+    fun `TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
         setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage())))
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
 
@@ -116,7 +124,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-016 외부로 열기를 선택하면 저장된 URL을 앱 밖에서 한 번 연다`() {
+    fun `TC-b66fd1fc-9dae-4e34-9b0f-ab6dc1661181 외부로 열기를 선택하면 저장된 URL을 앱 밖에서 한 번 연다`() {
         val detail = testWebDetail()
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
@@ -128,7 +136,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-032 반영하지 않은 URL 입력은 외부로 여는 주소를 바꾸지 않는다`() {
+    fun `TC-fe077d93-b94a-40e7-9a0e-2a0682af5bbf 반영하지 않은 URL 입력은 외부로 여는 주소를 바꾸지 않는다`() {
         val detail = testWebDetail()
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
@@ -144,7 +152,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-073 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
+    fun `TC-80b368c8-a5ee-4e74-8097-562630e321ff 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
         val detail = testWebDetail(headerList = listOf(WebHeader(name = TYPED_HEADER_NAME, value = "header-value")))
         val uriHandler =
             mockk<UriHandler> {
@@ -166,7 +174,29 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-014 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
+    fun `TC-8beec23c-b2f5-4b8e-b422-7fe5704dbdc0 열지 못한 것을 실행 환경이 알려 주지 않으면 안내하지 않는다`() {
+        val detail = testWebDetail()
+        // 열지 못한 것을 알려 주지 않는 실행 환경에서는 여는 요청이 오류 없이 끝나므로, 정상 반환하는 처리기로 그 환경을 흉내 낸다.
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(any()) } returns Unit
+            }
+
+        setWebDetailScreen(uiState = testContentUiState(detail = detail), uriHandler = uriHandler)
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri(detail.url) }
+        composeRule.onNodeWithText("Couldn't open the link.").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
+        composeRule.selectFormTab()
+        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.urlInput().assert(hasText(detail.url))
+    }
+
+    @Test
+    fun `TC-26a8fc6b-6a03-477f-a070-e03027088d87 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
         val detail = testWebDetail()
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
 
@@ -181,7 +211,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-031 반영하지 않은 URL 입력은 다시 시도에 쓰지 않는다`() {
+    fun `TC-ac801375-9e04-47b6-9061-8851b3d339cc 반영하지 않은 URL 입력은 다시 시도에 쓰지 않는다`() {
         val webViewModel = webViewModel()
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Failure)
 
@@ -198,7 +228,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 삭제를 선택하면 삭제를 한 번 실행한다`() {
+    fun `TC-35ae4b6d-4860-445b-9469-595ebb1fac84 삭제를 선택하면 삭제를 한 번 실행한다`() {
         val webViewModel = webViewModel(uiState = testContentUiState())
 
         setWebDetailScreen(webViewModel = webViewModel)
@@ -209,7 +239,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 TC-TAG-DETAIL-WEB-FEATURE-020 삭제에 성공하면 뒤로가기와 같은 닫기로 이전 화면으로 돌아간다`() {
+    fun `TC-35ae4b6d-4860-445b-9469-595ebb1fac84 TC-0cc096fc-4d70-45db-9581-b20bdee05bb5 삭제에 성공하면 뒤로가기와 같은 닫기로 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.DeleteSucceeded))
 
@@ -220,7 +250,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-023 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-2aefeb4d-e3aa-4ef8-9943-bb28c8292ae0 진입할 때는 어느 입력에도 초점을 두지 않는다`() {
         setWebDetailScreen()
         composeRule.selectFormTab()
 
@@ -228,7 +258,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-024 수정을 선택하면 입력한 내용으로 수정을 한 번 실행한다`() {
+    fun `TC-ed5f7e67-ca83-4085-bcac-dfff466a11c3 수정을 선택하면 입력한 내용으로 수정을 한 번 실행한다`() {
         val detail = testWebDetail()
         val webViewModel = webViewModel(uiState = testContentUiState(detail = detail))
 
@@ -243,7 +273,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-026 수정에 성공하면 입력을 유지하고 성공 안내를 표시한다`() {
+    fun `TC-d837592b-4ade-4baa-be57-80723a8a8fc0 수정에 성공하면 입력을 유지하고 성공 안내를 표시한다`() {
         val detail = testWebDetail()
         val effect = Channel<WebDetailEffect>(capacity = Channel.UNLIMITED)
         val webViewModel =
@@ -265,7 +295,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-030 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
+    fun `TC-d9d1473a-519d-46ec-8521-5665c3a60e57 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
         val pageViewModel = pageViewModel()
         val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.UpdateSucceeded))
 
@@ -276,7 +306,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-028 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시한다`() {
+    fun `TC-05af06b9-5c30-4045-9213-f5dc39a90a0c 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시한다`() {
         val detail = testWebDetail()
         val webViewModel =
             webViewModel(
@@ -293,7 +323,47 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-021 저장 내용이 바뀌어도 입력을 다시 채우지 않고 화면 제목만 갱신한다`() {
+    fun `TC-c726e1bc-0e76-4414-bc6e-ee9b0d136398 이름이 비어 있는 헤더 항목 때문에 수정하지 않으면 입력 초점을 옮기지 않는다`() {
+        val effect = Channel<WebDetailEffect>(capacity = Channel.UNLIMITED)
+        val webViewModel = webViewModel(effect = effect.receiveAsFlow())
+        every { webViewModel.update(detail = any()) } answers { effect.trySend(WebDetailEffect.HeaderNameBlank).getOrThrow() }
+
+        setWebDetailScreen(webViewModel = webViewModel)
+        composeRule.selectFormTab()
+        composeRule.addHeaderRow()
+        composeRule.headerValueInput().performTextInput(TYPED_HEADER_VALUE)
+        composeRule.headerValueInput().assertIsFocused()
+
+        composeRule.headerValueInput().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.Enter)
+            keyUp(Key.Enter)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.awaitText(DEFAULT_HEADER_NAME_BLANK_MESSAGE)
+
+        verify(exactly = 1) { webViewModel.update(detail = any()) }
+        composeRule.headerValueInput().assertIsFocused()
+        composeRule.titleInput().assertIsNotFocused()
+        composeRule.descriptionInput().assertIsNotFocused()
+        composeRule.urlInput().assertIsNotFocused()
+        composeRule.headerNameInput().assertIsNotFocused()
+    }
+
+    @Test
+    fun `TC-a2eac5a2-222c-41fb-b1eb-d30cf404687e 화면을 떠났다 다시 들어오면 수정 중이던 내용을 복원하지 않는다`() {
+        // 화면을 떠나면 그 화면의 저장 상태와 ViewModel이 사라지므로, 다시 들어오는 화면은 새 키와 새 ViewModel로 구성한다.
+        assertEditedContentIsNotRestoredOnEntry()
+    }
+
+    @Test
+    fun `TC-a2eac5a2-222c-41fb-b1eb-d30cf404687e 앱을 다시 실행해 진입하면 수정 중이던 내용을 복원하지 않는다`() {
+        // 앱을 다시 실행하면 저장해 둔 화면 상태도 화면의 ViewModel도 없으므로, 새 키와 새 ViewModel로 화면을 다시 구성한다.
+        assertEditedContentIsNotRestoredOnEntry()
+    }
+
+    @Test
+    fun `TC-fe84093a-c265-4d86-b4e8-e6a68eabc153 저장 내용이 바뀌어도 입력을 다시 채우지 않고 화면 제목만 갱신한다`() {
         val detail = testWebDetail()
         val changedDetail = detail.copy(title = CHANGED_TITLE, url = CHANGED_URL)
         val content = testContentUiState(detail = detail)
@@ -313,7 +383,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-029 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
+    fun `TC-231fffed-c9ff-4e34-a60d-d66e06945494 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val uiStateFlow = MutableStateFlow<WebDetailUiState>(testContentUiState())
 
@@ -322,6 +392,7 @@ class WebDetailScreenTest {
                 WebDetailScreen(
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_WEB_ID,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -352,7 +423,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-072 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
+    fun `TC-3dc63903-fbcb-4aef-9d9e-a811d56ff1ae 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
         val recreatedPageViewModel = pageViewModel()
@@ -363,6 +434,7 @@ class WebDetailScreenTest {
                 WebDetailScreen(
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_WEB_ID,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -387,7 +459,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-054 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
+    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
         val uiState = testContentUiState()
 
         setWebDetailScreen(
@@ -399,6 +471,54 @@ class WebDetailScreenTest {
         composeRule.onAllNodesWithText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
         composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertDoesNotExist()
+    }
+
+    private fun assertEditedContentIsNotRestoredOnEntry() {
+        val detail = testWebDetail(headerList = listOf(WebHeader(name = SAVED_HEADER_NAME, value = SAVED_HEADER_VALUE)))
+        val enteredWebViewModelList = List(ENTRY_COUNT) { webViewModel(uiState = testContentUiState(detail = detail)) }
+        val enteredPageViewModelList = List(ENTRY_COUNT) { pageViewModel() }
+        var entryCount by mutableIntStateOf(0)
+
+        composeRule.setContent {
+            key(entryCount) {
+                WebDetailScreenTestTheme {
+                    WebDetailScreen(
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
+                        id = FIRST_WEB_ID,
+                        navigateToTagAdd = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = {},
+                        webViewModel = enteredWebViewModelList[entryCount],
+                        pageViewModel = enteredPageViewModelList[entryCount],
+                        navigateToTagDetail = {},
+                        tagViewModel = detailTagScreenTestViewModel(),
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectFormTab()
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.descriptionInput().performTextReplacement(TYPED_DESCRIPTION)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.headerNameInput().performTextReplacement(TYPED_HEADER_NAME)
+        composeRule.addHeaderRow()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()
+
+        composeRule.runOnIdle { entryCount += 1 }
+        composeRule.waitForIdle()
+        composeRule.selectFormTab()
+
+        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.headerNameInput().assert(hasText(SAVED_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText(SAVED_HEADER_VALUE))
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER + INPUT_COUNT_PER_HEADER
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+        enteredWebViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.update(detail = any()) } }
     }
 
     private fun setWebDetailScreen(
@@ -416,6 +536,7 @@ class WebDetailScreenTest {
                     WebDetailScreen(
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_WEB_ID,
                         navigateToTagAdd = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -433,6 +554,10 @@ class WebDetailScreenTest {
     private companion object {
         private const val TYPED_TITLE = "WebDetailTypedTitle"
         private const val TYPED_URL = "https://typed.example.com"
+        private const val TYPED_DESCRIPTION = "WebDetailTypedDescription"
+        private const val SAVED_HEADER_NAME = "X-Saved-Header"
+        private const val SAVED_HEADER_VALUE = "WebDetailSavedHeaderValue"
+        private const val ENTRY_COUNT = 2
         private const val TYPED_HEADER_NAME = "Authorization"
         private const val TYPED_HEADER_VALUE = "Bearer typed-token"
         private const val CHANGED_TITLE = "WebDetailChangedTitle"

@@ -58,7 +58,7 @@ class AccountMusicLocalDataSourceImplTest :
 
         suspend fun pagedMusics(accountId: Uuid): List<MusicLocalEntity> = dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT).pagedMusics()
 
-        test("TC-PLAYLIST-HOME-DOMAIN-001 TC-PLAYLIST-HOME-DOMAIN-003 삭제되지 않은 계정의 곡만 제목 오름차순으로 조회된다") {
+        test("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 TC-7b479c76-f086-4f5e-9a12-08f8adcf789d 삭제되지 않은 계정의 곡만 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
@@ -71,7 +71,7 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-004 가수는 정렬 순서를 바꾸지 않는다") {
+        test("TC-be003d7a-bf77-45fa-b27f-3acaf8bc248a 가수는 정렬 순서를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstMusic = music(title = FIRST_MUSIC_TITLE, artist = LAST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
@@ -80,7 +80,7 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-001 다른 계정의 곡만 저장되어 있으면 빈 목록으로 조회된다") {
+        test("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 다른 계정의 곡만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()))
@@ -88,7 +88,7 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId).shouldBeEmpty()
         }
 
-        test("TC-PLAYLIST-HOME-DATA-001 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
+        test("TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val musicList = List(3) { index -> music(title = "$index-${fixtureMonkey.giveMeOne<String>()}") }
             musicTransaction.upsert(accountId = accountId, musicList = musicList)
@@ -107,7 +107,7 @@ class AccountMusicLocalDataSourceImplTest :
             nextPage.data shouldBe musicList.drop(2)
         }
 
-        test("TC-PLAYLIST-HOME-DATA-002 TC-PLAYLIST-HOME-DOMAIN-001 저장된 곡의 변화가 페이지 조회에 반영된다") {
+        test("TC-dd670125-228a-4168-9d06-dce88416c41d TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 저장된 곡의 변화가 페이지 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             val renamedMusic = music.copy(detail = music.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
@@ -140,7 +140,7 @@ class AccountMusicLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-001 삭제 여부와 관계없이 계정의 곡을 대상 식별자로 조회한다") {
+        test("TC-089834cb-924c-4e13-ab94-cf51b620a5eb 삭제 여부와 관계없이 계정의 곡을 대상 식별자로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             val deletedMusic = music().copy(isDeleted = true)
@@ -150,7 +150,7 @@ class AccountMusicLocalDataSourceImplTest :
             dataSource.find(accountId = accountId, musicId = deletedMusic.id).first() shouldBe deletedMusic
         }
 
-        test("TC-MUSIC-DETAIL-DATA-001 다른 계정의 곡은 대상 식별자로도 조회되지 않는다") {
+        test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 다른 계정의 곡은 대상 식별자로도 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
@@ -159,7 +159,7 @@ class AccountMusicLocalDataSourceImplTest :
             dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe null
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-008 TC-MUSIC-DETAIL-DATA-008 수정한 곡은 목록에 반영되고 삭제한 곡은 목록에서 사라진다") {
+        test("TC-9d5c8d13-b400-4c57-8c27-3a66a01e4e11 TC-0d30ddb5-93ad-4f30-8535-b378c6be519c 수정한 곡은 목록에 반영되고 삭제한 곡은 목록에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -175,7 +175,7 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId).shouldBeEmpty()
         }
 
-        test("TC-PLAYLIST-HOME-DATA-007 실행 취소한 곡은 제목 오름차순에 맞는 자리로 다시 조회된다") {
+        test("TC-5f1a7f9a-2311-4d3f-9cbc-25cba566c9a0 실행 취소한 곡은 제목 오름차순에 맞는 자리로 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val middleMusic = music(title = MIDDLE_MUSIC_TITLE)

@@ -3,10 +3,8 @@ package io.github.taetae98coding.diary.feature.memo.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -36,57 +34,53 @@ internal fun MemoDetailTopBar(
     val deleteContentDescription = stringResource(Res.string.memo_detail_delete_button_content_description)
 
     DiaryTopBar(
+        title = {
+            if (uiState is MemoDetailUiState.Content) {
+                Title(text = uiState.detail.title, isMarquee = true)
+            }
+        },
         modifier = modifier,
-        title = (uiState as? MemoDetailUiState.Content)?.let { DiaryTopBarTitle.Text(text = it.detail.title, isMarquee = true) },
-        navigateUp =
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(MemoDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
-        actions =
-            buildList {
-                if (uiState is MemoDetailUiState.Content) {
-                    if (geminiUiStateProvider().isButtonVisible) {
-                        add(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.AUTO_AWESOME,
-                                contentDescription = geminiContentDescription,
-                                onClick = { onEvent(MemoDetailScaffoldEvent.ClickGemini) },
-                            ),
-                        )
-                    }
-                    add(memoDetailFinishAction(content = uiState, onEvent = onEvent))
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.COPY,
-                            contentDescription = copyContentDescription,
-                            onClick = { onEvent(MemoDetailScaffoldEvent.ClickCopy) },
-                            isInProgress = uiState.isCopyInProgress,
-                        ),
-                    )
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(MemoDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
+            }
+        },
+        actions = {
+            if (uiState is MemoDetailUiState.Content) {
+                if (geminiUiStateProvider().isButtonVisible) {
+                    IconAction(
+                        icon = DiaryTopBarIcon.AUTO_AWESOME,
+                        contentDescription = geminiContentDescription,
+                        onClick = { onEvent(MemoDetailScaffoldEvent.ClickGemini) },
                     )
                 }
-            },
+                MemoDetailFinishAction(content = uiState, onEvent = onEvent)
+                IconAction(
+                    icon = DiaryTopBarIcon.COPY,
+                    contentDescription = copyContentDescription,
+                    onClick = { onEvent(MemoDetailScaffoldEvent.ClickCopy) },
+                    isInProgress = uiState.isCopyInProgress,
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(MemoDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
+                )
+            }
+        },
     )
 }
 
 @Composable
-private fun memoDetailFinishAction(
+private fun DiaryTopBarActionScope.MemoDetailFinishAction(
     content: MemoDetailUiState.Content,
     onEvent: (MemoDetailScaffoldEvent) -> Unit,
-): DiaryTopBarAction =
-    DiaryTopBarAction.Toggle(
+) {
+    ToggleAction(
         icon = DiaryTopBarIcon.FINISH,
         contentDescription =
             if (content.isFinished) {
@@ -104,6 +98,7 @@ private fun memoDetailFinishAction(
         },
         isInProgress = content.isFinishInProgress,
     )
+}
 
 @ComponentPreview
 @Composable

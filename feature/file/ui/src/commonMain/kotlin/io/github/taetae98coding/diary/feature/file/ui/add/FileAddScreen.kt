@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
 @Composable
 internal fun FileAddScreen(
     navigateUp: () -> Unit,
+    componentVisibleProvider: () -> FileAddScaffoldComponentVisible,
     filePicker: FilePicker,
     uploadViewModel: FileAddViewModel,
     accountViewModel: FileAddAccountViewModel,
@@ -42,6 +43,7 @@ internal fun FileAddScreen(
         modifier = modifier,
         state = state,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }
 

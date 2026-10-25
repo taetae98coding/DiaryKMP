@@ -37,7 +37,7 @@ class PlaceDetailMemoRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<MemoListEvent>()
         setMemoTab(
             pagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = MEMO_TITLE)))),
@@ -51,14 +51,14 @@ class PlaceDetailMemoRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
+    fun `TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 진행 표시 상태이면 진행 표시가 나타난다`() {
         setMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시가 사라진다`() {
+    fun `TC-19d9feda-6635-4b91-a41f-448cb4703f92 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

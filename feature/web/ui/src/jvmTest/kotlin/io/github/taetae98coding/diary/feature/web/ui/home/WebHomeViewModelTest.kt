@@ -53,7 +53,7 @@ class WebHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-WEB-HOME-FEATURE-001 조회한 웹 항목 페이지를 그대로 노출한다") {
+        test("TC-3743b05e-be76-4e63-a0df-984a4fcc040a 조회한 웹 항목 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val webList = listOf(web(title = "Alpha"), web(title = "Bravo"))
                 val viewModel = viewModel(pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(webList))))
@@ -62,7 +62,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-DATA-003 웹 항목 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-280b2dfa-027e-49d2-9abd-683b1bda1b04 웹 항목 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -73,7 +73,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-FEATURE-004 저장된 웹 항목이 바뀌면 바뀐 페이지를 노출한다") {
+        test("TC-a28ec890-b9f6-4b81-a106-885d70b4f5a3 저장된 웹 항목이 바뀌면 바뀐 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val beforeWebList = listOf(web(title = "Alpha"))
                 val afterWebList = listOf(web(title = "Alpha"), web(title = "Bravo"))
@@ -91,7 +91,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-DATA-006 처음 정렬은 제목순이다") {
+        test("TC-80de79be-57d0-40e4-a072-5d794bca3459 처음 정렬은 제목순이다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))))
 
@@ -99,7 +99,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-DATA-005 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+        test("TC-1f541392-c628-4b52-b48c-a655ca110a4a 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val titleWebList = listOf(web(title = "Alpha"), web(title = "Bravo"))
                 val recentlyUpdatedWebList = listOf(web(title = "Bravo"), web(title = "Alpha"))
@@ -121,7 +121,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-FEATURE-021 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
+        test("TC-66f330bf-440b-4571-aa38-685a4d683fb6 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
             runTest(mainDispatcher) {
                 val webList = listOf(web(title = "A-${fixtureMonkey.giveMeOne<String>()}"), web(title = "B-${fixtureMonkey.giveMeOne<String>()}"))
                 val pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(webList)))
@@ -141,7 +141,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-FEATURE-025 삭제에 성공하면 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-b6eb4a10-bb07-4d9c-9ae2-4955a3aeb9d1 삭제에 성공하면 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
@@ -162,7 +162,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-FEATURE-031 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-a61f7c33-1a1f-40e2-9e13-0e3c3b551f96 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
@@ -182,7 +182,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-DOMAIN-012 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-b47c5332-9960-40e2-b9fc-41d687d583a7 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
@@ -203,7 +203,7 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-HOME-FEATURE-026 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
@@ -220,7 +220,7 @@ class WebHomeViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { restoreWebUseCase(parameter = id) }
             }
         }
-        test("TC-WEB-HOME-FEATURE-026 같은 웹 항목의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+        test("TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 같은 웹 항목의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()

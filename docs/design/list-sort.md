@@ -25,6 +25,7 @@
 - [PlaylistHome 화면 디자인](./playlist-home.md)
 - [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md)
 - [SearchHome 화면 디자인](./search-home.md)
+- [ChecklistDetail 화면 디자인](./checklist-detail.md)
 
 ## 정렬 줄
 
@@ -60,14 +61,15 @@
 
 | 화면 | 자리 |
 | --- | --- |
-| MemoFinishedList, TagFinishedList, TagMemoFinishedList, WebHome, ContactHome, PlaylistHome | 상단 바 바로 아래, 목록 위 |
+| MemoFinishedList, TagFinishedList, TagMemoFinishedList, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList, WebHome, ContactHome, PlaylistHome | 상단 바 바로 아래, 목록 위 |
 | MemoHome, TagHome | 상단 바 바로 아래 완료된 목록 진입 버튼과 같은 줄, 목록 위 |
 | TagDetail 웹 탭 | 탭 줄 바로 아래, 그 탭의 목록 위 |
 | TagDetail 장소 탭 | 탭 줄 바로 아래 보기 모드 전환 버튼과 같은 줄, 장소 보기 모드 영역 위 |
 | TagDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 목록 위 |
-| ContactDetail·PlaceDetail·WebDetail 메모 탭 | 탭 줄 바로 아래, 그 탭의 목록 위 |
+| ContactDetail·PlaceDetail·WebDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 그 탭의 목록 위 |
 | SearchHome 네 유형 | 유형 탭 줄 바로 아래, 그 유형의 결과 목록 위 |
 | PlaceHome | 장소 목록 영역 맨 위, 격자 위 |
+| ChecklistDetail | 본문의 설명 입력 아래, 체크 항목 행 위. 본문을 스크롤하면 상단 바 바로 아래에 붙어 남는다 |
 
 PlaceHome의 정렬 줄은 보기 모드에 따라 정해지는 장소 목록 영역 안에 둔다. 지도 모드에서는 지도 영역이 아니라 장소 목록 영역의 맨 위에 두고, 목록 모드에서는 본문 맨 위에 둔다. 보기 모드를 바꿔도 컨트롤의 표시 내용은 바뀌지 않으며, 모드 전환의 교차 페이드에 정렬 줄도 함께 포함된다.
 
@@ -79,7 +81,7 @@ TagDetail 장소 탭의 정렬 줄은 같은 보기 모드를 쓰면서도 장�
 
 정렬 컨트롤을 누르면 현재 화면 위에 정렬 선택 Bottom Sheet를 표시한다. Bottom Sheet의 표시, 드래그 핸들과 제목의 배치, 닫는 조작, 적응형 배치는 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 `Bottom Sheet 표시`, `닫는 조작`, `적응형 배치`와 같은 기준을 쓴다.
 
-제목 아래에는 그 목록이 제공하는 정렬을 위에서부터 기본순, 제목순, 최근 수정순 순서로 한 줄씩 둔다. 기본순을 두지 않는 목록에서는 제목순이 첫 줄이 된다. 제목순 대신 이름순을 쓰는 목록에서는 같은 자리에 이름순을 둔다. 목록의 처음 정렬을 첫 줄에 두어 목록 순서와 처음 상태를 맞춘다.
+제목 아래에는 그 목록이 제공하는 정렬을 위에서부터 기본순, 제목순, 최근 수정순 순서로 한 줄씩 둔다. 기본순을 두지 않는 목록에서는 제목순이 첫 줄이 된다. 제목순 대신 이름순을 쓰는 목록에서는 같은 자리에 이름순을 둔다. 목록의 처음 정렬을 첫 줄에 두어 목록 순서와 처음 상태를 맞춘다. ChecklistDetail의 체크 항목 목록은 같은 기준으로 처음 정렬인 추가순을 첫 줄에, 체크 안 된 항목 우선을 둘째 줄에 둔다.
 
 각 줄에는 시작 쪽에 그 정렬의 아이콘, 가운데에 정렬 이름, 끝 쪽에 선택 여부를 나타내는 라디오 버튼을 두고, 아이콘과 정렬 이름 사이에는 `16dp` 간격을 둔다. 현재 정렬의 줄만 선택 상태로 표시하며, 두 줄 이상이 동시에 선택 상태가 되지 않는다.
 
@@ -98,6 +100,8 @@ TagDetail 장소 탭의 정렬 줄은 같은 보기 모드를 쓰면서도 장�
 | 기본순 | 길이가 다른 가로 줄이 위에서부터 짧아지며 쌓인 정렬 아이콘 |
 | 제목순, 이름순 | 알파벳 두 글자와 아래 방향 화살표를 나란히 둔 아이콘 |
 | 최근 수정순 | 반시계 방향 화살표를 두른 시계 아이콘 |
+| 추가순 | 번호가 매겨진 목록 아이콘. Material Symbols `format_list_numbered` |
+| 체크 안 된 항목 우선 | 비어 있는 체크 상자 아이콘. Material Symbols `check_box_outline_blank` |
 
 같은 아이콘을 정렬 줄의 컨트롤과 Bottom Sheet의 줄에 함께 쓴다. 아래 방향 화살표 아이콘은 [WebDetail 화면 디자인](./web-detail.md)의 표시 방식 컨트롤이 쓰는 것과 같다.
 
@@ -127,6 +131,8 @@ Bottom Sheet의 각 줄은 정렬 이름을 하나의 선택 대상으로 읽히
 | 제목순 이름 | `제목순` | `Title` |
 | 이름순 이름 | `이름순` | `Name` |
 | 최근 수정순 이름 | `최근 수정순` | `Recently updated` |
+| 추가순 이름 | `추가순` | `Added order` |
+| 체크 안 된 항목 우선 이름 | `체크 안 된 항목 우선` | `Unchecked first` |
 
 정렬 이름은 같은 정렬을 제공하는 모든 화면에서 같은 문구를 쓴다. 목록이 담는 항목의 종류를 이름에 넣지 않는 것은 사용자가 이미 어느 목록을 보고 있는지 알고 있고, 화면마다 이름이 달라지면 같은 기준이 다른 기준처럼 보이기 때문이다.
 

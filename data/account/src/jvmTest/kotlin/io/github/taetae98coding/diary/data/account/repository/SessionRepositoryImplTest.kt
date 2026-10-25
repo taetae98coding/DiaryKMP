@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.flowOf
 class SessionRepositoryImplTest :
     FunSpec({
         listOf("데스크톱", "그 외 인가 코드 제공 플랫폼").forEach { platform ->
-            test("TC-LOGIN-DATA-001 $platform authorization code 매핑") {
+            test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 $platform authorization code 매핑") {
                 val credential =
                     GoogleCredential.AuthorizationCode(
                         code = fixtureMonkey.giveMeOne<String>(),
@@ -80,7 +80,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-002 idToken 매핑") {
+        test("TC-63cac31c-7605-4cf2-8d07-827a51c41bbc idToken 매핑") {
             val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
             val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
             val remoteDataSource = mockk<SessionRemoteDataSource>()
@@ -127,7 +127,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-007 Apple idToken 매핑") {
+        test("TC-6e664879-ccd1-4045-8836-4373dbf33fe3 Apple idToken 매핑") {
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
             val remoteDataSource = mockk<SessionRemoteDataSource>()
@@ -180,7 +180,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-003 remote 실패 전파") {
+        test("TC-47abdb9e-1c92-4473-9567-e403066b1935 remote 실패 전파") {
             val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
             val failure = TestException("remote failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
@@ -217,7 +217,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-004 token import 실패 전파") {
+        test("TC-d934727a-8590-4527-96a8-621ad9d73ac1 token import 실패 전파") {
             val credential = fixtureMonkey.giveMeOne<GoogleCredential.AuthorizationCode>()
             val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
             val failure = TestException("token import failure")
@@ -265,7 +265,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-003 Apple remote 실패 전파") {
+        test("TC-47abdb9e-1c92-4473-9567-e403066b1935 Apple remote 실패 전파") {
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val failure = TestException("apple remote failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
@@ -296,7 +296,7 @@ class SessionRepositoryImplTest :
             }
         }
 
-        test("TC-LOGIN-DATA-004 Apple token import 실패 전파") {
+        test("TC-d934727a-8590-4527-96a8-621ad9d73ac1 Apple token import 실패 전파") {
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
             val failure = TestException("apple token import failure")
@@ -346,7 +346,7 @@ class SessionRepositoryImplTest :
             SupabaseSessionStatus.RefreshFailure to Session.Pending,
             SupabaseSessionStatus.NotAuthenticated to Session.NotAuthenticated,
         ).forEach { (supabaseStatus, session) ->
-            test("TC-LOGIN-DATA-006 $supabaseStatus 세션 상태를 $session 로 판단한다") {
+            test("TC-5f906ab6-3a3c-47c9-b3a2-9b77b0cf30cc $supabaseStatus 세션 상태를 $session 로 판단한다") {
                 val remoteDataSource = mockk<SessionRemoteDataSource>()
                 val supabaseAuth = mockk<SupabaseAuth>()
                 every { supabaseAuth.getSessionStatusFlow() } returns flowOf(supabaseStatus)

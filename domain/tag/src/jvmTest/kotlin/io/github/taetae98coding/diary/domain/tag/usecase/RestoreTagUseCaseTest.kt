@@ -54,14 +54,14 @@ class RestoreTagUseCaseTest :
                 )
 
             When("태그의 삭제를 실행 취소한다") {
-                Then("TC-TAG-HOME-DOMAIN-017 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
+                Then("TC-58e4f2eb-61a6-41d7-a0ba-f7eefea23c17 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-TAG-HOME-DATA-014 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-0ab32303-204f-4de4-9c12-b160d2df7eb1 TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -87,7 +87,7 @@ class RestoreTagUseCaseTest :
                 )
 
             When("태그의 삭제를 실행 취소한다") {
-                Then("TC-TAG-HOME-DATA-015 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
+                Then("TC-67304ae1-e235-40c2-9534-61bbae9df2a7 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -111,7 +111,7 @@ class RestoreTagUseCaseTest :
                 )
 
             When("태그의 삭제를 실행 취소한다") {
-                Then("TC-TAG-HOME-DOMAIN-018 실행 취소가 성공으로 다뤄지지 않고 태그의 삭제 여부를 바꾸지 않는다") {
+                Then("TC-9ea1e569-f3f7-4928-a7c8-fe559cecadce 실행 취소가 성공으로 다뤄지지 않고 태그의 삭제 여부를 바꾸지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -142,7 +142,7 @@ class RestoreTagUseCaseTest :
                 )
 
             When("태그의 삭제를 실행 취소한다") {
-                Then("TC-TAG-HOME-DATA-016 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-e136e48d-b539-475d-a7c7-3c770312f57e 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

@@ -2,7 +2,7 @@
 
 이 문서는 사용자가 TagHome 목록에서 완료된 태그를 모아 확인하는 TagFinishedList 화면 가운데 이 화면에만 해당하는 부분을 다룬다. 진입과 이동, 빈 상태, 추가 미제공, 상세 확인, 정렬 선택, 노출 기준과 실행 경계의 공통 규칙은 [완료 목록 공통 스펙](./finished-list.md)을 따른다. 이 화면의 짝이 되는 목록은 [TagHome 목록](./tag-home.md)이다.
 
-태그 카드의 내용, 이모지 표시와 정렬은 [TagHome 목록 스펙](./tag-home.md)을 따르고, 상세 확인과 상세에서 태그를 다시 시작하거나 삭제하는 행동은 [TagDetail 화면 스펙](./tag-detail.md)을 따른다. 목록 카드에서 다시 시작·삭제를 실행하는 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을 따른다.
+태그 카드의 내용, 이모지 표시와 정렬은 [TagHome 목록 스펙](./tag-home.md)을 따르고, 상세 확인과 상세에서 태그를 다시 시작하거나 삭제하는 행동은 [TagDetail 화면 스펙](./tag-detail.md)을 따른다. 목록 카드에서 다시 시작·삭제를 실행하는 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을 따른다. 목록과 태그 상세를 함께 사용할 때의 선택 상태와 뒤로가기는 [TagFinishedList 목록·상세 배치 스펙](./tag-finished-list-detail.md)에서 다룬다.
 
 디자인: [TagFinishedList 화면 디자인](../../design/tag-finished-list.md)
 

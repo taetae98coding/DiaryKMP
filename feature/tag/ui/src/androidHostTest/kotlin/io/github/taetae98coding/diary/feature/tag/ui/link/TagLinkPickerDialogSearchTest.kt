@@ -38,7 +38,7 @@ class TagLinkPickerDialogSearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-018 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
+    fun `TC-1eb44ea5-5174-4d4a-b87b-42044517266f 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setTagLinkPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
@@ -51,7 +51,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-032 목록을 열어도 검색어 입력에 초점이 놓이지 않고 검색어 입력을 누르면 초점을 받는다`() {
+    fun `TC-ef864e12-e253-4ebe-8a47-ef1754ce8355 목록을 열어도 검색어 입력에 초점이 놓이지 않고 검색어 입력을 누르면 초점을 받는다`() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
         val dialogState = DialogState(isVisible = false)
         composeRule.setTagLinkPickerDialogHost(
@@ -68,7 +68,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-019 검색어를 입력하면 별도의 확정 동작 없이 목록이 좁혀진다`() {
+    fun `TC-b287bd85-e130-41b2-9a9b-374f9f9916f1 검색어를 입력하면 별도의 확정 동작 없이 목록이 좁혀진다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setQueryFilteredPickerDialogHost(tagList = tagList)
         composeRule.awaitTagLinkPickerRow(title = EXERCISE_TAG_TITLE)
@@ -80,7 +80,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-020 검색어를 지우면 대상 전체가 다시 나타난다`() {
+    fun `TC-1ee5cc27-e1a2-4bb3-a23b-c3327b29d6af 검색어를 지우면 대상 전체가 다시 나타난다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setQueryFilteredPickerDialogHost(tagList = tagList)
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
@@ -110,7 +110,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-021 검색어로 좁힌 목록에서도 연결과 해제를 전달하고 그 태그는 목록에 남는다`() {
+    fun `TC-fc86ec67-d931-42be-819d-2b8a0965e481 검색어로 좁힌 목록에서도 연결과 해제를 전달하고 그 태그는 목록에 남는다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         val unlinkedIdList = mutableListOf<Uuid>()
@@ -153,7 +153,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-022 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
+    fun `TC-6fed5f52-6012-474f-afdc-580698d5fa77 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setTagLinkPickerDialog(
             tagList = emptyList(),
             query = WORK_TAG_QUERY,
@@ -165,7 +165,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-031 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
+    fun `TC-3c031099-9707-496f-97a3-c884b3c50807 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
         var clickAddCount = 0
         composeRule.setTagLinkPickerDialog(
             tagList = emptyList(),
@@ -208,7 +208,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-023 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
+    fun `TC-3b5cabb9-a512-42e8-8d12-c0b4268f3081 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val dialogState = DialogState(isVisible = true)
         val queryList = mutableListOf<String>()
@@ -228,7 +228,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-DOMAIN-010 화면이 회전하거나 창 크기가 바뀌어도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+    fun `TC-44acf94c-50ec-4461-b624-9dd3622ee278 화면이 회전하거나 창 크기가 바뀌어도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val narrowedTagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(testTag(title = WORK_TAG_TITLE))))
         val queryList = mutableListOf<String>()
         val restorationTester = StateRestorationTester(composeRule)
@@ -258,7 +258,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-DOMAIN-015 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
+    fun `TC-41c3b709-42e1-4340-8f1a-8fc2c0e68cec 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: DialogState

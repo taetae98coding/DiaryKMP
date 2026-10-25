@@ -9,12 +9,16 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.holiday.api.HolidayHomeNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
@@ -28,6 +32,7 @@ import io.github.taetae98coding.diary.feature.more.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -39,11 +44,12 @@ import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -53,6 +59,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -69,13 +76,13 @@ import kotlin.uuid.Uuid
 
 class ScreenNameTest :
     FunSpec({
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-011 각 화면은 목록에 정의된 이름으로 남는다") {
+        test("TC-32e6ad32-004b-47c6-a25a-144794ac03aa 각 화면은 목록에 정의된 이름으로 남는다") {
             screenNameByNavKey().forEach { (navKey, screenName) ->
                 withClue(navKey) { navKey.screenName shouldBe screenName }
             }
         }
 
-        test("화면 이름 목록은 등록된 모든 화면 키를 한 번씩만 담는다") {
+        test("TC-2267537e-3af3-492a-a7bf-7ed245bceeb4 화면 이름 목록은 등록된 모든 화면 키를 한 번씩만 담는다") {
             val screenNameByNavKey = screenNameByNavKey()
 
             screenNameByNavKey.keys.map { navKey -> navKey::class }.toSet() shouldBe registeredScreenNavKeyClassSet()
@@ -88,22 +95,26 @@ class ScreenNameTest :
             screenNameByNavKey.values.toSet().size shouldBe screenNameByNavKey.size
         }
 
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-009 항목이 달라도 같은 종류의 화면은 같은 이름으로 남는다") {
+        test("TC-04f91a23-c86c-4dfe-a44e-118fbefa14f4 항목이 달라도 같은 종류의 화면은 같은 이름으로 남는다") {
             valuedNavKeyPairList().forEach { (first, second) ->
                 withClue(first) { first.screenName shouldBe second.screenName }
             }
         }
 
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-010 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
+        test("TC-16c187ba-3651-4483-b320-64e260bc6fbe 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val date = fixtureMonkey.giveMeOne<LocalDate>()
             val valuedNavKeyList =
                 listOf(
                     CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date),
+                    ChecklistDetailNavKey(id = id),
                     ContactDetailNavKey(id = id),
+                    ContactMemoFinishedListNavKey(contactId = id),
+                    FileDetailNavKey(id = id),
                     MemoDetailNavKey(id = id),
                     MemoAddNavKey(primaryTagId = id),
                     PlaceDetailNavKey(id = id),
+                    PlaceMemoFinishedListNavKey(placeId = id),
                     PlaceAddNavKey(initialTagId = id),
                     QrDetailNavKey(id = id),
                     TagAddNavKey(requestKey = id),
@@ -111,6 +122,7 @@ class ScreenNameTest :
                     TagMemoFinishedListNavKey(tagId = id),
                     WebAddNavKey(initialTagId = id),
                     WebDetailNavKey(id = id),
+                    WebMemoFinishedListNavKey(webId = id),
                 )
 
             valuedNavKeyList.forEach { navKey ->
@@ -140,12 +152,16 @@ class ScreenNameTest :
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
                 CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to "CalendarTimetable",
+                ChecklistAddNavKey to "ChecklistAdd",
+                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ChecklistDetail",
                 ChecklistHomeNavKey to "ChecklistHome",
                 ContactAddNavKey() to "ContactAdd",
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
+                ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to "ContactMemoFinishedList",
                 DDayHomeNavKey to "DDayHome",
                 FileAddNavKey to "FileAdd",
+                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "FileDetail",
                 FileHomeNavKey to "FileHome",
                 HolidayHomeNavKey to "HolidayHome",
                 LoginHomeNavKey to "LoginHome",
@@ -160,6 +176,7 @@ class ScreenNameTest :
                 PlaceAddNavKey() to "PlaceAdd",
                 PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceDetail",
                 PlaceHomeNavKey to "PlaceHome",
+                PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceMemoFinishedList",
                 PlaylistHomeNavKey to "PlaylistHome",
                 ProfileImageEditNavKey to "ProfileImageEdit",
                 QrAddNavKey to "QrAdd",
@@ -170,11 +187,12 @@ class ScreenNameTest :
                 RoutineHomeNavKey to "RoutineHome",
                 SearchHomeNavKey() to "SearchHome",
                 SettingBrowserNavKey to "SettingBrowser",
-                SettingDownloadNavKey to "SettingDownload",
+                SettingFileNavKey to "SettingFile",
                 SettingGeminiNavKey to "SettingGemini",
                 SettingHolidayNavKey to "SettingHoliday",
                 SettingHomeNavKey to "SettingHome",
                 SettingMapNavKey to "SettingMap",
+                SettingPlaylistNavKey to "SettingPlaylist",
                 TagAddNavKey() to "TagAdd",
                 TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "TagDetail",
                 TagFinishedListNavKey to "TagFinishedList",
@@ -184,17 +202,24 @@ class ScreenNameTest :
                 WebAddNavKey() to "WebAdd",
                 WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "WebDetail",
                 WebHomeNavKey to "WebHome",
+                WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()) to "WebMemoFinishedList",
             )
 
         private fun valuedNavKeyPairList(): List<Pair<ScreenNavKey, ScreenNavKey>> =
             listOf(
                 CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to
                     CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = fixtureMonkey.giveMeOne<LocalDate>()),
+                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to
+                    ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()),
+                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()) to MemoAddNavKey(),
                 MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()) to
+                    PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()),
                 PlaceAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to PlaceAddNavKey(),
                 QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()) to TagAddNavKey(),
@@ -202,6 +227,7 @@ class ScreenNameTest :
                 TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()),
                 WebAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to WebAddNavKey(),
                 WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()) to WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()),
             )
 
         private fun collectRegisteredScreenNavKey(): Map<KClass<*>, KSerializer<*>> {

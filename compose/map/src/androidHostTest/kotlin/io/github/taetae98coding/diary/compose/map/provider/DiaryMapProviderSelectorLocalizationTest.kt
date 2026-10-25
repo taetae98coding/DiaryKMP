@@ -25,7 +25,7 @@ class DiaryMapProviderSelectorLocalizationTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-DIARY-MAP-FEATURE-020 겹쳐 표시하는 배치의 한국어 환경 전환 컨트롤 문구를 표시한다`() {
+    fun `TC-fe32bee9-5ffe-49c0-a706-cad838c84986 겹쳐 표시하는 배치의 한국어 환경 전환 컨트롤 문구를 표시한다`() {
         setDiaryMapProviderSelector()
 
         composeRule.onNodeWithText(KOREAN_NAVER_LABEL).assertExists()
@@ -34,7 +34,7 @@ class DiaryMapProviderSelectorLocalizationTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-020 겹쳐 표시하는 배치의 기본 환경 전환 컨트롤 문구를 표시한다`() {
+    fun `TC-fe32bee9-5ffe-49c0-a706-cad838c84986 겹쳐 표시하는 배치의 기본 환경 전환 컨트롤 문구를 표시한다`() {
         setDiaryMapProviderSelector()
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).assertExists()

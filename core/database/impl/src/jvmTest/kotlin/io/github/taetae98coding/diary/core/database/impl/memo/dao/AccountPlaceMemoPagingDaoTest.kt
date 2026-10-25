@@ -165,7 +165,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = placeId) shouldBe expectedIds
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-001 현재 계정의 대상 장소와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
+        test("TC-21aab824-34c2-40e0-83cc-c863eb73a142 현재 계정의 대상 장소와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
@@ -186,7 +186,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-018 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
+        test("TC-b5ddb49d-bfcf-4ad8-af3b-f39c929391d5 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val activeMemo = memo(isFinished = false)
@@ -197,7 +197,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소를 삭제해도 연결된 미완료 메모는 계속 조회된다") {
+        test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소를 삭제해도 연결된 미완료 메모는 계속 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -208,7 +208,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소의 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
+        test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소의 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -222,7 +222,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소의 좌표를 수정해도 연결된 미완료 메모는 계속 조회된다") {
+        test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소의 좌표를 수정해도 연결된 미완료 메모는 계속 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -240,7 +240,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-002 장소별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-653af079-5d1f-4943-b644-51fe9f1c4dfe 장소별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
@@ -343,7 +343,7 @@ class AccountPlaceMemoPagingDaoTest :
                 )
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-003 TC-PLACE-DETAIL-MEMO-DATA-004 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
+        test("TC-001a9d59-526b-479d-a426-22ba5407db07 TC-c39dbdfa-8f33-408a-ac18-cf1660e92aee 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -360,7 +360,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-003 TC-PLACE-DETAIL-MEMO-DATA-004 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
+        test("TC-001a9d59-526b-479d-a426-22ba5407db07 TC-c39dbdfa-8f33-408a-ac18-cf1660e92aee 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -377,7 +377,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-003 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
+        test("TC-001a9d59-526b-479d-a426-22ba5407db07 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -391,7 +391,7 @@ class AccountPlaceMemoPagingDaoTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-003 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
+        test("TC-001a9d59-526b-479d-a426-22ba5407db07 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val targetMemo = memo()
@@ -405,7 +405,7 @@ class AccountPlaceMemoPagingDaoTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-003 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
+        test("TC-001a9d59-526b-479d-a426-22ba5407db07 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val movingMemo =

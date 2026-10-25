@@ -25,7 +25,7 @@ class PlaceSearchRestoreTest {
     private val restorationTester = StateRestorationTester(composeRule)
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-017 화면이 재생성되면 유지한 검색어로 다시 검색한다`() {
+    fun `TC-c9b949f7-ff1c-4327-a6c6-2dd50035e0e7 화면이 재생성되면 유지한 검색어로 다시 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val searchList = setRestorablePlaceSearchEffect()
 
@@ -43,7 +43,7 @@ class PlaceSearchRestoreTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-023 복원한 검색어로는 기다리지 않고 곧바로 검색한다`() {
+    fun `TC-81c26b48-4cfa-4f8a-9b2f-234ba59a7885 복원한 검색어로는 기다리지 않고 곧바로 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val searchList = setRestorablePlaceSearchEffect()
 

@@ -35,7 +35,7 @@ import kotlin.uuid.Uuid
 
 class UserDataRepositoryImplTest :
     FunSpec({
-        test("TC-ACCOUNT-DATA-001 인증 제공자에 사용자 정보가 없으면 저장된 사용자 정보도 없다") {
+        test("TC-a9194a61-dbe2-45d8-8084-a08aa5a0afb9 인증 제공자에 사용자 정보가 없으면 저장된 사용자 정보도 없다") {
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns flowOf(null)
             val repository = repository(supabaseAuth = supabaseAuth)
@@ -47,7 +47,7 @@ class UserDataRepositoryImplTest :
         }
 
         listOf("프로필 이미지가 있음", "프로필 이미지가 없음").forEach { profileImageCase ->
-            test("TC-ACCOUNT-DATA-002 $profileImageCase 인증 제공자의 사용자 정보를 저장된 사용자 정보로 사용한다") {
+            test("TC-eb97bcf8-b19b-4f4c-9acb-e8aa55062f83 $profileImageCase 인증 제공자의 사용자 정보를 저장된 사용자 정보로 사용한다") {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val email = fixtureMonkey.giveMeOne<String>()
                 val profileImage = if (profileImageCase == "프로필 이미지가 있음") fixtureMonkey.giveMeOne<String>() else null
@@ -63,7 +63,7 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DATA-006 고른 사진을 JPEG로 바꾸지 못하면 반영을 요청하지 않고 실패한다") {
+        test("TC-c7376fd5-1cbc-435a-b5d6-d76143f20b76 고른 사진을 JPEG로 바꾸지 못하면 반영을 요청하지 않고 실패한다") {
             val uri = fileUri()
             val imageConverter = mockk<ImageConverter>()
             coEvery { imageConverter.convert(source = uri, format = any(), cropRegion = any(), maxSideLength = any(), quality = any()) } throws IllegalStateException("Image cannot be converted.")
@@ -76,7 +76,7 @@ class UserDataRepositoryImplTest :
             coVerify(exactly = 0) { profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any()) }
         }
 
-        test("TC-PROFILE-IMAGE-DATA-005 JPEG로 바꾼 이미지를 반영 요청에 담는다") {
+        test("TC-31dc4fe8-078a-4d46-a87d-579e9d99b19d JPEG로 바꾼 이미지를 반영 요청에 담는다") {
             val uri = fileUri()
             val converted = fileUri()
             val convertedBytes = imageBytes()
@@ -105,7 +105,7 @@ class UserDataRepositoryImplTest :
             openContentSlot.captured().readBytes() shouldBe convertedBytes
         }
 
-        test("TC-PROFILE-IMAGE-DATA-004 반영에 실패하면 프로필 이미지가 직전 주소를 유지한다") {
+        test("TC-b30a3679-9bec-4f64-9a6a-edea7a7044d5 반영에 실패하면 프로필 이미지가 직전 주소를 유지한다") {
             val uri = fileUri()
             val previousUser =
                 SupabaseUser(
@@ -132,7 +132,7 @@ class UserDataRepositoryImplTest :
         }
 
         listOf("반영에 성공", "반영에 실패").forEach { uploadCase ->
-            test("TC-PROFILE-IMAGE-DATA-008 $uploadCase 해도 바꾼 이미지 파일을 지운다") {
+            test("TC-f0c5333c-c395-4ad4-a499-91c6a02ef794 $uploadCase 해도 바꾼 이미지 파일을 지운다") {
                 val uri = fileUri()
                 val converted = fileUri()
                 val fileLocalDataSource = fileLocalDataSource(uri = converted)
@@ -151,7 +151,7 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DATA-009 반영 자체는 사용자 정보를 다시 확인하지 않고, 다시 확인한 뒤 새 주소가 나타난다") {
+        test("TC-df22a338-0c73-4499-bd21-019626020708 반영 자체는 사용자 정보를 다시 확인하지 않고, 다시 확인한 뒤 새 주소가 나타난다") {
             val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
             val newUser = previousUser.copy(profileImage = "new-${previousUser.profileImage}")
             val userFlow = MutableStateFlow(previousUser)
@@ -181,7 +181,7 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DATA-007 고른 사진의 위치와 남길 영역을 그대로 이미지 변환에 전달한다") {
+        test("고른 사진의 위치와 남길 영역을 그대로 이미지 변환에 전달한다") {
             val uri = fileUri()
             val cropRegion = cropRegion()
             val converted = fileUri()
@@ -194,7 +194,7 @@ class UserDataRepositoryImplTest :
             coVerify(exactly = 1) { imageConverter.convert(source = uri, format = ImageFormat.JPEG, cropRegion = cropRegion, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
         }
 
-        test("TC-MORE-HOME-DATA-005 사용자 정보 다시 확인은 인증 제공자에 현재 세션의 사용자 정보를 다시 요청한다") {
+        test("TC-dff9f5e6-6bd3-4396-8de3-c99bde0dc40b 사용자 정보 다시 확인은 인증 제공자에 현재 세션의 사용자 정보를 다시 요청한다") {
             val supabaseAuth = supabaseAuth()
             coEvery { supabaseAuth.retrieveUserForCurrentSession() } just runs
             val repository = repository(supabaseAuth = supabaseAuth)
@@ -204,7 +204,7 @@ class UserDataRepositoryImplTest :
             coVerify(exactly = 1) { supabaseAuth.retrieveUserForCurrentSession() }
         }
 
-        test("TC-MORE-HOME-DATA-007 사용자 정보 다시 확인에 성공하면 저장된 사용자 정보가 받은 정보로 바뀐다") {
+        test("TC-cf52b49b-0abb-4be5-9993-df80f5a89d42 사용자 정보 다시 확인에 성공하면 저장된 사용자 정보가 받은 정보로 바뀐다") {
             val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
             val retrievedUser =
                 previousUser.copy(
@@ -226,7 +226,7 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-MORE-HOME-DATA-006 사용자 정보 다시 확인에 실패하면 저장된 사용자 정보가 바뀌지 않는다") {
+        test("TC-c3f5a153-0abf-4ed1-b7aa-eb278192b989 사용자 정보 다시 확인에 실패하면 저장된 사용자 정보가 바뀌지 않는다") {
             val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)

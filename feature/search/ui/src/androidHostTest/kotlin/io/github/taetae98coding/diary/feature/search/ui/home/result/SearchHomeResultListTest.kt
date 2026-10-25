@@ -47,7 +47,7 @@ class SearchHomeResultListTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-008 메모 결과에 제목과 기간을 표시한다`() {
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 메모 결과에 제목과 기간을 표시한다`() {
         val dateTime =
             MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = Month.AUGUST, day = 1)..LocalDate(year = 2026, month = Month.AUGUST, day = 5))
         val memo = resultMemo(dateTime = dateTime)
@@ -59,7 +59,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-008 기간이 없는 메모 결과는 제목만 표시한다`() {
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 기간이 없는 메모 결과는 제목만 표시한다`() {
         val memo = resultMemo()
 
         setMemoList(memoList = listOf(memo))
@@ -69,7 +69,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-008 태그 결과에 이모지와 제목을 표시한다`() {
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 태그 결과에 이모지와 제목을 표시한다`() {
         val tag = resultTag(emoji = RESULT_EMOJI)
         val tagPagingDataFlow = pagingDataFlowOf(listOf(tag))
 
@@ -88,7 +88,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-008 장소 결과에 제목과 주소를 표시한다`() {
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 장소 결과에 제목과 주소를 표시한다`() {
         val place = resultPlace(address = resultAddress())
         val placePagingDataFlow = pagingDataFlowOf(listOf(place))
 
@@ -108,7 +108,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-008 웹 결과에 제목과 URL을 표시한다`() {
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 웹 결과에 제목과 URL을 표시한다`() {
         val web = resultWeb()
         val webPagingDataFlow = pagingDataFlowOf(listOf(web))
 
@@ -128,7 +128,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 결과가 없으면 결과 없음을 알린다`() {
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 결과가 없으면 결과 없음을 알린다`() {
         setMemoList(query = QUERY)
 
         composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
@@ -137,7 +137,7 @@ class SearchHomeResultListTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SEARCH-HOME-FEATURE-016 한국어 환경에서 결과 없음 문구를 표시한다`() {
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 한국어 환경에서 결과 없음 문구를 표시한다`() {
         setMemoList(query = QUERY)
 
         composeRule.onNodeWithText("검색 결과가 없습니다").assertIsDisplayed()
@@ -145,14 +145,14 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 결과 없음을 알리지 않는다`() {
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 결과 없음을 알리지 않는다`() {
         setMemoList()
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 태그 결과가 없으면 결과 없음을 알린다`() {
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 태그 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.TAG, query = QUERY)
 
         composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
@@ -160,7 +160,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 장소 결과가 없으면 결과 없음을 알린다`() {
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 장소 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.PLACE, query = QUERY)
 
         composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
@@ -168,7 +168,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 웹 결과가 없으면 결과 없음을 알린다`() {
+    fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 웹 결과가 없으면 결과 없음을 알린다`() {
         setEmptyResultList(type = SearchHomeType.WEB, query = QUERY)
 
         composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
@@ -176,28 +176,28 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 태그 결과에도 결과 없음을 알리지 않는다`() {
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 태그 결과에도 결과 없음을 알리지 않는다`() {
         setEmptyResultList(type = SearchHomeType.TAG, query = "")
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 장소 결과에도 결과 없음을 알리지 않는다`() {
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 장소 결과에도 결과 없음을 알리지 않는다`() {
         setEmptyResultList(type = SearchHomeType.PLACE, query = "")
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 웹 결과에도 결과 없음을 알리지 않는다`() {
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 웹 결과에도 결과 없음을 알리지 않는다`() {
         setEmptyResultList(type = SearchHomeType.WEB, query = "")
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-019 결과를 준비하는 동안에는 결과 없음을 알리지 않는다`() {
+    fun `TC-82173665-c0c7-4ac5-94d4-2e16efa29fa5 결과를 준비하는 동안에는 결과 없음을 알리지 않는다`() {
         val memoPagingDataFlow = loadingPagingDataFlowOf<Memo>()
 
         composeRule.setContent {
@@ -216,7 +216,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-020 결과가 있으면 결과 없음을 알리지 않는다`() {
+    fun `TC-9ba315a8-c354-4239-883f-a849c283f9a1 결과가 있으면 결과 없음을 알리지 않는다`() {
         val memo = resultMemo()
 
         setMemoList(memoList = listOf(memo), query = QUERY)
@@ -226,7 +226,7 @@ class SearchHomeResultListTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-012 결과를 선택하면 그 항목의 식별자를 전달한다`() {
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 결과를 선택하면 그 항목의 식별자를 전달한다`() {
         val memo = resultMemo()
         val idList = mutableListOf<Uuid>()
 

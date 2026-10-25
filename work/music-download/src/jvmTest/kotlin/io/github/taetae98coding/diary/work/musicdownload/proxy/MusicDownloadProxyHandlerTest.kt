@@ -15,7 +15,7 @@ class MusicDownloadProxyHandlerTest :
     BehaviorSpec({
         Given("영상 ID의 형태를 만족하지 않는 값이다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-002 거절하고 어떤 영상도 받지 않는다") {
+                Then("TC-d756a0b8-b1c1-4c27-9277-fccedf28fc25 거절하고 어떤 영상도 받지 않는다") {
                     val invalidList = listOf("abcdefghij", "abcdefghijkl", "abcdefghi!k", "abcdefghi k", "")
 
                     invalidList.forEach { value ->
@@ -32,7 +32,7 @@ class MusicDownloadProxyHandlerTest :
 
         Given("요청한 영상의 파일이 이미 있다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-003 받지 않고 그 파일을 전달한다") {
+                Then("TC-9380f1be-86ef-4015-ad7e-5114987012b5 받지 않고 그 파일을 전달한다") {
                     val videoId = testVideoId()
                     val registry = registry(result = true)
                     val handler = handler(registry = registry, exists = true)
@@ -46,7 +46,7 @@ class MusicDownloadProxyHandlerTest :
 
         Given("파일이 없고 도구가 모두 있으며 내려받기가 성공한다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-004 받아 합친 뒤 완성된 파일을 전달한다") {
+                Then("TC-5c84c52f-38f2-4b58-bc0f-02624a72feb7 받아 합친 뒤 완성된 파일을 전달한다") {
                     val videoId = testVideoId()
                     val registry = registry(result = true)
                     val handler = handler(registry = registry)
@@ -60,7 +60,7 @@ class MusicDownloadProxyHandlerTest :
 
         Given("내려받기 도구가 없다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-005 설치하지도 받지도 않고 실패로 응답한다") {
+                Then("TC-ee49eb44-ca70-4a6d-b8bb-d719c7f3f210 설치하지도 받지도 않고 실패로 응답한다") {
                     val caseList =
                         listOf(
                             listOf(DownloadTool.FFMPEG),
@@ -84,7 +84,7 @@ class MusicDownloadProxyHandlerTest :
 
         Given("같은 영상을 받는 중이고 그 사이 내려받기 도구가 없어졌다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-007 도구를 확인하지 않고 진행 중인 작업에 합류해 그 결과를 전달한다") {
+                Then("TC-89076056-a077-4e05-bcab-b567f7e2d906 도구를 확인하지 않고 진행 중인 작업에 합류해 그 결과를 전달한다") {
                     val videoId = testVideoId()
                     val registry = registry(result = true, joinResult = true)
                     val commandRunner = commandRunner(installedList = emptyList())
@@ -97,7 +97,7 @@ class MusicDownloadProxyHandlerTest :
                     coVerify(exactly = 0) { commandRunner.find(command = any()) }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-013 합류한 작업이 실패하면 실패로 응답한다") {
+                Then("TC-4b91dc4e-ba16-476b-906b-7dab9ef4c368 합류한 작업이 실패하면 실패로 응답한다") {
                     val registry = registry(result = true, joinResult = false)
                     val handler = handler(registry = registry, commandRunner = commandRunner(installedList = emptyList()))
 
@@ -110,7 +110,7 @@ class MusicDownloadProxyHandlerTest :
 
         Given("내려받기가 실패한다") {
             When("요청을 처리하면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-006 실패로 응답한다") {
+                Then("TC-ec5526aa-e08c-44e8-b2ae-ac0b8cf43cc3 실패로 응답한다") {
                     val handler = handler(registry = registry(result = false))
 
                     handler.handle(videoId = testVideoId()) shouldBe MusicDownloadProxyResponse.Failed

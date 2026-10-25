@@ -22,6 +22,7 @@ kotlin {
         androidHostTest {
             dependencies {
                 implementation(projects.core.testing)
+                implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
         }
 

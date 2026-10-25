@@ -81,7 +81,7 @@ class AccountTagSyncTransactionImplTest :
             tagId: Uuid,
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { tag -> tag.id == tagId }
 
-        test("TC-DATA-SYNC-DOMAIN-009 현재 계정의 업로드 대기 태그를 조회하고 동기화 완료 태그는 제외한다") {
+        test("TC-8acaf2e7-bda0-44da-aa89-2b41b9addcb8 현재 계정의 업로드 대기 태그를 조회하고 동기화 완료 태그는 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPendingTag = tag()
@@ -98,7 +98,7 @@ class AccountTagSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingTag, secondPendingTag)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 태그는 포함되지 않는다") {
+        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 태그는 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val guestTag = tag()
             val accountTag = tag()
@@ -108,7 +108,7 @@ class AccountTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountTag)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             insertWithSyncState(accountId, tag, isDirty = true)
@@ -118,7 +118,7 @@ class AccountTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 태그는 업로드 대기로 남는다") {
+        test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 태그는 업로드 대기로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pushedTag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changedTag = pushedTag.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
@@ -129,7 +129,7 @@ class AccountTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedTag)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-030 태그가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
+        test("TC-9a613623-4f22-4e1e-bd07-c68c13af1c0d 태그가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val cursor = 7L
@@ -146,7 +146,7 @@ class AccountTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe cursor
         }
 
-        test("TC-DATA-SYNC-DATA-016 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
+        test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstCursor = 3L
             val secondCursor = 11L
@@ -158,7 +158,7 @@ class AccountTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe secondCursor
         }
 
-        test("TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용한다") {
+        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 기록된 순번이 없으면 기본 커서를 사용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             transaction.upsert(accountId = otherAccountId, tagList = listOf(tag()), cursor = 9L)
@@ -170,7 +170,7 @@ class AccountTagSyncTransactionImplTest :
             "늦음" to Instant.fromEpochMilliseconds(2_000),
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-DATA-SYNC-DATA-022 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
+            test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val localTag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remoteTag =
@@ -188,7 +188,7 @@ class AccountTagSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-023 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
+        test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val localTag = tag(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remoteTag =
@@ -210,7 +210,7 @@ class AccountTagSyncTransactionImplTest :
             "같음" to Instant.fromEpochMilliseconds(2_000),
             "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
+            test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val localTag = tag(updatedAt = Instant.fromEpochMilliseconds(2_000))
                 val remoteTag = localTag.copy(detail = fixtureMonkey.giveMeOne(), updatedAt = remoteUpdatedAt)
@@ -222,7 +222,7 @@ class AccountTagSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-025 기기에 없던 태그는 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 태그는 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remoteTag = tag()
 
@@ -232,7 +232,7 @@ class AccountTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 태그와 커서가 모두 반영되지 않는다") {
+        test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 태그와 커서가 모두 반영되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remoteTag = tag()
             val failingDatabase = spyk(database)
@@ -247,7 +247,7 @@ class AccountTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe 0L
         }
 
-        test("TC-DATA-SYNC-DATA-027 업로드한 태그가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
+        test("TC-a748604b-2b82-4ee6-a15a-2185c71e18a0 업로드한 태그가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             insertWithSyncState(accountId, tag, isDirty = false)

@@ -36,7 +36,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-037 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
+    fun `TC-1d834633-54fb-48e2-b8fe-e5ea427f5f0f 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoTagPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
@@ -49,7 +49,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-046 목록을 열면 검색어 입력에 초점이 놓인다`() {
+    fun `TC-a1b40d85-b5a8-45bd-9621-3f1393fe158d 목록을 열면 검색어 입력에 초점이 놓인다`() {
         // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
         composeRule.setMemoTagPickerDialogHost(tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE)))
@@ -59,7 +59,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-038 검색어를 입력하면 확정 동작 없이 목록이 즉시 좁혀진다`() {
+    fun `TC-2e8dc3b9-4c26-4092-9526-fd68c0b8528b 검색어를 입력하면 확정 동작 없이 목록이 즉시 좁혀진다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         setSearchableTagPickerDialogHost(tagList = tagList, queryList = queryList)
@@ -77,7 +77,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-039 검색어를 지우면 대상 전체가 다시 나타난다`() {
+    fun `TC-78ec2de8-0773-4b3d-a07e-00fc3a64abda 검색어를 지우면 대상 전체가 다시 나타난다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         setSearchableTagPickerDialogHost(tagList = tagList, queryList = queryList)
@@ -115,7 +115,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-040 검색어로 좁힌 목록에서도 선택과 대표 태그 지정을 전달한다`() {
+    fun `TC-1c05a6a8-a058-4892-8625-16983715e4d0 검색어로 좁힌 목록에서도 선택과 대표 태그 지정을 전달한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val selectedIdList = mutableListOf<Uuid>()
         val primarySelectedIdList = mutableListOf<Uuid>()
@@ -136,7 +136,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-041 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
+    fun `TC-7530070e-27db-4fd9-af72-19a6ad9028d1 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),
             query = WORK_TAG_QUERY,
@@ -168,7 +168,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-016 공백만 있는 검색어로는 목록이 좁혀지지 않고 결과 없음도 알리지 않는다`() {
+    fun `TC-9ff9ab22-ab73-4d46-8b47-802496786cfe 공백만 있는 검색어로는 목록이 좁혀지지 않고 결과 없음도 알리지 않는다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         composeRule.setMemoTagPickerDialog(tagList = tagList, query = BLANK_QUERY)
         composeRule.awaitTagPickerRows()
@@ -196,7 +196,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-042 검색 결과가 없어도 태그 추가 항목으로 이동을 전달한다`() {
+    fun `TC-5096c0fa-d210-481f-b80e-9411b49d5f25 검색 결과가 없어도 태그 추가 항목으로 이동을 전달한다`() {
         var tagAddCount = 0
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),
@@ -212,7 +212,7 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-043 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
+    fun `TC-96a27874-ead2-4e50-9be7-98ea4f7f0b8d 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val dialogState = DialogState(isVisible = true)
         val queryList = mutableListOf<String>()

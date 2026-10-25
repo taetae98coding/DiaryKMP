@@ -32,11 +32,11 @@ class FetchWebPageUseCaseTest :
             When("웹 페이지를 불러온다") {
                 val result = useCase(parameter = FetchWebPageUseCase.Parameter(url = url, headerList = headerList))
 
-                Then("TC-WEB-DETAIL-DOMAIN-008 저장된 URL과 요청 헤더를 순서 그대로 사용한다") {
+                Then("TC-c0f80397-8368-4688-8bda-5f9884bf9f96 저장된 URL과 요청 헤더를 순서 그대로 사용한다") {
                     coVerify(exactly = 1) { webPageRepository.fetch(url = url, headerList = headerList) }
                 }
 
-                Then("TC-WEB-DETAIL-DOMAIN-009 받은 웹 페이지를 그대로 전달한다") {
+                Then("TC-069417bf-bcdf-4e50-9f52-6337d1805387 받은 웹 페이지를 그대로 전달한다") {
                     result.shouldBeSuccess() shouldBe webPage
                 }
             }
@@ -49,7 +49,7 @@ class FetchWebPageUseCaseTest :
             val useCase = FetchWebPageUseCase(webPageRepository = webPageRepository)
 
             When("웹 페이지를 불러온다") {
-                Then("TC-WEB-DETAIL-DOMAIN-010 TC-WEB-DETAIL-DATA-007 실패를 그대로 전달한다") {
+                Then("TC-78770bfe-3f95-4faf-bfad-b4ad0d438fa5 TC-db6726ec-6a9a-440c-bef1-a36f4c3196ca 실패를 그대로 전달한다") {
                     useCase(parameter = FetchWebPageUseCase.Parameter(url = fixtureMonkey.giveMeOne<String>(), headerList = emptyList()))
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

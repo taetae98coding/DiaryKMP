@@ -26,4 +26,4 @@ Gradle constraint로만 연결된 artifact는 실제 전이 의존성이 아니�
 
 ## 의존성 baseline
 
-`dependencyGuard`가 앱 모듈 runtime classpath를 `dependencies/*.txt` baseline과 비교한다. 의존성이나 버전을 의도적으로 바꿨으면 `./gradlew dependencyGuardBaseline`으로 baseline을 갱신하고, 바뀐 전이 의존성이 의도한 것인지 diff로 확인한 뒤 같은 커밋에 포함한다.
+`dependencyGuard`가 앱 모듈 runtime classpath를 `dependencies/*.txt` baseline과 비교한다. `:app:jvm`은 `compose.desktop.currentOs`가 빌드하는 OS의 네이티브 런타임을 골라 baseline이 OS마다 달라지므로 검사하지 않는다. 의존성이나 버전을 의도적으로 바꿨으면 `./gradlew dependencyGuardBaseline`으로 baseline을 갱신하고, 바뀐 전이 의존성이 의도한 것인지 diff로 확인한 뒤 같은 커밋에 포함한다.

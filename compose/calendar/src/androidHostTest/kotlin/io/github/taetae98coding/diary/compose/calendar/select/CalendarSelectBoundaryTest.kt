@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.calendar.select
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -29,7 +30,7 @@ class CalendarSelectBoundaryTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-007 선택 중 화면이 재생성되면 선택이 유지되지 않는다`() {
+    fun `TC-63911cd6-5624-412a-8931-0c9804085967 선택 중 화면이 재생성되면 선택이 유지되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var calendarState: CalendarState
         restorationTester.setContent {
@@ -49,7 +50,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-009 선택 중 화면이 재생성되면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
+    fun `TC-ca43cced-d586-48aa-98b6-f009ef7349b8 선택 중 화면이 재생성되면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val selectedList = mutableListOf<LocalDateRange>()
         restorationTester.setContent {
@@ -72,7 +73,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-010 선택 중 앱이 백그라운드로 이동하면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-0727b0ed-8675-4e28-a53b-255dad7d9c88 선택 중 앱이 백그라운드로 이동하면 그 시점의 기간으로 선택이 완료된다`() {
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setContent {
@@ -96,7 +97,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-011 선택 중 화면을 벗어나면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-66addbf7-6c50-4dc4-a900-ee53b437d6a1 선택 중 화면을 벗어나면 그 시점의 기간으로 선택이 완료된다`() {
         var isShown by mutableStateOf(true)
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setContent {
@@ -117,5 +118,28 @@ class CalendarSelectBoundaryTest {
         composeRule.waitForIdle()
 
         selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+    }
+
+    @Test
+    fun `TC-ed57fae2-fea8-41fb-833c-abc2129679c6 앱을 다시 실행하면 이전 선택을 복원하지 않는다`() {
+        var launchCount by mutableStateOf(0)
+        lateinit var calendarState: CalendarState
+        composeRule.setContent {
+            // 앱 재실행은 저장된 상태 없이 같은 캘린더를 새로 구성하는 것으로 재현한다.
+            key(launchCount) {
+                DiaryTheme {
+                    calendarState = rememberCalendarState(initialYearMonth = JULY_2026)
+                    Calendar(state = calendarState, onEvent = {}, isSelectEnabled = true) {}
+                }
+            }
+        }
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 14))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 17))
+        composeRule.runOnIdle { calendarState.selectState.dateRange shouldBe july(day = 14)..july(day = 17) }
+
+        composeRule.runOnIdle { launchCount += 1 }
+
+        composeRule.runOnIdle { calendarState.selectState.dateRange.shouldBeNull() }
     }
 }

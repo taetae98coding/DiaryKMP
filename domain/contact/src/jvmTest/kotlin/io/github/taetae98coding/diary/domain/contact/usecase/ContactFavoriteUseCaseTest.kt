@@ -51,14 +51,14 @@ class ContactFavoriteUseCaseTest :
                         clock = clock(now = now),
                     )
 
-                Then("TC-CONTACT-DETAIL-DOMAIN-017 즐겨찾기 여부를 즐겨찾기로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
+                Then("TC-35936a00-dba1-4723-94e1-1a8190599b61 즐겨찾기 여부를 즐겨찾기로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isFavoriteSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-46698d03-f59c-4489-9bd6-b8911ff63fa5 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
                     val onceRequestSyncUseCase = requestSyncUseCase()
                     val onceUseCase =
                         FavoriteContactUseCase(
@@ -83,14 +83,14 @@ class ContactFavoriteUseCaseTest :
                         clock = clock(now = now),
                     )
 
-                Then("TC-CONTACT-DETAIL-DOMAIN-017 즐겨찾기 여부를 즐겨찾기가 아닌 값으로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
+                Then("TC-35936a00-dba1-4723-94e1-1a8190599b61 즐겨찾기 여부를 즐겨찾기가 아닌 값으로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isFavoriteSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-46698d03-f59c-4489-9bd6-b8911ff63fa5 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
                     val onceRequestSyncUseCase = requestSyncUseCase()
                     val onceUseCase =
                         UnfavoriteContactUseCase(
@@ -123,7 +123,7 @@ class ContactFavoriteUseCaseTest :
                         clock = Clock.System,
                     )
 
-                Then("TC-CONTACT-DETAIL-DATA-013 아무것도 바꾸지 않은 결과를 그대로 전달한다") {
+                Then("TC-11b8fded-b993-4a0c-8334-0da88e444e17 아무것도 바꾸지 않은 결과를 그대로 전달한다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>()).shouldBeSuccess(0)
                 }
             }
@@ -147,7 +147,7 @@ class ContactFavoriteUseCaseTest :
                         clock = Clock.System,
                     )
 
-                Then("TC-CONTACT-DETAIL-DATA-014 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-e5d727a2-80a2-4f39-bc0f-a1295f84684d 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -170,7 +170,7 @@ class ContactFavoriteUseCaseTest :
                         clock = Clock.System,
                     )
 
-                Then("TC-CONTACT-DETAIL-DATA-011 게스트 계정 기준으로 기기에만 즐겨찾기를 반영한다") {
+                Then("TC-54110044-b9ea-4ff2-b2c1-29777056471f 게스트 계정 기준으로 기기에만 즐겨찾기를 반영한다") {
                     useCase(parameter = contactId).shouldBeSuccess()
 
                     coVerify(exactly = 1) {

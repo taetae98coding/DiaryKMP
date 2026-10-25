@@ -14,6 +14,7 @@
     <string name="tag_finished_list_title">Finished Tags</string>
     <string name="tag_finished_list_navigate_up_button_content_description">Navigate up</string>
     <string name="tag_finished_list_empty_title">No finished tags</string>
+    <string name="tag_finished_list_detail_placeholder_message">Choose a tag</string>
     <string name="tag_add_title">Add Tag</string>
     <string name="tag_add_navigate_up_button_content_description">Navigate up</string>
     <string name="tag_add_add_button_content_description">Add tag</string>

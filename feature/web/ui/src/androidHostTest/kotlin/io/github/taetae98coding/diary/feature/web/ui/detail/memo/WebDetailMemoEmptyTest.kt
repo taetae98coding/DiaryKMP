@@ -42,7 +42,7 @@ class WebDetailMemoEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-012 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-09f741a3-70a6-49d5-bdeb-2aace0e8999c 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -52,7 +52,7 @@ class WebDetailMemoEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-012 한국어 환경에서 빈 상태 안내는 이 웹에 연결된 메모가 없습니다이다`() {
+    fun `TC-09f741a3-70a6-49d5-bdeb-2aace0e8999c 한국어 환경에서 빈 상태 안내는 이 웹에 연결된 메모가 없습니다이다`() {
         setMemoTab(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -60,21 +60,21 @@ class WebDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-013 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-dd4422bc-e05d-43ef-b54b-91142a1641f7 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setMemoTab(pagingData = loadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-014 대상 웹 항목을 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-855a5c7a-59fc-4b44-939a-660f20db4254 대상 웹 항목을 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-015 빈 상태에서도 메모 추가를 실행할 수 있다`() {
+    fun `TC-189082b0-0502-4bec-a166-11404be3ea81 빈 상태에서도 메모 추가를 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -84,7 +84,7 @@ class WebDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목을 조회하지 못해도 메모 추가를 실행할 수 있다`() {
+    fun `TC-a34b4471-6584-4100-89d1-0315e72f16be 대상 웹 항목을 조회하지 못해도 메모 추가를 실행할 수 있다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()

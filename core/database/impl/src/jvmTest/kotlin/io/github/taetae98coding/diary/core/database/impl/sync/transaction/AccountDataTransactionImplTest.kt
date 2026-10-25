@@ -5,6 +5,8 @@ import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
@@ -25,6 +27,8 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntit
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
@@ -58,6 +62,8 @@ private val ACCOUNT_TABLE_LIST =
         "account_contact",
         "account_music",
         "account_qr",
+        "account_checklist",
+        "account_checklist_item",
         "account_memo_tag",
         "account_memo_place",
         "account_memo_web",
@@ -80,6 +86,8 @@ private val ENTITY_TABLE_LIST =
         "contact",
         "music",
         "qr",
+        "checklist",
+        "checklist_item",
         "memo_tag",
         "memo_place",
         "memo_web",
@@ -98,6 +106,8 @@ private data class FilledEntity(
     val contactId: Uuid,
     val musicId: Uuid,
     val qrId: Uuid,
+    val checklistId: Uuid,
+    val checklistItemId: Uuid,
 )
 
 class AccountDataTransactionImplTest :
@@ -131,7 +141,7 @@ class AccountDataTransactionImplTest :
                 }
             }
 
-        /** 다른 종류를 참조하지 않는 일곱 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
+        /** 항목 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
         suspend fun fillEntity(
             accountId: Uuid,
             isDirty: Boolean,
@@ -144,6 +154,8 @@ class AccountDataTransactionImplTest :
             val contact = fixtureMonkey.giveMeOne<ContactLocalEntity>()
             val music = fixtureMonkey.giveMeOne<MusicLocalEntity>()
             val qr = fixtureMonkey.giveMeOne<QrLocalEntity>()
+            val checklist = fixtureMonkey.giveMeOne<ChecklistLocalEntity>()
+            val checklistItem = fixtureMonkey.giveMeOne<ChecklistItemLocalEntity>().copy(checklistId = checklist.id)
 
             database.memoDao().upsert(memo)
             database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = memo.id, isDirty = isDirty))
@@ -170,6 +182,16 @@ class AccountDataTransactionImplTest :
             database.qrDao().upsert(qr)
             database.accountQrDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = isDirty))
 
+            database.checklistDao().upsert(checklist)
+            database.accountChecklistDao().upsert(
+                AccountChecklistLocalEntity(accountId = accountId, checklistId = checklist.id, isDirty = isDirty),
+            )
+
+            database.checklistItemDao().upsert(checklistItem)
+            database.accountChecklistItemDao().upsert(
+                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = checklistItem.id, isDirty = isDirty),
+            )
+
             return FilledEntity(
                 memoId = memo.id,
                 tagId = tag.id,
@@ -179,6 +201,8 @@ class AccountDataTransactionImplTest :
                 contactId = contact.id,
                 musicId = music.id,
                 qrId = qr.id,
+                checklistId = checklist.id,
+                checklistItemId = checklistItem.id,
             )
         }
 
@@ -197,6 +221,12 @@ class AccountDataTransactionImplTest :
             )
             database.accountMusicDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = entity.musicId, isDirty = false))
             database.accountQrDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = entity.qrId, isDirty = false))
+            database.accountChecklistDao().upsert(
+                AccountChecklistLocalEntity(accountId = accountId, checklistId = entity.checklistId, isDirty = false),
+            )
+            database.accountChecklistItemDao().upsert(
+                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = entity.checklistItemId, isDirty = false),
+            )
         }
 
         suspend fun fillRelation(
@@ -288,7 +318,7 @@ class AccountDataTransactionImplTest :
             fillAccountState(accountId = accountId, entity = entity)
         }
 
-        test("TC-DATA-SYNC-DATA-035 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
+        test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 
@@ -302,7 +332,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-036 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
+        test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
@@ -327,7 +357,7 @@ class AccountDataTransactionImplTest :
             countRow(table = "memo_existence_filter") shouldBe 1
         }
 
-        test("TC-DATA-SYNC-DATA-051 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
+        test("TC-775f15b7-762d-4817-ad69-41b01e6aa9c4 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val entity = fillEntity(accountId = accountId, isDirty = true)
@@ -348,7 +378,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열네 종류가 모두 기본 커서로 조회된다") {
+        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 열여섯 종류가 모두 기본 커서로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 

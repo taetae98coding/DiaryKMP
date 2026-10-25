@@ -29,7 +29,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GetCalendarHolidayUseCaseSettingTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-VISIBILITY-DATA-005 한 이름을 숨긴 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
+        Given("TC-4c46ba8f-559f-4d1f-a0ef-e3b053a6df0a 한 이름을 숨긴 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
             val changedMidsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
@@ -55,7 +55,7 @@ class GetCalendarHolidayUseCaseSettingTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-008 한 이름을 숨겼고 저장된 공휴일에는 그 이름이 없다") {
+        Given("TC-c3856162-f3e9-445f-8c79-e2ada5b9fb0e 한 이름을 숨겼고 저장된 공휴일에는 그 이름이 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
@@ -76,7 +76,7 @@ class GetCalendarHolidayUseCaseSettingTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DATA-012 두 공휴일이 저장되어 있고 보관된 노출 설정을 읽을 수 없다") {
+        Given("TC-fede3fb1-84ee-4559-b115-71d93ca4a0b5 두 공휴일이 저장되어 있고 보관된 노출 설정을 읽을 수 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val failureMessage = fixtureMonkey.giveMeOne<String>()
             val useCase =

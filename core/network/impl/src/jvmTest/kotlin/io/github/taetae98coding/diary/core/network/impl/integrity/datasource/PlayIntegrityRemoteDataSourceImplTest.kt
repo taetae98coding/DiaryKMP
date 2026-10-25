@@ -29,7 +29,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlayIntegrityRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-PLAY-INTEGRITY-LOGGING-DATA-001 서버에 토큰과 패키지 이름을 보내고 받은 판정 결과를 구조 그대로 돌려준다") {
+        test("TC-21a18142-dfc1-4643-ae8e-2e6c223c2342 서버에 토큰과 패키지 이름을 보내고 받은 판정 결과를 구조 그대로 돌려준다") {
             val token = fixtureMonkey.giveMeOne<String>()
             val packageName = fixtureMonkey.giveMeOne<String>()
             val verdict =

@@ -62,12 +62,16 @@ stateDiagram-v2
 | `CalendarHome` | [CalendarHome](./calendar-home.md) |
 | `CalendarHomeFilter` | [CalendarHome](./calendar-home.md) |
 | `CalendarTimetable` | [CalendarTimetable 화면](./calendar-timetable.md) |
+| `ChecklistAdd` | [ChecklistAdd 화면](./checklist-add.md) |
+| `ChecklistDetail` | [ChecklistDetail 화면](./checklist-detail.md) |
 | `ChecklistHome` | [ChecklistHome 화면](./checklist-home.md) |
 | `ContactAdd` | [ContactAdd 화면](./contact-add.md) |
 | `ContactDetail` | [ContactDetail 화면](./contact-detail.md) |
 | `ContactHome` | [ContactHome 화면](./contact-home.md) |
+| `ContactMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 | `DDayHome` | [DDayHome 화면](./dday-home.md) |
 | `FileAdd` | [FileAdd 화면](./file-add.md) |
+| `FileDetail` | [FileDetail 화면](./file-detail.md) |
 | `FileHome` | [FileHome 화면](./file-home.md) |
 | `HolidayHome` | [HolidayHome 화면](./holiday-home.md) |
 | `LoginHome` | [Login 화면](./login.md) |
@@ -82,6 +86,7 @@ stateDiagram-v2
 | `PlaceAdd` | [PlaceAdd 화면](./place-add.md) |
 | `PlaceDetail` | [PlaceDetail 화면](./place-detail.md) |
 | `PlaceHome` | [PlaceHome 화면](./place-home.md) |
+| `PlaceMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 | `PlaylistHome` | [PlaylistHome 화면](./playlist-home.md) |
 | `ProfileImageEdit` | [ProfileImageEdit 화면](./profile-image-edit.md) |
 | `QrAdd` | [QrAdd 화면](./qr-add.md) |
@@ -92,11 +97,12 @@ stateDiagram-v2
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
 | `SearchHome` | [SearchHome 화면](./search-home.md) |
 | `SettingBrowser` | [SettingBrowser 화면](./setting-browser.md) |
-| `SettingDownload` | [SettingDownload 화면](./setting-download.md) |
+| `SettingFile` | [SettingFile 화면](./setting-file.md) |
 | `SettingGemini` | [SettingGemini 화면](./setting-gemini.md) |
 | `SettingHoliday` | [SettingHoliday 화면](./setting-holiday.md) |
 | `SettingHome` | [SettingHome 화면](./setting-home.md) |
 | `SettingMap` | [SettingMap 화면](./setting-map.md) |
+| `SettingPlaylist` | [SettingPlaylist 화면](./setting-playlist.md) |
 | `TagAdd` | [TagAdd 화면](./tag-add.md) |
 | `TagDetail` | [TagDetail 화면](./tag-detail.md) |
 | `TagFinishedList` | [TagFinishedList 화면](./tag-finished-list.md) |
@@ -106,6 +112,7 @@ stateDiagram-v2
 | `WebAdd` | [WebAdd 화면](./web-add.md) |
 | `WebDetail` | [WebDetail 화면](./web-detail.md) |
 | `WebHome` | [WebHome 화면](./web-home.md) |
+| `WebMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 
 `CalendarHomeFilter`, `MemoHomeFilter`, `TagHomeFilter`는 각 목록 화면 위에 겹쳐 표시하는 필터다. 겹쳐 표시하는 화면도 화면 조회 대상이므로 아래 화면과 구분되는 이름을 가진다.
 

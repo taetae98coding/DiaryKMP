@@ -61,26 +61,26 @@ class DiaryMapStateTest :
             state.pins shouldBe emptyList()
         }
 
-        test("초기 위치를 지정하지 않으면 시작 카메라가 없다") {
+        test("TC-2d40dec4-f57f-4c2d-af52-063fd67cf067 초기 위치를 지정하지 않으면 시작 카메라를 정하지 않아 제공자의 기본 위치로 시작한다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.camera.shouldBeNull()
         }
 
-        test("초기 위치를 지정하면 그 위치와 동네 수준 확대를 시작 카메라로 삼는다") {
-            val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        test("TC-dd13cbb2-390e-4fa5-a5cc-1a8d05e3e22c 초기 위치를 지정하면 그 위치를 가운데에 두고 동네 수준 확대로 시작 카메라를 삼는다") {
+            List(INITIAL_COORDINATE_COUNT) { validCoordinate() }.forEach { coordinate ->
+                val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = coordinate)
 
-            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = coordinate)
-
-            state.camera shouldBe
-                DiaryMapCamera(
-                    latitude = coordinate.latitude,
-                    longitude = coordinate.longitude,
-                    zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM,
-                )
+                state.camera shouldBe
+                    DiaryMapCamera(
+                        latitude = coordinate.latitude,
+                        longitude = coordinate.longitude,
+                        zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM,
+                    )
+            }
         }
 
-        test("제공자를 바꿔도 마지막 카메라를 이어받는다") {
+        test("TC-85d33219-3dc6-48c2-8ed9-a0d99cef51d1 제공자를 바꿔도 마지막 카메라를 이어받는다") {
             val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(camera)
@@ -109,7 +109,7 @@ class DiaryMapStateTest :
             state.bounds.shouldBeNull()
         }
 
-        test("TC-DIARY-MAP-DOMAIN-034: 지도가 알려온 카메라의 보이는 영역을 확인한다") {
+        test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 카메라의 보이는 영역을 확인한다") {
             val bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()
             val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = bounds)
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -119,7 +119,7 @@ class DiaryMapStateTest :
             state.bounds shouldBe bounds
         }
 
-        test("TC-DIARY-MAP-DOMAIN-035: 알려온 카메라에 보이는 영역이 없으면 영역이 없는 것으로 다룬다") {
+        test("TC-5cd1c7e9-0a1e-4eb4-a461-faea1bbf63d2: 알려온 카메라에 보이는 영역이 없으면 영역이 없는 것으로 다룬다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()))
 
@@ -211,6 +211,41 @@ class DiaryMapStateTest :
             state.spot shouldBe second
         }
 
+        test("TC-6170238d-af31-4849-9d2e-9d0642ecddf1 다른 핀 목록을 전달하면 빠진 핀은 사라지고 새 핀이 더해진다") {
+            val kept = pin()
+            val removed = pin()
+            val added = pin()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.updatePins(listOf(removed, kept))
+
+            state.updatePins(listOf(kept, added))
+
+            state.pins shouldBe listOf(kept, added)
+        }
+
+        test("TC-0b42bac1-148e-42f4-8416-c8738c4246b5 지도가 옮겨진 위치를 알려와도 고른 지점은 그대로 남는다") {
+            val spot = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.selectSpot(spot)
+
+            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>())
+            state.moveTo(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+
+            state.spot shouldBe spot
+        }
+
+        test("TC-e890a3ff-0159-46cc-b17d-6c276659e0fd 화면이 지점을 지우면 지점이 없어지고 보고 있던 위치와 확대 수준은 그대로다") {
+            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.moveCamera(camera)
+            state.selectSpot(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+
+            state.selectSpot(null)
+
+            state.spot.shouldBeNull()
+            state.camera shouldBe camera
+        }
+
         test("selectSpot에 값이 없으면 고른 지점을 지운다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.selectSpot(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
@@ -277,7 +312,7 @@ class DiaryMapStateTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-045 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
+        test("TC-c37cd3e5-4f57-4948-a671-c7f24ea37f50 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
             runTest {
                 val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
                 val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
@@ -355,6 +390,26 @@ class DiaryMapStateTest :
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private const val MAX_LATITUDE = 900_000
+        private const val MAX_LONGITUDE = 1_800_000
+        private const val COORDINATE_SCALE = 10_000.0
+        private const val INITIAL_COORDINATE_COUNT = 2
+
+        // FixtureMonkey의 Double은 좌표 범위를 크게 벗어나므로, 정수로 유효 범위의 위도와 경도를 만든다.
+        private fun validCoordinate(): DiaryMapCoordinate =
+            DiaryMapCoordinate(
+                latitude = fixtureMonkey.giveMeOne<Int>() % MAX_LATITUDE / COORDINATE_SCALE,
+                longitude = fixtureMonkey.giveMeOne<Int>() % MAX_LONGITUDE / COORDINATE_SCALE,
+            )
+
+        private fun pin(): DiaryMapPin =
+            DiaryMapPin(
+                id = fixtureMonkey.giveMeOne<Uuid>(),
+                coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
+                color = Color(fixtureMonkey.giveMeOne<Int>()),
+                label = "label-${fixtureMonkey.giveMeOne<String>()}",
+            )
 
         private fun DiaryMapState.saveAndRestore(): DiaryMapState? {
             val saved = with(DiaryMapState.Saver) { with(SaverScope { true }) { save(this@saveAndRestore) } }

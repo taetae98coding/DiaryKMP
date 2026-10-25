@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_emp
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoContent
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoFinishedListButton
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -23,6 +24,7 @@ internal fun ContactDetailMemoContent(
     id: Uuid,
     viewModelStoreProvider: ViewModelStoreProvider,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToMemoFinishedList: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -37,6 +39,7 @@ internal fun ContactDetailMemoContent(
             emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
             modifier = modifier,
             snackbarHostState = snackbarHostState,
+            trailing = { EntityDetailMemoFinishedListButton(onClick = navigateToMemoFinishedList) },
         )
     }
 }

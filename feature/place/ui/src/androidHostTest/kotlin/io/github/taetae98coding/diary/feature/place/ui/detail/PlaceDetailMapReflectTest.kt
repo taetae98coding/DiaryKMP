@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +35,7 @@ class PlaceDetailMapReflectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-015 기본 지도가 바뀌면 그 시점의 저장된 좌표에서 새로 시작하고 수정 중인 내용을 유지한다`() {
+    fun `TC-249e3f61-04fd-4c80-9aa1-9e9583f6dbca 기본 지도가 바뀌면 그 시점의 저장된 좌표에서 새로 시작하고 수정 중인 내용을 유지한다`() {
         composeRule.mainClock.autoAdvance = false
         val firstSavedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val latestSavedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstSavedCoordinate }
@@ -87,7 +88,34 @@ class PlaceDetailMapReflectTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-058 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
+    fun `TC-45f8be21-1996-4488-a977-965aae3321dc 지도가 시작된 뒤 저장된 좌표가 바뀌어도 지도를 옮기지 않는다`() {
+        composeRule.mainClock.autoAdvance = false
+        val firstSavedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val latestSavedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstSavedCoordinate }
+        var savedDetail by mutableStateOf(placeDetail(coordinate = firstSavedCoordinate.toCoordinate()))
+        lateinit var state: PlaceFormState
+
+        composeRule.setContent {
+            DiaryTheme {
+                state = rememberPlaceDetailFormState(initialDetail = savedDetail, defaultProvider = MapProvider.NAVER)
+                ReflectCoordinateEffect(state = state)
+            }
+        }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+        val mapStateBefore = composeRule.runOnIdle { state.mapState }
+
+        composeRule.write { savedDetail = savedDetail.copy(coordinate = latestSavedCoordinate.toCoordinate()) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.runOnIdle {
+            state.mapState shouldBeSameInstanceAs mapStateBefore
+            state.mapState.coordinate shouldBe firstSavedCoordinate
+            state.mapState.spot shouldBe firstSavedCoordinate
+        }
+    }
+
+    @Test
+    fun `TC-744926fc-9b16-4d87-bd7e-6bd123f904d1 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
         composeRule.mainClock.autoAdvance = false
         val savedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         lateinit var state: PlaceFormState

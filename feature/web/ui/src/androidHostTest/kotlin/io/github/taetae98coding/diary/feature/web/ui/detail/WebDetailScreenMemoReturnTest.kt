@@ -41,7 +41,7 @@ class WebDetailScreenMemoReturnTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-007 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
+    fun `TC-84bc523e-a3e5-49d5-b0de-215918120acd 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val previousToday = Clock.System.todayIn(TimeZone.of(PREVIOUS_TIME_ZONE))
         val newToday = Clock.System.todayIn(TimeZone.of(NEW_TIME_ZONE))
@@ -83,7 +83,7 @@ class WebDetailScreenMemoReturnTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-019 WebDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
+    fun `TC-5283efb5-0ff0-4ba9-a0b1-c1b06aaaabb8 WebDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
         val entryMemoTitle = memoTitle(prefix = "Entry")
 
         setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = entryMemoTitle)))))
@@ -107,6 +107,7 @@ class WebDetailScreenMemoReturnTest {
                         navigateToTagDetail = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_WEB_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         webViewModel = memoScreenWebViewModel(),

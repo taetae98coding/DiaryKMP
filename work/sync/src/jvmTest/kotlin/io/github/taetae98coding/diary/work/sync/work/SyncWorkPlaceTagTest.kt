@@ -21,7 +21,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkPlaceTagTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 TC-PLACE-TAG-DATA-005 모든 태그 요청과 장소 요청이 성공한 뒤 장소·태그 연결 전용 요청을 시작한다") {
+        test("TC-674eebce-610c-4b46-8dce-79aef5252327 TC-7304e71b-b36f-423d-9efa-52d3d75bcdd9 모든 태그 요청과 장소 요청이 성공한 뒤 장소·태그 연결 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 101),
@@ -58,7 +58,7 @@ class SyncWorkPlaceTagTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 장소·태그 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 장소·태그 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val placeTagList = placeTags(size = itemCount)
                 val context = context(placeTagList = placeTagList)
                 val requests = mutableListOf<List<PlaceTagRemoteEntity>>()
@@ -73,7 +73,7 @@ class SyncWorkPlaceTagTest :
             }
         }
 
-        test("TC-PLACE-TAG-DATA-006 해제된 연결도 해제 상태로 업로드된다") {
+        test("TC-a7ac9999-59d1-445b-bc5b-312a87bad444 해제된 연결도 해제 상태로 업로드된다") {
             val placeTagList = listOf(placeTag(isDeleted = true), placeTag(isDeleted = false))
             val context = context(placeTagList = placeTagList)
             val requests = mutableListOf<List<PlaceTagRemoteEntity>>()
@@ -87,7 +87,7 @@ class SyncWorkPlaceTagTest :
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 장소·태그 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 장소·태그 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
             val placeTagList = placeTags(size = 101)
             val context = context(placeTagList = placeTagList)
 
@@ -107,7 +107,7 @@ class SyncWorkPlaceTagTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 장소·태그 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 장소·태그 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(placeTagList = placeTags(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.placeTagRemoteDataSource.push(any()) } throws failure
@@ -121,7 +121,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 0) { context.placeTagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 태그 업로드가 실패하면 장소·태그 연결을 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 업로드가 실패하면 장소·태그 연결을 시도하지 않는다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -138,7 +138,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 0) { context.placeTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 메모 업로드가 실패해도 장소·태그 연결은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 메모 업로드가 실패해도 장소·태그 연결은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -159,7 +159,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 3) { context.placeTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 장소·태그 연결 업로드가 실패해도 메모와 메모·장소·태그 연결은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 장소·태그 연결 업로드가 실패해도 메모와 메모·장소·태그 연결은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -183,7 +183,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 3) { context.memoTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-PLACE-TAG-DATA-007 장소·태그 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-96b8e102-0188-48ac-83f6-9f2651aaee11 장소·태그 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = placeTagPulls(usnList = listOf(4L, 6L))
             val secondPullList = placeTagPulls(usnList = listOf(9L))
@@ -211,7 +211,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 3) { context.placeTagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-038 장소·태그 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
+        test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 장소·태그 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
             runTest {
                 val context = context()
                 val callOrder = mutableListOf<String>()
@@ -253,7 +253,7 @@ class SyncWorkPlaceTagTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-039 TC-DATA-SYNC-DOMAIN-040 장소·태그 연결 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
+        test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 장소·태그 연결 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
             val failure = TestException(fixtureMonkey.giveMeOne())
             val tagPullList = tagPulls(usnList = listOf(3L))
@@ -287,7 +287,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 0) { context.accountPlaceTagSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 장소·태그 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 장소·태그 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

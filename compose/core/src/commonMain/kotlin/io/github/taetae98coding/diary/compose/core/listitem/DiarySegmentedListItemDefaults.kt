@@ -17,6 +17,9 @@ public object DiarySegmentedListItemDefaults {
     // Material 3 한 줄 목록 항목의 최소 높이. ListItemDefaults가 값을 공개하지 않아 여기 둔다.
     public val MinHeight: Dp = 56.dp
 
+    // Material 3 목록 항목의 시작 쪽 요소와 내용 사이 간격. ListItemDefaults가 값을 공개하지 않아 여기 둔다.
+    public val LeadingContentSpacing: Dp = 16.dp
+
     @Composable
     public fun colors(): ListItemColors = ListItemDefaults.segmentedColors(containerColor = DiaryTheme.colorScheme.surfaceContainerHighest)
 

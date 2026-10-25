@@ -30,7 +30,7 @@ private val fixtureMonkey: FixtureMonkey =
 // 2025년 12월 31일은 수요일, 2026년 1월 1일은 목요일, 2026년 12월 31일은 목요일이다.
 class GetGoldenHolidayUseCaseHolidaySourceTest :
     BehaviorSpec({
-        Given("TC-HOLIDAY-HOME-DATA-005 앞뒤 년도에 걸친 공휴일이 각 년도에 나뉘어 저장되어 있다") {
+        Given("TC-0821c089-c7ce-42da-9f8f-0bb82f98a6b5 앞뒤 년도에 걸친 공휴일이 각 년도에 나뉘어 저장되어 있다") {
             val repository = mockk<HolidayRepository>()
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = 2025) } returns
                 flowOf(listOf(holiday(start = date(year = 2025, month = Month.DECEMBER, day = 31))))
@@ -65,7 +65,7 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DATA-006 조회 중인 년도의 공휴일이 바뀐다") {
+        Given("TC-195d106d-d177-410a-a173-7c398b55e292 조회 중인 년도의 공휴일이 바뀐다") {
             val holidayFlow = MutableStateFlow(listOf(holiday(start = february(day = 6))))
             val repository = mockk<HolidayRepository>()
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {
@@ -93,7 +93,7 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DATA-007 모든 대상 년도의 공휴일 조회 결과가 비어 있거나 실패한다") {
+        Given("TC-d33fc394-dd74-4db3-9826-58784a782248 모든 대상 년도의 공휴일 조회 결과가 비어 있거나 실패한다") {
             val emptyRepository = mockk<HolidayRepository>()
             every { emptyRepository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } returns flowOf(emptyList())
             val failedRepository = mockk<HolidayRepository>()
@@ -113,7 +113,7 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
             }
         }
 
-        Given("TC-HOLIDAY-HOME-DATA-008 한 대상 년도의 공휴일 조회만 실패한다") {
+        Given("TC-36d372df-a0a1-4113-a61b-d86b716bc9eb 한 대상 년도의 공휴일 조회만 실패한다") {
             val holiday = holiday(start = february(day = 6))
             val repository = mockk<HolidayRepository>()
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {

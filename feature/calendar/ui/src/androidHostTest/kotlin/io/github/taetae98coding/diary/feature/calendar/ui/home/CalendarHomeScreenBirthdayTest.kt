@@ -58,7 +58,7 @@ class CalendarHomeScreenBirthdayTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-075 연락처의 생일이 캘린더에 이름으로 표시된다`() {
+    fun `TC-837612cf-c28a-4553-8f63-c4426ec5eecc 연락처의 생일이 캘린더에 이름으로 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 8)))),
@@ -68,7 +68,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-076 캘린더에 보이는 주와 겹치지 않는 생일은 표시되지 않는다`() {
+    fun `TC-051e467d-3f36-4f42-bcce-280c999392b7 캘린더에 보이는 주와 겹치지 않는 생일은 표시되지 않는다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             birthdayListFlow =
@@ -81,7 +81,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-077 연락처가 저장되면 조작 없이 생일 표시가 반영된다`() {
+    fun `TC-9d7ff27f-4978-4495-85fe-b6d9ee94c9b8 연락처가 저장되면 조작 없이 생일 표시가 반영된다`() {
         val birthdayListFlow = MutableStateFlow(emptyList<CalendarContactBirthday>())
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -96,7 +96,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-079 다른 연도의 달로 이동해도 같은 연락처의 생일이 표시된다`() {
+    fun `TC-8f6b38ac-1e7f-48db-b39d-8eda87ae1d5c 다른 연도의 달로 이동해도 같은 연락처의 생일이 표시된다`() {
         val birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 8))))
         val moveTarget = mutableStateOf<YearMonth?>(null)
         setCalendarHomeScreen(
@@ -116,7 +116,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-080 생일을 누르면 그 연락처의 ContactDetail 화면으로 이동한다`() {
+    fun `TC-1260cb02-8583-42d1-9dc0-0c90ffa80bed 생일을 누르면 그 연락처의 ContactDetail 화면으로 이동한다`() {
         val birthday = birthday(name = NAME, date = july(day = 8))
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -132,7 +132,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-034 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
+    fun `TC-cb6f457b-3630-438b-903e-a6e92d58e816 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
         val errorMessage = fixtureMonkey.nonBlankString()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
@@ -162,7 +162,7 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 별도 안내 없이 생일을 표시한다`() {
+    fun `TC-ce299deb-8db7-4394-8913-ebf42203542c 음력 자료 동기화가 실패해도 별도 안내 없이 생일을 표시한다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
             flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))

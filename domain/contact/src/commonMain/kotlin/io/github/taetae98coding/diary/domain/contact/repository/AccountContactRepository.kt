@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
@@ -13,6 +14,7 @@ public interface AccountContactRepository {
     public fun page(
         account: Account,
         sort: ListSort,
+        filter: ContactFilter,
     ): Flow<PagingData<Contact>>
 
     public fun get(

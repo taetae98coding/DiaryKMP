@@ -37,7 +37,7 @@ class PlaceHomeViewModeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-036 진입하면 계정의 장소 전체 목록을 표시하지 않는 지도 모드로 시작한다`() {
+    fun `TC-6e8c1c58-3b06-481a-a8cd-f214abf35584 진입하면 계정의 장소 전체 목록을 표시하지 않는 지도 모드로 시작한다`() {
         val place = viewModeTestPlace()
 
         setPlaceHomeScaffold(placeList = listOf(place))
@@ -47,7 +47,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-037 보기 모드를 바꾸면 계정의 장소가 목록에 표시된다`() {
+    fun `TC-05161899-429d-4417-b1ce-f8ba45295c43 보기 모드를 바꾸면 계정의 장소가 목록에 표시된다`() {
         val place = viewModeTestPlace()
         setPlaceHomeScaffold(placeList = listOf(place))
 
@@ -59,7 +59,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-038 목록 모드에서 다시 전환하면 목록이 사라지고 지도 모드의 본문으로 돌아온다`() {
+    fun `TC-7cebc285-6fc6-493a-956b-59f375f83e0d 목록 모드에서 다시 전환하면 목록이 사라지고 지도 모드의 본문으로 돌아온다`() {
         val place = viewModeTestPlace()
         setPlaceHomeScaffold(
             state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
@@ -77,7 +77,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 화면이 회전하거나 창 크기가 바뀌어도 목록 모드의 목록을 유지한다`() {
+    fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 화면이 회전하거나 창 크기가 바뀌어도 목록 모드의 목록을 유지한다`() {
         val place = viewModeTestPlace()
         val placePagingDataFlow = placePagingDataFlowOf(listOf(place))
         val restorationTester = StateRestorationTester(composeRule)
@@ -102,7 +102,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DATA-005 보기 모드를 바꿔도 새로고침을 요청하지 않는다`() {
+    fun `TC-9320d463-7a36-4e65-980d-08c87e8c5838 보기 모드를 바꿔도 새로고침을 요청하지 않는다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(onEvent = { event -> eventList += event })
 
@@ -122,7 +122,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-053 목록 모드에서도 검색 버튼을 표시한다`() {
+    fun `TC-41fc41e1-dd6c-4625-924f-7c992bc83387 목록 모드에서도 검색 버튼을 표시한다`() {
         setPlaceHomeScaffold(state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_DESCRIPTION).assertExists()

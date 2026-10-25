@@ -34,7 +34,7 @@ class CalendarClickTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-FEATURE-020 날짜 누름을 사용하면 누른 날짜가 전달된다`() {
+    fun `TC-2b348907-dc1a-4c66-b567-e1219771947a 날짜 누름을 사용하면 누른 날짜가 전달된다`() {
         val clickedDateList = mutableListOf<LocalDate>()
         composeRule.setContent {
             DiaryTheme {
@@ -52,7 +52,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-021 주 누름을 사용하면 누른 주의 일요일 날짜가 전달된다`() {
+    fun `TC-ed535056-7571-4ded-b53a-91fcc534dfe0 주 누름을 사용하면 누른 주의 일요일 날짜가 전달된다`() {
         val clickedWeekList = mutableListOf<LocalDate>()
         composeRule.setContent {
             DiaryTheme {
@@ -70,7 +70,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-022 날짜 누름과 주 누름을 사용하지 않으면 날짜 칸과 주를 버튼으로 알리지 않는다`() {
+    fun `TC-ff677d7a-7a1e-40c4-96e6-e6a84484bcf1 날짜 누름과 주 누름을 사용하지 않으면 날짜 칸과 주를 버튼으로 알리지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 Calendar(state = rememberCalendarState(initialYearMonth = JULY_2026)) {}
@@ -83,7 +83,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-022 이벤트를 받는 화면도 날짜 누름과 주 누름을 사용하지 않으면 날짜 칸과 주를 버튼으로 알리지 않는다`() {
+    fun `TC-ff677d7a-7a1e-40c4-96e6-e6a84484bcf1 이벤트를 받는 화면도 날짜 누름과 주 누름을 사용하지 않으면 날짜 칸과 주를 버튼으로 알리지 않는다`() {
         val eventList = mutableListOf<CalendarEvent>()
         composeRule.setContent {
             DiaryTheme {
@@ -120,7 +120,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-024 이웃 달 날짜를 누르면 그 실제 날짜가 전달된다`() {
+    fun `TC-dd67b552-7357-4107-98af-04bcdc4f7ef3 이웃 달 날짜를 누르면 그 실제 날짜가 전달된다`() {
         val clickedDateList = mutableListOf<LocalDate>()
         composeRule.setContent {
             DiaryTheme {
@@ -138,7 +138,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-025 날짜 칸이나 주를 길게 누르면 날짜 누름과 주 누름으로 다루지 않는다`() {
+    fun `TC-5f15a085-7e21-4e86-81bc-15743d7ab226 날짜 칸이나 주를 길게 누르면 날짜 누름과 주 누름으로 다루지 않는다`() {
         val eventList = mutableListOf<CalendarEvent>()
         composeRule.setContent {
             DiaryTheme {
@@ -159,7 +159,7 @@ class CalendarClickTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-023 아이템을 누르면 주 누름이 실행되지 않는다`() {
+    fun `TC-9d24b8e0-736f-4428-aef3-aeb3fee908e6 아이템을 누르면 주 누름이 실행되지 않는다`() {
         val clickedWeekList = mutableListOf<LocalDate>()
         var itemClickCount = 0
         composeRule.setContent {

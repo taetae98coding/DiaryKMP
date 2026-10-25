@@ -26,7 +26,7 @@ class TagDetailFormRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-061 태그 디테일 탭에서는 당겨도 새로고침을 요청하지 않는다`() {
+    fun `TC-93100c1d-4720-4ef2-9baf-da91ac5bf119 태그 디테일 탭에서는 당겨도 새로고침을 요청하지 않는다`() {
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
             memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = MEMO_TITLE)))),

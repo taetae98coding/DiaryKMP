@@ -62,7 +62,7 @@ class AccountPlaceLocalDataSourceImplTest :
 
         suspend fun pagedPlaces(accountId: Uuid): List<PlaceLocalEntity> = dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).pagedPlaces()
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-010 삭제되지 않은 계정의 장소만 제목 오름차순으로 페이지 조회된다") {
+        test("TC-2d22c977-b558-4b32-a782-4f02fc6424ae 삭제되지 않은 계정의 장소만 제목 오름차순으로 페이지 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE)
@@ -75,7 +75,7 @@ class AccountPlaceLocalDataSourceImplTest :
             pagedPlaces(accountId) shouldBe listOf(firstPlace, lastPlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-010 노출 기준을 만족하는 장소만 보이는 영역 기준으로 조회된다") {
+        test("TC-94e193e6-db2c-4a22-a5fe-7d8dcad671cb TC-fabff97a-89a2-4199-88ff-2f5ed8e4fd69 노출 기준을 만족하는 장소만 보이는 영역 기준으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val insidePlace = place(latitude = 37.5, longitude = 127.0)
@@ -93,7 +93,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe listOf(insidePlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-011 영역 경계 위의 좌표도 영역 안으로 조회된다") {
+        test("TC-5f8746f4-8b93-4e06-8a0f-c4396ccfd969 TC-fabff97a-89a2-4199-88ff-2f5ed8e4fd69 영역 경계 위의 좌표도 영역 안으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val boundaryPlaceList =
                 listOf(
@@ -112,7 +112,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe boundaryPlaceList
         }
 
-        test("TC-PLACE-HOME-DOMAIN-012 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
+        test("TC-57d47b6d-8453-48a2-aeab-1f2501b428fd TC-850687d7-e6ab-43d7-9791-8700c949bacb 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val westSidePlace = place(title = "A-west-side", latitude = 37.5, longitude = 179.0)
             val eastSidePlace = place(title = "B-east-side", latitude = 37.5, longitude = -179.0)
@@ -127,7 +127,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe listOf(westSidePlace, eastSidePlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-013 보이는 영역 기준 조회는 제목 오름차순으로 정렬된다") {
+        test("TC-86d8cb3b-fe56-4db5-84cc-a223d35a0190 TC-fabff97a-89a2-4199-88ff-2f5ed8e4fd69 보이는 영역 기준 조회는 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE, latitude = 37.5, longitude = 127.0)
             val lastPlace = place(title = LAST_PLACE_TITLE, latitude = 37.5, longitude = 127.0)
@@ -141,7 +141,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe listOf(firstPlace, lastPlace)
         }
 
-        test("TC-PLACE-HOME-DATA-002 저장된 장소의 변화가 보이는 영역 기준 조회 결과에 반영된다") {
+        test("TC-b0274c93-1460-4ae9-b11f-0a0da54ecb8b 저장된 장소의 변화가 보이는 영역 기준 조회 결과에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(latitude = 37.5, longitude = 127.0)
 
@@ -158,7 +158,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-PLACE-HOME-DATA-003 서버에서 내려받은 장소 변경이 보이는 영역 기준 조회에 반영된다") {
+        test("TC-529b36b7-1662-4d57-b47e-d1b8e9f7d311 서버에서 내려받은 장소 변경이 보이는 영역 기준 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pulledAt = Instant.fromEpochMilliseconds(2_000)
             val place =
@@ -194,7 +194,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-020 검색어는 제목·설명·주소 중 하나 이상을 포함하는 장소만 남긴다") {
+        test("TC-eb4fb10f-822e-4eeb-b84b-58a1e6a1fc6b 검색어는 제목·설명·주소 중 하나 이상을 포함하는 장소만 남긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titlePlace = place(title = "Riverside").withDetail(description = "", address = "")
             val descriptionPlace = place(title = "AlphaPlace").withDetail(description = "주차 가능", address = "")
@@ -209,7 +209,7 @@ class AccountPlaceLocalDataSourceImplTest :
                 listOf(descriptionPlace, addressPlace, otherPlace, titlePlace)
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-003 검색어를 만족하는 장소가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
+        test("TC-a8fc4651-8728-4757-89f6-d821dda8cf04 검색어를 만족하는 장소가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val placeList =
                 List(PLACE_COUNT) { index ->
@@ -223,7 +223,7 @@ class AccountPlaceLocalDataSourceImplTest :
                 .pagedPlaces(loadSize = PLACE_PAGE_SIZE) shouldBe listOf(target)
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-005 장소 선택 목록은 요청한 크기만큼만 가져오고 다음 구간을 이어서 가져온다") {
+        test("TC-d4e161bd-740b-4244-89e2-a08f2ca1f9eb 장소 선택 목록은 요청한 크기만큼만 가져오고 다음 구간을 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val placeList =
                 List(PLACE_COUNT) { index ->
@@ -250,7 +250,7 @@ class AccountPlaceLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(PLACE_PAGE_SIZE).take(PLACE_PAGE_SIZE)
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-001 저장된 장소의 변화가 페이지 조회에 반영된다") {
+        test("TC-8b0f0c82-213c-48db-acc7-4aa605c80789 저장된 장소의 변화가 페이지 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val renamedPlace = place.copy(detail = place.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
@@ -283,7 +283,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-029 선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 선택 순서와 관계없이 제목 오름차순으로 전달한다") {
+        test("TC-8508844b-1be2-4047-981e-c6d7c0bffb8a 선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 선택 순서와 관계없이 제목 오름차순으로 전달한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE)
@@ -312,7 +312,7 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource.get(accountId = accountId, placeIdSet = emptySet()).first().shouldBeEmpty()
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-001 대상 식별자 조회는 현재 계정의 장소만 전달한다") {
+        test("TC-8df9d1f4-ce1e-47e2-9929-ea6b531d30ab 대상 식별자 조회는 현재 계정의 장소만 전달한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -324,7 +324,7 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource.find(accountId = accountId, placeId = otherAccountPlace.id).first() shouldBe null
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-020 대상 식별자 조회는 삭제 여부와 관계없이 전달한다") {
+        test("TC-de319f84-9bf5-4641-a13b-84dab3f382b5 대상 식별자 조회는 삭제 여부와 관계없이 전달한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val deletedPlace = place().copy(isDeleted = true)
@@ -341,7 +341,7 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource.find(accountId = accountId, placeId = fixtureMonkey.giveMeOne<Uuid>()).first() shouldBe null
         }
 
-        test("TC-PLACE-DETAIL-DATA-002 저장된 장소의 변화가 대상 식별자 조회 결과에 반영된다") {
+        test("TC-f7f61215-e581-4e0c-af7c-9db899bc4d6d 저장된 장소의 변화가 대상 식별자 조회 결과에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(title = FIRST_PLACE_TITLE)
             val renamedPlace = place.copy(detail = place.detail.copy(title = LAST_PLACE_TITLE))
@@ -357,7 +357,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DATA-006 수정한 내용이 보이는 영역 기준 조회에 반영된다") {
+        test("TC-6ba19547-9b8e-4f71-bd99-48c145f477be 수정한 내용이 보이는 영역 기준 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(title = FIRST_PLACE_TITLE, latitude = 10.0, longitude = 20.0)
             val movedDetail =
@@ -391,7 +391,7 @@ class AccountPlaceLocalDataSourceImplTest :
                 .map { local -> local.detail.title } shouldBe listOf(LAST_PLACE_TITLE)
         }
 
-        test("TC-PLACE-DETAIL-DATA-007 삭제한 장소는 미삭제 장소만 노출하는 조회 결과에서 사라진다") {
+        test("TC-16da1b96-c99b-468e-9fda-d81ca573ea76 삭제한 장소는 미삭제 장소만 노출하는 조회 결과에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())

@@ -42,7 +42,7 @@ class PageTagLinkSelectableTagUseCaseTest :
                 )
 
             When("연결할 수 있는 태그를 페이지로 조회한다") {
-                Then("TC-TAG-LINK-INPUT-DATA-001 출발 태그를 기준으로 조회한 태그를 페이지로 전달한다") {
+                Then("TC-5cc6759b-36d2-4796-8f7e-17088d9e99e9 출발 태그를 기준으로 조회한 태그를 페이지로 전달한다") {
                     val pagingData =
                         useCase(parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = fromTagId, query = ""))
                             .first()
@@ -80,7 +80,7 @@ class PageTagLinkSelectableTagUseCaseTest :
                 }
             }
 
-            When("TC-TAG-LINK-INPUT-DOMAIN-008 공백만 있는 검색어로 연결할 수 있는 태그를 페이지로 조회한다") {
+            When("TC-2be00434-5031-419b-ad89-ba56ef77d277 공백만 있는 검색어로 연결할 수 있는 태그를 페이지로 조회한다") {
                 Then("검색어가 없는 것과 같게 조회한다") {
                     useCase(parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = fromTagId, query = "   "))
                         .first()

@@ -55,7 +55,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-020 태그 필터에 전체 태그와 선택 여부를 표시한다`() {
+    fun `TC-af1729d2-fb58-4c28-9bbc-13deebf01abd 태그 필터에 전체 태그와 선택 여부를 표시한다`() {
         val tagList = listOf(tag(title = FIRST_TAG_TITLE), tag(title = SECOND_TAG_TITLE))
 
         setBottomSheetContent(
@@ -68,7 +68,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-028 필터 칩에 이모지와 제목을 함께 표시한다`() {
+    fun `TC-4d4ffe92-11dc-43e1-9b02-b8fa2bba47d4 필터 칩에 이모지와 제목을 함께 표시한다`() {
         val tagList =
             listOf(
                 tag(title = FIRST_TAG_TITLE, emoji = TAG_EMOJI),
@@ -112,7 +112,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-056 지우기를 누르면 선택 전체 해제 Event를 전달한다`() {
+    fun `TC-733c582c-9b61-4349-8ede-0255c440cd32 지우기를 누르면 선택 전체 해제 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -127,7 +127,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-057 TC-MEMO-HOME-DOMAIN-024 보이는 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
+    fun `TC-b7937eef-71e7-43f3-8368-ab332d6af6d2 TC-e43bc741-adf7-4b08-872b-6b0772f14c31 보이는 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -142,7 +142,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-055 태그 축이 없음이면 미적용 안내를 표시하고 태그 필터를 조작할 수 없다`() {
+    fun `TC-2ef84ff2-b8f8-49b6-8fe6-02490d50abb5 태그 축이 없음이면 미적용 안내를 표시하고 태그 필터를 조작할 수 없다`() {
         val firstTag = tag(title = FIRST_TAG_TITLE)
         val secondTag = tag(title = SECOND_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
@@ -171,7 +171,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-055 태그 축이 없음이 아니면 미적용 안내를 표시하지 않는다`() {
+    fun `TC-2ef84ff2-b8f8-49b6-8fe6-02490d50abb5 태그 축이 없음이 아니면 미적용 안내를 표시하지 않는다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
 
         setBottomSheetContent(
@@ -184,7 +184,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-032 유무 필터의 세 축에 현재 상태를 표시한다`() {
+    fun `TC-83618cb6-9f2b-4c9e-b10d-5a24db5c9e6c 유무 필터의 세 축에 현재 상태를 표시한다`() {
         setBottomSheetContent(
             uiState =
                 MemoHomeFilterUiState(
@@ -209,7 +209,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-033 유무 필터를 고르지 않으면 세 축이 모두 전체로 표시된다`() {
+    fun `TC-7e253b07-b1e4-4535-aab1-7758a9f0c219 유무 필터를 고르지 않으면 세 축이 모두 전체로 표시된다`() {
         setBottomSheetContent()
 
         listOf(DATE_LABEL, TAG_LABEL, PLACE_LABEL).forEach { label ->
@@ -255,7 +255,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-066 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
+    fun `TC-74d900a8-ff97-4d48-b6c5-95b18dc19141 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagList = listOf(tag(title = FIRST_TAG_TITLE)))
 
         composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
@@ -263,14 +263,14 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-066 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
+    fun `TC-74d900a8-ff97-4d48-b6c5-95b18dc19141 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-066 태그 없이 조회가 끝나면 태그 칩만 사라지고 빈 상태 안내는 나타나지 않는다`() {
+    fun `TC-74d900a8-ff97-4d48-b6c5-95b18dc19141 태그 없이 조회가 끝나면 태그 칩만 사라지고 빈 상태 안내는 나타나지 않는다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag)))
         val emptyTagPagingFlow = MutableStateFlow(tagPagingDataOf(emptyList()))
@@ -298,21 +298,21 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-066 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
+    fun `TC-74d900a8-ff97-4d48-b6c5-95b18dc19141 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = refreshingTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-066 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
+    fun `TC-74d900a8-ff97-4d48-b6c5-95b18dc19141 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = failedTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-064 태그 추가 칩을 누르면 태그 선택을 바꾸지 않고 태그 추가 Event만 전달한다`() {
+    fun `TC-cff9b2aa-42f7-4122-98a8-31a541a26ab2 태그 추가 칩을 누르면 태그 선택을 바꾸지 않고 태그 추가 Event만 전달한다`() {
         val selectedTag = tag(title = FIRST_TAG_TITLE)
         val unselectedTag = tag(title = SECOND_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
@@ -330,7 +330,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-065 태그 축이 없음이면 태그 추가 칩을 누를 수 없다`() {
+    fun `TC-6b413503-131d-4973-ab8b-11847e5a24f7 태그 축이 없음이면 태그 추가 칩을 누를 수 없다`() {
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
             uiState = MemoHomeFilterUiState(existence = MemoExistenceFilter(tag = MemoFilterExistence.NOT_EXIST)),
@@ -350,7 +350,7 @@ class MemoHomeFilterBottomSheetContentTest {
             .flatMap { node -> node.config[SemanticsProperties.Text].map { text -> text.text } }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-078 태그를 조회하지 못하면 오류 안내 없이 태그 추가 칩만 표시한다`() {
+    fun `TC-077dbd14-2be5-413c-a423-38edecdaf404 태그를 조회하지 못하면 오류 안내 없이 태그 추가 칩만 표시한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag)))
         val failedTagPagingFlow = MutableStateFlow(failedTagPagingData())
@@ -369,7 +369,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-079 태그의 이모지, 제목이나 컬러가 바뀌면 필터에 반영하고 선택 여부를 유지한다`() {
+    fun `TC-cb794e70-9f21-4108-8898-4f3c4ec52089 태그의 이모지, 제목이나 컬러가 바뀌면 필터에 반영하고 선택 여부를 유지한다`() {
         val selectedTag = tag(title = FIRST_TAG_TITLE)
         val unselectedTag = tag(title = SECOND_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag, unselectedTag)))
@@ -398,7 +398,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-080 필터를 연 채로 태그가 추가되면 필터에 바로 나타난다`() {
+    fun `TC-3e8446f1-fcc2-4033-a660-c8f3a24df3b8 필터를 연 채로 태그가 추가되면 필터에 바로 나타난다`() {
         val selectedTag = tag(title = FIRST_TAG_TITLE)
         val addedTag = tag(title = SECOND_TAG_TITLE)
         val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag)))

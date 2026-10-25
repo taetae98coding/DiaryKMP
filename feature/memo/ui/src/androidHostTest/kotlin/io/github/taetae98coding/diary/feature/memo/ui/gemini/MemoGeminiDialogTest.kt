@@ -34,7 +34,7 @@ class MemoGeminiDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-004 프롬프트가 비어 있어도 생성을 실행할 수 있다`() {
+    fun `TC-634c4200-23c0-46b4-93ed-0627f341002f 프롬프트가 비어 있어도 생성을 실행할 수 있다`() {
         val promptList = mutableListOf<String>()
         setDialog(
             uiState = MemoGeminiUiState(step = MemoGeminiStep.PROMPT),
@@ -48,7 +48,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-005 생성하는 동안 진행 표시와 취소를 보여 준다`() {
+    fun `TC-b1c391bd-de35-495f-8346-0a07ef6f7fe6 생성하는 동안 진행 표시와 취소를 보여 준다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.GENERATING))
 
         composeRule.onAllNodesWithContentDescription(DEFAULT_GENERATING_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -58,7 +58,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-005 생성 중에 취소를 알린다`() {
+    fun `TC-b1c391bd-de35-495f-8346-0a07ef6f7fe6 생성 중에 취소를 알린다`() {
         var cancelCount = 0
         setDialog(
             uiState = MemoGeminiUiState(step = MemoGeminiStep.GENERATING),
@@ -72,7 +72,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-007 생성된 제목, 설명, 날짜·시간을 각각 반영할 수 있다`() {
+    fun `TC-7e318c4b-ead9-4441-9f6e-fab7d4ed4ae2 생성된 제목, 설명, 날짜·시간을 각각 반영할 수 있다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT))
         awaitText(DRAFT.description)
 
@@ -86,7 +86,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-011 반영하면 어느 결과를 반영했는지 알린다`() {
+    fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 반영하면 어느 결과를 반영했는지 알린다`() {
         val fieldList = mutableListOf<MemoGeminiField>()
         setDialog(
             uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT),
@@ -100,7 +100,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-024 반영한 결과에만 반영했다는 표시를 보인다`() {
+    fun `TC-ea461a30-9ffb-45e4-80d6-2bef834efda8 반영한 결과에만 반영했다는 표시를 보인다`() {
         setDialog(
             uiState =
                 MemoGeminiUiState(
@@ -117,7 +117,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-014 반영한 뒤에도 결과와 모든 반영 동작을 유지한다`() {
+    fun `TC-048257f1-7281-4c7f-8ef3-20c08483899e 반영한 뒤에도 결과와 모든 반영 동작을 유지한다`() {
         setDialog(
             uiState =
                 MemoGeminiUiState(
@@ -136,7 +136,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-028 화면이 재생성되어도 진행 중인 생성 표시를 유지한다`() {
+    fun `TC-3f6d23cc-4f42-41fd-8e46-754b028658fd 화면이 재생성되어도 진행 중인 생성 표시를 유지한다`() {
         setRestorableDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.GENERATING)).emulateSavedInstanceStateRestore()
 
         composeRule.onAllNodesWithContentDescription(DEFAULT_GENERATING_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -144,7 +144,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-028 화면이 재생성되어도 받아 둔 결과를 유지한다`() {
+    fun `TC-3f6d23cc-4f42-41fd-8e46-754b028658fd 화면이 재생성되어도 받아 둔 결과를 유지한다`() {
         setRestorableDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT)).emulateSavedInstanceStateRestore()
         awaitText(DRAFT.description)
 
@@ -156,7 +156,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-016 비어 있는 결과는 반영할 수 없다`() {
+    fun `TC-6c6f219a-1cbd-404d-8cbb-f0e6d438c90a 비어 있는 결과는 반영할 수 없다`() {
         setDialog(
             uiState =
                 MemoGeminiUiState(
@@ -171,7 +171,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-017 생성된 내용이 없으면 안내만 표시한다`() {
+    fun `TC-75b0f674-af63-4ec0-b280-668fdbca6b45 생성된 내용이 없으면 안내만 표시한다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = MemoDraft.EMPTY))
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertExists()
@@ -180,7 +180,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-018 결과 확인 상태에서는 다시 생성할 수 없다`() {
+    fun `TC-b74c11e5-3a4a-4927-b652-39ea209f6bfc 결과 확인 상태에서는 다시 생성할 수 없다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT))
 
         composeRule.onNodeWithText(DEFAULT_GENERATE_ACTION).assertDoesNotExist()
@@ -188,7 +188,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-019 결과 확인 상태에서 닫기를 제공한다`() {
+    fun `TC-0725149c-6215-42e7-b736-99bcc3c1b1fb 결과 확인 상태에서 닫기를 제공한다`() {
         var dismissCount = 0
         setDialog(
             uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT),
@@ -202,7 +202,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-010 생성 실패의 원인을 구분해 안내한다`() {
+    fun `TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 생성 실패의 원인을 구분해 안내한다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.PROMPT, failure = MemoGeminiFailure.INVALID_API_KEY))
 
         composeRule.onNodeWithText(DEFAULT_INVALID_API_KEY_MESSAGE).assertExists()
@@ -211,7 +211,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-010 그 밖의 실패는 생성 실패를 안내한다`() {
+    fun `TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 그 밖의 실패는 생성 실패를 안내한다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.PROMPT, failure = MemoGeminiFailure.UNKNOWN))
 
         composeRule.onNodeWithText(DEFAULT_FAILED_MESSAGE).assertExists()
@@ -227,7 +227,7 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-022 화면이 재생성되어도 적어 둔 프롬프트를 유지한다`() {
+    fun `TC-60a1289f-81d1-4815-84b4-c4ba8fe94210 화면이 재생성되어도 적어 둔 프롬프트를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
 
         restorationTester.setContent {

@@ -41,7 +41,7 @@ class HolidayHomeScreenNotProvidedTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-041 기본 환경에서 표시 년도의 공휴일이 제공되지 않으면 제공 없음 안내가 표시된다`() {
+    fun `TC-c81a945f-ccb9-4404-a497-9294e344a234 기본 환경에서 표시 년도의 공휴일이 제공되지 않으면 제공 없음 안내가 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = thisYearNotProvidedFetchHolidayUseCase(),
@@ -56,7 +56,7 @@ class HolidayHomeScreenNotProvidedTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-HOLIDAY-HOME-FEATURE-041 한국어 환경에서 표시 년도의 공휴일이 제공되지 않으면 제공 없음 안내가 표시된다`() {
+    fun `TC-c81a945f-ccb9-4404-a497-9294e344a234 한국어 환경에서 표시 년도의 공휴일이 제공되지 않으면 제공 없음 안내가 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = thisYearNotProvidedFetchHolidayUseCase(),
@@ -67,7 +67,7 @@ class HolidayHomeScreenNotProvidedTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-059 적용 국가가 없으면 제공 없음 안내가 표시된다`() {
+    fun `TC-d1743b57-785c-49f9-a78c-beef6e217946 적용 국가가 없으면 제공 없음 안내가 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(emptyList())
         composeRule.setHolidayHomeScreen(
@@ -82,7 +82,7 @@ class HolidayHomeScreenNotProvidedTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-042 앞뒤 년도만 제공되지 않으면 표시 년도의 목록이 표시된다`() {
+    fun `TC-198e0061-10ba-4b7a-a2e7-aca0b9977590 앞뒤 년도만 제공되지 않으면 표시 년도의 목록이 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(emptyList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returns Result.success(providedHolidayList())
@@ -97,7 +97,7 @@ class HolidayHomeScreenNotProvidedTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-043 받아오지 못한 판단 대상 년도가 있으면 오류 안내가 표시된다`() {
+    fun `TC-ee60a401-4b78-40ab-8314-46139a915610 받아오지 못한 판단 대상 년도가 있으면 오류 안내가 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returns Result.success(emptyList())

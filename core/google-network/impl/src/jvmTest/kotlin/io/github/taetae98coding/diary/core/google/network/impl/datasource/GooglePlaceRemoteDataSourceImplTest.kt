@@ -49,7 +49,7 @@ import org.koin.plugin.module.dsl.koinApplication
 
 class GooglePlaceRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-GOOGLE-PLACE-SEARCH-DOMAIN-001: 검색은 최대 개수인 20개를 요청한다") {
+        test("TC-a0ef2cd7-9cde-454c-9de1-530ad0f01f35: 검색은 최대 개수인 20개를 요청한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -62,7 +62,7 @@ class GooglePlaceRemoteDataSourceImplTest :
                 ?.int shouldBe 20
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DOMAIN-002: 검색 결과를 한국어 기준으로 요청한다") {
+        test("TC-6db032a8-fd97-487c-ae12-a8813ed8d25a: 검색 결과를 한국어 기준으로 요청한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -75,7 +75,7 @@ class GooglePlaceRemoteDataSourceImplTest :
                 ?.content shouldBe "ko"
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DOMAIN-003: 기준 위치를 지정하면 좌표와 반경이 요청에 포함된다") {
+        test("TC-f85d9c7a-f1c6-4422-b8a1-4301dff060ff: 기준 위치를 지정하면 좌표와 반경이 요청에 포함된다") {
             val locationBias = locationBias(radiusMeters = WITHIN_LIMIT_RADIUS_METERS)
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
@@ -101,7 +101,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             body["locationRestriction"] shouldBe null
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-005: 기준 위치의 반경이 상한을 넘으면 상한으로 요청한다") {
+        test("TC-2af4f3f2-fc54-4d0b-98fc-53473cef4295: 기준 위치의 반경이 상한을 넘으면 상한으로 요청한다") {
             val locationBias = locationBias(radiusMeters = MAX_RADIUS_METERS + WITHIN_LIMIT_RADIUS_METERS)
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
@@ -119,7 +119,7 @@ class GooglePlaceRemoteDataSourceImplTest :
                 ?.double shouldBe MAX_RADIUS_METERS
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DOMAIN-004: 기준 위치를 지정하지 않으면 요청에 위치 조건이 없다") {
+        test("TC-27476fa8-7e41-49cf-8387-52ee8927b040: 기준 위치를 지정하지 않으면 요청에 위치 조건이 없다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -131,7 +131,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             body["locationRestriction"] shouldBe null
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DOMAIN-005: 정의된 장소 정보만 요청한다") {
+        test("TC-bf99090e-9bc6-4a25-b2ad-ceee89ffe2af: 정의된 장소 정보만 요청한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -153,7 +153,7 @@ class GooglePlaceRemoteDataSourceImplTest :
                 )
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-001: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
+        test("TC-5d72c32d-9128-4486-b1d8-4e69b1fd567d: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
             val config = GoogleNetworkTestKoinModule.config
             val query = fixtureMonkey.giveMeOne<String>()
             val engine = createSuccessEngine(emptyList())
@@ -168,7 +168,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             request.headers["X-Goog-Api-Key"] shouldBe config.apiKey
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-002: 성공 응답의 장소 목록을 그대로 전달한다") {
+        test("TC-3240a860-51b0-4110-a863-e2e95955aa8d: 성공 응답의 장소 목록을 그대로 전달한다") {
             val places = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(20)
             val engine = createSuccessEngine(places)
             val dataSource = createDataSource(engine)
@@ -178,7 +178,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             actual shouldBe places
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-003: 결과가 없으면 빈 목록을 성공으로 전달한다") {
+        test("TC-0c642270-e04c-4dd0-9176-84ea2fc6f4af: 결과가 없으면 빈 목록을 성공으로 전달한다") {
             val engine = createEngine(content = "{}")
             val dataSource = createDataSource(engine)
 
@@ -187,7 +187,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             actual shouldBe emptyList()
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-004: 원격 조회 실패를 그대로 알린다") {
+        test("TC-253549d4-7a68-409d-8b3d-72fa0bba08bf: 원격 조회 실패를 그대로 알린다") {
             listOf(
                 HttpStatusCode.Unauthorized,
                 HttpStatusCode.BadRequest,
@@ -203,7 +203,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-GOOGLE-PLACE-SEARCH-DATA-007: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+        test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val representable = fixtureMonkey.giveMeOne<GooglePlaceRemoteEntity>()
             val withoutLocationId = "place-${fixtureMonkey.giveMeOne<Int>()}"
             val withoutLatitudeId = "place-${fixtureMonkey.giveMeOne<Int>()}"

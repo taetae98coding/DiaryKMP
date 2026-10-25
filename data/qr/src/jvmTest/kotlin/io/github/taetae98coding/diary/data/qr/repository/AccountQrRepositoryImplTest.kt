@@ -39,7 +39,7 @@ import kotlin.uuid.Uuid
 
 class AccountQrRepositoryImplTest :
     FunSpec({
-        test("TC-QR-ADD-DATA-001 QR을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
+        test("TC-7221dee8-4896-4a4d-a339-46fd8892bcce QR을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val qr = fixtureMonkey.qr(isDeleted = false)
             val localDataSource = mockk<AccountQrLocalDataSource>()
@@ -54,7 +54,7 @@ class AccountQrRepositoryImplTest :
             }
         }
 
-        test("TC-QR-ADD-DATA-002 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-7b950adf-1ab9-4742-9b91-33003d0955b6 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val qr = fixtureMonkey.qr(isDeleted = false)
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -68,7 +68,7 @@ class AccountQrRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-QR-HOME-DATA-001 QR 목록 페이지 조회는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
+        test("TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f QR 목록 페이지 조회는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localQrList = List(2) { fixtureMonkey.localQr(isDeleted = false) }
             val localDataSource = mockk<AccountQrLocalDataSource>()
@@ -79,7 +79,7 @@ class AccountQrRepositoryImplTest :
             repository.page(account = account).first().items() shouldBe localQrList.map { local -> local.toDomain() }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-001 QR 찾기는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
+        test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 QR 찾기는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localQr = fixtureMonkey.localQr(isDeleted = true)
             val localDataSource = mockk<AccountQrLocalDataSource>()
@@ -89,7 +89,7 @@ class AccountQrRepositoryImplTest :
             repository.find(account = account, qrId = localQr.id).first() shouldBe localQr.toDomain()
         }
 
-        test("TC-QR-DETAIL-DATA-005 QR 찾기는 기기에 저장된 QR만 조회하고 내려받아 저장하지 않는다") {
+        test("TC-7576dbc8-7db2-49f3-96e3-9f1c337fb63c QR 찾기는 기기에 저장된 QR만 조회하고 내려받아 저장하지 않는다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localQr = fixtureMonkey.localQr(isDeleted = false)
             val localDataSource = mockk<AccountQrLocalDataSource>()
@@ -112,7 +112,7 @@ class AccountQrRepositoryImplTest :
             repository.find(account = account, qrId = id).first().shouldBeNull()
         }
 
-        test("TC-QR-DETAIL-DOMAIN-003 수정 요청은 내용과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
+        test("TC-92975a11-7beb-4f64-bd53-24a2718ccf23 수정 요청은 내용과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val detail = fixtureMonkey.qrDetail()
@@ -125,7 +125,7 @@ class AccountQrRepositoryImplTest :
         }
 
         listOf(true, false).forEach { isDeleted ->
-            test("TC-QR-HOME-DATA-004 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
+            test("TC-9f59d662-8251-4eb6-85e1-8fd2875148cf 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
                 val account = fixtureMonkey.giveMeOne<Account.User>()
                 val qrId = fixtureMonkey.giveMeOne<Uuid>()
                 val updatedAt = fixtureMonkey.giveMeOne<Instant>()

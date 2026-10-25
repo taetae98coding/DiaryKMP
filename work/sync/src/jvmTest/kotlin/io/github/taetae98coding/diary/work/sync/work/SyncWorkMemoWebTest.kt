@@ -18,7 +18,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkMemoWebTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 웹 항목과 메모 요청이 모두 성공한 뒤 메모·웹 연결 전용 요청을 시작한다") {
+        test("TC-674eebce-610c-4b46-8dce-79aef5252327 웹 항목과 메모 요청이 모두 성공한 뒤 메모·웹 연결 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -57,7 +57,7 @@ class SyncWorkMemoWebTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 TC-MEMO-WEB-DATA-006 메모·웹 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 TC-aaa0ced7-99b5-4703-b5a5-8d4ccc9e5691 메모·웹 연결 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val memoWebList = memoWebs(size = itemCount)
                 val context = context(memoWebList = memoWebList)
                 val requests = mutableListOf<List<MemoWebRemoteEntity>>()
@@ -72,7 +72,7 @@ class SyncWorkMemoWebTest :
             }
         }
 
-        test("TC-MEMO-WEB-DATA-007 해제된 연결도 해제 상태로 업로드된다") {
+        test("TC-9c37ef0c-70cf-49d8-a8bd-b895a01300aa 해제된 연결도 해제 상태로 업로드된다") {
             val memoWebList = listOf(memoWeb(isDeleted = true), memoWeb(isDeleted = false))
             val context = context(memoWebList = memoWebList)
             val requests = mutableListOf<List<MemoWebRemoteEntity>>()
@@ -86,7 +86,7 @@ class SyncWorkMemoWebTest :
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 메모·웹 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 메모·웹 연결 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
             val memoWebList = memoWebs(size = 101)
             val context = context(memoWebList = memoWebList)
 
@@ -106,7 +106,7 @@ class SyncWorkMemoWebTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 메모·웹 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 메모·웹 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(memoWebList = memoWebs(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.memoWebRemoteDataSource.push(any()) } throws failure
@@ -120,7 +120,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.webRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-079 웹 항목 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
+        test("TC-98a227dd-770f-4c9a-9c31-1602b3c77614 웹 항목 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
             val context =
                 context(
                     webList = webs(size = 1),
@@ -137,7 +137,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.memoWebRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 태그 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -155,7 +155,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.memoWebRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 메모·웹 연결 업로드가 실패해도 메모와 태그 연결은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 메모·웹 연결 업로드가 실패해도 메모와 태그 연결은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -180,7 +180,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 3) { context.memoTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-MEMO-WEB-DATA-008 메모·웹 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-eaf7d13b-f467-4046-8e78-fdf35129ad57 메모·웹 연결 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = memoWebPulls(usnList = listOf(4L, 6L))
             val secondPullList = memoWebPulls(usnList = listOf(9L))
@@ -208,7 +208,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 3) { context.memoWebRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-038 메모·웹 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
+        test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 메모·웹 연결 내려받기가 지연되어도 나머지 종류의 내려받기를 먼저 시작한다") {
             runTest {
                 val context = context()
                 val callOrder = mutableListOf<String>()
@@ -238,7 +238,7 @@ class SyncWorkMemoWebTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-039 TC-DATA-SYNC-DOMAIN-040 메모·웹 연결 내려받기가 실패해도 웹 항목과 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
+        test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 메모·웹 연결 내려받기가 실패해도 웹 항목과 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
             val failure = TestException(fixtureMonkey.giveMeOne())
             val webPullList = webPulls(usnList = listOf(3L))
@@ -272,7 +272,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.upsert(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 메모·웹 연결만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·웹 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

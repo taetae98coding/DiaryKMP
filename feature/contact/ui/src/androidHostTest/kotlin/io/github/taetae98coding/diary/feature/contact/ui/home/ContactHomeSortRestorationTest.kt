@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performScrollToIndex
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
@@ -50,15 +51,17 @@ class ContactHomeSortRestorationTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-016 시스템이 앱을 정리했다가 다시 만들면 정렬은 이름순으로 돌아가고 보던 목록 위치는 복원한다`() {
+    fun `TC-9467ac6f-bb4c-454c-ad8e-4fc10c76d361 시스템이 앱을 정리했다가 다시 만들면 정렬은 이름순으로 돌아가고 보던 목록 위치는 복원한다`() {
         val nameOrderList =
             List(RESTORATION_CONTACT_COUNT) { index ->
                 testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<String>()}")
             }
         val recentOrderList = nameOrderList.reversed()
         val pageContactUseCase = mockk<PageContactUseCase>()
-        every { pageContactUseCase(parameter = ListSort.NAME) } returns flowOf(Result.success(contactPagingDataOf(nameOrderList)))
-        every { pageContactUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns flowOf(Result.success(contactPagingDataOf(recentOrderList)))
+        every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns
+            flowOf(Result.success(contactPagingDataOf(nameOrderList)))
+        every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.RECENTLY_UPDATED, filter = ContactFilter())) } returns
+            flowOf(Result.success(contactPagingDataOf(recentOrderList)))
         val syncViewModel = mockk<SyncRefreshViewModel>()
         every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }

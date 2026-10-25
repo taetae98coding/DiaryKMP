@@ -48,7 +48,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 val result = useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-012 TC-CHROME-SESSION-IMPORT-DOMAIN-015 고른 프로필 전체의 쿠키를 요청하고 모두 넘긴다") {
+                Then("TC-f760b33d-11cf-47cd-9d3b-0e06bcb0b0a0 TC-25ba4dff-6479-418b-b9a5-aa64b6f65937 고른 프로필 전체의 쿠키를 요청하고 모두 넘긴다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { chromeCookieRepository.readCookieList(profileDirectory = profile.directory) }
                     coVerify(exactly = 1) { inAppBrowserCookieRepository.upsert(cookieList = cookieList) }
@@ -68,7 +68,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-004 만료 시각이 남은 쿠키와 없는 쿠키만 넘긴다") {
+                Then("TC-1922e2f9-6979-44a0-8fd9-939349bedff0 만료 시각이 남은 쿠키와 없는 쿠키만 넘긴다") {
                     coVerify(exactly = 1) { inAppBrowserCookieRepository.upsert(cookieList = listOf(alive, session)) }
                 }
             }
@@ -86,7 +86,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-006 여덟 속성을 그대로 넘긴다") {
+                Then("TC-867618e8-bda0-484f-8387-bc8a2f4c43b5 여덟 속성을 그대로 넘긴다") {
                     delivered.captured shouldBe listOf(cookie)
                 }
             }
@@ -101,7 +101,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 val result = useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-007 아무것도 넘기지 않고 성공으로 끝난다") {
+                Then("TC-81ebdf28-0123-46ec-8ed2-4c43519613ce 아무것도 넘기지 않고 성공으로 끝난다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 0) { inAppBrowserCookieRepository.upsert(any()) }
                 }
@@ -117,7 +117,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 val result = useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-008 아무것도 넘기지 않고 실패로 끝난다") {
+                Then("TC-e743a255-e782-4d96-bee4-f98c0db6bef7 아무것도 넘기지 않고 실패로 끝난다") {
                     result.shouldBeFailure()
                     coVerify(exactly = 0) { inAppBrowserCookieRepository.upsert(any()) }
                 }
@@ -134,7 +134,7 @@ class ImportChromeSessionUseCaseTest :
             When("로그인 정보를 가져온다") {
                 val result = useCase(parameter = profile)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-009 실패로 끝난다") {
+                Then("TC-83ae51c9-e1c6-415b-8fb2-56f154d95d07 실패로 끝난다") {
                     result.shouldBeFailure()
                 }
             }

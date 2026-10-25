@@ -10,6 +10,9 @@ public interface AccountContactLocalDataSource {
     public fun page(
         accountId: Uuid,
         sort: ListSortLocalEntity,
+        hasBirthday: Boolean?,
+        hasBirthYear: Boolean?,
+        hasPhoneNumber: Boolean?,
     ): PagingSource<Int, ContactLocalEntity>
 
     public fun get(

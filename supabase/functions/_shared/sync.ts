@@ -131,6 +131,35 @@ export const qrPushRequestSchema = z.object({
   ),
 });
 
+export const checklistPushRequestSchema = z.object({
+  checklistList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z.object({
+        title: z.string(),
+        description: z.string(),
+      }),
+    }),
+  ),
+});
+
+export const checklistItemPushRequestSchema = z.object({
+  checklistItemList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      checklistId: z.string().uuid(),
+      content: z.string(),
+      isChecked: z.boolean(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
 // 태어난 연도가 생기기 전 버전의 앱이 보내는 형식이다. 태어난 연도는 서버가 생일에서 정한다.
 export const contactPushRequestSchemaV1 = z.object({
   contactList: z.array(

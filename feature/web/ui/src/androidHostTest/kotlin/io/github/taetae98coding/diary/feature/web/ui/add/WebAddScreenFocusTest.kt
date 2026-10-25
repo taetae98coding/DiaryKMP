@@ -29,7 +29,7 @@ class WebAddScreenFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-013 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
+    fun `TC-98776e4f-51cd-4840-9872-d1cd3b76d6c4 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -38,7 +38,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-014 헤더 항목을 추가해도 초점을 옮기지 않는다`() {
+    fun `TC-d4ad756e-9854-4735-be0c-2e13c6d16177 헤더 항목을 추가해도 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
         composeRule.addHeaderRow()
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
@@ -50,7 +50,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-014 헤더 항목을 삭제해도 초점을 옮기지 않는다`() {
+    fun `TC-d4ad756e-9854-4735-be0c-2e13c6d16177 헤더 항목을 삭제해도 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
         composeRule.addHeaderRow()
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
@@ -62,7 +62,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-015 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-f9b2aeb9-6b4c-45bb-bd78-3f865383ef5b 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.AddSucceeded(id = Uuid.random())))
 
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
@@ -73,7 +73,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-016 제목이 비어 있으면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-28661286-7054-40c4-8153-3abe92b15752 제목이 비어 있으면 제목 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.TitleBlank))
 
         composeRule.urlInput().performTextInput(fixtureMonkey.giveMeOne<String>())
@@ -84,7 +84,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-016 URL이 비어 있으면 URL 입력으로 초점을 옮긴다`() {
+    fun `TC-28661286-7054-40c4-8153-3abe92b15752 URL이 비어 있으면 URL 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.UrlBlank))
 
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
@@ -95,7 +95,7 @@ class WebAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-016 헤더 이름이 비어 있으면 초점을 옮기지 않는다`() {
+    fun `TC-28661286-7054-40c4-8153-3abe92b15752 헤더 이름이 비어 있으면 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.HeaderNameBlank))
 
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())

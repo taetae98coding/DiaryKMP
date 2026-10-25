@@ -15,8 +15,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
@@ -114,18 +112,20 @@ private fun TopBar(
     val navigateUpContentDescription = stringResource(Res.string.tag_memo_finished_list_navigate_up_button_content_description)
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
-            DiaryTopBarTitle.Text(
+        title = {
+            Title(
                 text = uiStateProvider().title,
                 subtitle = subtitle,
                 isMarquee = true,
-            ),
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
+            NavigateUp(
                 onClick = { onEvent(TagMemoFinishedListScaffoldEvent.ClickNavigateUp) },
-            ),
+                contentDescription = navigateUpContentDescription,
+            )
+        },
     )
 }
 

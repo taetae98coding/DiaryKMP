@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.compose.map.web
 
-import io.github.taetae98coding.diary.compose.map.naver.NaverMapResourceLoader
-import io.github.taetae98coding.diary.compose.map.naver.installNaverMapRoutes
-import io.github.taetae98coding.diary.compose.map.naver.naverMapNcpKeyId
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -19,9 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.uuid.Uuid
 
 // 지도마다 서버를 띄우면 화면에 들어갈 때마다 소켓을 열고 Ktor를 불러오므로, 앱이 시작할 때 하나만 띄우고 지도마다 문서를 등록해 쓴다.
-public class MapHttpServer internal constructor(
-    private val naverMapResourceLoader: NaverMapResourceLoader,
-) {
+public class MapHttpServer {
     private val pageMap = ConcurrentHashMap<String, String>()
 
     @Volatile
@@ -29,8 +24,6 @@ public class MapHttpServer internal constructor(
 
     @Volatile
     private var rootUrl: String? = null
-
-    public constructor() : this(naverMapResourceLoader = NaverMapResourceLoader(ncpKeyId = naverMapNcpKeyId()))
 
     // 화면을 그리기 전에 main 함수에서 부른다. 포트를 0으로 열어 운영체제가 비어 있는 포트를 고르게 한다.
     public fun start() {
@@ -53,7 +46,6 @@ public class MapHttpServer internal constructor(
                             call.respondText(html, ContentType.Text.Html)
                         }
                     }
-                    installNaverMapRoutes(resourceLoader = naverMapResourceLoader)
                 }
             }
 

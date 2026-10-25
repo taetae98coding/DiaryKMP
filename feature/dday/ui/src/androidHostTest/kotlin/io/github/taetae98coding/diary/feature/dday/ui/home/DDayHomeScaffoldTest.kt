@@ -23,21 +23,21 @@ class DDayHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-DDAY-HOME-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-6bdbd5aa-9cd9-443d-b6cf-15569cd8af16 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setDDayHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-DDAY-HOME-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-6bdbd5aa-9cd9-443d-b6cf-15569cd8af16 기본 환경에서 상단 바에 제목을 표시한다`() {
         setDDayHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-DDAY-HOME-FEATURE-002 제목과 뒤로가기 외에 선택할 수 있는 동작을 두지 않는다`() {
+    fun `TC-16539ade-d1ba-43cb-b747-8e965d6c85f8 제목과 뒤로가기 외에 선택할 수 있는 동작을 두지 않는다`() {
         setDDayHomeScaffold()
 
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
@@ -46,7 +46,7 @@ class DDayHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-DDAY-HOME-FEATURE-004 제목 외의 정보와 준비 중 안내를 표시하지 않는다`() {
+    fun `TC-17b89444-c2df-47af-9f8c-c8af21ad9890 제목 외의 정보와 준비 중 안내를 표시하지 않는다`() {
         setDDayHomeScaffold()
 
         val texts =

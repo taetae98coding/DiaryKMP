@@ -39,7 +39,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-001 올리는 동안 파일 이름과 진행을 보여 주는 진행 중 알림을 만든다`() {
+    fun `TC-d37fcb12-71d8-44d7-acce-dfa929458de0 올리는 동안 파일 이름과 진행을 보여 주는 진행 중 알림을 만든다`() {
         mapOf<Int?, Pair<Int, Boolean>>(
             null to (0 to true),
             40 to (40 to false),
@@ -60,7 +60,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-004 결과마다 정한 제목과 본문의 결과 알림을 보낸다`() {
+    fun `TC-f27003e1-5af1-458e-8752-01093aba51f6 결과마다 정한 제목과 본문의 결과 알림을 보낸다`() {
         val name = "보고서-${fixtureMonkey.giveMeOne<Int>()}.pdf"
 
         mapOf(
@@ -78,7 +78,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-007 앞선 결과 알림이 남아 있을 때 다른 결과를 알리면 새 결과 하나만 남는다`() {
+    fun `TC-bb99870b-2ef0-4cab-be21-3d4fc2a8f0ce 앞선 결과 알림이 남아 있을 때 다른 결과를 알리면 새 결과 하나만 남는다`() {
         val name = "memo-${fixtureMonkey.giveMeOne<Int>()}.txt"
 
         notifier.notifyResult(result = FileUploadResult.Failed(name = fileName()))
@@ -91,7 +91,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-008 알림을 선택하면 FileHome 주소를 담아 앱의 진입 화면을 연다`() {
+    fun `TC-5b734721-c6fe-4d3d-a2bc-e744c156e188 알림을 선택하면 FileHome 주소를 담아 앱의 진입 화면을 연다`() {
         notifier.notifyResult(result = FileUploadResult.TooLarge)
 
         val intent = shadowOf(shadowOf(notificationManager()).allNotifications.single().contentIntent).savedIntent
@@ -102,7 +102,19 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-014 진행 알림은 선택해도 사라지지 않고 FileHome을 연다`() {
+    fun `TC-ef546084-faf4-4bdf-924c-900d25b0e4ef 결과 알림은 선택하면 사라지고 FileHome을 연다`() {
+        notifier.notifyResult(result = FileUploadResult.Failed(name = fileName()))
+
+        val posted = shadowOf(notificationManager()).getNotification(FILE_UPLOAD_RESULT_NOTIFICATION_ID).shouldNotBeNull()
+        (posted.flags and Notification.FLAG_AUTO_CANCEL != 0) shouldBe true
+        (posted.flags and Notification.FLAG_ONGOING_EVENT != 0) shouldBe false
+        val intent = shadowOf(posted.contentIntent).savedIntent
+        intent.dataString shouldBe FILE_HOME_DEEP_LINK
+        intent.component?.className shouldBe LAUNCHER_ACTIVITY_CLASS_NAME
+    }
+
+    @Test
+    fun `TC-bfea47eb-3fc8-41c4-a084-48f66648f672 진행 알림은 선택해도 사라지지 않고 FileHome을 연다`() {
         val notification = notifier.createForegroundInfo(name = fileName(), percent = null).notification
 
         (notification.flags and Notification.FLAG_AUTO_CANCEL != 0) shouldBe false
@@ -111,7 +123,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-015 이름을 알 수 없는 파일의 실패 결과 알림은 제목만 담는다`() {
+    fun `TC-5bf0813a-9e0b-440f-b9f1-47b7c93a182d 이름을 알 수 없는 파일의 실패 결과 알림은 제목만 담는다`() {
         notifier.notifyResult(result = FileUploadResult.Failed(name = ""))
 
         val posted = shadowOf(notificationManager()).getNotification(FILE_UPLOAD_RESULT_NOTIFICATION_ID).shouldNotBeNull()
@@ -120,7 +132,7 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-004 진행 알림과 결과 알림은 일일 메모 알림과 다른 전용 알림 설정 항목으로 표시된다`() {
+    fun `TC-5fcad03b-e0b9-4449-a7e5-4b003e23450e 진행 알림과 결과 알림은 일일 메모 알림과 다른 전용 알림 설정 항목으로 표시된다`() {
         val progress = notifier.createForegroundInfo(name = fileName(), percent = null).notification
         notifier.notifyResult(result = FileUploadResult.TooLarge)
         val result = shadowOf(notificationManager()).getNotification(FILE_UPLOAD_RESULT_NOTIFICATION_ID).shouldNotBeNull()

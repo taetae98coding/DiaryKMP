@@ -7,7 +7,7 @@ import java.nio.file.Paths
 
 class JvmSettingPathTest :
     FunSpec({
-        test("TC-SETTING-MAP-DATA-006 TC-SETTING-BROWSER-DATA-006 flavor에 맞는 설정 저장 영역 선택") {
+        test("TC-ed3a40a4-f5dd-4773-a6c9-98521ec66ec8 TC-64e07364-2bf6-48ca-9310-24ba84efa879 flavor에 맞는 설정 저장 영역 선택") {
             val userHome = Paths.get("/Users/user")
             val cases =
                 mapOf(
@@ -20,7 +20,7 @@ class JvmSettingPathTest :
             }
         }
 
-        test("TC-SETTING-MAP-DATA-006 TC-SETTING-BROWSER-DATA-006 개발과 운영 설정 저장 영역 분리") {
+        test("TC-ed3a40a4-f5dd-4773-a6c9-98521ec66ec8 TC-64e07364-2bf6-48ca-9310-24ba84efa879 개발과 운영 설정 저장 영역 분리") {
             val userHome = Paths.get("/Users/user")
             val devPath = resolveSettingDirectory(userHome, "DiaryDev")
             val realPath = resolveSettingDirectory(userHome, "Diary")

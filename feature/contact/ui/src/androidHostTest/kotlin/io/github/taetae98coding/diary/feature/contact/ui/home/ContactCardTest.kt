@@ -21,7 +21,7 @@ class ContactCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-016 아직 준비되지 않은 자리는 선택할 수 없다`() {
+    fun `TC-f6437150-f099-454a-85c3-c5e409defccc 아직 준비되지 않은 자리는 선택할 수 없다`() {
         var clickCount = 0
 
         setContactCard(contact = null, onClick = { clickCount++ })
@@ -32,7 +32,7 @@ class ContactCardTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-015 준비된 연락처 카드는 선택할 수 있다`() {
+    fun `TC-1703c8ae-d3c7-4acc-8d12-3bfc6838c2e1 준비된 연락처 카드는 선택할 수 있다`() {
         var clickCount = 0
 
         setContactCard(

@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
@@ -23,6 +24,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -36,6 +38,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
+import androidx.paging.PagingData
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -44,12 +47,21 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddPlaceViewModel
@@ -60,8 +72,14 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewMode
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScreen
+import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.home.screenTestSyncViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapUiState
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
@@ -71,11 +89,16 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,6 +123,12 @@ class MemoListDetailPlaceholderTest {
     private val contactViewModelList = mutableListOf<MemoAddContactViewModel>()
     private val placeViewModelList = mutableListOf<MemoAddPlaceViewModel>()
     private val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey)
+    private val addMemoUseCase = mockk<AddMemoUseCase>()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After
@@ -108,7 +137,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-002 다른 주요 목적지에 다녀오면 상세 영역의 메모 추가는 입력과 선택이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-56993684-4876-4f8b-b41c-eca45eb2fa33 다른 주요 목적지에 다녀오면 상세 영역의 메모 추가는 입력과 선택이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -137,18 +166,62 @@ class MemoListDetailPlaceholderTest {
         composeRule.colorHexText() shouldNotBe colorBeforeLeaving
     }
 
+    // 추가한 메모가 목록에 나타나는지 보려고, 저장소 경계만 대역으로 두어 추가한 메모를 목록 조회 결과로 돌려준다.
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
+    fun `TC-f57d3778-50dc-4e50-8325-dae75ae3fb04 상세 영역의 메모 추가에서 추가에 성공하면 상세 영역은 메모 추가로 남고 추가한 메모가 목록에 나타난다`() {
+        val input = placeholderInput()
+        val storedMemoList = MutableStateFlow(emptyList<Memo>())
+        coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } answers {
+            val parameter = firstArg<AddMemoUseCase.Parameter>()
+            storedMemoList.update { memoList -> memoList + fixtureMonkey.memo(title = parameter.detail.title) }
+            Result.success(fixtureMonkey.giveMeOne<Uuid>())
+        }
+        val memoHomeViewModel = memoHomeViewModel(storedMemoList = storedMemoList)
+        setMemoNavDisplay(input = input) {
+            MemoHomeScreen(
+                navigateToAdd = {},
+                navigateToDetail = {},
+                navigateToFilter = {},
+                navigateToFinishedList = {},
+                navigateToSearch = {},
+                componentVisibleProvider = { MemoHomeScaffoldComponentVisible(isAddButtonVisible = false) },
+                listState = rememberLazyListState(),
+                memoViewModel = memoHomeViewModel,
+                syncViewModel = remember { screenTestSyncViewModel() },
+            )
+        }
+        composeRule.onNodeWithText(ADDED_MEMO_TITLE).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(ADDED_MEMO_TITLE)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(ADDED_MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        backStack.toList() shouldBe listOf(MemoHomeNavKey)
+        composeRule.onNodeWithText(ADDED_MEMO_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(""))
+    }
+
+    @Test
+    fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
+    fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
+    fun `TC-4b6fb492-81b6-4c57-8992-1c7a884b53c6 완료된 메모 목록에 다녀와도 선택 전 메모 추가의 입력과 선택이 남는다`() {
+        assertPlaceholderRetained(route = MemoFinishedListNavKey)
+    }
+
+    @Test
+    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
         val input = placeholderInput()
         val detail = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         setMemoNavDisplay(input = input)
@@ -168,7 +241,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 선택한 메모 없이 목록에서 연 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 메모 추가로 되돌아간다`() {
+    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 선택한 메모 없이 목록에서 연 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 메모 추가로 되돌아간다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -184,8 +257,24 @@ class MemoListDetailPlaceholderTest {
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(input.title))
     }
 
+    // 앱은 주요 목적지 전환 이력을 기본 목적지와 현재 목적지로 남기므로, 메모 앞에 다른 주요 목적지를 둔 전환 이력에서 뒤로간다.
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-001 함께 표시하는 환경에서는 목록과 상세 영역이 모두 표시된다`() {
+    fun `TC-6f40c6c7-64ea-4627-9c5d-6575ca6eeb57 상세 영역에 메모 추가만 놓여 있으면 뒤로가기는 메모 목록에서 뒤로간 것처럼 이전 주요 목적지로 돌아간다`() {
+        backStack.add(0, OtherTopLevelNavKey)
+        setMemoNavDisplay(input = placeholderInput())
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsDisplayed()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(OtherTopLevelNavKey)
+        composeRule.onNodeWithText(OTHER_TOP_LEVEL_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-7a5c0161-e132-4805-abe4-4afbcac2a5e8 함께 표시하는 환경에서는 목록과 상세 영역이 모두 표시된다`() {
         setMemoNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
@@ -193,7 +282,7 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-002 선택한 메모가 없으면 상세 영역에 메모 추가 화면이 표시된다`() {
+    fun `TC-3ffa2149-52c5-481a-80d3-63e622a167c7 선택한 메모가 없으면 상세 영역에 메모 추가 화면이 표시된다`() {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
 
@@ -206,7 +295,7 @@ class MemoListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-004 한 영역만 표시하는 환경에서는 현재 영역만 표시된다`() {
+    fun `TC-a82d797b-2b4d-43f6-abda-2d15067f70b9 한 영역만 표시하는 환경에서는 현재 영역만 표시된다`() {
         setMemoNavDisplay(input = placeholderInput())
 
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
@@ -246,7 +335,10 @@ class MemoListDetailPlaceholderTest {
             .uiState.value.primaryTagId shouldBe input.tag.id
     }
 
-    private fun setMemoNavDisplay(input: PlaceholderInput) {
+    private fun setMemoNavDisplay(
+        input: PlaceholderInput,
+        listContent: @Composable () -> Unit = { Text(text = MEMO_HOME_CONTENT) },
+    ) {
         currentInput = input
         composeRule.setContent {
             MemoPlaceholderTestHost {
@@ -266,7 +358,7 @@ class MemoListDetailPlaceholderTest {
                                 entry<MemoHomeNavKey>(
                                     clazzContentKey = { MEMO_HOME_CONTENT_KEY },
                                     metadata = memoHomeListPaneMetadata(backStack = backStack),
-                                ) { Text(text = MEMO_HOME_CONTENT) }
+                                ) { listContent() }
                                 entry<MemoDetailNavKey>(
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
                                 ) { Text(text = ROUTE_CONTENT) }
@@ -274,6 +366,7 @@ class MemoListDetailPlaceholderTest {
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
                                 ) { Text(text = MEMO_ADD_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<MemoFinishedListNavKey>(metadata = memoFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
                                 entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
                             },
                     )
@@ -306,14 +399,37 @@ class MemoListDetailPlaceholderTest {
 
     private fun placeholderViewModelModule() =
         module {
-            factory { screenTestRealViewModel().viewModel }
+            factory { screenTestRealViewModel(addMemoUseCase = addMemoUseCase).viewModel }
             factory { realViewModels().tagViewModel.also { tagViewModelList += it } }
             factory { realViewModels().webViewModel.also { webViewModelList += it } }
             factory { realViewModels().contactViewModel.also { contactViewModelList += it } }
             factory { realViewModels().placeViewModel.also { placeViewModelList += it } }
             factory { relaxedPlaceMapViewModel() }
+            factory { relaxedPlacePickerMapViewModel() }
             factory { relaxedGeminiViewModel() }
         }
+
+    private fun memoHomeViewModel(storedMemoList: MutableStateFlow<List<Memo>>): MemoHomeViewModel {
+        val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
+        every { getMemoFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
+        every { getMemoFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
+        every { getMemoExistenceFilterUseCase(parameter = Unit) } returns flowOf(Result.success(MemoExistenceFilter()))
+        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+        every { pageMemoHomeUseCase(parameter = any()) } returns storedMemoList.map { memoList -> Result.success(PagingData.from(memoList)) }
+
+        return MemoHomeViewModel(
+            getMemoFilterUseCase = getMemoFilterUseCase,
+            getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
+            getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
+            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            finishMemoUseCase = mockk(),
+            restartMemoUseCase = mockk(),
+            deleteMemoUseCase = mockk(),
+            restoreMemoUseCase = mockk(),
+        )
+    }
 
     private fun realViewModels() =
         requireNotNull(currentInput).let { input ->
@@ -356,10 +472,15 @@ class MemoListDetailPlaceholderTest {
         const val ROUTE_CONTENT = "RouteContent"
         const val MEMO_ADD_CONTENT = "MemoAddContent"
         const val OTHER_TOP_LEVEL_CONTENT = "OtherTopLevelContent"
+        const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
+        const val ADDED_MEMO_TITLE = "AddedMemoTitle"
+        const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
         fun relaxedPlaceMapViewModel(): MemoPlaceMapViewModel = mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+
+        fun relaxedPlacePickerMapViewModel(): MemoPlacePickerMapViewModel = mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
 
         fun relaxedGeminiViewModel(): MemoGeminiViewModel =
             mockk<MemoGeminiViewModel>(relaxed = true) {

@@ -86,7 +86,7 @@ class AccountTagLinkMeaningTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>().data.map { tag -> tag.id }
         }
 
-        test("TC-TAG-LINK-DOMAIN-028 태그를 연결해도 메모에 연결된 태그는 늘어나지 않는다") {
+        test("TC-87c521ec-13a9-459d-b94d-ddb6823c5a3c 태그를 연결해도 메모에 연결된 태그는 늘어나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
             val toTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
@@ -112,7 +112,7 @@ class AccountTagLinkMeaningTest :
                 .map { tag -> tag.id } shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-028 태그를 연결해도 웹 항목에 연결된 태그는 늘어나지 않는다") {
+        test("TC-87c521ec-13a9-459d-b94d-ddb6823c5a3c 태그를 연결해도 웹 항목에 연결된 태그는 늘어나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
             val toTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
@@ -135,7 +135,7 @@ class AccountTagLinkMeaningTest :
                 .map { tag -> tag.id } shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-028 태그를 연결해도 장소에 연결된 태그는 늘어나지 않는다") {
+        test("TC-87c521ec-13a9-459d-b94d-ddb6823c5a3c 태그를 연결해도 장소에 연결된 태그는 늘어나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
             val toTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
@@ -158,7 +158,7 @@ class AccountTagLinkMeaningTest :
                 .map { tag -> tag.id } shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-LINK-DATA-010 기기에 없던 출발 태그가 반영되면 향해 오는 연결의 존재 판정과 연결된 태그 조회에 함께 나타난다") {
+        test("TC-b6500fde-cc1e-437b-a1fc-5e353c42f27a 기기에 없던 출발 태그가 반영되면 향해 오는 연결의 존재 판정과 연결된 태그 조회에 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
             val toTag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)

@@ -219,7 +219,7 @@ class AccountTagScopeDaoTest :
                 ).first()
                 .map { place -> place.id }
 
-        test("TC-TAG-DETAIL-DOMAIN-011 표시 범위에 따라 세 목록에 담기는 태그가 달라진다") {
+        test("TC-5a247ffc-c974-4880-9f26-ce05e62af7e0 표시 범위에 따라 세 목록에 담기는 태그가 달라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -264,7 +264,7 @@ class AccountTagScopeDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-012 범위 안 여러 태그와 연결된 항목도 목록에 한 번만 나타난다") {
+        test("TC-f22e32bd-afa2-4ac2-8ee6-2134fed88626 범위 안 여러 태그와 연결된 항목도 목록에 한 번만 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -283,7 +283,7 @@ class AccountTagScopeDaoTest :
             placeIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(sharedPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-011 범위 안 여러 태그와 연결된 장소도 지도에 핀 하나로만 나타난다") {
+        test("TC-b3c18b65-245d-44ed-819b-bc19dc0489ec 범위 안 여러 태그와 연결된 장소도 지도에 핀 하나로만 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -296,7 +296,7 @@ class AccountTagScopeDaoTest :
             boundsPlaceIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(sharedPlace.id)
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-016 화면이 열려 있는 동안 태그 연결이 바뀌면 목록 조회가 갱신된다") {
+        test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 목록 조회가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -324,7 +324,7 @@ class AccountTagScopeDaoTest :
             memoIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childMemo.id)
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-013 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {
+        test("TC-11a748b2-3712-4bb6-b382-9f0c78449aab 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -341,7 +341,7 @@ class AccountTagScopeDaoTest :
             placeIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.DESCENDANT).shouldBeEmpty()
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-014 상세 대상 태그의 완료·삭제 여부는 표시 범위 적용을 바꾸지 않는다") {
+        test("TC-ad793021-d335-435e-a56e-637fdfdae722 상세 대상 태그의 완료·삭제 여부는 표시 범위 적용을 바꾸지 않는다") {
             listOf(
                 tag().copy(isFinished = true),
                 tag().copy(isDeleted = true),
@@ -361,7 +361,7 @@ class AccountTagScopeDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-030 완료된 메모 목록에는 표시 범위를 적용하지 않는다") {
+        test("TC-bd009926-ec5f-4936-8486-ed743d13988f 완료된 메모 목록에는 표시 범위를 적용하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -376,7 +376,7 @@ class AccountTagScopeDaoTest :
             finishedMemoIdList(accountId = accountId, tagId = rootTag.id) shouldBe listOf(rootFinishedMemo.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-022 하위 태그는 그 태그에서 향해 나가는 연결의 도착 태그만 포함한다") {
+        test("TC-1742db05-4807-4512-ab3a-b1d1ba00e892 하위 태그는 그 태그에서 향해 나가는 연결의 도착 태그만 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val childTag = tag()
@@ -396,7 +396,7 @@ class AccountTagScopeDaoTest :
                 listOf(rootMemo.id, childMemo.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-023 후손 태그는 연결을 계속 따라간 태그를 모두 포함한다") {
+        test("TC-9a66b140-8d18-4eef-9a61-89c62db0a66b 후손 태그는 연결을 계속 따라간 태그를 모두 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()
@@ -418,7 +418,7 @@ class AccountTagScopeDaoTest :
                 listOf(secondMemo.id, thirdMemo.id, fourthMemo.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-024 순환하는 연결이 있어도 후손 태그 조회가 끝나고 같은 태그가 한 번만 조회된다") {
+        test("TC-a60bac4d-9731-472a-a6b3-0f608caf441e 순환하는 연결이 있어도 후손 태그 조회가 끝나고 같은 태그가 한 번만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()
@@ -439,7 +439,7 @@ class AccountTagScopeDaoTest :
                 listOf(firstMemo.id, secondMemo.id, thirdMemo.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-025 서로 다른 경로가 같은 태그에 닿아도 한 번만 조회된다") {
+        test("TC-cc30ec87-4523-4857-a365-fc3a3f6176be 서로 다른 경로가 같은 태그에 닿아도 한 번만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val leftTag = tag()
@@ -457,7 +457,7 @@ class AccountTagScopeDaoTest :
             memoIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.DESCENDANT) shouldBe listOf(sharedMemo.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-026 삭제된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함되지 않는다") {
+        test("TC-c4494862-8d80-492e-89b4-82dc09b3c9cb 삭제된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val deletedTag = tag().copy(isDeleted = true)
@@ -472,7 +472,7 @@ class AccountTagScopeDaoTest :
             memoIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.DESCENDANT).shouldBeEmpty()
         }
 
-        test("TC-TAG-LINK-DOMAIN-027 완료된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함된다") {
+        test("TC-cecd789d-ef15-48f8-ad61-95dbf347c4a6 완료된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val rootTag = tag()
             val finishedTag = tag().copy(isFinished = true)

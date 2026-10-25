@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -27,6 +31,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
@@ -60,7 +65,7 @@ class TagAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-015 진입하면 제목 입력 칸에 초점이 맞춰지고 이모지 입력에는 맞춰지지 않는다`() {
+    fun `TC-7173bc30-c018-4351-a5f3-8c2fcfed49ad 진입하면 제목 입력 칸에 초점이 맞춰지고 이모지 입력에는 맞춰지지 않는다`() {
         setTagAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -70,7 +75,7 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-006 뒤로가기 버튼을 선택하면 TagHome으로 돌아가는 행동을 실행한다`() {
+    fun `TC-a294018e-22e5-4d8f-9992-ba8a2a01b30e 뒤로가기 버튼을 선택하면 TagHome으로 돌아가는 행동을 실행한다`() {
         var navigateUpCount = 0
         setTagAddScreen(
             viewModel = screenTestViewModel(),
@@ -83,14 +88,14 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-007 추가 버튼으로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
+    fun `TC-5c715465-e883-49f7-aa9a-8ed95e648264 추가 버튼으로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
         assertSuccessResetsInput {
             composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         }
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-007 단축키로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
+    fun `TC-5c715465-e883-49f7-aa9a-8ed95e648264 단축키로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
         assertSuccessResetsInput {
             composeRule.titleInput().performKeyInput {
                 keyDown(Key.MetaLeft)
@@ -102,27 +107,27 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-010 제목이 비어 있으면 설명과 컬러를 유지하고 제목에 다시 초점을 맞춘다`() {
+    fun `TC-6061009f-577f-4c8a-9cb8-59f2cab8e788 제목이 비어 있으면 설명과 컬러를 유지하고 제목에 다시 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialTitle = "")
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-010 제목이 공백이면 모든 입력을 유지하고 제목에 다시 초점을 맞춘다`() {
+    fun `TC-6061009f-577f-4c8a-9cb8-59f2cab8e788 제목이 공백이면 모든 입력을 유지하고 제목에 다시 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialTitle = WHITESPACE_TITLE)
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-016 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-b75586a7-db04-44b8-8ced-941432459176 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         assertFocusMovesToTitle(effect = TagAddEffect.AddSucceeded(id = Uuid.random()))
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-017 제목 미입력으로 추가하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-59c63933-4a05-4f37-9a83-6f968ec8ac92 제목 미입력으로 추가하면 제목 입력으로 초점을 옮긴다`() {
         assertFocusMovesToTitle(effect = TagAddEffect.TitleBlank)
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-012 화면이 회전하거나 창 크기가 바뀌어도 이모지 제목 설명 컬러와 고른 연결을 유지한다`() {
+    fun `TC-6756eb0e-622e-4c00-970e-723dc99961cc 화면이 회전하거나 창 크기가 바뀌어도 이모지 제목 설명 컬러와 고른 연결을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel()
         val linkedTag = testTag(title = WORK_TAG_TITLE)
@@ -169,7 +174,7 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-025 메모리 정리 뒤 복원하면 입력 내용은 복원하고 고른 연결은 복원하지 않는다`() {
+    fun `TC-23a41871-3bad-4475-9dfa-60d6e6f3fbf5 메모리 정리 뒤 복원하면 입력 내용은 복원하고 고른 연결은 복원하지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel()
         val linkedTag = testTag(title = fixtureText(prefix = "LinkedTag"))
@@ -219,7 +224,7 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-026 저장에 실패하면 안내 없이 작성 내용과 고른 연결을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+    fun `TC-7ba61220-06e2-42de-8f81-2b9454545a6e 저장에 실패하면 안내 없이 작성 내용과 고른 연결을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         val useCase = mockk<AddTagUseCase>()
         coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
@@ -275,7 +280,7 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-DATA-008 컬러를 바꾸지 않고 추가하면 처음 제시한 컬러로 추가를 요청한다`() {
+    fun `TC-067aa72f-abbf-4a8d-aaf1-a3f1e1f1bb4b 컬러를 바꾸지 않고 추가하면 처음 제시한 컬러로 추가를 요청한다`() {
         val viewModel = screenTestViewModel()
         val detailSlot = slot<TagDetail>()
         every { viewModel.add(capture(detailSlot), any()) } just Runs
@@ -288,6 +293,96 @@ class TagAddScreenTest {
 
         "#%06X".format(detailSlot.captured.color.toInt() and RGB_MASK) shouldBe initialColorHex
         detailSlot.captured.description shouldBe ""
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-7ba682b6-cecf-49fb-9305-f7eb447753cf 앱을 다시 실행한 뒤 새로 진입하면 새로운 입력 상태로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                TagAddScreenTestTheme {
+                    TagAddScreen(
+                        navigateToTagAdd = {},
+                        addedResultRequestKey = null,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = {},
+                        navigateToDetail = {},
+                        addViewModel = remember { screenTestViewModel() },
+                        linkViewModel = remember { screenTestLinkViewModel() },
+                        componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                    )
+                }
+            }
+        }
+        changeColor(hex = BLUE_HEX)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.waitForIdle()
+        currentColorHex() shouldBe BLUE_HEX
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(TYPED_DESCRIPTION).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.descriptionInput().assert(hasText(""))
+        // 새 무작위 컬러가 고른 컬러와 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        currentColorHex() shouldNotBe BLUE_HEX
+    }
+
+    // 화면을 떠나면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 사라지므로 다시 진입한 화면은 새 키와 새 인스턴스로 구성한다.
+    @Test
+    fun `TC-a54f9661-82c2-4fe5-a8b0-b48a904eac4c 추가를 실행하지 않고 화면을 떠나면 입력한 내용은 저장되지 않고 사라진다`() {
+        val linkedTag = testTag(title = WORK_TAG_TITLE)
+        val addTagUseCase = mockk<AddTagUseCase>()
+        coEvery { addTagUseCase(any()) } returns Result.success(fixtureId())
+        val enteredAddViewModelList = List(ENTRY_COUNT) { TagAddViewModel(addTagUseCase = addTagUseCase) }
+        val enteredLinkViewModelList = List(ENTRY_COUNT) { realLinkViewModel(tagList = listOf(linkedTag)) }
+        var entryCount by mutableIntStateOf(0)
+        var navigateUpCount = 0
+        composeRule.setContent {
+            key(entryCount) {
+                TagAddScreenTestTheme {
+                    TagAddScreen(
+                        navigateToTagAdd = {},
+                        addedResultRequestKey = null,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = { navigateUpCount += 1 },
+                        navigateToDetail = {},
+                        addViewModel = enteredAddViewModelList[entryCount],
+                        linkViewModel = enteredLinkViewModelList[entryCount],
+                        componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                    )
+                }
+            }
+        }
+        composeRule.runOnIdle { enteredLinkViewModelList[0].link(id = linkedTag.id) }
+        composeRule.inputEmoji(emoji = TYPED_EMOJI)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        coVerify(exactly = 0) { addTagUseCase(any()) }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        navigateUpCount shouldBe 1
+        composeRule.runOnIdle { entryCount += 1 }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { addTagUseCase(any()) }
+        composeRule.emojiInput().assert(hasText(DEFAULT_EMOJI_LABEL))
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.descriptionInput().assert(hasText(""))
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        composeRule.runOnIdle {
+            enteredLinkViewModelList[1]
+                .selectionUiState.value.linkedTagIdSet
+                .shouldBeEmpty()
+        }
     }
 
     private fun assertFocusMovesToTitle(effect: TagAddEffect) {
@@ -416,6 +511,7 @@ class TagAddScreenTest {
         private const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Tag added."
         private const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         private const val RGB_MASK = 0xFFFFFF
+        private const val ENTRY_COUNT = 2
 
         private val hexRegex = Regex(pattern = "#[0-9A-F]{6}")
 
@@ -435,24 +531,24 @@ class TagAddScreenMessageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-008 기본 환경 추가 성공 안내`() {
+    fun `TC-c7217b52-27a1-464a-b12d-007ce3057594 기본 환경 추가 성공 안내`() {
         assertMessage(effect = TagAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-ADD-FEATURE-008 한국어 추가 성공 안내`() {
+    fun `TC-c7217b52-27a1-464a-b12d-007ce3057594 한국어 추가 성공 안내`() {
         assertMessage(effect = TagAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-011 기본 환경 제목 미입력 안내`() {
+    fun `TC-7ca9cee2-f50c-417f-935d-95a116d2bf92 기본 환경 제목 미입력 안내`() {
         assertMessage(effect = TagAddEffect.TitleBlank, expectedMessage = DEFAULT_TITLE_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-ADD-FEATURE-011 한국어 제목 미입력 안내`() {
+    fun `TC-7ca9cee2-f50c-417f-935d-95a116d2bf92 한국어 제목 미입력 안내`() {
         assertMessage(effect = TagAddEffect.TitleBlank, expectedMessage = KOREAN_TITLE_BLANK_MESSAGE)
     }
 

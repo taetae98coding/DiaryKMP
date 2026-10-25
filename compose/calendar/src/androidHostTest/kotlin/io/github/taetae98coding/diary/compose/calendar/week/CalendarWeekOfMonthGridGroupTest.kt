@@ -29,7 +29,7 @@ class CalendarWeekOfMonthGridGroupTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-009 아이템을 지정하는 배치하는 화면에 표시 중인 주의 기간을 알린다`() {
+    fun `TC-c31cafd0-d67d-4979-b02d-2cc72a6dd6e3 아이템을 지정하는 배치하는 화면에 표시 중인 주의 기간을 알린다`() {
         val dateRangeList = mutableListOf<LocalDateRange>()
 
         composeRule.setContent {
@@ -47,7 +47,7 @@ class CalendarWeekOfMonthGridGroupTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-010 배치하는 화면이 주마다 다른 그룹 구성을 지정하면 각 주의 아이템이 그대로 표시된다`() {
+    fun `TC-024e6769-ec2c-4488-b3a4-30aee3c9e2d3 배치하는 화면이 주마다 다른 그룹 구성을 지정하면 각 주의 아이템이 그대로 표시된다`() {
         composeRule.setContent {
             DiaryTheme {
                 Column {

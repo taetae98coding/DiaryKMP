@@ -29,7 +29,7 @@ private data class DefaultPeriodTestData(
 
 class DiaryDateTimeInputStateTest : FunSpec() {
     init {
-        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-001 스위치가 꺼져 있으면 선택된 기간이 없는 것으로 취급된다") {
+        test("TC-f19859e5-ac35-4f40-add1-b37459873819 스위치가 꺼져 있으면 선택된 기간이 없는 것으로 취급된다") {
             val (start, endInclusive) = anyPeriod()
             val state =
                 DiaryDateTimeInputState(
@@ -44,7 +44,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.value.shouldBeNull()
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-039 표시한 뒤 날짜가 바뀐 다음에 처음 사용하도록 전환하면 전환한 날의 종일 기간이 선택된다") {
+        test("TC-ae6bf89b-9663-4888-ac2d-46981cdd4c7a 표시한 뒤 날짜가 바뀐 다음에 처음 사용하도록 전환하면 전환한 날의 종일 기간이 선택된다") {
             val (start, _) = anyPeriod()
             val nextDay = start.date.plus(1, DateTimeUnit.DAY)
             val state =
@@ -154,7 +154,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = endInclusive.date, time = midnight())
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-030 하루짜리 종일 기간을 해제하면 시작이 기본 시각, 종료가 1시간 뒤가 된다") {
+        test("TC-9e11ba06-bfb8-4ecc-8e06-600b342bc653 하루짜리 종일 기간을 해제하면 시작이 기본 시각, 종료가 1시간 뒤가 된다") {
             val testDataList =
                 listOf(
                     DefaultPeriodTestData(
@@ -221,7 +221,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             }
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-031 여러 날짜의 종일 기간을 해제하면 두 날짜가 유지되고 시각이 모두 기본 시각이 된다") {
+        test("TC-b57a1ee7-d3ab-45c3-813c-62353a1a461b 여러 날짜의 종일 기간을 해제하면 두 날짜가 유지되고 시각이 모두 기본 시각이 된다") {
             val (start, endInclusive) = anyPeriod()
             val state =
                 allDayState(
@@ -236,7 +236,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = endInclusive.date, time = LocalTime(hour = 14, minute = 0))
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-032 종일로 전환한 뒤 다시 해제하면 시간이 기본 시각에서 다시 시작한다") {
+        test("TC-7783fe65-315a-4546-afca-6d56c1c53a33 종일로 전환한 뒤 다시 해제하면 시간이 기본 시각에서 다시 시작한다") {
             val date = anyDate()
             val state =
                 DiaryDateTimeInputState(
@@ -254,7 +254,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = date, time = LocalTime(hour = 15, minute = 0))
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-034 시간이 흐른 뒤 종일을 해제하면 그 시점의 기본 시각을 사용한다") {
+        test("TC-36897fc9-097e-4bae-8a79-f149f0110c2c 시간이 흐른 뒤 종일을 해제하면 그 시점의 기본 시각을 사용한다") {
             val date = anyDate()
             val state =
                 allDayState(
@@ -275,7 +275,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = date, time = LocalTime(hour = 17, minute = 30))
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 이전 기간보다 앞선 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
+        test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 이전 기간보다 앞선 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
             val date = anyDate()
             val state =
                 DiaryDateTimeInputState(
@@ -295,7 +295,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.value shouldBe value
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 이전 기간보다 뒤인 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
+        test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 이전 기간보다 뒤인 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
             val date = anyDate()
             val state =
                 DiaryDateTimeInputState(
@@ -315,7 +315,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.value shouldBe value
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 기간을 사용하지 않는 종일 상태에 날짜·시간 기간을 넣으면 기본 시각이 끼어들지 않는다") {
+        test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 기간을 사용하지 않는 종일 상태에 날짜·시간 기간을 넣으면 기본 시각이 끼어들지 않는다") {
             val date = anyDate()
             val state =
                 allDayState(
@@ -336,7 +336,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.value shouldBe value
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 날짜·시간 상태에 종일 기간을 넣으면 생성된 날짜 범위가 그대로 들어간다") {
+        test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 날짜·시간 상태에 종일 기간을 넣으면 생성된 날짜 범위가 그대로 들어간다") {
             val (start, endInclusive) = anyPeriod()
             val state =
                 DiaryDateTimeInputState(
@@ -434,7 +434,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.start shouldBe state.endInclusive
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-014 종일 아님에서 시작일만 바꿔 종료보다 뒤가 되면 종료가 시작의 날짜와 시각에 맞춰진다") {
+        test("TC-100445a4-5154-4302-ab94-c8bd236938e3 종일 아님에서 시작일만 바꿔 종료보다 뒤가 되면 종료가 시작의 날짜와 시각에 맞춰진다") {
             val startDate = anyDate()
             val endDate = startDate.plus(1, DateTimeUnit.DAY)
             val (endTime, startTime) = anyOrderedTimePair()
@@ -452,7 +452,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = endDate, time = startTime)
         }
 
-        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-015 종일 아님에서 종료일만 바꿔 시작보다 앞이 되면 시작이 종료의 날짜와 시각에 맞춰진다") {
+        test("TC-366a967c-d2ff-45b3-8b70-2093910bfd17 종일 아님에서 종료일만 바꿔 시작보다 앞이 되면 시작이 종료의 날짜와 시각에 맞춰진다") {
             val startDate = anyDate()
             val endDate = startDate.plus(1, DateTimeUnit.DAY)
             val (endTime, startTime) = anyOrderedTimePair()

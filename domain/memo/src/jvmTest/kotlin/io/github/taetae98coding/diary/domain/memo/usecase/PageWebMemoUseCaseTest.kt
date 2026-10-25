@@ -41,7 +41,7 @@ class PageWebMemoUseCaseTest :
             val useCase = PageWebMemoUseCase(getAccountUseCase = getAccountUseCase, accountWebMemoRepository = repository)
 
             When("대상 웹 항목의 메모 페이지를 조회한다") {
-                Then("TC-WEB-DETAIL-MEMO-DATA-001 현재 계정과 대상 웹 항목의 메모 페이지를 반환한다") {
+                Then("TC-81d6f3e8-9ba5-485c-afa7-1dcda825d27c 현재 계정과 대상 웹 항목의 메모 페이지를 반환한다") {
                     useCase(parameter = PageWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()

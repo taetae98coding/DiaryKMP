@@ -58,7 +58,7 @@ class ContactDetailTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-033 화면에 처음 진입하면 연락처 디테일 탭이 선택된다`() {
+    fun `TC-9977790f-2803-4d46-9065-e763fb15adfc 화면에 처음 진입하면 연락처 디테일 탭이 선택된다`() {
         setScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
@@ -68,7 +68,7 @@ class ContactDetailTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-FEATURE-033 한국어 환경 탭 접근성 이름을 표시한다`() {
+    fun `TC-9977790f-2803-4d46-9065-e763fb15adfc 한국어 환경 탭 접근성 이름을 표시한다`() {
         setScaffold()
 
         composeRule.onNodeWithContentDescription(KOREAN_DETAIL_TAB_DESCRIPTION).assert(hasClickAction())
@@ -76,7 +76,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-034 메모 탭을 선택하면 메모 목록을 표시하고 다시 디테일 탭으로 돌아온다`() {
+    fun `TC-f1fb64c5-4483-47a6-a5cd-b005b2f63d14 메모 탭을 선택하면 메모 목록을 표시하고 다시 디테일 탭으로 돌아온다`() {
         setScaffold()
 
         composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -92,7 +92,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-035 본문을 좌우로 밀면 옆 탭으로 전환된다`() {
+    fun `TC-23aee9fc-7a47-458d-9bb5-03fad2855507 본문을 좌우로 밀면 옆 탭으로 전환된다`() {
         setScaffold()
 
         composeRule.onNodeWithTag(CONTACT_DETAIL_PAGER_TEST_TAG).performTouchInput { swipeLeft() }
@@ -105,7 +105,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-036 TC-CONTACT-DETAIL-FEATURE-042 조회 중에도 탭 행이 표시되고 메모 탭으로 전환할 수 있다`() {
+    fun `TC-d1799f37-2d5b-4d50-b220-639c506d2b89 TC-b702f97a-cb11-44c5-acda-8d0c7ff988b8 조회 중에도 탭 행이 표시되고 메모 탭으로 전환할 수 있다`() {
         setScaffold(uiState = ContactDetailUiState.Loading)
 
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).assertDoesNotExist()
@@ -117,7 +117,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-037 탭을 전환해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-b389dcda-ec30-4127-83aa-309893e3b59e 탭을 전환해도 수정 중이던 내용이 유지된다`() {
         setScaffold()
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).performTextInput(EDIT_SUFFIX)
 
@@ -128,7 +128,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-038 수정 반영 동작은 연락처 디테일 탭에서만 제공된다`() {
+    fun `TC-4c5603df-f8bc-4dfb-8f56-e666346d4403 수정 반영 동작은 연락처 디테일 탭에서만 제공된다`() {
         setScaffold()
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).performTextInput(EDIT_SUFFIX)
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assert(hasClickAction())
@@ -141,7 +141,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-039 즐겨찾기 변경과 삭제는 선택한 탭과 관계없이 제공된다`() {
+    fun `TC-c6d8e832-89b2-4791-bec2-bff702a26c79 즐겨찾기 변경과 삭제는 선택한 탭과 관계없이 제공된다`() {
         setScaffold()
 
         listOf(DEFAULT_DETAIL_TAB_DESCRIPTION, DEFAULT_MEMO_TAB_DESCRIPTION).forEach { tabDescription ->
@@ -153,7 +153,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-040 화면 재생성 후에도 선택한 탭이 유지된다`() {
+    fun `TC-42162aa2-ab99-49db-a43c-444a697b7dd5 화면 재생성 후에도 선택한 탭이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         prepareContactDetailTabViewModels()
 
@@ -163,6 +163,7 @@ class ContactDetailTabTest {
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
@@ -178,7 +179,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-041 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-b289c12a-bcd4-4c33-86ab-3620be01d42f 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setContactDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
@@ -192,7 +193,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-013 화면을 떠났다 다시 들어오면 연락처 디테일 탭으로 시작한다`() {
+    fun `TC-66fe1ae0-5c27-40f0-bafc-db93304bb0f5 화면을 떠났다 다시 들어오면 연락처 디테일 탭으로 시작한다`() {
         var isShown by mutableStateOf(true)
         prepareContactDetailTabViewModels()
 
@@ -203,6 +204,7 @@ class ContactDetailTabTest {
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                         viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
@@ -222,7 +224,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-014 상세 대상이 다른 연락처로 바뀌면 연락처 디테일 탭으로 초기화한다`() {
+    fun `TC-41b75655-7025-4ede-8597-5d1daec44497 상세 대상이 다른 연락처로 바뀌면 연락처 디테일 탭으로 초기화한다`() {
         var id by mutableStateOf(FIRST_CONTACT_ID)
         prepareContactDetailTabViewModels()
 
@@ -232,6 +234,7 @@ class ContactDetailTabTest {
                     navigateUp = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
@@ -247,7 +250,7 @@ class ContactDetailTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-015 삭제 상태인 연락처에서도 두 탭을 모두 사용할 수 있다`() {
+    fun `TC-f6c4655c-6b0f-45dd-8ad1-484b911c005f 삭제 상태인 연락처에서도 두 탭을 모두 사용할 수 있다`() {
         // 삭제 상태인 연락처도 조회 결과로 표시되므로 내용 표시 상태로 관찰된다.
         setScaffold()
 

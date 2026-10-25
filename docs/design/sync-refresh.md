@@ -36,7 +36,7 @@
 
 ## 화면별 배치
 
-MemoHome, MemoFinishedList, TagDetail 메모 탭, TagMemoFinishedList, ContactDetail·PlaceDetail·WebDetail 메모 탭의 메모 목록과 TagHome·TagFinishedList의 태그 그리드, WebHome과 TagDetail 웹 탭의 웹 그리드, ContactHome의 연락처 그리드, PlaylistHome의 곡 그리드, QrHome의 QR 그리드, RoutineHome의 루틴 목록은 목록이 이미 세로로 스크롤되므로 당김 컨테이너만 감싼다. 목록의 내용 여백, 항목 간격, 스티키 날짜 헤더는 각 화면 디자인을 그대로 따른다. RoutineHome은 목록 대신 빈 상태를 표시해 스크롤할 것이 없으므로 당김이 곧바로 시작된다.
+MemoHome, MemoFinishedList, TagDetail 메모 탭, TagMemoFinishedList, ContactDetail·PlaceDetail·WebDetail 메모 탭, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList의 메모 목록과 TagHome·TagFinishedList의 태그 그리드, WebHome과 TagDetail 웹 탭의 웹 그리드, ContactHome의 연락처 그리드, PlaylistHome의 곡 그리드, QrHome의 QR 그리드, ChecklistHome의 체크리스트 그리드, RoutineHome의 루틴 목록은 목록이 이미 세로로 스크롤되므로 당김 컨테이너만 감싼다. 목록의 내용 여백, 항목 간격, 스티키 날짜 헤더는 각 화면 디자인을 그대로 따른다. RoutineHome은 목록 대신 빈 상태를 표시해 스크롤할 것이 없으므로 당김이 곧바로 시작된다.
 
 CalendarHome의 캘린더는 세로로 스크롤되지 않으므로, 본문 영역이 세로 방향 끌기를 당김 컨테이너에 전달하도록 한다. 캘린더의 좌우 스와이프로 달을 이동하는 조작은 그대로 유지하며, 세로 끌기와 가로 스와이프는 서로 방향으로 구분된다.
 
@@ -54,7 +54,7 @@ PlaceHome과 TagDetail 장소 탭은 지도 모드에서 본문을 지도 영역
 
 ## 적응형 배치
 
-창 너비가 넓어져 목록과 상세를 함께 표시하는 배치에서는 목록 영역에만 당김과 진행 표시를 둔다. 상세 영역에는 두지 않는다. 목록과 상세를 함께 표시하는 조건은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md), [Tag 목록·상세 배치 디자인](./tag-list-detail.md), [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md), [Contact 목록·상세 배치 디자인](./contact-list-detail.md), [Web 목록·상세 배치 디자인](./web-list-detail.md), [Routine 목록·상세 배치 디자인](./routine-list-detail.md)과 [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md)을 따른다.
+창 너비가 넓어져 목록과 상세를 함께 표시하는 배치에서는 목록 영역에만 당김과 진행 표시를 둔다. 상세 영역에는 두지 않는다. 목록과 상세를 함께 표시하는 조건은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md), [Tag 목록·상세 배치 디자인](./tag-list-detail.md), [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록·상세 배치 디자인](./entity-memo-finished-list-detail.md), [Contact 목록·상세 배치 디자인](./contact-list-detail.md), [Web 목록·상세 배치 디자인](./web-list-detail.md), [Routine 목록·상세 배치 디자인](./routine-list-detail.md)과 [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md)을 따른다.
 
 PlaceHome과 TagDetail 장소 탭의 지도 모드는 창 너비에 따라 지도 영역과 장소 목록 영역이 위아래로 나뉘거나 좌우로 나뉜다. 어느 배치에서도 당김과 진행 표시는 장소 목록 영역에만 두며, 진행 표시의 자리는 그 시점의 장소 목록 영역 기준으로 다시 정한다. 두 영역을 가르는 조건은 [장소 보기 모드 디자인](./place-view-mode.md)의 `적응형 배치`를 따른다.
 

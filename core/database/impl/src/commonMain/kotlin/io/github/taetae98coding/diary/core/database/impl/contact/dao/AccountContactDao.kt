@@ -25,6 +25,9 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         INNER JOIN account_contact
             ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
         WHERE contact.is_deleted = 0
+            AND (:hasBirthday IS NULL OR (contact.birthday IS NOT NULL) = :hasBirthday)
+            AND (:hasBirthYear IS NULL OR (contact.birth_year IS NOT NULL) = :hasBirthYear)
+            AND (:hasPhoneNumber IS NULL OR (contact.phone_number_list != '[]') = :hasPhoneNumber)
         ORDER BY
             contact.is_favorite DESC,
             CASE WHEN :sort = 'recently_updated' THEN contact.updated_at END DESC,
@@ -34,6 +37,9 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
     fun page(
         accountId: Uuid,
         sort: String,
+        hasBirthday: Boolean?,
+        hasBirthYear: Boolean?,
+        hasPhoneNumber: Boolean?,
     ): PagingSource<Int, ContactLocalEntity>
 
     @Query(

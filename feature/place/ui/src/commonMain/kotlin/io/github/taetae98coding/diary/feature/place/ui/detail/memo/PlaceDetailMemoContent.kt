@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoContent
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoFinishedListButton
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
@@ -23,6 +24,7 @@ internal fun PlaceDetailMemoContent(
     id: Uuid,
     viewModelStoreProvider: ViewModelStoreProvider,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToMemoFinishedList: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -37,6 +39,7 @@ internal fun PlaceDetailMemoContent(
             emptyDescription = stringResource(Res.string.place_detail_memo_empty_description),
             modifier = modifier,
             snackbarHostState = snackbarHostState,
+            trailing = { EntityDetailMemoFinishedListButton(onClick = navigateToMemoFinishedList) },
         )
     }
 }

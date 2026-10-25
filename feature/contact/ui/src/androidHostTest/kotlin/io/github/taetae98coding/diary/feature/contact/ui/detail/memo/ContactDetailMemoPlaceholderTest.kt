@@ -58,7 +58,7 @@ class ContactDetailMemoPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-002 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
+    fun `TC-de14baa6-59b0-4a8b-adc4-e1cbec07818e 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val memo = contactMemo(title = LOADED_MEMO_TITLE)
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = MemoListItem.Content(memo = memo))

@@ -112,7 +112,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                     sort = ListSortLocalEntity.DEFAULT,
                 ).first()
 
-        test("TC-TAG-DETAIL-PLACE-DATA-006 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소 중 보이는 영역 안의 장소만 조회한다") {
+        test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소 중 보이는 영역 안의 장소만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
@@ -149,7 +149,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             result shouldBe listOf(insidePlace)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-006 보이는 영역 안의 장소는 제목 오름차순으로 조회된다") {
+        test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da 보이는 영역 안의 장소는 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val firstPlace = place(title = "a-place", latitude = 37.5, longitude = 127.0)
@@ -175,7 +175,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             result.map { place -> place.id } shouldBe listOf(firstPlace.id, secondPlace.id, thirdPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-007 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
+        test("TC-c6449d6f-bc27-4926-a677-ca6ab1d60679 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val westSidePlace = place(title = "a-west-side", latitude = 37.5, longitude = 179.0)
@@ -201,7 +201,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             result.map { place -> place.id } shouldBe listOf(westSidePlace.id, eastSidePlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-001 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소만 조회한다") {
+        test("TC-68f91887-9083-475d-815a-be0bbbbc9fa1 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
@@ -226,7 +226,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             pagedPlaceIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(linkedPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-002 태그별 장소은 제목 오름차순으로 조회된다") {
+        test("TC-12794c3c-5d41-4116-ab5e-58888311fc2a 태그별 장소은 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val firstPlace = place(title = "a-place")
@@ -243,7 +243,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 listOf(firstPlace.id, secondPlace.id, thirdPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-002 태그별 장소을 페이지 단위로 조회한다") {
+        test("TC-132c33bc-6524-4f2f-b92a-a7c22bc8dbd5 태그별 장소을 페이지 단위로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val placeList = List(3) { index -> place(title = "place-$index") }
@@ -256,7 +256,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 placeList.take(2).map { value -> value.id }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-003 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
+        test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetPlace = place()
@@ -276,7 +276,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             pagedPlaceIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(targetPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-003 장소을 삭제하면 목록에서 사라진다") {
+        test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 장소을 삭제하면 목록에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetPlace = place()
@@ -289,7 +289,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             pagedPlaceIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-003 장소의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
+        test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 장소의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val firstPlace = place(title = "a-place")
@@ -308,7 +308,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             pagedPlaceIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(secondPlace.id, firstPlace.id)
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-001 태그를 완료하거나 삭제해도 연결된 장소은 계속 조회된다") {
+        test("TC-0901ee45-a6ff-4132-a289-4aa635d53a83 태그를 완료하거나 삭제해도 연결된 장소은 계속 조회된다") {
             listOf(
                 true to false,
                 false to true,
@@ -326,7 +326,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DATA-004 장소는 저장 시점의 태그 선택으로 저장된다") {
+        test("TC-7eea0f3d-b613-4af6-8b9b-5fb74df62b08 장소는 저장 시점의 태그 선택으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagA = tag()
             val tagB = tag()
@@ -361,7 +361,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-002 태그마다 조회되는 장소이 다르다") {
+        test("TC-6d577b03-3e3d-4397-adb0-3cc423bcec12 태그마다 조회되는 장소이 다르다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()

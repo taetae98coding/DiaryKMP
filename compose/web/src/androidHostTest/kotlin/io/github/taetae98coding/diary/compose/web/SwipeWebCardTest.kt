@@ -32,7 +32,7 @@ class SwipeWebCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-025 TC-TAG-DETAIL-WEB-FEATURE-021 웹 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
+    fun `TC-b6eb4a10-bb07-4d9c-9ae2-4955a3aeb9d1 TC-365c5415-2b42-4722-83fe-adb910874e83 웹 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
         var clickCount = 0
         val web = web()
@@ -46,7 +46,7 @@ class SwipeWebCardTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-027 TC-TAG-DETAIL-WEB-FEATURE-023 웹 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
+    fun `TC-0c7fa192-3184-47ac-bdde-8ade25145c06 TC-f5dc7344-ec22-42a5-b056-828c59b6b225 웹 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
         var clickCount = 0
         val web = web()
@@ -61,7 +61,7 @@ class SwipeWebCardTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-028 TC-TAG-DETAIL-WEB-FEATURE-024 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
+    fun `TC-ac066432-2064-4df7-93d8-0078db735347 TC-dbea7d0f-460e-41ec-b5fb-ed98566a7169 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
         var deleteCount = 0
         setCard(web = null, onDelete = { deleteCount += 1 })
 

@@ -56,7 +56,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-006 대상 태그의 상태와 무관하게 장소 추가를 시작할 수 있다`() {
+    fun `TC-202ecd30-fb94-44d0-89b1-ec9817d1931a 대상 태그의 상태와 무관하게 장소 추가를 시작할 수 있다`() {
         val uiStateFlow = MutableStateFlow<TagDetailUiState>(tagDetailUiState(detail = tagDetail(TAG_TITLE)))
         composeRule.setTagDetailScreen(viewModel = screenTestViewModel(uiStateFlow))
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
@@ -74,7 +74,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-007 장소 추가를 선택하면 PlaceAdd 이동을 요청한다`() {
+    fun `TC-e646a9ad-a6e4-4c13-8a11-635d790fbe5f 장소 추가를 선택하면 PlaceAdd 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnPlaceTab(navigateToPlaceAdd = { navigateCount += 1 })
 
@@ -85,21 +85,21 @@ class TagDetailPlaceScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-007 한국어 환경 장소 추가 버튼의 접근성 이름은 장소 추가다`() {
+    fun `TC-e646a9ad-a6e4-4c13-8a11-635d790fbe5f 한국어 환경 장소 추가 버튼의 접근성 이름은 장소 추가다`() {
         setScreenOnPlaceTab(tabDescription = KOREAN_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-012 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-2aafe330-8e82-4a70-8f8c-1f8b274d4da6 대상 태그를 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnPlaceTab(uiState = TagDetailUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-013 빈 상태에서도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
+    fun `TC-a501bd15-ed25-4847-aeef-27bb3783b360 빈 상태에서도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
         var navigateCount = 0
         setScreenOnPlaceTab(navigateToPlaceAdd = { navigateCount += 1 })
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -114,7 +114,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-014 장소 추가는 장소 탭에서만 제공된다`() {
+    fun `TC-973d2fc2-bfb2-46ba-89c0-5ca73b0ce0df 장소 추가는 장소 탭에서만 제공된다`() {
         setScreen()
 
         listOf(
@@ -133,7 +133,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-015 TC-TAG-DETAIL-PLACE-DATA-005 대상 태그를 조회하지 못해도 장소 목록과 동작을 제공한다`() {
+    fun `TC-de2fad4b-379f-4710-b96f-50cfba0322e4 TC-f0aa082f-b9a5-48aa-a580-40238a7546c7 대상 태그를 조회하지 못해도 장소 목록과 동작을 제공한다`() {
         setScreenOnPlaceTab(
             uiState = TagDetailUiState.Loading,
             placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
@@ -144,7 +144,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-019 목록 모드에서 장소 추가를 선택하면 지도 위치 없이 이동을 요청한다`() {
+    fun `TC-25b808f4-b089-4a0b-8555-a06a86632ff6 목록 모드에서 장소 추가를 선택하면 지도 위치 없이 이동을 요청한다`() {
         val coordinateList = mutableListOf<Coordinate?>()
         setScreenOnPlaceTab(navigateToPlaceAdd = coordinateList::add)
 
@@ -154,7 +154,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-005 장소을 선택하면 그 장소의 상세 이동을 요청한다`() {
+    fun `TC-6b73497d-de45-4f70-bde5-7503acb47c55 장소을 선택하면 그 장소의 상세 이동을 요청한다`() {
         val place = tagPlace(title = PLACE_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnPlaceTab(
@@ -168,7 +168,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 다른 탭에 다녀와도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 다른 탭에 다녀와도 바꿔 둔 보기 모드를 유지한다`() {
         setScreenOnPlaceTab(placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
         composeRule.onNodeWithText(PLACE_TITLE).assertIsDisplayed()
 
@@ -182,7 +182,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-037 다른 탭을 선택한 동안에는 지도 영역과 보기 모드 전환을 쓸 수 없다`() {
+    fun `TC-aedcac14-021e-40e6-ba7b-8a89d1f4a307 다른 탭을 선택한 동안에는 지도 영역과 보기 모드 전환을 쓸 수 없다`() {
         setScreenOnPlaceTab(placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -200,7 +200,7 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-008 상세 대상이 다른 태그로 바뀌어도 지도 모드를 유지하고 목록만 새 태그의 장소로 바뀐다`() {
+    fun `TC-615383bc-ac38-46f9-a7c1-0b71e54933ed 상세 대상이 다른 태그로 바뀌어도 지도 모드를 유지하고 목록만 새 태그의 장소로 바뀐다`() {
         val detailIdState = mutableStateOf(FIRST_TAG_ID)
         val firstPlace = tagPlace(title = fixtureText(prefix = "FirstPlace"))
         val secondPlace = tagPlace(title = fixtureText(prefix = "SecondPlace"))

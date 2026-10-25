@@ -38,7 +38,7 @@ class EntityTagPickerDialogSearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-018 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
+    fun `TC-e152c9e0-4a2c-4eb0-9a20-c18807ef0728 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setEntityTagPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
@@ -51,7 +51,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-032 목록을 열어도 검색어 입력에 초점이 놓이지 않고 검색어 입력을 누르면 초점을 받는다`() {
+    fun `TC-d28a8eb9-5fee-4821-919a-86359d23dd03 목록을 열어도 검색어 입력에 초점이 놓이지 않고 검색어 입력을 누르면 초점을 받는다`() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
         val dialogState = DialogState(isVisible = false)
         composeRule.setEntityTagPickerDialogHost(
@@ -68,7 +68,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-019 검색어를 입력하면 별도의 확정 동작 없이 목록이 좁혀진다`() {
+    fun `TC-b84abc5d-8422-4657-b1ab-c6f26258009f 검색어를 입력하면 별도의 확정 동작 없이 목록이 좁혀진다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         setQueryFilteredPickerDialogHost(tagList = tagList)
         composeRule.awaitEntityTagPickerRow(title = EXERCISE_TAG_TITLE)
@@ -80,7 +80,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-020 검색어를 지우면 대상 전체가 다시 나타난다`() {
+    fun `TC-420cc9ab-f3b3-4858-af04-f4b45b3a8449 검색어를 지우면 대상 전체가 다시 나타난다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         setQueryFilteredPickerDialogHost(tagList = tagList)
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
@@ -110,7 +110,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-021 검색어로 좁힌 목록에서도 연결과 해제를 전달하고 그 태그는 목록에 남는다`() {
+    fun `TC-6f393f20-f0c5-40f0-89e9-4f0ba713976b 검색어로 좁힌 목록에서도 연결과 해제를 전달하고 그 태그는 목록에 남는다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         val unlinkedIdList = mutableListOf<Uuid>()
@@ -153,7 +153,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-022 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
+    fun `TC-54b270de-8f87-4ff3-9f9d-a86f7bf90172 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
             query = WORK_TAG_QUERY,
@@ -165,7 +165,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-031 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
+    fun `TC-9448a027-6bf6-4f86-9f4d-a918951e9b5d 검색 결과가 없어도 태그 추가 항목으로 TagAdd 이동을 요청할 수 있다`() {
         var clickAddCount = 0
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
@@ -208,7 +208,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-023 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
+    fun `TC-1998eff9-9241-4a2b-9f7c-a48b2389d03a 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         val dialogState = DialogState(isVisible = true)
         val queryList = mutableListOf<String>()
@@ -228,7 +228,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-010 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+    fun `TC-5c858cbd-3b3c-4b5a-a764-2a9eda7d50ce 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val workTag = entityTestTag(title = WORK_TAG_TITLE)
         val exerciseTag = entityTestTag(title = EXERCISE_TAG_TITLE)
         val tagPagingDataFlow = MutableStateFlow(entityTagPagingDataOf(listOf(workTag, exerciseTag)))
@@ -264,7 +264,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-017 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
+    fun `TC-ab820c4b-068f-4fbd-bd6f-eb7357bbfb20 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: DialogState

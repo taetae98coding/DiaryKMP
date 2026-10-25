@@ -34,7 +34,7 @@ class TagDetailMemoListPositionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-032 다른 탭에 다녀와도 메모 목록에서 보던 위치를 유지한다`() {
+    fun `TC-6b8b653c-97fc-419c-aa78-d2738afb57e0 다른 탭에 다녀와도 메모 목록에서 보던 위치를 유지한다`() {
         val memoList = memoList()
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),

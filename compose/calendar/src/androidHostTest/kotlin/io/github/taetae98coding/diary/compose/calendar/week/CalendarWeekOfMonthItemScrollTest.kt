@@ -40,7 +40,7 @@ class CalendarWeekOfMonthItemScrollTest {
     private val scrollToTopFlow = MutableStateFlow(false)
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-011 되돌리기를 요청하면 첫 아이템 줄부터 다시 보인다`() {
+    fun `TC-984c3a12-435a-4fe9-ab50-37c9ffe2c095 되돌리기를 요청하면 첫 아이템 줄부터 다시 보인다`() {
         val itemScrollState = CalendarItemScrollState()
         setCalendarWeekOfMonth(
             itemScrollState = itemScrollState,
@@ -57,12 +57,12 @@ class CalendarWeekOfMonthItemScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-001 되돌리기 요청이 없으면 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+    fun `TC-61053b13-566b-44e4-a179-91747dd77009 되돌리기 요청이 없으면 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
         assertLeadingGroupStaysHidden(filledItemStart = july(day = 5), filledItemEndInclusive = july(day = 11))
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-001 첫 줄의 아이템이 주 중간에서 시작해도 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+    fun `TC-61053b13-566b-44e4-a179-91747dd77009 첫 줄의 아이템이 주 중간에서 시작해도 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
         assertLeadingGroupStaysHidden(filledItemStart = july(day = 7), filledItemEndInclusive = july(day = 8))
     }
 
@@ -87,7 +87,7 @@ class CalendarWeekOfMonthItemScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-002 되돌리기를 요청하면 위쪽에 생긴 아이템이 바로 보인다`() {
+    fun `TC-8bc7ea35-f498-487c-91c4-fe9bfbe0e5f9 되돌리기를 요청하면 위쪽에 생긴 아이템이 바로 보인다`() {
         val itemScrollState = CalendarItemScrollState()
         val hasLeadingGroupFlow = MutableStateFlow(false)
         setCalendarWeekOfMonth(

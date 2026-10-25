@@ -35,7 +35,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class HolidayRepositoryImplTest :
     FunSpec({
-        test("TC-HOLIDAY-FETCH-DATA-001 원격 공휴일로 요청한 연도의 캐시를 교체한다") {
+        test("TC-596be503-c5c1-4e43-833c-3b2b695cc42a 원격 공휴일로 요청한 연도의 캐시를 교체한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday(), remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -77,7 +77,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-002 원격이 공휴일을 제공하지 않으면 요청한 연도의 캐시를 제거한다") {
+        test("TC-60c83dda-3b12-42e2-99a9-218819e7bc94 원격이 공휴일을 제공하지 않으면 요청한 연도의 캐시를 제거한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
             coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
@@ -97,7 +97,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 1) { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = emptyList()) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-009 공휴일을 제공하지 않은 연도도 다시 요청하면 원격 조회를 생략한다") {
+        test("TC-228f1b11-042c-4817-bac9-89bda80056fa 공휴일을 제공하지 않은 연도도 다시 요청하면 원격 조회를 생략한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
             coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns emptyList()
@@ -120,7 +120,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 1) { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = emptyList()) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-010 재조회를 생략한 연도는 로컬 캐시에 저장된 공휴일을 결과로 제공한다") {
+        test("TC-9020b622-07c7-43c0-a4e5-b86767c3a41a 재조회를 생략한 연도는 로컬 캐시에 저장된 공휴일을 결과로 제공한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val localHolidayList = listOf(localHoliday(year = year), localHoliday(year = year))
@@ -144,7 +144,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-003 원격 조회가 실패하면 기존 캐시를 유지한다") {
+        test("TC-fbbbe2cd-e57a-48ec-9679-fce9280196a8 원격 조회가 실패하면 기존 캐시를 유지한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val failure = TestException(fixtureMonkey.giveMeOne())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()
@@ -168,7 +168,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 0) { transaction.upsert(country = any(), year = any(), holidayList = any()) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-004 기기 저장이 실패하면 동기화가 실패로 끝난다") {
+        test("TC-9a6535b9-36fd-4fc3-9b63-3aa541fe2e08 기기 저장이 실패하면 동기화가 실패로 끝난다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -200,7 +200,7 @@ class HolidayRepositoryImplTest :
             actual shouldBeSameInstanceAs failure
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-005 이미 동기화에 성공한 연도는 다시 원격 조회하지 않는다") {
+        test("TC-6e944960-6e21-4bb6-a0b6-ad8c1b8c8bcb 이미 동기화에 성공한 연도는 다시 원격 조회하지 않는다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday(), remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -237,7 +237,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-008 앱 프로세스를 새로 시작하면 성공했던 연도도 다시 원격 조회한다") {
+        test("TC-41421bc4-3c43-483f-9ae3-cf4d82d6c1bd 앱 프로세스를 새로 시작하면 성공했던 연도도 다시 원격 조회한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday(), remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -274,7 +274,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-006 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
+        test("TC-944f146e-ab41-4e58-854e-d864d70267da 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -313,7 +313,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-006 로컬 캐시 교체 실패 후 다시 요청하면 다시 원격 조회한다") {
+        test("TC-944f146e-ab41-4e58-854e-d864d70267da 로컬 캐시 교체 실패 후 다시 요청하면 다시 원격 조회한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -352,7 +352,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-007 한 연도의 동기화 이력은 다른 연도의 동기화를 막지 않는다") {
+        test("TC-0f3cd63d-cdca-4c37-b0bf-8db797ea540c 한 연도의 동기화 이력은 다른 연도의 동기화를 막지 않는다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val otherYear = generateSequence { fixtureMonkey.giveMeOne<Int>() }.first { candidate -> candidate != year }
             val remoteHolidayList = listOf(remoteHoliday())
@@ -484,7 +484,7 @@ class HolidayRepositoryImplTest :
                 awaitComplete()
             }
         }
-        test("TC-HOLIDAY-FETCH-DATA-011 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
+        test("TC-c7ebdd34-cba3-4362-8c4b-3e4b55960d5a 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
             mapOf(
                 HolidayCountry.KOREA to HolidayCountryRemoteEntity.KOREA,
                 HolidayCountry.UNITED_STATES to HolidayCountryRemoteEntity.UNITED_STATES,
@@ -509,7 +509,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-012 한 국가를 교체해도 같은 연도의 다른 국가 캐시는 유지한다") {
+        test("TC-a5369c65-33ef-4a70-89cf-d04dfccafa8c 한 국가를 교체해도 같은 연도의 다른 국가 캐시는 유지한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday(), remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -543,7 +543,7 @@ class HolidayRepositoryImplTest :
             }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-013 한 국가의 동기화 이력은 같은 연도의 다른 국가 동기화를 막지 않는다") {
+        test("TC-d94f0abd-05e0-4c3c-859c-3e31a0af14d3 한 국가의 동기화 이력은 같은 연도의 다른 국가 동기화를 막지 않는다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val remoteDataSource = mockk<HolidayRemoteDataSource>()

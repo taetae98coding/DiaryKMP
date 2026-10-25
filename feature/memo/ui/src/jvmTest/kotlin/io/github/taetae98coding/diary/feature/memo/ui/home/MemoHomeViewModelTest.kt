@@ -87,7 +87,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-068 메모 완료가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
+        test("TC-95961ff0-bb2e-4dbf-bf66-a89280ed7fbd 메모 완료가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
@@ -150,7 +150,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-068 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
+        test("TC-95961ff0-bb2e-4dbf-bf66-a89280ed7fbd 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
@@ -349,7 +349,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-061 처음 정렬은 기본순이다") {
+        test("TC-7ab7b9e7-1d38-4e85-8468-5ebff35fc3c1 처음 정렬은 기본순이다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 
@@ -357,7 +357,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-DATA-013 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+        test("TC-05f23b36-25e5-4d03-bf02-9aa3bde8c1a3 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.empty()))
@@ -378,7 +378,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-051 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
+        test("TC-284cde2c-ca94-4294-b853-451659358510 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val memo = datedMemo()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
@@ -399,7 +399,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-071 처음 불러오기에 실패하면 빈 목록을 노출한다") {
+        test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 처음 불러오기에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
@@ -413,7 +413,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-071 이어서 불러오기에 실패해도 앞서 불러온 메모를 유지한다") {
+        test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 이어서 불러오기에 실패해도 앞서 불러온 메모를 유지한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
@@ -430,7 +430,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-071 메모가 보이는 목록을 다시 불러오다 실패하면 앞서 보이던 메모를 남기지 않고 빈 목록을 노출한다") {
+        test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 메모가 보이는 목록을 다시 불러오다 실패하면 앞서 보이던 메모를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val memo = fixtureMonkey.giveMeOne<Memo>()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()

@@ -5,9 +5,17 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import kotlin.math.absoluteValue
 
 public fun FixtureMonkey.fileUri(): FileUri = FileUri("file:///${giveMeOne<Int>()}")
+
+// 서버는 비어 있거나 공백뿐인 제목과 이름을 보관하지 않으므로, 서버가 돌려준 파일처럼 둘 다 있는 파일을 만든다.
+public fun FixtureMonkey.nonBlankDiaryFile(): DiaryFile =
+    giveMeOne<DiaryFile>().copy(
+        title = nonBlankString(),
+        name = nonBlankString(),
+    )
 
 public fun FixtureMonkey.diaryFile(
     name: String = "file-${giveMeOne<Int>()}.txt",

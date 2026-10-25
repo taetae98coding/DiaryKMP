@@ -41,7 +41,7 @@ class QrAddScreenFormatTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-047 제목 없이 추가하면 정보 탭으로 바꾸고 제목 입력을 알린다`() {
+    fun `TC-1a5e7fb5-df16-4fd9-8bef-df01b624f7e9 제목 없이 추가하면 정보 탭으로 바꾸고 제목 입력을 알린다`() {
         val useCase = mockk<AddQrUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(QrTitleBlankException())
         setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
@@ -84,6 +84,7 @@ class QrAddScreenFormatTest {
                     navigateToScan = {},
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { resultEventBus },
+                    componentVisibleProvider = { QrAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

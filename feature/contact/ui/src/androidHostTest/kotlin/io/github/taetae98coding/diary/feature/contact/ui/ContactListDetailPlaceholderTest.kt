@@ -10,6 +10,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -53,10 +54,12 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddEffect
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
@@ -86,6 +89,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
@@ -105,6 +109,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -143,7 +148,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-005 더보기로 돌아갔다가 다시 진입하면 상세 영역의 연락처 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-b213b4ae-f0d3-4b51-b29a-c4a9f6c1393a 더보기로 돌아갔다가 다시 진입하면 상세 영역의 연락처 추가는 입력이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setPlaceholderNavDisplay()
         composeRule.fillPlaceholder(input = input)
@@ -166,19 +171,33 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-006 배치를 떠나기 전에는 상세 영역에서 연락처 상세를 보고 돌아와도 연락처 추가의 입력이 남는다`() {
+    fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 상세 영역에서 연락처 상세를 보고 돌아와도 연락처 추가의 입력이 남는다`() {
         assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-006 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 추가에 다녀와도 연락처 추가의 입력이 남는다`() {
+    fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 추가에 다녀와도 연락처 추가의 입력이 남는다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
 
         assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoAddNavKey(initialContactId = contactId)))
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-011 연락처 상세가 놓인 동안 목록에서 연 연락처 추가는 빈 입력으로 시작한다`() {
+    fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 상세에 다녀와도 연락처 추가의 입력이 남는다`() {
+        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+    }
+
+    @Test
+    fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 완료된 메모 목록에 다녀와도 연락처 추가의 입력이 남는다`() {
+        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId)))
+    }
+
+    @Test
+    fun `TC-98bc4000-3784-4ca8-97c9-868f762e3a89 연락처 상세가 놓인 동안 목록에서 연 연락처 추가는 빈 입력으로 시작한다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
         composeRule.fillPlaceholder(input = placeholderInput())
@@ -200,7 +219,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-010 상세 영역의 연락처에서 뒤로가면 연락처 추가로 되돌아간다`() {
+    fun `TC-8b80e822-ecdc-4543-844b-2ae939ad7ca8 상세 영역의 연락처에서 뒤로가면 연락처 추가로 되돌아간다`() {
         val input = placeholderInput()
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
@@ -218,7 +237,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-012 연락처 상세가 놓인 동안 연 연락처 추가에서 뒤로가면 그 연락처의 상세로 돌아간다`() {
+    fun `TC-668d66ed-9862-44b6-8579-50eb62311a78 연락처 상세가 놓인 동안 연 연락처 추가에서 뒤로가면 그 연락처의 상세로 돌아간다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
         composeRule.onNodeWithTag(CONTACT_CARD_TEST_TAG).performClick()
@@ -235,7 +254,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-001 TC-CONTACT-LIST-DETAIL-FEATURE-008 넓은 창에서는 목록과 선택 전 연락처 추가를 함께 표시한다`() {
+    fun `TC-43da9f5e-8117-46fb-97a2-b6ca84b6646f TC-30c224c0-5647-48ba-982a-ad8768477e20 넓은 창에서는 목록과 선택 전 연락처 추가를 함께 표시한다`() {
         val contact = listedContact()
 
         setContactNavDisplay(contactList = listOf(contact))
@@ -247,7 +266,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-002 좁은 창에서는 지금 사용하는 화면만 단독으로 표시한다`() {
+    fun `TC-1d26f4ca-37fa-4c11-a6df-b7a0edc299b6 좁은 창에서는 지금 사용하는 화면만 단독으로 표시한다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
 
@@ -261,7 +280,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-009 연락처를 선택하면 상세 영역이 그 연락처의 상세로 바뀌고 목록은 유지된다`() {
+    fun `TC-388bebbe-4374-475d-86ee-d24cf0746821 연락처를 선택하면 상세 영역이 그 연락처의 상세로 바뀌고 목록은 유지된다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
 
@@ -274,7 +293,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-010 상세 영역의 연락처를 삭제하면 연락처 추가로 되돌아간다`() {
+    fun `TC-8b80e822-ecdc-4543-844b-2ae939ad7ca8 상세 영역의 연락처를 삭제하면 연락처 추가로 되돌아간다`() {
         val input = placeholderInput()
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
@@ -291,7 +310,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-035 상세에 열린 연락처를 목록에서 밀어 삭제해도 상세 영역은 그 연락처의 상세로 남는다`() {
+    fun `TC-c75506f5-54f0-4218-bb5d-abbf26c80202 상세에 열린 연락처를 목록에서 밀어 삭제해도 상세 영역은 그 연락처의 상세로 남는다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
         composeRule.onNode(contactCard(contact)).performClick()
@@ -308,7 +327,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-013 상세가 놓인 동안 다른 연락처를 고르면 상세를 쌓지 않고 바꾼다`() {
+    fun `TC-9e52f73a-115c-489d-be19-01711819d424 상세가 놓인 동안 다른 연락처를 고르면 상세를 쌓지 않고 바꾼다`() {
         val first = listedContact(prefix = "first")
         val second = listedContact(prefix = "second")
         setContactNavDisplay(contactList = listOf(first, second))
@@ -330,7 +349,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-015 선택 전 연락처 추가에서 추가에 성공해도 상세 영역은 연락처 추가로 남는다`() {
+    fun `TC-00adf068-56a2-4ea5-893c-f78c79d6f27a 선택 전 연락처 추가에서 추가에 성공해도 상세 영역은 연락처 추가로 남는다`() {
         contactAddViewModelFactory = { effectViewModel(effect = ContactAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>())) }
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
@@ -347,7 +366,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-008 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
+    fun `TC-94e26d85-149b-4e23-88af-e7e81afde43d 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
         composeRule.onNode(contactCard(contact)).performClick()
@@ -366,7 +385,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-016 상세에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+    fun `TC-5f06e023-4786-4590-af12-bd9084031688 상세에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
         val first = listedContact(prefix = "first")
         val second = listedContact(prefix = "second")
         val typedName = placeholderInput().name
@@ -392,7 +411,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-014 선택 전 연락처 추가가 놓인 상태에서 뒤로가면 배치를 떠나 더보기로 간다`() {
+    fun `TC-2905040a-69df-4c5c-8d28-94f12fd72c62 선택 전 연락처 추가가 놓인 상태에서 뒤로가면 배치를 떠나 더보기로 간다`() {
         setContactNavDisplay(contactList = listOf(listedContact()))
         composeRule.nameInput().assertIsDisplayed()
 
@@ -405,7 +424,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-HOME-DOMAIN-011 연락처 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-bc82a2ae-e486-4a97-a146-b6437e2d95b6 연락처 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val contactList = positionContactList()
         setContactNavDisplay(contactList = contactList)
         scrollToPositionContact(contactList)
@@ -419,7 +438,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-HOME-DOMAIN-011 연락처 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-bc82a2ae-e486-4a97-a146-b6437e2d95b6 연락처 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val contactList = positionContactList()
         setContactNavDisplay(contactList = contactList)
         scrollToPositionContact(contactList)
@@ -434,7 +453,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-HOME-DOMAIN-011 다른 앱에 다녀와도 보던 목록 위치를 유지한다`() {
+    fun `TC-bc82a2ae-e486-4a97-a146-b6437e2d95b6 다른 앱에 다녀와도 보던 목록 위치를 유지한다`() {
         val contactList = positionContactList()
         setContactNavDisplay(contactList = contactList)
         scrollToPositionContact(contactList)
@@ -449,7 +468,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-HOME-DOMAIN-012 더보기로 나갔다 다시 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-08a032ed-f0ba-48fd-80c0-96eb2475309d 더보기로 나갔다 다시 진입하면 목록의 맨 위부터 보여 준다`() {
         val contactList = positionContactList()
         setContactNavDisplay(contactList = contactList)
         scrollToPositionContact(contactList)
@@ -464,10 +483,113 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-852f29ae-df6e-48e7-9930-771159a3ee43 연락처 상세로 이동한 뒤 뒤로가도 유무 필터 선택을 유지한다`() {
+        val contactList = listOf(listedContact())
+        setContactNavDisplay(contactList = contactList)
+        selectBirthdayWithFilter()
+
+        composeRule.onNode(contactCard(contactList.first())).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contactList.first().id)).assertIsDisplayed()
+        pressBack()
+
+        homeViewModelList.size shouldBe 1
+        homeViewModelList
+            .single()
+            .filterUiState.value.filter.birthday shouldBe ContactFilterExistence.EXIST
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-852f29ae-df6e-48e7-9930-771159a3ee43 연락처 추가로 이동한 뒤 뒤로가도 유무 필터 선택을 유지한다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.clickListAddButton()
+        composeRule.nameInput().assertIsDisplayed()
+        pressBack()
+
+        homeViewModelList.size shouldBe 1
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-852f29ae-df6e-48e7-9930-771159a3ee43 다른 앱에 다녀와도 유무 필터 선택을 유지한다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+
+        homeViewModelList.size shouldBe 1
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    // 필터 선택은 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-aa5ba16e-90da-45c6-aeea-05b10ad39ada 앱을 다시 실행해 진입하면 유무 필터가 처음 상태다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+
+        homeViewModelList.single().filterUiState.value shouldBe ContactHomeFilterUiState()
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-7ab74586-43b4-40bb-bf45-1f55bafd8f99 상세가 놓인 동안 필터를 열어도 상세 영역의 화면은 바뀌지 않는다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_FILTER_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertExists()
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+    }
+
+    @Test
+    fun `TC-f30057c7-1186-485f-bc05-5b380ece656b 목록과 상세를 함께 보는 동안 필터를 바꿔도 상세 영역은 그대로 남는다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+
+        selectBirthdayWithFilter()
+
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-aa5ba16e-90da-45c6-aeea-05b10ad39ada 더보기로 나갔다 다시 진입하면 유무 필터가 처음 상태로 돌아간다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(ContactHomeNavKey) }
+        composeRule.waitForIdle()
+
+        homeViewModelList.last().filterUiState.value shouldBe ContactHomeFilterUiState()
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
+    }
+
     // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-CONTACT-HOME-DOMAIN-012 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-08a032ed-f0ba-48fd-80c0-96eb2475309d 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val contactList = positionContactList()
 
         setContactNavDisplay(contactList = contactList)
@@ -477,7 +599,25 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+    fun `TC-29f72dc2-15f1-426b-880c-9697c055beb8 메모 탭에서 연 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe ContactMemoFinishedListNavKey(contactId = contact.id)
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-29f72dc2-15f1-426b-880c-9697c055beb8 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
         composeRule.onNode(contactCard(contact)).performClick()
@@ -494,7 +634,7 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 상세에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+    fun `TC-29f72dc2-15f1-426b-880c-9697c055beb8 메모 탭에서 연 메모 상세에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
         composeRule.onNode(contactCard(contact)).performClick()
@@ -522,6 +662,13 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertIsDisplayed()
         composeRule.onNode(contactCard(contactList.first())).assertDoesNotExist()
     }
+
+    private fun selectBirthdayWithFilter() {
+        composeRule.runOnIdle { homeViewModelList.last().setBirthdayExistence(existence = ContactFilterExistence.EXIST) }
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    private fun hasStateDescription(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
 
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
@@ -641,6 +788,7 @@ class ContactListDetailPlaceholderTest {
                                 }
                                 entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<ContactMemoFinishedListNavKey> { Text(text = ROUTE_CONTENT) }
                             },
                     )
                 }
@@ -675,10 +823,15 @@ class ContactListDetailPlaceholderTest {
         module {
             factory { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } }
             factory {
+                val filterState = MutableStateFlow(ContactHomeFilterUiState())
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
                         every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
                         every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+                        every { filterUiState } returns filterState
+                        every { setBirthdayExistence(existence = any()) } answers {
+                            filterState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthday = firstArg())) }
+                        }
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> homeViewModelList += viewModel }
             }
@@ -733,12 +886,16 @@ class ContactListDetailPlaceholderTest {
     )
 
     private companion object {
+        const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val MORE_CONTENT = "MoreContent"
         const val CONTACT_HOME_CONTENT = "ContactHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val DEFAULT_ADD_CONTACT_DESCRIPTION = "Add contact"
         const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Contact added."
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        const val DEFAULT_FILTER_APPLIED_DESCRIPTION = "Filter applied"
+        const val DEFAULT_FILTER_DESCRIPTION = "Filter"
+        const val DEFAULT_FILTER_TITLE = "Filter"
         const val DEFAULT_DELETE_CONTACT_DESCRIPTION = "Delete contact"
         const val POSITION_CONTACT_COUNT = 30
         const val POSITION_SCROLL_INDEX = 25

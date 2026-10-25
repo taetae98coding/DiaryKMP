@@ -55,7 +55,7 @@ class MemoContactViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+        test("TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = contact()
                 val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
@@ -71,7 +71,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-066 연락처 입력에 저장된 연락처 연결이 표시된다") {
+        test("TC-aeaaf285-fa56-4843-9f4e-3245ff80c70b 연락처 입력에 저장된 연락처 연결이 표시된다") {
             runTest(mainDispatcher) {
                 val connectedContact = contact()
                 val otherContact = contact()
@@ -91,7 +91,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-067 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다") {
+        test("TC-f477fe87-b4f8-469e-9b25-1198beabe60a 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
@@ -117,7 +117,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-068 연락처 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
+        test("TC-7df4a8c6-b54a-4f37-a21d-5867d648fcc0 연락처 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedContact = contact()
                 val otherContact = contact()
@@ -151,7 +151,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-006 삭제된 연락처는 선택한 것으로 표시하지 않는다") {
+        test("TC-243ad55e-1b5b-40c0-8cfc-61ba99592ba8 삭제된 연락처는 선택한 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val deletedContact = contact()
                 val memoContactFlow = MutableStateFlow(Result.success(listOf(deletedContact)))
@@ -172,7 +172,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-007 연락처가 복구되면 유지되어 있던 선택이 다시 나타난다") {
+        test("TC-5d35b4ae-d9a7-4db3-b241-061c6ca6ce82 연락처가 복구되면 유지되어 있던 선택이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
@@ -192,7 +192,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-002 TC-MEMO-CONTACT-INPUT-DOMAIN-008 선택 목록이 준비되지 않아도 선택한 연락처를 표시한다") {
+        test("TC-9247497c-5d3d-4945-9136-866ee3eb6c09 TC-e69bcc50-659e-402b-bbce-830b33d59b80 선택 목록이 준비되지 않아도 선택한 연락처를 표시한다") {
             runTest(mainDispatcher) {
                 val connectedContact = contact()
                 val viewModel =
@@ -258,7 +258,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-011 연락처를 선택하면 그 메모와 연락처의 연결 추가를 요청한다") {
+        test("TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b 연락처를 선택하면 그 메모와 연락처의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -272,7 +272,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-012 연락처 선택을 해제하면 그 메모와 연락처의 연결 제거를 요청한다") {
+        test("TC-58e3a6fc-fec5-48dd-ae63-a332532ae678 연락처 선택을 해제하면 그 메모와 연락처의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -286,7 +286,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-014 앞선 연락처 연결 변경이 처리 중이어도 뒤이은 연락처 연결 변경을 처리한다") {
+        test("TC-4e41e999-d7d8-43dc-a7d6-5525d55eccfb 앞선 연락처 연결 변경이 처리 중이어도 뒤이은 연락처 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstContactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -308,7 +308,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-5cb7fa61-7251-43d0-b0d9-b66a9afb557f 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allContactList = List(2) { contact() }
                 val matchedContactList = listOf(allContactList.first())
@@ -329,7 +329,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-033 검색어를 바꿔 다시 조회하다 실패하면 이전 연락처을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-073c5c69-bb62-4817-9055-1eb79103686f 검색어를 바꿔 다시 조회하다 실패하면 이전 연락처을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactList = List(2) { contact() }
                 val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
@@ -349,7 +349,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-012 검색어를 바꿔도 연락처 입력에 표시하는 연락처는 그대로다") {
+        test("TC-d8c8b522-d00e-4be8-a134-efb66f75449d 검색어를 바꿔도 연락처 입력에 표시하는 연락처는 그대로다") {
             runTest(mainDispatcher) {
                 val connectedContactList = List(2) { contact() }
                 val viewModel = viewModel(memoContactFlow = flowOf(Result.success(connectedContactList)))

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -24,6 +25,7 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUse
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ANNUAL_LEAVE_LABEL
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ERROR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_INCREASE_DESCRIPTION
+import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_LOADING_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NEXT_OPTION_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
@@ -32,10 +34,12 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday.GoldenHolidayYear
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
@@ -66,7 +70,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-045 연차 개수를 바꾸면 각 항목은 첫 번째 대안으로 돌아간다`() {
+    fun `TC-32437aff-ed30-4cf0-8031-2929ddeb7672 연차 개수를 바꾸면 각 항목은 첫 번째 대안으로 돌아간다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -91,7 +95,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-046 저장된 공휴일이 바뀌어 항목 내용이 달라지면 그 항목은 첫 번째 대안으로 돌아간다`() {
+    fun `TC-56b58908-9ebe-4040-a49f-076e989e4ecd 저장된 공휴일이 바뀌어 항목 내용이 달라지면 그 항목은 첫 번째 대안으로 돌아간다`() {
         val groupListFlow = MutableSharedFlow<Result<List<GoldenHolidayGroup>>>(replay = 1)
         groupListFlow.tryEmit(Result.success(listOf(twoOptionGroup(year = YEAR, firstStartDay = 7))))
         composeRule.setHolidayHomeScreen(
@@ -110,7 +114,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-047 다시 받아온 결과로 항목 내용이 그대로이면 고른 대안이 유지된다`() {
+    fun `TC-3a55e5b1-41d2-4ba7-ac54-a140db66585b 다시 받아온 결과로 항목 내용이 그대로이면 고른 대안이 유지된다`() {
         val groupListFlow = MutableSharedFlow<Result<List<GoldenHolidayGroup>>>(replay = 1)
         groupListFlow.tryEmit(Result.success(listOf(twoOptionGroup(year = YEAR, firstStartDay = 7))))
         composeRule.setHolidayHomeScreen(
@@ -129,7 +133,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-049 오류 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
+    fun `TC-6f945b38-d9ac-4590-ab5a-d2c93fb216c2 오류 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
@@ -142,7 +146,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-049 제공 없음 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
+    fun `TC-6f945b38-d9ac-4590-ab5a-d2c93fb216c2 제공 없음 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returnsMany
@@ -155,7 +159,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-050 화면이 재생성되어도 보던 년도와 연차 개수가 유지된다`() {
+    fun `TC-314e0c34-9acf-4396-8760-df3c07f4a57b 화면이 재생성되어도 보던 년도와 연차 개수가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             val state = rememberHolidayHomeScaffoldState(initialYear = YEAR)
@@ -192,7 +196,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-051 화면이 재생성되어도 고른 대안이 유지된다`() {
+    fun `TC-17883a3a-32fd-407b-b8e3-cc84e84f0060 화면이 재생성되어도 고른 대안이 유지된다`() {
         val uiState = HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(twoOptionGroup(year = YEAR, firstStartDay = 7)))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -214,7 +218,76 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-052 다른 앱에 다녀와도 보던 년도와 연차 개수와 고른 대안이 유지된다`() {
+    fun `TC-3c234b55-f3bb-4c38-aaa4-a7fe7e1ba26d 화면이 재생성되어도 년도별 준비 상태가 유지된다`() {
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val fetchHolidayUseCase = successfulFetchHolidayUseCase()
+        val restorationTester = StateRestorationTester(composeRule)
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = fetchHolidayUseCase,
+            getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
+            lifecycleOwner = { lifecycleOwner },
+            restorationTester = restorationTester,
+        )
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().isEmpty() shouldBe true
+        val completion = CompletableDeferred<Result<List<Holiday>>>()
+        coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
+
+        // 화면이 재생성되면 이전 화면은 수명을 끝낸 뒤 구성에서 내려가고, 새 화면이 새 수명으로 다시 구성된다.
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.DESTROYED }
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+        composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().isEmpty() shouldBe true
+    }
+
+    @Test
+    fun `TC-8aff2a2d-13fb-4bd2-be94-cf4a0045b146 화면에 다시 진입하거나 앱을 다시 실행하면 처음 상태부터 다시 보인다`() {
+        val launchCount = mutableStateOf(0)
+        val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
+        coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
+        val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
+        every { getGoldenHolidayUseCase(parameter = any()) } answers {
+            val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
+            val groupList = if (parameter.year == YEAR) listOf(twoOptionGroup(year = YEAR, firstStartDay = 7)) else emptyList()
+
+            flowOf(Result.success(groupList))
+        }
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = fetchHolidayUseCase,
+            getGoldenHolidayUseCase = getGoldenHolidayUseCase,
+            launchCount = launchCount,
+        )
+        repeat(2) { composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick() }
+        composeRule.onNodeWithContentDescription(DEFAULT_NEXT_OPTION_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(SECOND_OPTION_POSITION).assertExists()
+        scrollTo(year = YEAR + 1)
+        composeRule.onNodeWithText("2027").assertExists()
+        // 다시 구성한 화면이 보던 년도로 다시 이동하지 않도록 이동 요청을 비우고, 이후의 동기화는 끝나지 않게 한다.
+        val completion = CompletableDeferred<Result<List<Holiday>>>()
+        coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
+        composeRule.runOnIdle { targetYear.value = null }
+
+        composeRule.runOnIdle { launchCount.value += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(YEAR.toString()).assertExists()
+        composeRule.onNode(annualLeaveCount(count = 0)).assertExists()
+        composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().isNotEmpty() shouldBe true
+
+        completion.complete(Result.success(providedHolidayList()))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(FIRST_OPTION_POSITION).assertExists()
+        composeRule.onNodeWithText(SECOND_OPTION_POSITION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-c251bade-9ef8-4f31-a758-88dcbca51458 다른 앱에 다녀와도 보던 년도와 연차 개수와 고른 대안이 유지된다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
@@ -226,7 +299,7 @@ class HolidayHomeScreenBoundaryTest {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             getGoldenHolidayUseCase = getGoldenHolidayUseCase,
-            lifecycleOwner = lifecycleOwner,
+            lifecycleOwner = { lifecycleOwner },
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick()
@@ -242,13 +315,13 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-DATA-014 년도가 드러난 채 다른 화면이나 다른 앱에서 돌아오면 동기화를 다시 요청한다`() {
+    fun `TC-2c8ba94e-f84b-429c-b2b6-4e1ac3cc721b 년도가 드러난 채 다른 화면이나 다른 앱에서 돌아오면 동기화를 다시 요청한다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val fetchHolidayUseCase = successfulFetchHolidayUseCase()
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = fetchHolidayUseCase,
-            lifecycleOwner = lifecycleOwner,
+            lifecycleOwner = { lifecycleOwner },
         )
 
         leaveAndReturn(lifecycleOwner = lifecycleOwner)
@@ -267,7 +340,7 @@ class HolidayHomeScreenBoundaryTest {
             targetYear = targetYear,
             fetchHolidayUseCase = fetchHolidayUseCase,
             getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
-            lifecycleOwner = lifecycleOwner,
+            lifecycleOwner = { lifecycleOwner },
         )
 
         composeRule.onNodeWithText(description).assertExists()

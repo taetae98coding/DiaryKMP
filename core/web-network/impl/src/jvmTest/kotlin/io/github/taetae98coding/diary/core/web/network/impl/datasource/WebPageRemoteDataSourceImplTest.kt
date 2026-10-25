@@ -26,7 +26,7 @@ import org.koin.plugin.module.dsl.koinApplication
 
 class WebPageRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-WEB-DETAIL-DATA-004 저장된 URL로 요청하고 응답 본문을 그대로 전달한다") {
+        test("TC-178ebe51-6c6f-4137-8b09-b4009f5bd484 저장된 URL로 요청하고 응답 본문을 그대로 전달한다") {
             val body = "<html><body>${fixtureMonkey.giveMeOne<String>()}</body></html>"
             val engine = createMockEngine(body = body)
             val dataSource = createDataSource(engine)
@@ -41,7 +41,7 @@ class WebPageRemoteDataSourceImplTest :
             actual.body shouldBe body
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-008 TC-WEB-DETAIL-DATA-004 저장된 요청 헤더를 순서대로 모두 요청에 담는다") {
+        test("TC-c0f80397-8368-4688-8bda-5f9884bf9f96 TC-178ebe51-6c6f-4137-8b09-b4009f5bd484 저장된 요청 헤더를 순서대로 모두 요청에 담는다") {
             val headerList =
                 listOf(
                     WebPageHeaderRemoteEntity(name = "X-Diary", value = "first"),
@@ -58,7 +58,7 @@ class WebPageRemoteDataSourceImplTest :
             requestHeaders.getAll("Accept-Language").shouldContainExactly("ko-KR")
         }
 
-        test("TC-WEB-DETAIL-DATA-005 저장된 요청 헤더 외에 앱의 인증 정보를 요청에 담지 않는다") {
+        test("TC-0f334e0a-20d6-4d5e-a6db-05996db633e8 저장된 요청 헤더 외에 앱의 인증 정보를 요청에 담지 않는다") {
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
@@ -69,7 +69,7 @@ class WebPageRemoteDataSourceImplTest :
             requestHeaders[HttpHeaders.Cookie].shouldBeNull()
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-009 2xx가 아닌 응답도 실패로 다루지 않고 본문을 전달한다") {
+        test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 2xx가 아닌 응답도 실패로 다루지 않고 본문을 전달한다") {
             listOf(HttpStatusCode.NotFound, HttpStatusCode.InternalServerError).forEach { status ->
                 val body = "<html><body>${status.value}</body></html>"
                 val dataSource = createDataSource(createMockEngine(body = body, status = status))
@@ -78,7 +78,7 @@ class WebPageRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-049 다른 주소로 옮겨 가라는 응답을 따라가 마지막 응답과 그 주소를 결과로 삼는다") {
+        test("TC-b8dfa3f3-7752-4c7e-8d4c-9e57373efca9 다른 주소로 옮겨 가라는 응답을 따라가 마지막 응답과 그 주소를 결과로 삼는다") {
             val body = "<html><body>${fixtureMonkey.giveMeOne<String>()}</body></html>"
             val engine =
                 MockEngine { request ->

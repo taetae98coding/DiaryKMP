@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.playlist.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
@@ -30,43 +27,36 @@ internal fun MusicDetailTopBar(
     val deleteContentDescription = stringResource(Res.string.music_detail_delete_button_content_description)
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
+        title = {
             if (uiState is MusicDetailUiState.Content) {
-                DiaryTopBarTitle.Text(text = uiState.detail.title, isMarquee = true)
-            } else {
-                null
-            },
-        navigateUp =
+                Title(text = uiState.detail.title, isMarquee = true)
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(MusicDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
-        actions =
-            buildList {
-                if (uiState is MusicDetailUiState.Content) {
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.OPEN_IN_NEW,
-                            contentDescription = openInNewContentDescription,
-                            onClick = { onEvent(MusicDetailScaffoldEvent.ClickOpenInNew) },
-                            isVisible = uiState.detail.link.isNotBlank(),
-                        ),
-                    )
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(MusicDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
-                    )
-                }
-            },
+            }
+        },
+        actions = {
+            if (uiState is MusicDetailUiState.Content) {
+                IconAction(
+                    icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                    contentDescription = openInNewContentDescription,
+                    onClick = { onEvent(MusicDetailScaffoldEvent.ClickOpenInNew) },
+                    isVisible = uiState.detail.link.isNotBlank(),
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(MusicDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
+                )
+            }
+        },
     )
 }
 

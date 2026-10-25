@@ -40,7 +40,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GetCurrentCalendarWeatherUseCaseTest :
     BehaviorSpec({
-        Given("TC-WEATHER-FETCH-DOMAIN-003 여러 날짜의 현재 날씨와 예보가 순서 없이 저장되어 있다") {
+        Given("TC-f8e8324b-92cb-4e49-81fd-b15c2c4aeaf7 여러 날짜의 현재 날씨와 예보가 순서 없이 저장되어 있다") {
             val firstDate = LocalDate(year = YEAR, month = MONTH, day = 1)
             val secondDate = LocalDate(year = YEAR, month = MONTH, day = 2)
             val current = currentWeather(day = 1, hour = 6)
@@ -68,7 +68,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-010 오늘의 현재 날씨와 예보가 서로 다른 시각과 현재 기온으로 저장되어 있다") {
+        Given("TC-58bfcd86-53c1-4ad1-af1d-28858fae4836 오늘의 현재 날씨와 예보가 서로 다른 시각과 현재 기온으로 저장되어 있다") {
             val fartherTemperature = fixtureMonkey.giveMeOne<Double>()
             val closestTemperature = fartherTemperature + positiveDouble()
             val current =
@@ -103,7 +103,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-005 오늘이 아닌 날짜에 하루 전체에 걸친 여러 시간대별 예보가 저장되어 있다") {
+        Given("TC-f14eb448-0b91-4f95-a730-45fc08ee61c1 오늘이 아닌 날짜에 하루 전체에 걸친 여러 시간대별 예보가 저장되어 있다") {
             val current = currentWeather(day = 1, hour = 6)
             val lowestMin = fixtureMonkey.giveMeOne<Double>()
             val highestMax = lowestMin + positiveDouble()
@@ -142,7 +142,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-006 저장된 날씨가 없다") {
+        Given("TC-f17b6e8c-be2a-44e3-b913-594af3e14956 저장된 날씨가 없다") {
             val useCase = useCase(emptyList())
 
             When("캘린더 날짜별 날씨를 관찰한다") {
@@ -170,7 +170,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-011 오늘의 현재 시각과 같은 거리인 두 날씨가 저장되어 있다") {
+        Given("TC-0ca5c992-f91a-4355-ac04-ffa4203a4698 오늘의 현재 시각과 같은 거리인 두 날씨가 저장되어 있다") {
             val earlyTemperature = fixtureMonkey.giveMeOne<Double>()
             val lateTemperature = earlyTemperature + positiveDouble()
             val earlyForecast =
@@ -210,7 +210,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             LAST_FORECAST_HOUR - FORECAST_INTERVAL_HOUR to false,
             0 to false,
         ).forEach { (lastHour, isTemperatureProvided) ->
-            Given("TC-WEATHER-FETCH-DOMAIN-012 오늘이 아닌 마지막 날짜의 예보가 0시부터 ${lastHour}시까지만 저장되어 있다") {
+            Given("TC-6ee755ed-a7ee-485d-8a54-c64bf1f7b61a 오늘이 아닌 마지막 날짜의 예보가 0시부터 ${lastHour}시까지만 저장되어 있다") {
                 val forecastList = dayForecastList(day = 2, firstHour = 0, lastHour = lastHour)
                 val useCase = useCase(listOf(currentWeather(day = 1, hour = 6)) + forecastList)
 
@@ -239,7 +239,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-013 가장 이른 날씨가 오늘이 아닌 날짜의 0시보다 늦은 시각의 예보다") {
+        Given("TC-a863e832-111f-4d19-8c3f-fbc3337cacd7 가장 이른 날씨가 오늘이 아닌 날짜의 0시보다 늦은 시각의 예보다") {
             val useCase =
                 useCase(
                     dayForecastList(day = 2, firstHour = FORECAST_INTERVAL_HOUR, lastHour = LAST_FORECAST_HOUR) +
@@ -260,7 +260,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-014 오늘이 아닌 마지막 날짜에 하루의 일부 시간대만 저장되어 있다") {
+        Given("TC-a5188351-6cd5-49fc-9d0f-b1ecd5145b43 오늘이 아닌 마지막 날짜에 하루의 일부 시간대만 저장되어 있다") {
             val current = currentWeather(day = 1, hour = 6)
             val earlyForecast = forecastWeather(day = 2, hour = 0)
             val lateForecast = forecastWeather(day = 2, hour = FORECAST_INTERVAL_HOUR)
@@ -277,7 +277,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DOMAIN-015 오늘의 날씨가 현재 시각 이후 일부 시간대만 저장되어 있다") {
+        Given("TC-dc8281f5-411d-46ac-b51e-ca1a8e6fb5a9 오늘의 날씨가 현재 시각 이후 일부 시간대만 저장되어 있다") {
             val closestTemperature = fixtureMonkey.giveMeOne<Double>()
             val closestForecast =
                 forecastWeather(
@@ -310,7 +310,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
             }
         }
 
-        Given("TC-WEATHER-FETCH-DATA-014 캘린더 날짜별 날씨를 관찰하고 있다") {
+        Given("TC-8a4538e7-11ea-44af-9458-0bffe9ed1218 캘린더 날짜별 날씨를 관찰하고 있다") {
             val weatherState = MutableStateFlow<WeatherReport?>(null)
             val repository = mockk<WeatherRepository>()
             every { repository.get() } returns weatherState

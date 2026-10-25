@@ -45,7 +45,7 @@ class TagDetailPlaceBoundsListTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-025 보이는 영역 안의 장소만 지도 모드의 목록에 표시한다`() {
+    fun `TC-bfb27e9f-3201-4ee7-861f-fd9c26ee3584 보이는 영역 안의 장소만 지도 모드의 목록에 표시한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val uiStateFlow = MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place)))
         setBoundsList(uiStateFlow)
@@ -59,7 +59,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-050 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
+    fun `TC-d00ff4e2-c903-4a74-9090-78fa2579d43a 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -77,7 +77,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-052 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 요청한다`() {
+    fun `TC-3dbf65fb-ab2d-4db8-8643-95d9d8d25c53 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -105,7 +105,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-039 지도 모드의 목록에서 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+    fun `TC-46e883d3-57ae-4a3c-96a6-450186f677cd 지도 모드의 목록에서 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setBoundsList(
@@ -120,7 +120,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-028 지도 모드에서 보이는 영역 안에 장소가 없으면 이 지역에 장소가 없음을 알린다`() {
+    fun `TC-d395a6d4-5e57-4bc8-8a4b-cf11b9f8836d 지도 모드에서 보이는 영역 안에 장소가 없으면 이 지역에 장소가 없음을 알린다`() {
         setBoundsList(MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -130,7 +130,7 @@ class TagDetailPlaceBoundsListTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-028 한국어 환경에서 지도 모드 빈 상태 안내는 이 지역에 장소가 없습니다이다`() {
+    fun `TC-d395a6d4-5e57-4bc8-8a4b-cf11b9f8836d 한국어 환경에서 지도 모드 빈 상태 안내는 이 지역에 장소가 없습니다이다`() {
         setBoundsList(MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = emptyList())))
 
         composeRule.onNodeWithText(KOREAN_MAP_EMPTY_TITLE).assertExists()
@@ -138,14 +138,14 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-029 보이는 영역을 확인하기 전에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-e72c252f-2f29-4917-90ce-879127ed6b4c 보이는 영역을 확인하기 전에는 빈 상태 안내를 표시하지 않는다`() {
         setBoundsList(MutableStateFlow(TagDetailPlaceListUiState()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-030 보이는 영역 안에 장소가 들어오면 빈 상태 안내가 사라진다`() {
+    fun `TC-ea9c3361-e554-4bca-acda-53ed303888d6 보이는 영역 안에 장소가 들어오면 빈 상태 안내가 사라진다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val uiStateFlow = MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = emptyList()))
         setBoundsList(uiStateFlow)
@@ -159,7 +159,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 지도 모드의 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 지도 모드의 목록을 당기면 새로고침을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setBoundsList(
@@ -174,7 +174,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 지도 모드의 빈 상태에서도 당기면 새로고침을 요청한다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 지도 모드의 빈 상태에서도 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = emptyList())),
@@ -188,7 +188,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 지도 모드에서 새로고침이 진행 중이면 진행 표시가 나타난다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 지도 모드에서 새로고침이 진행 중이면 진행 표시가 나타난다`() {
         val place = tagPlace(title = FIRST_TITLE)
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),

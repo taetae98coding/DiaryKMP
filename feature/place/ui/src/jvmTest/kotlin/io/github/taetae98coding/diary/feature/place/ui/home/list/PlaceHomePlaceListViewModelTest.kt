@@ -59,7 +59,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLACE-HOME-FEATURE-018 보이는 영역이 알려지면 그 영역의 장소 목록을 제공한다") {
+        test("TC-964e27af-7d54-4aa9-8b49-6b1108fc3f7c 보이는 영역이 알려지면 그 영역의 장소 목록을 제공한다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val placeList = placeList(PLACE_COUNT)
@@ -80,7 +80,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-019 보이는 영역이 바뀌면 바뀐 영역의 장소 목록으로 갱신한다") {
+        test("TC-61830c52-0b85-49ba-bb11-531bd3262895 보이는 영역이 바뀌면 바뀐 영역의 장소 목록으로 갱신한다") {
             runTest(mainDispatcher) {
                 val beforeBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val afterBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
@@ -104,7 +104,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-020 보이는 영역 안에 장소가 없으면 빈 목록을 제공한다") {
+        test("TC-7f232c58-f9dc-4789-a0e9-6a63a1736175 보이는 영역 안에 장소가 없으면 빈 목록을 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getPlaceListUseCase = getPlaceListUseCase(Result.success(emptyList())))
 
@@ -119,7 +119,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-021 보이는 영역을 확인하기 전에는 장소를 조회하지 않고 빈 목록을 제공한다") {
+        test("TC-415d2502-9395-4180-bdeb-eed7c2f15235 보이는 영역을 확인하기 전에는 장소를 조회하지 않고 빈 목록을 제공한다") {
             runTest(mainDispatcher) {
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 val viewModel = viewModel(getPlaceListUseCase = getPlaceListUseCase)
@@ -135,7 +135,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-022 조회 결과가 바뀌면 장소 목록을 갱신한다") {
+        test("TC-539d7bfe-bc54-4f17-a7f2-9811a78abdd9 조회 결과가 바뀌면 장소 목록을 갱신한다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val beforePlaceList = placeList(PLACE_COUNT)
@@ -158,7 +158,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-023 목록을 조회하지 못하면 빈 상태로 제공한다") {
+        test("TC-2d36d864-2035-4e4e-8684-46e360f9705d 목록을 조회하지 못하면 빈 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getPlaceListUseCase = getPlaceListUseCase(Result.failure(IllegalStateException("query error"))))
 
@@ -174,7 +174,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-032 새로고침으로 기기에 저장된 장소가 보이는 영역 안에 있으면 목록에 나타난다") {
+        test("TC-0a79258f-5fd4-4075-a970-23465689b975 새로고침으로 기기에 저장된 장소가 보이는 영역 안에 있으면 목록에 나타난다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val shownPlaceList = placeList(PLACE_COUNT)
@@ -200,7 +200,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-035 보이는 영역이 바뀌면 앞선 조회를 기다리지 않고 새 영역의 목록으로 갱신한다") {
+        test("TC-fadd65fd-b49e-4f02-9d8a-1d8f4122be2f 보이는 영역이 바뀌면 앞선 조회를 기다리지 않고 새 영역의 목록으로 갱신한다") {
             runTest(mainDispatcher) {
                 val beforeBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val afterBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
@@ -250,7 +250,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-020 TC-PLACE-HOME-DATA-004 목록 모드는 보이는 영역과 무관하게 계정의 장소를 제공한다") {
+        test("TC-2340c6e7-13a5-4728-9f1a-1d0b3847f8b0 TC-edda8644-9fe2-4b74-b810-abb7c9a12a7a 목록 모드는 보이는 영역과 무관하게 계정의 장소를 제공한다") {
             runTest(mainDispatcher) {
                 val placeList = placeList(PLACE_COUNT)
                 val viewModel =
@@ -265,7 +265,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-021 계정의 장소를 조회하지 못하면 목록 모드에 노출하는 장소가 없다") {
+        test("TC-8b86ec99-2778-490f-bd5f-772bac789153 계정의 장소를 조회하지 못하면 목록 모드에 노출하는 장소가 없다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(placePagingFlow = flowOf(Result.failure(IllegalStateException("account error"))))
 
@@ -273,7 +273,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-054 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-bab09598-8421-4424-b1f4-2a18af1b800e 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -290,7 +290,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-062 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-78e6f0b4-f324-41a5-9c0f-8d979f8661d4 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -306,7 +306,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-059 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-a9ca11c9-6511-4639-8078-b7ed9e907faf 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
@@ -340,7 +340,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-030 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-71fd8e18-3a06-4d57-aade-0cd5052a8bf8 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
@@ -357,7 +357,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-066 정렬을 바꾸면 두 보기 모드의 목록에 함께 적용된다") {
+        test("TC-ce63dac9-0f58-4869-a592-14a66d69ad15 정렬을 바꾸면 두 보기 모드의 목록에 함께 적용된다") {
             runTest(mainDispatcher) {
                 val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
                 val titlePlaceList = placeList(PLACE_COUNT)
@@ -396,7 +396,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 처음 조회에 실패하면 빈 목록을 노출한다") {
+        test("TC-d7e40664-b6aa-4505-8785-42808d9ec08f 목록 모드에서 처음 조회에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(placePagingFlow = flowOf(Result.failure(IllegalStateException())))
 
@@ -404,7 +404,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 추가 조회에 실패해도 이미 표시된 장소를 유지한다") {
+        test("TC-d7e40664-b6aa-4505-8785-42808d9ec08f 목록 모드에서 추가 조회에 실패해도 이미 표시된 장소를 유지한다") {
             runTest(mainDispatcher) {
                 val placeList = placeList(PLACE_COUNT)
                 val viewModel = viewModel(placePagingFlow = appendFailingPagingData(firstPage = placeList).map { pagingData -> Result.success(pagingData) })
@@ -418,7 +418,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 다시 조회에 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
+        test("TC-d7e40664-b6aa-4505-8785-42808d9ec08f 목록 모드에서 다시 조회에 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(

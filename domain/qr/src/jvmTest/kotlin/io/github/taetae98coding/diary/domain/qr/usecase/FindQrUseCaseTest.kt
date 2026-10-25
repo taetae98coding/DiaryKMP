@@ -29,7 +29,7 @@ class FindQrUseCaseTest :
             val useCase = FindQrUseCase(getAccountUseCase = getAccountUseCase, accountQrRepository = accountQrRepository)
 
             When("그 QR을 찾는다") {
-                Then("TC-QR-DETAIL-DOMAIN-001 삭제 상태여도 현재 계정 기준으로 찾은 QR을 전달한다") {
+                Then("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 삭제 상태여도 현재 계정 기준으로 찾은 QR을 전달한다") {
                     useCase(parameter = qr.id).test {
                         awaitItem().shouldBeSuccess(qr)
                         awaitComplete()

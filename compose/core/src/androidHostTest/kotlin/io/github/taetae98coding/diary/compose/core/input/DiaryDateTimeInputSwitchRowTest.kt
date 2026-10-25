@@ -120,7 +120,7 @@ class DiaryDateTimeInputSwitchRowTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-021 끄기 전환 중 기간 선택 항목은 비활성화되고 완료 후 사라진다`() {
+    fun `TC-6f351d2a-32ef-4c38-a105-403cc0b1e90e 끄기 전환 중 기간 선택 항목은 비활성화되고 완료 후 사라진다`() {
         composeRule.mainClock.autoAdvance = false
         setDiaryDateTimeInput(initialValue = allDayValue())
 

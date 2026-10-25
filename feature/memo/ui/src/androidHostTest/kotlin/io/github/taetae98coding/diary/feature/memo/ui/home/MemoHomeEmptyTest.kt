@@ -55,7 +55,7 @@ class MemoHomeEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-041 필터를 적용하지 않았는데 표시할 메모가 없으면 아직 메모가 없음을 알린다`() {
+    fun `TC-48ab2da7-8834-4aed-8d71-edecd7a2abe3 필터를 적용하지 않았는데 표시할 메모가 없으면 아직 메모가 없음을 알린다`() {
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -65,7 +65,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-041 선택한 태그가 모두 판정에서 무시되고 있으면 아직 메모가 없음을 알린다`() {
+    fun `TC-48ab2da7-8834-4aed-8d71-edecd7a2abe3 선택한 태그가 모두 판정에서 무시되고 있으면 아직 메모가 없음을 알린다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())),
@@ -78,7 +78,7 @@ class MemoHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-041 한국어 환경에서 빈 상태 안내는 아직 메모가 없습니다이다`() {
+    fun `TC-48ab2da7-8834-4aed-8d71-edecd7a2abe3 한국어 환경에서 빈 상태 안내는 아직 메모가 없습니다이다`() {
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -86,7 +86,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-042 필터를 적용한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
+    fun `TC-81c9e74a-735a-4d32-ad00-4a760300e14d 필터를 적용한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
@@ -100,7 +100,7 @@ class MemoHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-042 한국어 환경에서 필터 빈 상태 안내는 조건에 맞는 메모가 없습니다이다`() {
+    fun `TC-81c9e74a-735a-4d32-ad00-4a760300e14d 한국어 환경에서 필터 빈 상태 안내는 조건에 맞는 메모가 없습니다이다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
@@ -111,7 +111,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-042 유무 필터의 한 축이 없음인 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
+    fun `TC-81c9e74a-735a-4d32-ad00-4a760300e14d 유무 필터의 한 축이 없음인 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.NOT_EXIST)),
@@ -123,7 +123,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-042 태그를 하나 이상 선택한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
+    fun `TC-81c9e74a-735a-4d32-ad00-4a760300e14d 태그를 하나 이상 선택한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
@@ -136,7 +136,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-071 처음 불러오기에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 처음 불러오기에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
         setMemoHomeScaffold(
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
@@ -152,7 +152,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-071 이어서 불러오기에 실패해도 앞서 불러온 메모를 그대로 표시한다`() {
+    fun `TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 이어서 불러오기에 실패해도 앞서 불러온 메모를 그대로 표시한다`() {
         setMemoHomeScaffold(
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
@@ -170,14 +170,14 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-043 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-c5c17316-ff60-45f8-8d73-0487e9937cd0 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setMemoHomeScaffold(MutableStateFlow(loadingMemoPagingData()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-045 빈 상태에서도 메모 추가와 필터 열기, 완료된 메모 확인을 실행할 수 있다`() {
+    fun `TC-fe0ce52b-a27a-4183-b061-0ccfbc8635f2 빈 상태에서도 메모 추가와 필터 열기, 완료된 메모 확인을 실행할 수 있다`() {
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -187,7 +187,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-048 빈 상태에서도 검색을 실행할 수 있다`() {
+    fun `TC-06c46da4-a520-44eb-aa94-8b95d6eaea02 빈 상태에서도 검색을 실행할 수 있다`() {
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -195,7 +195,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-048 필터를 적용해 두어도 검색을 실행할 수 있다`() {
+    fun `TC-06c46da4-a520-44eb-aa94-8b95d6eaea02 필터를 적용해 두어도 검색을 실행할 수 있다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
@@ -224,7 +224,7 @@ class MemoHomeEmptyTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-046 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
+    fun `TC-12aefeb2-393e-4408-afc9-94e251e7d209 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
         val eventList = mutableListOf<MemoListEvent>()
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())), onMemoListEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

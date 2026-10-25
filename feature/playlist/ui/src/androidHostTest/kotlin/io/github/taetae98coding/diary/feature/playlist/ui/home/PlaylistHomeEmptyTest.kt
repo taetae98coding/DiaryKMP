@@ -33,7 +33,7 @@ class PlaylistHomeEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-005 표시할 곡이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-065ffe79-0e09-4324-9846-5eea384fdcbc 표시할 곡이 없으면 빈 상태 안내를 표시한다`() {
         setPlaylistHomeScaffold(pagingData = musicPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -43,7 +43,7 @@ class PlaylistHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLAYLIST-HOME-FEATURE-005 한국어 환경에서 빈 상태 안내는 아직 곡이 없습니다이다`() {
+    fun `TC-065ffe79-0e09-4324-9846-5eea384fdcbc 한국어 환경에서 빈 상태 안내는 아직 곡이 없습니다이다`() {
         setPlaylistHomeScaffold(pagingData = musicPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -51,7 +51,7 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-005 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-065ffe79-0e09-4324-9846-5eea384fdcbc 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setPlaylistHomeScaffold(pagingData = loadingMusicPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
@@ -59,7 +59,7 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-005 표시할 곡이 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-065ffe79-0e09-4324-9846-5eea384fdcbc 표시할 곡이 있으면 빈 상태 안내를 표시하지 않는다`() {
         setPlaylistHomeScaffold(pagingData = musicPagingDataOf(listOf(testMusic(title = MUSIC_TITLE))))
 
         composeRule.onNodeWithTag(MUSIC_CARD_TEST_TAG, useUnmergedTree = true).assertExists()
@@ -67,7 +67,7 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-021 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
+    fun `TC-8e7af4ed-f007-498f-8e92-5d1c37f8dd36 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
         val snackbarHostState = SnackbarHostState()
         setPlaylistHomeScaffold(pagingData = failedMusicPagingData(), snackbarHostState = snackbarHostState)
 
@@ -79,7 +79,7 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-007 빈 상태에서도 곡 추가를 실행할 수 있다`() {
+    fun `TC-c62f2338-dfec-4021-8341-aae0a303fe5f 빈 상태에서도 곡 추가를 실행할 수 있다`() {
         setPlaylistHomeScaffold(pagingData = musicPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -87,7 +87,7 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-007 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
+    fun `TC-c62f2338-dfec-4021-8341-aae0a303fe5f 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(pagingData = musicPagingDataOf(emptyList()), onEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

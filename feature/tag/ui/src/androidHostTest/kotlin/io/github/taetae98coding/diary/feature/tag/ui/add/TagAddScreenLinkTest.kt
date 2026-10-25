@@ -49,7 +49,7 @@ class TagAddScreenLinkTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-004 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
+    fun `TC-88e17216-d82b-4fba-bc3c-3d682a799802 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setTagAddScreen(tagList = tagList)
 
@@ -62,7 +62,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-024 나타낼 태그가 없으면 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+    fun `TC-5cd7e2ee-a6d8-4732-bfcc-bddf8f95b97f 나타낼 태그가 없으면 태그 연결 칩이 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setTagAddScreen(tagList = emptyList(), navigateToTagAdd = { tagAddCount += 1 })
 
@@ -74,7 +74,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-008 목록에서 태그 두 개를 누르면 목록과 연결 입력에 연결 상태로 표시된다`() {
+    fun `TC-04ae832a-16cf-443d-95d6-5f9542e39b50 목록에서 태그 두 개를 누르면 목록과 연결 입력에 연결 상태로 표시된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setTagAddScreen(tagList = tagList)
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
@@ -92,7 +92,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-010 목록을 닫아도 반영된 연결이 유지된다`() {
+    fun `TC-47150a56-3dac-484c-87ac-c33819a906d2 목록을 닫아도 반영된 연결이 유지된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setTagAddScreen(tagList = tagList)
 
@@ -104,7 +104,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-019 연결을 골라도 태그 추가를 실행하지 않는다`() {
+    fun `TC-e0cd2aba-795d-4a3a-9505-48c1e8f508fa 연결을 골라도 태그 추가를 실행하지 않는다`() {
         val viewModel = screenTestViewModel()
         setTagAddScreen(viewModel = viewModel, tagList = listOf(testTag(title = WORK_TAG_TITLE)))
 
@@ -115,7 +115,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-020 추가에 성공하면 고른 연결도 비운다`() {
+    fun `TC-5abbd749-b478-4bf4-bc7a-41acac60d31a 추가에 성공하면 고른 연결도 비운다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         every { viewModel.add(any(), any()) } answers {
@@ -133,7 +133,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-010 제목 미입력으로 추가를 실행해도 고른 연결은 유지된다`() {
+    fun `TC-6061009f-577f-4c8a-9cb8-59f2cab8e788 제목 미입력으로 추가를 실행해도 고른 연결은 유지된다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState())
@@ -152,7 +152,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-020 추가에 성공하면 고른 연결의 식별자도 비운다`() {
+    fun `TC-5abbd749-b478-4bf4-bc7a-41acac60d31a 추가에 성공하면 고른 연결의 식별자도 비운다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState())
@@ -172,7 +172,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-013 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
+    fun `TC-72077241-16d8-492a-9b3a-64a92fb39eb5 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
         val tagList = List(PICKER_TAG_COUNT) { index -> testTag(title = pickerTagTitle(index)) }
         setTagAddScreen(tagList = tagList)
 
@@ -186,7 +186,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-016 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+    fun `TC-ec4d1b72-6c08-45d8-bfa8-f2793d76a923 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
         val tagList = List(PICKER_TAG_COUNT) { index -> testTag(title = pickerTagTitle(index)) }
         setTagAddScreen(tagList = tagList)
 
@@ -204,7 +204,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-017 화면이 재생성되어도 태그 선택 목록이 열린 상태로 유지된다`() {
+    fun `TC-e351aa15-416e-4c06-828d-9ad5f4660b72 화면이 재생성되어도 태그 선택 목록이 열린 상태로 유지된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE))
         val viewModel = screenTestViewModel()
         val linkViewModel = linkViewModel(tagList = tagList)
@@ -234,7 +234,7 @@ class TagAddScreenLinkTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-011 태그 칩을 누르면 그 태그의 상세로 이동한다`() {
+    fun `TC-495d3d3e-6c64-4c35-b241-a5580fa83fd6 태그 칩을 누르면 그 태그의 상세로 이동한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setTagAddScreen(tagList = listOf(tag), navigateToDetail = navigatedIdList::add)

@@ -16,7 +16,7 @@ private val SEOUL: TimeZone = TimeZone.of("Asia/Seoul")
 
 class QrActionTest :
     FunSpec({
-        test("TC-QR-DETAIL-DOMAIN-008 QR 값의 포맷과 내용으로 실행 동작을 정한다") {
+        test("TC-ae5b2fc2-3b3b-45e7-ab39-d4e04f78cd11 QR 값의 포맷과 내용으로 실행 동작을 정한다") {
             val caseList: List<Pair<String, KClass<out QrAction>>> =
                 listOf(
                     "https://example.com" to QrAction.OpenUrl::class,
@@ -42,7 +42,7 @@ class QrActionTest :
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-008 실행 동작은 QR 값에서 읽은 내용을 담는다") {
+        test("TC-ae5b2fc2-3b3b-45e7-ab39-d4e04f78cd11 실행 동작은 QR 값에서 읽은 내용을 담는다") {
             val caseList: List<Pair<String, QrAction>> =
                 listOf(
                     "https://example.com/a?b=1" to QrAction.OpenUrl(url = "https://example.com/a?b=1"),
@@ -59,7 +59,7 @@ class QrActionTest :
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-008 연락처 실행 동작은 연락처 입력과 QR 값 전체를 담는다") {
+        test("TC-ae5b2fc2-3b3b-45e7-ab39-d4e04f78cd11 연락처 실행 동작은 연락처 입력과 QR 값 전체를 담는다") {
             val raw =
                 lines(
                     "BEGIN:VCARD",
@@ -84,7 +84,7 @@ class QrActionTest :
                 )
         }
 
-        test("TC-QR-DETAIL-DOMAIN-009 실행할 수 있는 조건을 만족하지 않으면 실행 동작이 없다") {
+        test("TC-74728975-4ecd-4eed-a44b-f4bef5ac89ad 실행할 수 있는 조건을 만족하지 않으면 실행 동작이 없다") {
             val rawList =
                 listOf(
                     "",
@@ -106,13 +106,13 @@ class QrActionTest :
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-010 넘기는 글자 값은 앞뒤 공백을 지우고 Wi-Fi 이름과 비밀번호는 그대로 둔다") {
+        test("TC-a18051d4-fe9a-47e2-ae55-61fa4acd7ff4 넘기는 글자 값은 앞뒤 공백을 지우고 Wi-Fi 이름과 비밀번호는 그대로 둔다") {
             qrActionOf(raw = "SMSTO: 010 : hi ", timeZone = SEOUL) shouldBe QrAction.SendSms(phoneNumber = "010", message = "hi")
             qrActionOf(raw = "WIFI:S: home ;P: pass word ;;", timeZone = SEOUL) shouldBe
                 QrAction.JoinWifi(ssid = " home ", security = QrWifiSecurity.NONE, password = " pass word ", isHidden = false)
         }
 
-        test("TC-QR-DETAIL-DOMAIN-011 일정의 기간은 QR 값의 시간대 표기로 해석한다") {
+        test("TC-6e70a5d9-9249-4272-af24-31c5e5aab85c 일정의 기간은 QR 값의 시간대 표기로 해석한다") {
             val start = LocalDateTime(year = 2026, month = 10, day = 14, hour = 9, minute = 0)
             val end = LocalDateTime(year = 2026, month = 10, day = 14, hour = 10, minute = 0)
             val caseList: List<Pair<List<String>, QrEventSchedule?>> =
@@ -143,7 +143,7 @@ class QrActionTest :
             }
         }
 
-        test("TC-QR-DETAIL-DOMAIN-012 일정 파일은 달력 묶음으로 감싸 담는다") {
+        test("TC-a18e0a1c-fd01-4b30-8398-f52208db974a 일정 파일은 달력 묶음으로 감싸 담는다") {
             val event = lines("BEGIN:VEVENT", "SUMMARY:회의", "END:VEVENT")
             val calendar = lines("BEGIN:VCALENDAR", "BEGIN:VEVENT", "SUMMARY:회의", "END:VEVENT", "END:VCALENDAR")
             val caseList =

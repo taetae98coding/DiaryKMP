@@ -41,7 +41,7 @@ class PagePlaceMemoUseCaseTest :
             val useCase = PagePlaceMemoUseCase(getAccountUseCase = getAccountUseCase, accountPlaceMemoRepository = repository)
 
             When("대상 장소의 메모 페이지를 조회한다") {
-                Then("TC-PLACE-DETAIL-MEMO-DATA-001 현재 계정과 대상 장소의 메모 페이지를 반환한다") {
+                Then("TC-21aab824-34c2-40e0-83cc-c863eb73a142 현재 계정과 대상 장소의 메모 페이지를 반환한다") {
                     useCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()

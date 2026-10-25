@@ -41,7 +41,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class HolidayVisibilityDataTest :
     FunSpec({
-        test("TC-HOLIDAY-VISIBILITY-DATA-001 숨김으로 고른 공휴일은 이후 조회에서 제외된다") {
+        test("TC-f78d63e6-cf9e-45d2-bdc4-7cabe36dbbf5 숨김으로 고른 공휴일은 이후 조회에서 제외된다") {
             val context = holidayVisibilityTestContext(holidayList = standardHolidayList())
 
             context.settingRepository.addHiddenKey(key = MIDSUMMER_DAY)
@@ -53,7 +53,7 @@ class HolidayVisibilityDataTest :
                 .map { holiday -> holiday.name } shouldBe listOf(CONSTITUTION_DAY)
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-002 노출로 되돌린 공휴일은 다시 제공된다") {
+        test("TC-f31ab00e-4ed7-4b72-9a63-cbc86a39a8cb 노출로 되돌린 공휴일은 다시 제공된다") {
             val context =
                 holidayVisibilityTestContext(
                     holidayList = standardHolidayList(),
@@ -69,7 +69,7 @@ class HolidayVisibilityDataTest :
                 .map { holiday -> holiday.name } shouldBe listOf(CONSTITUTION_DAY, MIDSUMMER_DAY)
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-003 여러 key를 숨기면 각각 제외된다") {
+        test("TC-ccce44b0-5392-48fc-bdf2-8a344aa23b94 여러 key를 숨기면 각각 제외된다") {
             val context =
                 holidayVisibilityTestContext(
                     holidayList =
@@ -91,7 +91,7 @@ class HolidayVisibilityDataTest :
                 .map { holiday -> holiday.name } shouldBe listOf(CONSTITUTION_DAY)
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-004 조회 중에 노출 설정이 바뀌면 이어서 새 결과를 제공한다") {
+        test("TC-176127a1-5d2b-4d9e-ab70-e87a3846b96e 조회 중에 노출 설정이 바뀌면 이어서 새 결과를 제공한다") {
             val context = holidayVisibilityTestContext(holidayList = standardHolidayList())
 
             context.getCalendarHolidayUseCase(parameter = YEAR).test {
@@ -105,7 +105,7 @@ class HolidayVisibilityDataTest :
             }
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-007 어느 공휴일에도 없는 key를 숨겨도 조회 결과가 달라지지 않는다") {
+        test("TC-a69e6d89-ef78-4f4b-b545-7c4f8634f8d2 어느 공휴일에도 없는 key를 숨겨도 조회 결과가 달라지지 않는다") {
             val context =
                 holidayVisibilityTestContext(
                     holidayList = listOf(holiday(name = CONSTITUTION_DAY, day = 17)),
@@ -121,7 +121,7 @@ class HolidayVisibilityDataTest :
             }
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-009 노출 설정을 바꿔도 저장된 공휴일은 바뀌지 않는다") {
+        test("TC-76c20940-0ec9-4889-92fe-29096b4beefa 노출 설정을 바꿔도 저장된 공휴일은 바뀌지 않는다") {
             val holidayList = standardHolidayList()
             val context = holidayVisibilityTestContext(holidayList = holidayList)
 
@@ -132,7 +132,7 @@ class HolidayVisibilityDataTest :
                 .first() shouldBe holidayList.map { local -> local.toDomain() }
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-010 저장된 공휴일이 교체되어도 노출 설정은 유지된다") {
+        test("TC-132fef1b-6efe-481f-9398-ac05f6f86f36 저장된 공휴일이 교체되어도 노출 설정은 유지된다") {
             val context =
                 holidayVisibilityTestContext(
                     holidayList = standardHolidayList(),
@@ -154,7 +154,7 @@ class HolidayVisibilityDataTest :
             }
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-011 숨김 key 집합을 교체하면 기존 값과 중간 상태가 남지 않는다") {
+        test("TC-34fc4228-f3b0-4c8a-a51e-a51d7e8bc29f 숨김 key 집합을 교체하면 기존 값과 중간 상태가 남지 않는다") {
             val currentHiddenKey = MIDSUMMER_DAY
             val staleHiddenKey = uniqueKey(label = "stale")
             val initialHiddenKeySet = setOf(currentHiddenKey, staleHiddenKey)
@@ -189,7 +189,7 @@ class HolidayVisibilityDataTest :
             }
         }
 
-        test("TC-HOLIDAY-VISIBILITY-DATA-013 변경 대상이 아닌 숨김 key는 유지한다") {
+        test("TC-a4aff66e-4c74-43de-a63f-8a1abc762e23 변경 대상이 아닌 숨김 key는 유지한다") {
             val absentKey = "캐시에없는이름"
             val context =
                 holidayVisibilityTestContext(

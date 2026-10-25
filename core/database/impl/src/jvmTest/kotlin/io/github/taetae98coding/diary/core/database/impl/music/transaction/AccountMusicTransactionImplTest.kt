@@ -62,7 +62,7 @@ class AccountMusicTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountMusic() } }
             }
 
-        test("TC-MUSIC-ADD-DATA-001 TC-MUSIC-ADD-DATA-005 TC-DATA-SYNC-DOMAIN-001 곡과 현재 계정의 연결을 업로드 대기 상태로 함께 저장한다") {
+        test("TC-ac78be66-5451-4c54-931a-4eea0f82ea47 TC-acdaeb38-f121-43e5-aa28-9ca82631e309 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 곡과 현재 계정의 연결을 업로드 대기 상태로 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
 
@@ -79,7 +79,7 @@ class AccountMusicTransactionImplTest :
                 )
         }
 
-        test("TC-MUSIC-ADD-DOMAIN-005 TC-MUSIC-ADD-DOMAIN-006 TC-MUSIC-ADD-DATA-007 제목, 가수, 링크와 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
+        test("TC-2a643d2a-9044-4be0-b647-f5d008f01fee TC-f0597753-436f-4f25-907b-21e0dd93d4d2 TC-9e545317-6c86-45ac-9268-965e60c49464 제목, 가수, 링크와 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val music =
@@ -101,7 +101,7 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
-        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 TC-MUSIC-ADD-DATA-011 TC-DATA-SYNC-DOMAIN-001 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
+        test("TC-393c5421-cb22-450f-b102-c98a17e85378 TC-5244b211-1fe9-414b-a74c-5e5544ce300d TC-771d2727-6089-43b8-a3c4-2b6862717fbc TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -115,7 +115,7 @@ class AccountMusicTransactionImplTest :
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-007 TC-MUSIC-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남기며 업로드 대기로 기록한다") {
+        test("TC-7e5891e2-ca05-4152-8ec5-3bf1da163337 TC-ada1aa84-9a6e-4ccb-b510-03a7a59bdf13 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남기며 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -128,7 +128,7 @@ class AccountMusicTransactionImplTest :
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 삭제의 실행 취소는 삭제 여부를 미삭제로 되돌리고 업로드 대기로 기록한다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제의 실행 취소는 삭제 여부를 미삭제로 되돌리고 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music().copy(isDeleted = true)
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -141,7 +141,7 @@ class AccountMusicTransactionImplTest :
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 
-        test("TC-MUSIC-DETAIL-DATA-004 현재 계정과 대상 식별자를 만족하는 곡이 없으면 아무것도 바꾸지 않는다") {
+        test("TC-a5f0997c-cc0b-4266-a1ed-79d955a12c09 현재 계정과 대상 식별자를 만족하는 곡이 없으면 아무것도 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
@@ -158,7 +158,7 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
-        test("TC-MUSIC-ADD-DATA-003 곡을 추가해도 이미 저장된 곡은 덮어쓰이지 않는다") {
+        test("TC-ddc6c020-3b1c-4173-beb4-733fa11596df 곡을 추가해도 이미 저장된 곡은 덮어쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val savedMusic = music()
             val addedMusic =
@@ -178,7 +178,7 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(savedMusic, addedMusic).sortedBy { music -> music.id.toString() }
         }
 
-        test("TC-MUSIC-ADD-DATA-004 저장에 실패하면 곡과 계정 연결 중 어느 것도 남지 않는다") {
+        test("TC-9ff7cfb6-4805-4bd7-b69a-f1f1539d8486 저장에 실패하면 곡과 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())

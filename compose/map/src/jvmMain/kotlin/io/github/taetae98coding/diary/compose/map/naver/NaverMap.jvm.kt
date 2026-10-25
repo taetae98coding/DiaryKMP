@@ -25,6 +25,7 @@ internal actual fun NaverMap(
             )
         },
         modifier = modifier,
+        baseUrl = NAVER_MAP_BASE_URL,
         state = state,
         onSpotClick = onSpotClick,
         onPinClick = onPinClick,

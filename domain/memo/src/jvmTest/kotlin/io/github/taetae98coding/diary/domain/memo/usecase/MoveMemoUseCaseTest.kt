@@ -69,7 +69,7 @@ class MoveMemoUseCaseTest :
                 )
 
             When("종일 기간을 새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DATA-001 옮겨진 기간과 수정 시각이 저장되어 기존 값을 덮어쓴다") {
+                Then("TC-76b0ed36-7f4f-4ae5-882d-bee6704848f7 옮겨진 기간과 수정 시각이 저장되어 기존 값을 덮어쓴다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 21)..july(day = 23)
 
@@ -80,7 +80,7 @@ class MoveMemoUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-005 기간 외의 저장된 내용은 바뀌지 않는다") {
+                Then("TC-38cce223-e1eb-4114-bbaf-687a246129c4 기간 외의 저장된 내용은 바뀌지 않는다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 16)..july(day = 18)
 
@@ -96,7 +96,7 @@ class MoveMemoUseCaseTest :
                     confirmVerified(accountMemoRepository)
                 }
 
-                Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-003 저장된 기간과 다르더라도 파라미터로 받은 이동 시작 시점의 기간을 기준으로 저장한다") {
+                Then("TC-484aef02-5606-47dc-a542-3c24a3b95f02 저장된 기간과 다르더라도 파라미터로 받은 이동 시작 시점의 기간을 기준으로 저장한다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 21)..july(day = 23)
 
@@ -106,7 +106,7 @@ class MoveMemoUseCaseTest :
                     detailSlot.captured.dateTime shouldBe MemoDateTime.AllDay(dateRange = july(day = 21)..july(day = 23))
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CALENDAR-MEMO-MOVE-DATA-003 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-2e31b168-4225-4335-9184-64ffab9ae811 저장 후 동기화를 한 번 요청한다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 15)..july(day = 17)
 
@@ -121,7 +121,7 @@ class MoveMemoUseCaseTest :
             }
 
             When("시각이 있는 기간을 새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-002 시각을 그대로 유지한 채 날짜만 바뀐다") {
+                Then("TC-df203968-ed19-4687-b1bc-e1ad1b912840 시각을 그대로 유지한 채 날짜만 바뀐다") {
                     val dateTime =
                         MemoDateTime.DateTime(
                             start = LocalDateTime(date = july(day = 14), time = LocalTime(hour = 10, minute = 0)),
@@ -168,7 +168,7 @@ class MoveMemoUseCaseTest :
                 )
 
             When("새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-001 완료된 메모도 기간이 저장되고 완료 상태는 바꾸지 않는다") {
+                Then("TC-1f774dde-4798-4d35-a43b-77341c9e81c5 완료된 메모도 기간이 저장되고 완료 상태는 바꾸지 않는다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 16)..july(day = 18)
 
@@ -211,7 +211,7 @@ class MoveMemoUseCaseTest :
                 )
 
             When("새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DATA-004 옮긴 기간만 한 번 저장되고 이전 기간으로 되돌리지 않는다") {
+                Then("TC-e477b826-b7ca-46c1-8e57-46b3ca303291 옮긴 기간만 한 번 저장되고 이전 기간으로 되돌리지 않는다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 21)..july(day = 23)
 
@@ -254,7 +254,7 @@ class MoveMemoUseCaseTest :
                 )
 
             When("새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-004 기간 변경을 반영하지 않는다") {
+                Then("TC-d7a5b656-330b-49d5-8b26-82b0cc8aa196 기간 변경을 반영하지 않는다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 21)..july(day = 23)
 
@@ -329,7 +329,7 @@ class MoveMemoUseCaseTest :
                 )
 
             When("새 날짜 범위로 이동한다") {
-                Then("TC-CALENDAR-MEMO-MOVE-DATA-002 저장 실패를 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-6e98ce37-5a22-4e13-8965-bda526b869a6 저장 실패를 전달하고 동기화를 요청하지 않는다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 21)..july(day = 23)
 

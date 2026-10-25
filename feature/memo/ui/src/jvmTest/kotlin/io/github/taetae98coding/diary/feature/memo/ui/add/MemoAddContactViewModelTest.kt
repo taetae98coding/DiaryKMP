@@ -52,7 +52,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+        test("TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = contact()
                 val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
@@ -68,7 +68,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-018 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-ddb403b9-f61c-409a-8a89-ebe7cdc2066c 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { contact() }
@@ -138,7 +138,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-063 ContactDetail 메모 탭에서 진입하면 그 연락처만 선택된 상태로 시작한다") {
+        test("TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 ContactDetail 메모 탭에서 진입하면 그 연락처만 선택된 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val target = contact()
                 val other = contact()
@@ -158,7 +158,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-064 ContactDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+        test("TC-8a446cb3-f4b7-4dde-aed0-222187c3edba ContactDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = contact()
                 val other = contact()
@@ -182,7 +182,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 연락처는 ContactDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+        test("TC-05cb9f46-4a6a-4410-85cd-379e6994e718 삭제된 대상 연락처는 ContactDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val deletedTarget = contact()
                 val viewModel =
@@ -200,7 +200,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-059 진입하면 선택한 연락처가 없는 상태로 시작한다") {
+        test("TC-0d27e1ff-ec0c-40d1-9c9b-74dd1b465ad2 진입하면 선택한 연락처가 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val contactList = listOf(contact(), contact())
                 val viewModel =
@@ -218,7 +218,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-011 TC-MEMO-CONTACT-INPUT-FEATURE-012 선택한 연락처를 즉시 노출하고 해제하면 즉시 제외한다") {
+        test("TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b TC-58e3a6fc-fec5-48dd-ae63-a332532ae678 선택한 연락처를 즉시 노출하고 해제하면 즉시 제외한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(contact))))
@@ -242,7 +242,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-013 한 번에 여러 연락처를 선택할 수 있다") {
+        test("TC-6e297fd3-569e-4470-a09c-1942b49371ae 한 번에 여러 연락처를 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val firstContact = contact()
                 val secondContact = contact()
@@ -260,7 +260,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-061 화면 구성이 변경되어도 선택한 연락처를 유지한다") {
+        test("TC-d2f46b63-2ba8-4962-9a0e-816a91fcf3f6 화면 구성이 변경되어도 선택한 연락처를 유지한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(contact))))
@@ -284,7 +284,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-014 선택한 연락처가 삭제되면 선택에서 제외된 것으로 표시된다") {
+        test("TC-2bef38d2-4eb0-43b3-94df-a8cfd1f5647e 선택한 연락처가 삭제되면 선택에서 제외된 것으로 표시된다") {
             runTest(mainDispatcher) {
                 val remainingContact = contact()
                 val removedContact = contact()
@@ -307,7 +307,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-022 선택한 뒤 삭제된 연락처도 선택으로 남는다") {
+        test("TC-9a7affe5-2910-408a-83fe-444074531be9 선택한 뒤 삭제된 연락처도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val remainingContact = contact()
                 val deletedContact = contact()
@@ -329,7 +329,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-014 자동 선택된 연락처의 선택을 해제하면 다시 선택되지 않는다") {
+        test("TC-3c6a9cc3-e5bc-4f92-9402-cde2099232a8 자동 선택된 연락처의 선택을 해제하면 다시 선택되지 않는다") {
             runTest(mainDispatcher) {
                 val addedContact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(addedContact))))
@@ -350,7 +350,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-5cb7fa61-7251-43d0-b0d9-b66a9afb557f 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allContactList = List(2) { contact() }
                 val matchedContactList = listOf(allContactList.first())
@@ -371,7 +371,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-012 검색어를 바꿔도 연락처 입력에 표시하는 연락처는 그대로다") {
+        test("TC-d8c8b522-d00e-4be8-a134-efb66f75449d 검색어를 바꿔도 연락처 입력에 표시하는 연락처는 그대로다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(contact))))

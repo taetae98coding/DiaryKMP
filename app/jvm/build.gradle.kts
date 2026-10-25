@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.primitive.kotlin)
     alias(libs.plugins.primitive.compose)
-    alias(libs.plugins.dependency.guard)
 }
 
 private val buildKonfigFlavor = providers.gradleProperty("buildkonfig.flavor").orElse("dev")
@@ -74,8 +73,4 @@ compose.desktop {
 
 tasks.withType<JavaExec>().matching { it.name == "hotRunJvm" }.configureEach {
     jvmArgs(runJvmArgs)
-}
-
-dependencyGuard {
-    configuration("jvmRuntimeClasspath")
 }

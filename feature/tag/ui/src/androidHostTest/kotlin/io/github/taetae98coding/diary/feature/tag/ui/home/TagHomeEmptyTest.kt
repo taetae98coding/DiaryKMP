@@ -46,7 +46,7 @@ class TagHomeEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-018 표시할 태그가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-7772e11c-7ff7-48bd-8abd-e11e6f30c339 표시할 태그가 없으면 빈 상태 안내를 표시한다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -56,7 +56,7 @@ class TagHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-018 한국어 환경에서 빈 상태 안내는 아직 태그가 없습니다이다`() {
+    fun `TC-7772e11c-7ff7-48bd-8abd-e11e6f30c339 한국어 환경에서 빈 상태 안내는 아직 태그가 없습니다이다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -64,7 +64,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-019 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-671b4d36-5062-47c5-aae5-78192dd0c1d9 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setTagHomeScaffold(pagingData = loadingTagPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
@@ -72,7 +72,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-020 표시할 태그가 있으면 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-3632b227-178b-4a01-89e2-d06f3fb9c460 표시할 태그가 있으면 빈 상태 안내를 표시하지 않는다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(listOf(tag(title = TAG_TITLE))))
 
         composeRule.onNodeWithTag(TAG_CARD_TEST_TAG, useUnmergedTree = true).assertExists()
@@ -80,7 +80,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-022 목록을 조회하지 못하면 빈 상태 안내를 표시한다`() {
+    fun `TC-22b0dbed-14e3-409e-9b1f-a02e2ff0df05 목록을 조회하지 못하면 빈 상태 안내를 표시한다`() {
         setTagHomeScaffold(pagingData = failedTagPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -88,7 +88,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-038 이어서 불러오지 못해도 이미 보이는 태그를 그대로 둔다`() {
+    fun `TC-3fdaec2b-1986-4602-b277-4613a60d9aaf 이어서 불러오지 못해도 이미 보이는 태그를 그대로 둔다`() {
         setTagHomeScaffold(
             pagingData =
                 PagingData.from(
@@ -107,7 +107,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-021 빈 상태에서도 태그 추가와 완료된 태그 확인을 실행할 수 있다`() {
+    fun `TC-3c2cd635-b122-4b4f-9e78-c604eceb6a3f 빈 상태에서도 태그 추가와 완료된 태그 확인을 실행할 수 있다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -116,7 +116,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-025 빈 상태에서도 검색을 실행할 수 있다`() {
+    fun `TC-eb7a7743-a787-48f5-af7f-f09d58a20fd7 빈 상태에서도 검색을 실행할 수 있다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -138,7 +138,7 @@ class TagHomeEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-023 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
+    fun `TC-7da1b654-94eb-464f-a222-ed85c7e55448 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
         val eventList = mutableListOf<TagHomeScaffoldEvent>()
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()), onEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()

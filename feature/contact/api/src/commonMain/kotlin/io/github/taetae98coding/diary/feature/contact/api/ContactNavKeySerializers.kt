@@ -7,4 +7,5 @@ public fun PolymorphicModuleBuilder<ScreenNavKey>.contactNavKeys() {
     subclass(ContactHomeNavKey::class, ContactHomeNavKey.serializer())
     subclass(ContactAddNavKey::class, ContactAddNavKey.serializer())
     subclass(ContactDetailNavKey::class, ContactDetailNavKey.serializer())
+    subclass(ContactMemoFinishedListNavKey::class, ContactMemoFinishedListNavKey.serializer())
 }

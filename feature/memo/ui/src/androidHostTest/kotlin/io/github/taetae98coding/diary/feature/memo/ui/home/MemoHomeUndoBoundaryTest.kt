@@ -47,7 +47,7 @@ class MemoHomeUndoBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-075 안내가 보이는 동안 화면이 재생성되면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-3d292bef-5de8-4ab7-b0e5-9ed63652fd5e 안내가 보이는 동안 화면이 재생성되면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = fixtureMonkey.memo(title = MEMO_TITLE)
         val viewModel = viewModel(memo = memo)
         val restorationTester = StateRestorationTester(composeRule)
@@ -63,7 +63,7 @@ class MemoHomeUndoBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-076 안내가 보이는 동안 앱이 백그라운드에 다녀와도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-43c0f892-e929-4317-9cc9-ce4674b164e6 안내가 보이는 동안 앱이 백그라운드에 다녀와도 안내가 남고 실행 취소할 수 있다`() {
         val memo = fixtureMonkey.memo(title = MEMO_TITLE)
         val viewModel = viewModel(memo = memo)
         composeRule.setContent { Home(viewModel = viewModel) }
@@ -79,6 +79,27 @@ class MemoHomeUndoBoundaryTest {
         composeRule.waitForIdle()
 
         verify(exactly = 1) { viewModel.restart(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-42079533-47ce-41c2-89aa-502d7c995b10 마지막 메모를 완료하면 빈 상태 안내가 나타나고 실행 취소하면 사라진다`() {
+        val memo = fixtureMonkey.memo(title = MEMO_TITLE)
+        val viewModel = storedListViewModel(memo = memo)
+        composeRule.setContent { Home(viewModel = viewModel) }
+        finishMemo()
+
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_EMPTY_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
+
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
     }
 
     @Composable
@@ -120,10 +141,28 @@ class MemoHomeUndoBoundaryTest {
         return viewModel
     }
 
+    // 완료와 실행 취소가 기기에 저장된 목록을 바꾸는 것처럼, 완료하면 목록을 비우고 실행 취소하면 메모를 되돌린다.
+    private fun storedListViewModel(memo: Memo): MemoHomeViewModel {
+        val effectChannel = Channel<MemoListEffect>(capacity = Channel.BUFFERED)
+        val storedPagingData = MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
+        val viewModel = mockk<MemoHomeViewModel>()
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+        every { viewModel.memoPagingData } returns storedPagingData
+        every { viewModel.filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
+        every { viewModel.effect } returns effectChannel.receiveAsFlow()
+        every { viewModel.finish(id = memo.id) } answers {
+            storedPagingData.value = memoPagingDataOf(emptyList())
+            effectChannel.trySend(MemoListEffect.Finished(id = memo.id)).getOrThrow()
+        }
+        every { viewModel.restart(id = memo.id) } answers { storedPagingData.value = memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))) }
+        return viewModel
+    }
+
     private companion object {
         private const val MEMO_TITLE = "MemoHomeUndoBoundaryTitle"
         private const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         private const val DEFAULT_UNDO_ACTION = "Undo"
+        private const val DEFAULT_EMPTY_TITLE = "No memos yet"
         private const val TIMEOUT_MILLIS = 5_000L
 
         private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()

@@ -53,7 +53,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-048 조회한 태그 페이지와 선택 집합을 노출한다") {
+        test("TC-6f17aa62-bea3-43a3-8326-f74db698660a 조회한 태그 페이지와 선택 집합을 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = "Alpha"), tag(title = "Bravo"))
                 val selectedTagList = listOf(tagList.last())
@@ -146,7 +146,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-049 태그를 선택하면 그 태그가 선택된 것으로 표시된다") {
+        test("TC-a2875f01-2a62-49e3-9c26-8efdca098261 태그를 선택하면 그 태그가 선택된 것으로 표시된다") {
             runTest(mainDispatcher) {
                 val tag = tag(title = "Alpha")
                 val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
@@ -174,7 +174,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-051 마지막 태그의 선택을 해제하면 선택 표시가 사라진다") {
+        test("TC-c23ef9af-019a-4817-a559-2e8ed41cfc09 마지막 태그의 선택을 해제하면 선택 표시가 사라진다") {
             runTest(mainDispatcher) {
                 val tag = tag(title = "Alpha")
                 val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(tag)))
@@ -203,7 +203,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-096 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
+        test("TC-730b233f-1ecf-4d36-913e-3eb491287950 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val selectedTag = tag(title = fixtureMonkey.giveMeOne())
                 val unselectedTag = tag(title = fixtureMonkey.giveMeOne())
@@ -237,7 +237,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-095 TagAdd 화면에서 태그를 추가해도 추가한 태그는 필터에 선택되지 않는다") {
+        test("TC-a35e1483-802b-4acd-97a6-4f079a17b36b TagAdd 화면에서 태그를 추가해도 추가한 태그는 필터에 선택되지 않는다") {
             runTest(mainDispatcher) {
                 val selectedTag = tag(title = fixtureMonkey.giveMeOne())
                 val addedTag = tag(title = fixtureMonkey.giveMeOne())
@@ -267,7 +267,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-FEATURE-082 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
+        test("TC-efd8e7dc-b217-44f8-b3d8-64d62806ef15 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
                 val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
                 coEvery { unselectAllCalendarFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)

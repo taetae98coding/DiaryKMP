@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -36,6 +37,7 @@ import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -71,13 +73,13 @@ internal fun emptyGetGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
         every { useCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
     }
 
-internal fun thisYearGetGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
+internal fun thisYearGetGoldenHolidayUseCase(year: Int = YEAR): GetGoldenHolidayUseCase =
     mockk<GetGoldenHolidayUseCase>().also { useCase ->
         every { useCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
             val groupList =
-                if (parameter.year == YEAR) {
-                    listOf(thisYearGoldenHolidayGroup())
+                if (parameter.year == year) {
+                    listOf(thisYearGoldenHolidayGroup(year = year))
                 } else {
                     emptyList()
                 }
@@ -86,18 +88,21 @@ internal fun thisYearGetGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
         }
     }
 
-// 2026년 2월 5일 목요일 공휴일로 2월 5일부터 8일까지가 연휴다.
-private fun thisYearGoldenHolidayGroup(): GoldenHolidayGroup =
-    goldenHolidayGroup(
+// 2월 5일 공휴일로 2월 5일부터 8일까지가 연휴인 응답이다. 2026년이면 2월 5일이 목요일이라 실제 연휴와도 같다.
+private fun thisYearGoldenHolidayGroup(year: Int): GoldenHolidayGroup {
+    val start = LocalDate(year = year, month = Month.FEBRUARY, day = 5)
+
+    return goldenHolidayGroup(
         optionList =
             listOf(
                 goldenHoliday(
-                    holidayList = listOf(holiday(name = HOLIDAY_NAME, start = february(day = 5))),
-                    start = february(day = 5),
-                    endInclusive = february(day = 8),
+                    holidayList = listOf(holiday(name = HOLIDAY_NAME, start = start)),
+                    start = start,
+                    endInclusive = LocalDate(year = year, month = Month.FEBRUARY, day = 8),
                 ),
             ),
     )
+}
 
 // 2027년 2월 5일은 금요일이므로 2월 5일부터 7일까지가 연휴다.
 internal fun nextYearGoldenHolidayGroup(): GoldenHolidayGroup {
@@ -144,43 +149,56 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
     getGoldenHolidayUseCase: GetGoldenHolidayUseCase = emptyGetGoldenHolidayUseCase(),
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: (LocalDateRange) -> Unit = {},
-    lifecycleOwner: LifecycleOwner? = null,
+    lifecycleOwner: () -> LifecycleOwner? = { null },
     restorationTester: StateRestorationTester? = null,
+    launchCount: State<Int>? = null,
+    clock: Clock? = null,
 ) {
     val setContent: (@Composable () -> Unit) -> Unit = restorationTester?.let { tester -> tester::setContent } ?: this::setContent
+    // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로 테스트마다 새 소유자를 둔다.
+    // 화면 재생성은 구성만 다시 만들고 소유자는 넘겨받으므로 구성 바깥에 두고, 다시 진입하거나 다시 실행한 화면만 새 소유자를 받는다.
+    val viewModelStoreOwnerMap = mutableMapOf<Int?, ViewModelStoreOwner>()
 
+    // launchCount가 바뀌면 저장된 상태 없이 화면을 새로 구성해, 화면에 다시 진입하거나 앱을 다시 실행한 것처럼 만든다.
     setContent {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
-        // 테스트마다 새 소유자를 제공해 이전 테스트의 년도별 ViewModel이 재사용되지 않게 한다.
-        val viewModelStoreOwner =
-            remember {
-                object : ViewModelStoreOwner {
-                    override val viewModelStore: ViewModelStore = ViewModelStore()
+        key(launchCount?.value) {
+            val viewModelStoreOwner =
+                remember {
+                    viewModelStoreOwnerMap.getOrPut(launchCount?.value) {
+                        object : ViewModelStoreOwner {
+                            override val viewModelStore: ViewModelStore = ViewModelStore()
+                        }
+                    }
                 }
-            }
 
-        CompositionLocalProvider(
-            LocalViewModelStoreOwner provides viewModelStoreOwner,
-            LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
-        ) {
-            KoinApplication(
-                configuration =
-                    koinConfiguration {
-                        modules(holidayHomeYearViewModelModule(fetchHolidayUseCase, getGoldenHolidayUseCase))
-                    },
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides viewModelStoreOwner,
+                LocalLifecycleOwner provides (lifecycleOwner() ?: LocalLifecycleOwner.current),
             ) {
-                val state = rememberHolidayHomeScaffoldState(initialYear = YEAR)
+                KoinApplication(
+                    configuration =
+                        koinConfiguration {
+                            modules(holidayHomeYearViewModelModule(fetchHolidayUseCase, getGoldenHolidayUseCase))
+                        },
+                ) {
+                    val state =
+                        if (clock == null) {
+                            rememberHolidayHomeScaffoldState(initialYear = YEAR)
+                        } else {
+                            rememberHolidayHomeScaffoldState(clock = clock)
+                        }
 
-                ScrollToYearEffect(
-                    state = state,
-                    targetYear = targetYear,
-                )
-                DiaryTheme {
-                    HolidayHomeScreen(
-                        navigateUp = navigateUp,
-                        navigateToMemoAdd = navigateToMemoAdd,
+                    ScrollToYearEffect(
                         state = state,
+                        targetYear = targetYear,
                     )
+                    DiaryTheme {
+                        HolidayHomeScreen(
+                            navigateUp = navigateUp,
+                            navigateToMemoAdd = navigateToMemoAdd,
+                            state = state,
+                        )
+                    }
                 }
             }
         }

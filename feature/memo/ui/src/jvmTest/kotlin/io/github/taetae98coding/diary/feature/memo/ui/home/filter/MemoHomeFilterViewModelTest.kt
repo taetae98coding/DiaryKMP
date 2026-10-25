@@ -58,7 +58,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-HOME-FEATURE-020 조회한 태그 페이지와 선택 집합을 노출한다") {
+        test("TC-af1729d2-fb58-4c28-9bbc-13deebf01abd 조회한 태그 페이지와 선택 집합을 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = "Alpha"), tag(title = "Bravo"))
                 val selectedTagList = listOf(tagList.last())
@@ -113,7 +113,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-032 유지된 유무 필터 상태를 노출한다") {
+        test("TC-83618cb6-9f2b-4c9e-b10d-5a24db5c9e6c 유지된 유무 필터 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val existence =
                     MemoExistenceFilter(
@@ -239,7 +239,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-056 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
+        test("TC-733c582c-9b61-4349-8ede-0255c440cd32 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
                 val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
                 coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
@@ -256,7 +256,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 }
             }
         }
-        test("TC-MEMO-HOME-FEATURE-058 선택 전체 해제는 유무 필터의 축 상태를 바꾸지 않는다") {
+        test("TC-1432918a-7b45-4bdf-8936-827120f65cca 선택 전체 해제는 유무 필터의 축 상태를 바꾸지 않는다") {
             runTest(mainDispatcher) {
                 val existence =
                     MemoExistenceFilter(

@@ -173,7 +173,7 @@ class AccountMemoDaoTest :
             )
         }
 
-        test("TC-MEMO-HOME-DATA-001 완료되었거나 삭제된 메모는 목록 조회에서 제외된다") {
+        test("TC-aef4066d-b7d4-4011-8d36-325c061f420c 완료되었거나 삭제된 메모는 목록 조회에서 제외된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val activeMemo = memo(isFinished = false, isDeleted = false)
             val finishedMemo = memo(isFinished = true, isDeleted = false)
@@ -183,7 +183,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-004 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
+        test("TC-3ab11834-5a1d-4f4a-8811-670d1eff3d36 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val noDateTimeBravoMemo =
                 memo(
@@ -302,7 +302,7 @@ class AccountMemoDaoTest :
                 )
         }
 
-        test("TC-MEMO-HOME-DATA-005 수정 시각은 목록 순서에 영향을 주지 않는다") {
+        test("TC-29a46665-22b2-401f-8853-ca4841052b3a 수정 시각은 목록 순서에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val earlyStartMemo =
                 memo(
@@ -329,7 +329,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(earlyStartMemo.id, lateStartMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-003 현재 계정과 연결된 메모만 목록에서 조회한다") {
+        test("TC-74a4fbdf-6955-48ba-b80c-d3e6ada93a5a 현재 계정과 연결된 메모만 목록에서 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val accountMemo = memo()
@@ -340,7 +340,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(accountMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-018 목록의 완료와 삭제는 현재 계정의 메모에만 저장된다") {
+        test("TC-1508897f-2cfe-4f83-a85c-daca5cb7a9b0 목록의 완료와 삭제는 현재 계정의 메모에만 저장된다") {
             suspend fun assertOnlyAccountMemoChanged(update: suspend (accountId: Uuid, memoId: Uuid) -> Int) {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -551,7 +551,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(firstMemo.id, secondMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-021 태그를 필터에 선택하면 그 태그와 연결된 메모만 조회된다") {
+        test("TC-c180f0ca-c28c-402d-8762-d7c926fc2a7e 태그를 필터에 선택하면 그 태그와 연결된 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()
@@ -567,7 +567,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(firstTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-022 여러 태그를 선택하면 하나 이상과 연결된 메모만 조회된다") {
+        test("TC-b896dbf1-ad60-420c-bc41-4a038cbe0680 여러 태그를 선택하면 하나 이상과 연결된 메모만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()
@@ -585,7 +585,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(firstTagMemo.id, secondTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-023 마지막 태그의 선택을 해제하면 모든 메모가 조회된다") {
+        test("TC-ccb00c92-56e0-4fe0-99cc-4d711a287afc 마지막 태그의 선택을 해제하면 모든 메모가 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -601,7 +601,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-006 필터와 일치해도 완료되거나 삭제된 메모는 조회되지 않는다") {
+        test("TC-2029039b-1c04-4ef1-8ba6-77e088e5177e 필터와 일치해도 완료되거나 삭제된 메모는 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val activeMemo = memo(isFinished = false, isDeleted = false)
@@ -618,7 +618,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-009 선택된 유일한 태그가 선택할 수 없게 되면 모든 메모가 조회된다") {
+        test("TC-ddaaea83-0197-4225-860a-fa8b98d553fc 선택된 유일한 태그가 선택할 수 없게 되면 모든 메모가 조회된다") {
             suspend fun unselectableCase(makeUnselectable: suspend (accountId: Uuid, tagId: Uuid) -> Unit) {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val tag = tag()
@@ -653,7 +653,7 @@ class AccountMemoDaoTest :
             }
         }
 
-        test("TC-MEMO-HOME-DOMAIN-009 선택된 유일한 태그가 현재 계정과 연결되어 있지 않으면 모든 메모가 조회된다") {
+        test("TC-ddaaea83-0197-4225-860a-fa8b98d553fc 선택된 유일한 태그가 현재 계정과 연결되어 있지 않으면 모든 메모가 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
@@ -668,7 +668,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-010 태그가 다시 선택할 수 있게 되면 목록이 이전 선택으로 다시 필터링된다") {
+        test("TC-e94e51a2-8cb8-4330-9992-b776f345c73e 태그가 다시 선택할 수 있게 되면 목록이 이전 선택으로 다시 필터링된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val tagMemo = memo()
@@ -726,7 +726,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-013 제목순은 제목 오름차순으로 조회한다") {
+        test("TC-05f23b36-25e5-4d03-bf02-9aa3bde8c1a3 제목순은 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTitleMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
             val lastTitleMemo = sortMemo(title = "Bravo", updatedAt = 3_000, startDay = 19)
@@ -738,7 +738,7 @@ class AccountMemoDaoTest :
                 .pagedIds() shouldBe listOf(firstTitleMemo.id, lastTitleMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-013 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
+        test("TC-05f23b36-25e5-4d03-bf02-9aa3bde8c1a3 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val latestMemo = sortMemo(title = "Zebra", updatedAt = 3_000, startDay = 19)
             val sameUpdatedFirstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
@@ -751,7 +751,7 @@ class AccountMemoDaoTest :
                 .pagedIds() shouldBe listOf(latestMemo.id, sameUpdatedFirstMemo.id, sameUpdatedLastMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-004 기본순은 기간을 기준으로 조회한다") {
+        test("TC-3ab11834-5a1d-4f4a-8811-670d1eff3d36 기본순은 기간을 기준으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val noPeriodMemo = sortMemo(title = "Zebra", updatedAt = 1_000, startDay = null)
             val earlyMemo = sortMemo(title = "Bravo", updatedAt = 2_000, startDay = 19)
@@ -761,7 +761,7 @@ class AccountMemoDaoTest :
             pagedIds(accountId) shouldBe listOf(noPeriodMemo.id, earlyMemo.id, lateMemo.id)
         }
 
-        test("TC-MEMO-HOME-DATA-014 정렬을 바꿔도 노출하는 메모는 달라지지 않는다") {
+        test("TC-ac09d2d6-355d-49db-99df-059c900fd82c 정렬을 바꿔도 노출하는 메모는 달라지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
             val finishedMemo = memo(isFinished = true)
@@ -776,7 +776,7 @@ class AccountMemoDaoTest :
             }
         }
 
-        test("TC-MEMO-HOME-DATA-017 추가, 제목·기간 변경, 완료, 삭제가 열어 둔 메모 목록에 반영된다") {
+        test("TC-689cbd72-ce63-4d58-a62a-3d0b4f22434a 추가, 제목·기간 변경, 완료, 삭제가 열어 둔 메모 목록에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
             val secondMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 21)

@@ -15,7 +15,7 @@ class MemoTagInputEmojiTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-023 태그 칩에 이모지와 제목을 함께 표시한다`() {
+    fun `TC-37caa7be-6e26-4826-b112-c458b7015cf4 태그 칩에 이모지와 제목을 함께 표시한다`() {
         val tagList =
             listOf(
                 testTag(title = WORK_TAG_TITLE, emoji = TAG_EMOJI),
@@ -30,7 +30,7 @@ class MemoTagInputEmojiTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-023 태그 선택 목록에 이모지와 제목을 함께 표시한다`() {
+    fun `TC-37caa7be-6e26-4826-b112-c458b7015cf4 태그 선택 목록에 이모지와 제목을 함께 표시한다`() {
         val tagList =
             listOf(
                 testTag(title = WORK_TAG_TITLE, emoji = TAG_EMOJI),

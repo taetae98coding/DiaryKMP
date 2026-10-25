@@ -7,11 +7,11 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
 public expect fun DiaryTopBar(
+    title: @Composable DiaryTopBarTitleScope.() -> Unit,
     modifier: Modifier = Modifier,
-    title: DiaryTopBarTitle? = null,
-    navigateUp: DiaryTopBarNavigateUp? = null,
-    actions: List<DiaryTopBarAction> = emptyList(),
     isTitleCentered: Boolean = false,
+    navigationIcon: @Composable DiaryTopBarNavigationIconScope.() -> Unit = {},
+    actions: @Composable DiaryTopBarActionScope.() -> Unit = {},
 )
 
 @ComponentPreview
@@ -19,9 +19,9 @@ public expect fun DiaryTopBar(
 private fun DiaryTopBarPreview() {
     DiaryTheme {
         DiaryTopBar(
-            title = DiaryTopBarTitle.Text(text = "제목"),
-            navigateUp = DiaryTopBarNavigateUp(contentDescription = "뒤로가기", onClick = {}),
-            actions = listOf(DiaryTopBarAction.Icon(icon = DiaryTopBarIcon.SEARCH, contentDescription = "검색", onClick = {})),
+            title = { Title(text = "제목") },
+            navigationIcon = { NavigateUp(onClick = {}, contentDescription = "뒤로가기") },
+            actions = { IconAction(icon = DiaryTopBarIcon.SEARCH, contentDescription = "검색", onClick = {}) },
         )
     }
 }

@@ -42,7 +42,7 @@ class CalendarHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-001 캘린더 홈 화면에 오늘이 속한 달의 캘린더가 표시된다`() {
+    fun `TC-af8ff0f7-ea13-4875-9e0f-80550fd9abfa 캘린더 홈 화면에 오늘이 속한 달의 캘린더가 표시된다`() {
         val sundayOfFirstWeek =
             Clock.System
                 .todayIn(TimeZone.currentSystemDefault())
@@ -60,7 +60,7 @@ class CalendarHomeScaffoldTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "ko")
-    fun `TC-CALENDAR-HOME-FEATURE-002 상단 바 중앙에 오늘이 속한 달의 년도와 월이 한국어 형식으로 표시된다`() {
+    fun `TC-78b355f9-d708-4136-b582-83c8a42d8fec 상단 바 중앙에 오늘이 속한 달의 년도와 월이 한국어 형식으로 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         composeRule.setContent {
@@ -73,7 +73,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-002 상단 바 중앙에 오늘이 속한 달의 년도와 월이 영어 형식으로 표시된다`() {
+    fun `TC-78b355f9-d708-4136-b582-83c8a42d8fec 상단 바 중앙에 오늘이 속한 달의 년도와 월이 영어 형식으로 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         composeRule.setContent {
@@ -86,7 +86,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-003 달을 이동하면 상단 바 제목이 이동한 달로 바뀐다`() {
+    fun `TC-04df18ca-b18b-4aa1-91b3-907f252bff53 달을 이동하면 상단 바 제목이 이동한 달로 바뀐다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -106,7 +106,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-087 화면이 재생성되어도 상단 바 제목이 보던 달을 유지한다`() {
+    fun `TC-5235f42a-e750-4f3a-b896-bd4389151d4d 화면이 재생성되어도 상단 바 제목이 보던 달을 유지한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -128,7 +128,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-101 시스템이 앱을 정리했다가 다시 만들어도 상단 바 제목이 보던 달을 유지한다`() {
+    fun `TC-f04ef3ff-ff12-40f2-84e4-d51e7ef7f212 시스템이 앱을 정리했다가 다시 만들어도 상단 바 제목이 보던 달을 유지한다`() {
         val nextYearMonth = nextYearMonth()
         val restorationTester = StateRestorationTester(composeRule)
 
@@ -147,7 +147,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-088 다른 앱에 다녀와도 상단 바 제목이 보던 달을 유지한다`() {
+    fun `TC-4acd7b31-2b01-4a5e-a5bf-690bca596e8f 다른 앱에 다녀와도 상단 바 제목이 보던 달을 유지한다`() {
         val nextYearMonth = nextYearMonth()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
@@ -169,7 +169,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-089 앱을 다시 실행하면 오늘이 속한 달부터 다시 본다`() {
+    fun `TC-3209a66c-759e-4c76-8817-4475197d5a01 앱을 다시 실행하면 오늘이 속한 달부터 다시 본다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         var launchCount by mutableIntStateOf(0)
 

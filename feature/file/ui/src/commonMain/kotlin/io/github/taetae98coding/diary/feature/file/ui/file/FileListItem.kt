@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.file.ui.file
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ListItem
@@ -7,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
 import io.github.taetae98coding.diary.compose.core.icon.FileIcon
@@ -24,6 +24,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun FileListItem(
     file: DiaryFile,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val createdAt = remember(file.createdAt) { file.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()) }
@@ -36,7 +37,7 @@ internal fun FileListItem(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        modifier = modifier.semantics(mergeDescendants = true) {},
+        modifier = modifier.clickable(onClick = onClick),
         supportingContent = {
             FileListItemSupportingText(
                 name = file.name,
@@ -79,6 +80,7 @@ private fun FileListItemPreview() {
     DiaryTheme {
         FileListItem(
             file = previewDiaryFile(title = "분기 보고서", name = "보고서.pdf", size = 24_536_679),
+            onClick = {},
             modifier = Modifier.fillMaxWidth(),
         )
     }

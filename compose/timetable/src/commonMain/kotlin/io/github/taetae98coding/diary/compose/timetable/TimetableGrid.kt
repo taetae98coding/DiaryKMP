@@ -36,7 +36,7 @@ import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
-internal const val TIMETABLE_NOW_INDICATOR_TEST_TAG: String = "TimetableNowIndicator"
+public const val TIMETABLE_NOW_INDICATOR_TEST_TAG: String = "TimetableNowIndicator"
 
 @Composable
 internal fun TimetableGrid(

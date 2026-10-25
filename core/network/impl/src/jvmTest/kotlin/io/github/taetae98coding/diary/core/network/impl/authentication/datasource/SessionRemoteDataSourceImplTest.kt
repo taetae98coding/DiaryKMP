@@ -32,7 +32,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class SessionRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-LOGIN-DATA-001 JVM authorization code 인증 정보를 서버에 전달한다") {
+        test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 JVM authorization code 인증 정보를 서버에 전달한다") {
             val authorizationCode = fixtureMonkey.giveMeOne<String>()
             val clientId = fixtureMonkey.giveMeOne<String>()
             val redirectUri = fixtureMonkey.giveMeOne<String>()
@@ -68,7 +68,7 @@ class SessionRemoteDataSourceImplTest :
             actual shouldBe response
         }
 
-        test("TC-LOGIN-DATA-001 코드 확인 값이 없는 authorization code 요청은 codeVerifier 필드를 생략한다") {
+        test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 코드 확인 값이 없는 authorization code 요청은 codeVerifier 필드를 생략한다") {
             val request =
                 GoogleAuthorizationCodeRequestRemoteEntity(
                     authorizationCode = fixtureMonkey.giveMeOne<String>(),

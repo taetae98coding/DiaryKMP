@@ -6,6 +6,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,7 +65,7 @@ class ScreenViewEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-001 화면을 표시하면 그 화면의 화면 조회가 남는다`() {
+    fun `TC-c175092c-a776-4cb0-997b-00bf151a20f0 화면을 표시하면 그 화면의 화면 조회가 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         setScreenViewEffect(log)
 
@@ -73,7 +75,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-002 다른 화면으로 이동하면 이동한 화면의 화면 조회가 남는다`() {
+    fun `TC-6ff1e76d-1d6a-4b2f-9930-dfc929d20f95 다른 화면으로 이동하면 이동한 화면의 화면 조회가 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val appState = setScreenViewEffect(log)
 
@@ -86,7 +88,7 @@ class ScreenViewEffectTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-003 두 화면을 함께 표시해도 가장 나중에 진입한 화면만 남는다`() {
+    fun `TC-0fd2aa7e-724c-4acc-9910-e8063e45219c 두 화면을 함께 표시해도 가장 나중에 진입한 화면만 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val appState = setListDetailScreenViewEffect(log)
 
@@ -103,7 +105,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-004 겹쳐 표시하는 화면도 화면 조회로 남는다`() {
+    fun `TC-1cbbab70-4991-4025-866a-06f957913cbe 겹쳐 표시하는 화면도 화면 조회로 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val appState = setScreenViewEffect(log)
 
@@ -116,7 +118,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-014 화면 안에서 연 다이얼로그는 화면 조회로 남지 않는다`() {
+    fun `TC-e41ebef2-9037-4cf7-ab7c-4abf4694364b 화면 안에서 연 다이얼로그는 화면 조회로 남지 않는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val dialogText = "dialog${fixtureMonkey.giveMeOne<Int>()}"
         var isDialogVisible by mutableStateOf(false)
@@ -140,7 +142,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-005 겹쳐 표시한 화면을 닫으면 아래 화면의 화면 조회가 다시 남는다`() {
+    fun `TC-58209d4e-67f5-473c-9ed0-4d735894bcac 겹쳐 표시한 화면을 닫으면 아래 화면의 화면 조회가 다시 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val appState = setScreenViewEffect(log)
 
@@ -154,7 +156,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-006 백그라운드에서 돌아오면 같은 화면의 화면 조회가 다시 남는다`() {
+    fun `TC-dee14294-e838-4a4d-95b2-4ccbf91fc8a6 백그라운드에서 돌아오면 같은 화면의 화면 조회가 다시 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
         setScreenViewEffect(log, lifecycleOwner)
@@ -172,7 +174,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-007 화면이 재생성되어 복원되면 화면 조회가 남는다`() {
+    fun `TC-77ed6712-737b-4d2b-828f-b08e20b97c36 화면이 재생성되어 복원되면 화면 조회가 남는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
@@ -195,7 +197,46 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-008 현재 화면이 바뀌지 않으면 화면 조회가 더 남지 않는다`() {
+    fun `TC-fd5e53b3-3cc2-450e-b18b-89d98275929e 앱을 다시 실행하면 처음 보이는 화면의 화면 조회가 남는다`() {
+        val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
+        var launchCount by mutableIntStateOf(0)
+        lateinit var appState: AppState
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 앱 상태와 기록을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                appState = rememberAppState()
+                ScreenViewEffect(log = log, appState = appState)
+            }
+        }
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
+        composeRule.runOnIdle {
+            verify(exactly = 1) { log(ScreenViewLog(screenName = CALENDAR_HOME)) }
+            verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_HOME)) }
+        }
+
+        composeRule.runOnIdle { launchCount += 1 }
+
+        composeRule.runOnIdle {
+            verify(exactly = 2) { log(ScreenViewLog(screenName = CALENDAR_HOME)) }
+            verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_HOME)) }
+        }
+    }
+
+    @Test
+    fun `TC-d741d32e-60b9-4492-903c-9c04ef19a18a 화면을 떠난 사건은 따로 남기지 않는다`() {
+        val logList = mutableListOf<ScreenViewLog>()
+        val appState = setScreenViewEffect(log = { screenViewLog -> logList += screenViewLog })
+
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
+
+        composeRule.runOnIdle {
+            logList shouldContainExactly listOf(ScreenViewLog(screenName = CALENDAR_HOME), ScreenViewLog(screenName = MEMO_HOME))
+        }
+    }
+
+    @Test
+    fun `TC-5aaffc7f-b4ed-45b0-82a4-6ea04e4f4f60 현재 화면이 바뀌지 않으면 화면 조회가 더 남지 않는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val content = mutableStateOf(value = fixtureMonkey.giveMeOne<String>())
 
@@ -212,7 +253,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-012 화면 조회는 오류 보고로 남지 않는다`() {
+    fun `TC-bb3a7d32-a89e-4aee-9c2c-d8ca4545a065 화면 조회는 오류 보고로 남지 않는다`() {
         val logList = mutableListOf<DiaryLog>()
         val delegate = mockk<DiaryLoggerDelegate>()
         every { delegate.log(log = any()) } answers { logList += firstArg<DiaryLog>() }
@@ -229,7 +270,7 @@ class ScreenViewEffectTest {
     }
 
     @Test
-    fun `TC-SCREEN-VIEW-LOGGING-DOMAIN-013 기록에 실패해도 화면은 그대로 표시된다`() {
+    fun `TC-93c21a25-8e9c-4873-bc82-f6dde6365764 기록에 실패해도 화면은 그대로 표시된다`() {
         val failingDelegate = mockk<DiaryLoggerDelegate>()
         every { failingDelegate.log(log = any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
         DiaryLogger.add(delegate = failingDelegate)

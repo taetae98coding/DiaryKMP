@@ -39,7 +39,7 @@ class TagDetailReturnTest {
     private val destinationList = mutableListOf<String>()
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-033 메모 추가에서 뒤로가면 메모 탭이 선택된 TagDetail로 돌아온다`() {
+    fun `TC-79bfb102-ae53-4af0-abfd-7b9e8c7ca2e9 메모 추가에서 뒤로가면 메모 탭이 선택된 TagDetail로 돌아온다`() {
         setReturnableTagDetailScreen()
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -54,7 +54,7 @@ class TagDetailReturnTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-033 메모 상세에서 뒤로가면 메모 탭이 선택된 TagDetail로 돌아온다`() {
+    fun `TC-79bfb102-ae53-4af0-abfd-7b9e8c7ca2e9 메모 상세에서 뒤로가면 메모 탭이 선택된 TagDetail로 돌아온다`() {
         setReturnableTagDetailScreen()
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -70,7 +70,7 @@ class TagDetailReturnTest {
 
     // 완료된 메모 목록의 뒤로가기가 그 목록과 상세를 함께 닫는 이력은 TagNavigationTest가, 넓은 창의 배치는 TagMemoFinishedListLayoutTest가 확인한다.
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-017 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-018 완료된 메모 목록이 닫히면 메모 탭이 선택된 TagDetail로 돌아온다`() {
+    fun `TC-7e9aa6ec-0f1d-4fb3-8a3a-43b9083e1c5d TC-16070905-ee83-4cd0-81c4-a2b2df72c7be 완료된 메모 목록이 닫히면 메모 탭이 선택된 TagDetail로 돌아온다`() {
         setReturnableTagDetailScreen()
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -85,7 +85,7 @@ class TagDetailReturnTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-020 웹 추가에서 뒤로가면 웹 탭이 선택된 TagDetail로 돌아온다`() {
+    fun `TC-0cc096fc-4d70-45db-9581-b20bdee05bb5 웹 추가에서 뒤로가면 웹 탭이 선택된 TagDetail로 돌아온다`() {
         setReturnableTagDetailScreen()
         composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
 
@@ -99,10 +99,10 @@ class TagDetailReturnTest {
         composeRule.refreshableList().assertExists()
     }
 
-    // 웹 상세는 삭제에 성공하면 뒤로가기와 같은 닫기를 부른다(TC-WEB-DETAIL-FEATURE-020, WebDetailScreenTest).
+    // 웹 상세는 삭제에 성공하면 뒤로가기와 같은 닫기를 부른다(TC-35ae4b6d-4860-445b-9469-595ebb1fac84, WebDetailScreenTest).
     // TagDetail에서 본 두 경우의 결과는 위에 놓인 웹 상세가 닫히는 것으로 같다.
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-020 웹 상세가 닫히면 웹 탭이 선택된 TagDetail로 돌아온다`() {
+    fun `TC-0cc096fc-4d70-45db-9581-b20bdee05bb5 웹 상세가 닫히면 웹 탭이 선택된 TagDetail로 돌아온다`() {
         setReturnableTagDetailScreen()
         composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
 

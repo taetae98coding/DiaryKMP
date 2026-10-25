@@ -2,7 +2,7 @@
 
 블로킹 작업을 어디서 메인 스레드 밖으로 옮기는지(`withContext`)와, 옮길 `CoroutineDispatcher`·`CoroutineScope`를 어떻게 받는지를 소유한다.
 
-근거는 Android의 [코루틴 권장사항](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)과 [도메인 레이어의 Threading](https://developer.android.com/topic/architecture/domain-layer#threading)이다. `suspend` 함수는 메인 스레드에서 불러도 안전해야 하고(main-safe), 블로킹 작업을 하는 클래스가 그 작업을 직접 옮긴다. 그래야 부르는 쪽이 어떤 dispatcher를 써야 하는지 신경 쓰지 않는다. 변경 가능한 상태를 노출하지 않는 일은 [viewmodel.md](viewmodel.md)가, `CancellationException`을 삼키지 않는 일은 [work.md](work.md)·[data.md](data.md)가 소유한다.
+근거는 Android의 [코루틴 권장사항](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)과 [도메인 레이어의 Threading](https://developer.android.com/topic/architecture/domain-layer#threading)이다. 변경 가능한 상태를 노출하지 않는 일은 [viewmodel.md](viewmodel.md)가, `CancellationException`을 삼키지 않는 일은 [work.md](work.md)·[data.md](data.md)가 소유한다.
 
 ## 경계는 dispatcher를 주입받는 컴포넌트가 긋는다
 
@@ -65,22 +65,11 @@ internal class RawSourceContent(
 
 ## 긴 반복은 취소를 확인한다
 
-코루틴 취소는 협력적이라, `withContext` 안의 블로킹 코드는 중단 지점이나 취소 확인을 만나기 전까지 계속 실행된다. 항목 수만큼 블로킹 작업을 반복하는 루프(파일 목록을 읽거나 DB 행마다 복호화하는 등)는 반복마다 `ensureActive()`로 취소를 확인한다. 화면을 떠나 취소되어도 남은 항목을 끝까지 처리하지 않게 하기 위해서다.
-
-✅ 권장 예시:
-
-```kotlin
-withContext(dispatcher) {
-    rowList.mapNotNull { row ->
-        ensureActive()
-        row.toEntity(key = key)
-    }
-}
-```
+항목 수만큼 블로킹 작업을 반복하는 `withContext` 안의 루프(파일 목록 읽기, DB 행마다 복호화)는 반복마다 `ensureActive()`를 부른다.
 
 ## 호출한 쪽보다 오래 가는 작업은 주입받은 scope에서
 
-호출한 쪽의 수명에 묶인 작업은 `suspend` 함수 안에서 `coroutineScope`·`supervisorScope`로 만든다. 화면을 떠나도 끝까지 이어야 하는 작업이나 플랫폼 콜백에서 시작하는 작업은 Koin 제공 함수가 만든 외부 `CoroutineScope`를 생성자로 주입받아 실행한다. `GlobalScope`를 쓰거나 클래스 안에서 `CoroutineScope(...)`를 직접 만들지 않는다. 그러면 테스트가 scope를 바꿔 넣을 수 없고, 예외 처리와 dispatcher를 한곳에서 정할 수 없다.
+화면을 떠나도 끝까지 이어야 하는 작업이나 플랫폼 콜백에서 시작하는 작업은 Koin 제공 함수가 만든 외부 `CoroutineScope`를 생성자로 주입받아 실행한다. `GlobalScope`를 쓰거나 클래스 안에서 `CoroutineScope(...)`를 직접 만들지 않는다.
 
 scope를 만드는 제공 함수는 `workCoroutineScope(dispatcher = ...)`처럼 dispatcher를 명시하고 qualifier(`SyncScope`, `FileUploadScope`)로 구분한다. 블로킹 작업은 scope에서 시작하더라도 컴포넌트가 주입받은 dispatcher의 `withContext`로 감싼다.
 
@@ -111,7 +100,7 @@ internal class BackgroundSessionFileUploadTransport(
 
 **`Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** Composable이 만드는 보조 class는 qualifier를 public으로 두고 앱 모듈의 플랫폼 Koin 모듈이 공급하며, 그 class를 만드는 `rememberXxx()` 팩토리가 `koinInject`로 받아 생성자에 넘긴다. 컴포넌트가 만드는 보조 class는 그 컴포넌트가 주입받은 dispatcher를 그대로 넘긴다.
 
-직접 참조하면 테스트가 dispatcher를 바꿔 넣을 수 없고, wasm처럼 `IO`가 없는 플랫폼에 다른 dispatcher를 줄 수 없다. 이 선택은 플랫폼 소스셋의 Koin 모듈이 소유한다.
+wasm처럼 `IO`가 없는 플랫폼이 있으므로 어떤 dispatcher를 줄지는 플랫폼 소스셋의 Koin 모듈이 소유한다.
 
 1. 모듈의 `impl/di`(domain은 `di`)에 `internal` `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `BrowserCookieDispatcher`, `DiarySettingDispatcher`, `HolidayDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다. Composable이 만드는 보조 class의 qualifier는 위에 적은 대로 public으로 보조 class 곁에 둔다.
 2. Koin 모듈의 제공 함수가 그 qualifier로 `CoroutineDispatcher`를 제공한다. `Dispatchers.IO`·`Dispatchers.Default`는 제공 함수에서만 참조하고, 기본 인자로도 두지 않는다. `IO`는 wasm에 없으므로 플랫폼 소스셋의 모듈에서, 모든 플랫폼에 있는 `Default`는 `commonMain` 모듈에서 제공해도 된다. 작업 전용 `CoroutineScope`를 만드는 제공 함수도 dispatcher를 명시해 넘긴다.

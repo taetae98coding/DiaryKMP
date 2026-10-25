@@ -29,7 +29,7 @@ class PlaceAddSaveFailureTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-039 저장에 실패하면 안내 없이 작성 내용과 고른 태그를 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+    fun `TC-c35fbef8-5a2e-464a-a06f-e750fa20dc90 저장에 실패하면 안내 없이 작성 내용과 고른 태그를 유지하고 같은 내용으로 다시 추가할 수 있다`() {
         val tag = placeTestTag(title = SELECTED_TAG_TITLE)
         val detailList = mutableListOf<PlaceDetail>()
         val tagIdSetList = mutableListOf<Set<Uuid>>()

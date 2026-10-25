@@ -34,7 +34,7 @@ class MemoGeminiApplyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-011 제목을 반영하면 제목 입력만 바뀐다`() {
+    fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 제목을 반영하면 제목 입력만 바뀐다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 
@@ -49,7 +49,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-011 설명을 반영하면 설명 입력만 바뀐다`() {
+    fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 설명을 반영하면 설명 입력만 바뀐다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 
@@ -64,7 +64,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-013 기간을 반영하면 기간을 사용하는 상태가 된다`() {
+    fun `TC-00c52202-7a2d-42a6-ac16-978553caad1c 기간을 반영하면 기간을 사용하는 상태가 된다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 
@@ -80,7 +80,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-013 시간까지 지정한 기간을 그대로 반영한다`() {
+    fun `TC-00c52202-7a2d-42a6-ac16-978553caad1c 시간까지 지정한 기간을 그대로 반영한다`() {
         val dateTime =
             MemoDateTime.DateTime(
                 start = LocalDateTime(2026, 9, 21, 9, 30),
@@ -101,7 +101,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-012 반영은 기존 입력을 덮어쓴다`() {
+    fun `TC-d312404f-134f-48fa-8083-bcca35a7febc 반영은 기존 입력을 덮어쓴다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 
@@ -115,7 +115,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-015 입력을 고친 뒤 다시 반영하면 생성된 내용으로 되돌아간다`() {
+    fun `TC-846aa7eb-7a6c-4987-aba6-0088db1fb175 입력을 고친 뒤 다시 반영하면 생성된 내용으로 되돌아간다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 
@@ -128,7 +128,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-021 반영한 내용은 도우미를 닫아도 남는다`() {
+    fun `TC-e72cb4f6-09db-4046-aa72-97ee1a10ad61 반영한 내용은 도우미를 닫아도 남는다`() {
         val state = createFilledFormState()
         val uiState = MutableStateFlow(MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT))
         val viewModel = screenTestGeminiViewModel(uiState = uiState)
@@ -140,7 +140,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-DOMAIN-004 반영은 컬러를 바꾸지 않는다`() {
+    fun `TC-26885e8c-431a-4b1a-a6b5-1dd7f4dbd92e 반영은 컬러를 바꾸지 않는다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
         val color = composeRule.runOnIdle { state.colorState.color }
@@ -176,7 +176,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-027 입력 상태를 보던 중 설명을 반영해도 입력 상태를 유지한다`() {
+    fun `TC-cd7a823b-4c61-44ee-9b43-209806aad79e 입력 상태를 보던 중 설명을 반영해도 입력 상태를 유지한다`() {
         val state = createFormStateWithDescriptionInput()
         val viewModel = createViewModel()
         composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
@@ -190,7 +190,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-027 미리보기 상태를 보던 중 설명을 반영해도 미리보기 상태를 유지한다`() {
+    fun `TC-cd7a823b-4c61-44ee-9b43-209806aad79e 미리보기 상태를 보던 중 설명을 반영해도 미리보기 상태를 유지한다`() {
         val state = createFormStateWithDescriptionInput()
         val viewModel = createViewModel()
         composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).performClick()
@@ -209,7 +209,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-DATA-008 사용하지 않는 기간은 생성에 전달하지 않는다`() {
+    fun `TC-43233fcb-7378-457d-af25-6c044c85e6e4 사용하지 않는 기간은 생성에 전달하지 않는다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
         composeRule.runOnIdle {

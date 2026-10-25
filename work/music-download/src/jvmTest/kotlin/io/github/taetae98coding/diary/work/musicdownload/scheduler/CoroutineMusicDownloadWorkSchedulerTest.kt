@@ -35,7 +35,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
     BehaviorSpec({
         Given("진행 중인 다운로드가 없다") {
             When("다운로드를 예약한다") {
-                Then("TC-PLAYLIST-HOME-FEATURE-019 작업을 한 번 실행한다") {
+                Then("TC-4128e4dc-6dbe-4604-9e60-f88b29b1c998 작업을 한 번 실행한다") {
                     runTest {
                         val work = mockk<MusicDownloadWork>()
                         coEvery { work.doWork(sort = any()) } returns Unit
@@ -52,7 +52,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("이미 실행 중인 다운로드가 있다") {
             When("다운로드를 다시 예약한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-004 예약을 하나로 유지하고 새로 시작하지 않는다") {
+                Then("TC-32fadaa0-9929-453e-ae32-87fa1efe7bb4 예약을 하나로 유지하고 새로 시작하지 않는다") {
                     runTest {
                         val gate = CompletableDeferred<Unit>()
                         val work = mockk<MusicDownloadWork>()
@@ -71,7 +71,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-006 진행 중인 곡의 상태가 그대로 남는다") {
+                Then("TC-7c78bbdb-3401-4927-bee3-8494ef60c7eb 진행 중인 곡의 상태가 그대로 남는다") {
                     runTest {
                         val target = testDownloadTarget()
                         val gate = CompletableDeferred<Unit>()
@@ -100,7 +100,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("앞선 다운로드가 끝났다") {
             When("다운로드를 다시 예약한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-005 작업을 다시 실행한다") {
+                Then("TC-fc61f779-40ea-47e7-b171-6f9aeb10d446 작업을 다시 실행한다") {
                     runTest {
                         val work = mockk<MusicDownloadWork>()
                         coEvery { work.doWork(sort = any()) } returns Unit
@@ -154,7 +154,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("제목순으로 실행한 다운로드의 첫째 곡이 진행 중인 채 멈춰 있다") {
             When("정렬을 바꿔 다운로드를 다시 실행하고 멈춰 있던 곡이 끝나면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-015 처음 실행할 때의 순서대로 받고 바꾼 정렬로 대상을 다시 판정하지 않는다") {
+                Then("TC-92a268b8-2bd6-4dee-918a-c8bb4e70a9fa 처음 실행할 때의 순서대로 받고 바꾼 정렬로 대상을 다시 판정하지 않는다") {
                     runTest {
                         val targetList = listOf(testDownloadTarget(), testDownloadTarget(), testDownloadTarget())
                         val gate = CompletableDeferred<Unit>()
@@ -191,7 +191,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("영상 A를 가리키던 곡이 진행 중인 채 멈춰 있고 그 곡의 링크가 영상 B로 바뀌었다") {
             When("다운로드를 한 번 더 실행하고 멈춰 있던 곡이 끝나면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-022 대상을 다시 판정하지 않고 영상 A만 한 번 받으며 영상 B는 받지 않는다") {
+                Then("TC-e90aca72-bd86-4282-9ac9-90c7dcc1cd30 대상을 다시 판정하지 않고 영상 A만 한 번 받으며 영상 B는 받지 않는다") {
                     runTest {
                         val targetA = testDownloadTarget()
                         val targetB = testDownloadTarget().copy(id = targetA.id)
@@ -227,7 +227,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("다운로드를 실행해 내려받기 준비가 끝나지 않은 채 멈춰 있다") {
             When("다운로드를 한 번 더 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-016 준비가 한 번만 일어나고 곡은 한 번씩만 받는다") {
+                Then("TC-8f123ca5-1d91-4a55-8e25-f1c7a34ac18b 준비가 한 번만 일어나고 곡은 한 번씩만 받는다") {
                     runTest {
                         val target = testDownloadTarget()
                         val gate = CompletableDeferred<Unit>()
@@ -265,7 +265,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
         Given("내려받기 준비는 성공하고 대상 곡을 판정하지 못한다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-018 알리지 않고 어떤 곡도 받지 않은 채 끝나며 다시 실행할 수 있다") {
+                Then("TC-46ce57c3-f6be-4da5-9f96-17912d4ceccc 알리지 않고 어떤 곡도 받지 않은 채 끝나며 다시 실행할 수 있다") {
                     runTest {
                         val stateHolder = MusicDownloadStateHolder()
                         val eventHolder = MusicDownloadEventHolder()

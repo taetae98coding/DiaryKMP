@@ -19,7 +19,7 @@ class CalendarStateScrollTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-FEATURE-014 이전 달로 이동을 요청하면 이전 달의 캘린더가 표시된다`() {
+    fun `TC-43cbd04d-4df7-4c5a-ac3d-19dea14e6ef1 이전 달로 이동을 요청하면 이전 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         setCalendar(state) { it.animateScrollToPreviousMonth() }
@@ -28,7 +28,7 @@ class CalendarStateScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-015 다음 달로 이동을 요청하면 다음 달의 캘린더가 표시된다`() {
+    fun `TC-8f8bdf39-66d1-4bca-bc97-e68a957ac5fb 다음 달로 이동을 요청하면 다음 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         setCalendar(state) { it.animateScrollToNextMonth() }
@@ -37,7 +37,7 @@ class CalendarStateScrollTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-016 1년 1월에서 이전 달로 이동을 요청해도 1년 1월이 그대로 표시된다`() {
+    fun `TC-3e8f1366-8c54-41aa-97ac-d65f091ea0ca 1년 1월에서 이전 달로 이동을 요청해도 1년 1월이 그대로 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 1, month = Month.JANUARY))
 
         setCalendar(state) { it.animateScrollToPreviousMonth() }

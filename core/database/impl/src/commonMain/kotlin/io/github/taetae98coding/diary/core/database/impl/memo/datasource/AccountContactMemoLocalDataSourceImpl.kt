@@ -22,4 +22,15 @@ internal class AccountContactMemoLocalDataSourceImpl(
             contactId = contactId,
             sort = sort.queryValue,
         )
+
+    override fun pageFinished(
+        accountId: Uuid,
+        contactId: Uuid,
+        sort: ListSortLocalEntity,
+    ): PagingSource<Int, MemoLocalEntity> =
+        database.accountContactMemoDao().pageFinished(
+            accountId = accountId,
+            contactId = contactId,
+            sort = sort.queryValue,
+        )
 }

@@ -20,12 +20,12 @@
 ## 고유 ID
 
 ```text
-TC-<SPEC>-<AREA>-<NNN>
+TC-<UUID>
 ```
 
-- `SPEC`: 스펙 파일 slug의 대문자 kebab-case
-- `AREA`: `FEATURE`, `DOMAIN`, `DATA` 중 하나
-- `NNN`: 같은 `SPEC`과 `AREA`의 3자리 일련번호
+- `UUID`: 소문자 16진수 `8-4-4-4-12` 형식의 무작위 UUID. 예: `TC-3f6c2a1e-9b4d-4c7a-8e21-5d0f7b9a6c13`
+
+ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이나 문서로 옮겨도 ID는 바뀌지 않는다.
 
 삭제되거나 제거된 ID는 재사용하지 않는다.
 
@@ -49,7 +49,10 @@ TC-<SPEC>-<AREA>-<NNN>
 | [CalendarWeekOfMonth](./calendar-week-of-month.md) | [CalendarWeekOfMonth 컴포넌트](../spec/client/calendar-week-of-month.md) |
 | [Calendar](./calendar.md) | [Calendar 컴포넌트](../spec/client/calendar.md) |
 | [카메라 권한 요청](./camera-permission.md) | [카메라 권한 요청](../spec/client/camera-permission.md) |
+| [ChecklistAdd](./checklist-add.md) | [ChecklistAdd 화면](../spec/client/checklist-add.md) |
+| [ChecklistDetail](./checklist-detail.md) | [ChecklistDetail 화면](../spec/client/checklist-detail.md) |
 | [ChecklistHome](./checklist-home.md) | [ChecklistHome 화면](../spec/client/checklist-home.md) |
+| [Checklist 목록·상세 배치](./checklist-list-detail.md) | [Checklist 목록·상세 배치](../spec/client/checklist-list-detail.md) |
 | [ContactAdd](./contact-add.md) | [ContactAdd 화면](../spec/client/contact-add.md) |
 | [ContactDetail](./contact-detail.md) | [ContactDetail 화면](../spec/client/contact-detail.md) |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | [ContactDetail 메모 탭](../spec/client/contact-detail-memo.md) |
@@ -65,7 +68,10 @@ TC-<SPEC>-<AREA>-<NNN>
 | [DiaryMap](./diary-map.md) | [DiaryMap 컴포넌트](../spec/client/diary-map.md) |
 | [푸시 알림 수신 등록](./fcm-token.md) | [푸시 알림 수신 등록(client)](../spec/client/fcm-token.md), [푸시 알림 수신 등록(common)](../spec/common/fcm-token.md), [푸시 알림 수신 등록(server)](../spec/server/fcm-token.md) |
 | [FileAdd](./file-add.md) | [FileAdd 화면](../spec/client/file-add.md) |
+| [FileDetail](./file-detail.md) | [FileDetail 화면](../spec/client/file-detail.md) |
+| [파일 내려받기](./file-download.md) | [파일 내려받기](../spec/client/file-download.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
+| [File 목록·상세 배치](./file-list-detail.md) | [File 목록·상세 배치](../spec/client/file-list-detail.md) |
 | [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
 | [파일 올리기 알림](./file-upload-notification.md) | [파일 올리기 알림](../spec/client/file-upload-notification.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/client/gemini-model-list.md) |
@@ -82,6 +88,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [MemoAdd](./memo-add.md) | [MemoAdd 화면](../spec/client/memo-add.md) |
 | [MemoDetail](./memo-detail.md) | [MemoDetail 화면](../spec/client/memo-detail.md) |
 | [MemoFinishedList](./memo-finished-list.md) | [MemoFinishedList 화면](../spec/client/memo-finished-list.md) |
+| [MemoFinishedList 목록·상세 배치](./memo-finished-list-detail.md) | [MemoFinishedList 목록·상세 배치](../spec/client/memo-finished-list-detail.md) |
 | [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미](../spec/client/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 목록](../spec/client/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치](../spec/client/memo-list-detail.md) |
@@ -94,6 +101,8 @@ TC-<SPEC>-<AREA>-<NNN>
 | [메모 태그](./memo-tag.md) | [메모 태그](../spec/client/memo-tag.md), [메모 태그](../spec/common/memo-tag.md) |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | [메모 웹 입력 컴포넌트](../spec/client/memo-web-input.md) |
 | [메모 웹](./memo-web.md) | [메모 웹](../spec/client/memo-web.md), [메모 웹](../spec/common/memo-web.md) |
+| [항목 완료 메모 목록](./entity-memo-finished-list.md) | [항목 완료 메모 목록 화면](../spec/client/entity-memo-finished-list.md) |
+| [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md) | [항목 완료 메모 목록·상세 배치](../spec/client/entity-memo-finished-list-detail.md) |
 | [항목 태그 입력 컴포넌트](./entity-tag-input.md) | [항목 태그 입력 컴포넌트](../spec/client/entity-tag-input.md) |
 | [MoreHome](./more-home.md) | [MoreHome 화면](../spec/client/more-home.md) |
 | [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/client/music-add.md) |
@@ -117,18 +126,20 @@ TC-<SPEC>-<AREA>-<NNN>
 | [QrDetail](./qr-detail.md) | [QrDetail 화면](../spec/client/qr-detail.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |
 | [QrScan](./qr-scan.md) | [QrScan 화면](../spec/client/qr-scan.md) |
+| [QR 목록·상세 배치](./qr-list-detail.md) | [QR 목록·상세 배치](../spec/client/qr-list-detail.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/client/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/client/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/client/screen-view-logging.md) |
 | [SettingBrowser](./setting-browser.md) | [SettingBrowser 화면](../spec/client/setting-browser.md) |
-| [SettingDownload](./setting-download.md) | [SettingDownload 화면](../spec/client/setting-download.md) |
+| [SettingFile](./setting-file.md) | [SettingFile 화면](../spec/client/setting-file.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/client/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/client/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/client/setting-home.md) |
 | [Setting 목록·상세 배치](./setting-list-detail.md) | [Setting 목록·상세 배치](../spec/client/setting-list-detail.md) |
 | [SettingMap](./setting-map.md) | [SettingMap 화면](../spec/client/setting-map.md) |
+| [SettingPlaylist](./setting-playlist.md) | [SettingPlaylist 화면](../spec/client/setting-playlist.md) |
 | [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md) | [SwipeToFinishAndDelete 컴포넌트](../spec/client/swipe-to-finish-and-delete.md) |
 | [새로고침](./sync-refresh.md) | [새로고침](../spec/client/sync-refresh.md) |
 | [TagAdd](./tag-add.md) | [TagAdd 화면](../spec/client/tag-add.md) |
@@ -137,6 +148,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [TagDetail 웹 탭](./tag-detail-web.md) | [TagDetail 웹 탭](../spec/client/tag-detail-web.md) |
 | [TagDetail 장소 탭](./tag-detail-place.md) | [TagDetail 장소 탭](../spec/client/tag-detail-place.md) |
 | [TagFinishedList](./tag-finished-list.md) | [TagFinishedList 화면](../spec/client/tag-finished-list.md) |
+| [TagFinishedList 목록·상세 배치](./tag-finished-list-detail.md) | [TagFinishedList 목록·상세 배치](../spec/client/tag-finished-list-detail.md) |
 | [TagHome 목록](./tag-home.md) | [TagHome 목록](../spec/client/tag-home.md) |
 | [태그 연결](./tag-link.md) | [태그 연결](../spec/client/tag-link.md), [태그 연결](../spec/common/tag-link.md) |
 | [태그 연결 입력 컴포넌트](./tag-link-input.md) | [태그 연결 입력 컴포넌트](../spec/client/tag-link-input.md) |
@@ -157,22 +169,21 @@ TC-<SPEC>-<AREA>-<NNN>
 
 다음 공통 스펙은 전용 테스트 케이스 문서를 두지 않고, 그 스펙을 사용하는 화면의 문서에 케이스를 둔다.
 
-- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md)
-  - 두 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
+- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [DDayHome](./dday-home.md)
 - [태그 필터 스펙](../spec/client/tag-filter.md) → [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
 - [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md)
   - 세 입력 문서가 공통 스펙의 같은 절을 각자의 대상과 문구에 맞춰 갖는다.
-- [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [메모 연락처 입력 컴포넌트](./memo-contact-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md)
-  - `보던 자리 유지`에서 시스템이 앱을 정리했다가 다시 만든 뒤 위치를 복원하는 케이스는 [MemoHome 목록](./memo-home.md)의 `TC-MEMO-HOME-DOMAIN-022`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoFinishedList](./memo-finished-list.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)은 그 케이스를 그대로 두고, 나머지 목록은 이 경계의 케이스를 따로 두지 않는다.
-- [목록 빈 상태 스펙](../spec/client/list-empty-state.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [RoutineHome](./routine-home.md), [PlaceHome](./place-home.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md)
-- [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md) → [MemoHome 목록](./memo-home.md), [TagHome 목록](./tag-home.md), [RoutineHome](./routine-home.md), [ContactHome](./contact-home.md), [FileHome](./file-home.md), [PlaceHome](./place-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [WebHome](./web-home.md)
+- [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [메모 연락처 입력 컴포넌트](./memo-contact-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [ChecklistHome](./checklist-home.md)
+  - `보던 자리 유지`에서 시스템이 앱을 정리했다가 다시 만든 뒤 위치를 복원하는 케이스는 [MemoHome 목록](./memo-home.md)의 `TC-1b0b4202-239b-43d7-a956-7d8b4601da15`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md), [MemoFinishedList](./memo-finished-list.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)은 그 케이스를 그대로 두고, 나머지 목록은 이 경계의 케이스를 따로 두지 않는다.
+- [목록 빈 상태 스펙](../spec/client/list-empty-state.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [RoutineHome](./routine-home.md), [PlaceHome](./place-home.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [ChecklistHome](./checklist-home.md)
+- [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md) → [MemoHome 목록](./memo-home.md), [TagHome 목록](./tag-home.md), [RoutineHome](./routine-home.md), [ContactHome](./contact-home.md), [FileHome](./file-home.md), [PlaceHome](./place-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [ChecklistHome](./checklist-home.md), [WebHome](./web-home.md)
   - 각 화면 문서가 자기 화면의 추가로 이동하는 케이스를 갖는다. 목록과 상세를 함께 쓰는 동안 상세 영역에 추가가 놓여 단축키로도 추가하지 않는 경우는 각 목록·상세 배치 문서의 추가 수단 케이스가 함께 다룬다. 상세 영역 화면의 탭 단축키와 겹치는 경우는 목록과 상세 두 화면을 함께 거쳐야 판정할 수 있으므로 케이스를 두지 않는다.
-- [목록 필터 반영 스펙](../spec/client/list-filter.md) → [TagHome 목록](./tag-home.md), [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
-  - 세 문서가 각자의 필터와 목록 항목에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
-- [목록 정렬 스펙](../spec/client/list-sort.md) → [MemoHome 목록](./memo-home.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md), [MemoFinishedList](./memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)
-  - 메모 목록의 세 정렬은 [MemoHome 목록](./memo-home.md)이, 그 밖의 목록이 함께 쓰는 두 정렬은 [WebHome](./web-home.md)이 대표로 갖는다. 제목순 대신 이름순을 쓰는 연락처 목록은 [ContactHome](./contact-home.md)이, 완료된 메모 목록의 세 정렬은 [MemoFinishedList](./memo-finished-list.md)가 갖는다. 항목 상세 메모 탭은 [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)이 각자 정렬 표시, 정렬 선택과 반영, 빈 목록에서의 정렬 컨트롤 케이스를 갖는다. 나머지 목록은 각자의 정렬 케이스를 두지 않는다.
+- [목록 필터 반영 스펙](../spec/client/list-filter.md) → [TagHome 목록](./tag-home.md), [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md), [ContactHome](./contact-home.md)
+  - 네 문서가 각자의 필터와 목록 항목에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
+- [목록 정렬 스펙](../spec/client/list-sort.md) → [MemoHome 목록](./memo-home.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md), [MemoFinishedList](./memo-finished-list.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [ChecklistDetail](./checklist-detail.md)
+  - 메모 목록의 세 정렬은 [MemoHome 목록](./memo-home.md)이, 그 밖의 목록이 함께 쓰는 두 정렬은 [WebHome](./web-home.md)이 대표로 갖는다. 제목순 대신 이름순을 쓰는 연락처 목록은 [ContactHome](./contact-home.md)이, 완료된 메모 목록의 세 정렬은 [MemoFinishedList](./memo-finished-list.md)가 갖는다. 항목 상세 메모 탭은 [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)이 각자 정렬 표시, 정렬 선택과 반영, 빈 목록에서의 정렬 컨트롤 케이스를 갖는다. 다른 목록에 없는 두 정렬(추가순, 체크 안 된 항목 우선)을 쓰는 체크 항목 목록은 [ChecklistDetail](./checklist-detail.md)이 정렬 표시, 선택과 반영, 선택 유지, 빈 목록에서의 정렬 컨트롤 케이스를 갖는다. 그 밖의 목록은 각자의 정렬 케이스를 두지 않는다.
 - [입력 정지 대기 시간 스펙](../spec/client/input-idle-delay.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md), [장소 검색 다이얼로그 컴포넌트](./place-search-dialog.md)
-  - 직접 입력한 좌표를 지도에 반영하는 대기의 케이스는 [PlaceAdd](./place-add.md)가 대표로 갖고, [PlaceDetail](./place-detail.md)은 기본 지도가 바뀐 뒤의 반영을 `TC-PLACE-DETAIL-DOMAIN-015`로 갖는다.
+  - 직접 입력한 좌표를 지도에 반영하는 대기의 케이스는 [PlaceAdd](./place-add.md)가 대표로 갖고, [PlaceDetail](./place-detail.md)은 기본 지도가 바뀐 뒤의 반영을 `TC-249e3f61-04fd-4c80-9aa1-9e9583f6dbca`로 갖는다.
 - [검색어 일치 판정 스펙](../spec/client/search-match.md) → [SearchHome](./search-home.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 장소 카드](./memo-place-card.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [메모 연락처 입력 컴포넌트](./memo-contact-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [장소 검색 다이얼로그 컴포넌트](./place-search-dialog.md)
   - `검색어 반영 시점`의 케이스는 [메모 태그 입력 컴포넌트](./memo-tag-input.md)와 [SearchHome](./search-home.md)이 대표로 갖는다. 같은 정책을 쓰는 나머지 목록은 각자의 검색 케이스만 둔다.
 - [장소 보기 모드 스펙](../spec/client/place-view-mode.md) → [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md)
@@ -182,16 +193,16 @@ TC-<SPEC>-<AREA>-<NNN>
 - [항목 연결 공통 스펙](../spec/common/entity-link.md)과 [앱 스펙](../spec/client/entity-link.md) → [메모 태그](./memo-tag.md), [메모 장소](./memo-place.md), [메모 웹](./memo-web.md), [메모 연락처](./memo-contact.md), [웹 태그](./web-tag.md), [장소 태그](./place-tag.md), [태그 연결](./tag-link.md)
   - 각 연결 문서가 공통 스펙의 절을 자기 연결 종류에 맞춰 각각 갖는다.
 - [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)과 [앱 스펙](../spec/client/entity-tag.md) → [메모 태그](./memo-tag.md), [웹 태그](./web-tag.md), [장소 태그](./place-tag.md)
-- [항목 추가 화면 공통 스펙](../spec/client/entity-add.md) → [MemoAdd](./memo-add.md), [TagAdd](./tag-add.md), [PlaceAdd](./place-add.md), [WebAdd](./web-add.md), [ContactAdd](./contact-add.md), [MusicAdd](./music-add.md), [QrAdd](./qr-add.md), [RoutineAdd](./routine-add.md)
+- [항목 추가 화면 공통 스펙](../spec/client/entity-add.md) → [MemoAdd](./memo-add.md), [TagAdd](./tag-add.md), [PlaceAdd](./place-add.md), [WebAdd](./web-add.md), [ContactAdd](./contact-add.md), [MusicAdd](./music-add.md), [QrAdd](./qr-add.md), [RoutineAdd](./routine-add.md), [ChecklistAdd](./checklist-add.md)
   - 각 추가 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
 - [장소 검색 공통 스펙](../spec/client/place-search.md) → [Google 장소 검색](./google-place-search.md), [네이버 장소 검색](./naver-place-search.md)
-- [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소` → [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [WebHome](./web-home.md), [TagDetail 웹 탭](./tag-detail-web.md), [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md), [ContactHome](./contact-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [SearchHome](./search-home.md)
+- [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소` → [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [WebHome](./web-home.md), [TagDetail 웹 탭](./tag-detail-web.md), [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md), [ContactHome](./contact-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [ChecklistHome](./checklist-home.md), [SearchHome](./search-home.md)
   - 화면이 재생성되거나 앱이 백그라운드에 다녀올 때의 실행 경계 케이스는 [MemoHome 목록](./memo-home.md)이 대표로 갖고, 나머지 목록 문서는 이 경계의 케이스를 따로 두지 않는다. 그 밖의 케이스는 각 문서가 자기 목록의 안내와 동작에 맞춰 갖는다.
-- [완료 목록 공통 스펙](../spec/client/finished-list.md) → [MemoFinishedList](./memo-finished-list.md), [TagFinishedList](./tag-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md)
-  - 세 문서가 공통 스펙의 절을 각자의 대상 항목과 동작에 맞춰 각각 갖는다.
-- [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md) → [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [QrDetail](./qr-detail.md), [TagDetail](./tag-detail.md), [WebDetail](./web-detail.md)
+- [완료 목록 공통 스펙](../spec/client/finished-list.md) → [MemoFinishedList](./memo-finished-list.md), [TagFinishedList](./tag-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md)
+  - 네 문서가 공통 스펙의 절을 각자의 대상 항목과 동작에 맞춰 각각 갖는다.
+- [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md) → [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [QrDetail](./qr-detail.md), [TagDetail](./tag-detail.md), [WebDetail](./web-detail.md), [ChecklistDetail](./checklist-detail.md)
   - 각 상세 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
 - [항목 상세 메모 탭 공통 스펙](../spec/client/entity-detail-memo.md) → [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)
   - 세 메모 탭 문서가 공통 스펙의 같은 절을 각자의 상세 대상 항목과 입력에 맞춰 각각 갖는다.
-- [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Playlist](./playlist-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
-  - `유지와 초기화 기준`에서 시스템이 앱을 정리했다가 다시 만든 뒤 상세 선택과 뒤로가기 기록을 복원하는 케이스는 [Memo 목록·상세 배치](./memo-list-detail.md)의 `TC-MEMO-LIST-DETAIL-DOMAIN-004`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Contact](./contact-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치는 그 케이스를 그대로 두고, 나머지 배치는 이 경계의 케이스를 따로 두지 않는다.
+- [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md) → [Checklist](./checklist-list-detail.md), [Contact](./contact-list-detail.md), [File](./file-list-detail.md), [Memo](./memo-list-detail.md), [MemoFinishedList](./memo-finished-list-detail.md), [Playlist](./playlist-list-detail.md), [QR](./qr-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagFinishedList](./tag-finished-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
+  - `유지와 초기화 기준`에서 시스템이 앱을 정리했다가 다시 만든 뒤 상세 선택과 뒤로가기 기록을 복원하는 케이스는 [Memo 목록·상세 배치](./memo-list-detail.md)의 `TC-6be9adcd-df35-4fb3-886c-8b2b6762a465`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [Checklist](./checklist-list-detail.md), [Contact](./contact-list-detail.md), [File](./file-list-detail.md), [MemoFinishedList](./memo-finished-list-detail.md), [Playlist](./playlist-list-detail.md), [QR](./qr-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagFinishedList](./tag-finished-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치는 그 케이스를 그대로 두고, 나머지 배치는 이 경계의 케이스를 따로 두지 않는다.

@@ -52,7 +52,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-035 카드에서 하루 기간 선택을 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-e88cbcf5-5088-42d4-ba0c-f1d190f91e15 카드에서 하루 기간 선택을 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -63,7 +63,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-036 주 경계를 넘는 기간 선택을 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-9e9f9e5d-0c86-4403-a3df-b58903d96236 주 경계를 넘는 기간 선택을 완료하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -75,7 +75,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-054 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-7109366e-3598-458d-9b65-d9d69732da1e 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -88,7 +88,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-055 기간을 선택하는 도중 화면이 재생성되면 MemoAdd 화면 이동이 요청되지 않는다`() {
+    fun `TC-4c099e99-b603-4c0d-8044-bf40f1799c86 기간을 선택하는 도중 화면이 재생성되면 MemoAdd 화면 이동이 요청되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(
@@ -107,7 +107,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-037 연휴 기간에 속하지 않는 날짜도 선택해 메모 추가를 시작할 수 있다`() {
+    fun `TC-4c17cd75-6da8-4d46-84f0-cd0be45475b6 연휴 기간에 속하지 않는 날짜도 선택해 메모 추가를 시작할 수 있다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -118,7 +118,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-038 항목이 표시하는 주 밖으로 드래그해도 선택은 그 주 범위를 넘지 않는다`() {
+    fun `TC-ccdec557-0228-4424-8a30-dcf5ef49dc64 항목이 표시하는 주 밖으로 드래그해도 선택은 그 주 범위를 넘지 않는다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
         val start = composeRule.dayCenter(day = 6)
@@ -131,7 +131,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-039 로딩 표시가 나타난 년도에서는 기간 선택이 시작되지 않는다`() {
+    fun `TC-0474b9c4-9c41-4200-bae8-c58295b0e989 로딩 표시가 나타난 년도에서는 기간 선택이 시작되지 않는다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(
@@ -152,7 +152,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-039 오류 안내가 표시된 년도에서는 기간 선택이 시작되지 않는다`() {
+    fun `TC-0474b9c4-9c41-4200-bae8-c58295b0e989 오류 안내가 표시된 년도에서는 기간 선택이 시작되지 않는다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(
             fetchHolidayUseCase = previousYearFailFetchHolidayUseCase(),
@@ -167,7 +167,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-039 제공 없음 안내가 표시된 년도에서는 기간 선택이 시작되지 않는다`() {
+    fun `TC-0474b9c4-9c41-4200-bae8-c58295b0e989 제공 없음 안내가 표시된 년도에서는 기간 선택이 시작되지 않는다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(
             fetchHolidayUseCase = thisYearNotProvidedFetchHolidayUseCase(),
@@ -182,7 +182,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-040 기간 선택이 진행되는 동안 년도가 이동하지 않는다`() {
+    fun `TC-cb3e2e4e-ea3c-4951-9341-ffba522b655d 기간 선택이 진행되는 동안 년도가 이동하지 않는다`() {
         setHolidayHomeScreen()
         val start = composeRule.dayCenter(day = 6)
 
@@ -196,7 +196,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-053 기간 선택이 진행되는 동안 목록이 세로로 이동하지 않는다`() {
+    fun `TC-74376448-9528-4ac7-9dca-62fc3f997218 기간 선택이 진행되는 동안 목록이 세로로 이동하지 않는다`() {
         setHolidayHomeScreen(getGoldenHolidayUseCase = manyGoldenHolidayUseCase())
         composeRule.onAllNodesWithText(manyHolidayName(index = MANY_GROUP_COUNT - 1)).fetchSemanticsNodes().isEmpty() shouldBe true
         val start = composeRule.firstDayCenter(day = MANY_HOLIDAY_DAY)

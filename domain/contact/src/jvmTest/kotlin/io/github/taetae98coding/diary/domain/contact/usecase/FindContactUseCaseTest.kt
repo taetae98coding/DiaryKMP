@@ -35,7 +35,7 @@ class FindContactUseCaseTest :
                 )
 
             When("대상 식별자로 연락처를 조회한다") {
-                Then("TC-CONTACT-DETAIL-DATA-001 현재 계정의 연락처를 전달한다") {
+                Then("TC-250658dc-32f8-47a3-8410-3e244df01331 현재 계정의 연락처를 전달한다") {
                     useCase(parameter = contact.id).first().shouldBeSuccess(contact)
                 }
             }
@@ -55,7 +55,7 @@ class FindContactUseCaseTest :
                 )
 
             When("대상 식별자로 연락처를 조회한다") {
-                Then("TC-CONTACT-DETAIL-DATA-002 조회되는 연락처가 없다") {
+                Then("TC-229c2151-ee96-48d8-b3fc-ba0dd5bf1723 조회되는 연락처가 없다") {
                     useCase(parameter = contactId).first().shouldBeSuccess(null)
                 }
             }

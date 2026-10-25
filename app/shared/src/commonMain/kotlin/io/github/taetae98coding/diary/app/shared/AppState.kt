@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
+import io.github.taetae98coding.diary.feature.file.api.isFileListDetailPane
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
@@ -91,7 +92,7 @@ internal class AppState(
     private fun isFileScreenVisible(): Boolean =
         when (backStack.lastOrNull()) {
             FileHomeNavKey -> true
-            FileAddNavKey -> backStack.getOrNull(backStack.lastIndex - 1) == FileHomeNavKey
+            FileAddNavKey -> backStack.isFileListDetailPane(key = FileAddNavKey)
             else -> false
         }
 

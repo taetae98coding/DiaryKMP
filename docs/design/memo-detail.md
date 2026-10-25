@@ -6,11 +6,11 @@
 
 MemoHome 목록에서 진입하면 넓은 화면에서는 메모 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시한다. 함께 표시할 때의 배치와 버튼 노출은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md)을 따른다.
 
-TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, MemoFinishedList, SearchHome, 캘린더 홈이나 캘린더 시간표에서 진입하면 창 너비와 관계없이 MemoDetail 화면만 단독으로 표시한다. TagMemoFinishedList에서 진입하면 넓은 화면에서는 그 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시하며, 함께 표시할 때의 배치와 버튼 노출은 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다.
+TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, SearchHome, 캘린더 홈이나 캘린더 시간표에서 진입하면 창 너비와 관계없이 MemoDetail 화면만 단독으로 표시한다. TagMemoFinishedList에서 진입하면 넓은 화면에서는 그 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시하며, 함께 표시할 때의 배치와 버튼 노출은 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다. ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList에서 진입할 때도 같은 기준으로 표시하며, 배치와 버튼 노출은 [항목 완료 메모 목록·상세 배치 디자인](./entity-memo-finished-list-detail.md)을 따른다. MemoFinishedList에서 진입할 때도 같은 기준으로 표시하며, 배치와 버튼 노출은 [MemoFinishedList 목록·상세 배치 디자인](./memo-finished-list-detail.md)을 따른다.
 
 화면 상단에는 메모 제목을 표시하는 상단 바를 둔다. MemoDetail 화면을 단독으로 표시할 때 상단 바에 뒤로가기 버튼을 표시한다.
 
-상단 바의 메모 제목은 한 줄을 유지한다. 제목이 사용 가능한 폭을 넘으면 기본 이동 속도와 간격으로 가로 이동을 시작하고, 화면에 표시되는 동안 횟수 제한 없이 반복한다. 접근성에는 생략하지 않은 전체 제목을 제공한다. iOS에서는 [상단 바](./top-bar.md)의 iOS 표현대로 흘리지 않고 끝을 줄인다.
+상단 바의 메모 제목은 한 줄을 유지한다. 제목이 사용 가능한 폭을 넘으면 기본 이동 속도와 간격으로 가로 이동을 시작하고, 화면에 표시되는 동안 횟수 제한 없이 반복한다. 접근성에는 생략하지 않은 전체 제목을 제공한다.
 
 단독 화면에서는 상단 바의 뒤로가기 버튼이나 시스템 뒤로가기를 사용하면 진입하기 전 화면으로 돌아간다. 목록과 상세를 함께 표시하는 동안에는 뒤로가기 버튼을 숨기고, 시스템 뒤로가기를 사용하면 상세 영역을 선택한 메모가 없을 때의 표시로 바꾼다. 그 표시는 각 목록·상세 배치 디자인을 따른다.
 

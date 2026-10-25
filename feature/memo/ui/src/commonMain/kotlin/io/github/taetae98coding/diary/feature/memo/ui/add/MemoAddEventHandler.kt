@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerE
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebPickerEvent
 
@@ -79,6 +80,7 @@ internal fun handleMemoAddContactPickerEvent(
 internal fun handleMemoAddPlacePickerEvent(
     event: MemoPlacePickerEvent,
     placeViewModel: MemoAddPlaceViewModel,
+    placePickerMapViewModel: MemoPlacePickerMapViewModel,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
 ) {
     when (event) {
@@ -86,5 +88,6 @@ internal fun handleMemoAddPlacePickerEvent(
         is MemoPlacePickerEvent.Select -> placeViewModel.selectPlace(id = event.id)
         is MemoPlacePickerEvent.Unselect -> placeViewModel.unselectPlace(id = event.id)
         is MemoPlacePickerEvent.ChangeQuery -> placeViewModel.updateQuery(query = event.query)
+        is MemoPlacePickerEvent.MoveMap -> placePickerMapViewModel.updateVisibleBounds(bounds = event.bounds)
     }
 }

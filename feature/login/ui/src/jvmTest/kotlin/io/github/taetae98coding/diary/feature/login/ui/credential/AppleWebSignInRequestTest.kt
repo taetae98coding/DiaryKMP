@@ -12,7 +12,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class AppleWebSignInRequestTest :
     FunSpec({
-        test("TC-LOGIN-DOMAIN-005 상태 값이 다르거나 없는 응답은 인증 결과로 받지 않는다") {
+        test("TC-0b76b517-494f-45d4-9d15-e0d090eda980 상태 값이 다르거나 없는 응답은 인증 결과로 받지 않는다") {
             val request = appleWebSignInRequest()
             val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
             val stateList = listOf("other-${request.state}", null)
@@ -24,7 +24,7 @@ class AppleWebSignInRequestTest :
             }
         }
 
-        test("TC-LOGIN-DOMAIN-006 idToken이 있으면 이번 시도의 nonce와 함께 인증 결과가 된다") {
+        test("TC-974c8aaa-a635-4c47-9a84-c8eb3bcf973d idToken이 있으면 이번 시도의 nonce와 함께 인증 결과가 된다") {
             val nonce = "nonce-${fixtureMonkey.giveMeOne<String>()}"
             val request = appleWebSignInRequest(nonce = nonce)
             val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
@@ -35,7 +35,7 @@ class AppleWebSignInRequestTest :
             credential.nonce shouldBe nonce
         }
 
-        test("TC-LOGIN-DOMAIN-006 Apple의 사용자 취소 오류는 사용자 취소로 처리한다") {
+        test("TC-974c8aaa-a635-4c47-9a84-c8eb3bcf973d Apple의 사용자 취소 오류는 사용자 취소로 처리한다") {
             val request = appleWebSignInRequest()
 
             shouldThrowExactly<AppleCredentialsUserCancelException> {
@@ -43,7 +43,7 @@ class AppleWebSignInRequestTest :
             }
         }
 
-        test("TC-LOGIN-DOMAIN-006 그 외 오류와 빈 응답은 인증 결과를 받지 못한 것으로 처리한다") {
+        test("TC-974c8aaa-a635-4c47-9a84-c8eb3bcf973d 그 외 오류와 빈 응답은 인증 결과를 받지 못한 것으로 처리한다") {
             val request = appleWebSignInRequest()
             val errorList = listOf("invalid_request", null)
 

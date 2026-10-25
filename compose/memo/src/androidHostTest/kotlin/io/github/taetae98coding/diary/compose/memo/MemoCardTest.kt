@@ -2,12 +2,15 @@ package io.github.taetae98coding.diary.compose.memo
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -91,7 +94,31 @@ class MemoCardTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-010 기간은 제목 아래에 표시된다`() {
+    fun `TC-347faccf-089a-4e1c-a507-57f56a07116b 카드 폭보다 긴 제목은 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
+        val baseMemo = memo(dateTime = null)
+        val memo = baseMemo.copy(detail = baseMemo.detail.copy(title = LONG_TITLE))
+
+        setMemoCard(memo)
+
+        val cardWidth =
+            composeRule
+                .onNodeWithTag(MEMO_CARD_TEST_TAG)
+                .fetchSemanticsNode()
+                .size.width
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = LONG_TITLE, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        (textLayoutResult.size.width > cardWidth) shouldBe true
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_TITLE.length
+    }
+
+    @Test
+    fun `TC-34863fc6-f9ec-47d1-9291-c92efa8270e2 기간은 제목 아래에 표시된다`() {
         val memo =
             memo(
                 MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = 19)..LocalDate(year = 2026, month = 7, day = 21)),
@@ -118,7 +145,7 @@ class MemoCardTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-011 기간이 없는 메모의 카드에는 기간을 노출하지 않는다`() {
+    fun `TC-a42c7b4e-7205-4b2d-9e4e-06ebb46eccd6 기간이 없는 메모의 카드에는 기간을 노출하지 않는다`() {
         setMemoCard(memo(dateTime = null))
 
         composeRule
@@ -129,7 +156,7 @@ class MemoCardTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-012 메모 자리 표시 카드에는 기간을 노출하지 않는다`() {
+    fun `TC-c7c834f5-7b6d-4bb8-b7fa-9a8153eab35d 메모 자리 표시 카드에는 기간을 노출하지 않는다`() {
         setMemoCard(memo = null)
 
         composeRule
@@ -140,7 +167,7 @@ class MemoCardTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-013 자리 표시 카드는 선택할 수 없다`() {
+    fun `TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 자리 표시 카드는 선택할 수 없다`() {
         var clickCount = 0
 
         setMemoCard(memo = null, onClick = { clickCount += 1 })
@@ -177,5 +204,9 @@ class MemoCardTest {
                 )
             }
         }
+    }
+
+    private companion object {
+        private val LONG_TITLE = "LongMemoCardTitle".repeat(20)
     }
 }

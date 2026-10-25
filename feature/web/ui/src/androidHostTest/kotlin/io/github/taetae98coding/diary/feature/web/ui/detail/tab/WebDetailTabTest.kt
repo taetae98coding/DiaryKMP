@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.tab
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
@@ -68,7 +70,7 @@ class WebDetailTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-056 웹 페이지를 탭으로 두는 배치에서는 웹 페이지 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
+    fun `TC-0ae97bb1-0094-411e-a1df-e7d472faa163 웹 페이지를 탭으로 두는 배치에서는 웹 페이지 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
         setScreen()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
@@ -79,7 +81,7 @@ class WebDetailTabTest {
 
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
-    fun `TC-WEB-DETAIL-FEATURE-056 웹 페이지를 늘 함께 두는 배치에서는 웹 정보 수정 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
+    fun `TC-0ae97bb1-0094-411e-a1df-e7d472faa163 웹 페이지를 늘 함께 두는 배치에서는 웹 정보 수정 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
         setScreen()
 
         composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertIsSelected()
@@ -91,14 +93,14 @@ class WebDetailTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-WEB-DETAIL-FEATURE-056 한국어 환경 메모 탭 접근성 이름을 표시한다`() {
+    fun `TC-0ae97bb1-0094-411e-a1df-e7d472faa163 한국어 환경 메모 탭 접근성 이름을 표시한다`() {
         setScreen()
 
         composeRule.onNodeWithContentDescription(KOREAN_MEMO_TAB_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-057 메모 탭을 선택하면 연결된 메모 목록을 표시하고 수정 폼 탭으로 돌아올 수 있다`() {
+    fun `TC-1641e1ad-5665-4aeb-a42f-e5f1bee71d20 메모 탭을 선택하면 연결된 메모 목록을 표시하고 수정 폼 탭으로 돌아올 수 있다`() {
         setScreen()
 
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -115,7 +117,7 @@ class WebDetailTabTest {
 
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
-    fun `TC-WEB-DETAIL-FEATURE-057 넓은 창에서 메모 탭을 선택하면 웹 페이지 영역은 그대로 두고 시작 쪽 영역만 메모로 바뀐다`() {
+    fun `TC-1641e1ad-5665-4aeb-a42f-e5f1bee71d20 넓은 창에서 메모 탭을 선택하면 웹 페이지 영역은 그대로 두고 시작 쪽 영역만 메모로 바뀐다`() {
         setScreen()
 
         composeRule.onNodeWithTag(WEB_DETAIL_FORM_TEST_TAG).assertExists()
@@ -128,7 +130,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-058 조회 중에도 메모 탭을 선택할 수 있다`() {
+    fun `TC-9fefbcc7-d4f5-4852-85ac-cfbb935982fe 조회 중에도 메모 탭을 선택할 수 있다`() {
         setScreen(uiState = WebDetailUiState.Loading)
 
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -138,7 +140,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-059 메모 탭에 다녀와도 수정 중이던 내용과 웹 페이지 상태가 유지된다`() {
+    fun `TC-e4094ff0-602d-4751-a390-50346cf882da 메모 탭에 다녀와도 수정 중이던 내용과 웹 페이지 상태가 유지된다`() {
         val pageViewModel = memoScreenPageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
         composeRule.setWebDetailMemoScreen(
             viewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
@@ -173,7 +175,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-027 웹 페이지 표시 방식을 바꿔도 메모 탭의 목록은 바뀌지 않는다`() {
+    fun `TC-dd9f7233-8a77-452b-9635-8e8876e07c5d 웹 페이지 표시 방식을 바꿔도 메모 탭의 목록은 바뀌지 않는다`() {
         setScreen()
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         waitUntilMemoListExists()
@@ -187,7 +189,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-060 외부로 열기와 삭제는 메모 탭에서도 제공된다`() {
+    fun `TC-1dd0bddd-907f-487c-a4c9-9b95460b1a11 외부로 열기와 삭제는 메모 탭에서도 제공된다`() {
         setScreen()
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -196,7 +198,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-062 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-f2f5782f-67aa-4fe3-881d-67c52da3c87a 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setScreen(navigateUp = { navigateUpCount += 1 })
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -207,7 +209,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-063 수정 반영 동작은 메모 탭에서 제공되지 않는다`() {
+    fun `TC-26ac50ef-f989-4a72-a518-84a0a628c383 수정 반영 동작은 메모 탭에서 제공되지 않는다`() {
         setScreen()
         composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
@@ -222,7 +224,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-046 삭제 상태인 웹 항목에서도 메모 탭을 사용할 수 있다`() {
+    fun `TC-66c70ec2-bc69-4349-8310-d1bdfc62a108 삭제 상태인 웹 항목에서도 메모 탭을 사용할 수 있다`() {
         // 삭제 상태인 웹 항목도 조회 결과로 표시되므로 내용 표시 상태로 관찰된다.
         setScreen()
 
@@ -233,7 +235,7 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-045 화면을 떠났다 다시 들어오면 메모 탭이 선택되지 않은 상태로 시작한다`() {
+    fun `TC-1b8a7305-2cb3-46fe-bfcd-ad3fee27640e 화면을 떠났다 다시 들어오면 메모 탭이 선택되지 않은 상태로 시작한다`() {
         var isShown by mutableStateOf(true)
         prepareWebDetailTabViewModels()
         composeRule.setContent {
@@ -245,6 +247,7 @@ class WebDetailTabTest {
                         navigateToTagDetail = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_WEB_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         webViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
@@ -264,6 +267,48 @@ class WebDetailTabTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-7ba97226-b02d-4073-85b8-d98485f048b3 앱을 다시 실행해 진입하면 메모 탭이 선택되지 않은 상태로 시작한다`() {
+        // 앱을 다시 실행하면 화면의 ViewModel도 새로 만들어지므로 실행마다 새 ViewModel을 넘긴다.
+        val launchedWebViewModelList =
+            List(LAUNCH_COUNT) { memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))) }
+        val launchedPageViewModelList = List(LAUNCH_COUNT) { memoScreenPageViewModel() }
+        val launchedTagViewModelList = List(LAUNCH_COUNT) { detailTagScreenTestViewModel() }
+        var launchCount by mutableIntStateOf(0)
+        prepareWebDetailTabViewModels()
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                WebDetailScreenTestTheme {
+                    WebDetailScreen(
+                        navigateUp = {},
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
+                        id = FIRST_WEB_ID,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        webViewModel = launchedWebViewModelList[launchCount],
+                        pageViewModel = launchedPageViewModelList[launchCount],
+                        tagViewModel = launchedTagViewModelList[launchCount],
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertIsNotSelected()
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
     }
 
@@ -293,5 +338,6 @@ class WebDetailTabTest {
         const val TYPED_HEADER_VALUE = "WebDetailTabHeaderValue"
         const val MEMO_TITLE = "WebDetailTabMemo"
         const val PAGE_TIMEOUT_MILLIS = 5_000L
+        const val LAUNCH_COUNT = 2
     }
 }

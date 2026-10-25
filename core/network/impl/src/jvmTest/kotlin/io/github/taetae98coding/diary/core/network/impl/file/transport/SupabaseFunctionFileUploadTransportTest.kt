@@ -51,7 +51,7 @@ private const val CONTENT_BYTES = 20_000
 
 class SupabaseFunctionFileUploadTransportTest :
     FunSpec({
-        test("TC-FILE-STORAGE-DATA-005 고른 파일의 내용과 크기를 그대로 보내고 서버가 돌려준 파일 정보를 돌려준다") {
+        test("TC-11549cf7-1e0e-4997-8f8c-b73c93f15246 고른 파일의 내용과 크기를 그대로 보내고 서버가 돌려준 파일 정보를 돌려준다") {
             val bytes = contentBytes()
             val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val bodySlot = slot<Any>()
@@ -81,7 +81,7 @@ class SupabaseFunctionFileUploadTransportTest :
             actual shouldBe response
         }
 
-        test("TC-FILE-STORAGE-DOMAIN-002 파일 이름과 형식을 본문에 담아 보내고 헤더에는 이름을 싣지 않는다") {
+        test("TC-7657ffc9-4037-4d7c-b233-3962e9398528 파일 이름과 형식을 본문에 담아 보내고 헤더에는 이름을 싣지 않는다") {
             val name = "보고서 ${fixtureMonkey.giveMeOne<String>()}.pdf"
             val headersSlot = slot<Headers>()
             val bodySlot = slot<Any>()
@@ -108,7 +108,7 @@ class SupabaseFunctionFileUploadTransportTest :
             if (headersSlot.isCaptured) headersSlot.captured["X-File-Name"].shouldBeNull()
         }
 
-        test("TC-FILE-STORAGE-DOMAIN-016 사용자가 적은 제목과 설명을 그대로 함께 보낸다") {
+        test("TC-7b857317-8b88-407f-b455-1e794c6f039b 사용자가 적은 제목과 설명을 그대로 함께 보낸다") {
             listOf(
                 "회의록" to "첫 줄\n둘째 줄",
                 " 앞뒤 공백 " to "",
@@ -135,7 +135,7 @@ class SupabaseFunctionFileUploadTransportTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-013 올리기 요청에는 시간 제한을 두지 않는다") {
+        test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 올리기 요청에는 시간 제한을 두지 않는다") {
             var requestTimeout: Duration? = null
             val response = httpResponse(body = Json.encodeToString(fixtureMonkey.giveMeOne<FileRemoteEntity>()))
             val supabaseFunction = mockk<SupabaseFunction>()
@@ -167,7 +167,7 @@ class SupabaseFunctionFileUploadTransportTest :
             requestTimeout shouldBe Duration.INFINITE
         }
 
-        test("TC-FILE-STORAGE-DATA-006 서버가 크기 초과로 거절하면 크기 초과 실패로 구분한다") {
+        test("TC-e4baf560-0898-49fe-ad5c-a7c6d1c4716b 서버가 크기 초과로 거절하면 크기 초과 실패로 구분한다") {
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
                 supabaseFunction(
@@ -194,7 +194,7 @@ class SupabaseFunctionFileUploadTransportTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-006 이름 거절과 그 밖의 서버 실패는 크기 초과가 아닌 실패로 그대로 전달한다") {
+        test("TC-e4baf560-0898-49fe-ad5c-a7c6d1c4716b 이름 거절과 그 밖의 서버 실패는 크기 초과가 아닌 실패로 그대로 전달한다") {
             listOf(HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError).forEach { status ->
                 val exception = SupabaseFunctionException(statusCode = status.value)
                 val supabaseFunction = mockk<SupabaseFunction>()

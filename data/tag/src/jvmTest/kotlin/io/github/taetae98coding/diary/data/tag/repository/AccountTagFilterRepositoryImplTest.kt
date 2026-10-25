@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class AccountTagFilterRepositoryImplTest :
     FunSpec({
-        test("TC-TAG-HOME-DATA-008 저장된 필터 선택을 그대로 전달한다") {
+        test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 저장된 필터 선택을 그대로 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             every { localDataSource.find(accountId = account.id) } returns
@@ -29,7 +29,7 @@ class AccountTagFilterRepositoryImplTest :
             repository.getTopLevelOnly(account = account).first() shouldBe true
         }
 
-        test("TC-TAG-HOME-DATA-009 저장된 필터 선택이 없으면 꺼진 상태로 전달한다") {
+        test("TC-c3277845-4c50-4e2e-ac84-24ad2a01a4fa 저장된 필터 선택이 없으면 꺼진 상태로 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             every { localDataSource.find(accountId = account.id) } returns flowOf(null)
@@ -38,7 +38,7 @@ class AccountTagFilterRepositoryImplTest :
             repository.getTopLevelOnly(account = account).first() shouldBe false
         }
 
-        test("TC-TAG-HOME-DATA-008 필터 선택을 현재 계정 식별자와 함께 저장한다") {
+        test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 필터 선택을 현재 계정 식별자와 함께 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             coEvery { localDataSource.upsert(accountId = account.id, isTopLevelOnly = true) } just Runs

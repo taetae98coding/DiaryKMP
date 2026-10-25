@@ -78,7 +78,7 @@ class FileUploadWorkerTest {
         }
 
     @Test
-    fun `TC-FILE-STORAGE-DATA-021 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝내고 기기에 둔 제목과 설명을 지운다`() =
+    fun `TC-da0150d5-c73e-4076-a78f-514a8d001593 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝내고 기기에 둔 제목과 설명을 지운다`() =
         runTest {
             val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
             coEvery { fileUploadWork.doWork(request = request, onStep = any()) } throws IOException(fixtureMonkey.giveMeOne<String>())
@@ -101,7 +101,7 @@ class FileUploadWorkerTest {
         }
 
     @Test
-    fun `TC-FILE-STORAGE-DATA-028 시스템이 작업을 멈춘 뒤 다시 실행하면 같은 제목과 설명으로 다시 올린다`() =
+    fun `TC-3bc3a961-418a-498c-aadf-48ac5abdf7fd 시스템이 작업을 멈춘 뒤 다시 실행하면 같은 제목과 설명으로 다시 올린다`() =
         runTest {
             val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
             val inputData = inputData(request = request, dispatcher = StandardTestDispatcher(testScheduler))
@@ -121,7 +121,7 @@ class FileUploadWorkerTest {
         }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-002 FileHome을 보고 있어도 올리기를 시작하면 진행 알림을 띄운다`() =
+    fun `TC-5ac880b6-b3b1-4069-a145-c2997888d56f FileHome을 보고 있어도 올리기를 시작하면 진행 알림을 띄운다`() =
         runTest {
             val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
             val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
@@ -158,7 +158,7 @@ class FileUploadWorkerTest {
         }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-FEATURE-018 진행 알림을 띄우지 못해도 올리기는 끝까지 진행되고 결과를 알린다`() =
+    fun `TC-4086bb66-85a0-4489-bb0f-1ed3d084df4b 진행 알림을 띄우지 못해도 올리기는 끝까지 진행되고 결과를 알린다`() =
         runTest {
             val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
             val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)

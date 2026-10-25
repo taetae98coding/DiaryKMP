@@ -39,7 +39,7 @@ class PageFinishedTagUseCaseTest :
                 )
 
             When("완료된 태그 목록을 페이지로 조회한다") {
-                Then("TC-TAG-FINISHED-LIST-DATA-001 현재 계정의 완료된 태그를 페이지로 전달한다") {
+                Then("TC-2c7531a3-edbb-4ea1-af0a-15594d814256 현재 계정의 완료된 태그를 페이지로 전달한다") {
                     val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList

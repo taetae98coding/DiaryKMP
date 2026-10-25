@@ -26,7 +26,7 @@ class MemoWebPickerDialogPagingTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-019 다음 웹 항목을 불러오는 동안에도 이미 나타난 웹 항목을 조작할 수 있다`() {
+    fun `TC-158373bf-ebe6-4f46-b5e2-ffe112e98c73 다음 웹 항목을 불러오는 동안에도 이미 나타난 웹 항목을 조작할 수 있다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoWebPickerDialog(
@@ -41,7 +41,7 @@ class MemoWebPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-020 다음 웹 항목을 불러오지 못해도 이미 나타난 웹 항목을 유지한다`() {
+    fun `TC-d420b3a9-86c5-4509-bf58-9010ded1dd10 다음 웹 항목을 불러오지 못해도 이미 나타난 웹 항목을 유지한다`() {
         val wikiWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         composeRule.setMemoWebPickerDialog(webPagingData = appendFailedWebPagingDataOf(listOf(wikiWeb, docsWeb)))
@@ -52,7 +52,7 @@ class MemoWebPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-005 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
         composeRule.setMemoWebPickerDialog(webPagingData = refreshingWebPagingData())
 
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()

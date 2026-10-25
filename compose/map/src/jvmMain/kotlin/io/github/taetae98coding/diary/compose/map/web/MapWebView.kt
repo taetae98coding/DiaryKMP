@@ -22,27 +22,33 @@ import kotlin.uuid.Uuid
 internal fun MapWebView(
     createHtml: () -> String?,
     modifier: Modifier = Modifier,
+    baseUrl: String? = null,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     val httpServer = koinInject<MapHttpServer>()
     // 지도 문서에는 처음 그릴 때의 위치와 핀을 담고, 이후 바뀐 상태는 스크립트로 전달한다.
-    val page = remember(httpServer) { createHtml()?.let(httpServer::register) }
+    val html = remember { createHtml() }
+    val page = remember(httpServer, html, baseUrl) { html?.takeIf { baseUrl == null }?.let(httpServer::register) }
 
     DisposableEffect(page) {
         onDispose { page?.close() }
     }
 
-    if (page == null) {
+    if (html == null) {
         Box(modifier = modifier)
         return
     }
 
     val webViewPanel =
-        remember(page) {
+        remember(html, page) {
             WebKitWebViewPanel().apply {
-                loadUrl(url = page.url)
+                if (page == null) {
+                    loadHtml(html = html, baseUrl = baseUrl)
+                } else {
+                    loadUrl(url = page.url)
+                }
             }
         }
     val isDocumentReady = remember(webViewPanel) { MutableStateFlow(false) }

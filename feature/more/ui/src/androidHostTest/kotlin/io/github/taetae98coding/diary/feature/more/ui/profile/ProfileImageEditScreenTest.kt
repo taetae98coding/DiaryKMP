@@ -84,7 +84,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-001 진입하면 사진이 없는 상태로 시작하고 반영을 실행할 수 없다`() {
+    fun `TC-5422d4c0-5388-40ea-b1fc-316e0041c35d 진입하면 사진이 없는 상태로 시작하고 반영을 실행할 수 없다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel())
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertIsDisplayed()
@@ -93,7 +93,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-002 사진 선택을 실행하면 사진 선택 도구를 연다`() {
+    fun `TC-5d7e7160-a576-4400-98c4-2cdac8c64ea5 사진 선택을 실행하면 사진 선택 도구를 연다`() {
         val photoPicker = screenTestPhotoPicker()
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = photoPicker)
 
@@ -104,7 +104,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-012 사진을 고르면 그 사진이 표시되고 반영을 실행할 수 있다`() {
+    fun `TC-ae7330e6-2b67-4116-9a78-6f58a737250f 사진을 고르면 그 사진이 표시되고 반영을 실행할 수 있다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
 
         choosePhoto()
@@ -117,7 +117,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-014 고른 사진을 읽는 동안 불러오는 중을 표시하고 반영을 실행할 수 없다`() {
+    fun `TC-03d3f5c9-d908-4add-a632-5f0d026d5b94 고른 사진을 읽는 동안 불러오는 중을 표시하고 반영을 실행할 수 없다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(LOADING_URI))
 
         choosePhoto()
@@ -128,7 +128,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-003 다른 사진을 고르면 새 사진의 처음 상태로 바뀐다`() {
+    fun `TC-53175d82-19be-4e9b-9db5-f4f8e194bf4e 다른 사진을 고르면 새 사진의 처음 상태로 바뀐다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, SQUARE_URI))
         choosePhoto()
@@ -146,7 +146,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-015 같은 사진을 다시 고르면 처음 상태의 영역으로 다시 표시된다`() {
+    fun `TC-a16507ba-f2f9-4081-acb1-b2d15e377b73 같은 사진을 다시 고르면 처음 상태의 영역으로 다시 표시된다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, LANDSCAPE_URI))
         choosePhoto()
@@ -163,7 +163,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-004 사진 선택을 취소하면 보고 있던 사진과 영역을 유지한다`() {
+    fun `TC-a7cf0f87-e9f6-463a-b5ac-992fb6149947 사진 선택을 취소하면 보고 있던 사진과 영역을 유지한다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, null))
         choosePhoto()
@@ -181,7 +181,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-013 사진이 없을 때 사진 선택을 취소하면 사진이 없는 상태를 유지한다`() {
+    fun `TC-f1a3226a-010c-46da-97fb-6ca0366d46d3 사진이 없을 때 사진 선택을 취소하면 사진이 없는 상태를 유지한다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(null))
 
         choosePhoto()
@@ -191,7 +191,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-005 반영 중에는 진행 상태를 표시하고 다른 조작을 할 수 없다`() {
+    fun `TC-bb861a92-b891-466e-ab45-0cd2e1c7599d 반영 중에는 진행 상태를 표시하고 다른 조작을 할 수 없다`() {
         val uiState = MutableStateFlow(ProfileImageEditUiState())
         val viewModel = screenTestViewModel(uiState = uiState)
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
@@ -221,7 +221,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-006 반영에 성공하면 이전 화면으로 돌아간다`() {
+    fun `TC-27e9cf0d-bf8c-4d0e-bc17-b25b153978a6 반영에 성공하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val effect = MutableSharedFlow<ProfileImageEditEffect>(extraBufferCapacity = 1)
         val viewModel = screenTestViewModel(effect = effect)
@@ -237,7 +237,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-007 반영에 실패하면 화면을 유지하고 실패를 알린다`() {
+    fun `TC-119e2591-2076-492c-9401-9b535f74df81 반영에 실패하면 화면을 유지하고 실패를 알린다`() {
         var navigateUpCount = 0
         val effect = MutableSharedFlow<ProfileImageEditEffect>(extraBufferCapacity = 1)
         val viewModel = screenTestViewModel(effect = effect)
@@ -265,7 +265,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-008 사진을 읽을 수 없으면 읽기 실패를 알리고 반영을 실행할 수 없다`() {
+    fun `TC-2162ce44-89e7-4652-9aee-83e0e60fd6d3 사진을 읽을 수 없으면 읽기 실패를 알리고 반영을 실행할 수 없다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(UNREADABLE_URI))
 
         choosePhoto()
@@ -277,7 +277,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-009 읽을 수 없는 상태에서 읽을 수 있는 사진을 고르면 반영을 실행할 수 있다`() {
+    fun `TC-c8721d7a-b4b0-4938-b5ee-8df36ee8206b 읽을 수 없는 상태에서 읽을 수 있는 사진을 고르면 반영을 실행할 수 있다`() {
         setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(UNREADABLE_URI, LANDSCAPE_URI))
         choosePhoto()
         awaitText(DEFAULT_UNREADABLE_MESSAGE)
@@ -291,7 +291,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-010 뒤로가면 반영하지 않고 이전 화면으로 돌아간다`() {
+    fun `TC-e68aa605-192e-4518-b69e-4fbb2c5084f3 뒤로가면 반영하지 않고 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI), navigateUp = { navigateUpCount += 1 })
@@ -307,7 +307,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-011 반영 중에 뒤로가면 결과를 기다리지 않고 돌아간다`() {
+    fun `TC-98fe5832-7c44-4a99-82fd-9d3c2b312e36 반영 중에 뒤로가면 결과를 기다리지 않고 돌아간다`() {
         var navigateUpCount = 0
         val uiState = MutableStateFlow(ProfileImageEditUiState())
         val viewModel = screenTestViewModel(uiState = uiState)
@@ -323,7 +323,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-001 처음 상태의 남길 영역은 사진 가운데의 짧은 변 정사각형이다`() {
+    fun `TC-f889e1d0-a32b-4422-a7c6-7fef8c52e73b 처음 상태의 남길 영역은 사진 가운데의 짧은 변 정사각형이다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(
             viewModel = viewModel,
@@ -342,7 +342,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-002 사진을 어느 방향으로 밀어도 남길 영역은 사진 안에 머문다`() {
+    fun `TC-4be3d3f3-3e47-46f2-a9b4-bb506875bc47 사진을 어느 방향으로 밀어도 남길 영역은 사진 안에 머문다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
         choosePhoto()
@@ -364,7 +364,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-003 처음 상태보다 작게 줄일 수 없다`() {
+    fun `TC-70924d88-4ea9-40c8-bb3b-cfcf5f6b6acd 처음 상태보다 작게 줄일 수 없다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
         choosePhoto()
@@ -385,7 +385,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-004 남길 영역의 한 변은 처음 상태의 5분의 1까지만 줄어든다`() {
+    fun `TC-8814cbcd-57bd-4f08-ab35-d29b60fe4045 남길 영역의 한 변은 처음 상태의 5분의 1까지만 줄어든다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
         choosePhoto()
@@ -408,7 +408,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-006 화면이 재생성되어도 사진과 남길 영역을 유지한다`() {
+    fun `TC-1ce2744a-58f0-447e-838f-c002e5cb5aae 화면이 재생성되어도 사진과 남길 영역을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val regions = mutableListOf<ImageCropRegion>()
         var latestState: ProfileImageEditState? = null
@@ -445,7 +445,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DOMAIN-007 사진을 고르기 전에 화면이 재생성되어도 사진이 없는 상태를 유지한다`() {
+    fun `TC-ee33707e-1e18-4b12-801d-492f45ee0273 사진을 고르기 전에 화면이 재생성되어도 사진이 없는 상태를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
@@ -461,7 +461,7 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
-    fun `TC-PROFILE-IMAGE-EDIT-DATA-001 반영을 실행하면 사진의 위치와 비율로 표현한 남길 영역으로 프로필 이미지를 바꾸도록 요청한다`() {
+    fun `TC-43d7c75f-d9f1-4c4a-93c8-8c391112198e 반영을 실행하면 사진의 위치와 비율로 표현한 남길 영역으로 프로필 이미지를 바꾸도록 요청한다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
         choosePhoto()

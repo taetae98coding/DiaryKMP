@@ -10,6 +10,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -20,6 +21,7 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLoca
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
@@ -188,7 +190,7 @@ class SearchPagingDaoTest :
                 .data
                 .map { web -> web.id }
 
-        test("TC-SEARCH-HOME-DOMAIN-002 메모는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 메모는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleMatched = memo(title = "$QUERY 계획")
             val descriptionMatched = memo(description = "$QUERY 준비물")
@@ -198,7 +200,7 @@ class SearchPagingDaoTest :
             memoIdList(accountId) shouldContainExactlyInAnyOrder listOf(titleMatched.id, descriptionMatched.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-002 태그는 이모지, 제목, 설명 중 하나가 질의를 포함하면 결과가 된다") {
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 태그는 이모지, 제목, 설명 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val emojiMatched = tag(emoji = QUERY)
             val titleMatched = tag(title = "$QUERY 태그")
@@ -210,7 +212,7 @@ class SearchPagingDaoTest :
                 listOf(emojiMatched.id, titleMatched.id, descriptionMatched.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-002 장소는 제목, 설명, 주소 중 하나가 질의를 포함하면 결과가 된다") {
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 장소는 제목, 설명, 주소 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleMatched = place(title = "$QUERY 숙소")
             val descriptionMatched = place(description = "$QUERY 후보")
@@ -222,7 +224,7 @@ class SearchPagingDaoTest :
                 listOf(titleMatched.id, descriptionMatched.id, addressMatched.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-002 웹 항목은 제목, 설명, URL 중 하나가 질의를 포함하면 결과가 된다") {
+        test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 웹 항목은 제목, 설명, URL 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleMatched = web(title = "$QUERY 준비")
             val descriptionMatched = web(description = "$QUERY 정보")
@@ -234,7 +236,7 @@ class SearchPagingDaoTest :
                 listOf(titleMatched.id, descriptionMatched.id, urlMatched.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-012 웹 항목의 요청 헤더만 질의를 포함하면 결과가 되지 않는다") {
+        test("TC-5aa4a76d-2c8d-4107-b957-ea606797d8fd 웹 항목의 요청 헤더만 질의를 포함하면 결과가 되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val headerMatched =
                 web(
@@ -248,7 +250,7 @@ class SearchPagingDaoTest :
             webIdList(accountId).shouldBeEmpty()
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-003 값 전체가 질의와 같지 않아도 결과가 된다") {
+        test("TC-8612b422-528c-4e41-a851-b278b1a8449e 값 전체가 질의와 같지 않아도 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(title = "여름 $QUERY 계획")
             insertMemo(accountId, memo)
@@ -256,7 +258,7 @@ class SearchPagingDaoTest :
             memoIdList(accountId) shouldBe listOf(memo.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-004 ASCII 영문자는 대소문자를 구분하지 않는다") {
+        test("TC-48bc994f-728d-4d74-a8bc-6f61c8516199 ASCII 영문자는 대소문자를 구분하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(title = "Travel")
             insertMemo(accountId, memo)
@@ -264,7 +266,7 @@ class SearchPagingDaoTest :
             memoIdList(accountId = accountId, query = "travel") shouldBe listOf(memo.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-014 ASCII 밖의 글자는 대소문자를 맞추지 않는다") {
+        test("TC-b4a06a31-5f7d-417f-a3f1-42efa5a4c66e ASCII 밖의 글자는 대소문자를 맞추지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(title = "Café")
             insertMemo(accountId, memo)
@@ -272,7 +274,7 @@ class SearchPagingDaoTest :
             memoIdList(accountId = accountId, query = "CAFÉ").shouldBeEmpty()
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-005 연결된 태그의 제목만 질의를 포함하면 메모는 결과가 되지 않는다") {
+        test("TC-ea4292ca-1646-4d09-b29a-33653c5e14d9 연결된 태그의 제목만 질의를 포함하면 메모는 결과가 되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag(title = "$QUERY 태그")
@@ -287,7 +289,7 @@ class SearchPagingDaoTest :
             tagIdList(accountId) shouldBe listOf(tag.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-006 삭제된 항목은 어느 유형에서도 결과가 되지 않는다") {
+        test("TC-51e82cb9-b34f-47f6-8f80-7ec533eaa72e 삭제된 항목은 어느 유형에서도 결과가 되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             insertMemo(accountId, memo(title = QUERY, isDeleted = true))
             insertTag(accountId, tag(title = QUERY, isDeleted = true))
@@ -300,7 +302,7 @@ class SearchPagingDaoTest :
             webIdList(accountId).shouldBeEmpty()
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-007 완료된 메모와 완료된 태그도 결과가 된다") {
+        test("TC-ab2e0d4c-f761-4de6-b44c-6ed7de86c7f9 완료된 메모와 완료된 태그도 결과가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedMemo = memo(title = QUERY, isFinished = true)
             val finishedTag = tag(title = QUERY, isFinished = true)
@@ -311,7 +313,7 @@ class SearchPagingDaoTest :
             tagIdList(accountId) shouldBe listOf(finishedTag.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-008 네 유형의 결과를 제목 오름차순으로 조회한다") {
+        test("TC-609e4786-9dfc-48eb-a035-4bf76058601e 네 유형의 결과를 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val secondMemo = memo(title = "나 $QUERY")
             val firstMemo = memo(title = "가 $QUERY")
@@ -336,7 +338,7 @@ class SearchPagingDaoTest :
             webIdList(accountId) shouldBe listOf(firstWeb.id, secondWeb.id, thirdWeb.id)
         }
 
-        test("TC-SEARCH-HOME-DATA-001 한 유형을 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
+        test("TC-dbb63bc4-ee53-4d78-ac07-f920773ca782 한 유형을 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memoList = List(ITEM_COUNT) { index -> memo(title = "$QUERY-${index.pad()}") }
             val tagList = List(ITEM_COUNT) { index -> tag(title = "$QUERY-${index.pad()}") }
@@ -359,7 +361,7 @@ class SearchPagingDaoTest :
                 .map { tag -> tag.id } shouldBe tagList.take(PAGE_SIZE).map { tag -> tag.id }
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-011 저장된 항목이 바뀌면 결과가 갱신된다") {
+        test("TC-55b41830-5dd2-442f-ad02-4fb73a8e0e4f 저장된 항목이 바뀌면 결과가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val savedMemo = memo(title = "가 $QUERY")
             insertMemo(accountId, savedMemo)
@@ -376,7 +378,7 @@ class SearchPagingDaoTest :
             memoIdList(accountId) shouldBe listOf(savedMemo.id, addedMemo.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-018 질의를 만족하지 않게 바뀌거나 삭제된 항목은 결과에서 사라진다") {
+        test("TC-5f357cf5-11d8-4dcf-898a-46e6d9bb2cf1 질의를 만족하지 않게 바뀌거나 삭제된 항목은 결과에서 사라진다") {
             val changeList: List<(MemoLocalEntity) -> MemoLocalEntity> =
                 listOf(
                     { memo -> memo.copy(detail = memo.detail.copy(title = "변경-${fixtureMonkey.giveMeOne<Int>()}", description = "")) },
@@ -400,7 +402,7 @@ class SearchPagingDaoTest :
             }
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-016 다른 계정과 연결된 항목은 어느 유형에서도 결과가 되지 않는다") {
+        test("TC-e7eb7b80-8ee7-4906-ae52-8081df9ff769 다른 계정과 연결된 항목은 어느 유형에서도 결과가 되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             insertMemo(otherAccountId, memo(title = QUERY))
@@ -412,6 +414,32 @@ class SearchPagingDaoTest :
             tagIdList(accountId).shouldBeEmpty()
             placeIdList(accountId).shouldBeEmpty()
             webIdList(accountId).shouldBeEmpty()
+        }
+
+        test("TC-1d910620-bfc0-4ea1-871c-f17561570aaf MemoHome에 걸어 둔 필터는 메모 결과를 좁히지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val filterTag = tag()
+            val filterTagMemo = memo(title = "$QUERY 태그 있음")
+            val untaggedMemo = memo(title = "$QUERY 태그 없음")
+            insertTag(accountId, filterTag)
+            insertMemo(accountId, filterTagMemo, untaggedMemo)
+            insertMemoTag(accountId, memoTag(memoId = filterTagMemo.id, tagId = filterTag.id))
+            database.memoFilterTagDao().upsert(entity = MemoFilterTagLocalEntity(accountId = accountId, tagId = filterTag.id))
+            // 장소가 있는 메모만 남기는 유무 필터라 MemoHome 목록에는 두 메모 모두 보이지 않는다.
+            database.memoExistenceFilterDao().upsert(
+                entity = MemoExistenceFilterLocalEntity(hasDate = null, hasTag = true, hasPlace = true),
+            )
+
+            memoIdList(accountId) shouldContainExactlyInAnyOrder listOf(filterTagMemo.id, untaggedMemo.id)
+        }
+
+        test("TC-3675cf4a-13d8-4607-b7db-80f39b09fafb 서로 멀리 떨어진 장소도 위치와 관계없이 모두 결과가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val seoulPlace = place(title = "$QUERY 서울").located(latitude = SEOUL_LATITUDE, longitude = SEOUL_LONGITUDE)
+            val parisPlace = place(title = "$QUERY 파리").located(latitude = PARIS_LATITUDE, longitude = PARIS_LONGITUDE)
+            insertPlace(accountId, seoulPlace, parisPlace)
+
+            placeIdList(accountId) shouldContainExactlyInAnyOrder listOf(seoulPlace.id, parisPlace.id)
         }
 
         test("질의의 SQL 와일드카드 문자는 패턴이 아니라 문자 그대로 판정한다") {
@@ -428,6 +456,10 @@ class SearchPagingDaoTest :
         private const val ITEM_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
         private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
+        private const val SEOUL_LATITUDE: Double = 37.5665
+        private const val SEOUL_LONGITUDE: Double = 126.978
+        private const val PARIS_LATITUDE: Double = 48.8566
+        private const val PARIS_LONGITUDE: Double = 2.3522
 
         private fun Int.pad(): String = toString().padStart(length = 3, padChar = '0')
 
@@ -545,6 +577,11 @@ class SearchPagingDaoTest :
                 .setExp(WebLocalEntity::updatedAt, instant())
                 .setExp(WebLocalEntity::createdAt, instant())
                 .sample()
+
+        private fun PlaceLocalEntity.located(
+            latitude: Double,
+            longitude: Double,
+        ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
         private fun memoTag(
             memoId: Uuid,

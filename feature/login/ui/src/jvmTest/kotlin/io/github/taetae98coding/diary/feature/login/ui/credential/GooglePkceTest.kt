@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.feature.login.ui.credential
 
-import com.google.api.client.http.GenericUrl
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import java.security.MessageDigest
+import io.kotest.matchers.string.shouldStartWith
 import java.util.Base64
 
 private val fixtureMonkey: FixtureMonkey =
@@ -15,11 +15,11 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GooglePkceTest :
     FunSpec({
-        test("TC-LOGIN-DATA-008 같은 로그인 시도의 S256 challenge와 verifier를 사용한다") {
+        test("TC-4fe3aba3-1c08-4273-b7a3-3275cf4c0212 같은 로그인 시도의 S256 challenge와 verifier를 사용한다") {
             val randomBytes = randomBytes()
             val clientId = googleClientId()
             val redirectUri = loopbackRedirectUri()
-            val authorizationCode = fixtureMonkey.giveMeOne<String>()
+            val authorizationCode = fixtureMonkey.nonBlankString()
             val pkceFactory = GooglePkceFactory { target -> randomBytes.copyInto(target) }
             val attemptFactory =
                 GoogleAuthorizationCodeAttemptFactory(
@@ -28,17 +28,16 @@ class GooglePkceTest :
                 )
 
             val attempt = attemptFactory.create(redirectUri = redirectUri)
-            val authorizationRequest = GenericUrl(attempt.authorizationUrl)
-            val credential = attempt.credential(code = authorizationCode)
+            val credential = attempt.toCredential(parameters = mapOf("code" to authorizationCode))
 
-            authorizationRequest.getFirst("code_challenge_method") shouldBe "S256"
-            authorizationRequest.getFirst("code_challenge") shouldBe codeChallenge(credential.codeVerifier.orEmpty())
+            attempt.authorizationUrl.queryParameter("code_challenge_method") shouldBe "S256"
+            attempt.authorizationUrl.queryParameter("code_challenge") shouldBe s256CodeChallenge(credential.codeVerifier.orEmpty())
             credential.code shouldBe authorizationCode
             credential.clientId shouldBe clientId
             credential.redirectUri shouldBe redirectUri
         }
 
-        test("TC-LOGIN-DATA-009 새 로그인 시도는 새로운 PKCE 값을 사용한다") {
+        test("TC-43b5296f-b1dd-4296-b038-a4a0f0bb9b36 새 로그인 시도는 새로운 PKCE 값을 사용한다") {
             val firstRandomBytes = randomBytes()
             val secondRandomBytes = firstRandomBytes.map { byte -> byte.toInt().inv().toByte() }.toByteArray()
             var attemptCount = 0
@@ -58,12 +57,25 @@ class GooglePkceTest :
 
             val firstAttempt = attemptFactory.create(redirectUri = loopbackRedirectUri())
             val secondAttempt = attemptFactory.create(redirectUri = loopbackRedirectUri())
-            val firstCredential = firstAttempt.credential(code = fixtureMonkey.giveMeOne<String>())
-            val secondCredential = secondAttempt.credential(code = fixtureMonkey.giveMeOne<String>())
+            val firstCredential = firstAttempt.toCredential(parameters = mapOf("code" to fixtureMonkey.nonBlankString()))
+            val secondCredential = secondAttempt.toCredential(parameters = mapOf("code" to fixtureMonkey.nonBlankString()))
 
             firstCredential.codeVerifier shouldNotBe secondCredential.codeVerifier
-            GenericUrl(firstAttempt.authorizationUrl).getFirst("code_challenge") shouldNotBe
-                GenericUrl(secondAttempt.authorizationUrl).getFirst("code_challenge")
+            firstAttempt.authorizationUrl.queryParameter("code_challenge") shouldNotBe
+                secondAttempt.authorizationUrl.queryParameter("code_challenge")
+        }
+
+        test("인가 요청은 Google 인가 주소에 code 흐름의 앱 식별 값, 복귀 주소, 요청 범위를 담는다") {
+            val clientId = googleClientId()
+            val redirectUri = loopbackRedirectUri()
+
+            val attempt = GoogleAuthorizationCodeAttemptFactory(clientId = clientId).create(redirectUri = redirectUri)
+
+            attempt.authorizationUrl shouldStartWith "https://accounts.google.com/o/oauth2/v2/auth?"
+            attempt.authorizationUrl.queryParameter("client_id") shouldBe clientId
+            attempt.authorizationUrl.queryParameter("redirect_uri") shouldBe redirectUri
+            attempt.authorizationUrl.queryParameter("response_type") shouldBe "code"
+            attempt.authorizationUrl.queryParameter("scope") shouldBe "openid profile email"
         }
 
         test("RFC 7636 S256 공식 벡터로 challenge를 만든다") {
@@ -96,18 +108,8 @@ private fun loopbackRedirectUri(): String {
                 .toUInt()
                 .rem(64_512u)
                 .toInt()
-    return "http://127.0.0.1:$port/Callback"
+    return "http://127.0.0.1:$port/callback"
 }
-
-private fun codeChallenge(codeVerifier: String): String =
-    Base64
-        .getUrlEncoder()
-        .withoutPadding()
-        .encodeToString(
-            MessageDigest
-                .getInstance("SHA-256")
-                .digest(codeVerifier.encodeToByteArray()),
-        )
 
 private val PKCE_CODE_VERIFIER_REGEX = Regex("^[A-Za-z0-9._~-]{43,128}$")
 private const val RFC_7636_CODE_VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"

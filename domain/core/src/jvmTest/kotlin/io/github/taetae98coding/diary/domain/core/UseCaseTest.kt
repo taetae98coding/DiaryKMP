@@ -32,7 +32,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-001 실패한 작업의 이름이 태그로, 실패 원인이 오류 정보로 남는다") {
+                Then("TC-4fc2499b-f700-42cd-a3b9-493ab186dc7d 실패한 작업의 이름이 태그로, 실패 원인이 오류 정보로 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
 
@@ -44,7 +44,7 @@ class UseCaseTest :
                     log.throwable shouldBeSameInstanceAs failure
                 }
 
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-007 호출한 쪽은 실패 원인을 담은 실패 결과를 그대로 받는다") {
+                Then("TC-0f78fa8d-126c-4ac3-b98c-f6dbdd373790 호출한 쪽은 실패 원인을 담은 실패 결과를 그대로 받는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
 
@@ -60,7 +60,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("바깥 작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-015 안쪽 작업과 바깥 작업의 이름으로 실패 로그가 하나씩 남는다") {
+                Then("TC-75ca3733-21b8-4f5c-9416-eb6754875509 안쪽 작업과 바깥 작업의 이름으로 실패 로그가 하나씩 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = RethrowingUseCase(inner = FailingUseCase(throwable = failure))
 
@@ -76,7 +76,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("같은 작업을 두 번 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-003 실패 로그가 두 번 남는다") {
+                Then("TC-ffab2916-0d70-4877-b321-ec59083a40e9 실패 로그가 두 번 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
 
@@ -93,7 +93,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-004 실패 로그가 남지 않는다") {
+                Then("TC-ab12ade8-95b3-443e-ba83-0b1fda65f82a 실패 로그가 남지 않는다") {
                     val useCase = SuccessUseCase()
                     val parameter = fixtureMonkey.giveMeOne<String>()
 
@@ -110,7 +110,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("진행 중이던 작업을 중단한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-005 실패 로그가 남지 않는다") {
+                Then("TC-9f2cf9fb-cb64-462f-a7e3-efc210cd71ce 실패 로그가 남지 않는다") {
                     val onStart = CompletableDeferred<Unit>()
                     val useCase = AwaitCancellationUseCase(onStart = onStart)
 
@@ -131,7 +131,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-006 실패 로그에 입력 값이 포함되지 않는다") {
+                Then("TC-7d961071-3576-4a0b-8b28-21d4cf998249 실패 로그에 입력 값이 포함되지 않는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
                     val parameter = "parameter-" + fixtureMonkey.giveMeOne<String>()
@@ -147,7 +147,7 @@ class UseCaseTest :
             val recording = recordingDelegate()
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-008 그 수단에 로그가 남지 않고 실패 결과는 그대로 전달된다") {
+                Then("TC-b976a725-ee2a-41b6-b7e8-8df3f47c0c0d 그 수단에 로그가 남지 않고 실패 결과는 그대로 전달된다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
 
@@ -164,7 +164,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-009 콘솔 로그와 오류 보고가 함께 남는다") {
+                Then("TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 콘솔 로그와 오류 보고가 함께 남는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = ReportingFailingUseCase(throwable = failure)
 
@@ -181,7 +181,7 @@ class UseCaseTest :
                     reportLog.throwable shouldBeSameInstanceAs failure
                 }
 
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-012 호출한 쪽은 실패 원인을 담은 실패 결과를 그대로 받는다") {
+                Then("TC-a020b1f1-8af2-4d01-a99d-691411e6575f 호출한 쪽은 실패 원인을 담은 실패 결과를 그대로 받는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = ReportingFailingUseCase(throwable = failure)
 
@@ -197,7 +197,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("작업을 실행한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-010 콘솔 로그만 남고 오류 보고는 남지 않는다") {
+                Then("TC-318e8f13-7bf1-403a-986d-9bc10d750dcc 콘솔 로그만 남고 오류 보고는 남지 않는다") {
                     val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
                     val useCase = FailingUseCase(throwable = failure)
 
@@ -214,7 +214,7 @@ class UseCaseTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("진행 중이던 작업을 중단한다") {
-                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-011 콘솔 로그와 오류 보고가 모두 남지 않는다") {
+                Then("TC-c31898f9-0147-4546-a29e-c9f84d5cc9c2 콘솔 로그와 오류 보고가 모두 남지 않는다") {
                     val onStart = CompletableDeferred<Unit>()
                     val useCase = ReportingAwaitCancellationUseCase(onStart = onStart)
 

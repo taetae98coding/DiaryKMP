@@ -36,7 +36,7 @@ class DiaryLoggerTest :
             DiaryLogger.add(delegate = delegateB.delegate)
 
             When("서로 다른 종류의 로그를 차례로 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-020 두 로그가 종류와 관계없이 A와 B 모두에 전달된다") {
+                Then("TC-697f38f8-1903-424f-aee8-c0d802084056 두 로그가 종류와 관계없이 A와 B 모두에 전달된다") {
                     val firstLog = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
                     val secondLog = SecondLog(value = fixtureMonkey.giveMeOne<Int>())
 
@@ -56,7 +56,7 @@ class DiaryLoggerTest :
             DiaryLogger.add(delegate = second.delegate)
 
             When("그 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-002 두 기록 수단 모두에 같은 로그가 남는다") {
+                Then("TC-3797502d-e851-4462-a11e-93c4a8444943 두 기록 수단 모두에 같은 로그가 남는다") {
                     val log = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
 
                     DiaryLogger.log(log = log)
@@ -71,7 +71,7 @@ class DiaryLoggerTest :
             val recording = recordingDelegate()
 
             When("그 수단이 담당하는 종류의 로그를 공통 창구에 전달한 뒤 수단을 등록한다") {
-                Then("TC-APP-LOGGING-DOMAIN-004 등록 이후에도 앞서 전달한 로그는 그 수단에 남지 않는다") {
+                Then("TC-3be42f22-a340-4df8-83e8-4497b59acbb5 등록 이후에도 앞서 전달한 로그는 그 수단에 남지 않는다") {
                     DiaryLogger.log(log = FirstLog(value = fixtureMonkey.giveMeOne<Int>()))
 
                     DiaryLogger.add(delegate = recording.delegate)
@@ -87,7 +87,7 @@ class DiaryLoggerTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("그 수단이 담당하는 종류의 로그를 공통 창구에 한 번 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-006 그 수단에 로그가 한 번만 남는다") {
+                Then("TC-87c254db-ee09-4d04-844a-3fafd40c197f 그 수단에 로그가 한 번만 남는다") {
                     val log = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
 
                     DiaryLogger.log(log = log)
@@ -105,7 +105,7 @@ class DiaryLoggerTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("그 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-008 정상 동작하는 수단에는 로그가 남고 전달은 오류 없이 완료된다") {
+                Then("TC-9a6e7e05-1c6f-4b3a-93e5-011f1216fa97 정상 동작하는 수단에는 로그가 남고 전달은 오류 없이 완료된다") {
                     val log = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
 
                     shouldNotThrowAny {
@@ -123,7 +123,7 @@ class DiaryLoggerTest :
             DiaryLogger.add(delegate = recording.delegate)
 
             When("하나의 흐름에서 로그 여러 개를 순서대로 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-009 그 수단에 로그가 전달한 순서대로 남는다") {
+                Then("TC-24a55360-b805-4364-a3c5-da758bd47d9d 그 수단에 로그가 전달한 순서대로 남는다") {
                     val logList =
                         List(size = 3) {
                             FirstLog(value = fixtureMonkey.giveMeOne<Int>())

@@ -1,0 +1,9 @@
+<resources>
+    <string name="entity_detail_memo_finished_list_action_label">완료된 메모</string>
+    <string name="entity_memo_finished_list_detail_placeholder_message">메모를 선택하세요</string>
+    <string name="entity_memo_finished_list_subtitle">완료된 메모</string>
+    <string name="entity_memo_finished_list_navigate_up_button_content_description">뒤로가기</string>
+    <string name="entity_memo_finished_list_restarted_message">메모를 다시 시작했습니다.</string>
+    <string name="entity_memo_finished_list_deleted_message">메모가 삭제되었습니다.</string>
+    <string name="entity_memo_finished_list_undo_action">실행 취소</string>
+</resources>

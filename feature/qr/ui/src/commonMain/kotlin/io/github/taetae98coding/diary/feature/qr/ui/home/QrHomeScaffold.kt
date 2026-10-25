@@ -32,9 +32,10 @@ internal fun QrHomeScaffold(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
+    componentVisibleProvider: () -> QrHomeScaffoldComponentVisible = { QrHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
-        modifier = modifier.addShortcut { onEvent(QrHomeScaffoldEvent.ClickAdd) },
+        modifier = modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }) { onEvent(QrHomeScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.qr_home_title),
@@ -44,10 +45,12 @@ internal fun QrHomeScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            FloatingAddButton(
-                onClick = { onEvent(QrHomeScaffoldEvent.ClickAdd) },
-                contentDescription = stringResource(Res.string.qr_add_button_content_description),
-            )
+            if (componentVisibleProvider().isAddButtonVisible) {
+                FloatingAddButton(
+                    onClick = { onEvent(QrHomeScaffoldEvent.ClickAdd) },
+                    contentDescription = stringResource(Res.string.qr_add_button_content_description),
+                )
+            }
         },
     ) { paddingValues ->
         QrHomeList(
@@ -58,7 +61,7 @@ internal fun QrHomeScaffold(
                     .padding(paddingValues),
             qrPagingItems = qrPagingItems,
             isRefreshingProvider = { uiStateProvider().isRefreshing },
-            bottomPadding = DiaryTheme.dimens.floatingActionButtonClearance,
+            bottomPadding = if (componentVisibleProvider().isAddButtonVisible) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
         )
     }
 }

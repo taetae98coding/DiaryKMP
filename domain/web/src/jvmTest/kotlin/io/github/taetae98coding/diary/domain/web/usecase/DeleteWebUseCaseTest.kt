@@ -54,14 +54,14 @@ class DeleteWebUseCaseTest :
                 )
 
             When("웹 항목을 삭제한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-016 TC-WEB-HOME-DOMAIN-010 삭제 여부와 수정 시각만 바꾼다") {
+                Then("TC-375d5840-d17c-45d8-8b9a-12f781170d80 TC-001a88e9-7b13-4e39-9d07-befa161eded9 삭제 여부와 수정 시각만 바꾼다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 TC-WEB-HOME-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-335846fb-942b-4b3d-aa52-2bb3b2e38aa4 TC-c6828a34-6fdc-4319-b79c-5a9a022b2ea7 TC-aa0e220a-eb33-46de-bde8-0921df1278c6 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -87,7 +87,7 @@ class DeleteWebUseCaseTest :
                 )
 
             When("웹 항목을 삭제한다") {
-                Then("TC-WEB-DETAIL-DATA-013 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
+                Then("TC-fc0c7076-0894-4610-802f-ee24fb9612ac 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -142,7 +142,7 @@ class DeleteWebUseCaseTest :
                 )
 
             When("웹 항목을 삭제한다") {
-                Then("TC-WEB-DETAIL-DATA-010 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = Uuid.random())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

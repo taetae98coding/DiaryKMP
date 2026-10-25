@@ -52,7 +52,7 @@ class MemoDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-029 조회 결과가 없으면 로딩 상태를 유지한다") {
+        test("TC-3a4b49d6-5255-4631-9372-37346ffe8352 조회 결과가 없으면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 every { findMemoUseCase(any()) } returns flowOf(Result.success(null))
@@ -67,7 +67,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-029 조회가 실패하면 로딩 상태를 유지한다") {
+        test("TC-3a4b49d6-5255-4631-9372-37346ffe8352 조회가 실패하면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 every { findMemoUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
@@ -82,7 +82,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-030 조회가 완료되면 로딩 상태가 끝나고 조회한 내용이 표시된다") {
+        test("TC-e8ce9bf6-f96f-4874-aff8-8ce848811e79 조회가 완료되면 로딩 상태가 끝나고 조회한 내용이 표시된다") {
             runTest(mainDispatcher) {
                 val memo = memo()
                 val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
@@ -104,7 +104,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-090 내용을 표시한 뒤 조회가 잠시 끊기면 로딩 상태가 되었다가 다시 내용으로 돌아온다") {
+        test("TC-5b89e4fa-431c-432a-be24-1dad799bb8dc 내용을 표시한 뒤 조회가 잠시 끊기면 로딩 상태가 되었다가 다시 내용으로 돌아온다") {
             runTest(mainDispatcher) {
                 listOf<Result<Memo?>>(
                     Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
@@ -132,7 +132,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-001 조회한 메모의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
+        test("TC-e56b13c0-7157-4641-b74c-7a4b0b62ab4a 조회한 메모의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo()
                 val changedMemo = memo.copy(detail = fixtureMonkey.giveMeOne<MemoDetail>())
@@ -170,7 +170,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-073 같은 메모가 다른 경로로 완료되거나 다시 시작되면 저장된 완료 여부를 상태에 반영한다") {
+        test("TC-30675f33-a6cc-42ba-9f01-d7979e88de6d 같은 메모가 다른 경로로 완료되거나 다시 시작되면 저장된 완료 여부를 상태에 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo().copy(isFinished = false)
                 val finishedMemo = memo.copy(isFinished = true)
@@ -199,7 +199,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-074 같은 메모가 다른 경로로 삭제되어도 화면을 닫지 않고 마지막 저장 내용을 계속 표시한다") {
+        test("TC-a8d9c560-605d-4b56-920d-d9a45dc909fb 같은 메모가 다른 경로로 삭제되어도 화면을 닫지 않고 마지막 저장 내용을 계속 표시한다") {
             runTest(mainDispatcher) {
                 val memo = memo().copy(isDeleted = false)
                 val deletedMemo = memo.copy(isDeleted = true)
@@ -232,7 +232,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-002 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
+        test("TC-042e7d6a-8110-4c0f-92f9-0f51830bd3cb 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstDetail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "first-${fixtureMonkey.giveMeOne<String>()}")
@@ -260,7 +260,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -295,7 +295,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -325,7 +325,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val detail = fixtureMonkey.giveMeOne<MemoDetail>()
@@ -359,7 +359,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 수정 처리 중 전달된 완료 요청은 처리한다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 수정 처리 중 전달된 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -489,7 +489,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-012 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
+        test("TC-0fa910ea-724d-4f76-8249-2bde3c1d7a05 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
                 coEvery { updateMemoUseCase(any()) } returns Result.success(1)
@@ -505,7 +505,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-083 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태를 해제해 다시 수정할 수 있다") {
+        test("TC-adadf2cb-b987-4a83-a8b1-5457a8fe6645 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태를 해제해 다시 수정할 수 있다") {
             runTest(mainDispatcher) {
                 val memo = memo()
                 val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -540,7 +540,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-003 완료를 실행하면 현재 메모의 완료를 요청하고 Effect를 보내지 않는다") {
+        test("TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 완료를 실행하면 현재 메모의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -562,7 +562,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-003 다시 시작을 실행하면 현재 메모의 다시 시작을 요청하고 Effect를 보내지 않는다") {
+        test("TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 다시 시작을 실행하면 현재 메모의 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -584,7 +584,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-026 TC-MEMO-DETAIL-DATA-003 삭제에 성공하면 현재 메모의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
+        test("TC-231b6a8e-83cc-4cf4-8c2d-558f5715280a TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 삭제에 성공하면 현재 메모의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -607,7 +607,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-085 삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-99521be8-d19f-4211-8d1a-f7d766a9ad09 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -622,7 +622,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-086 완료와 다시 시작 저장에 실패하면 Effect를 보내지 않고 다시 요청할 수 있다") {
+        test("TC-a82081c9-eb59-4e31-9d25-84b26de5fa27 완료와 다시 시작 저장에 실패하면 Effect를 보내지 않고 다시 요청할 수 있다") {
             runTest(mainDispatcher) {
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -649,7 +649,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-044 복사에 성공하면 복사본 메모의 상세로 전환하는 Effect를 한 번 보낸다") {
+        test("TC-3173bd65-b0f9-4f01-8a9e-df2b3bd4cf60 복사에 성공하면 복사본 메모의 상세로 전환하는 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val copiedId = fixtureMonkey.giveMeOne<Uuid>()
@@ -673,7 +673,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-046 복사에 실패하면 Effect를 보내지 않는다") {
+        test("TC-b795c4a5-6336-4660-af19-1b869e952178 복사에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
                 coEvery { copyMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -688,7 +688,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 복사 처리 중 전달된 복사 요청은 처리하지 않고 완료 요청은 처리한다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 복사 처리 중 전달된 복사 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Uuid>>()
@@ -723,7 +723,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-004 완료 처리 중 전달된 복사 요청은 처리한다") {
+        test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 복사 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -773,7 +773,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-028 복사를 처리하는 동안 복사 진행 상태를 노출한다") {
+        test("TC-4b34f908-5548-4b6d-a9db-d7369f056c99 복사를 처리하는 동안 복사 진행 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val memo = memo()
                 val completion = CompletableDeferred<Result<Uuid>>()
@@ -807,7 +807,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-017 수정에 성공해 저장 제목이 바뀌면 상단 바 제목이 갱신된다") {
+        test("TC-178e5498-cdf7-4b54-94f3-b47ad896d8d1 수정에 성공해 저장 제목이 바뀌면 상단 바 제목이 갱신된다") {
             runTest(mainDispatcher) {
                 val memo = memo()
                 val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"

@@ -7,7 +7,11 @@ import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -34,6 +38,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -94,7 +101,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용으로 화면을 채운다`() {
+    fun `TC-333ab481-c071-43fd-949b-d8cf7eab137a 조회에 성공하면 저장된 내용으로 화면을 채운다`() {
         val caseList =
             listOf(
                 FillCase(value = HELLO, format = TEXT_FORMAT, fieldList = emptyList()),
@@ -125,14 +132,14 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-002 진입할 때 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-85184e9b-a938-4802-9080-8b3396e7496b 진입할 때 어느 입력에도 초점을 두지 않는다`() {
         setScreen()
 
         composeRule.onAllNodes(isFocused() and hasSetTextAction()).assertCountEquals(0)
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-003 조회 중에는 뒤로가기 외의 입력과 동작을 실행할 수 없다`() {
+    fun `TC-9191c7c2-e4a2-4a27-b480-aeac89784832 조회 중에는 뒤로가기 외의 입력과 동작을 실행할 수 없다`() {
         val fake = FakeViewModel()
         fake.uiState.value = QrDetailUiState.Loading
         composeRule.setContent { ScreenContent(viewModel = fake.viewModel) }
@@ -144,7 +151,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-005 화면에는 정해진 탭, 입력과 동작만 둔다`() {
+    fun `TC-c78bde66-c00f-42df-ae30-01628f3e911e 화면에는 정해진 탭, 입력과 동작만 둔다`() {
         setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.waitForIdle()
@@ -157,7 +164,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-006 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
+    fun `TC-1707fd4b-403e-4afa-88c2-d5a581961b6c 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val storedDescription = qrTestFixtureMonkey.nonBlankString()
         val detail = QrDetail(title = storedTitle, description = storedDescription, value = HELLO)
@@ -187,7 +194,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-007 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공한다`() {
+    fun `TC-6eac81d7-9218-4b4d-a57e-205557922e2e 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공한다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
@@ -213,7 +220,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-008 수정을 처리하는 동안 진행 상태를 표시하고 다른 동작은 그대로 실행할 수 있다`() {
+    fun `TC-84cc1f19-bc56-4814-a68f-4515f6341e96 수정을 처리하는 동안 진행 상태를 표시하고 다른 동작은 그대로 실행할 수 있다`() {
         val fake = setScreen()
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
         composeRule.onQrFieldInput(URL_LABEL).performTextInput(EXAMPLE_URL)
@@ -236,7 +243,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-009 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
+    fun `TC-69797177-9c6a-4a07-9ba0-c2b3456f28cb 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val editedTitle = editedText()
         setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO)).let { fake ->
@@ -256,7 +263,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-010 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
+    fun `TC-71f45fb1-578c-4bd8-a9ed-beff96864cb0 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val storedDescription = qrTestFixtureMonkey.nonBlankString()
         val editedDescription = editedText()
@@ -284,7 +291,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-011 QR 값이 비어 있으면 QR 탭에서 선택한 포맷의 첫 입력을 알린다`() {
+    fun `TC-153eb53d-f3c0-40fc-90e8-dad2749d8e37 QR 값이 비어 있으면 QR 탭에서 선택한 포맷의 첫 입력을 알린다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = EXAMPLE_URL))
@@ -304,7 +311,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-013 카메라 권한을 쓸 수 있으면 QrScan 화면으로 이동한다`() {
+    fun `TC-29a2824b-5741-43c9-a8e4-9474ac18c78b 카메라 권한을 쓸 수 있으면 QrScan 화면으로 이동한다`() {
         val editedTitle = editedText()
         var navigateToScanCount = 0
         setScreen(registry = respondingRegistry(isGranted = true), navigateToScan = { navigateToScanCount += 1 })
@@ -320,7 +327,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-013 카메라 권한이 이미 허용되어 있으면 QrScan 화면으로 이동한다`() {
+    fun `TC-29a2824b-5741-43c9-a8e4-9474ac18c78b 카메라 권한이 이미 허용되어 있으면 QrScan 화면으로 이동한다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.CAMERA)
         var navigateToScanCount = 0
         val editedTitle = editedText()
@@ -336,7 +343,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-013 카메라 권한이 허용되지 않으면 이동하지 않고 안내를 표시한다`() {
+    fun `TC-29a2824b-5741-43c9-a8e4-9474ac18c78b 카메라 권한이 허용되지 않으면 이동하지 않고 안내를 표시한다`() {
         val editedTitle = editedText()
         var navigateToScanCount = 0
         setScreen(registry = respondingRegistry(isGranted = false), navigateToScan = { navigateToScanCount += 1 })
@@ -352,7 +359,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-012 QrScan 화면에서 읽은 값을 받으면 QR 값을 바꾸고 수정 동작을 제공한다`() {
+    fun `TC-3dfc9b71-b8a2-462d-a87b-22aa53d6755f QrScan 화면에서 읽은 값을 받으면 QR 값을 바꾸고 수정 동작을 제공한다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val resultEventBus = ResultEventBus()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO), resultEventBus = resultEventBus)
@@ -369,7 +376,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-014 되돌리기는 저장된 QR을 바꾸지 않고 입력만 되돌린다`() {
+    fun `TC-b7d6ac5a-9a5f-40a2-8c32-dff664e6c913 되돌리기는 저장된 QR을 바꾸지 않고 입력만 되돌린다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
@@ -388,7 +395,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-015 삭제에 성공하면 확인을 묻지 않고 QrHome 화면으로 돌아간다`() {
+    fun `TC-0aadb52b-f4a6-4bc0-8a09-5c9199f61191 삭제에 성공하면 확인을 묻지 않고 QrHome 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val detail = qrTestFixtureMonkey.qrDetail()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
@@ -410,7 +417,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-016 삭제를 처리하는 동안 진행 상태를 표시하고 입력과 수정을 그대로 실행할 수 있다`() {
+    fun `TC-b92856e6-8878-4d39-a0f2-b7bc32b3e0d3 삭제를 처리하는 동안 진행 상태를 표시하고 입력과 수정을 그대로 실행할 수 있다`() {
         val fake = setScreen()
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.runOnIdle { fake.uiState.value = fake.content().copy(isDeleteInProgress = true) }
@@ -425,7 +432,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-018 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
+    fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
         val storedTitle = qrTestFixtureMonkey.nonBlankString()
         val editedTitle = editedText()
         val otherTitle = otherText()
@@ -444,7 +451,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-020 뒤로가면 수정하지 않은 채 돌아간다`() {
+    fun `TC-ff23013a-f4c3-484d-b4e7-e8207ea7ae8d 뒤로가면 수정하지 않은 채 돌아간다`() {
         var navigateUpCount = 0
         val detail = qrTestFixtureMonkey.qrDetail()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
@@ -464,7 +471,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-022 수정 성공 피드백은 화면이 재생성되면 다시 표시하지 않는다`() {
+    fun `TC-9b80a2be-53f8-402e-8554-c1594353bf7e 수정 성공 피드백은 화면이 재생성되면 다시 표시하지 않는다`() {
         val fake = FakeViewModel()
         every { fake.viewModel.update(detail = any()) } answers { fake.effect.trySend(QrDetailEffect.UpdateSucceeded) }
         val restorationTester = StateRestorationTester(composeRule)
@@ -481,17 +488,78 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-DOMAIN-007 화면이 재생성되어도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
+    fun `TC-12659fd6-1dcd-439c-8ace-8975bbabbff9 화면이 재생성되어도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
         assertInputRetained()
     }
 
     @Test
-    fun `TC-QR-DETAIL-DOMAIN-007 시스템이 앱을 되살리며 화면을 다시 보여 줘도 입력, 포맷, 탭과 되돌리기 기록을 복원한다`() {
+    fun `TC-12659fd6-1dcd-439c-8ace-8975bbabbff9 시스템이 앱을 되살리며 화면을 다시 보여 줘도 입력, 포맷, 탭과 되돌리기 기록을 복원한다`() {
         assertInputRetained()
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-018 저장된 일정 QR이 다른 경로에서 바뀌어도 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
+    fun `TC-3d388656-9d46-429c-9229-d050d997a570 앱이 백그라운드에 다녀와도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
+        val editedTitle = editedText()
+        val fake = FakeViewModel(detail = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO))
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                ScreenContent(viewModel = fake.viewModel)
+            }
+        }
+        composeRule.onTitleInput().performTextReplacement(editedTitle)
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
+        composeRule.onQrFieldInput(NETWORK_NAME_LABEL).performTextInput("home")
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.selectedFormat() shouldBe WIFI_FORMAT
+        composeRule.onQrFieldInput(NETWORK_NAME_LABEL).editableText() shouldBe "home"
+        composeRule.onNode(updateButton()).assertExists()
+        composeRule.titleInputText() shouldBe editedTitle
+        composeRule.onNodeWithContentDescription(UNDO).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectedFormat() shouldBe TEXT_FORMAT
+        composeRule.qrTextInputText() shouldBe HELLO
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 QR의 화면을 다시 구성한다.
+    @Test
+    fun `TC-c4da1b3a-7069-4be3-a2e4-8f62fa9ae5ea 앱을 다시 실행해 진입하면 수정 중이던 내용을 복원하지 않는다`() {
+        val stored = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO)
+        val firstLaunch = FakeViewModel(detail = stored)
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                val fake = remember { if (launchCount == 0) firstLaunch else FakeViewModel(detail = stored).apply { uiState.value = firstLaunch.content() } }
+
+                ScreenContent(viewModel = fake.viewModel)
+            }
+        }
+        composeRule.onTitleInput().performTextReplacement(editedText())
+        // 포맷을 바꾸면 QR 값이 통째로 바뀌어 되돌리기 기록이 남는다.
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
+        composeRule.onQrFieldInput(URL_LABEL).performTextInput(EXAMPLE_URL)
+        composeRule.waitForIdle()
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.qrCodeValue() shouldBe EXAMPLE_URL
+        composeRule.onNodeWithContentDescription(UNDO).assertIsEnabled()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.onNodeWithContentDescription(UNDO).assertIsNotEnabled()
+        composeRule.qrCodeValue() shouldBe HELLO
+        composeRule.titleInputText() shouldBe stored.title
+    }
+
+    @Test
+    fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 일정 QR이 다른 경로에서 바뀌어도 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
         val stored =
             listOf(
                 "BEGIN:VEVENT",
@@ -515,7 +583,7 @@ class QrDetailScreenTest {
 
     @Test
     @Config(qualifiers = SCROLLABLE_QUALIFIERS)
-    fun `TC-QR-DETAIL-FEATURE-023 수정을 처리하는 동안 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-be92bd78-cd2a-4d91-bed7-f7fd54d1a2b5 수정을 처리하는 동안 보고 있던 화면 위치를 유지한다`() {
         val fake = setScreen()
         val scrolledTop = scrollToBottomInput()
 
@@ -530,7 +598,7 @@ class QrDetailScreenTest {
 
     @Test
     @Config(qualifiers = SCROLLABLE_QUALIFIERS)
-    fun `TC-QR-DETAIL-FEATURE-023 삭제를 처리하는 동안과 삭제가 실패해 화면에 머무를 때 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-be92bd78-cd2a-4d91-bed7-f7fd54d1a2b5 삭제를 처리하는 동안과 삭제가 실패해 화면에 머무를 때 보고 있던 화면 위치를 유지한다`() {
         val fake = setScreen()
         val scrolledTop = scrollToBottomInput()
 
@@ -545,7 +613,7 @@ class QrDetailScreenTest {
 
     @Test
     @Config(qualifiers = SCROLLABLE_QUALIFIERS)
-    fun `TC-QR-DETAIL-FEATURE-024 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-dc7b484d-5acf-4b7d-be92-e64eaab075d5 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
         val fake = setScreen()
         val scrolledTop = scrollToBottomInput()
 
@@ -556,7 +624,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-025 화면이 재생성되면 표시 중이던 권한 안내를 다시 표시하지 않는다`() {
+    fun `TC-86e2c3ba-303c-4d3a-9b76-30cf6b2830ce 화면이 재생성되면 표시 중이던 권한 안내를 다시 표시하지 않는다`() {
         val fake = FakeViewModel()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ScreenContent(viewModel = fake.viewModel, registry = remember { respondingRegistry(isGranted = false) }) }
@@ -571,17 +639,17 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-026 권한 요청에 응답하기 전에 화면이 재생성되면 허용 응답을 반영하지 않는다`() {
+    fun `TC-d5101d44-e1c3-4e0a-9e3b-1afa8d9190ab 권한 요청에 응답하기 전에 화면이 재생성되면 허용 응답을 반영하지 않는다`() {
         assertResponseIgnoredAfterRestore(isGranted = true)
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-026 권한 요청에 응답하기 전에 화면이 재생성되면 거부 응답을 반영하지 않는다`() {
+    fun `TC-d5101d44-e1c3-4e0a-9e3b-1afa8d9190ab 권한 요청에 응답하기 전에 화면이 재생성되면 거부 응답을 반영하지 않는다`() {
         assertResponseIgnoredAfterRestore(isGranted = false)
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-FEATURE-001 TC-CAMERA-PERMISSION-DOMAIN-001 QrDetail에서 권한이 없으면 QR 스캔 시작을 선택할 때마다 카메라 권한 요청을 시작한다`() {
+    fun `TC-46fa5788-c078-449b-bef3-b5f3064e6ed9 TC-e950c031-08dd-41ed-8f03-98bfbf6658c9 QrDetail에서 권한이 없으면 QR 스캔 시작을 선택할 때마다 카메라 권한 요청을 시작한다`() {
         val input = slot<Any>()
         val registry = spyk<ActivityResultRegistry>()
         every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), capture(input), any()) } answers {
@@ -600,7 +668,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-FEATURE-002 QrDetail에서 카메라 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
+    fun `TC-4d7879d4-4b73-465f-ac2f-8ca0905c0017 QrDetail에서 카메라 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.CAMERA)
         val registry = respondingRegistry(isGranted = true)
         setScreen(registry = registry)
@@ -612,7 +680,7 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-DOMAIN-002 QrDetail 화면이 표시되는 것만으로는 요청하지 않는다`() {
+    fun `TC-e6b4c026-fd1b-415d-845c-31ce485cd49c QrDetail 화면이 표시되는 것만으로는 요청하지 않는다`() {
         val registry = respondingRegistry(isGranted = false)
         setScreen(registry = registry)
 
@@ -744,6 +812,7 @@ class QrDetailScreenTest {
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
+                    componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

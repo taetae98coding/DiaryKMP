@@ -26,7 +26,7 @@ class FetchYoutubeVideoUseCaseTest :
     BehaviorSpec({
         Given("영상 정보 조회가 성공하도록 준비되어 있다") {
             When("YouTube 영상 링크로 불러온다") {
-                Then("TC-MUSIC-ADD-DATA-008 입력한 링크로 조회하고 영상 제목과 채널 이름을 전달한다") {
+                Then("TC-a4483895-1bff-43b1-98af-3787cc0ca408 입력한 링크로 조회하고 영상 제목과 채널 이름을 전달한다") {
                     val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
                     val repository = successRepository(video = video)
                     val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
@@ -36,7 +36,7 @@ class FetchYoutubeVideoUseCaseTest :
                     coVerify(exactly = 1) { repository.fetch(link = YOUTUBE_LINK) }
                 }
 
-                Then("TC-MUSIC-ADD-DOMAIN-010 링크의 앞뒤 공백을 없앤 값으로 조회한다") {
+                Then("TC-7eded492-d855-445f-b3c9-e16bd41d208f 링크의 앞뒤 공백을 없앤 값으로 조회한다") {
                     val repository = successRepository(video = fixtureMonkey.giveMeOne<YoutubeVideo>())
                     val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 
@@ -54,7 +54,7 @@ class FetchYoutubeVideoUseCaseTest :
             val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 
             When("YouTube 영상 링크로 불러온다") {
-                Then("TC-MUSIC-ADD-DATA-009 조회 실패를 그대로 전달한다") {
+                Then("TC-c5c2a1a7-9368-4c94-90a5-8f64decd79c8 조회 실패를 그대로 전달한다") {
                     useCase(parameter = YOUTUBE_LINK).shouldBeFailure() shouldBeSameInstanceAs throwable
                 }
             }
@@ -66,7 +66,7 @@ class FetchYoutubeVideoUseCaseTest :
 
             When("불러오기를 실행한다") {
                 listOf("", "   ").forEach { blankLink ->
-                    Then("TC-MUSIC-ADD-FEATURE-019 링크가 비어 있으면 조회하지 않고 링크 공백을 알린다: '$blankLink'") {
+                    Then("TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 비어 있으면 조회하지 않고 링크 공백을 알린다: '$blankLink'") {
                         val result = useCase(parameter = blankLink)
 
                         result.shouldBeFailure().shouldBeInstanceOf<MusicLinkBlankException>()
@@ -80,7 +80,7 @@ class FetchYoutubeVideoUseCaseTest :
                     "www.youtube.com/watch?v=dQw4w9WgXcQ",
                     "곡 링크",
                 ).forEach { link ->
-                    Then("TC-MUSIC-ADD-FEATURE-019 YouTube 주소가 아니면 조회하지 않고 링크 형식을 알린다: $link") {
+                    Then("TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f YouTube 주소가 아니면 조회하지 않고 링크 형식을 알린다: $link") {
                         val result = useCase(parameter = link)
 
                         result.shouldBeFailure().shouldBeInstanceOf<MusicLinkNotYoutubeException>()
@@ -102,7 +102,7 @@ class FetchYoutubeVideoUseCaseTest :
                     "https://www.youtube.com/shorts/dQw4w9WgXcQ",
                     "http://www.youtube.com/watch?v=dQw4w9WgXcQ",
                 ).forEach { link ->
-                    Then("TC-MUSIC-ADD-DOMAIN-011 YouTube 주소로 영상 정보를 조회한다: $link") {
+                    Then("TC-48f834e5-bf64-46f8-a82a-965b9eb865cb YouTube 주소로 영상 정보를 조회한다: $link") {
                         val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
                         val repository = successRepository(video = video)
                         val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)

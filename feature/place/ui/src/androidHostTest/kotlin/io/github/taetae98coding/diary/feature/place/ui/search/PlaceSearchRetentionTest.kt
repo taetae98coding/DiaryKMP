@@ -19,7 +19,7 @@ class PlaceSearchRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-014 화면이 재생성되어도 다이얼로그가 열린 상태로 남는다`() {
+    fun `TC-df90467f-d1a1-47b9-a47a-3c17b3d87f8c 화면이 재생성되어도 다이얼로그가 열린 상태로 남는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: PlaceFormState
 

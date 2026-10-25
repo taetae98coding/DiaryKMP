@@ -1,6 +1,6 @@
 # MemoDetail 화면 스펙
 
-이 문서는 사용자가 메모 목록에서 선택한 메모의 상세를 확인하고 수정하고, 태그 연결과 대표 태그, 웹 연결과 연락처 연결과 장소 연결을 바꾸고, 복사하거나 완료하거나 삭제하는 MemoDetail 화면의 내용과 행동을 다룬다. MemoHome 목록과 상세가 함께 표시되는 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을 따르고, TagDetail 메모 탭과 TagMemoFinishedList 화면에서 진입하는 흐름은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)과 [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)을 따른다. 설명 입력, 컬러 입력, 날짜·시간 입력, 태그 입력 자체의 동작은 [설명 입력 컴포넌트 스펙](./description-input.md), [컬러 입력 컴포넌트 스펙](./diary-color-input.md), [날짜·시간 입력 컴포넌트 스펙](./diary-date-time-input.md), [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)을 따른다. 메모가 가질 수 있는 기간의 개념은 [MemoAdd 화면 스펙](./memo-add.md)의 `메모의 기간`을 따른다. 제목 입력 자체의 동작은 [제목 입력 스펙](./title-input.md)을 따른다.
+이 문서는 사용자가 메모 목록에서 선택한 메모의 상세를 확인하고 수정하고, 태그 연결과 대표 태그, 웹 연결과 연락처 연결과 장소 연결을 바꾸고, 복사하거나 완료하거나 삭제하는 MemoDetail 화면의 내용과 행동을 다룬다. MemoHome 목록과 상세가 함께 표시되는 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을 따르고, MemoFinishedList 화면에서 진입한 상태는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따르고, TagDetail 메모 탭과 TagMemoFinishedList 화면에서 진입하는 흐름은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)과 [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)을, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 화면에서 진입하는 흐름은 [항목 완료 메모 목록 화면 스펙](./entity-memo-finished-list.md)을 따른다. 설명 입력, 컬러 입력, 날짜·시간 입력, 태그 입력 자체의 동작은 [설명 입력 컴포넌트 스펙](./description-input.md), [컬러 입력 컴포넌트 스펙](./diary-color-input.md), [날짜·시간 입력 컴포넌트 스펙](./diary-date-time-input.md), [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)을 따른다. 메모가 가질 수 있는 기간의 개념은 [MemoAdd 화면 스펙](./memo-add.md)의 `메모의 기간`을 따른다. 제목 입력 자체의 동작은 [제목 입력 스펙](./title-input.md)을 따른다.
 
 메모와 태그의 연결 규칙은 [메모 태그 스펙](../common/memo-tag.md)을, 메모가 태그 하나를 대표 태그로 가지는 규칙은 [메모 대표 태그 스펙](../common/memo-primary-tag.md)을 따른다. 본문에 배치되는 웹 입력의 행동과 정책은 [메모 웹 입력 컴포넌트 스펙](./memo-web-input.md)을, 메모와 웹 항목의 연결 규칙은 [메모 웹 스펙](../common/memo-web.md)을 따른다. 본문에 배치되는 연락처 입력의 행동과 정책은 [메모 연락처 입력 컴포넌트 스펙](./memo-contact-input.md)을, 메모와 연락처의 연결 규칙은 [메모 연락처 스펙](../common/memo-contact.md)을 따른다. 본문에 배치되는 장소 카드의 행동과 정책은 [메모 장소 카드 컴포넌트 스펙](./memo-place-card.md)을, 메모와 장소의 연결 규칙은 [메모 장소 스펙](../common/memo-place.md)을 따른다.
 
@@ -12,11 +12,11 @@
 
 ### 진입
 
-사용자는 MemoHome 목록, MemoFinishedList 화면, TagDetail 메모 탭, TagMemoFinishedList 화면, ContactDetail·PlaceDetail·WebDetail 화면의 메모 탭 또는 SearchHome 화면의 메모 검색 결과에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
+사용자는 MemoHome 목록, MemoFinishedList 화면, TagDetail 메모 탭, TagMemoFinishedList 화면, ContactDetail·PlaceDetail·WebDetail 화면의 메모 탭, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 화면 또는 SearchHome 화면의 메모 검색 결과에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
 
 캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다. 캘린더 시간표 화면에서 표시된 메모를 선택해도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택은 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `메모 선택`을 따른다.
 
-MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다. MemoFinishedList 화면, SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
+MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을, MemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다. SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
 
 ### 첫진입 시 내용 표시
 

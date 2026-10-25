@@ -66,7 +66,7 @@ class TagDetailScreenMemoTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-014 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
+    fun `TC-0cb2cd54-a327-4512-b6cb-d5b6be9e4df5 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
         var navigateToMemoAddCount = 0
         setTagDetailScreenOnMemoTab(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -76,7 +76,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-025 완료된 메모 확인 버튼을 선택하면 완료된 메모 목록으로 이동한다`() {
+    fun `TC-5acadd24-9424-4b51-ac4a-457d5593ba85 완료된 메모 확인 버튼을 선택하면 완료된 메모 목록으로 이동한다`() {
         var navigateToMemoFinishedListCount = 0
         setTagDetailScreenOnMemoTab(navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 })
 
@@ -96,7 +96,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-027 메모 탭이 아닌 탭에서는 메모 추가를 실행할 수 없고 메모 탭으로 전환하면 실행할 수 있다`() {
+    fun `TC-bd31a778-0827-4f3f-8e13-bc432cb2afc1 메모 탭이 아닌 탭에서는 메모 추가를 실행할 수 없고 메모 탭으로 전환하면 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setTagDetailScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -121,7 +121,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-019 대상 태그의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
+    fun `TC-2414ec74-dc40-4b49-971e-2871a832a93b 대상 태그의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
         // 계정과 연결되지 않은 태그와 삭제된 태그는 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰된다.
         val uiStateList =
             listOf(
@@ -149,7 +149,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-028 완료된 메모 확인은 메모 탭에서만 제공된다`() {
+    fun `TC-ec3f8822-a2af-458d-93a7-b646b75359d7 완료된 메모 확인은 메모 탭에서만 제공된다`() {
         var navigateToMemoFinishedListCount = 0
         setTagDetailScreen(navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 })
 
@@ -170,7 +170,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-007 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-77fd4748-f506-4646-ab89-9af39d0f983f 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = tagMemo(title = SCREEN_MEMO_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setTagDetailScreenOnMemoTab(
@@ -185,7 +185,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 완료하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 완료하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -201,7 +201,7 @@ class TagDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 완료하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 완료하면 한국어 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -213,7 +213,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 삭제하면 카드가 사라지고 기본 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -229,7 +229,7 @@ class TagDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-008 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-1e909e6b-3dee-483e-bef7-4c80722b5a38 삭제하면 한국어 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -241,7 +241,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-009 완료 실행 취소는 메모 다시 시작을 요청한다`() {
+    fun `TC-74efe09e-2852-412c-abaa-cd2b552bf626 완료 실행 취소는 메모 다시 시작을 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -254,7 +254,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-009 삭제 실행 취소는 메모 복구를 요청한다`() {
+    fun `TC-74efe09e-2852-412c-abaa-cd2b552bf626 삭제 실행 취소는 메모 복구를 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -267,7 +267,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
         setTagDetailScreenOnMemoTab(
             memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = SCREEN_MEMO_TITLE)))),
         )
@@ -280,7 +280,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-010 화면이 활성화되면 오늘 날짜 헤더를 표시한다`() {
+    fun `TC-6b421e29-b8bf-450c-94a0-c32fb130e7cc 화면이 활성화되면 오늘 날짜 헤더를 표시한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val memo = tagMemo(title = TODAY_MEMO_TITLE, dateTime = allDayMemoDateTime(today))
         setTagDetailScreenOnMemoTab(
@@ -301,7 +301,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-010 화면이 다시 활성화되면 현재 시간대의 오늘을 다시 계산한다`() {
+    fun `TC-6b421e29-b8bf-450c-94a0-c32fb130e7cc 화면이 다시 활성화되면 현재 시간대의 오늘을 다시 계산한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val lifecycleOwner = mockk<LifecycleOwner>()
         val lifecycleRegistry = LifecycleRegistry(lifecycleOwner)
@@ -340,7 +340,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-065 메모 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 메모가 삭제된다`() {
+    fun `TC-5c5b0403-8a85-454d-b486-04ff8a8c2c23 메모 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 메모가 삭제된다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -352,7 +352,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-034 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-3da9ab23-ad3e-44c5-bdd1-502e5fbb02a7 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -390,7 +390,7 @@ class TagDetailScreenMemoTest {
     private fun memoViewModel(): TagDetailMemoViewModel = requireNotNull(memoViewModelRef)
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-DATA-006 대상 태그를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+    fun `TC-a0ef0c89-ac9b-4add-af7d-23012bb8e403 대상 태그를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)),
             memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = INDEPENDENT_MEMO_TITLE)))),
@@ -401,7 +401,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-DOMAIN-015 대상 태그를 조회하지 못해도 범위를 넓히면 하위 태그의 메모가 메모 탭에 표시된다`() {
+    fun `TC-562529ec-dbb5-4d50-ab75-b62556022499 대상 태그를 조회하지 못해도 범위를 넓히면 하위 태그의 메모가 메모 탭에 표시된다`() {
         val childMemo = tagMemo(title = fixtureText(prefix = "ChildTagMemo"))
         composeRule.setTagDetailScreen(viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)))
 
@@ -421,7 +421,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-DATA-004 표시 범위를 바꿔도 태그와 연결을 저장하거나 서버에 요청하지 않는다`() {
+    fun `TC-8cb16d42-a8ad-499e-a09e-aa5ec9b5f62e 표시 범위를 바꿔도 태그와 연결을 저장하거나 서버에 요청하지 않는다`() {
         val viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE))))
         composeRule.setTagDetailScreen(viewModel = viewModel)
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -444,7 +444,7 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-DOMAIN-018 범위를 넓힌 뒤 다른 태그를 선택하면 표시 범위가 이 태그만으로 돌아간다`() {
+    fun `TC-fcb2afc5-6566-45ef-98d7-b18802e09d7e 범위를 넓힌 뒤 다른 태그를 선택하면 표시 범위가 이 태그만으로 돌아간다`() {
         val detailIdState = mutableStateOf(FIRST_TAG_ID)
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),

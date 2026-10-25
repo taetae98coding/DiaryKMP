@@ -54,7 +54,7 @@ class RestoreContactUseCaseTest :
                 )
 
             When("연락처의 삭제를 실행 취소한다") {
-                Then("TC-CONTACT-HOME-DOMAIN-014 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신하며 즐겨찾기 여부는 바꾸지 않는다") {
+                Then("TC-b54d481c-caee-4ae5-8504-947d8cb44768 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신하며 즐겨찾기 여부는 바꾸지 않는다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe false
@@ -64,7 +64,7 @@ class RestoreContactUseCaseTest :
                     }
                 }
 
-                Then("TC-CONTACT-HOME-DATA-008 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-1e7fe660-ca51-46e0-a12b-e2e2c5f54bfb TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -90,7 +90,7 @@ class RestoreContactUseCaseTest :
                 )
 
             When("연락처의 삭제를 실행 취소한다") {
-                Then("TC-CONTACT-HOME-DATA-009 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
+                Then("TC-77972a44-8e5c-470b-8790-10bd7edbd458 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -114,7 +114,7 @@ class RestoreContactUseCaseTest :
                 )
 
             When("연락처의 삭제를 실행 취소한다") {
-                Then("TC-CONTACT-HOME-DOMAIN-015 실행 취소가 성공으로 다뤄지지 않고 연락처의 삭제 여부를 바꾸지 않는다") {
+                Then("TC-ce0d1dc4-4bbc-4542-ade4-18e84ed6f8ea 실행 취소가 성공으로 다뤄지지 않고 연락처의 삭제 여부를 바꾸지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -145,7 +145,7 @@ class RestoreContactUseCaseTest :
                 )
 
             When("연락처의 삭제를 실행 취소한다") {
-                Then("TC-CONTACT-HOME-DATA-010 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-650c78d8-577e-4860-b767-6c943b38e514 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

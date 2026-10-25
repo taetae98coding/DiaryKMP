@@ -67,7 +67,7 @@ class HolidayRemoteDataSourceImplTest :
             dataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = 2026) shouldBe emptyList()
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-011 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
+        test("TC-c7ebdd34-cba3-4362-8c4b-3e4b55960d5a 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
             val caseMap =
                 mapOf(
                     (HolidayCountryRemoteEntity.KOREA to 2026) to "https://taetae98coding.github.io/CalendarApi/holiday/kr/2026.json",

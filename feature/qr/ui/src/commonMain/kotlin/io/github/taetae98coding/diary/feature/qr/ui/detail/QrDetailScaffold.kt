@@ -38,6 +38,7 @@ internal fun QrDetailScaffold(
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
     actionProvider: () -> QrAction? = { null },
+    componentVisibleProvider: () -> QrDetailScaffoldComponentVisible = { QrDetailScaffoldComponentVisible() },
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
@@ -54,6 +55,7 @@ internal fun QrDetailScaffold(
                 state = state,
                 uiStateProvider = uiStateProvider,
                 actionProvider = actionProvider,
+                componentVisibleProvider = componentVisibleProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

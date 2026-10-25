@@ -23,7 +23,7 @@ class DiaryMapStateRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-MAP-DOMAIN-046 화면이 재생성되면 지도가 알려온 위치와 확대 수준을 되살린다`() {
+    fun `TC-ffe3d6a4-1504-4305-b8f8-f39fd2889ecd 화면이 재생성되면 지도가 알려온 위치와 확대 수준을 되살린다`() {
         val camera =
             DiaryMapCamera(
                 latitude = fixtureMonkey.giveMeOne<Int>() % MAX_LATITUDE / COORDINATE_SCALE,

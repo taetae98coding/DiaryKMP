@@ -18,7 +18,7 @@ class MemoContactPushRequestRemoteEntityTest :
     FunSpec({
         // Edge Function은 스키마에 선언하지 않은 키를 버린 뒤 나머지만 저장하므로, 여기서 보내는 키가 늘거나 이름이 바뀌면
         // 함수 스키마도 함께 바꿔야 한다. 어긋나면 그 값만 조용히 사라진다.
-        test("TC-MEMO-CONTACT-DATA-006 메모와 연락처의 연결 업로드 요청은 연결이 가지는 값을 빠짐없이 담는다") {
+        test("TC-04b80b1a-7bba-496f-836c-41b1d6ee52dc 메모와 연락처의 연결 업로드 요청은 연결이 가지는 값을 빠짐없이 담는다") {
             val request = MemoContactPushRequestRemoteEntity(memoContactList = listOf(fixtureMonkey.giveMeOne<MemoContactRemoteEntity>()))
 
             val memoContact =

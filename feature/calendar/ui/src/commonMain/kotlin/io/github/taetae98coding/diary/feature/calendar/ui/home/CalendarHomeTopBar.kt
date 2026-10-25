@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.Res
@@ -42,37 +40,33 @@ internal fun CalendarHomeTopBar(
     val filterUiState = filterUiStateProvider()
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
-            DiaryTopBarTitle.Button(
+        title = {
+            TitleButton(
                 text = title,
                 isExpanded = state.isDatePickerVisible,
                 expandContentDescription = expandContentDescription,
                 collapseContentDescription = collapseContentDescription,
                 onClick = state::showDatePicker,
-            ),
-        actions =
-            buildList {
-                if (today != null) {
-                    add(
-                        DiaryTopBarAction.Text(
-                            text = today.day.toString(),
-                            contentDescription = todayContentDescription,
-                            onClick = { coroutineScope.launch { state.animateScrollToToday() } },
-                        ),
-                    )
-                }
-                add(
-                    DiaryTopBarAction.Applied(
-                        icon = DiaryTopBarIcon.FILTER,
-                        contentDescription = filterContentDescription,
-                        isApplied = filterUiState.isApplied,
-                        appliedStateDescription = filterAppliedStateDescription,
-                        onClick = { onEvent(CalendarHomeScaffoldEvent.ClickFilter) },
-                    ),
-                )
-            },
+            )
+        },
+        modifier = modifier,
         isTitleCentered = true,
+        actions = {
+            if (today != null) {
+                TextAction(
+                    text = today.day.toString(),
+                    contentDescription = todayContentDescription,
+                    onClick = { coroutineScope.launch { state.animateScrollToToday() } },
+                )
+            }
+            AppliedAction(
+                icon = DiaryTopBarIcon.FILTER,
+                contentDescription = filterContentDescription,
+                isApplied = filterUiState.isApplied,
+                appliedStateDescription = filterAppliedStateDescription,
+                onClick = { onEvent(CalendarHomeScaffoldEvent.ClickFilter) },
+            )
+        },
     )
 }
 

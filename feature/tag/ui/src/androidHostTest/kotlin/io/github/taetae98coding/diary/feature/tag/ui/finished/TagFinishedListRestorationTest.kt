@@ -40,7 +40,7 @@ class TagFinishedListRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DOMAIN-010 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-d3579151-f0ea-4f37-a0bb-39e6f3619e03 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
         val titlePrefix = fixtureText(prefix = "FinishedTag")
         val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
@@ -81,7 +81,7 @@ class TagFinishedListRestorationTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DOMAIN-013 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+    fun `TC-354f10e9-ab88-4ec5-b855-246e6d4b0b0a 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
         val titlePrefix = fixtureText(prefix = "FinishedTag")
         val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
         var nextViewModel = sortableViewModel(tagList = tagList)

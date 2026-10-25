@@ -1,0 +1,35 @@
+package io.github.taetae98coding.diary.domain.checklist.usecase
+
+import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
+import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistItemRepository
+import io.github.taetae98coding.diary.domain.core.UseCase
+import io.github.taetae98coding.diary.domain.sync.SyncTrigger
+import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import org.koin.core.annotation.Factory
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
+
+@Factory
+public class CheckChecklistItemUseCase internal constructor(
+    private val getAccountUseCase: GetAccountUseCase,
+    private val requestSyncUseCase: RequestSyncUseCase,
+    private val accountChecklistItemRepository: AccountChecklistItemRepository,
+    private val clock: Clock,
+) : UseCase<Uuid, Int>() {
+    override suspend fun execute(parameter: Uuid): Int {
+        val account = getAccountUseCase.requireAccount()
+
+        val updatedCount =
+            accountChecklistItemRepository.updateChecked(
+                account = account,
+                itemId = parameter,
+                isChecked = true,
+                updatedAt = clock.now(),
+            )
+
+        requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
+
+        return updatedCount
+    }
+}

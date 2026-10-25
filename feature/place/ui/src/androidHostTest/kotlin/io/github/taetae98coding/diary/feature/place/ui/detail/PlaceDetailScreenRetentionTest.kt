@@ -28,7 +28,7 @@ class PlaceDetailScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-015 화면이 재생성되어도 수정 중인 제목 설명 좌표를 유지한다`() {
+    fun `TC-d260b8ab-6630-4e27-b226-a84dbe6339fd 화면이 재생성되어도 수정 중인 제목 설명 좌표를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = placeDetail())))
         restorationTester.setContent {
@@ -37,6 +37,7 @@ class PlaceDetailScreenRetentionTest {
                     navigateToTagAdd = {},
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_PLACE_ID,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
@@ -66,7 +67,7 @@ class PlaceDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-016 화면을 떠난 뒤 다시 들어오면 저장된 내용으로 시작한다`() {
+    fun `TC-8794d7a7-69aa-46d6-b57d-ef630b51aef6 화면을 떠난 뒤 다시 들어오면 저장된 내용으로 시작한다`() {
         val detail = placeDetail()
         val uiState = MutableStateFlow(content(detail = detail))
         var isDisplayed by mutableStateOf(true)
@@ -78,6 +79,7 @@ class PlaceDetailScreenRetentionTest {
                         navigateToTagAdd = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_PLACE_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         detailViewModel = screenTestViewModel(uiState = uiState),
@@ -104,7 +106,7 @@ class PlaceDetailScreenRetentionTest {
 
     @Test
     @Config(qualifiers = SCROLLABLE_QUALIFIERS)
-    fun `TC-PLACE-DETAIL-FEATURE-028 수정을 처리하는 동안 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-bbbb0451-fe6c-43fb-95c2-b8fc96922222 수정을 처리하는 동안 보고 있던 화면 위치를 유지한다`() {
         val id = Uuid.random()
         val detail = placeDetail()
         val uiState = MutableStateFlow<PlaceDetailUiState>(content(id = id, detail = detail))
@@ -123,7 +125,7 @@ class PlaceDetailScreenRetentionTest {
 
     @Test
     @Config(qualifiers = SCROLLABLE_QUALIFIERS)
-    fun `TC-PLACE-DETAIL-FEATURE-029 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
+    fun `TC-b6a9ffee-d069-49f8-86ac-cdd1d657d009 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
         val id = Uuid.random()
         val detail = placeDetail()
         val uiState = MutableStateFlow<PlaceDetailUiState>(content(id = id, detail = detail))

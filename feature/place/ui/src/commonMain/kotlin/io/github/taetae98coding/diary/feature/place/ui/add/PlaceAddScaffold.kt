@@ -12,7 +12,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
@@ -71,18 +70,15 @@ internal fun PlaceAddScaffold(
                 title = stringResource(Res.string.place_add_title),
                 onNavigateUp = { onEvent(PlaceAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
-                actions =
-                    buildList {
-                        if (uiStateProvider().defaultProvider != null) {
-                            add(
-                                DiaryTopBarAction.Icon(
-                                    icon = DiaryTopBarIcon.SEARCH,
-                                    contentDescription = searchContentDescription,
-                                    onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
-                                ),
-                            )
-                        }
-                    },
+                actions = {
+                    if (uiStateProvider().defaultProvider != null) {
+                        IconAction(
+                            icon = DiaryTopBarIcon.SEARCH,
+                            contentDescription = searchContentDescription,
+                            onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
+                        )
+                    }
+                },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

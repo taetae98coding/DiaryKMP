@@ -68,7 +68,7 @@ class SearchHomeResultPlaceholderSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-035 메모 결과의 자리 표시 자리는 밀어도 동작을 요청하지 않는다`() {
+    fun `TC-90faa2f5-2b53-45ca-b379-6899323a311d 메모 결과의 자리 표시 자리는 밀어도 동작을 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = resultMemo())
 
@@ -89,7 +89,7 @@ class SearchHomeResultPlaceholderSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-035 태그 결과의 자리 표시 자리는 밀어도 동작을 요청하지 않는다`() {
+    fun `TC-90faa2f5-2b53-45ca-b379-6899323a311d 태그 결과의 자리 표시 자리는 밀어도 동작을 요청하지 않는다`() {
         val eventList = mutableListOf<TagListEvent>()
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = resultTag())
 
@@ -110,7 +110,7 @@ class SearchHomeResultPlaceholderSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-035 장소 결과의 자리 표시 자리는 밀어도 삭제를 요청하지 않는다`() {
+    fun `TC-90faa2f5-2b53-45ca-b379-6899323a311d 장소 결과의 자리 표시 자리는 밀어도 삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<SearchHomeResultItemEvent>()
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = resultPlace())
 
@@ -131,7 +131,7 @@ class SearchHomeResultPlaceholderSwipeTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-035 웹 결과의 자리 표시 자리는 밀어도 삭제를 요청하지 않는다`() {
+    fun `TC-90faa2f5-2b53-45ca-b379-6899323a311d 웹 결과의 자리 표시 자리는 밀어도 삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<SearchHomeResultItemEvent>()
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = resultWeb())
 

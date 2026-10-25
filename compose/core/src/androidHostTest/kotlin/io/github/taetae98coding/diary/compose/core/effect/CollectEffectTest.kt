@@ -35,7 +35,7 @@ class CollectEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-068 RESUMED 기준이면 STARTED로 내려갔다가 RESUMED로 돌아올 때 마지막 값을 다시 수집한다`() {
+    fun `TC-26917c1b-cc78-4490-9ee0-e37320c43233 RESUMED 기준이면 STARTED로 내려갔다가 RESUMED로 돌아올 때 마지막 값을 다시 수집한다`() {
         val effect = MutableStateFlow(Unit)
         val onEffect = mockk<(Unit) -> Unit>(relaxed = true)
         val lifecycleOwner =
@@ -64,7 +64,7 @@ class CollectEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-069 RESUMED 기준이면 STARTED 동안 방출된 값은 수집하지 않고 RESUMED가 된 뒤 마지막 값만 수집한다`() {
+    fun `TC-ef293202-c717-49a9-826f-72d515b1ba10 RESUMED 기준이면 STARTED 동안 방출된 값은 수집하지 않고 RESUMED가 된 뒤 마지막 값만 수집한다`() {
         val effect = MutableStateFlow(0)
         val onEffect = mockk<(Int) -> Unit>(relaxed = true)
         val lifecycleOwner =

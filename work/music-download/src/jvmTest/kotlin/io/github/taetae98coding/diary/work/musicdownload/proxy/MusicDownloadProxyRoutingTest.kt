@@ -26,7 +26,7 @@ class MusicDownloadProxyRoutingTest :
     BehaviorSpec({
         Given("프록시가 제공 중이다") {
             When("연결 확인 요청이 들어오면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-001 제공 중임을 응답하고 어떤 영상도 받지 않는다") {
+                Then("TC-f75b7743-f46c-4185-8d92-912a7912b050 제공 중임을 응답하고 어떤 영상도 받지 않는다") {
                     val handler = mockk<MusicDownloadProxyHandler>()
 
                     testApplication {
@@ -41,7 +41,7 @@ class MusicDownloadProxyRoutingTest :
             }
 
             When("거절된 영상 요청이 들어오면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-002 잘못된 요청으로 응답한다") {
+                Then("TC-d756a0b8-b1c1-4c27-9277-fccedf28fc25 잘못된 요청으로 응답한다") {
                     val handler = handler(response = MusicDownloadProxyResponse.Rejected)
 
                     testApplication {
@@ -53,7 +53,7 @@ class MusicDownloadProxyRoutingTest :
             }
 
             When("받지 못한 영상 요청이 들어오면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-006 처리 실패로 응답한다") {
+                Then("TC-ec5526aa-e08c-44e8-b2ae-ac0b8cf43cc3 처리 실패로 응답한다") {
                     val handler = handler(response = MusicDownloadProxyResponse.Failed)
 
                     testApplication {
@@ -65,7 +65,7 @@ class MusicDownloadProxyRoutingTest :
             }
 
             When("완성된 파일이 있는 영상 요청이 들어오면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-003 TC-MUSIC-DOWNLOAD-PROXY-DATA-004 파일 전체와 그 크기를 응답한다") {
+                Then("TC-9380f1be-86ef-4015-ad7e-5114987012b5 TC-5c84c52f-38f2-4b58-bc0f-02624a72feb7 파일 전체와 그 크기를 응답한다") {
                     val file = createTempFile(suffix = ".mp4").apply { writeBytes(STREAM) }
                     val handler = handler(response = MusicDownloadProxyResponse.Completed(path = file.toString()))
 
@@ -82,7 +82,7 @@ class MusicDownloadProxyRoutingTest :
             }
 
             When("파일을 전달하는 도중 요청한 쪽이 연결을 끊으면") {
-                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-014 프록시의 파일은 지워지지 않고 내용도 그대로 남는다") {
+                Then("TC-027901a1-cd4c-41c9-a49f-53abc9a77b2b 프록시의 파일은 지워지지 않고 내용도 그대로 남는다") {
                     val content = ByteArray(PARTIAL_READ_STREAM_SIZE) { index -> index.toByte() }
                     val file = createTempFile(suffix = ".mp4").apply { writeBytes(content) }
                     val handler = handler(response = MusicDownloadProxyResponse.Completed(path = file.toString()))

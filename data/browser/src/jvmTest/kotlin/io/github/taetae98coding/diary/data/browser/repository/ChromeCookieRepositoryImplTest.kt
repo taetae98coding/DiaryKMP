@@ -20,7 +20,7 @@ private const val PROFILE_DIRECTORY = "Default"
 
 class ChromeCookieRepositoryImplTest :
     FunSpec({
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-012 요청한 프로필의 Chrome 쿠키를 모두 읽어 모델로 제공한다") {
+        test("TC-f760b33d-11cf-47cd-9d3b-0e06bcb0b0a0 요청한 프로필의 Chrome 쿠키를 모두 읽어 모델로 제공한다") {
             val entityList = fixtureMonkey.giveMe<BrowserCookieLocalEntity>(size = 3)
             val dataSource = mockk<ChromeCookieLocalDataSource>()
             coEvery { dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY) } returns entityList
@@ -31,7 +31,7 @@ class ChromeCookieRepositoryImplTest :
             coVerify(exactly = 1) { dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY) }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-008 읽기 실패를 그대로 알린다") {
+        test("TC-e743a255-e782-4d96-bee4-f98c0db6bef7 읽기 실패를 그대로 알린다") {
             val failure = IllegalStateException("read failed")
             val dataSource = mockk<ChromeCookieLocalDataSource>()
             coEvery { dataSource.readCookieList(any()) } throws failure

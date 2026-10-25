@@ -22,12 +22,13 @@ import kotlin.time.Clock
 internal class CalendarTimetableScaffoldState(
     val timetableState: TimetableState,
     val snackbarHostState: SnackbarHostState,
+    private val clock: Clock = Clock.System,
 ) {
     var now: LocalDateTime? by mutableStateOf(null)
         private set
 
     fun updateNow() {
-        now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        now = clock.now().toLocalDateTime(TimeZone.currentSystemDefault())
     }
 }
 
@@ -44,7 +45,7 @@ internal fun rememberCalendarTimetableScaffoldState(
     }
 }
 
-private fun CalendarTimetableNavKey.Type.toTimetableType(): TimetableType =
+internal fun CalendarTimetableNavKey.Type.toTimetableType(): TimetableType =
     when (this) {
         CalendarTimetableNavKey.Type.DAY -> TimetableType.DAY
         CalendarTimetableNavKey.Type.WEEK -> TimetableType.WEEK

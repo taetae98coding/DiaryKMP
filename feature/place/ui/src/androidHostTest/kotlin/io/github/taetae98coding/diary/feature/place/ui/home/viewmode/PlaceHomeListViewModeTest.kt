@@ -37,7 +37,7 @@ class PlaceHomeListViewModeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-039 지도가 표시되지 않아도 목록 모드의 목록을 표시한다`() {
+    fun `TC-274cadae-709d-412f-922f-60801ee161ed 지도가 표시되지 않아도 목록 모드의 목록을 표시한다`() {
         val place = viewModeTestPlace()
 
         setListViewModePlaceHomeScaffold(placeList = listOf(place))
@@ -46,14 +46,14 @@ class PlaceHomeListViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-040 목록 모드에 노출할 장소가 없으면 장소 카드를 표시하지 않는다`() {
+    fun `TC-2db54bcd-fa2d-4887-b55a-c2845826cac4 목록 모드에 노출할 장소가 없으면 장소 카드를 표시하지 않는다`() {
         setListViewModePlaceHomeScaffold()
 
         composeRule.onAllNodesWithTag(PLACE_CARD_TEST_TAG).fetchSemanticsNodes().size shouldBe 0
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-041 목록 모드에서 장소를 선택하면 그 장소로 상세 이동을 요청한다`() {
+    fun `TC-4bc1fcb6-558f-4c83-b1f2-88cdd3470764 목록 모드에서 장소를 선택하면 그 장소로 상세 이동을 요청한다`() {
         val place = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setListViewModePlaceHomeScaffold(
@@ -68,7 +68,7 @@ class PlaceHomeListViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-045 목록 모드에서 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-98d45e95-2d3e-4ac4-9862-a88bd4070702 목록 모드에서 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setListViewModePlaceHomeScaffold(
             placeList = listOf(viewModeTestPlace()),
@@ -82,7 +82,7 @@ class PlaceHomeListViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-019 목록 모드에서 장소 추가를 선택하면 지도 위치를 넘기지 않는다`() {
+    fun `TC-59c73ce2-c929-4c15-9e30-f0c1c9ed9ba7 목록 모드에서 장소 추가를 선택하면 지도 위치를 넘기지 않는다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setListViewModePlaceHomeScaffold(onEvent = { event -> eventList += event })
 
@@ -93,7 +93,7 @@ class PlaceHomeListViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-071 목록 모드에서 Cmd A 단축키를 입력하면 지도 위치 없이 장소 추가를 한 번 요청한다`() {
+    fun `TC-c18822b8-f61a-4328-81dd-cf4b039e027f 목록 모드에서 Cmd A 단축키를 입력하면 지도 위치 없이 장소 추가를 한 번 요청한다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setListViewModePlaceHomeScaffold(onEvent = { event -> eventList += event })
 

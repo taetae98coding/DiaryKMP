@@ -75,7 +75,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-031 실행할 내용이 있으면 그 동작의 QR 실행 버튼을 둔다`() {
+    fun `TC-d70ff3ff-85de-43ee-a754-a310072b65c7 실행할 내용이 있으면 그 동작의 QR 실행 버튼을 둔다`() {
         val caseList =
             listOf(
                 EXAMPLE_URL to OPEN_URL,
@@ -104,7 +104,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-032 실행할 내용이 없으면 QR 실행 버튼을 두지 않는다`() {
+    fun `TC-fe7abe31-5d79-4800-a153-d0017469d1c7 실행할 내용이 없으면 QR 실행 버튼을 두지 않는다`() {
         val fake = setScreen()
 
         listOf(HELLO, "WIFI:T:WEP;S:home;P:12345;;").forEach { value ->
@@ -118,7 +118,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-033 QR 값을 고치면 반영하지 않아도 QR 실행 버튼이 바로 바뀐다`() {
+    fun `TC-738c3946-6994-4045-a33f-07b836d9c799 QR 값을 고치면 반영하지 않아도 QR 실행 버튼이 바로 바뀐다`() {
         val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
         val caseList = listOf(EXAMPLE_URL to listOf(OPEN_URL), "tel:010" to listOf(CALL), "memo" to emptyList())
 
@@ -135,7 +135,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-034 QR 실행을 선택하면 입력 중인 내용을 그 동작으로 앱 밖에 넘긴다`() {
+    fun `TC-078e34e2-00e0-4297-a78d-2ed40be8f4d2 QR 실행을 선택하면 입력 중인 내용을 그 동작으로 앱 밖에 넘긴다`() {
         val caseList = ACTION_INTENT_CASE_LIST
         val fake = setScreen()
 
@@ -154,7 +154,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-035 앱 밖에 넘기지 못하면 화면에 머무르고 실행 실패를 알린다`() {
+    fun `TC-eb92e9a9-4c62-4721-a118-a4fc49fc9432 앱 밖에 넘기지 못하면 화면에 머무르고 실행 실패를 알린다`() {
         shadowApplication().checkActivities(true)
         val detail = qrTestFixtureMonkey.qrDetail(value = HELLO)
         var navigateUpCount = 0
@@ -181,7 +181,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-039 기기가 받지 않는 Wi-Fi 비밀번호면 실행 실패를 알린다`() {
+    fun `TC-4d13cccf-c95e-416e-a95b-10ec459309ba 기기가 받지 않는 Wi-Fi 비밀번호면 실행 실패를 알린다`() {
         setScreen(detail = qrTestFixtureMonkey.qrDetail(value = "WIFI:T:WPA;S:home;P:비밀번호12345;;"))
 
         composeRule.onNode(actionButton(JOIN_WIFI)).performClick()
@@ -192,7 +192,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-036 QR 실행은 입력과 저장된 QR을 바꾸지 않는다`() {
+    fun `TC-783a079d-91b3-4e7b-a710-9d178982ed2d QR 실행은 입력과 저장된 QR을 바꾸지 않는다`() {
         val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
         composeRule.onQrFieldInput(URL_LABEL).performTextReplacement(EXAMPLE_URL)
@@ -216,7 +216,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-037 QR 실행 실패 안내는 화면이 재생성되면 다시 표시하지 않는다`() {
+    fun `TC-0612ab5b-49a4-4139-a108-c973a1a2cfe7 QR 실행 실패 안내는 화면이 재생성되면 다시 표시하지 않는다`() {
         shadowApplication().checkActivities(true)
         val fake = FakeViewModel(detail = qrTestFixtureMonkey.qrDetail(value = EXAMPLE_URL))
         val restorationTester = StateRestorationTester(composeRule)
@@ -232,7 +232,7 @@ class QrDetailActionTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-038 수정이나 삭제를 처리하는 동안에도 QR 실행을 선택할 수 있다`() {
+    fun `TC-bb36484b-5854-4b63-a357-340177a91c25 수정이나 삭제를 처리하는 동안에도 QR 실행을 선택할 수 있다`() {
         val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = EXAMPLE_URL))
         val progressList: List<(QrDetailUiState.Content) -> QrDetailUiState.Content> =
             listOf({ content -> content.copy(isUpdateInProgress = true) }, { content -> content.copy(isDeleteInProgress = true) })
@@ -291,6 +291,7 @@ class QrDetailActionTest {
                 navigateToScan = {},
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
+                componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                 viewModel = viewModel,
             )
         }

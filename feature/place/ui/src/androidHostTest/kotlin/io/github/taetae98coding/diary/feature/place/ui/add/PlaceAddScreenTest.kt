@@ -32,7 +32,7 @@ class PlaceAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-031 진입하면 제목 입력 칸에 자동으로 초점이 맞춰진다`() {
+    fun `TC-1a8e068d-a28a-4012-a5ba-997513dddf0d 진입하면 제목 입력 칸에 자동으로 초점이 맞춰진다`() {
         composeRule.setPlaceAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -41,7 +41,7 @@ class PlaceAddScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-015 뒤로가기 버튼을 선택하면 이전 화면으로 돌아가는 행동을 실행한다`() {
+    fun `TC-834ba537-b7ac-4584-83db-56b518f19c5a 뒤로가기 버튼을 선택하면 이전 화면으로 돌아가는 행동을 실행한다`() {
         var navigateUpCount = 0
         composeRule.setPlaceAddScreen(
             viewModel = screenTestViewModel(),
@@ -54,14 +54,14 @@ class PlaceAddScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-004 추가 버튼으로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
+    fun `TC-a224a380-ae77-44dc-9144-58b68a62e9f8 추가 버튼으로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
         assertSuccessResetsInput {
             composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         }
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-004 단축키로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
+    fun `TC-a224a380-ae77-44dc-9144-58b68a62e9f8 단축키로 성공하면 입력을 초기화하고 다음 컬러와 제목 초점을 표시한다`() {
         assertSuccessResetsInput {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().performKeyInput {
                 keyDown(Key.MetaLeft)

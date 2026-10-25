@@ -32,7 +32,7 @@ class CalendarHomeScreenHolidayNameTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-018 표시 중인 달에 걸친 공휴일의 이름이 캘린더에 표시된다`() {
+    fun `TC-2d9e47ed-50a1-4c85-a80d-5fd0bd4f2c62 표시 중인 달에 걸친 공휴일의 이름이 캘린더에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             holidayList = listOf(holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, date = july(day = 17))),
@@ -42,7 +42,7 @@ class CalendarHomeScreenHolidayNameTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-019 공휴일 여부가 거짓인 항목의 이름도 캘린더에 표시된다`() {
+    fun `TC-4c89e8c4-6447-4334-90bf-e581361ac3d2 공휴일 여부가 거짓인 항목의 이름도 캘린더에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             holidayList =
@@ -57,7 +57,7 @@ class CalendarHomeScreenHolidayNameTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-020 표시 중인 달과 겹치지 않는 공휴일의 이름은 표시되지 않는다`() {
+    fun `TC-b2bb0452-ad2e-46b3-b909-3fe24129791b 표시 중인 달과 겹치지 않는 공휴일의 이름은 표시되지 않는다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             holidayList =
@@ -74,7 +74,7 @@ class CalendarHomeScreenHolidayNameTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-021 주 경계를 넘는 공휴일의 이름은 겹치는 각 주에 표시된다`() {
+    fun `TC-714d9659-a68c-46f5-ba9a-08e0f4f844b7 주 경계를 넘는 공휴일의 이름은 겹치는 각 주에 표시된다`() {
         setCalendarHomeScreen(
             initialYearMonth = FEBRUARY_2026,
             holidayList =

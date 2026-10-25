@@ -45,7 +45,7 @@ class PlaceAddFormEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-019 지도에서 고른 좌표로 장소를 추가하고 성공 피드백을 제공한다`() {
+    fun `TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가하고 성공 피드백을 제공한다`() {
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val addPlaceUseCase = mockk<AddPlaceUseCase>()
         coEvery { addPlaceUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
@@ -82,7 +82,7 @@ class PlaceAddFormEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-022 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
+    fun `TC-b1914d6d-b257-4801-9035-cb3128cda3ac 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
@@ -105,7 +105,7 @@ class PlaceAddFormEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-041 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
+    fun `TC-ed89a26e-ed06-4f4e-a500-1d976a9956fb 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
@@ -126,7 +126,7 @@ class PlaceAddFormEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-DOMAIN-013 지도가 다른 위치를 보게 되어도 입력한 좌표는 바뀌지 않는다`() {
+    fun `TC-fe1090cf-43f0-43bd-8b14-41edb172d785 지도가 다른 위치를 보게 되어도 입력한 좌표는 바뀌지 않는다`() {
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
         val state = setPlaceAddForm(effect = emptyFlow())

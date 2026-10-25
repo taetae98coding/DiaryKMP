@@ -38,7 +38,7 @@ class ChromeSessionImportSettingUseCaseTest :
                 val manager = mockk<ChromeSessionImportManager>(relaxed = true)
                 val result = SelectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = profileDirectory)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-016 그 프로필이 한 번 저장되고, 지운 뒤 가져오도록 요청되며 성공이 전달된다") {
+                Then("TC-21645a3a-a521-498c-9c20-24c9c28805ee 그 프로필이 한 번 저장되고, 지운 뒤 가져오도록 요청되며 성공이 전달된다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { repository.setProfileDirectory(directory = profileDirectory) }
                     verify(exactly = 1) { manager.requestImport(clearsBefore = true) }
@@ -49,7 +49,7 @@ class ChromeSessionImportSettingUseCaseTest :
                 val manager = mockk<ChromeSessionImportManager>(relaxed = true)
                 val result = UnselectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-017 없음이 한 번 저장되고, 지우도록 요청되며 성공이 전달된다") {
+                Then("TC-e795621f-4e91-46cc-9a25-b7b4d5346d37 없음이 한 번 저장되고, 지우도록 요청되며 성공이 전달된다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { repository.unsetProfileDirectory() }
                     verify(exactly = 1) { manager.requestImport(clearsBefore = true) }
@@ -90,7 +90,7 @@ class ChromeSessionImportSettingUseCaseTest :
             When("로그인 정보 가져오기를 요청한다") {
                 val result = RequestChromeSessionImportUseCase(chromeSessionImportManager = manager)(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-018 지우지 않고 가져오도록 요청되며 성공이 전달된다") {
+                Then("TC-4fc567a4-7f80-4f00-b206-87105a1264a2 지우지 않고 가져오도록 요청되며 성공이 전달된다") {
                     result.shouldBeSuccess()
                     verify(exactly = 1) { manager.requestImport(clearsBefore = false) }
                 }
@@ -170,7 +170,7 @@ class ChromeSessionImportSettingUseCaseTest :
             When("고를 수 있는 프로필을 조회한다") {
                 val result = ReadChromeProfileListUseCase(chromeProfileRepository = repository)(parameter = Unit)
 
-                Then("TC-CHROME-SESSION-IMPORT-DOMAIN-013 실패를 그대로 전달한다") {
+                Then("TC-b8fa9cb8-b4d3-4e1c-8315-3b1168210e22 실패를 그대로 전달한다") {
                     result.shouldBeFailure()
                 }
             }

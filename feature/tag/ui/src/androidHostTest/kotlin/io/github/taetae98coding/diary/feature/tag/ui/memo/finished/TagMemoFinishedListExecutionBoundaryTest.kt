@@ -60,7 +60,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-022 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+    fun `TC-cde54112-389a-4a3b-b40c-be641185c6dd 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
         setFinishedListNavDisplay(memoList = memoList())
 
         openFinishedList()
@@ -73,7 +73,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-023 메모 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
+    fun `TC-31b13247-c8bb-4108-99b9-f6f00c0b1b75 메모 상세에서 돌아오면 목록에서 보던 자리가 그대로다`() {
         val memoList = memoList()
         setFinishedListNavDisplay(memoList = memoList)
         openFinishedList()
@@ -89,7 +89,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-DOMAIN-007 TagDetail 화면으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
+    fun `TC-eb9991d1-3072-463c-bc9d-f2b929545e3b TagDetail 화면으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다`() {
         val memoList = memoList()
         setFinishedListNavDisplay(memoList = memoList)
         openFinishedList()
@@ -107,7 +107,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-DOMAIN-008 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-d80496d7-4c36-4a20-b29a-0b2c6baac1d3 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다`() {
         val memoList = memoList()
         setFinishedListNavDisplay(memoList = memoList)
         openFinishedList()

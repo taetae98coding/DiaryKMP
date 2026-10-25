@@ -9,6 +9,7 @@
 - [MemoHome 목록 디자인](./memo-home.md)
 - [TagHome 목록 디자인](./tag-home.md)
 - [TagDetail 메모 탭 디자인](./tag-detail-memo.md)
+- [항목 상세 메모 탭 공통 디자인](./entity-detail-memo.md)
 
 ## 적용 대상
 

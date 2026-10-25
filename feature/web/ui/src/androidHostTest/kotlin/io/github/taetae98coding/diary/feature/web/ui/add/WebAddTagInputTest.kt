@@ -22,7 +22,7 @@ class WebAddTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-019 추가에 성공해도 고른 태그는 유지한다`() {
+    fun `TC-9e1b1cea-5b20-4c59-b931-ad3dd58e4bdb 추가에 성공해도 고른 태그는 유지한다`() {
         val tag = webTestTag(title = SELECTED_TAG_TITLE)
         composeRule.setContent {
             WebAddScreenTestTheme {
@@ -51,7 +51,7 @@ class WebAddTagInputTest {
     }
 
     @Test
-    fun `TC-WEB-ADD-FEATURE-020 화면이 재생성되어도 고른 태그가 유지된다`() {
+    fun `TC-a4b7ffe1-642f-4161-8a83-6e01ed06611a 화면이 재생성되어도 고른 태그가 유지된다`() {
         val tag = webTestTag(title = SELECTED_TAG_TITLE)
         val tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag))
         val restorationTester = StateRestorationTester(composeRule)

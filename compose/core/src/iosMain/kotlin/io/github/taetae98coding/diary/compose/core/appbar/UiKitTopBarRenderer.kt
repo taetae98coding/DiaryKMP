@@ -18,9 +18,6 @@ public object UiKitTopBarRendererRegistry {
 }
 
 public class UiKitTopBarState internal constructor(
-    public val title: String,
-    public val subtitle: String?,
-    public val titleButton: UiKitTopBarTitleButton?,
     public val search: UiKitTopBarSearch?,
     public val navigateUp: UiKitTopBarButton?,
     public val actions: List<UiKitTopBarButton>,
@@ -38,16 +35,6 @@ public class UiKitTopBarButton internal constructor(
     public val isHighlighted: Boolean,
     public val isToggle: Boolean,
     public val isVisible: Boolean,
-    private val onClick: () -> Unit,
-) {
-    public fun click() {
-        onClick()
-    }
-}
-
-public class UiKitTopBarTitleButton internal constructor(
-    public val image: UIImage?,
-    public val hintDescription: String,
     private val onClick: () -> Unit,
 ) {
     public fun click() {

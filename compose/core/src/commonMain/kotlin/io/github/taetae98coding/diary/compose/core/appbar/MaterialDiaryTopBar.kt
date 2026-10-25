@@ -5,13 +5,11 @@ package io.github.taetae98coding.diary.compose.core.appbar
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -33,6 +31,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
@@ -48,46 +47,47 @@ import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
 
 @Composable
 internal fun MaterialDiaryTopBar(
+    title: @Composable DiaryTopBarTitleScope.() -> Unit,
     modifier: Modifier = Modifier,
-    title: DiaryTopBarTitle? = null,
-    navigateUp: DiaryTopBarNavigateUp? = null,
-    actions: List<DiaryTopBarAction> = emptyList(),
     isTitleCentered: Boolean = false,
+    navigationIcon: @Composable DiaryTopBarNavigationIconScope.() -> Unit = {},
+    actions: @Composable DiaryTopBarActionScope.() -> Unit = {},
 ) {
-    val titleContent: @Composable () -> Unit = { title?.let { MaterialTopBarTitle(title = it) } }
-    val navigationIcon: @Composable () -> Unit = {
-        navigateUp?.let { NavigateUpButton(onClick = it.onClick, contentDescription = it.contentDescription) }
-    }
-    val actionsContent: @Composable RowScope.() -> Unit = { actions.forEach { action -> MaterialTopBarAction(action = action) } }
-    val subtitle = (title as? DiaryTopBarTitle.Text)?.subtitle
-
-    when {
-        subtitle != null ->
-            TopAppBar(
-                title = titleContent,
-                subtitle = { Text(text = subtitle, maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES) },
-                modifier = modifier,
-                navigationIcon = navigationIcon,
-                actions = actionsContent,
-            )
-
-        isTitleCentered ->
-            CenterAlignedTopAppBar(
-                title = titleContent,
-                modifier = modifier,
-                navigationIcon = navigationIcon,
-                actions = actionsContent,
-            )
-
-        else ->
-            TopAppBar(
-                title = titleContent,
-                modifier = modifier,
-                navigationIcon = navigationIcon,
-                actions = actionsContent,
-            )
-    }
+    // 보조 제목은 제목 슬롯 안에서 정해지므로 같은 슬롯을 보조 제목 자리에서 한 번 더 실행해 보조 제목만 그린다.
+    // 보조 제목이 비면 Material 3는 보조 제목이 없는 상단 바와 같은 모양으로 그린다.
+    TopAppBar(
+        title = { materialTitleScope.title() },
+        subtitle = { materialSubtitleScope.title() },
+        modifier = modifier,
+        navigationIcon = { materialNavigationIconScope.navigationIcon() },
+        actions = { materialActionScope.actions() },
+        titleHorizontalAlignment = if (isTitleCentered) Alignment.CenterHorizontally else Alignment.Start,
+    )
 }
+
+private val materialTitleScope = DiaryTopBarTitleScope { title -> MaterialTopBarTitle(title = title) }
+
+internal val materialNonSearchTitleScope =
+    DiaryTopBarTitleScope { title ->
+        if (title !is DiaryTopBarTitle.Search) {
+            MaterialTopBarTitle(title = title)
+        }
+    }
+
+internal val materialSubtitleScope =
+    DiaryTopBarTitleScope { title ->
+        val subtitle = (title as? DiaryTopBarTitle.Text)?.subtitle
+        if (subtitle != null) {
+            Text(text = subtitle, overflow = TextOverflow.Ellipsis, maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES)
+        }
+    }
+
+private val materialNavigationIconScope =
+    DiaryTopBarNavigationIconScope { navigateUp ->
+        NavigateUpButton(onClick = navigateUp.onClick, contentDescription = navigateUp.contentDescription)
+    }
+
+private val materialActionScope = DiaryTopBarActionScope { action -> MaterialTopBarAction(action = action) }
 
 @Composable
 private fun MaterialTopBarTitle(title: DiaryTopBarTitle) {
@@ -100,7 +100,11 @@ private fun MaterialTopBarTitle(title: DiaryTopBarTitle) {
                     maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
                 )
             } else {
-                Text(text = title.text)
+                Text(
+                    text = title.text,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
+                )
             }
 
         is DiaryTopBarTitle.Button -> MaterialTopBarTitleButton(title = title)
@@ -128,7 +132,12 @@ private fun MaterialTopBarTitleButton(title: DiaryTopBarTitle.Button) {
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = title.text)
+        Text(
+            text = title.text,
+            modifier = Modifier.weight(weight = 1F, fill = false),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
+        )
         DiaryCrossfade(targetState = title.isExpanded) { isExpanded ->
             if (isExpanded) {
                 DropUpIcon(contentDescription = title.collapseContentDescription)
@@ -267,31 +276,30 @@ private fun MaterialDiaryTopBarPreview(
 ) {
     DiaryTheme {
         MaterialDiaryTopBar(
-            title = DiaryTopBarTitle.Text(text = "제목", subtitle = "보조 제목"),
-            navigateUp = DiaryTopBarNavigateUp(contentDescription = "뒤로가기", onClick = {}),
-            actions =
-                listOf(
-                    DiaryTopBarAction.Text(text = "19", contentDescription = "오늘로 이동", onClick = {}),
-                    DiaryTopBarAction.Applied(
-                        icon = DiaryTopBarIcon.FILTER,
-                        contentDescription = "필터",
-                        isApplied = state.isApplied,
-                        appliedStateDescription = "필터 적용됨",
-                        onClick = {},
-                    ),
-                    DiaryTopBarAction.Toggle(
-                        icon = DiaryTopBarIcon.FINISH,
-                        contentDescription = "완료",
-                        isChecked = state.isChecked,
-                        onClick = {},
-                    ),
-                    DiaryTopBarAction.Icon(
-                        icon = DiaryTopBarIcon.DELETE,
-                        contentDescription = "삭제",
-                        onClick = {},
-                        isInProgress = state.isInProgress,
-                    ),
-                ),
+            title = { Title(text = "제목", subtitle = "보조 제목") },
+            navigationIcon = { NavigateUp(onClick = {}, contentDescription = "뒤로가기") },
+            actions = {
+                TextAction(text = "19", contentDescription = "오늘로 이동", onClick = {})
+                AppliedAction(
+                    icon = DiaryTopBarIcon.FILTER,
+                    contentDescription = "필터",
+                    isApplied = state.isApplied,
+                    appliedStateDescription = "필터 적용됨",
+                    onClick = {},
+                )
+                ToggleAction(
+                    icon = DiaryTopBarIcon.FINISH,
+                    contentDescription = "완료",
+                    isChecked = state.isChecked,
+                    onClick = {},
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = "삭제",
+                    onClick = {},
+                    isInProgress = state.isInProgress,
+                )
+            },
         )
     }
 }
@@ -299,15 +307,13 @@ private fun MaterialDiaryTopBarPreview(
 @ComponentPreview
 @Composable
 private fun MaterialDiaryTopBarSearchPreview() {
+    val state = rememberTextFieldState()
+    val focusRequester = remember { FocusRequester() }
+
     DiaryTheme {
         MaterialDiaryTopBar(
-            title =
-                DiaryTopBarTitle.Search(
-                    state = rememberTextFieldState(),
-                    placeholder = "검색어를 입력하세요",
-                    focusRequester = remember { FocusRequester() },
-                ),
-            navigateUp = DiaryTopBarNavigateUp(contentDescription = "뒤로가기", onClick = {}),
+            title = { SearchTitle(state = state, placeholder = "검색어를 입력하세요", focusRequester = focusRequester) },
+            navigationIcon = { NavigateUp(onClick = {}, contentDescription = "뒤로가기") },
         )
     }
 }

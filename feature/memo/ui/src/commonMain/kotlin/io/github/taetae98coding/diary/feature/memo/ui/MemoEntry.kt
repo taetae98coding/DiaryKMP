@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
@@ -37,11 +38,13 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.ScrollToFirstMemoOnRe
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterContent
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -108,10 +111,12 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry(backStack: NavB
 }
 
 private fun EntryProviderScope<ScreenNavKey>.memoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<MemoFinishedListNavKey> {
+    entry<MemoFinishedListNavKey>(
+        metadata = memoFinishedListPaneMetadata(),
+    ) {
         MemoFinishedListScreen(
-            navigateUp = { backStack.removeLastOrNull() },
-            navigateToDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateUp = backStack::navigateUpFromMemoFinishedList,
+            navigateToDetail = backStack::navigateToMemoDetail,
             memoViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
@@ -153,6 +158,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             contactViewModel = koinViewModel { parametersOf(key.initialContactId) },
             placeViewModel = koinViewModel { parametersOf(key.initialPlaceId) },
             placeMapViewModel = koinViewModel(),
+            placePickerMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
         )
     }
@@ -193,6 +199,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             contactViewModel = koinViewModel { parametersOf(key.id) },
             placeViewModel = koinViewModel { parametersOf(key.id) },
             placeMapViewModel = koinViewModel(),
+            placePickerMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
         )
     }
@@ -220,7 +227,12 @@ internal fun List<ScreenNavKey>.isMemoDetailOnDetailPane(): Boolean = lastOrNull
 
 internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =
     findMemoDetailPaneListKey(key) { belowKey ->
-        belowKey == MemoHomeNavKey || belowKey is TagMemoFinishedListNavKey
+        belowKey == MemoHomeNavKey ||
+            belowKey == MemoFinishedListNavKey ||
+            belowKey is TagMemoFinishedListNavKey ||
+            belowKey is ContactMemoFinishedListNavKey ||
+            belowKey is PlaceMemoFinishedListNavKey ||
+            belowKey is WebMemoFinishedListNavKey
     }
 
 @Composable
@@ -255,6 +267,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         contactViewModel = koinViewModel(),
         placeViewModel = koinViewModel(),
         placeMapViewModel = koinViewModel(),
+        placePickerMapViewModel = koinViewModel(),
         geminiViewModel = koinViewModel(),
     )
 }

@@ -17,7 +17,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class ChromeProfileRepositoryImplTest :
     FunSpec({
-        test("TC-CHROME-SESSION-IMPORT-DATA-009 읽은 프로필을 순서대로 모델로 제공한다") {
+        test("TC-d3d1ce85-3ec3-48e3-8398-35f9c7fc71bb 읽은 프로필을 순서대로 모델로 제공한다") {
             val entityList = fixtureMonkey.giveMe<ChromeProfileLocalEntity>(size = 3)
             val dataSource = mockk<ChromeProfileLocalDataSource>()
             coEvery { dataSource.readProfileList() } returns entityList
@@ -26,7 +26,7 @@ class ChromeProfileRepositoryImplTest :
             repository.readProfileList() shouldBe entityList.map { entity -> entity.toDomain() }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-011 읽기 실패를 그대로 알린다") {
+        test("TC-44472fb1-aacc-49fa-9f71-0f4130a3781d 읽기 실패를 그대로 알린다") {
             val failure = IllegalStateException("read failed")
             val dataSource = mockk<ChromeProfileLocalDataSource>()
             coEvery { dataSource.readProfileList() } throws failure

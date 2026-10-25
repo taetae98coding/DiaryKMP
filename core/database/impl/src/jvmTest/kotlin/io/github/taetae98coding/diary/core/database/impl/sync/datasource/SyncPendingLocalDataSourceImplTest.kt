@@ -5,6 +5,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
@@ -24,6 +26,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
+import java.io.File
 import kotlin.uuid.Uuid
 
 private typealias PendingWriter = suspend (DiaryDatabase, Uuid, Boolean) -> Unit
@@ -51,6 +54,16 @@ private val pendingWriterMap: Map<String, PendingWriter> =
         },
         "QR" to { database, accountId, isDirty ->
             database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = uuid(), isDirty = isDirty))
+        },
+        "체크리스트" to { database, accountId, isDirty ->
+            database.accountChecklistSyncDao().upsert(
+                AccountChecklistLocalEntity(accountId = accountId, checklistId = uuid(), isDirty = isDirty),
+            )
+        },
+        "체크 항목" to { database, accountId, isDirty ->
+            database.accountChecklistItemSyncDao().upsert(
+                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = uuid(), isDirty = isDirty),
+            )
         },
         "메모" to { database, accountId, isDirty ->
             database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = uuid(), isDirty = isDirty))
@@ -94,8 +107,8 @@ private val pendingWriterMap: Map<String, PendingWriter> =
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 열네 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 14
+        test("업로드 대기 확인이 동기화 대상 열여섯 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 16
         }
 
         lateinit var database: DiaryDatabase
@@ -114,7 +127,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열네 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = uuid()
 
@@ -144,4 +157,35 @@ class SyncPendingLocalDataSourceImplTest :
         test("아무 항목도 없으면 대기 항목이 없다고 알린다") {
             dataSource.hasPending(accountId = uuid()).first() shouldBe false
         }
+
+        test("TC-d6a9c2f7-0d4b-4475-ac62-dce3d62f6f20 데이터베이스를 닫고 다시 열어도 업로드 대기 상태가 그대로 조회된다") {
+            val file = File.createTempFile("sync-pending", ".db")
+
+            try {
+                pendingWriterMap.forEach { (kind, write) ->
+                    val accountId = uuid()
+                    val firstDatabase = fileDatabase(file)
+                    write(firstDatabase, accountId, true)
+                    firstDatabase.close()
+
+                    val secondDatabase = fileDatabase(file)
+
+                    try {
+                        withClue(kind) {
+                            SyncPendingLocalDataSourceImpl(database = secondDatabase).hasPending(accountId = accountId).first() shouldBe true
+                        }
+                    } finally {
+                        secondDatabase.close()
+                    }
+                }
+            } finally {
+                file.delete()
+            }
+        }
     })
+
+private fun fileDatabase(file: File): DiaryDatabase =
+    Room
+        .databaseBuilder<DiaryDatabase>(name = file.absolutePath)
+        .setDriver(BundledSQLiteDriver())
+        .build()

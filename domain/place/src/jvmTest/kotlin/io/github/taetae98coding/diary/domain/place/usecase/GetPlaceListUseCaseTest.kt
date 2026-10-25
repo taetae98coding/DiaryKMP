@@ -60,7 +60,7 @@ class GetPlaceListUseCaseTest :
                 )
 
             When("보이는 영역의 장소 목록을 조회한다") {
-                Then("TC-PLACE-HOME-DOMAIN-014 실패를 전달하고 저장소를 조회하지 않는다") {
+                Then("TC-f2d196a2-aaf3-4731-a185-b72a0aba2d8e 실패를 전달하고 저장소를 조회하지 않는다") {
                     useCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)).test {
                         awaitItem().shouldBeFailure() shouldBe throwable
                         awaitComplete()

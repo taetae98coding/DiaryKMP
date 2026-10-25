@@ -18,7 +18,7 @@ class MusicDownloadManagerImplTest :
     BehaviorSpec({
         Given("다운로드 예약기가 준비되어 있다") {
             When("다운로드를 요청한다") {
-                Then("TC-PLAYLIST-HOME-FEATURE-019 지금 정렬로 목록의 곡 내려받기를 예약한다") {
+                Then("TC-4128e4dc-6dbe-4604-9e60-f88b29b1c998 지금 정렬로 목록의 곡 내려받기를 예약한다") {
                     val scheduler = mockk<MusicDownloadWorkScheduler>()
                     every { scheduler.download(sort = any()) } returns Unit
                     val manager = manager(scheduler = scheduler)
@@ -32,7 +32,7 @@ class MusicDownloadManagerImplTest :
 
         Given("다운로드를 요청하지 않았다") {
             When("상태와 이벤트를 관찰만 한다") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-020 내려받기를 예약하지 않아 준비와 도구 설치가 일어나지 않는다") {
+                Then("TC-4f6c8f9d-b37e-48ec-9b02-a4faed1c5fac 내려받기를 예약하지 않아 준비와 도구 설치가 일어나지 않는다") {
                     val scheduler = mockk<MusicDownloadWorkScheduler>(relaxed = true)
                     val manager = manager(scheduler = scheduler)
 

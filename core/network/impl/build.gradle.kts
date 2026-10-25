@@ -8,6 +8,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.supabase.api)
+                implementation(projects.library.ktor)
             }
         }
 

@@ -36,14 +36,14 @@ class PlaylistHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLAYLIST-HOME-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-4c107ec4-841c-4a72-8731-397be25ac397 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setPlaylistHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-4c107ec4-841c-4a72-8731-397be25ac397 기본 환경에서 상단 바에 제목을 표시한다`() {
         setPlaylistHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
@@ -58,7 +58,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-004 목록에 곡의 제목과 가수를 카드로 표시한다`() {
+    fun `TC-97f58e54-aa0d-407e-b435-dc552077fa0c 목록에 곡의 제목과 가수를 카드로 표시한다`() {
         val first = testMusic(title = FIRST_TITLE, artist = FIRST_ARTIST)
         val second = testMusic(title = SECOND_TITLE, artist = SECOND_ARTIST)
 
@@ -72,7 +72,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-012 링크가 없는 곡도 목록에 그대로 나타난다`() {
+    fun `TC-5cab958e-8311-43c4-91d9-bc57e1499a77 링크가 없는 곡도 목록에 그대로 나타난다`() {
         val withLink = testMusic(title = FIRST_TITLE, artist = FIRST_ARTIST)
         val withoutLink = testMusic(title = SECOND_TITLE, artist = SECOND_ARTIST, link = "")
 
@@ -86,7 +86,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-017 가수가 없는 곡은 제목만 표시한다`() {
+    fun `TC-d96ddab5-1585-4ccc-aa35-329600ef0ef7 가수가 없는 곡은 제목만 표시한다`() {
         setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE, artist = "")))
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
@@ -116,7 +116,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-015 곡 카드를 누르면 그 곡의 선택 이벤트를 내보낸다`() {
+    fun `TC-cdffb691-2c41-4b33-a6da-8c243b81a200 곡 카드를 누르면 그 곡의 선택 이벤트를 내보낸다`() {
         val music = testMusic(title = FIRST_TITLE)
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(musicList = listOf(music), onEvent = eventList::add)
@@ -128,7 +128,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-006 목록에 곡이 있어도 곡 추가를 선택할 수 있다`() {
+    fun `TC-61313533-3370-4dcc-9f6d-48121804db99 목록에 곡이 있어도 곡 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)), onEvent = eventList::add)
 
@@ -138,7 +138,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-006 목록이 비어 있어도 곡 추가를 선택할 수 있다`() {
+    fun `TC-61313533-3370-4dcc-9f6d-48121804db99 목록이 비어 있어도 곡 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(onEvent = eventList::add)
 
@@ -159,21 +159,21 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-003 상세 영역에 곡 추가가 놓이면 곡 추가 버튼이 표시되지 않는다`() {
+    fun `TC-2cf159ed-2747-40af-ab57-aa96e9079869 상세 영역에 곡 추가가 놓이면 곡 추가 버튼이 표시되지 않는다`() {
         setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-004 추가 버튼 표시 상태이면 곡 추가 버튼이 표시된다`() {
+    fun `TC-8587f193-ec41-4ea5-9a77-8261f025672f 추가 버튼 표시 상태이면 곡 추가 버튼이 표시된다`() {
         setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-007 상세 영역에 곡 추가가 놓여도 정렬 컨트롤은 표시된다`() {
+    fun `TC-7a548754-d60e-44ae-b5b3-e740a7ffc437 상세 영역에 곡 추가가 놓여도 정렬 컨트롤은 표시된다`() {
         setPlaylistHomeScaffold(
             musicList = listOf(testMusic(title = FIRST_TITLE)),
             componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false),
@@ -183,7 +183,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-014 상세 영역에 곡 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+    fun `TC-4f4be13e-7d7d-4f0f-9a92-592307a5fa81 상세 영역에 곡 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(
             onEvent = eventList::add,
@@ -217,7 +217,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-034 Cmd A 단축키를 입력하면 곡 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-25312f3b-0dec-4190-b7ea-4016e282b8ab Cmd A 단축키를 입력하면 곡 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(onEvent = eventList::add)
 
@@ -227,7 +227,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-003 상세 영역에 곡 추가가 놓이면 Cmd A 단축키로도 곡 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-2cf159ed-2747-40af-ab57-aa96e9079869 상세 영역에 곡 추가가 놓이면 Cmd A 단축키로도 곡 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(
             onEvent = eventList::add,

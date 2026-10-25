@@ -42,7 +42,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class PlaceTagRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-PLACE-TAG-DATA-005 TC-PLACE-TAG-DATA-006 장소와 태그의 연결의 전체 상태를 Supabase push 함수에 전달한다") {
+        test("TC-7304e71b-b36f-423d-9efa-52d3d75bcdd9 TC-a7ac9999-59d1-445b-bc5b-312a87bad444 장소와 태그의 연결의 전체 상태를 Supabase push 함수에 전달한다") {
             val placeTagList = listOf(placeTag(), placeTag(isDeleted = true))
             val response = mockk<HttpResponse>()
             every { response.status } returns HttpStatusCode.OK
@@ -71,7 +71,7 @@ class PlaceTagRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-PLACE-TAG-DATA-007 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
+        test("TC-96b8e102-0188-48ac-83f6-9f2651aaee11 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
             val usn = fixtureMonkey.giveMeOne<Long>()
             val placeTagPullList =
                 listOf(

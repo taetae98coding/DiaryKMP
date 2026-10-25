@@ -61,7 +61,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-024 TC-TAG-LINK-INPUT-FEATURE-033 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+    fun `TC-5cd7e2ee-a6d8-4732-bfcc-bddf8f95b97f TC-bafce675-468e-430e-b1ca-2721e029fcd5 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 연결 칩이 TagAdd 이동을 요청한다`() {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(tagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -80,7 +80,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-025 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
+    fun `TC-195afaca-9147-4f38-874f-a76b68481672 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
         var tagAddCount = 0
         setTagAddScreen(
             tagPagingData = MutableStateFlow(refreshingTagPagingData()),
@@ -95,7 +95,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
+    fun `TC-c9f7e125-bb4c-46e3-9dab-906e275e0945 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
         var tagAddCount = 0
         setTagAddScreen(
             tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
@@ -110,7 +110,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
+    fun `TC-d7346bdd-fd91-440c-99d0-0ffa429db209 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         var tagAddCount = 0
         setTagAddScreen(tagList = listOf(tag), navigateToTagAdd = { tagAddCount += 1 })
@@ -126,7 +126,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-028 TC-TAG-ADD-FEATURE-022 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 연결된다`() {
+    fun `TC-430ad93d-aa00-47b2-b4b7-3435df9312be TC-193b43fe-563c-4dd6-843a-b21d589800f1 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 연결된다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         val addedTag = testTag(title = EXERCISE_TAG_TITLE)
         val resultEventBus = ResultEventBus()
@@ -141,7 +141,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 연결된다`() {
+    fun `TC-430ad93d-aa00-47b2-b4b7-3435df9312be TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 연결된다`() {
         val firstAddedTag = testTag(title = WORK_TAG_TITLE)
         val secondAddedTag = testTag(title = EXERCISE_TAG_TITLE)
         val resultEventBus = ResultEventBus()
@@ -156,7 +156,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-029 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
+    fun `TC-6b4c99d6-75d5-435e-ba8a-20bb171d4203 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         val otherTag = testTag(title = EXERCISE_TAG_TITLE)
         setTagAddScreen(tagList = listOf(linkedTag, otherTag))
@@ -172,7 +172,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-030 TagAdd 화면에서 돌아와도 태그 선택 목록이 저절로 열리지 않는다`() {
+    fun `TC-2b6eb189-b3ca-4ee3-ac1e-7874341d9149 TagAdd 화면에서 돌아와도 태그 선택 목록이 저절로 열리지 않는다`() {
         val addedTag = testTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setTagAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -189,7 +189,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-021 연결 입력에서 태그 추가로 이동해도 입력한 내용과 고른 연결이 유지된다`() {
+    fun `TC-c0f9fe7b-1665-41c2-893e-df56af537926 연결 입력에서 태그 추가로 이동해도 입력한 내용과 고른 연결이 유지된다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         setTagAddScreen(tagList = listOf(linkedTag))
         composeRule.titleInput().performTextInput(TYPED_TITLE)
@@ -205,7 +205,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-DOMAIN-012 자동 연결된 태그의 연결을 해제하면 다시 연결되지 않는다`() {
+    fun `TC-afc4dbf5-59ab-4d18-8b94-25e2e011dd00 자동 연결된 태그의 연결을 해제하면 다시 연결되지 않는다`() {
         val addedTag = testTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setTagAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -221,7 +221,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-DOMAIN-013 이 입력에서 이동하지 않은 TagAdd 화면의 태그는 자동 연결되지 않는다`() {
+    fun `TC-e8494f06-12dd-4921-a602-7eb94eb75d59 이 입력에서 이동하지 않은 TagAdd 화면의 태그는 자동 연결되지 않는다`() {
         val addedTag = testTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setTagAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -233,7 +233,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-023 이 화면에서 추가한 태그는 연결 대상으로 선택되지 않는다`() {
+    fun `TC-41d921c0-e05d-4826-a6d5-65cf0d31f8da 이 화면에서 추가한 태그는 연결 대상으로 선택되지 않는다`() {
         val addedId = Uuid.random()
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
@@ -252,7 +252,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-DOMAIN-007 추가 결과는 이 화면을 연 태그 입력에만 돌려준다`() {
+    fun `TC-50bb74e0-3cc5-4597-b820-cb3367b3f720 추가 결과는 이 화면을 연 태그 입력에만 돌려준다`() {
         val firstAddedId = Uuid.random()
         val secondAddedId = Uuid.random()
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
@@ -280,7 +280,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-DOMAIN-008 태그 입력에서 열지 않은 화면의 추가 결과는 어디에도 전달되지 않는다`() {
+    fun `TC-c444d6cb-bf1b-46ab-aa27-b46ba054b0dc 태그 입력에서 열지 않은 화면의 추가 결과는 어디에도 전달되지 않는다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val addedIdList = mutableListOf<Uuid>()

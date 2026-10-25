@@ -37,7 +37,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SEARCH-HOME-FEATURE-031 미완료 태그를 완료하면 완료를 요청하고 완료 안내를 한 번 보낸다") {
+        test("TC-e1cb79a7-62eb-4e64-8242-f9f62fe382bd 미완료 태그를 완료하면 완료를 요청하고 완료 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -52,7 +52,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-031 완료된 태그를 다시 시작하면 다시 시작을 요청하고 다시 시작 안내를 한 번 보낸다") {
+        test("TC-e1cb79a7-62eb-4e64-8242-f9f62fe382bd 완료된 태그를 다시 시작하면 다시 시작을 요청하고 다시 시작 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -67,7 +67,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-032 태그를 삭제하면 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-52108144-1cad-4c1b-85da-0bca00128799 태그를 삭제하면 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -82,7 +82,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-036 태그의 동작이 저장되지 못하면 안내를 보내지 않는다") {
+        test("TC-22b6f8ce-53f1-4b4f-844b-1a462721e10c 태그의 동작이 저장되지 못하면 안내를 보내지 않는다") {
             val actionList: List<(SearchHomeTagViewModel, Uuid) -> Unit> =
                 listOf(
                     { viewModel, id -> viewModel.finish(id = id) },
@@ -105,7 +105,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-033 태그 완료를 실행 취소하면 다시 시작을 요청하고 새 안내는 보내지 않는다") {
+        test("TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 완료를 실행 취소하면 다시 시작을 요청하고 새 안내는 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -121,7 +121,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-033 태그 다시 시작을 실행 취소하면 완료를 요청하고 새 안내는 보내지 않는다") {
+        test("TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 다시 시작을 실행 취소하면 완료를 요청하고 새 안내는 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -137,7 +137,7 @@ class SearchHomeTagActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-033 태그 삭제를 실행 취소하면 복구를 요청하고 새 안내는 보내지 않는다") {
+        test("TC-27470dd3-8e88-4047-bf84-f787c9bfd442 태그 삭제를 실행 취소하면 복구를 요청하고 새 안내는 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()

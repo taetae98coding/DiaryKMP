@@ -33,28 +33,33 @@ class SettingHomeScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-007 공휴일 항목을 선택하면 SettingHoliday 화면으로 이동한다`() {
+    fun `TC-adb9f475-c36e-422f-9fd3-c87d3b48faf1 공휴일 항목을 선택하면 SettingHoliday 화면으로 이동한다`() {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_HOLIDAY_ITEM_LABEL, expected = SettingHomeItem.HOLIDAY)
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-008 지도 항목을 선택하면 SettingMap 화면으로 이동한다`() {
+    fun `TC-b8935a44-5fd9-4439-b908-b81b2378503a 지도 항목을 선택하면 SettingMap 화면으로 이동한다`() {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_MAP_ITEM_LABEL, expected = SettingHomeItem.MAP)
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-009 Gemini 항목을 선택하면 SettingGemini 화면으로 이동한다`() {
+    fun `TC-24b65985-c74c-45dd-8b59-f3e604b1a0e2 Gemini 항목을 선택하면 SettingGemini 화면으로 이동한다`() {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_GEMINI_ITEM_LABEL, expected = SettingHomeItem.GEMINI)
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-010 브라우저 항목을 선택하면 SettingBrowser 화면으로 이동한다`() {
+    fun `TC-facac3a1-3a7c-49ac-a628-f195e6ef35b6 브라우저 항목을 선택하면 SettingBrowser 화면으로 이동한다`() {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_BROWSER_ITEM_LABEL, expected = SettingHomeItem.BROWSER)
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-013 다운로드 항목을 선택하면 SettingDownload 화면으로 이동한다`() {
-        assertNavigatesOnlyTo(itemLabel = DEFAULT_DOWNLOAD_ITEM_LABEL, expected = SettingHomeItem.DOWNLOAD)
+    fun `TC-a7570b35-ca10-4b3d-a047-f20b4a7fd24d 플레이리스트 항목을 선택하면 SettingPlaylist 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_PLAYLIST_ITEM_LABEL, expected = SettingHomeItem.PLAYLIST)
+    }
+
+    @Test
+    fun `TC-0f6496a7-770e-4119-ab1b-5525f71ff982 파일 항목을 선택하면 SettingFile 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_FILE_ITEM_LABEL, expected = SettingHomeItem.FILE)
     }
 
     private fun assertNavigatesOnlyTo(
@@ -67,7 +72,8 @@ class SettingHomeScreenTest {
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
             navigateToBrowser = { navigatedItemList += SettingHomeItem.BROWSER },
-            navigateToDownload = { navigatedItemList += SettingHomeItem.DOWNLOAD },
+            navigateToPlaylist = { navigatedItemList += SettingHomeItem.PLAYLIST },
+            navigateToFile = { navigatedItemList += SettingHomeItem.FILE },
         )
 
         composeRule.onNodeWithText(itemLabel).performClick()
@@ -82,7 +88,8 @@ class SettingHomeScreenTest {
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
         navigateToBrowser: () -> Unit = {},
-        navigateToDownload: () -> Unit = {},
+        navigateToPlaylist: () -> Unit = {},
+        navigateToFile: () -> Unit = {},
         viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Content(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
@@ -93,7 +100,8 @@ class SettingHomeScreenTest {
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
                     navigateToBrowser = navigateToBrowser,
-                    navigateToDownload = navigateToDownload,
+                    navigateToPlaylist = navigateToPlaylist,
+                    navigateToFile = navigateToFile,
                     viewModel = viewModel,
                 )
             }
@@ -106,7 +114,8 @@ class SettingHomeScreenTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
-        private const val DEFAULT_DOWNLOAD_ITEM_LABEL = "Download"
+        private const val DEFAULT_PLAYLIST_ITEM_LABEL = "Playlist"
+        private const val DEFAULT_FILE_ITEM_LABEL = "Files"
 
         private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {
             val viewModel = mockk<SettingHomeViewModel>()

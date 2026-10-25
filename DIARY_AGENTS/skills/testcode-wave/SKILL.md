@@ -17,6 +17,16 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 
 자동화할 수 없는 케이스를 조용히 생략하지 않는다. 해당 케이스 아래에 `작성하지 않는 이유`를 기록하고, 작업 결과에도 미작성 ID를 요약한다. 테스트 실패를 피하려고 기대 결과를 약화하거나 문서와 다른 동작에 맞추지 않는다.
 
+## 작성 중 확인
+
+테스트를 작성하는 동안에는 바뀐 모듈의 테스트만 돌려 확인한다. 저장소 전체 실행은 `verify-wave`가 한 번만 맡는다.
+
+```bash
+./gradlew $(DIARY_AGENTS/scripts/changed-module-tasks.sh jvmTest) $(DIARY_AGENTS/scripts/changed-module-tasks.sh testAndroidHostTest) --continue
+```
+
+작성을 마치면 `DIARY_AGENTS/scripts/check-testcase-trace.py <slug>`로 ID 누락과 문서에 없는 ID가 없는지 확인한다.
+
 ## 추가 테스트
 
 문서 케이스를 모두 구현한 뒤 회귀 위험과 구현 계약을 검토해 필요한 테스트를 추가한다.
@@ -42,7 +52,7 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 - `androidHostTest`의 assertion도 JUnit4 대신 Kotest assertions(`shouldBe` 등)를 쓴다.
 - Flow 검증은 Turbine(`flow.test { ... }`)을 쓴다. one-shot Effect는 `awaitItem()`으로 수신을, `expectNoEvents()`로 추가 발행이 없음을 검증한다.
 - UseCase 테스트는 Kotest `BehaviorSpec`의 Given/When/Then으로 작성한다.
-- `Pager`가 만든 흐름을 `asSnapshot`으로 검증하는 테스트는 `runTest` 안에서 실행한다. paging-testing 3.5.1의 `asSnapshot`과 그 안의 `refresh`·`scrollTo`·`appendScrollWhile`은 로딩이 끝났는지를 상태가 1ms 동안 바뀌지 않는지(`debounce`)로 판단한다. `runTest` 밖에서는 이 1ms가 실제 시간이라, 부하가 걸리면 새 세대나 다음 페이지가 도착하기 전에 대기가 끝나 이전 목록을 돌려주고 전체 실행에서만 간헐적으로 실패한다. `FileRepositoryImplTest`의 다시 불러오기 테스트가 이렇게 실패했다. `runTest` 안에서는 1ms가 가상 시간이라 밀린 작업을 모두 처리한 뒤에야 대기가 끝난다. 라이브러리가 시간 대신 세대 완료를 기다리게 바뀌면 이 규칙과 `runTest` 감싸기를 지워도 된다. `flowOf(PagingData.from(list))`처럼 한 세대뿐인 정적 데이터는 대상이 아니다.
+- `Pager`가 만든 흐름을 `asSnapshot`으로 검증하는 테스트는 `runTest` 안에서 실행한다. paging-testing의 `asSnapshot`과(3.5.3까지 확인) 그 안의 `refresh`·`scrollTo`·`appendScrollWhile`은 로딩이 끝났는지를 상태가 1ms 동안 바뀌지 않는지(`debounce`)로 판단한다. `runTest` 밖에서는 이 1ms가 실제 시간이라, 부하가 걸리면 새 세대나 다음 페이지가 도착하기 전에 대기가 끝나 이전 목록을 돌려주고 전체 실행에서만 간헐적으로 실패한다. `FileRepositoryImplTest`의 다시 불러오기 테스트가 이렇게 실패했다. `runTest` 안에서는 1ms가 가상 시간이라 밀린 작업을 모두 처리한 뒤에야 대기가 끝난다. 라이브러리가 시간 대신 세대 완료를 기다리게 바뀌면 이 규칙과 `runTest` 감싸기를 지워도 된다. `flowOf(PagingData.from(list))`처럼 한 세대뿐인 정적 데이터는 대상이 아니다.
 
 ## Mock
 
@@ -75,6 +85,8 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 `FixtureMonkey` 인스턴스는 파일 최상위에 한 번 만들어 공유하고, fixture는 최상위 프로퍼티가 아니라 각 테스트 본문 안에서 생성한다. 테스트마다 다른 값이 생성되어 테스트 간 상관관계가 없고, 실패한 테스트에 쓰인 값을 그 테스트 안에서 바로 확인할 수 있다. `FixtureMonkey` 프로퍼티는 명시적 타입을 선언해야 한다(타입 추론에 checkerframework 어노테이션이 섞여 컴파일 에러가 발생한다).
 
 빈 값 확인처럼 특정 값 자체가 검증 대상인 경우에만 고정 값을 쓴다. 예를 들어 언어별 UI 문구 검증은 실제 리소스 문자열을 고정 값으로 쓴다.
+
+Compose UI 테스트에서 화면에 입력하거나 표시해 글자로 노드를 찾는 사용자 데이터(제목, 설명, 항목 내용, URL 등)는 예외로, 읽기 쉬운 고정 문자열 상수를 써도 된다. 임의 문자열은 길이와 공백, 줄바꿈에 따라 표시와 노드 탐색이 흔들리고, 실패한 화면에서 어떤 값을 찾던 중인지 알아보기 어렵다. 이 예외는 화면에 보이는 글에만 적용하며, 식별자·시각처럼 화면에서 글자로 찾지 않는 값과 jvmTest의 데이터는 그대로 FixtureMonkey로 만든다.
 
 ## Compose UI 테스트
 

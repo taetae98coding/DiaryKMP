@@ -56,7 +56,7 @@ class TagDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-DETAIL-FEATURE-022 조회 결과가 없으면 로딩 상태를 유지한다") {
+        test("TC-18be6cac-d671-479d-bafc-87a099949731 조회 결과가 없으면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(any()) } returns flowOf(Result.success(null))
@@ -71,7 +71,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-022 조회가 실패하면 로딩 상태를 유지한다") {
+        test("TC-18be6cac-d671-479d-bafc-87a099949731 조회가 실패하면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
@@ -86,7 +86,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-001 조회한 태그의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
+        test("TC-a51bbc33-302d-4e16-a3f9-3d4cd2c501f6 조회한 태그의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val changedTag = tag.copy(detail = fixtureMonkey.giveMeOne<TagDetail>())
@@ -124,7 +124,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-015 조회한 태그의 완료 상태를 상태에 채우고 후속 변경도 반영한다") {
+        test("TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 조회한 태그의 완료 상태를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val tag = tag().copy(isFinished = false)
                 val finishedTag = tag.copy(isFinished = true)
@@ -150,7 +150,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-002 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
+        test("TC-b5cee8b7-840d-4a72-920b-97c89936258d 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "first-${fixtureMonkey.giveMeOne<String>()}")
@@ -178,7 +178,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-010 수정을 처리하는 중에도 태그를 연결하면 연결된 태그로 조회된다") {
+        test("TC-72d78280-4f38-44cd-8c45-3fa8c61eabac 수정을 처리하는 중에도 태그를 연결하면 연결된 태그로 조회된다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val toTag = tag()
@@ -228,7 +228,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-003 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
+        test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -263,7 +263,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-003 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
+        test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -293,7 +293,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-003 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
+        test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val detail = fixtureMonkey.giveMeOne<TagDetail>()
@@ -327,7 +327,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-003 수정 처리 중 전달된 완료 요청은 처리한다") {
+        test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 수정 처리 중 전달된 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val completion = CompletableDeferred<Result<Int>>()
@@ -457,7 +457,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-069 수정 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
+        test("TC-a472e4f6-4936-4858-b5f4-9e72540c8fd0 수정 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
@@ -487,7 +487,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-010 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
+        test("TC-b38740b4-17e4-4360-8b43-e4ee5f0d1c79 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery { updateTagUseCase(any()) } returns Result.success(1)
@@ -503,7 +503,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-002 완료를 실행하면 현재 태그의 완료를 요청하고 Effect를 보내지 않는다") {
+        test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 완료를 실행하면 현재 태그의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
@@ -525,7 +525,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-002 다시 시작을 실행하면 현재 태그의 다시 시작을 요청하고 Effect를 보내지 않는다") {
+        test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 다시 시작을 실행하면 현재 태그의 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
@@ -547,7 +547,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-019 TC-TAG-DETAIL-DATA-002 삭제에 성공하면 현재 태그의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
+        test("TC-26fe06e0-1644-4d0b-9787-27d69f252e70 TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 삭제에 성공하면 현재 태그의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
@@ -585,7 +585,7 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-013 수정에 성공해 저장 이모지와 제목이 바뀌면 화면 제목에 쓰는 저장 내용이 갱신된다") {
+        test("TC-1c11b1ac-8fe1-4338-b2c0-68c84d8eea13 수정에 성공해 저장 이모지와 제목이 바뀌면 화면 제목에 쓰는 저장 내용이 갱신된다") {
             runTest(mainDispatcher) {
                 val tag = tag().let { value -> value.copy(detail = value.detail.copy(emoji = "\uD83C\uDFC3")) }
                 val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"

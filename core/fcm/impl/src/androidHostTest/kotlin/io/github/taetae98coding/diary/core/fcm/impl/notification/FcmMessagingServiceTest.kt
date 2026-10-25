@@ -34,7 +34,7 @@ class FcmMessagingServiceTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-008 알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
+    fun `TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3 알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
         // 빈 문자열이면 본문이 없는 알림이 되어 다른 경로를 타므로 접두사로 비어 있지 않음을 보장한다.
         val title = "title${fixtureMonkey.giveMeOne<String>()}"
         val body = "- ${fixtureMonkey.giveMeOne<String>()}\n- ${fixtureMonkey.giveMeOne<String>()}"
@@ -52,7 +52,7 @@ class FcmMessagingServiceTest {
     }
 
     @Test
-    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-009 메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
+    fun `TC-8bd47d8e-d759-4876-a1b2-be83de3bddb7 메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
         service.onMessageReceived(remoteMessage(title = "title${fixtureMonkey.giveMeOne<String>()}", body = null, channelId = null, tag = null))
 
         shadowOf(notificationManager()).allNotifications.single().channelId shouldBe DAILY_MEMO_NOTIFICATION_CHANNEL_ID

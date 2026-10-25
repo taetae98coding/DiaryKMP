@@ -61,7 +61,7 @@ class DiaryDateTimeInputTimePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-012 시간 선택 다이얼로그에서 확인하면 고른 시간이 반영된다`() {
+    fun `TC-9ac926a5-57ea-4c4c-baf1-2709f5ef6bfb 시간 선택 다이얼로그에서 확인하면 고른 시간이 반영된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNodeWithText(START_TIME_TEXT).performClick()
@@ -72,7 +72,7 @@ class DiaryDateTimeInputTimePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-013 시간 선택 다이얼로그를 취소하면 기존 값이 유지된다`() {
+    fun `TC-2928a02a-5139-4c3c-a9f5-3b26de76ab6d 시간 선택 다이얼로그를 취소하면 기존 값이 유지된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNodeWithText(START_TIME_TEXT).performClick()
@@ -84,7 +84,7 @@ class DiaryDateTimeInputTimePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-014 종일 아님에서 시작 시간을 종료보다 뒤로 선택하면 종료가 시작에 맞춰진다`() {
+    fun `TC-100445a4-5154-4302-ab94-c8bd236938e3 종일 아님에서 시작 시간을 종료보다 뒤로 선택하면 종료가 시작에 맞춰진다`() {
         setDiaryDateTimeInput(
             initialValue =
                 DiaryDateTimeInputValue.DateTime(
@@ -101,7 +101,7 @@ class DiaryDateTimeInputTimePickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-015 종일 아님에서 종료 시간을 시작보다 앞으로 선택하면 시작이 종료에 맞춰진다`() {
+    fun `TC-366a967c-d2ff-45b3-8b70-2093910bfd17 종일 아님에서 종료 시간을 시작보다 앞으로 선택하면 시작이 종료에 맞춰진다`() {
         setDiaryDateTimeInput(
             initialValue =
                 DiaryDateTimeInputValue.DateTime(

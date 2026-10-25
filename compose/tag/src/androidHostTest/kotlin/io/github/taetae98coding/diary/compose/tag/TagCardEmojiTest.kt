@@ -23,14 +23,14 @@ class TagCardEmojiTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-001 카드에 태그 이모지와 제목을 함께 표시한다`() {
+    fun `TC-e6f864f3-7c11-46a2-ab25-a7d0c59047a2 카드에 태그 이모지와 제목을 함께 표시한다`() {
         setTagCard(tag(title = TAG_TITLE, emoji = TAG_EMOJI))
 
         composeRule.onNodeWithText("$TAG_EMOJI $TAG_TITLE").assertExists()
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-012 이모지가 비어 있으면 카드에 제목만 표시한다`() {
+    fun `TC-d254394e-155f-4402-a44c-e313e7a358c5 이모지가 비어 있으면 카드에 제목만 표시한다`() {
         setTagCard(tag(title = TAG_TITLE))
 
         composeRule.onNodeWithText(TAG_TITLE).assertExists()

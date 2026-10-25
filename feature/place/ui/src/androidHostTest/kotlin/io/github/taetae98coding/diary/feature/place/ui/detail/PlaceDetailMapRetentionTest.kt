@@ -32,7 +32,7 @@ class PlaceDetailMapRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-021 화면이 재생성되어도 보고 있던 지도와 지점 표시를 유지한다`() {
+    fun `TC-42d4d33b-e660-4a59-8bed-f3506a0c36fe 화면이 재생성되어도 보고 있던 지도와 지점 표시를 유지한다`() {
         val savedDetail = placeDetail(coordinate = fixtureMonkey.coordinateInFormPrecision())
         val movedCamera = fixtureMonkey.coordinateInFormPrecision().toDiaryMapCoordinate()
         val changedSpot = fixtureMonkey.coordinateInFormPrecision().toDiaryMapCoordinate()

@@ -30,7 +30,7 @@ class SettingMapDefaultProviderSectionTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-MAP-FEATURE-005 한국어 환경에서 기본 지도 설정 문구를 표시한다`() {
+    fun `TC-338ff583-c9db-409f-b7be-2cd801cd72a5 한국어 환경에서 기본 지도 설정 문구를 표시한다`() {
         setSettingMapDefaultProviderSection()
 
         composeRule.onNodeWithText("기본 지도").assertExists()
@@ -38,7 +38,7 @@ class SettingMapDefaultProviderSectionTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-005 기본 환경에서 기본 지도 설정 문구를 표시한다`() {
+    fun `TC-338ff583-c9db-409f-b7be-2cd801cd72a5 기본 환경에서 기본 지도 설정 문구를 표시한다`() {
         setSettingMapDefaultProviderSection()
 
         composeRule.onNodeWithText(DEFAULT_DEFAULT_PROVIDER_LABEL).assertExists()
@@ -46,7 +46,7 @@ class SettingMapDefaultProviderSectionTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-006 저장된 기본 지도만 선택된 상태로 표시한다`() {
+    fun `TC-9d9c7d1e-01fb-45cb-b486-4280e3c9d708 저장된 기본 지도만 선택된 상태로 표시한다`() {
         val cases =
             mapOf(
                 MapProvider.NAVER to (DEFAULT_NAVER_LABEL to DEFAULT_GOOGLE_LABEL),
@@ -65,7 +65,7 @@ class SettingMapDefaultProviderSectionTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-007 각 지도 줄을 선택할 수 있다`() {
+    fun `TC-ccc0873b-33b1-4ebd-b377-701c6db32dec 각 지도 줄을 선택할 수 있다`() {
         setSettingMapDefaultProviderSection()
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).assert(hasClickAction())
@@ -80,7 +80,7 @@ class SettingMapDefaultProviderSectionTest {
     }
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-008 선택되어 있지 않은 줄을 선택하면 그 지도를 기본 지도로 요청한다`() {
+    fun `TC-5675f575-9e4c-44ce-9b35-6a1ff32ac7aa 선택되어 있지 않은 줄을 선택하면 그 지도를 기본 지도로 요청한다`() {
         val selectedProviders = mutableListOf<MapProvider>()
         setSettingMapDefaultProviderSection(onSelect = { provider -> selectedProviders.add(provider) })
 

@@ -71,7 +71,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             )
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-007 삭제된 장소는 연결이 남아 있어도 조회되지 않는다") {
+        test("TC-9a99bb31-632c-406d-8388-9ea5832f4709 삭제된 장소는 연결이 남아 있어도 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -82,7 +82,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-049 TC-MEMO-PLACE-CARD-DOMAIN-029 조회한 장소는 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
+        test("TC-0b17dba7-61ac-4cd2-8b6a-03bd8e7ae30b TC-8508844b-1be2-4047-981e-c6d7c0bffb8a 조회한 장소는 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastPlace = place(title = LAST_PLACE_TITLE)
@@ -92,7 +92,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstPlace, lastPlace)
         }
 
-        test("TC-MEMO-DETAIL-DATA-044 연결된 장소의 제목이 바뀌면 장소 카드의 조회 결과가 갱신된다") {
+        test("TC-b18406f5-53d9-4a5e-938d-44b9dcfba5cb 연결된 장소의 제목이 바뀌면 장소 카드의 조회 결과가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place(title = FIRST_PLACE_TITLE)
@@ -104,7 +104,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(renamedPlace)
         }
 
-        test("TC-MEMO-PLACE-DATA-009 가리키는 장소가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-aedb521d-bcdb-4b58-8d14-bb5d48ff2cda 가리키는 장소가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val missingPlaceId = fixtureMonkey.giveMeOne<Uuid>()
@@ -125,7 +125,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DATA-009 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
+        test("TC-aedb521d-bcdb-4b58-8d14-bb5d48ff2cda 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val missingMemoId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -141,7 +141,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DATA-012 메모가 내려받아지면 먼저 저장되어 있던 연결의 장소가 함께 나타난다") {
+        test("TC-802c3ffe-e237-4fca-a2db-62c0f53b780e 메모가 내려받아지면 먼저 저장되어 있던 연결의 장소가 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -172,7 +172,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-019 계정과 연결되지 않은 장소는 메모의 연결된 장소로 조회되지 않는다") {
+        test("TC-fb3a87f9-8ebe-4f14-93cd-d4b2b84d3e8c 계정과 연결되지 않은 장소는 메모의 연결된 장소로 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -190,7 +190,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-020 같은 태그와 연결되어 있어도 메모와 장소는 연결되지 않는다") {
+        test("TC-dadfb4a4-e539-451c-b0f7-e0dae73e9bbc 같은 태그와 연결되어 있어도 메모와 장소는 연결되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -228,7 +228,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-021 삭제된 장소의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+        test("TC-2cd98d83-4a47-406c-a124-dfe5265b5750 삭제된 장소의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()

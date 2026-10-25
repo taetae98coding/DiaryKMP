@@ -35,7 +35,7 @@ class WebHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-001 목록에 웹 항목의 제목과 URL을 카드로 표시한다`() {
+    fun `TC-3743b05e-be76-4e63-a0df-984a4fcc040a 목록에 웹 항목의 제목과 URL을 카드로 표시한다`() {
         val first = testWeb(title = FIRST_TITLE, url = FIRST_URL)
         val second = testWeb(title = SECOND_TITLE, url = SECOND_URL)
 
@@ -49,7 +49,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-009 설명이 있는 웹 항목도 목록에 설명을 표시하지 않는다`() {
+    fun `TC-2eb4136a-bf7a-48e9-8984-ca726f39321d 설명이 있는 웹 항목도 목록에 설명을 표시하지 않는다`() {
         val described = testWeb(title = FIRST_TITLE, url = FIRST_URL, description = DESCRIPTION)
         val blankDescribed = testWeb(title = SECOND_TITLE, url = SECOND_URL, description = "")
 
@@ -62,7 +62,7 @@ class WebHomeScaffoldTest {
 
     // 저장 전후의 목록을 각각 구성해 확인한다. 화면을 꾸민 뒤의 전환은 WebHomeListUpdateTest가 확인한다.
     @Test
-    fun `TC-WEB-HOME-FEATURE-004 저장 전 목록에는 새 웹 항목이 없다`() {
+    fun `TC-a28ec890-b9f6-4b81-a106-885d70b4f5a3 저장 전 목록에는 새 웹 항목이 없다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = FIRST_TITLE, url = FIRST_URL)))
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
@@ -70,7 +70,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-004 저장 뒤 목록에는 새 웹 항목이 있다`() {
+    fun `TC-a28ec890-b9f6-4b81-a106-885d70b4f5a3 저장 뒤 목록에는 새 웹 항목이 있다`() {
         setWebHomeScaffold(
             webList =
                 listOf(
@@ -84,7 +84,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-017 웹 카드를 선택하면 그 웹 항목의 선택을 한 번 전달한다`() {
+    fun `TC-8392b3db-4a35-4d67-bc3b-fcc40f266178 웹 카드를 선택하면 그 웹 항목의 선택을 한 번 전달한다`() {
         val web = testWeb(title = FIRST_TITLE, url = FIRST_URL)
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(webList = listOf(web), onEvent = eventList::add)
@@ -95,7 +95,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-005 목록에 웹 항목이 있어도 웹 추가를 선택할 수 있다`() {
+    fun `TC-0036a77a-fd88-4d90-b78b-7f1900def0e8 목록에 웹 항목이 있어도 웹 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(webList = listOf(testWeb(title = FIRST_TITLE, url = FIRST_URL)), onEvent = eventList::add)
 
@@ -105,7 +105,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-005 목록이 비어 있어도 웹 추가를 선택할 수 있다`() {
+    fun `TC-0036a77a-fd88-4d90-b78b-7f1900def0e8 목록이 비어 있어도 웹 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(onEvent = eventList::add)
 
@@ -115,7 +115,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-016 목록에 웹 항목이 있어도 검색을 선택할 수 있다`() {
+    fun `TC-b9b804fc-f2b9-4560-8a44-5da492e59d4a 목록에 웹 항목이 있어도 검색을 선택할 수 있다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(webList = listOf(testWeb(title = FIRST_TITLE, url = FIRST_URL)), onEvent = eventList::add)
 
@@ -125,7 +125,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-016 목록이 비어 있어도 검색을 선택할 수 있다`() {
+    fun `TC-b9b804fc-f2b9-4560-8a44-5da492e59d4a 목록이 비어 있어도 검색을 선택할 수 있다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(onEvent = eventList::add)
 
@@ -135,7 +135,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-008 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-90d8f866-86e9-4286-9a54-885e416c1536 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(onEvent = eventList::add)
 
@@ -186,21 +186,21 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-003 상세 영역에 웹 추가가 놓이면 웹 추가 버튼이 표시되지 않는다`() {
+    fun `TC-e26e4e26-c90d-4534-bfca-5e674bb8f4b8 상세 영역에 웹 추가가 놓이면 웹 추가 버튼이 표시되지 않는다`() {
         setWebHomeScaffold(componentVisible = WebHomeScaffoldComponentVisible(isAddButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-004 추가 버튼 표시 상태이면 웹 추가 버튼이 표시된다`() {
+    fun `TC-ef692409-3aae-4c98-87cf-84c56e9e3d4b 추가 버튼 표시 상태이면 웹 추가 버튼이 표시된다`() {
         setWebHomeScaffold(componentVisible = WebHomeScaffoldComponentVisible(isAddButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-007 상세 영역에 웹 추가가 놓여도 검색 버튼은 표시된다`() {
+    fun `TC-c093c315-4a27-4d82-b207-cc5b40eecb87 상세 영역에 웹 추가가 놓여도 검색 버튼은 표시된다`() {
         setWebHomeScaffold(componentVisible = WebHomeScaffoldComponentVisible(isAddButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -231,7 +231,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-033 Cmd A 단축키를 입력하면 웹 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-d207e6ab-e206-49b5-8478-2dabf3102db6 Cmd A 단축키를 입력하면 웹 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(onEvent = eventList::add)
 
@@ -241,7 +241,7 @@ class WebHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-FEATURE-003 상세 영역에 웹 추가가 놓이면 Cmd A 단축키로도 웹 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-e26e4e26-c90d-4534-bfca-5e674bb8f4b8 상세 영역에 웹 추가가 놓이면 Cmd A 단축키로도 웹 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         setWebHomeScaffold(
             onEvent = eventList::add,

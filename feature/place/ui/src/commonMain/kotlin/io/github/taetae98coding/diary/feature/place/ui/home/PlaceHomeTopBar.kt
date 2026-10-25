@@ -4,10 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -31,40 +28,37 @@ internal fun PlaceHomeTopBar(
     val searchContentDescription = stringResource(Res.string.place_home_search_action_content_description)
     val listViewModeContentDescription = stringResource(Res.string.place_home_list_view_mode_button_content_description)
     val mapViewModeContentDescription = stringResource(Res.string.place_home_map_view_mode_button_content_description)
-    val viewModeAction =
-        when (state.viewMode) {
-            PlaceHomeViewMode.MAP ->
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.LIST,
-                    contentDescription = listViewModeContentDescription,
-                    onClick = state::toggleViewMode,
-                )
-
-            PlaceHomeViewMode.LIST ->
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.MAP,
-                    contentDescription = mapViewModeContentDescription,
-                    onClick = state::toggleViewMode,
-                )
-        }
-
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
+        navigationIcon = {
+            NavigateUp(
                 onClick = { onEvent(PlaceHomeScaffoldEvent.ClickNavigateUp) },
-            ),
-        actions =
-            listOf(
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.SEARCH,
-                    contentDescription = searchContentDescription,
-                    onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
-                ),
-                viewModeAction,
-            ),
+                contentDescription = navigateUpContentDescription,
+            )
+        },
+        actions = {
+            IconAction(
+                icon = DiaryTopBarIcon.SEARCH,
+                contentDescription = searchContentDescription,
+                onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
+            )
+            when (state.viewMode) {
+                PlaceHomeViewMode.MAP ->
+                    IconAction(
+                        icon = DiaryTopBarIcon.LIST,
+                        contentDescription = listViewModeContentDescription,
+                        onClick = state::toggleViewMode,
+                    )
+
+                PlaceHomeViewMode.LIST ->
+                    IconAction(
+                        icon = DiaryTopBarIcon.MAP,
+                        contentDescription = mapViewModeContentDescription,
+                        onClick = state::toggleViewMode,
+                    )
+            }
+        },
     )
 }
 

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.app.shared.fcm
 
+import android.Manifest
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -25,6 +26,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
@@ -36,7 +39,7 @@ class SubmitFcmTokenEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-FCM-TOKEN-DOMAIN-005 앱이 시작되어 계정이 확인되면 토큰 제출을 요청한다`() {
+    fun `TC-df26f005-cca3-43b9-9b5a-ce35848bf660 앱이 시작되어 계정이 확인되면 토큰 제출을 요청한다`() {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
         setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
 
@@ -46,7 +49,7 @@ class SubmitFcmTokenEffectTest {
     }
 
     @Test
-    fun `TC-FCM-TOKEN-DOMAIN-005 앱이 다시 화면에 보이게 되면 토큰 제출을 다시 요청한다`() {
+    fun `TC-df26f005-cca3-43b9-9b5a-ce35848bf660 앱이 다시 화면에 보이게 되면 토큰 제출을 다시 요청한다`() {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
         val lifecycleOwner = setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
 
@@ -72,7 +75,7 @@ class SubmitFcmTokenEffectTest {
     }
 
     @Test
-    fun `TC-FCM-TOKEN-DOMAIN-028 백그라운드에 있는 동안 바뀐 계정은 다시 활성 상태가 될 때 한 번 제출한다`() {
+    fun `TC-b1063fda-0b31-4379-a58e-e186b589267e 백그라운드에 있는 동안 바뀐 계정은 다시 활성 상태가 될 때 한 번 제출한다`() {
         val uiStateFlow = MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = Account.Guest))
         val submit = mockk<(Account) -> Unit>(relaxed = true)
         val lifecycleOwner = setSubmitFcmTokenEffect(uiStateFlow, submit, initialState = Lifecycle.State.CREATED)
@@ -90,7 +93,7 @@ class SubmitFcmTokenEffectTest {
     }
 
     @Test
-    fun `TC-FCM-TOKEN-DOMAIN-027 화면이 재생성되면 같은 계정이어도 다시 등록한다`() {
+    fun `TC-6fee7d8e-8951-49e5-a985-2864217598f2 화면이 재생성되면 같은 계정이어도 다시 등록한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -120,6 +123,35 @@ class SubmitFcmTokenEffectTest {
 
         composeRule.runOnIdle {
             coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+        }
+    }
+
+    @Test
+    fun `TC-744ada98-8541-475e-971e-b637dc67d656 알림 권한이 거부되어 있어도 앱이 시작되어 계정이 확인되면 등록을 요청한다`() {
+        shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val getAccountUseCase = mockk<GetAccountUseCase>()
+        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+        coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+        val viewModel =
+            AppFcmTokenViewModel(
+                getAccountUseCase = getAccountUseCase,
+                submitFcmTokenUseCase = submitFcmTokenUseCase,
+            )
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                SubmitFcmTokenEffect(
+                    submit = viewModel::submit,
+                    uiState = viewModel.uiState,
+                )
+            }
+        }
+
+        composeRule.runOnIdle {
+            coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
         }
     }
 

@@ -40,11 +40,5 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
-
-        jvmMain {
-            dependencies {
-                implementation(libs.google.oauth.client.jetty)
-            }
-        }
     }
 }

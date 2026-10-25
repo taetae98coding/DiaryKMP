@@ -46,7 +46,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-022 곡 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-9978aa69-9804-4ff3-bd5a-96492a93752c 곡 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -58,7 +58,7 @@ class PlaylistHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLAYLIST-HOME-FEATURE-022 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-9978aa69-9804-4ff3-bd5a-96492a93752c 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -68,7 +68,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-024 곡 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+    fun `TC-c955e4b9-2e82-4477-b800-4320914c66a3 곡 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
         val environment = setPlaylistHomeScreen()
 
         composeRule.onNode(hasTestTag(MUSIC_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeRight() }
@@ -81,7 +81,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-023 삭제를 실행 취소하면 그 곡의 삭제 되돌리기를 요청한다`() {
+    fun `TC-7063f073-eeea-4c54-ab31-f9d65df23d44 삭제를 실행 취소하면 그 곡의 삭제 되돌리기를 요청한다`() {
         val environment = setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -92,7 +92,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-026 안내가 보이는 동안 다른 곡을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-b4564daa-d2da-4334-9ffb-41e9b9db3c14 안내가 보이는 동안 다른 곡을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val environment = setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -110,7 +110,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-b1d2f183-72de-4bd2-99ff-8d09dec03dc1 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -125,7 +125,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-029 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-7cfcc12b-d6a5-4b94-a434-3d275588ed95 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setPlaylistHomeScreen(isShownProvider = { isShown })
 
@@ -143,7 +143,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-030 삭제 안내가 보이는 동안 내려받기 준비 안내가 나타나면 새 안내만 남는다`() {
+    fun `TC-35d55f8a-46a4-48d5-98dd-cf227182ffb6 삭제 안내가 보이는 동안 내려받기 준비 안내가 나타나면 새 안내만 남는다`() {
         val environment = setPlaylistHomeScreen()
 
         swipeFirstCardLeft()
@@ -159,7 +159,7 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-032 목록에서 곡을 삭제해도 화면을 이동하지 않는다`() {
+    fun `TC-1843defb-1459-47cd-8f17-6936dacdbda2 목록에서 곡을 삭제해도 화면을 이동하지 않는다`() {
         var navigateCount = 0
         setPlaylistHomeScreen(onNavigate = { navigateCount += 1 })
 

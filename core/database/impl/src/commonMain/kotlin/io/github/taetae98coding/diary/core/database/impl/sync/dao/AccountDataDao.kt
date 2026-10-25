@@ -128,6 +128,40 @@ internal interface AccountDataDao {
 
     @Query(
         """
+        DELETE FROM checklist_item
+        WHERE EXISTS (
+            SELECT 1 FROM account_checklist_item
+            WHERE account_checklist_item.checklist_item_id = checklist_item.id AND account_checklist_item.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_checklist_item
+            WHERE account_checklist_item.checklist_item_id = checklist_item.id AND account_checklist_item.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteChecklistItem(accountId: Uuid)
+
+    @Query("DELETE FROM account_checklist_item WHERE account_id = :accountId")
+    suspend fun deleteAccountChecklistItem(accountId: Uuid)
+
+    @Query(
+        """
+        DELETE FROM checklist
+        WHERE EXISTS (
+            SELECT 1 FROM account_checklist
+            WHERE account_checklist.checklist_id = checklist.id AND account_checklist.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_checklist
+            WHERE account_checklist.checklist_id = checklist.id AND account_checklist.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteChecklist(accountId: Uuid)
+
+    @Query("DELETE FROM account_checklist WHERE account_id = :accountId")
+    suspend fun deleteAccountChecklist(accountId: Uuid)
+
+    @Query(
+        """
         DELETE FROM memo_tag
         WHERE EXISTS (
             SELECT 1 FROM account_memo_tag

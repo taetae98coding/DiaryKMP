@@ -70,7 +70,7 @@ class SupabaseFunctionImplTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-013 요청 시간 제한을 풀면 기본 시간 제한보다 늦은 응답도 기다려 돌려준다") {
+        test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 요청 시간 제한을 풀면 기본 시간 제한보다 늦은 응답도 기다려 돌려준다") {
             runTest {
                 val dispatcher = StandardTestDispatcher(testScheduler)
                 val client = createSupabaseClient(slowEngine(dispatcher = dispatcher, delay = 30.minutes))
@@ -89,7 +89,7 @@ class SupabaseFunctionImplTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-013 요청 시간 제한을 풀면 엔진의 소켓 시간 제한도 함께 푼다") {
+        test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 요청 시간 제한을 풀면 엔진의 소켓 시간 제한도 함께 푼다") {
             var capability: HttpTimeoutConfig? = null
             val client =
                 createSupabaseClient(

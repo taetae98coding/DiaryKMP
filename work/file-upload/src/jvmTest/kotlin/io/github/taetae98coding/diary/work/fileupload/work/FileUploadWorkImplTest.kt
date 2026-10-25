@@ -42,7 +42,7 @@ class FileUploadWorkImplTest :
     BehaviorSpec({
         Given("고른 파일을 서버에 보관할 수 있다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-004 단계를 차례로 전달하고 올린 파일의 이름과 식별자로 성공을 알린다") {
+                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 단계를 차례로 전달하고 올린 파일의 이름과 식별자로 성공을 알린다") {
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
@@ -68,7 +68,7 @@ class FileUploadWorkImplTest :
 
         Given("고른 파일이 올릴 수 있는 크기를 넘는다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-004 크기 초과를 알리고 실패를 그대로 던진다") {
+                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 크기 초과를 알리고 실패를 그대로 던진다") {
                     runTest {
                         val fixture = WorkFixture()
                         val exception = FileTooLargeException(message = fixtureMonkey.giveMeOne<String>())
@@ -86,7 +86,7 @@ class FileUploadWorkImplTest :
 
         Given("올리기를 시작한 뒤 그 밖의 이유로 올리지 못했다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-004 고른 파일의 이름으로 실패를 알린다") {
+                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 고른 파일의 이름으로 실패를 알린다") {
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
@@ -102,7 +102,7 @@ class FileUploadWorkImplTest :
 
         Given("파일 이름은 읽었지만 크기를 읽지 못했다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-004 읽어 둔 파일 이름으로 실패를 알린다") {
+                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 읽어 둔 파일 이름으로 실패를 알린다") {
                     runTest {
                         val fixture = WorkFixture()
                         val name = fixture.source().name
@@ -118,7 +118,7 @@ class FileUploadWorkImplTest :
 
         Given("올리기를 시작한 뒤 연결 문제로 보내지 못했다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-STORAGE-DATA-021 다시 시도하지 않고 크기 초과가 아닌 실패로 알린 뒤 실패를 던진다") {
+                Then("TC-da0150d5-c73e-4076-a78f-514a8d001593 다시 시도하지 않고 크기 초과가 아닌 실패로 알린 뒤 실패를 던진다") {
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
@@ -135,7 +135,7 @@ class FileUploadWorkImplTest :
 
         Given("붙들어 둔 파일을 올리는 중이다") {
             When("올리기가 성공이나 실패로 끝난다") {
-                Then("TC-FILE-STORAGE-DATA-023 붙들어 둔 파일을 놓는다") {
+                Then("TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 붙들어 둔 파일을 놓는다") {
                     listOf(
                         { source: FileUploadSource -> Result.success(FileUploadStep.Completed(source = source, file = fixtureMonkey.giveMeOne<DiaryFile>())) },
                         { _: FileUploadSource -> Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())) },
@@ -156,7 +156,7 @@ class FileUploadWorkImplTest :
 
         Given("파일 이름을 읽기 전에 올리지 못했다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-015 이름을 알 수 없는 실패로 알리고 붙들어 둔 파일을 놓는다") {
+                Then("TC-5bf0813a-9e0b-440f-b9f1-47b7c93a182d 이름을 알 수 없는 실패로 알리고 붙들어 둔 파일을 놓는다") {
                     runTest {
                         val fixture = WorkFixture()
                         fixture.emit(flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
@@ -172,7 +172,7 @@ class FileUploadWorkImplTest :
 
         Given("올리는 동안 계정이 바뀌었다") {
             When("올리기를 실행한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-010 TC-FILE-UPLOAD-NOTIFICATION-FEATURE-006 TC-FILE-STORAGE-DATA-023 TC-FILE-HOME-FEATURE-024 결과를 알리지 않고 중단으로 끝내며 붙들어 둔 파일을 놓는다") {
+                Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa TC-7bbb807f-5371-454d-a6af-23cb41612544 TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 결과를 알리지 않고 중단으로 끝내며 붙들어 둔 파일을 놓는다") {
                     runTest {
                         val fixture = WorkFixture()
                         fixture.emit(flowOf(Result.failure(FileUploadAccountChangedException(message = fixtureMonkey.giveMeOne<String>()))))
@@ -188,7 +188,7 @@ class FileUploadWorkImplTest :
 
         Given("올리는 중이다") {
             When("올리기가 취소된다") {
-                Then("TC-FILE-STORAGE-DATA-023 결과를 알리지 않고, 다시 올릴 수 있게 붙들어 둔 파일을 놓지 않는다") {
+                Then("TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 결과를 알리지 않고, 다시 올릴 수 있게 붙들어 둔 파일을 놓지 않는다") {
                     runTest {
                         val fixture = WorkFixture()
                         fixture.emit(flow { awaitCancellation() })

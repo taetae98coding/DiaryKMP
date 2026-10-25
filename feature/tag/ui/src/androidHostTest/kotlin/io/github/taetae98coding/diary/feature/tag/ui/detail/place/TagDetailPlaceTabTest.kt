@@ -50,7 +50,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-001 대상 태그와 연결된 장소을 목록에 표시한다`() {
+    fun `TC-0b76255e-41d7-4273-b1a3-a312de6d7cd9 대상 태그와 연결된 장소을 목록에 표시한다`() {
         val firstPlace = tagPlace(title = FIRST_TITLE)
         val secondPlace = tagPlace(title = SECOND_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(firstPlace, secondPlace)))
@@ -63,7 +63,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-004 최초 조회 실패는 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-86a673d2-f136-4633-a5b5-a02c9417252f 최초 조회 실패는 오류와 재시도를 표시하지 않는다`() {
         setPlaceTab(
             pagingData =
                 tagEntityPagingData<Place>(
@@ -79,7 +79,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-004 추가 조회 실패는 표시된 장소을 유지한다`() {
+    fun `TC-86a673d2-f136-4633-a5b5-a02c9417252f 추가 조회 실패는 표시된 장소을 유지한다`() {
         setPlaceTab(
             pagingData =
                 tagEntityPagingData(
@@ -95,7 +95,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-005 장소을 선택하면 그 장소의 상세 이동을 요청한다`() {
+    fun `TC-6b73497d-de45-4f70-bde5-7503acb47c55 장소을 선택하면 그 장소의 상세 이동을 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)), onEvent = eventList::add)
@@ -106,7 +106,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-010 연결된 장소이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-41b19b56-bba7-4045-a860-9ca7e6904e39 연결된 장소이 없으면 빈 상태 안내를 표시한다`() {
         setPlaceTab(pagingData = tagEntityPagingData(itemList = emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -117,7 +117,7 @@ class TagDetailPlaceTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-010 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 장소가 없습니다이다`() {
+    fun `TC-41b19b56-bba7-4045-a860-9ca7e6904e39 한국어 환경에서 빈 상태 안내는 이 태그에 연결된 장소가 없습니다이다`() {
         setPlaceTab(pagingData = tagEntityPagingData(itemList = emptyList()))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -125,14 +125,14 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-011 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-03b5f8af-a11f-4428-abfe-0f3cef458609 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setPlaceTab(pagingData = tagEntityLoadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
@@ -146,7 +146,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 빈 상태에서도 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(pagingData = tagEntityPagingData(itemList = emptyList()), onEvent = eventList::add)
 
@@ -157,7 +157,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-016 새로고침이 진행 중이면 진행 표시가 나타나고 끝나면 사라진다`() {
+    fun `TC-c5d9e825-ac9e-4cdc-b6bd-a10d369a0a31 새로고침이 진행 중이면 진행 표시가 나타나고 끝나면 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
@@ -173,7 +173,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-041 목록의 장소 카드를 반대 방향으로 밀면 아무 동작도 요청하지 않는다`() {
+    fun `TC-676c9da7-92ca-4a7f-82a9-0bbc569cdb30 목록의 장소 카드를 반대 방향으로 밀면 아무 동작도 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
@@ -188,7 +188,7 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-038 목록 모드의 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+    fun `TC-92903379-bc52-4bad-8c9a-fe9055f0e396 목록 모드의 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(

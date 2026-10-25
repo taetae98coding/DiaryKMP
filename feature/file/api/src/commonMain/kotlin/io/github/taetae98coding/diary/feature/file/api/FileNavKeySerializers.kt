@@ -5,5 +5,6 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
 public fun PolymorphicModuleBuilder<ScreenNavKey>.fileNavKeys() {
     subclass(FileAddNavKey::class, FileAddNavKey.serializer())
+    subclass(FileDetailNavKey::class, FileDetailNavKey.serializer())
     subclass(FileHomeNavKey::class, FileHomeNavKey.serializer())
 }

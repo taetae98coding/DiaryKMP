@@ -20,7 +20,7 @@ class MemoGeminiCloseEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-023 상세 대상이 바뀌면 도우미를 닫는다`() {
+    fun `TC-6024369b-cc7c-4dc1-ab96-e5b0e668b44d 상세 대상이 바뀌면 도우미를 닫는다`() {
         val viewModel = screenTestGeminiViewModel()
         var targetId by mutableStateOf<Uuid?>(Uuid.random())
 
@@ -53,7 +53,7 @@ class MemoGeminiCloseEffectTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-022 화면이 재생성되어도 상세 대상이 그대로면 도우미를 닫지 않는다`() {
+    fun `TC-60a1289f-81d1-4815-84b4-c4ba8fe94210 화면이 재생성되어도 상세 대상이 그대로면 도우미를 닫지 않는다`() {
         val viewModel = screenTestGeminiViewModel()
         val id = Uuid.random()
         val restorationTester = StateRestorationTester(composeRule)

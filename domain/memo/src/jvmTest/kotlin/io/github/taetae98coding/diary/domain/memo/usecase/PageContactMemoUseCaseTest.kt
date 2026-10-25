@@ -41,7 +41,7 @@ class PageContactMemoUseCaseTest :
             val useCase = PageContactMemoUseCase(getAccountUseCase = getAccountUseCase, accountContactMemoRepository = repository)
 
             When("대상 연락처의 메모 페이지를 조회한다") {
-                Then("TC-CONTACT-DETAIL-MEMO-DATA-001 현재 계정과 대상 연락처의 메모 페이지를 반환한다") {
+                Then("TC-32411d04-27aa-4911-bd6d-5339b9846d2f 현재 계정과 대상 연락처의 메모 페이지를 반환한다") {
                     useCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()

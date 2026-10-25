@@ -9,11 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun FileHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
+    navigateToDetail: (Uuid) -> Unit,
+    componentVisibleProvider: () -> FileHomeScaffoldComponentVisible,
     fileViewModel: FileHomeViewModel,
     uploadViewModel: FileHomeUploadViewModel,
     refreshViewModel: FileHomeRefreshViewModel,
@@ -54,6 +57,7 @@ internal fun FileHomeScreen(
                 is FileHomeScaffoldEvent.ClickAdd -> uploadViewModel.requestAdd()
                 is FileHomeScaffoldEvent.ClickRetry -> filePagingItems.retry()
                 is FileHomeScaffoldEvent.Refresh -> refresh()
+                is FileHomeScaffoldEvent.ClickFile -> navigateToDetail(event.id)
             }
         },
         modifier = modifier,
@@ -63,5 +67,6 @@ internal fun FileHomeScreen(
         uploadUiStateProvider = { uploadUiState },
         isRefreshingProvider = { refreshUiState.isRefreshing },
         snackbarHostState = snackbarHostState,
+        componentVisibleProvider = componentVisibleProvider,
     )
 }

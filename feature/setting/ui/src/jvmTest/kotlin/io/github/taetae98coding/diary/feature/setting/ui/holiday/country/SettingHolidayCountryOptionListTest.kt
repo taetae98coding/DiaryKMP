@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 
 class SettingHolidayCountryOptionListTest :
     FunSpec({
-        test("TC-SETTING-HOLIDAY-FEATURE-034 국가 선택지는 기기값, 한국, 미국 순이다") {
+        test("TC-7ce7c4bc-9632-4185-aa1b-2a47b7a42519 국가 선택지는 기기값, 한국, 미국 순이다") {
             settingHolidayCountryOptionList shouldBe
                 listOf(
                     HolidayCountryOption.DEVICE,

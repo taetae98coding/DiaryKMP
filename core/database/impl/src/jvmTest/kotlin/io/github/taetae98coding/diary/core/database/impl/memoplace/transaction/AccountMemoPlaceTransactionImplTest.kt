@@ -120,7 +120,7 @@ class AccountMemoPlaceTransactionImplTest :
             )
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-001 하나의 메모에 여러 장소를 연결해 저장한다") {
+        test("TC-0d2de4b8-9d2f-4253-ad75-2d6d1e5fb85f 하나의 메모에 여러 장소를 연결해 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val placeList = List(2) { place() }
@@ -130,7 +130,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder placeList
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-002 같은 장소를 여러 메모에 연결해도 서로 대체되지 않는다") {
+        test("TC-be8a694a-3e63-448d-8895-a60838c0e513 같은 장소를 여러 메모에 연결해도 서로 대체되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val firstMemo = memo()
@@ -144,7 +144,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = secondMemo.id) shouldBe listOf(place)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-003 같은 메모와 장소의 연결을 다시 저장해도 한 건으로 유지된다") {
+        test("TC-7a6befaa-a7e5-4fd0-81fd-7e1feb15e98b 같은 메모와 장소의 연결을 다시 저장해도 한 건으로 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -156,7 +156,7 @@ class AccountMemoPlaceTransactionImplTest :
             findMemoPlaceList(memoId = memo.id) shouldHaveSize 1
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-004 연결할 장소가 없으면 장소 연결 없이 메모만 저장된다") {
+        test("TC-cd0ea152-8bee-4915-bfb4-c4a76dba7494 연결할 장소가 없으면 장소 연결 없이 메모만 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
 
@@ -167,7 +167,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-005 장소를 삭제해도 메모와의 연결이 유지된다") {
+        test("TC-14ee9202-a3af-40f5-853a-4b6fce72a421 장소를 삭제해도 메모와의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -179,7 +179,7 @@ class AccountMemoPlaceTransactionImplTest :
                 listOf(memoPlace(memoId = memo.id, placeId = place.id, memo = memo))
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-006 메모를 완료하거나 삭제해도 장소와의 연결이 유지된다") {
+        test("TC-1698c261-c8ff-4cc4-b204-d6119d6512c4 메모를 완료하거나 삭제해도 장소와의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(isFinished = false, isDeleted = false)
             val place = place()
@@ -193,7 +193,7 @@ class AccountMemoPlaceTransactionImplTest :
             findMemoPlaceList(memoId = memo.id) shouldBe listOf(memoPlace)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-007 메모의 제목·설명·컬러·기간 수정은 장소 연결을 바꾸지 않는다") {
+        test("TC-1f76a1df-bd2b-4237-8587-eefc15847b76 메모의 제목·설명·컬러·기간 수정은 장소 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -209,7 +209,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(place)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-022 장소의 제목·설명·컬러·좌표·주소 수정은 메모 연결을 바꾸지 않는다") {
+        test("TC-9a3f4c82-3fc0-40c9-9688-6bda02427952 장소의 제목·설명·컬러·좌표·주소 수정은 메모 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -223,7 +223,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedPlace)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-008 TC-MEMO-DETAIL-DATA-021 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
+        test("TC-79e59a7c-575c-4f85-833a-e91c637d49c6 TC-6932da48-91cb-4798-9859-bf2028ca81b6 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -245,7 +245,7 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-009 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
+        test("TC-97ccdc40-48cf-4c57-8476-0405d9a7cc0d 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -278,7 +278,7 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-PLACE-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
+        test("TC-1e540ecb-3ed2-4b30-9bcb-42198c311c7c TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val removedPlace = place()
@@ -297,7 +297,7 @@ class AccountMemoPlaceTransactionImplTest :
             findPendingPlaceIdList(accountId = accountId) shouldBe listOf(removedPlace.id)
         }
 
-        test("TC-MEMO-PLACE-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
+        test("TC-1e540ecb-3ed2-4b30-9bcb-42198c311c7c TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptPlace = place()
@@ -317,7 +317,7 @@ class AccountMemoPlaceTransactionImplTest :
             findPendingPlaceIdList(accountId = accountId) shouldBe listOf(addedPlace.id)
         }
 
-        test("TC-MEMO-PLACE-DATA-001 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
+        test("TC-dace241a-e6f9-4460-92db-880fa69ab356 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = fixtureMonkey.giveMeOne<Instant>()
             val memo = memo().copy(updatedAt = now, createdAt = now)
@@ -337,7 +337,7 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-PLACE-DATA-002 저장이 실패하면 메모와 계정 연결, 태그 연결, 장소 연결이 모두 남지 않는다") {
+        test("TC-be64bedf-bab0-498a-9b34-1ac15108e27d 저장이 실패하면 메모와 계정 연결, 태그 연결, 장소 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -362,7 +362,7 @@ class AccountMemoPlaceTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
+        test("TC-0d3e6fe3-2af2-4885-9077-16bb6da268e8 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val changedMemo = memo.copy(updatedAt = fixtureMonkey.giveMeOne<Instant>())
@@ -383,7 +383,7 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-PLACE-DATA-004 해제되지 않은 연결의 장소만 메모의 장소로 조회된다") {
+        test("TC-5b0803a8-3d55-4d7e-a6af-62d72756d500 해제되지 않은 연결의 장소만 메모의 장소로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptPlace = place()
@@ -395,7 +395,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptPlace)
         }
 
-        test("TC-MEMO-DETAIL-DATA-020 장소를 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
+        test("TC-bdec85c6-709a-4216-8247-2ea676daa250 장소를 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
@@ -437,7 +437,7 @@ class AccountMemoPlaceTransactionImplTest :
             return sourcePlaceIdSet
         }
 
-        test("TC-MEMO-DETAIL-DATA-039 복사본에 원본의 해제되지 않은 장소 연결만 복사 시점으로 저장된다") {
+        test("TC-cefb7901-6efe-4374-b3c9-e17dca8df9d7 복사본에 원본의 해제되지 않은 장소 연결만 복사 시점으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val keptPlaceList = List(2) { place() }
@@ -462,7 +462,7 @@ class AccountMemoPlaceTransactionImplTest :
                 }
         }
 
-        test("TC-MEMO-DETAIL-DATA-040 삭제된 장소를 가리키는 원본 연결도 복사본에 만들어진다") {
+        test("TC-cb1c9899-fb38-47a8-b6d8-9c98ddf4b1ac 삭제된 장소를 가리키는 원본 연결도 복사본에 만들어진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val deletedPlace = place()
@@ -477,7 +477,7 @@ class AccountMemoPlaceTransactionImplTest :
                 listOf(memoPlace(memoId = copy.id, placeId = deletedPlace.id, memo = copy))
         }
 
-        test("TC-MEMO-DETAIL-DATA-041 복사는 원본의 장소 연결을 바꾸지 않는다") {
+        test("TC-b52d0427-3143-4c4d-8ed8-56552666a312 복사는 원본의 장소 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val place = place()
@@ -490,7 +490,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = source.id) shouldBe listOf(place)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-010 연결된 장소는 제목 오름차순으로 조회된다") {
+        test("TC-30a070b9-72d8-4390-a74e-b1707518a04c 연결된 장소는 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstPlace = place().withTitle(title = "AAA")
@@ -501,7 +501,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(firstPlace, secondPlace, thirdPlace)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-011 삭제된 장소는 메모의 연결된 장소 조회에서 빠진다") {
+        test("TC-58802184-c880-401d-ae0f-d40db740632a 삭제된 장소는 메모의 연결된 장소 조회에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptPlace = place()
@@ -513,7 +513,7 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptPlace)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-012 장소 연결은 장소 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-50a1b7a6-7503-4a16-999b-2bd5f30f5ece 장소 연결은 장소 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -532,7 +532,7 @@ class AccountMemoPlaceTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-013 연결된 장소의 제목은 메모 검색에 쓰이지 않는다") {
+        test("TC-d5d03084-5561-41e2-86f0-c4b82b1d9042 연결된 장소의 제목은 메모 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().copy(isDeleted = false).withTitle(title = "memo-title")
@@ -549,7 +549,7 @@ class AccountMemoPlaceTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-014 장소 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
+        test("TC-c29619a2-0664-4b9b-a8fd-96e47a61162e 장소 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(isFinished = false, isDeleted = false, primaryTagId = null)
             val place = place()
@@ -580,7 +580,7 @@ class AccountMemoPlaceTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-015 필터를 고르지 않은 메모 목록에서 장소 연결은 노출과 순서를 바꾸지 않는다") {
+        test("TC-338a1194-fc7f-4e07-bd9d-82d982cffc7d 필터를 고르지 않은 메모 목록에서 장소 연결은 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedMemo = memo().copy(isFinished = false, isDeleted = false).withTitle(title = linkedTitle)
@@ -598,7 +598,7 @@ class AccountMemoPlaceTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-016 장소 연결은 캘린더의 메모 노출을 바꾸지 않는다") {
+        test("TC-43c6c47f-738d-415e-a6f1-93cc8a2e20f8 장소 연결은 캘린더의 메모 노출을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
             val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
@@ -616,7 +616,7 @@ class AccountMemoPlaceTransactionImplTest :
             calendarMemoList.map { memo -> memo.id } shouldContainExactlyInAnyOrder listOf(linkedMemo.id, unlinkedMemo.id)
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-017 연결된 메모의 제목은 장소 검색에 쓰이지 않는다") {
+        test("TC-04cdf878-6af9-465f-bf39-431e60b8b796 연결된 메모의 제목은 장소 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().copy(isDeleted = false).withTitle(title = "memo-$query")
@@ -632,7 +632,7 @@ class AccountMemoPlaceTransactionImplTest :
             placeList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-PLACE-DOMAIN-018 메모 연결은 태그로 장소를 조회한 결과를 바꾸지 않는다") {
+        test("TC-521485dd-61bb-4c68-964b-1f5000e78835 메모 연결은 태그로 장소를 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(isFinished = false, isDeleted = false, primaryTagId = null)
             val place = place()
@@ -659,7 +659,7 @@ class AccountMemoPlaceTransactionImplTest :
             "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
         ).forEach { (label, change) ->
-            test("TC-MEMO-DETAIL-DOMAIN-006 $label 메모도 장소 연결을 만들 수 있다") {
+            test("TC-8eba3cb9-0eb1-418d-a865-a39519eae727 $label 메모도 장소 연결을 만들 수 있다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = change(memo())
                 val place = place()

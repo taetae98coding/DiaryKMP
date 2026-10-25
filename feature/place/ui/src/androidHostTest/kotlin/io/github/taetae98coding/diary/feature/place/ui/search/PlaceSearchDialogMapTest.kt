@@ -23,17 +23,17 @@ class PlaceSearchDialogMapTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-021 네이버 지도를 보던 화면에서 열면 다이얼로그 지도가 네이버 지도로 같은 위치에서 시작한다`() {
+    fun `TC-ce2835f4-c98e-40d3-a788-c0a558f69205 네이버 지도를 보던 화면에서 열면 다이얼로그 지도가 네이버 지도로 같은 위치에서 시작한다`() {
         assertDialogMapStartsFromHostMap(provider = DiaryMapProvider.NAVER)
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-021 Google 지도를 보던 화면에서 열면 다이얼로그 지도가 Google 지도로 같은 위치에서 시작한다`() {
+    fun `TC-ce2835f4-c98e-40d3-a788-c0a558f69205 Google 지도를 보던 화면에서 열면 다이얼로그 지도가 Google 지도로 같은 위치에서 시작한다`() {
         assertDialogMapStartsFromHostMap(provider = DiaryMapProvider.GOOGLE)
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-022 다이얼로그에서 바꾼 제공자와 옮긴 위치는 배치한 화면의 지도에 반영하지 않는다`() {
+    fun `TC-e7d5cae9-d613-485f-b984-a5c76ff02c23 다이얼로그에서 바꾼 제공자와 옮긴 위치는 배치한 화면의 지도에 반영하지 않는다`() {
         val hostCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val dialogCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val hostMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = hostCoordinate)
@@ -55,7 +55,7 @@ class PlaceSearchDialogMapTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-019 화면이 재생성되어도 다이얼로그 지도의 제공자와 위치를 유지한다`() {
+    fun `TC-bb3127fa-69c3-4d47-9f2a-b0d88e5d7fe6 화면이 재생성되어도 다이얼로그 지도의 제공자와 위치를 유지한다`() {
         val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: PlaceSearchDialogState

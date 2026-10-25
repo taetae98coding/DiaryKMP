@@ -64,7 +64,7 @@ class AppScaffoldTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-002 현재 목적지만 선택 상태로 표시한다`() {
+    fun `TC-e0513532-718e-4a9d-ba26-3a5637327cfb 현재 목적지만 선택 상태로 표시한다`() {
         val backStack = NavBackStack(TopLevelNavigation.Memo.key)
         setAppScaffold(
             windowInfo = mockWindowInfo(mutableStateOf(windowSize(width = 400.dp, height = 800.dp))),

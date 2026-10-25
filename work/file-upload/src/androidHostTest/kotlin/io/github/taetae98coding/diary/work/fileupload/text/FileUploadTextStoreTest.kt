@@ -29,7 +29,7 @@ class FileUploadTextStoreTest {
     }
 
     @Test
-    fun `TC-FILE-STORAGE-DATA-028 적어 둔 제목과 설명을 줄바꿈과 앞뒤 공백까지 그대로 다시 읽는다`() =
+    fun `TC-3bc3a961-418a-498c-aadf-48ac5abdf7fd 적어 둔 제목과 설명을 줄바꿈과 앞뒤 공백까지 그대로 다시 읽는다`() =
         runTest {
             val store = FileUploadTextStore(context = context, dispatcher = StandardTestDispatcher(testScheduler))
             val textList =

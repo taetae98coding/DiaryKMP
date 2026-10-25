@@ -59,7 +59,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-001 TC-TAG-FINISHED-LIST-DATA-006 조회한 완료 태그 페이지를 그대로 노출한다") {
+        test("TC-8c9e509f-a9fe-41e3-9cc6-5a5693f5da8a TC-49ceaa29-82eb-404e-9ff6-a898a83cbe8b 조회한 완료 태그 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val viewModel = viewModel(pageFinishedTagUseCase = pageFinishedTagUseCase(tagListFlow = flowOf(Result.success(tagList))))
@@ -68,7 +68,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-020 이어서 불러오기에 실패해도 이미 불러온 완료 태그를 그대로 노출한다") {
+        test("TC-0bdc9ded-08cc-46df-8994-e81d0b57812f 이어서 불러오기에 실패해도 이미 불러온 완료 태그를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val pageFinishedTagUseCase = mockk<PageFinishedTagUseCase>()
@@ -85,7 +85,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-020 완료된 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
+        test("TC-0bdc9ded-08cc-46df-8994-e81d0b57812f 완료된 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val tagListFlow = MutableStateFlow(Result.success(tagList))
@@ -116,7 +116,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-021 다시 시작에 성공하면 그 태그의 다시 시작을 요청하고 다시 시작 안내를 한 번 보낸다") {
+        test("TC-fe0bcdbb-5c59-4d18-8578-a78189114664 다시 시작에 성공하면 그 태그의 다시 시작을 요청하고 다시 시작 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
@@ -133,7 +133,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-022 삭제에 성공하면 그 태그의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-4453af30-d54d-4541-af6e-e51ec0858893 삭제에 성공하면 그 태그의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
@@ -150,7 +150,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-028 다시 시작이 저장되지 못하면 다시 시작 안내를 보내지 않는다") {
+        test("TC-2b1e8967-0388-4a99-b445-74c356369cbe 다시 시작이 저장되지 못하면 다시 시작 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
@@ -166,7 +166,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-028 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-2b1e8967-0388-4a99-b445-74c356369cbe 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
@@ -182,7 +182,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-023 다시 시작을 실행 취소하면 그 태그의 완료를 한 번 요청하고 안내를 보내지 않는다") {
+        test("TC-0e1791eb-eff2-4b4e-a22c-dc5d1abaf852 다시 시작을 실행 취소하면 그 태그의 완료를 한 번 요청하고 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
@@ -199,7 +199,7 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-024 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 한 번 요청하고 안내를 보내지 않는다") {
+        test("TC-0f8b0950-1a04-494b-b8ce-0cea7804a642 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 한 번 요청하고 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreTagUseCase = mockk<RestoreTagUseCase>()

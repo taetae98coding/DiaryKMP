@@ -49,7 +49,7 @@ class AppSyncViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-010 인증된 계정이 확인되면 동기화 계기가 한 번 발생한다") {
+        test("TC-af82710e-9473-4894-91e3-02519717ffbc 인증된 계정이 확인되면 동기화 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
@@ -61,7 +61,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-011 게스트에서 인증된 계정으로 바뀌면 동기화 계기가 발생한다") {
+        test("TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c 게스트에서 인증된 계정으로 바뀌면 동기화 계기가 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
@@ -76,7 +76,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-011 TC-SYNC-REFRESH-FEATURE-003 로그아웃한 뒤 같은 계정으로 다시 로그인하면 동기화 계기가 다시 발생한다") {
+        test("TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c TC-f7816008-73c9-4079-a740-e4e695b0de94 로그아웃한 뒤 같은 계정으로 다시 로그인하면 동기화 계기가 다시 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
@@ -94,7 +94,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-031 로그인 세션의 인증 여부가 확인되기 전에는 동기화 계기가 발생하지 않고 확인된 뒤 발생한다") {
+        test("TC-18021dfc-a467-4701-8427-e1b209a39732 로그인 세션의 인증 여부가 확인되기 전에는 동기화 계기가 발생하지 않고 확인된 뒤 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = true)
                 val refreshedAccount = account.copy(isSessionValid = true, isSessionPending = false)
@@ -110,7 +110,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-033 확인된 계정이 다른 계정으로 바뀌면 동기화 계기가 발생한다") {
+        test("TC-0f0f8ffa-4099-4703-8ba1-c92e9067b591 확인된 계정이 다른 계정으로 바뀌면 동기화 계기가 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
@@ -126,7 +126,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-034 같은 계정이 다시 확인되기만 하면 동기화 계기가 발생하지 않는다") {
+        test("TC-2955e9e5-fbe9-45b3-9e8e-21f927fbeba7 같은 계정이 다시 확인되기만 하면 동기화 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableSharedFlow<Account>(replay = 1)
@@ -146,7 +146,7 @@ class AppSyncViewModelTest : FunSpec() {
             "세션 확인 중" to { account -> account.copy(isSessionValid = false, isSessionPending = true) },
             "인증되지 않은 것으로 확인됨" to { account -> account.copy(isSessionValid = false, isSessionPending = false) },
         ).forEach { (label, invalidate) ->
-            test("TC-DATA-SYNC-DOMAIN-092 TC-SYNC-REFRESH-FEATURE-003 같은 계정의 로그인 세션이 $label 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
+            test("TC-bce9da35-2f00-4bb6-9621-28916b11bd49 TC-f7816008-73c9-4079-a740-e4e695b0de94 같은 계정의 로그인 세션이 $label 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
                 runTest(mainDispatcher) {
                     val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
                     val accountFlow = MutableStateFlow<Account>(account)
@@ -169,7 +169,7 @@ class AppSyncViewModelTest : FunSpec() {
             "이메일" to { account -> account.copy(email = "changed-${account.email}") },
             "프로필 이미지" to { account -> account.copy(profileImage = "changed-${account.profileImage}") },
         ).forEach { (label, change) ->
-            test("TC-DATA-SYNC-DOMAIN-093 같은 계정의 $label 만 바뀌면 동기화 계기가 발생하지 않는다") {
+            test("TC-04bdc4e1-af0a-4d7f-811b-66189e9dce96 같은 계정의 $label 만 바뀌면 동기화 계기가 발생하지 않는다") {
                 runTest(mainDispatcher) {
                     val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                     val accountFlow = MutableStateFlow<Account>(account)
@@ -199,7 +199,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-085 관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
+        test("TC-c016ece6-0cdf-4afc-a776-f3fe741d3821 관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
@@ -239,7 +239,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-003 동기화를 요청하면 계정 확인 계기로 요청한다") {
+        test("TC-f7816008-73c9-4079-a740-e4e695b0de94 동기화를 요청하면 계정 확인 계기로 요청한다") {
             runTest(mainDispatcher) {
                 val requestSyncUseCase = mockk<RequestSyncUseCase>()
                 coEvery { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) } returns Result.success(Unit)

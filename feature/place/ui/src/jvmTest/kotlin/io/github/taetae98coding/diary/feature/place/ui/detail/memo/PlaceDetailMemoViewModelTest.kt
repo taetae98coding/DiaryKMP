@@ -64,7 +64,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
         }
 
         listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
-            test("TC-PLACE-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+            test("TC-08a8d5c8-59b7-428d-ba72-56ab64a22131 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
                 runTest(mainDispatcher) {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val memo = memo()
@@ -87,7 +87,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-001 장소별 메모 paging에 주입된 장소 ID를 전달한다") {
+        test("TC-21aab824-34c2-40e0-83cc-c863eb73a142 장소별 메모 paging에 주입된 장소 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -105,7 +105,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-003 장소별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-afedd4be-538b-4e23-9ddf-6e4eb14778af 장소별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()
                 val pagePlaceMemoUseCase = mockk<PagePlaceMemoUseCase>()
@@ -125,7 +125,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-003 장소별 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
+        test("TC-afedd4be-538b-4e23-9ddf-6e4eb14778af 장소별 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -143,7 +143,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-003 장소별 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-afedd4be-538b-4e23-9ddf-6e4eb14778af 장소별 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()

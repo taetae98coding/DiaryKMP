@@ -23,7 +23,7 @@ class MusicAddScreenFailureTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-031 저장에 실패하면 안내 없이 작성 내용을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+    fun `TC-5b5aa3a7-7e8a-4654-b8cd-51779e37bbc2 저장에 실패하면 안내 없이 작성 내용을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
         val useCase = mockk<AddMusicUseCase>()
         coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
         val viewModel = MusicAddViewModel(addMusicUseCase = useCase, fetchYoutubeVideoUseCase = mockk(relaxed = true))

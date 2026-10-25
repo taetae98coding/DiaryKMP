@@ -29,7 +29,9 @@ internal fun ContactHomeScreen(
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
     val sortUiState by contactViewModel.sortUiState.collectAsStateWithLifecycle()
+    val filterUiState by contactViewModel.filterUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
+    val filterSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     UndoSnackbarEffect(
@@ -51,6 +53,10 @@ internal fun ContactHomeScreen(
                 is ContactHomeScaffoldEvent.ClickAdd -> navigateToAdd()
                 is ContactHomeScaffoldEvent.ClickSort -> sortSheetState.show()
                 is ContactHomeScaffoldEvent.SelectSort -> contactViewModel.select(sort = event.sort)
+                is ContactHomeScaffoldEvent.ClickFilter -> filterSheetState.show()
+                is ContactHomeScaffoldEvent.SetBirthdayExistence -> contactViewModel.setBirthdayExistence(existence = event.existence)
+                is ContactHomeScaffoldEvent.SetBirthYearExistence -> contactViewModel.setBirthYearExistence(existence = event.existence)
+                is ContactHomeScaffoldEvent.SetPhoneNumberExistence -> contactViewModel.setPhoneNumberExistence(existence = event.existence)
                 is ContactHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
                 is ContactHomeScaffoldEvent.ClickContact -> navigateToDetail(event.id)
                 is ContactHomeScaffoldEvent.DeleteContact -> contactViewModel.delete(id = event.id)
@@ -58,10 +64,12 @@ internal fun ContactHomeScreen(
         },
         modifier = modifier,
         sortSheetState = sortSheetState,
+        filterSheetState = filterSheetState,
         snackbarHostState = snackbarHostState,
         contactPagingItems = contactPagingItems,
         uiStateProvider = { uiState },
         sortProvider = { sortUiState.sort },
+        filterUiStateProvider = { filterUiState },
         componentVisibleProvider = componentVisibleProvider,
     )
 }

@@ -88,7 +88,7 @@ class AccountTagWebLocalDataSourceImplTest :
                 .page(accountId = accountId, tagId = tagId, scope = TagScopeLocalEntity.SELF, sort = ListSortLocalEntity.DEFAULT)
                 .pagedWebIdList(loadSize = loadSize)
 
-        test("TC-TAG-DETAIL-WEB-DATA-001 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 웹 항목만 조회한다") {
+        test("TC-dcd46928-6c6c-4815-98ce-dac1679940f3 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 웹 항목만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
@@ -113,7 +113,7 @@ class AccountTagWebLocalDataSourceImplTest :
             pagedWebIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(linkedWeb.id)
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-002 태그별 웹 항목은 제목 오름차순으로 조회된다") {
+        test("TC-d78d5005-016c-4999-a0db-c050105980ef 태그별 웹 항목은 제목 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val firstWeb = web(title = "a-web")
@@ -130,7 +130,7 @@ class AccountTagWebLocalDataSourceImplTest :
                 listOf(firstWeb.id, secondWeb.id, thirdWeb.id)
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-002 태그별 웹 항목을 페이지 단위로 조회한다") {
+        test("TC-bbe313f4-ac99-4a84-ac55-4a8b97039d5b 태그별 웹 항목을 페이지 단위로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val webList = List(3) { index -> web(title = "web-$index") }
@@ -143,7 +143,7 @@ class AccountTagWebLocalDataSourceImplTest :
                 webList.take(2).map { value -> value.id }
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-003 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
+        test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetWeb = web()
@@ -163,7 +163,7 @@ class AccountTagWebLocalDataSourceImplTest :
             pagedWebIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(targetWeb.id)
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-003 웹 항목을 삭제하면 목록에서 사라진다") {
+        test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 웹 항목을 삭제하면 목록에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetWeb = web()
@@ -176,7 +176,7 @@ class AccountTagWebLocalDataSourceImplTest :
             pagedWebIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-003 웹 항목의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
+        test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 웹 항목의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val firstWeb = web(title = "a-web")
@@ -195,7 +195,7 @@ class AccountTagWebLocalDataSourceImplTest :
             pagedWebIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(secondWeb.id, firstWeb.id)
         }
 
-        test("TC-TAG-DETAIL-WEB-DOMAIN-001 태그를 완료하거나 삭제해도 연결된 웹 항목은 계속 조회된다") {
+        test("TC-af215105-464c-47f4-aa42-1090f176b5d7 태그를 완료하거나 삭제해도 연결된 웹 항목은 계속 조회된다") {
             listOf(
                 true to false,
                 false to true,
@@ -213,7 +213,7 @@ class AccountTagWebLocalDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-004 웹 항목는 저장 시점의 태그 선택으로 저장된다") {
+        test("TC-a1c70efb-92cb-4be0-9cb4-3514c5abff40 웹 항목는 저장 시점의 태그 선택으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagA = tag()
             val tagB = tag()
@@ -248,7 +248,7 @@ class AccountTagWebLocalDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-DOMAIN-002 태그마다 조회되는 웹 항목이 다르다") {
+        test("TC-8b82947c-df43-4860-ab2f-b50719cf60c5 태그마다 조회되는 웹 항목이 다르다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag()

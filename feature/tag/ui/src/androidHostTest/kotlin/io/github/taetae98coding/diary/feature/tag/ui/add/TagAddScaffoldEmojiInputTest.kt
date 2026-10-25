@@ -25,7 +25,7 @@ class TagAddScaffoldEmojiInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-014 이모지 입력에는 문자 하나만 남는다`() {
+    fun `TC-438b9bcd-6a71-41bf-b022-79251f519873 이모지 입력에는 문자 하나만 남는다`() {
         setTagAddScaffold()
 
         listOf(
@@ -55,7 +55,7 @@ class TagAddScaffoldEmojiInputTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-024 이모지 입력에 문자가 있으면 새로 입력한 문자로 대체된다`() {
+    fun `TC-708ee5cd-3c4a-40a6-9985-9adaf7f9c9be 이모지 입력에 문자가 있으면 새로 입력한 문자로 대체된다`() {
         setTagAddScaffold()
 
         composeRule.emojiInput().performClick()

@@ -22,7 +22,7 @@ class PlaceDetailScreenFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-030 진입해도 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-22a92dae-61c2-4d2a-869a-67e184fb1f5a 진입해도 어느 입력에도 초점을 두지 않는다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -35,7 +35,7 @@ class PlaceDetailScreenFocusTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-031 좌표 오류로 수정해도 초점을 옮기지 않는다`() {
+    fun `TC-2ffaf3ae-0718-4646-a708-be6f7750e9e0 좌표 오류로 수정해도 초점을 옮기지 않는다`() {
         val effectChannel = Channel<PlaceDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effectChannel.receiveAsFlow())
         every { viewModel.update(any()) } answers { effectChannel.trySend(PlaceDetailEffect.CoordinateInvalid).getOrThrow() }

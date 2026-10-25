@@ -23,6 +23,7 @@ internal class CalendarHomeScaffoldState(
     val calendarState: CalendarState,
     val datePickerDialogState: DialogState,
     val snackbarHostState: SnackbarHostState,
+    private val clock: Clock = Clock.System,
 ) {
     val calendarSelectState: CalendarSelectState
         get() = calendarState.selectState
@@ -37,7 +38,7 @@ internal class CalendarHomeScaffoldState(
         get() = calendarState.currentYearMonth.firstDay
 
     fun updateToday() {
-        today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        today = clock.todayIn(TimeZone.currentSystemDefault())
     }
 
     suspend fun animateScrollToToday() {

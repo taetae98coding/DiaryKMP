@@ -21,7 +21,7 @@ class ContactAddScreenEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-005 추가에 성공하면 다음 연락처를 작성할 수 있는 상태로 초기화한다`() {
+    fun `TC-7971c46e-b7a3-4195-8b16-1abc5db887bc 추가에 성공하면 다음 연락처를 작성할 수 있는 상태로 초기화한다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Uuid.random())))
         composeRule.fillAllInput()
 
@@ -38,7 +38,7 @@ class ContactAddScreenEffectTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-015 추가에 성공하면 이름 입력으로 초점을 옮긴다`() {
+    fun `TC-ad43183b-4204-40e6-8cec-8aff309a9daf 추가에 성공하면 이름 입력으로 초점을 옮긴다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Uuid.random())))
         composeRule.fillAllInput()
         composeRule.heightInput().assertIsFocused()
@@ -49,7 +49,7 @@ class ContactAddScreenEffectTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-010 이름 미입력 안내 뒤에도 입력 중이던 내용을 유지한다`() {
+    fun `TC-c789e3c9-b8be-473b-9c75-18d96ab63594 이름 미입력 안내 뒤에도 입력 중이던 내용을 유지한다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.NameBlank))
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
@@ -76,7 +76,7 @@ class ContactAddScreenEffectTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-011 전화번호 미입력 안내 뒤에도 입력 중이던 내용을 유지한다`() {
+    fun `TC-a56601a2-8685-4fa2-9662-4251a7386a77 전화번호 미입력 안내 뒤에도 입력 중이던 내용을 유지한다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.PhoneNumberBlank))
         composeRule.nameInput().performTextInput(TYPED_NAME)
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
@@ -95,7 +95,7 @@ class ContactAddScreenEffectTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-016 전화번호 미입력으로 추가하면 보고 있던 입력에 초점을 그대로 둔다`() {
+    fun `TC-92b2747c-ade0-4564-b49a-d1f36081ad7f 전화번호 미입력으로 추가하면 보고 있던 입력에 초점을 그대로 둔다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.PhoneNumberBlank))
         composeRule.nameInput().performTextInput(TYPED_NAME)
         composeRule.addPhoneNumberRow()
@@ -108,7 +108,7 @@ class ContactAddScreenEffectTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-016 이름 미입력으로 추가하면 이름 입력으로 초점을 옮긴다`() {
+    fun `TC-92b2747c-ade0-4564-b49a-d1f36081ad7f 이름 미입력으로 추가하면 이름 입력으로 초점을 옮긴다`() {
         composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.NameBlank))
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.heightInput().assertIsFocused()

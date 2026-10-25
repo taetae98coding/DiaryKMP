@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
@@ -14,6 +15,8 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -21,6 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFor
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_MAP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +39,7 @@ class MemoDetailScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-029 메모 내용이 준비되지 않으면 로딩 상태를 표시한다`() {
+    fun `TC-3a4b49d6-5255-4631-9372-37346ffe8352 메모 내용이 준비되지 않으면 로딩 상태를 표시한다`() {
         setMemoDetailScaffold(uiStateProvider = { MemoDetailUiState.Loading })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
@@ -48,7 +52,7 @@ class MemoDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-075 로딩 상태에서는 화면 제목과 작성 도우미·완료·다시 시작·복사·삭제·수정 동작을 제공하지 않는다`() {
+    fun `TC-a5b42695-8c0a-4596-b535-d9d5cc6846b2 로딩 상태에서는 화면 제목과 작성 도우미·완료·다시 시작·복사·삭제·수정 동작을 제공하지 않는다`() {
         var uiState by mutableStateOf<MemoDetailUiState>(MemoDetailUiState.Loading)
         setMemoDetailScaffold(
             uiStateProvider = { uiState },
@@ -74,12 +78,27 @@ class MemoDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-001 제목이 조회되면 상단 바에 조회한 제목을 표시한다`() {
+    fun `TC-e56b13c0-7157-4641-b74c-7a4b0b62ab4a 제목이 조회되면 상단 바에 조회한 제목을 표시한다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE)) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
         composeRule.onNodeWithText(MEMO_TITLE).assertExists()
         composeRule.onNodeWithText(REMOVED_DEFAULT_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-90dde206-ef20-4230-b636-ebd7aa0e0a71 화면 상단의 제목은 폭을 넘어도 한 줄에 생략 없이 담긴다`() {
+        setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(LONG_MEMO_TITLE)) })
+
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = LONG_MEMO_TITLE, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_MEMO_TITLE.length
     }
 
     @Test
@@ -98,7 +117,7 @@ class MemoDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-012 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-3176086c-a211-477a-a6c6-7bb1a3ee511b 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         setMemoDetailScaffold(
             uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE)) },
             componentVisibleProvider = { MemoDetailScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
@@ -109,7 +128,7 @@ class MemoDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-002 메모 조회가 완료되면 본문에 장소 카드를 표시한다`() {
+    fun `TC-2f2161b0-8611-4832-9213-5fa348e0f5e0 메모 조회가 완료되면 본문에 장소 카드를 표시한다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE)) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_DESCRIPTION).assertExists()
@@ -150,6 +169,7 @@ class MemoDetailScaffoldTest {
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val MEMO_TITLE = "MemoDetailTitle"
+        private val LONG_MEMO_TITLE = "LongMemoDetailTitle".repeat(20)
         private const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Writing assistant"
     }
 }
@@ -243,7 +263,7 @@ class MemoDetailScaffoldInProgressTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-028 완료를 처리하는 동안 완료 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-4b34f908-5548-4b6d-a9db-d7369f056c99 완료를 처리하는 동안 완료 버튼이 진행 표시로 바뀐다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isFinishInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
@@ -252,7 +272,7 @@ class MemoDetailScaffoldInProgressTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-028 다시 시작을 처리하는 동안 다시 시작 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-4b34f908-5548-4b6d-a9db-d7369f056c99 다시 시작을 처리하는 동안 다시 시작 버튼이 진행 표시로 바뀐다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isFinished = true, isFinishInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
@@ -261,7 +281,7 @@ class MemoDetailScaffoldInProgressTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-028 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-4b34f908-5548-4b6d-a9db-d7369f056c99 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isDeleteInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()

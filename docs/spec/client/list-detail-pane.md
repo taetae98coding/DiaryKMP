@@ -4,12 +4,18 @@
 
 이 문서를 따르는 배치 스펙은 다음과 같다.
 
+- [Checklist 목록·상세 배치 스펙](./checklist-list-detail.md)
 - [Contact 목록·상세 배치 스펙](./contact-list-detail.md)
+- [File 목록·상세 배치 스펙](./file-list-detail.md)
 - [Memo 목록·상세 배치 스펙](./memo-list-detail.md)
+- [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)
+- [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)
 - [Playlist 목록·상세 배치 스펙](./playlist-list-detail.md)
+- [QR 목록·상세 배치 스펙](./qr-list-detail.md)
 - [Routine 목록·상세 배치 스펙](./routine-list-detail.md)
 - [Setting 목록·상세 배치 스펙](./setting-list-detail.md)
 - [Tag 목록·상세 배치 스펙](./tag-list-detail.md)
+- [TagFinishedList 목록·상세 배치 스펙](./tag-finished-list-detail.md)
 - [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)
 - [Web 목록·상세 배치 스펙](./web-list-detail.md)
 

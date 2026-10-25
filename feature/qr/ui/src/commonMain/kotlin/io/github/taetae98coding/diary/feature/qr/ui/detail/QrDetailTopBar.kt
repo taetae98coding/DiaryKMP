@@ -5,10 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
@@ -33,6 +30,7 @@ internal fun QrDetailTopBar(
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
     actionProvider: () -> QrAction? = { null },
+    componentVisibleProvider: () -> QrDetailScaffoldComponentVisible = { QrDetailScaffoldComponentVisible() },
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description)
@@ -43,50 +41,48 @@ internal fun QrDetailTopBar(
     val actionContentDescription = action?.let { stringResource(it.contentDescription) }
 
     DiaryTopBar(
+        title = {
+            if (uiState is QrDetailUiState.Content) {
+                Title(text = uiState.detail.title, isMarquee = true)
+            }
+        },
         modifier = modifier,
-        title = (uiState as? QrDetailUiState.Content)?.let { DiaryTopBarTitle.Text(text = it.detail.title, isMarquee = true) },
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
-                onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
-            ),
-        actions =
-            buildList {
-                if (uiState is QrDetailUiState.Content) {
-                    if (action != null && actionContentDescription != null) {
-                        add(
-                            DiaryTopBarAction.Icon(
-                                icon = action.topBarIcon,
-                                contentDescription = actionContentDescription,
-                                onClick = { onEvent(QrDetailScaffoldEvent.ClickAction(action = action)) },
-                            ),
-                        )
-                    }
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.UNDO,
-                            contentDescription = undoContentDescription,
-                            onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
-                            isEnabled = state.contentState.canUndo,
-                        ),
-                    )
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.QR_SCAN,
-                            contentDescription = scanContentDescription,
-                            onClick = { onEvent(QrDetailScaffoldEvent.ClickScan) },
-                        ),
-                    )
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(QrDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
+        navigationIcon = {
+            if (componentVisibleProvider().isNavigateUpButtonVisible) {
+                NavigateUp(
+                    onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
+                )
+            }
+        },
+        actions = {
+            if (uiState is QrDetailUiState.Content) {
+                if (action != null && actionContentDescription != null) {
+                    IconAction(
+                        icon = action.topBarIcon,
+                        contentDescription = actionContentDescription,
+                        onClick = { onEvent(QrDetailScaffoldEvent.ClickAction(action = action)) },
                     )
                 }
-            },
+                IconAction(
+                    icon = DiaryTopBarIcon.UNDO,
+                    contentDescription = undoContentDescription,
+                    onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
+                    isEnabled = state.contentState.canUndo,
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.QR_SCAN,
+                    contentDescription = scanContentDescription,
+                    onClick = { onEvent(QrDetailScaffoldEvent.ClickScan) },
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(QrDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
+                )
+            }
+        },
     )
 }
 

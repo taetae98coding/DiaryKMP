@@ -42,7 +42,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class WebTagRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-WEB-TAG-DATA-005 TC-WEB-TAG-DATA-006 웹 항목과 태그의 연결의 전체 상태를 Supabase push 함수에 전달한다") {
+        test("TC-fbebf0be-a83a-43c9-8c7b-0c47f25e1e00 TC-fb383a98-cf0e-4086-af3d-4e557b8edd75 웹 항목과 태그의 연결의 전체 상태를 Supabase push 함수에 전달한다") {
             val webTagList = listOf(webTag(), webTag(isDeleted = true))
             val response = mockk<HttpResponse>()
             every { response.status } returns HttpStatusCode.OK
@@ -71,7 +71,7 @@ class WebTagRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-WEB-TAG-DATA-007 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
+        test("TC-3de3f780-f097-4009-b2ff-da214d0d3328 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
             val usn = fixtureMonkey.giveMeOne<Long>()
             val webTagPullList =
                 listOf(

@@ -25,7 +25,7 @@ class ContactAddBirthYearTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-039 생일 없이 태어난 연도를 입력하고 지울 수 있다`() {
+    fun `TC-809e641d-8d7d-463e-a0a6-998c9a82b747 생일 없이 태어난 연도를 입력하고 지울 수 있다`() {
         composeRule.setContactAddScreen()
 
         composeRule.birthYearInput().performTextInput(TYPED_BIRTH_YEAR)
@@ -40,7 +40,7 @@ class ContactAddBirthYearTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-040 태어난 연도는 반각 숫자를 네 자리까지만 반영한다`() {
+    fun `TC-5fc9f1b0-8b89-44c3-977a-1c48bc0e4671 태어난 연도는 반각 숫자를 네 자리까지만 반영한다`() {
         val caseList =
             listOf(
                 "19a90" to "1990",
@@ -63,7 +63,7 @@ class ContactAddBirthYearTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-041 생일을 고르면 태어난 연도가 생일의 연도로 채워진다`() {
+    fun `TC-740164fd-5d79-4e55-92c2-c031d227546e 생일을 고르면 태어난 연도가 생일의 연도로 채워진다`() {
         composeRule.setContactAddScreen()
 
         listOf("", OTHER_BIRTH_YEAR).forEach { typed ->
@@ -79,7 +79,7 @@ class ContactAddBirthYearTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-042 생일을 고른 동안에는 태어난 연도를 바꾸거나 지울 수 없다`() {
+    fun `TC-c9bd39aa-df98-4863-a5ae-91adb52a6377 생일을 고른 동안에는 태어난 연도를 바꾸거나 지울 수 없다`() {
         composeRule.setContactAddScreen()
 
         composeRule.selectBirthday()
@@ -91,7 +91,7 @@ class ContactAddBirthYearTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-044 생일의 달력 구분을 바꿔도 태어난 연도는 그대로다`() {
+    fun `TC-1d552830-040d-430a-bc68-69c925828c85 생일의 달력 구분을 바꿔도 태어난 연도는 그대로다`() {
         composeRule.setContactAddScreen()
         composeRule.selectBirthday()
 
@@ -101,7 +101,7 @@ class ContactAddBirthYearTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-045 생일을 지우면 태어난 연도도 지워지고 다시 입력할 수 있다`() {
+    fun `TC-66993555-f993-40be-8bbd-6900a1d37651 생일을 지우면 태어난 연도도 지워지고 다시 입력할 수 있다`() {
         composeRule.setContactAddScreen()
         composeRule.selectBirthday()
 

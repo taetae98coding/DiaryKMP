@@ -26,7 +26,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlayIntegrityRepositoryImplTest :
     FunSpec({
-        test("TC-PLAY-INTEGRITY-LOGGING-DATA-002 확인마다 새 무작위 값을 요청 해시로 담는다") {
+        test("TC-0b08e592-db52-4ec0-b462-0aadca7cb1e8 확인마다 새 무작위 값을 요청 해시로 담는다") {
             val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
             val requestHashList = mutableListOf<String>()
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
@@ -42,7 +42,7 @@ class PlayIntegrityRepositoryImplTest :
             requestHashList[0] shouldNotBe requestHashList[1]
         }
 
-        test("TC-PLAY-INTEGRITY-LOGGING-DATA-001 발급받은 토큰과 패키지 이름으로 요청해 받은 판정 결과를 그대로 돌려준다") {
+        test("TC-21a18142-dfc1-4643-ae8e-2e6c223c2342 발급받은 토큰과 패키지 이름으로 요청해 받은 판정 결과를 그대로 돌려준다") {
             val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
             val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
             val verdict = verdict(appRecognitionVerdict = appRecognitionVerdict)
@@ -106,7 +106,7 @@ class PlayIntegrityRepositoryImplTest :
                 )
         }
 
-        test("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-007 Play Integrity를 제공하지 않는 플랫폼에서는 서버에 요청하지 않는다") {
+        test("TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48 Play Integrity를 제공하지 않는 플랫폼에서는 서버에 요청하지 않는다") {
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } returns null
             val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
@@ -116,7 +116,7 @@ class PlayIntegrityRepositoryImplTest :
             coVerify(exactly = 0) { remoteDataSource.decode(token = any(), packageName = any()) }
         }
 
-        test("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-008 토큰 발급에 실패하면 서버에 요청하지 않고 실패를 전달한다") {
+        test("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 토큰 발급에 실패하면 서버에 요청하지 않고 실패를 전달한다") {
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } throws failure

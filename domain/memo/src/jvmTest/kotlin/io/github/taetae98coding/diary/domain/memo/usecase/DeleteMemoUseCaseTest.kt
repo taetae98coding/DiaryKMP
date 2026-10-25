@@ -46,7 +46,9 @@ class DeleteMemoUseCaseTest :
                 )
 
             When("메모를 삭제한다") {
-                Then("TC-MEMO-HOME-DOMAIN-002 TC-MEMO-HOME-DOMAIN-005 TC-MEMO-FINISHED-LIST-DOMAIN-002 TC-MEMO-FINISHED-LIST-DOMAIN-005 TC-TAG-MEMO-FINISHED-LIST-DOMAIN-002 현재 계정의 메모를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
+                Then(
+                    "TC-078b6803-a42d-433a-b1b2-fe276e27a085 TC-516ee709-1117-4b0b-a57b-2f554a3c1358 TC-3dca9722-3eb4-4c02-b6dc-bed2215e3f60 TC-d91ed131-c84d-4723-8d59-a6aa527d8067 TC-2aee7166-a476-4951-a3de-b5e513588b84 TC-ede2d580-39fb-4af7-8d88-5bdc60bfbc58 현재 계정의 메모를 삭제 상태와 동작 시점 수정 시각으로 갱신한다",
+                ) {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = memoId)
@@ -108,7 +110,7 @@ class DeleteMemoUseCaseTest :
                 )
 
             When("메모를 삭제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 메모 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 메모 갱신 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeSuccess(1)

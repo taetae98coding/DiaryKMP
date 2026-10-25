@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactV
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.EXERCISE_TAG_TITLE
@@ -38,7 +39,7 @@ class MemoDetailScreenTagTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-033 첫진입 시 저장된 태그 연결과 대표 태그가 태그 입력에 표시된다`() {
+    fun `TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 첫진입 시 저장된 태그 연결과 대표 태그가 태그 입력에 표시된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
 
@@ -57,7 +58,7 @@ class MemoDetailScreenTagTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-041 화면이 재생성되면 태그 입력은 저장된 태그를 다시 표시한다`() {
+    fun `TC-6fbe4030-a373-4a94-90db-e244df84df81 화면이 재생성되면 태그 입력은 저장된 태그를 다시 표시한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val tagUiState =
@@ -80,6 +81,7 @@ class MemoDetailScreenTagTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -120,7 +122,7 @@ class MemoDetailScreenTagTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-038 저장된 태그 연결이 바뀌면 태그 입력에 반영된다`() {
+    fun `TC-ef9f8c54-750a-42b9-9491-ef622a6f420d 저장된 태그 연결이 바뀌면 태그 입력에 반영된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val tagUiState = MutableStateFlow(MemoTagInputUiState())
 
@@ -139,7 +141,7 @@ class MemoDetailScreenTagTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-047 TC-MEMO-DETAIL-FEATURE-048 선택 목록에 없는 완료된 태그도 대표 태그 칩으로 표시된다`() {
+    fun `TC-4178547d-4ad2-4d73-a5e3-68e4350e7dd9 TC-fc9a90ad-aa02-460e-b0dc-7e42d8bfce62 선택 목록에 없는 완료된 태그도 대표 태그 칩으로 표시된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE).copy(isFinished = true)
 
@@ -158,7 +160,7 @@ class MemoDetailScreenTagTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-050 연결된 태그가 완료되어도 태그 칩 표시가 유지된다`() {
+    fun `TC-f845b60b-e09c-42ac-8851-e3c6e08b035c 연결된 태그가 완료되어도 태그 칩 표시가 유지된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val tagUiState = MutableStateFlow(MemoTagInputUiState(selectedTagList = listOf(workTag), primaryTagId = workTag.id))
 
@@ -179,7 +181,7 @@ class MemoDetailScreenTagTest {
 
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
-    fun `TC-MEMO-DETAIL-FEATURE-051 연결된 완료된 태그는 태그 선택 목록에 함께 나타난다`() {
+    fun `TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 연결된 완료된 태그는 태그 선택 목록에 함께 나타난다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE).copy(isFinished = true)
 
@@ -200,7 +202,7 @@ class MemoDetailScreenTagTest {
 
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
-    fun `TC-MEMO-DETAIL-FEATURE-052 연결되지 않은 완료된 태그는 태그 선택 목록에 나타나지 않는다`() {
+    fun `TC-c8b46a53-3227-4f18-9061-defb7a9cf9de 연결되지 않은 완료된 태그는 태그 선택 목록에 나타나지 않는다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE).copy(isFinished = true)
 
@@ -217,7 +219,7 @@ class MemoDetailScreenTagTest {
 
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-012 선택할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
+    fun `TC-ae797087-ce02-4386-b34a-8aa2f4f77206 선택할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
         val finishedTag = testTag(title = WORK_TAG_TITLE).copy(isFinished = true)
         var tagAddCount = 0
 
@@ -234,7 +236,7 @@ class MemoDetailScreenTagTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-039 다른 메모를 선택하면 태그 입력이 새 메모의 태그로 바뀐다`() {
+    fun `TC-20490a86-d4b9-497f-96fc-6cf6c586e5bc 다른 메모를 선택하면 태그 입력이 새 메모의 태그로 바뀐다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val tagList = listOf(workTag, exerciseTag)

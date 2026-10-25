@@ -6,8 +6,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.setting.ui.Res
@@ -27,22 +25,22 @@ internal fun SettingHolidayTopBar(
     val focusRequester = remember { FocusRequester() }
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
-            DiaryTopBarTitle.Search(
+        title = {
+            SearchTitle(
                 state = state.queryState,
                 placeholder = placeholder,
                 focusRequester = focusRequester,
-            ),
-        navigateUp =
+            )
+        },
+        modifier = modifier,
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(SettingHolidayScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
+            }
+        },
     )
 }
 

@@ -26,7 +26,7 @@ class PlaylistHomeScaffoldRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-008 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-b33a6b98-eb07-418b-9686-9ae2b3850279 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
         setPlaylistHomeScaffold(
             musicList = listOf(testMusic(title = MUSIC_TITLE)),
@@ -40,14 +40,14 @@ class PlaylistHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-009 진행 표시 상태이면 진행 표시가 나타난다`() {
+    fun `TC-93a2c915-4de7-40d6-878c-1b42d43310dd 진행 표시 상태이면 진행 표시가 나타난다`() {
         setPlaylistHomeScaffold(isRefreshingProvider = { true })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-009 동기화가 끝나면 진행 표시가 사라진다`() {
+    fun `TC-93a2c915-4de7-40d6-878c-1b42d43310dd 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setPlaylistHomeScaffold(isRefreshingProvider = { isRefreshing.value })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

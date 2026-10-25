@@ -47,7 +47,7 @@ class PageTagHomeUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-FEATURE-029 노출 대상 태그 전체를 페이지로 전달한다") {
+                Then("TC-a9dac55d-0689-4876-b138-7041b9950710 노출 대상 태그 전체를 페이지로 전달한다") {
                     val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
@@ -64,7 +64,7 @@ class PageTagHomeUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-FEATURE-028 최상위 태그만 페이지로 전달한다") {
+                Then("TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 최상위 태그만 페이지로 전달한다") {
                     val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe topLevelTagList
@@ -82,7 +82,7 @@ class PageTagHomeUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-DATA-007 바뀐 선택으로 목록을 다시 조회한다") {
+                Then("TC-48e9d359-c512-44f7-b05c-bde5269455d9 바뀐 선택으로 목록을 다시 조회한다") {
                     flowOf(useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()).asSnapshot() shouldBe tagList
 
                     isTopLevelOnly.value = true

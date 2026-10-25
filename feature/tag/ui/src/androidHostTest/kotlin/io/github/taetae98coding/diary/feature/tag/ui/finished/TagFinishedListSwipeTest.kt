@@ -51,7 +51,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-021 태그 카드를 좌에서 우로 밀면 다시 시작을 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-fe0bcdbb-5c59-4d18-8578-a78189114664 태그 카드를 좌에서 우로 밀면 다시 시작을 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -63,7 +63,7 @@ class TagFinishedListSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-FINISHED-LIST-FEATURE-021 한국어 환경에서 다시 시작 안내와 실행 취소를 표시한다`() {
+    fun `TC-fe0bcdbb-5c59-4d18-8578-a78189114664 한국어 환경에서 다시 시작 안내와 실행 취소를 표시한다`() {
         setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -73,7 +73,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-022 태그 카드를 우에서 좌로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-4453af30-d54d-4541-af6e-e51ec0858893 태그 카드를 우에서 좌로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -85,7 +85,7 @@ class TagFinishedListSwipeTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-FINISHED-LIST-FEATURE-022 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-4453af30-d54d-4541-af6e-e51ec0858893 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -95,7 +95,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-023 다시 시작을 실행 취소하면 그 태그의 완료를 요청한다`() {
+    fun `TC-0e1791eb-eff2-4b4e-a22c-dc5d1abaf852 다시 시작을 실행 취소하면 그 태그의 완료를 요청한다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -107,7 +107,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-024 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 요청한다`() {
+    fun `TC-0f8b0950-1a04-494b-b8ce-0cea7804a642 삭제를 실행 취소하면 그 태그의 삭제 되돌리기를 요청한다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -119,7 +119,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-026 안내가 보이는 동안 다른 태그를 삭제하면 마지막 동작에만 실행 취소가 적용된다`() {
+    fun `TC-a0af7051-b09d-4677-b198-ebcbaa778c00 안내가 보이는 동안 다른 태그를 삭제하면 마지막 동작에만 실행 취소가 적용된다`() {
         val environment = setScreen()
 
         swipeRight(title = FIRST_TITLE)
@@ -138,7 +138,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-e67ba555-6b30-4af6-9769-2191035347d1 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setScreen()
 
         swipeLeft(title = FIRST_TITLE)
@@ -153,7 +153,7 @@ class TagFinishedListSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-029 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-e70e4d5a-9f77-42a3-b9b7-bbf71bca9eed 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setScreen(isShownProvider = { isShown })
 

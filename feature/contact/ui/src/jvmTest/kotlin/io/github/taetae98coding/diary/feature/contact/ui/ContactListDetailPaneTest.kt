@@ -11,7 +11,7 @@ import kotlin.uuid.Uuid
 
 class ContactListDetailPaneTest :
     FunSpec({
-        test("TC-CONTACT-LIST-DETAIL-FEATURE-003 선택한 연락처가 없거나 연락처 추가로 이동했으면 상세 영역에 연락처 추가가 놓인다") {
+        test("TC-603058fa-cf2e-414c-bac9-ad734a1d8dc3 선택한 연락처가 없거나 연락처 추가로 이동했으면 상세 영역에 연락처 추가가 놓인다") {
             val backStackCases =
                 listOf(
                     listOf(ContactHomeNavKey),
@@ -24,7 +24,7 @@ class ContactListDetailPaneTest :
             }
         }
 
-        test("TC-CONTACT-LIST-DETAIL-FEATURE-004 연락처 상세로 이동했으면 상세 영역에 연락처 추가가 놓이지 않는다") {
+        test("TC-ab7166d7-90ca-4f2a-9f12-7f000a7e83ff 연락처 상세로 이동했으면 상세 영역에 연락처 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, ContactHomeNavKey, ContactDetailNavKey(id = Uuid.random())),

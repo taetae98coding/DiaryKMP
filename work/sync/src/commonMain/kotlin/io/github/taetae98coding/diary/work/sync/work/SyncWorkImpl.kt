@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -27,6 +28,8 @@ internal class SyncWorkImpl(
     private val contactSyncWork: ContactSyncWork,
     private val musicSyncWork: MusicSyncWork,
     private val qrSyncWork: QrSyncWork,
+    private val checklistSyncWork: ChecklistSyncWork,
+    private val checklistItemSyncWork: ChecklistItemSyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -78,6 +81,7 @@ internal class SyncWorkImpl(
             val contact = async { contactSyncWork.push(accountId = accountId) }
             val music = async { musicSyncWork.push(accountId = accountId) }
             val qr = async { qrSyncWork.push(accountId = accountId) }
+            val checklist = pushChecklist(accountId = accountId)
             val memo =
                 async {
                     tag.await()
@@ -125,9 +129,20 @@ internal class SyncWorkImpl(
                     placeTagSyncWork.push(accountId = accountId)
                 }
 
-            listOf(tag, place, web, contact, music, qr, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag)
+            (listOf(tag, place, web, contact, music, qr, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag) + checklist)
                 .awaitAllCatching()
         }
+    }
+
+    private fun CoroutineScope.pushChecklist(accountId: Uuid): List<Deferred<Unit>> {
+        val checklist = async { checklistSyncWork.push(accountId = accountId) }
+        val checklistItem =
+            async {
+                checklist.await()
+                checklistItemSyncWork.push(accountId = accountId)
+            }
+
+        return listOf(checklist, checklistItem)
     }
 
     private suspend fun pull(accountId: Uuid) {
@@ -139,6 +154,8 @@ internal class SyncWorkImpl(
                 async { contactSyncWork.pull(accountId = accountId) },
                 async { musicSyncWork.pull(accountId = accountId) },
                 async { qrSyncWork.pull(accountId = accountId) },
+                async { checklistSyncWork.pull(accountId = accountId) },
+                async { checklistItemSyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

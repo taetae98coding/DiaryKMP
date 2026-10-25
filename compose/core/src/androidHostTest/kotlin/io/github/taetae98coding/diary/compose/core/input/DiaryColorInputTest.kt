@@ -33,21 +33,21 @@ class DiaryColorInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-001 카드에 초기 컬러의 Hex 코드를 표시한다`() {
+    fun `TC-533e4f62-c88c-4122-a463-28687421ed5a 카드에 초기 컬러의 Hex 코드를 표시한다`() {
         setDiaryColorInput(initialColor = DOCUMENT_COLOR)
 
         composeRule.onNode(hasText(DOCUMENT_HEX, substring = true) and hasClickAction()).assertExists()
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-009 카드에 초기 컬러의 RGB 값을 둘째 줄에 표시한다`() {
+    fun `TC-a5c29c31-838c-4531-ba04-4c7f18efe42a 카드에 초기 컬러의 RGB 값을 둘째 줄에 표시한다`() {
         setDiaryColorInput(initialColor = DOCUMENT_COLOR)
 
         composeRule.onNode(hasText(DOCUMENT_HEX) and hasText(DOCUMENT_RGB) and hasClickAction()).assertExists()
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-007 초기 컬러를 지정하지 않으면 무작위 컬러의 Hex 코드를 표시한다`() {
+    fun `TC-5e018019-7952-4b49-82be-9722ccb1b2c9 초기 컬러를 지정하지 않으면 무작위 컬러의 Hex 코드를 표시한다`() {
         composeRule.setContent {
             DiaryTheme {
                 Surface {
@@ -60,7 +60,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-002 카드를 누르면 현재 컬러가 반영된 컬러 선택 다이얼로그가 열린다`() {
+    fun `TC-1f8a9241-8abb-47b0-9b4d-5fb54e15671d 카드를 누르면 현재 컬러가 반영된 컬러 선택 다이얼로그가 열린다`() {
         setDiaryColorInput(initialColor = TYPED_COLOR)
 
         composeRule.onNode(hasText(TYPED_HEX, substring = true) and hasClickAction()).performClick()
@@ -77,7 +77,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-005 확인을 누르면 다이얼로그가 닫히고 카드 컬러가 바뀐다`() {
+    fun `TC-c0f0cdd2-379c-4ab8-b49d-e31dd07ae25f 확인을 누르면 다이얼로그가 닫히고 카드 컬러가 바뀐다`() {
         setDiaryColorInput(initialColor = Color.Black)
 
         composeRule.onNode(hasText(BLACK_HEX, substring = true) and hasClickAction()).performClick()
@@ -91,7 +91,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-006 취소하면 카드는 기존 컬러를 유지한다`() {
+    fun `TC-f4fe4d15-5a7f-470a-9839-165a2253c5e7 취소하면 카드는 기존 컬러를 유지한다`() {
         setDiaryColorInput(initialColor = TYPED_COLOR)
 
         composeRule.onNode(hasText(TYPED_HEX, substring = true) and hasClickAction()).performClick()
@@ -111,7 +111,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-DOMAIN-002 유효하지 않은 Hex 입력이 남아 있어도 확인 시 마지막 유효 컬러가 적용된다`() {
+    fun `TC-f1d1275b-b130-4f23-bdbf-43a4e3e31bb4 유효하지 않은 Hex 입력이 남아 있어도 확인 시 마지막 유효 컬러가 적용된다`() {
         setDiaryColorInput(initialColor = Color.Black)
 
         composeRule.onNode(hasText(BLACK_HEX, substring = true) and hasClickAction()).performClick()
@@ -127,7 +127,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-DOMAIN-003 화면이 재생성되어도 선택된 컬러가 유지된다`() {
+    fun `TC-6227014a-df16-40b7-aba9-9fd0de19a462 화면이 재생성되어도 선택된 컬러가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         setDiaryColorInput(restorationTester = restorationTester, initialColor = Color.Black)
 
@@ -144,7 +144,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-DOMAIN-004 화면이 재생성되어도 열린 다이얼로그와 편집 컬러가 유지된다`() {
+    fun `TC-bd49df2e-6c93-43f7-b82e-e44f78573c35 화면이 재생성되어도 열린 다이얼로그와 편집 컬러가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         setDiaryColorInput(restorationTester = restorationTester, initialColor = Color.Black)
 
@@ -160,7 +160,7 @@ class DiaryColorInputTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-DOMAIN-005 초기 컬러를 지정하지 않아도 화면이 재생성되면 같은 무작위 컬러가 유지된다`() {
+    fun `TC-bc72d45f-1fc5-4341-9a59-d938e4413faf 초기 컬러를 지정하지 않아도 화면이 재생성되면 같은 무작위 컬러가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {

@@ -22,7 +22,7 @@ class SearchHomeQueryReportTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-001 진입하면 빈 질의로 시작한다`() {
+    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 빈 질의로 시작한다`() {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
@@ -30,7 +30,7 @@ class SearchHomeQueryReportTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-002 질의를 입력하면 확정 동작 없이 그 질의를 전달한다`() {
+    fun `TC-346988d0-4bef-426f-84c5-0f9054e4072e 질의를 입력하면 확정 동작 없이 그 질의를 전달한다`() {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
@@ -41,7 +41,7 @@ class SearchHomeQueryReportTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-003 질의를 바꾸면 바뀐 질의를 전달한다`() {
+    fun `TC-bfe7428a-4630-4061-a412-7e2dfb88cd9a 질의를 바꾸면 바뀐 질의를 전달한다`() {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
@@ -55,7 +55,7 @@ class SearchHomeQueryReportTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-004 질의를 비우면 빈 질의를 전달한다`() {
+    fun `TC-c4fe9d3f-01c4-4b1a-a7bb-2fd1ca334fdb 질의를 비우면 빈 질의를 전달한다`() {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
@@ -82,7 +82,7 @@ class SearchHomeQueryReportTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-048 유형 결과가 다시 나타나면 지금 질의를 곧바로 반영하도록 알린다`() {
+    fun `TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 유형 결과가 다시 나타나면 지금 질의를 곧바로 반영하도록 알린다`() {
         val queryList = mutableListOf<QueryReport>()
         var isResultShown by mutableStateOf(true)
         setSearchHomeQueryReport(queryList = queryList, isResultShownProvider = { isResultShown })

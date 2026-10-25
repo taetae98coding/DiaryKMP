@@ -44,7 +44,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-001 저장된 설정을 그대로 제공한다") {
+        test("TC-b7f4e2f9-6e46-467f-a334-663f7169f362 저장된 설정을 그대로 제공한다") {
             runTest(mainDispatcher) {
                 val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
                 val viewModel = createViewModel(settingFlow = flowOf(Result.success(setting)))
@@ -56,7 +56,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-002 저장된 설정이 없으면 비어 있는 설정을 제공한다") {
+        test("TC-8449e39b-5c2c-4c7c-9b9b-7f95beb2cd6c 저장된 설정이 없으면 비어 있는 설정을 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = createViewModel(settingFlow = flowOf(Result.success(GeminiSetting.EMPTY)))
 
@@ -67,7 +67,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-022 설정을 확인하지 못하면 확인 중 상태를 유지한다") {
+        test("TC-8cb37358-a8e6-4600-ac68-aeb09bf93d5e 설정을 확인하지 못하면 확인 중 상태를 유지한다") {
             val settingFlowList =
                 listOf(
                     emptyFlow<Result<GeminiSetting>>(),
@@ -87,7 +87,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-015 저장하면 세 값이 함께 저장된다") {
+        test("TC-5305f042-c198-4a29-9d9b-7b490355f139 저장하면 세 값이 함께 저장된다") {
             runTest(mainDispatcher) {
                 val stored = MutableStateFlow(Result.success(GeminiSetting.EMPTY))
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
@@ -112,7 +112,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-DOMAIN-001 세 값이 비어 있어도 저장한다") {
+        test("TC-109c63d2-da57-4c7c-9db8-31e506f23317 세 값이 비어 있어도 저장한다") {
             val settingList =
                 listOf(
                     GeminiSetting.EMPTY,
@@ -139,7 +139,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-DOMAIN-002 저장할 때 값의 유효성을 확인하지 않는다") {
+        test("TC-bf990bf1-0db9-445b-8837-0b8ecd081f5a 저장할 때 값의 유효성을 확인하지 않는다") {
             runTest(mainDispatcher) {
                 val setting = GeminiSetting(apiKey = "invalid", model = "models/removed", systemPrompt = "")
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
@@ -157,7 +157,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-016 저장하는 동안 진행 상태를 제공한다") {
+        test("TC-17c7f47a-b67b-4041-a191-1d5970ccc131 저장하는 동안 진행 상태를 제공한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
@@ -185,7 +185,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-017 저장 중에는 같은 저장 요청을 처리하지 않는다") {
+        test("TC-6bddc416-393f-48aa-ae7c-2bfd712bc3f8 저장 중에는 같은 저장 요청을 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
@@ -215,7 +215,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-018 저장에 성공하면 성공을 알린다") {
+        test("TC-4f7ca966-2ddc-4ddc-858d-befcae34e2ee 저장에 성공하면 성공을 알린다") {
             runTest(mainDispatcher) {
                 val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
@@ -232,7 +232,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-GEMINI-FEATURE-019 저장에 실패하면 실패를 알린다") {
+        test("TC-e4611d27-bb3d-41c8-b08d-0c1028146247 저장에 실패하면 실패를 알린다") {
             runTest(mainDispatcher) {
                 val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()

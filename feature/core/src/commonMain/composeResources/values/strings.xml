@@ -1,0 +1,9 @@
+<resources>
+    <string name="entity_detail_memo_finished_list_action_label">Finished memos</string>
+    <string name="entity_memo_finished_list_detail_placeholder_message">Choose a memo</string>
+    <string name="entity_memo_finished_list_subtitle">Finished Memos</string>
+    <string name="entity_memo_finished_list_navigate_up_button_content_description">Navigate up</string>
+    <string name="entity_memo_finished_list_restarted_message">Memo restarted.</string>
+    <string name="entity_memo_finished_list_deleted_message">Memo deleted.</string>
+    <string name="entity_memo_finished_list_undo_action">Undo</string>
+</resources>

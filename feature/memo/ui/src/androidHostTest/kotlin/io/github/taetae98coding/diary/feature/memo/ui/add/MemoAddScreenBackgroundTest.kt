@@ -16,6 +16,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
@@ -33,7 +34,7 @@ class MemoAddScreenBackgroundTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-068 다른 앱에 다녀와도 입력 내용과 선택이 그대로다`() {
+    fun `TC-95f21cb7-8d6c-43b7-b2d2-cde33534f8d0 다른 앱에 다녀와도 입력 내용과 선택이 그대로다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val tagTitle = "BackgroundTag${fixtureMonkey.giveMeOne<Int>()}"
@@ -75,6 +76,7 @@ private fun BackgroundTestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
         contactViewModel = viewModels.contactViewModel,
         placeViewModel = viewModels.placeViewModel,
         placeMapViewModel = screenTestPlaceMapViewModel(),
+        placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
         geminiViewModel = screenTestGeminiViewModel(),
         navigateUp = {},
         navigateToTagAdd = {},

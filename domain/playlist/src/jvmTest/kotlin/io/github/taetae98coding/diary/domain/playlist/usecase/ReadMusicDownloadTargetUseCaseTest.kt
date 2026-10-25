@@ -36,7 +36,7 @@ class ReadMusicDownloadTargetUseCaseTest :
                 )
 
             When("다운로드 대상을 조회한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-001 TC-MUSIC-DOWNLOAD-FEATURE-007 영상 ID를 얻을 수 있는 곡만 대상이 된다") {
+                Then("TC-0c8c27e7-5612-4521-88d1-21d4ff0968d9 TC-25124a50-355c-40d3-811a-da323e0d0c40 영상 ID를 얻을 수 있는 곡만 대상이 된다") {
                     useCase(parameter = ListSort.TITLE).shouldBeSuccess() shouldBe
                         listOf(MusicDownloadTarget(id = withVideo.id, videoId = "dQw4w9WgXcQ"))
                 }
@@ -50,7 +50,7 @@ class ReadMusicDownloadTargetUseCaseTest :
             val useCase = useCase(account = account, musicList = listOf(first, second))
 
             When("다운로드 대상을 조회한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-002 목록 순서를 그대로 유지한다") {
+                Then("TC-40d4fb00-94e1-4b9a-b3eb-b9b5c7d5502f 목록 순서를 그대로 유지한다") {
                     useCase(parameter = ListSort.TITLE).shouldBeSuccess() shouldBe
                         listOf(
                             MusicDownloadTarget(id = first.id, videoId = "aaaaaaaaaaa"),
@@ -65,7 +65,7 @@ class ReadMusicDownloadTargetUseCaseTest :
             val useCase = useCase(account = account, musicList = emptyList())
 
             When("다운로드 대상을 조회한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-007 대상이 하나도 없다") {
+                Then("TC-ca78f20e-fcac-4e5f-b643-cda3d2754659 대상이 하나도 없다") {
                     useCase(parameter = ListSort.TITLE).shouldBeSuccess() shouldBe emptyList()
                 }
             }

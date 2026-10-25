@@ -16,6 +16,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
 import java.nio.file.Path
+import kotlin.io.path.copyTo
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
@@ -64,7 +65,7 @@ class DataStoreModuleTest :
             directory.listDirectoryEntries().map { path -> path.name } shouldBe listOf(DataStoreModule.MAP_SETTING_NAME)
         }
 
-        test("TC-SETTING-BROWSER-DATA-001 저장한 적 없는 역할은 비어 있는 설정을 제공한다") {
+        test("TC-ff647b05-ab2d-4a7c-b4e2-1b777b23ff20 저장한 적 없는 역할은 비어 있는 설정을 제공한다") {
             val directory = createTempDirectory("diary-setting")
             val koin = createKoin(directory)
 
@@ -74,6 +75,16 @@ class DataStoreModuleTest :
                 GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = "")
             koin.get<BrowserSettingLocalDataSource>().getChromeSessionProfileDirectory().first() shouldBe ""
             koin.get<MusicDownloadProxySettingLocalDataSource>().getAddress().first() shouldBe ""
+        }
+
+        test("TC-93be946b-b249-4c2a-92b9-09246245e8d1 앱을 다시 시작해도 저장한 기본 지도를 제공한다") {
+            val directory = createTempDirectory("diary-setting")
+            createKoin(directory).get<MapSettingLocalDataSource>().upsertDefaultProvider(provider = MapProviderLocalEntity.GOOGLE)
+            // 앞선 실행의 저장 영역은 닫을 수 없으므로, 저장된 파일을 새 폴더로 옮겨 처음 여는 것처럼 다시 연다.
+            val restartedDirectory = createTempDirectory("diary-setting")
+            directory.resolve(DataStoreModule.MAP_SETTING_NAME).copyTo(restartedDirectory.resolve(DataStoreModule.MAP_SETTING_NAME))
+
+            createKoin(restartedDirectory).get<MapSettingLocalDataSource>().getDefaultProvider().first() shouldBe MapProviderLocalEntity.GOOGLE
         }
     })
 

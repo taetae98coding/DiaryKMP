@@ -56,7 +56,7 @@ class RequestPermissionEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-FEATURE-001 알림 권한이 허용되어 있지 않으면 앱 시작 시 시스템 알림 권한 요청이 시작된다`() {
+    fun `TC-52457bc3-0db7-4a38-a91e-36a1f30c04ee 알림 권한이 허용되어 있지 않으면 앱 시작 시 시스템 알림 권한 요청이 시작된다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
@@ -66,7 +66,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-006 Android에서는 하나의 알림 권한만 요청한다`() {
+    fun `TC-6703da4f-4a5b-46a5-bc63-d134b904063d Android에서는 하나의 알림 권한만 요청한다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
@@ -76,7 +76,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-FEATURE-002 알림 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
+    fun `TC-27aa17da-ca0e-42f2-a4e2-9cf456734c61 알림 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
         val registry = permissionResultRegistry(result = notificationResult(isGranted = true))
         val resultList = mutableListOf<PermissionResult>()
@@ -93,7 +93,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-FEATURE-003 요청을 허용해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+    fun `TC-ebd72f3b-d874-4adc-b6e7-bb5713082f13 요청을 허용해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = true))
         val resultList = mutableListOf<PermissionResult>()
 
@@ -110,7 +110,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-FEATURE-003 요청을 거부해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+    fun `TC-ebd72f3b-d874-4adc-b6e7-bb5713082f13 요청을 거부해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         val resultList = mutableListOf<PermissionResult>()
 
@@ -127,7 +127,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 앱 안에서 다른 화면으로 이동해도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-f2c3b71c-7e46-4194-b289-f0712758f25f 앱 안에서 다른 화면으로 이동해도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         var currentScreen by mutableStateOf(FIRST_SCREEN)
 
@@ -154,7 +154,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-f2c3b71c-7e46-4194-b289-f0712758f25f 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
 
@@ -173,7 +173,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 화면 회전처럼 앱 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-f2c3b71c-7e46-4194-b289-f0712758f25f 화면 회전처럼 앱 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         emulateConfigurationChange { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
@@ -182,7 +182,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-008 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
+    fun `TC-70320a9f-4bc4-49c2-ad69-9577185df2b1 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         emulateProcessRecreation { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
@@ -191,7 +191,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-002 화면이 다시 구성되어도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-15dfd27b-c1a4-4ae9-a4f2-3a58e7166ad9 화면이 다시 구성되어도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         val recomposeCount = mutableIntStateOf(0)
 
@@ -209,7 +209,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-002 다른 화면으로 이동했다가 복귀해도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-15dfd27b-c1a4-4ae9-a4f2-3a58e7166ad9 다른 화면으로 이동했다가 복귀해도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         var isScreenVisible by mutableStateOf(true)
 
@@ -238,7 +238,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-002 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-15dfd27b-c1a4-4ae9-a4f2-3a58e7166ad9 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
 
@@ -257,7 +257,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-002 화면 회전처럼 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
+    fun `TC-15dfd27b-c1a4-4ae9-a4f2-3a58e7166ad9 화면 회전처럼 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         emulateConfigurationChange { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
@@ -266,7 +266,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-014 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
+    fun `TC-308d94f5-4f5d-473d-9103-c57c8077dfba 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         emulateProcessRecreation { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
@@ -275,7 +275,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-007 Android에서는 정확한 위치 사용 권한을 포함해 요청한다`() {
+    fun `TC-6cfbeba4-fa17-4e27-a64d-f2a06f4350f1 Android에서는 정확한 위치 사용 권한을 포함해 요청한다`() {
         val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         setRequestPermissionEffect(permission = Permission.LOCATION, registry = registry)
@@ -300,7 +300,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-DOMAIN-007 Android에서는 기기에 카메라가 없어도 권한 요청이 진행되고 허용하면 허용으로 처리한다`() {
+    fun `TC-ec0e1df7-1dfa-4582-9fec-c4ae5a51dfb4 Android에서는 기기에 카메라가 없어도 권한 요청이 진행되고 허용하면 허용으로 처리한다`() {
         val application = RuntimeEnvironment.getApplication()
         shadowOf(application.packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA_ANY, false)
         application.getSystemService(CameraManager::class.java).cameraIdList.shouldBeEmpty()
@@ -319,7 +319,7 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-010 앱 안에서 요청을 허용하면 응답 직후 바뀐 허용 여부가 반영된다`() {
+    fun `TC-cb36999a-3d83-46f4-a76d-515cbbfe4e4c 앱 안에서 요청을 허용하면 응답 직후 바뀐 허용 여부가 반영된다`() {
         val requestCode = slot<Int>()
         val registry = spyk<ActivityResultRegistry>()
         every { registry.onLaunch(capture(requestCode), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } just runs

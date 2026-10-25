@@ -2,16 +2,11 @@ package io.github.taetae98coding.diary.feature.login.ui.credential
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runInterruptible
-import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
-import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 internal actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
@@ -20,53 +15,30 @@ internal actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager
 
     return remember(clientId, coroutineDispatcher) {
         JvmGoogleCredentialsManager(
-            clientId = clientId,
+            attemptFactory = GoogleAuthorizationCodeAttemptFactory(clientId = clientId),
             coroutineDispatcher = coroutineDispatcher,
         )
     }
 }
 
 private class JvmGoogleCredentialsManager(
-    private val clientId: String,
+    private val attemptFactory: GoogleAuthorizationCodeAttemptFactory,
     private val coroutineDispatcher: CoroutineDispatcher,
-    private val authorizationCodeAttemptFactory: GoogleAuthorizationCodeAttemptFactory =
-        GoogleAuthorizationCodeAttemptFactory(clientId),
 ) : GoogleCredentialsManager {
     // 시스템 브라우저 창이 닫혀도 앱에는 아무 신호가 오지 않는다.
     override val isSignInEndDetectable: Boolean = false
 
-    override suspend fun signIn(): GoogleCredential {
-        val receiver =
-            LocalServerReceiver
-                .Builder()
-                .build()
-
-        return try {
+    override suspend fun signIn(): GoogleCredential =
+        try {
             runInterruptible(coroutineDispatcher) {
-                val redirectUri = receiver.redirectUri
-                val attempt = authorizationCodeAttemptFactory.create(redirectUri = redirectUri)
+                LoopbackRedirectReceiver().use { receiver ->
+                    val attempt = attemptFactory.create(redirectUri = receiver.redirectUri)
 
-                AuthorizationCodeInstalledApp.browse(attempt.authorizationUrl)
-                attempt.credential(code = receiver.waitForCode())
+                    openInSystemBrowser(attempt.authorizationUrl)
+                    attempt.toCredential(parameters = receiver.waitForParameters())
+                }
             }
-        } catch (exception: CancellationException) {
-            throw exception
         } catch (throwable: Throwable) {
-            throw throwable.toGoogleCredentialsException()
-        } finally {
-            // 받는 서버를 멈추며 서버 스레드가 끝나기를 기다리므로, 취소되었더라도 dispatcher에서 끝까지 멈춘다.
-            withContext(NonCancellable + coroutineDispatcher) { receiver.stop() }
+            throw throwable.toGoogleCredentialsFailure()
         }
-    }
-
-    private fun Throwable.toGoogleCredentialsException(): GoogleCredentialsException =
-        if (message?.contains(ACCESS_DENIED_ERROR) == true) {
-            GoogleCredentialsUserCancelException(cause = this)
-        } else {
-            GoogleCredentialsException(cause = this)
-        }
-
-    companion object {
-        private const val ACCESS_DENIED_ERROR = "access_denied"
-    }
 }

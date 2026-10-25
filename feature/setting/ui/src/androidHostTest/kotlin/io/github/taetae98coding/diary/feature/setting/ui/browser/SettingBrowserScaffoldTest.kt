@@ -63,7 +63,7 @@ class SettingBrowserScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-BROWSER-FEATURE-002 한국어 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 제공한다`() {
+    fun `TC-8cdc4635-8aeb-4850-92b0-2cd25261574d 한국어 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 제공한다`() {
         val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""))
 
@@ -75,7 +75,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-002 기본 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 순서대로 제공한다`() {
+    fun `TC-8cdc4635-8aeb-4850-92b0-2cd25261574d 기본 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 순서대로 제공한다`() {
         val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""))
 
@@ -85,7 +85,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-003 저장된 선택만 선택된 상태로 표시한다`() {
+    fun `TC-b5e6028c-3c59-4b4c-9241-37eef4af381b 저장된 선택만 선택된 상태로 표시한다`() {
         val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         val cases =
             mapOf(
@@ -111,7 +111,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-004 항목을 고르면 그 선택을 요청한다`() {
+    fun `TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 항목을 고르면 그 선택을 요청한다`() {
         val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         val eventList = mutableListOf<SettingBrowserScaffoldEvent>()
         setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""), onEvent = eventList::add)
@@ -128,7 +128,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-007 선택을 확인하기 전에는 설정 영역과 진행 표시를 두지 않는다`() {
+    fun `TC-860439ee-3291-4fc1-a90a-643410f83eb2 선택을 확인하기 전에는 설정 영역과 진행 표시를 두지 않는다`() {
         setSettingBrowserScaffold(uiState = SettingBrowserUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_LABEL).assertDoesNotExist()
@@ -138,7 +138,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-008 Chrome 프로필이 없으면 선택 안 함만 선택된 상태로 제공한다`() {
+    fun `TC-9f140b04-1651-4b16-ad33-6b610ec8145e Chrome 프로필이 없으면 선택 안 함만 선택된 상태로 제공한다`() {
         setSettingBrowserScaffold(uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = ""))
 
         composeRule.onNodeWithText(DEFAULT_LABEL).assertExists()
@@ -147,7 +147,7 @@ class SettingBrowserScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-BROWSER-FEATURE-009 프로필 목록을 읽지 못하면 선택 안 함과 조회 실패 안내를 제공한다`() {
+    fun `TC-18b66e7e-ec7e-4da4-b380-31f9b4c9bb60 프로필 목록을 읽지 못하면 선택 안 함과 조회 실패 안내를 제공한다`() {
         val eventList = mutableListOf<SettingBrowserScaffoldEvent>()
         setSettingBrowserScaffold(
             uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
@@ -167,7 +167,7 @@ class SettingBrowserScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-BROWSER-FEATURE-009 한국어 환경에서 조회 실패 안내를 표시한다`() {
+    fun `TC-18b66e7e-ec7e-4da4-b380-31f9b4c9bb60 한국어 환경에서 조회 실패 안내를 표시한다`() {
         setSettingBrowserScaffold(
             uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
         )

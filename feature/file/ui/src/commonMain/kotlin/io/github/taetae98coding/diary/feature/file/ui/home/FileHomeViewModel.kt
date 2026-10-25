@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +24,7 @@ import org.koin.core.annotation.KoinViewModel
 internal class FileHomeViewModel(
     getAccountUseCase: GetAccountUseCase,
     pageFileUseCase: PageFileUseCase,
+    getUpdatedFileUseCase: GetUpdatedFileUseCase,
 ) : ViewModel() {
     private val isAccountChanging = MutableStateFlow(false)
 
@@ -41,9 +44,14 @@ internal class FileHomeViewModel(
         )
 
     val filePagingData: Flow<PagingData<DiaryFile>> =
-        pageFileUseCase(parameter = Unit)
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+        combine(
+            pageFileUseCase(parameter = Unit)
+                .map { result -> result.getOrElse { PagingData.empty() } }
+                .cachedIn(viewModelScope),
+            getUpdatedFileUseCase(parameter = Unit).map { result -> result.getOrNull().orEmpty() },
+        ) { pagingData, updatedFileMap ->
+            pagingData.map { file -> updatedFileMap[file.id] ?: file }
+        }.cachedIn(viewModelScope)
 
     fun startAccountChange() {
         isAccountChanging.value = true

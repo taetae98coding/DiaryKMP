@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
@@ -26,7 +27,7 @@ import kotlin.uuid.Uuid
 
 class TagNavigationTest :
     FunSpec({
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-017 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 TagDetail로 돌아간다") {
+        test("TC-7e9aa6ec-0f1d-4fb3-8a3a-43b9083e1c5d 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 TagDetail로 돌아간다") {
             val tagId = Uuid.random()
             val detailCases =
                 listOf(
@@ -44,7 +45,7 @@ class TagNavigationTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-DOMAIN-001 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
+        test("TC-ddf41b93-c51b-4080-b5ff-7c4ee2c8cf15 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val openCases =
                 listOf(
@@ -68,7 +69,7 @@ class TagNavigationTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
+        test("TC-80dc456e-1256-41b6-9760-5a524c376a51 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
@@ -84,7 +85,7 @@ class TagNavigationTest :
                 )
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-004 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
+        test("TC-8f821eb7-1426-4b14-9dad-5a91c5e51e4f 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack =
@@ -104,7 +105,7 @@ class TagNavigationTest :
                 )
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
+        test("TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val openCases =
                 listOf(
@@ -127,7 +128,7 @@ class TagNavigationTest :
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-007 웹 탭에서 시작한 웹 추가는 대상 태그를 초기 태그로 넘긴다") {
+        test("TC-dc429c83-68b0-4c53-b340-398a98a8f6c3 웹 탭에서 시작한 웹 추가는 대상 태그를 초기 태그로 넘긴다") {
             val tagId = Uuid.random()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
@@ -141,7 +142,7 @@ class TagNavigationTest :
                 )
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-019 목록 모드에서 시작한 장소 추가는 지도 위치를 넘기지 않는다") {
+        test("TC-25b808f4-b089-4a0b-8555-a06a86632ff6 목록 모드에서 시작한 장소 추가는 지도 위치를 넘기지 않는다") {
             val tagId = Uuid.random()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
@@ -153,7 +154,7 @@ class TagNavigationTest :
             key.longitude.shouldBeNull()
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-031 지도 모드에서 시작한 장소 추가는 보고 있던 지도 위치를 넘긴다") {
+        test("TC-9a764db7-36f2-4db2-960c-f503a819a9ab 지도 모드에서 시작한 장소 추가는 보고 있던 지도 위치를 넘긴다") {
             val tagId = Uuid.random()
             val coordinate = Coordinate(latitude = fixtureMonkey.giveMeOne<Double>(), longitude = fixtureMonkey.giveMeOne<Double>())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
@@ -166,7 +167,7 @@ class TagNavigationTest :
             key.longitude shouldBe coordinate.longitude
         }
 
-        test("TC-TAG-DETAIL-FEATURE-054 다른 태그의 상세에서 이동해 온 상세 화면은 뒤로가기 동작을 제공하고 이전 태그의 상세로 돌아간다") {
+        test("TC-dc43207a-95ef-4a7f-9050-1154df3631bc 다른 태그의 상세에서 이동해 온 상세 화면은 뒤로가기 동작을 제공하고 이전 태그의 상세로 돌아간다") {
             val fromKey = TagDetailNavKey(id = Uuid.random())
             val toKey = TagDetailNavKey(id = Uuid.random())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, fromKey, toKey)
@@ -178,7 +179,7 @@ class TagNavigationTest :
             backStack shouldContainExactly listOf(TagHomeNavKey, fromKey)
         }
 
-        test("TC-TAG-DETAIL-FEATURE-055 목록에서 선택해 진입한 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
+        test("TC-233b98e7-1296-4f2e-b4cc-1c058e62c84d 목록에서 선택해 진입한 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
             val selectedId = Uuid.random()
             val pathCases =
                 listOf(
@@ -197,7 +198,7 @@ class TagNavigationTest :
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-056 상세 영역의 태그 추가에서 연 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
+        test("TC-ba4f46a2-2aac-4359-acdd-432e0115760e 상세 영역의 태그 추가에서 연 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
             val linkedKey = TagDetailNavKey(id = Uuid.random())
             val backStack =
                 NavBackStack<ScreenNavKey>(
@@ -210,7 +211,7 @@ class TagNavigationTest :
             backStack.isNavigatedFromTagDetail(linkedKey).shouldBeFalse()
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-017 목록에서 태그를 고르면 상세 영역에 쌓인 화면을 모두 정리하고 뒤로가면 상세를 고르기 전으로 돌아간다") {
+        test("TC-99964339-7621-458b-b2e1-86b115657409 목록에서 태그를 고르면 상세 영역에 쌓인 화면을 모두 정리하고 뒤로가면 상세를 고르기 전으로 돌아간다") {
             val selectedId = Uuid.random()
             val pathCases =
                 listOf(
@@ -233,7 +234,7 @@ class TagNavigationTest :
             }
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-019 태그 상세가 놓인 동안 목록에서 태그 추가를 실행하면 그 위에 태그 추가가 놓이고 뒤로가면 이전 태그 상세로 돌아온다") {
+        test("TC-b4d6b49f-09cd-485f-b1a1-e8f7d0414ded 태그 상세가 놓인 동안 목록에서 태그 추가를 실행하면 그 위에 태그 추가가 놓이고 뒤로가면 이전 태그 상세로 돌아온다") {
             val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, detailKey)
             val detailContentKey = backStack.tagDetailContentKey(detailKey)
@@ -294,6 +295,150 @@ class TagNavigationTest :
 
             backStack.isNavigatedFromTagDetail(detailKey).shouldBeFalse()
             backStack.isNavigatedFromTagDetail(TagDetailNavKey(id = Uuid.random())).shouldBeFalse()
+        }
+
+        test("TC-7b7c652a-0a91-4126-9403-b27bad4b529b 완료된 태그 목록에서 다른 태그를 고르면 상세 영역에 쌓인 화면을 정리하고 교체한다") {
+            val pathCases: List<List<ScreenNavKey>> =
+                listOf(
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>())),
+                )
+
+            pathCases.forEach { pathKeyList ->
+                val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+                val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, *pathKeyList.toTypedArray())
+
+                backStack.navigateToTagDetail(selectedId)
+
+                backStack shouldContainExactly listOf(TagHomeNavKey, TagFinishedListNavKey, TagDetailNavKey(id = selectedId))
+            }
+        }
+
+        test("TC-d5e3c2e4-5f87-4e71-813b-d01eb612c6d3 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 상세만 되돌린다") {
+            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+
+            val selectedBackStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey)
+            selectedBackStack.navigateToTagDetail(listSelectedKey.id)
+            selectedBackStack.removeLastOrNull()
+            selectedBackStack shouldContainExactly listOf(TagHomeNavKey, TagFinishedListNavKey)
+
+            val replacedBackStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
+            replacedBackStack.navigateToTagDetail(fixtureMonkey.giveMeOne<Uuid>())
+            replacedBackStack.removeLastOrNull()
+            replacedBackStack shouldContainExactly listOf(TagHomeNavKey, TagFinishedListNavKey)
+
+            val linkedBackStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, linkedKey)
+            linkedBackStack.isNavigatedFromTagDetail(linkedKey).shouldBeTrue()
+            linkedBackStack.isNavigatedFromTagDetail(listSelectedKey).shouldBeFalse()
+            linkedBackStack.removeLastOrNull()
+            linkedBackStack shouldContainExactly listOf(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
+        }
+
+        test("TC-90667a79-3d71-489a-8368-e0a4363af17e 완료된 태그 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 TagHome 목록으로 돌아간다") {
+            val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val homeBackStackCases: List<List<ScreenNavKey>> = listOf(listOf(TagHomeNavKey), listOf(TagHomeNavKey, homeDetailKey))
+            val finishedListDetailCases: List<List<ScreenNavKey>> =
+                listOf(
+                    emptyList(),
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                )
+
+            homeBackStackCases.forEach { homeBackStack ->
+                finishedListDetailCases.forEach { detailKeyList ->
+                    val backStack = NavBackStack<ScreenNavKey>(*homeBackStack.toTypedArray(), TagFinishedListNavKey, *detailKeyList.toTypedArray())
+
+                    backStack.navigateUpFromTagFinishedList()
+
+                    backStack shouldContainExactly homeBackStack
+                }
+            }
+        }
+
+        test("TC-797e31dd-480d-4f3b-9f10-bdedd53c32fc 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
+            val detailCases: List<List<ScreenNavKey>> =
+                listOf(
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                )
+
+            detailCases.forEach { detailKeyList ->
+                val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, *detailKeyList.toTypedArray())
+
+                backStack.navigateUpFromTagFinishedList()
+                backStack.add(TagFinishedListNavKey)
+
+                backStack shouldContainExactly listOf(TagHomeNavKey, TagFinishedListNavKey)
+            }
+        }
+
+        test("태그 목록과 완료된 태그 목록에서 고른 상세가 전환 이력에 함께 놓여도 서로 다른 화면이다") {
+            val homeSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val finishedSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val nextSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, homeSelectedKey, TagFinishedListNavKey, finishedSelectedKey)
+            val finishedContentKey = backStack.tagDetailContentKey(finishedSelectedKey)
+
+            finishedContentKey shouldNotBe backStack.tagDetailContentKey(homeSelectedKey)
+
+            backStack.navigateToTagDetail(nextSelectedKey.id)
+
+            backStack.tagDetailContentKey(nextSelectedKey) shouldBe finishedContentKey
+        }
+
+        test("TC-b762f570-f656-44f8-be2e-826da6c8718b 상세 영역의 태그 상세는 연결한 태그를 눌러 이어 연 경우에만 뒤로가기 동작을 제공한다") {
+            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val reselectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val cases: List<Triple<List<ScreenNavKey>, TagDetailNavKey, Boolean>> =
+                listOf(
+                    Triple(listOf(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey), listSelectedKey, false),
+                    Triple(listOf(TagHomeNavKey, TagFinishedListNavKey, reselectedKey), reselectedKey, false),
+                    Triple(listOf(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, linkedKey), linkedKey, true),
+                )
+
+            cases.forEach { (backStack, key, isNavigateUpButtonVisible) ->
+                backStack.tagDetailScaffoldComponentVisible(key = key, isListPaneVisible = true).isNavigateUpButtonVisible shouldBe
+                    isNavigateUpButtonVisible
+            }
+        }
+
+        test("TC-62fc4ea3-f7fa-45c9-9f11-d138d4563e88 완료된 태그 목록에 다녀와도 상세 영역과 뒤로가기 기록이 그대로다") {
+            val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val cases: List<Pair<List<ScreenNavKey>, List<ScreenNavKey>>> =
+                listOf(
+                    listOf(homeDetailKey) to emptyList(),
+                    listOf(homeDetailKey, linkedKey) to listOf(homeDetailKey),
+                )
+
+            cases.forEach { (homeDetailList, expectedAfterBack) ->
+                val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, *homeDetailList.toTypedArray())
+                val lastContentKey = backStack.tagDetailContentKey(backStack.last() as TagDetailNavKey)
+
+                backStack.add(TagFinishedListNavKey)
+                backStack.navigateToTagDetail(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.navigateUpFromTagFinishedList()
+
+                backStack shouldContainExactly listOf(TagHomeNavKey) + homeDetailList
+                backStack.tagDetailPaneSceneKey(backStack.last()) shouldBe TagHomeNavKey
+                backStack.tagDetailContentKey(backStack.last() as TagDetailNavKey) shouldBe lastContentKey
+
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(TagHomeNavKey) + expectedAfterBack
+            }
+        }
+
+        test("완료된 태그 목록이 없는 전환 이력에서는 완료된 태그 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, detailKey)
+
+            backStack.navigateUpFromTagFinishedList()
+
+            backStack shouldContainExactly listOf(TagHomeNavKey, detailKey)
         }
 
         test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {

@@ -30,7 +30,7 @@ class WebHomeSortTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-018 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-b6b0f8a7-7834-461a-959e-8ad75a569e11 목록 위에 현재 정렬을 표시한다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -38,7 +38,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-019 정렬 컨트롤을 누르면 고를 수 있는 정렬이 나타난다`() {
+    fun `TC-567b5671-49e9-41d5-90f1-50205937ba4a 정렬 컨트롤을 누르면 고를 수 있는 정렬이 나타난다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
@@ -48,7 +48,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-020 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-8a61efd3-9301-4d73-acd8-5f9ed0bbd4ad 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), onEvent = eventList::add, sortSheetState = sortSheetState)
@@ -61,7 +61,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-021 지금 선택된 정렬을 다시 골라도 선택 목록이 닫힌다`() {
+    fun `TC-66f330bf-440b-4571-aa38-685a4d683fb6 지금 선택된 정렬을 다시 골라도 선택 목록이 닫힌다`() {
         val eventList = mutableListOf<WebHomeScaffoldEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), onEvent = eventList::add, sortSheetState = sortSheetState)
@@ -74,7 +74,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-024 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
+    fun `TC-01faaeae-05d2-4f4b-bd87-dcd0b644b047 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
         setWebHomeScaffold()
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -82,7 +82,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-020 최근 수정순이 선택되면 정렬 컨트롤이 최근 수정순을 알린다`() {
+    fun `TC-8a61efd3-9301-4d73-acd8-5f9ed0bbd4ad 최근 수정순이 선택되면 정렬 컨트롤이 최근 수정순을 알린다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), sort = ListSort.RECENTLY_UPDATED)
 
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()

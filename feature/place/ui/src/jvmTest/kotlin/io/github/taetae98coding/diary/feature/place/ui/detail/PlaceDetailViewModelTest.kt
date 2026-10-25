@@ -57,7 +57,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-001 조회가 완료되지 않으면 조회 중 상태로 둔다") {
+        test("TC-28791156-a7c6-4569-84f7-2a75e081ac10 조회가 완료되지 않으면 조회 중 상태로 둔다") {
             runTest(mainDispatcher) {
                 val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 every { findPlaceUseCase(any<Uuid>()) } returns emptyFlow()
@@ -69,7 +69,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-002 조회에 성공하면 저장된 내용을 표시 상태로 둔다") {
+        test("TC-d076578f-3ad6-4942-939b-c41bf6593430 조회에 성공하면 저장된 내용을 표시 상태로 둔다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val viewModel = viewModel(id = place.id, place = place)
@@ -82,7 +82,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-003 장소를 조회할 수 없으면 조회 중 상태를 유지한다") {
+        test("TC-9b390a59-8cba-4f83-8cbb-5ebb48aa244d 장소를 조회할 수 없으면 조회 중 상태를 유지한다") {
             listOf(
                 Result.failure<Place?>(IllegalStateException("조회에 실패함")),
                 Result.success<Place?>(null),
@@ -99,7 +99,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-006 수정에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-45149e3f-8b71-4217-b619-2517667cd553 수정에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
@@ -119,7 +119,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-006 수정은 대상 장소의 식별자와 입력한 내용으로 요청한다") {
+        test("TC-45149e3f-8b71-4217-b619-2517667cd553 수정은 대상 장소의 식별자와 입력한 내용으로 요청한다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val detail = detail()
@@ -137,7 +137,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-008 수정을 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-e37cd572-e34f-4724-a303-90c86b95b4dd 수정을 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Int>>()
                 val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
@@ -158,7 +158,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-010 좌표가 성립하지 않으면 좌표 오류 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-ef5fe2c4-8682-4d58-ad74-d964c1dba446 좌표가 성립하지 않으면 좌표 오류 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
                 coEvery { updatePlaceUseCase(any()) } returns Result.failure(PlaceCoordinateInvalidException())
@@ -177,7 +177,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-012 삭제에 성공하면 삭제 성공 Effect를 한 번 보낸다") {
+        test("TC-b223dd7a-4b41-4381-8278-095cd1231671 삭제에 성공하면 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -197,7 +197,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-013 삭제를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-71157dfc-746f-4104-9a89-ccc810d4feda 삭제를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Int>>()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
@@ -218,7 +218,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-011 처리 중에는 같은 종류의 요청만 제한한다") {
+        test("TC-a9bc72b2-b4d1-4096-a634-ca567faa533f 처리 중에는 같은 종류의 요청만 제한한다") {
             runTest(mainDispatcher) {
                 val updateCompletion = CompletableDeferred<Result<Int>>()
                 val deleteCompletion = CompletableDeferred<Result<Int>>()
@@ -251,7 +251,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-012 저장된 기본 지도를 초기 지도 제공자로 지정한다") {
+        test("TC-fad5adc8-0ccb-4647-9da9-52e583cf1efd 저장된 기본 지도를 초기 지도 제공자로 지정한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(defaultProvider = provider)
@@ -265,7 +265,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-020 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
+        test("TC-596c6648-c8da-4234-bc45-ba68f29b788c 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
             runTest(mainDispatcher) {
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { defaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException()))
@@ -280,7 +280,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-015 기본 지도가 바뀌면 바뀐 기본 지도를 따라간다") {
+        test("TC-249e3f61-04fd-4c80-9aa1-9e9583f6dbca 기본 지도가 바뀌면 바뀐 기본 지도를 따라간다") {
             runTest(mainDispatcher) {
                 val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
@@ -302,7 +302,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DATA-002 저장된 내용이 바뀌면 표시 상태가 갱신된다") {
+        test("TC-f7f61215-e581-4e0c-af7c-9db899bc4d6d 저장된 내용이 바뀌면 표시 상태가 갱신된다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val updated = place.copy(detail = place.detail.copy(title = "updated-${fixtureMonkey.giveMeOne<String>()}"))
@@ -326,7 +326,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-023 대상 장소가 삭제 상태로 바뀌어도 내용 표시 상태를 유지한다") {
+        test("TC-f2eff612-1a42-4908-b9ed-c73d84faea68 대상 장소가 삭제 상태로 바뀌어도 내용 표시 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val placeFlow = MutableStateFlow(Result.success<Place?>(place))
@@ -348,7 +348,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-020 삭제 상태인 장소로 진입해도 내용 표시 상태가 된다") {
+        test("TC-de319f84-9bf5-4641-a13b-84dab3f382b5 삭제 상태인 장소로 진입해도 내용 표시 상태가 된다") {
             runTest(mainDispatcher) {
                 val place = place().copy(isDeleted = true)
                 val viewModel = viewModel(id = place.id, place = place)
@@ -361,7 +361,7 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-054 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 수정 반영을 다시 실행할 수 있다") {
+        test("TC-9152cbfe-1c9e-426c-adaa-8771b69c773c 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 수정 반영을 다시 실행할 수 있다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val detail = detail()

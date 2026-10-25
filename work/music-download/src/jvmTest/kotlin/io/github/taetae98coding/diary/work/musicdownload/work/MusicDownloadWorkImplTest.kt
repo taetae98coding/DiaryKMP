@@ -27,7 +27,7 @@ class MusicDownloadWorkImplTest :
     BehaviorSpec({
         Given("두 도구가 모두 준비되어 있다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-011 도구를 설치하지 않고 곧바로 받는다") {
+                Then("TC-94f51396-8b75-4981-91bb-74c8964bc026 도구를 설치하지 않고 곧바로 받는다") {
                     val target = testDownloadTarget()
                     val eventHolder = MusicDownloadEventHolder()
                     val downloader = succeedingDownloader()
@@ -39,7 +39,7 @@ class MusicDownloadWorkImplTest :
                     eventHolder.event.test { expectNoEvents() }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-010 실행할 때마다 내려받을 수단이 갖춰져 있는지 다시 확인한다") {
+                Then("TC-5636799b-df77-4583-80d9-9749b8d071e1 실행할 때마다 내려받을 수단이 갖춰져 있는지 다시 확인한다") {
                     val preparer = mockk<DownloadToolPreparer>()
                     coEvery { preparer.prepare() } returns DownloadToolPrepareResult.Prepared
                     val work = work(downloadToolPreparer = preparer)
@@ -54,7 +54,7 @@ class MusicDownloadWorkImplTest :
 
         Given("프록시에 연결된다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-017 알리지 않고 곧바로 그 곡의 영상을 요청하기 시작한다") {
+                Then("TC-845a4309-e3a8-4e34-aa90-04b6bbdf8938 알리지 않고 곧바로 그 곡의 영상을 요청하기 시작한다") {
                     val target = testDownloadTarget()
                     val eventHolder = MusicDownloadEventHolder()
                     val downloader = succeedingDownloader()
@@ -85,7 +85,7 @@ class MusicDownloadWorkImplTest :
                     )
 
                 Then(
-                    "TC-MUSIC-DOWNLOAD-FEATURE-013 TC-MUSIC-DOWNLOAD-FEATURE-014 TC-MUSIC-DOWNLOAD-FEATURE-015 TC-MUSIC-DOWNLOAD-FEATURE-016 " +
+                    "TC-19b5cf96-076b-4cff-a43a-639e4f77fc13 TC-cf6e0f6d-6083-4da0-9415-b30221861ad2 TC-345754f4-8765-4308-bcf4-73a49557bef4 TC-727e36b5-7c5e-481d-a7cc-e52f4e426c55 " +
                         "그 조건을 알리고 어떤 곡도 받지 않는다",
                 ) {
                     caseList.forEach { (result, event) ->
@@ -111,7 +111,7 @@ class MusicDownloadWorkImplTest :
                     }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-011 대상 곡을 조회하지 않는다") {
+                Then("TC-5d679a1b-29d0-4aea-81a7-3b62b591320f 대상 곡을 조회하지 않는다") {
                     caseList.forEach { (result, _) ->
                         val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
                         val work =
@@ -130,7 +130,7 @@ class MusicDownloadWorkImplTest :
 
         Given("받을 수 있는 곡이 목록 순서대로 여러 개 있다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-002 목록 순서대로 한 곡씩 받는다") {
+                Then("TC-40d4fb00-94e1-4b9a-b3eb-b9b5c7d5502f 목록 순서대로 한 곡씩 받는다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val third = testDownloadTarget()
@@ -149,7 +149,7 @@ class MusicDownloadWorkImplTest :
                     targetList shouldContainExactly listOf(first, second, third)
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-001 아직 차례가 오지 않은 곡은 대기 상태가 된다") {
+                Then("TC-d90cea15-1c9b-43a7-91f5-b845a89620b1 아직 차례가 오지 않은 곡은 대기 상태가 된다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
@@ -173,7 +173,7 @@ class MusicDownloadWorkImplTest :
 
         Given("받는 도중인 곡이 있다") {
             When("받은 만큼이 아직 알려지지 않았으면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-018 그 곡은 백분율 없는 진행 중 상태를 갖는다") {
+                Then("TC-334447c1-2d84-467e-97ee-70601bfa2897 그 곡은 백분율 없는 진행 중 상태를 갖는다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var runningSnapshot: MusicDownloadState? = null
@@ -193,7 +193,7 @@ class MusicDownloadWorkImplTest :
             }
 
             When("받은 만큼이 차례로 알려진 뒤 끝나면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-021 백분율을 가진 뒤로는 완료될 때까지 백분율 없는 진행 중이 되지 않는다") {
+                Then("TC-7a9f04af-e028-4df5-bfa0-78386fc4e249 백분율을 가진 뒤로는 완료될 때까지 백분율 없는 진행 중이 되지 않는다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val snapshotList = mutableListOf<MusicDownloadState?>()
@@ -224,7 +224,7 @@ class MusicDownloadWorkImplTest :
             }
 
             When("받은 만큼이 알려지면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 TC-MUSIC-DOWNLOAD-FEATURE-019 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
+                Then("TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 TC-2e0849ff-ecd5-44d3-bdda-886a8b22489f 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var runningSnapshot: MusicDownloadState? = null
@@ -247,7 +247,7 @@ class MusicDownloadWorkImplTest :
 
         Given("받을 수 있는 곡이 있다") {
             When("받기를 마치면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-003 그 곡이 완료 상태가 된다") {
+                Then("TC-5f80d807-b6cc-422c-bd45-219ed3024342 그 곡이 완료 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val work = work(targetList = listOf(target), musicDownloadStateHolder = holder)
@@ -257,7 +257,7 @@ class MusicDownloadWorkImplTest :
                     holder.stateMap.value[target] shouldBe MusicDownloadState.Done
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DATA-001 TC-MUSIC-DOWNLOAD-DATA-008 그 곡의 영상 ID로 구분되는 파일 자리로 내려받기를 맡긴다") {
+                Then("TC-351bd391-fd1c-4206-965f-caa24a67b7f9 TC-f7128f19-0082-40a7-9242-51b66e8623f9 그 곡의 영상 ID로 구분되는 파일 자리로 내려받기를 맡긴다") {
                     val target = testDownloadTarget()
                     val downloader = succeedingDownloader()
                     val fileDataSource = fileDataSource(exists = false)
@@ -278,7 +278,7 @@ class MusicDownloadWorkImplTest :
 
         Given("제목과 가수가 같고 영상이 다른 곡이 두 개 있다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-005 TC-MUSIC-DOWNLOAD-DATA-009 영상마다 다른 이름의 파일에 저장한다") {
+                Then("TC-51c98ee5-77a2-46fa-b689-aa37ab20a493 TC-529a2ebf-c20e-4ea8-9b13-d57d6a44f919 영상마다 다른 이름의 파일에 저장한다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val nameList = mutableListOf<String>()
@@ -303,7 +303,7 @@ class MusicDownloadWorkImplTest :
 
         Given("받아 둔 파일이 있는 곡이 삭제되거나 링크가 바뀐다") {
             When("그 뒤 같은 영상을 가리키는 곡으로 다운로드를 다시 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-012 받아 둔 파일을 지우지 않아 다시 받지 않고 완료가 된다") {
+                Then("TC-5bccb105-ede0-4752-a87f-fc08ffbfd3c2 받아 둔 파일을 지우지 않아 다시 받지 않고 완료가 된다") {
                     val videoId = testVideoId()
                     val downloaded = testDownloadTarget(videoId = videoId)
                     val relinked = testDownloadTarget()
@@ -349,7 +349,7 @@ class MusicDownloadWorkImplTest :
 
         Given("같은 영상을 가리키는 곡이 두 개 있다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-010 내려받기는 한 번만 요청되고 두 곡 모두 완료가 된다") {
+                Then("TC-7269ffb5-acac-4857-b0f2-8ce876158201 내려받기는 한 번만 요청되고 두 곡 모두 완료가 된다") {
                     val videoId = testVideoId()
                     val first = testDownloadTarget(videoId = videoId)
                     val second = testDownloadTarget(videoId = videoId)
@@ -385,7 +385,7 @@ class MusicDownloadWorkImplTest :
 
         Given("이미 받아 둔 파일이 있는 곡이다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-003 받지 않고 곧바로 완료가 된다") {
+                Then("TC-06e85a7a-3a8c-443e-ab49-dcb5eea7c96a 받지 않고 곧바로 완료가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val downloader = succeedingDownloader()
@@ -407,7 +407,7 @@ class MusicDownloadWorkImplTest :
 
         Given("받지 못하는 곡이다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 TC-MUSIC-DOWNLOAD-DATA-011 그 곡이 실패 상태가 된다") {
+                Then("TC-35cb138b-ea34-4376-9835-2ab00cafc3d8 TC-c65829b7-f603-40d1-b897-de7305fa478e 그 곡이 실패 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val work = work(targetList = listOf(target), musicDownloader = failingDownloader(), musicDownloadStateHolder = holder)
@@ -417,7 +417,7 @@ class MusicDownloadWorkImplTest :
                     holder.stateMap.value[target] shouldBe MusicDownloadState.Failed
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 내려받기가 예외로 끝나도 실패 상태가 된다") {
+                Then("TC-35cb138b-ea34-4376-9835-2ab00cafc3d8 내려받기가 예외로 끝나도 실패 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val downloader = mockk<MusicDownloader>()
@@ -431,7 +431,7 @@ class MusicDownloadWorkImplTest :
                     holder.stateMap.value[target] shouldBe MusicDownloadState.Failed
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DATA-006 받다 만 파일을 지운다") {
+                Then("TC-fb645f71-3566-4b33-ba55-307a8865ce79 받다 만 파일을 지운다") {
                     val target = testDownloadTarget()
                     val fileDataSource = fileDataSource(exists = false)
                     val work =
@@ -450,7 +450,7 @@ class MusicDownloadWorkImplTest :
 
         Given("첫 곡만 받지 못하는 곡 목록이다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-005 나머지 곡을 계속 받는다") {
+                Then("TC-7c238724-e5ce-4219-98a8-899edbbeba65 나머지 곡을 계속 받는다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val third = testDownloadTarget()
@@ -478,7 +478,7 @@ class MusicDownloadWorkImplTest :
 
         Given("다운로드를 한 번 실행해 한 곡은 완료되고 다른 한 곡은 실패했다") {
             When("두 곡 모두 성공하도록 설정하고 다운로드를 한 번 더 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-005 이전에 실패한 곡만 다시 받아 완료가 되고 완료된 곡은 내려받지 않은 채 완료로 남는다") {
+                Then("TC-fc61f779-40ea-47e7-b171-6f9aeb10d446 이전에 실패한 곡만 다시 받아 완료가 되고 완료된 곡은 내려받지 않은 채 완료로 남는다") {
                     val done = testDownloadTarget()
                     val failed = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
@@ -528,7 +528,7 @@ class MusicDownloadWorkImplTest :
 
         Given("다운로드를 한 번 실행해 목록 순서대로 있는 두 곡이 모두 실패했다") {
             When("첫째 곡이 진행 중인 채로 다운로드를 한 번 더 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-013 첫째 곡은 진행 중이 되고 둘째 곡은 대기로 바뀌지 않고 실패로 남는다") {
+                Then("TC-49a661c6-01ac-46e2-9d6c-fecb7ce79a06 첫째 곡은 진행 중이 되고 둘째 곡은 대기로 바뀌지 않고 실패로 남는다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
@@ -556,7 +556,7 @@ class MusicDownloadWorkImplTest :
 
         Given("다운로드를 한 번 실행해 실패한 곡의 파일이 그 뒤 앱 전용 보관 공간에 생겼다") {
             When("다운로드를 한 번 더 실행해 그 곡의 차례가 되면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-019 내려받기를 다시 시작하지 않고 곧바로 완료가 된다") {
+                Then("TC-008503bb-52ba-4dae-8850-20ed4c3d3e9b 내려받기를 다시 시작하지 않고 곧바로 완료가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var isFileExisting = false
@@ -586,7 +586,7 @@ class MusicDownloadWorkImplTest :
 
         Given("앱을 새로 시작했고 두 곡 중 한 곡의 파일만 앱 전용 보관 공간에 있다") {
             When("다운로드를 실행하기 전에 곡의 다운로드 상태를 확인하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-008 파일이 있는 곡을 포함해 두 곡 모두 어떤 상태도 갖지 않는다") {
+                Then("TC-f27321a1-251d-4fec-b865-9305b5c8bcec 파일이 있는 곡을 포함해 두 곡 모두 어떤 상태도 갖지 않는다") {
                     val downloaded = testDownloadTarget()
                     val notDownloaded = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
@@ -607,7 +607,7 @@ class MusicDownloadWorkImplTest :
 
         Given("다운로드를 실행한 뒤 새 곡이 저장된다") {
             When("진행 중인 다운로드가 이어지면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-006 새 곡은 진행 중인 다운로드에 끼어들지 않는다") {
+                Then("TC-008c103b-012b-42c5-8857-a3983c115555 새 곡은 진행 중인 다운로드에 끼어들지 않는다") {
                     val target = testDownloadTarget()
                     val added = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
@@ -637,7 +637,7 @@ class MusicDownloadWorkImplTest :
 
         Given("노출되는 곡이 하나도 없다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-007 아무것도 받지 않고 끝난다") {
+                Then("TC-ca78f20e-fcac-4e5f-b643-cda3d2754659 아무것도 받지 않고 끝난다") {
                     val holder = MusicDownloadStateHolder()
                     val downloader = succeedingDownloader()
                     val work = work(targetList = emptyList(), musicDownloader = downloader, musicDownloadStateHolder = holder)
@@ -652,7 +652,7 @@ class MusicDownloadWorkImplTest :
 
         Given("다운로드가 끝난 곡이 있다") {
             When("다운로드가 완료되면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-007 곡을 업로드 대기 상태로 만들지 않는다") {
+                Then("TC-36f676c6-6d98-42e6-88db-1ca91444a5d1 곡을 업로드 대기 상태로 만들지 않는다") {
                     val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
                     coEvery { readMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(listOf(testDownloadTarget()))
                     val work = work(readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase)

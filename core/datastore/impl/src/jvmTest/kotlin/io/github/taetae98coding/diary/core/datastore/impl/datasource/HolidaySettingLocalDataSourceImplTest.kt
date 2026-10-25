@@ -167,7 +167,7 @@ class HolidaySettingLocalDataSourceImplTest :
             coVerify(exactly = 1) { dataStore.updateData(any()) }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-012 제출한 숨긴 key 집합이 같으면 기존 설정 인스턴스를 유지하고 새 값을 제공하지 않는다") {
+        test("TC-888c0674-4f32-4c31-bb59-4c5e3ee1ca56 제출한 숨긴 key 집합이 같으면 기존 설정 인스턴스를 유지하고 새 값을 제공하지 않는다") {
             val initialSetting =
                 HolidaySettingData(
                     hiddenKeySet =
@@ -255,13 +255,13 @@ class HolidaySettingLocalDataSourceImplTest :
             actual shouldBeSameInstanceAs failure
             coVerify(exactly = 1) { dataStore.updateData(any()) }
         }
-        test("TC-HOLIDAY-COUNTRY-DOMAIN-001 국가 설정을 보관한 것이 없으면 기기값만 제공한다") {
+        test("TC-cd205cd1-fae2-4c27-8565-fb3a889c32df 국가 설정을 보관한 것이 없으면 기기값만 제공한다") {
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(HolidaySettingData())))
 
             dataSource.getCountryOptionSet().first() shouldBe setOf(HolidayCountryOptionLocalEntity.DEVICE)
         }
 
-        test("TC-HOLIDAY-COUNTRY-DATA-001 선택지 하나를 바꾸면 그 선택지만 바뀌어 저장된다") {
+        test("TC-30244e86-4f5d-431c-80d3-11ed649a4c1b 선택지 하나를 바꾸면 그 선택지만 바뀌어 저장된다") {
             val caseList =
                 listOf(
                     Triple(setOf(DEVICE), KOREA to true, setOf(DEVICE, KOREA)),
@@ -284,7 +284,7 @@ class HolidaySettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-HOLIDAY-COUNTRY-DATA-002 모든 선택지를 해제한 상태도 그대로 저장된다") {
+        test("TC-5ee6a9fb-b7ed-4f21-88ed-c5a86e852215 모든 선택지를 해제한 상태도 그대로 저장된다") {
             val settingFlow = MutableStateFlow(HolidaySettingData())
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 
@@ -294,7 +294,7 @@ class HolidaySettingLocalDataSourceImplTest :
             dataSource.getCountryOptionSet().first() shouldBe emptySet()
         }
 
-        test("TC-HOLIDAY-COUNTRY-DATA-003 조회 중에 국가 설정이 바뀌면 이어서 새 결과를 제공한다") {
+        test("TC-404a8641-a0d5-463b-bc42-537e012fe935 조회 중에 국가 설정이 바뀌면 이어서 새 결과를 제공한다") {
             val settingFlow = MutableStateFlow(HolidaySettingData())
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 
@@ -308,7 +308,7 @@ class HolidaySettingLocalDataSourceImplTest :
             }
         }
 
-        test("TC-HOLIDAY-COUNTRY-DATA-004 국가 설정을 바꿔도 공휴일 노출 설정은 바뀌지 않는다") {
+        test("TC-7ce30960-3fc4-4288-8e02-5d517e5f78a3 국가 설정을 바꿔도 공휴일 노출 설정은 바뀌지 않는다") {
             val settingFlow = MutableStateFlow(HolidaySettingData(hiddenKeySet = setOf(MIDSUMMER_DAY_KEY)))
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 

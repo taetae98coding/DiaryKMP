@@ -41,3 +41,8 @@ kotlin {
         }
     }
 }
+
+ksp {
+    // Room이 생성하는 스키마 검증 함수가 suspend 상태 기계로 커져 JVM 메서드 크기 한도(64KB)를 넘으므로, 기본값 300보다 잘게 나눈다.
+    arg("room.validationSplitSize", "100")
+}

@@ -11,21 +11,21 @@ import kotlinx.coroutines.flow.first
 
 class JvmPermissionManagerTest :
     FunSpec({
-        test("TC-NOTIFICATION-PERMISSION-DOMAIN-001 알림 권한 요청을 제공하지 않는 환경에서는 요청 없이 거부로 처리한다") {
+        test("TC-c4341376-36ba-41fd-b1f6-10b5cb6737e0 알림 권한 요청을 제공하지 않는 환경에서는 요청 없이 거부로 처리한다") {
             val cameraAuthorization = cameraAuthorization(status = AVAuthorizationStatus.NOT_DETERMINED, response = true)
 
             JvmPermissionManager(cameraAuthorization = cameraAuthorization).request(Permission.NOTIFICATION) shouldBe PermissionResult.DENIED
             coVerify(exactly = 0) { cameraAuthorization.requestAccess() }
         }
 
-        test("TC-LOCATION-PERMISSION-DOMAIN-001 위치 권한 요청을 제공하지 않는 환경에서는 요청 없이 거부로 처리한다") {
+        test("TC-8c352399-09e7-4690-85a7-12041bd72814 위치 권한 요청을 제공하지 않는 환경에서는 요청 없이 거부로 처리한다") {
             val cameraAuthorization = cameraAuthorization(status = AVAuthorizationStatus.NOT_DETERMINED, response = true)
 
             JvmPermissionManager(cameraAuthorization = cameraAuthorization).request(Permission.LOCATION) shouldBe PermissionResult.DENIED
             coVerify(exactly = 0) { cameraAuthorization.requestAccess() }
         }
 
-        test("TC-CAMERA-PERMISSION-DOMAIN-005 데스크톱 앱에서도 시스템 카메라 권한 요청을 시작한다") {
+        test("TC-2edf6fab-33c8-4991-979c-bd44c0645879 데스크톱 앱에서도 시스템 카메라 권한 요청을 시작한다") {
             listOf(
                 CameraRequestCase(status = AVAuthorizationStatus.AUTHORIZED, response = null, expectedRequestCount = 0, expectedResult = PermissionResult.ALREADY_GRANTED),
                 CameraRequestCase(status = AVAuthorizationStatus.NOT_DETERMINED, response = true, expectedRequestCount = 1, expectedResult = PermissionResult.GRANTED),
@@ -67,7 +67,7 @@ class JvmPermissionManagerTest :
             }
         }
 
-        test("TC-LOCATION-PERMISSION-DOMAIN-011 권한 개념이 없는 환경에서는 허용 여부가 허용되지 않음이다") {
+        test("TC-74b3cead-8fb5-459a-925d-3cdfaa5c0ef1 권한 개념이 없는 환경에서는 허용 여부가 허용되지 않음이다") {
             val permissionManager = JvmPermissionManager(cameraAuthorization = cameraAuthorization(status = AVAuthorizationStatus.AUTHORIZED, response = null))
 
             listOf(Permission.NOTIFICATION, Permission.LOCATION).forEach { permission ->

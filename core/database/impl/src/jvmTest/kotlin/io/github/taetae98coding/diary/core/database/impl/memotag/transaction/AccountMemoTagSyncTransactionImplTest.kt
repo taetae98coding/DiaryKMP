@@ -82,7 +82,7 @@ class AccountMemoTagSyncTransactionImplTest :
                 .readPendingList(accountId = accountId)
                 .any { pending -> pending.memoId == memoTag.memoId && pending.tagId == memoTag.tagId }
 
-        test("TC-MEMO-TAG-DATA-006 해제된 연결도 업로드 대상에서 빠지지 않고 현재 계정의 업로드 대기 관계만 조회한다") {
+        test("TC-9db5005d-255a-4671-8188-8b9726fa69e9 해제된 연결도 업로드 대상에서 빠지지 않고 현재 계정의 업로드 대기 관계만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPending = memoTag()
@@ -99,7 +99,7 @@ class AccountMemoTagSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 메모와 태그의 연결은 포함되지 않는다") {
+        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 메모와 태그의 연결은 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val guestEntity = memoTag()
             val accountEntity = memoTag()
@@ -109,7 +109,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memoTag = memoTag()
             insertWithSyncState(accountId, memoTag, isDirty = true)
@@ -119,7 +119,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 관계는 업로드 대기로 남는다") {
+        test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 관계는 업로드 대기로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pushed = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changed = pushed.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
@@ -143,7 +143,7 @@ class AccountMemoTagSyncTransactionImplTest :
             isPending(memoTag, otherAccountId) shouldBe true
         }
 
-        test("TC-DATA-SYNC-DATA-016 TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용하고 저장이 끝나면 커서가 기록된다") {
+        test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 기록된 순번이 없으면 기본 커서를 사용하고 저장이 끝나면 커서가 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 0L
@@ -158,7 +158,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 11L
         }
 
-        test("TC-DATA-SYNC-DATA-028 메모 커서와 태그 커서는 관계 커서와 따로 기록된다") {
+        test("TC-5dd13cc9-5011-41cf-bfae-1314fe0084b6 메모 커서와 태그 커서는 관계 커서와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             transaction.upsert(accountId = accountId, memoTagList = listOf(memoTag()), cursor = 7L)
@@ -172,7 +172,7 @@ class AccountMemoTagSyncTransactionImplTest :
             "늦음" to Instant.fromEpochMilliseconds(2_000),
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
-            test("TC-DATA-SYNC-DATA-022 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
+            test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val local = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = remoteUpdatedAt)
@@ -184,7 +184,7 @@ class AccountMemoTagSyncTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-023 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
+        test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val local = memoTag(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(1_000))
@@ -196,7 +196,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 5L
         }
 
-        test("TC-DATA-SYNC-DATA-025 기기에 없던 관계는 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 관계는 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = memoTag()
 
@@ -206,7 +206,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-DATA-007 서버 수정 시각이 기기보다 늦은 연결은 응답대로 저장되고 내려받기 위치가 갱신된다") {
+        test("TC-3d79bf70-8d60-4e57-bbfa-5b2a3d54d5ef 서버 수정 시각이 기기보다 늦은 연결은 응답대로 저장되고 내려받기 위치가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val local = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(2_000))
@@ -218,7 +218,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 8L
         }
 
-        test("TC-DATA-SYNC-DATA-024 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
+        test("TC-84a29c64-490b-482a-acab-32fae5dbba26 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val pending = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val synced = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
@@ -254,7 +254,7 @@ class AccountMemoTagSyncTransactionImplTest :
             findMemoTag(memoId = memoId, tagId = remoteOfNew.tagId) shouldBe remoteOfNew
         }
 
-        test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 관계와 커서가 모두 반영되지 않는다") {
+        test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 관계와 커서가 모두 반영되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = memoTag()
             val failingDatabase = spyk(database)

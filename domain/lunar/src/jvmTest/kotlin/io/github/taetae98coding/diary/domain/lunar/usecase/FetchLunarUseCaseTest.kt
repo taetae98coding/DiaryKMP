@@ -39,7 +39,7 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-LUNAR-FETCH-DOMAIN-004 동기화한 음력 날짜를 성공 결과로 반환하고 요청한 연도를 전달한다") {
+                Then("TC-e6f699a2-bd9c-4a3a-9d54-dccbcb829194 동기화한 음력 날짜를 성공 결과로 반환하고 요청한 연도를 전달한다") {
                     result.shouldBeSuccess() shouldBe lunarDateList
                     coVerify(exactly = 1) { repository.fetch(year = year) }
                 }
@@ -57,14 +57,14 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-LUNAR-FETCH-DOMAIN-001 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-c41ea30b-6edc-478b-b8b3-f85b335e61fe TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure
                     report.message shouldContain "FetchLunarUseCase"
                 }
 
-                Then("TC-LUNAR-FETCH-DOMAIN-003 실패 결과로 끝나 제공하지 않는 연도와 구분된다") {
+                Then("TC-16f767f7-bf9a-4111-ba16-fb3e808cd5b5 실패 결과로 끝나 제공하지 않는 연도와 구분된다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
                 }
             }
@@ -80,7 +80,7 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 useCase(parameter = year)
 
-                Then("TC-LUNAR-FETCH-DOMAIN-002 오류 보고가 남지 않는다") {
+                Then("TC-2fbda8e9-2020-4454-a510-e4e54d2711c1 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }
@@ -96,7 +96,7 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-LUNAR-FETCH-DOMAIN-003 빈 음력 날짜로 성공하고 오류 보고는 남지 않는다") {
+                Then("TC-16f767f7-bf9a-4111-ba16-fb3e808cd5b5 빈 음력 날짜로 성공하고 오류 보고는 남지 않는다") {
                     result.shouldBeSuccess().shouldBeEmpty()
                     reportList.shouldBeEmpty()
                 }

@@ -27,7 +27,7 @@ class EntityTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-001 연결한 태그를 이모지와 제목으로 표시한다`() {
+    fun `TC-c09be7d4-3af3-4051-87bb-174993f50a8a 연결한 태그를 이모지와 제목으로 표시한다`() {
         val emojiTag = entityTestTag(title = WORK_TAG_TITLE, emoji = EMOJI)
         val noEmojiTag = entityTestTag(title = EXERCISE_TAG_TITLE)
 
@@ -38,7 +38,7 @@ class EntityTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-002 연결한 태그의 이모지나 제목이 바뀌면 칩에 반영된다`() {
+    fun `TC-f88d22fe-9fa8-4f8f-ab2a-6c7ae9b78570 연결한 태그의 이모지나 제목이 바뀌면 칩에 반영된다`() {
         val tag = entityTestTag(title = WORK_TAG_TITLE)
         val setTagList = composeRule.setEntityTagInputWithTagList()
         setTagList(listOf(tag))
@@ -71,14 +71,14 @@ class EntityTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-003 연결한 태그가 없어도 태그 추가 칩을 표시한다`() {
+    fun `TC-eed4dc91-aa36-4e52-af7e-978e4cf03829 연결한 태그가 없어도 태그 추가 칩을 표시한다`() {
         composeRule.setEntityTagInput()
 
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-003 연결한 태그가 여러 개여도 태그 추가 칩을 표시한다`() {
+    fun `TC-eed4dc91-aa36-4e52-af7e-978e4cf03829 연결한 태그가 여러 개여도 태그 추가 칩을 표시한다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
 
         composeRule.setEntityTagInput(uiState = EntityTagInputUiState(tagList = tagList))
@@ -89,7 +89,7 @@ class EntityTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-011 태그 칩을 누르면 그 태그의 상세 이동을 요청한다`() {
+    fun `TC-a6d82ee9-0beb-451b-b836-c853eae32048 태그 칩을 누르면 그 태그의 상세 이동을 요청한다`() {
         val tag = entityTestTag(title = WORK_TAG_TITLE)
         val clickedIdList = mutableListOf<Uuid>()
         composeRule.setEntityTagInput(
@@ -103,7 +103,7 @@ class EntityTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-012 태그 칩을 눌러도 태그 추가 칩의 동작이 실행되지 않는다`() {
+    fun `TC-4c35f301-2b91-4113-b04a-7153fdffc2ef 태그 칩을 눌러도 태그 추가 칩의 동작이 실행되지 않는다`() {
         val tag = entityTestTag(title = WORK_TAG_TITLE)
         var addClickCount = 0
         composeRule.setEntityTagInput(

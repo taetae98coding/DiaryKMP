@@ -5,9 +5,9 @@ kotlinxBrowser = "0.5.0" # https://github.com/Kotlin/kotlinx-browser
 kotlinxCoroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
 kotlinxDatetime = "0.8.0" # https://github.com/Kotlin/kotlinx-datetime/releases
 kotlinxIo = "0.9.1" # https://github.com/Kotlin/kotlinx-io/releases
-kotlinxSerialization = "1.11.0" # https://github.com/Kotlin/kotlinx.serialization/releases
+kotlinxSerialization = "1.12.0" # https://github.com/Kotlin/kotlinx.serialization/releases
 
-jetbrainsCompose = "1.12.1" # https://github.com/JetBrains/compose-multiplatform/releases
+jetbrainsCompose = "1.12.2" # https://github.com/JetBrains/compose-multiplatform/releases
 jetbrainsComposeMaterial3 = "1.12.0-alpha03"
 jetbrainsComposeMaterial3Adaptive = "1.3.0"
 jetbrainsLifecycle = "2.11.0"
@@ -19,10 +19,10 @@ androidGradlePlugin = "9.4.1" # https://developer.android.com/build/releases/gra
 
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
 androidxBrowser = "1.10.0" # https://developer.android.com/jetpack/androidx/releases/browser?hl=en
-androidxCamera = "1.6.2" # https://developer.android.com/jetpack/androidx/releases/camera?hl=en
+androidxCamerax = "1.6.2" # https://developer.android.com/jetpack/androidx/releases/camera?hl=en
 androidxComposeUi = "1.12.1" # https://developer.android.com/jetpack/androidx/releases/compose-ui?hl=en
 androidxCredentials = "1.6.0" # https://developer.android.com/jetpack/androidx/releases/credentials?hl=en
-androidxDatastore = "1.3.0-rc01" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
+androidxDatastore = "1.3.0" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
 androidxLifecycle = "2.11.0" # https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=en
 androidxNavigation3 = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/navigation3?hl=en
 androidxPaging = "3.5.3" # https://developer.android.com/jetpack/androidx/releases/paging?hl=en
@@ -35,8 +35,8 @@ buildKonfig = "0.23.0" # https://github.com/yshrsmz/BuildKonfig/releases
 coil = "3.6.3" # https://github.com/coil-kt/coil/releases
 dependencyGuard = "0.5.0" # https://github.com/dropbox/dependency-guard/releases
 detekt = "2.0.0-alpha.6" # https://github.com/detekt/detekt/releases
-firebase = "35.0.0" # https://firebase.google.com/support/release-notes/android
-firebaseIos = "12.19.2" # https://github.com/firebase/firebase-ios-sdk/releases
+firebase = "35.1.0" # https://firebase.google.com/support/release-notes/android
+firebaseIos = "12.19.3" # https://github.com/firebase/firebase-ios-sdk/releases
 firebaseCrashlyticsGradlePlugin = "3.0.8"
 firebasePerformanceGradlePlugin = "2.0.2"
 fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
@@ -45,18 +45,17 @@ googleLocation = "21.4.0" # https://developers.google.com/android/guides/release
 googleMap = "9.0.1" # https://github.com/googlemaps/android-maps-compose/releases
 googleMlkitBarcodeScanning = "17.3.0" # https://developers.google.com/ml-kit/release-notes
 googleMaterial = "1.14.0" # https://github.com/material-components/material-components-android/releases
-googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
-googlePlayIntegrity = "1.6.0" # https://developer.android.com/google/play/integrity/reference/release-notes
+googlePlayIntegrity = "1.6.0" # https://developer.android.com/google/play/integrity/reference/com/google/android/play/core/release-notes
 googleServicesGradlePlugin = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin?hl=en
-jsqr = "1.4.0" # https://github.com/cozmo/jsQR/releases
+jsqr = "1.4.0" # https://github.com/cozmo/jsQR
 koin = "4.2.2" # https://github.com/InsertKoinIO/koin/releases
 koinCompiler = "1.2.1" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
-kotest = "6.2.5" # https://github.com/kotest/kotest/releases
+kotest = "6.2.6" # https://github.com/kotest/kotest/releases
 kotlinCryptoHash = "0.8.0" # https://github.com/KotlinCrypto/hash/releases
 ksp = "2.3.12" # https://github.com/google/ksp/releases
-markdownRenderer = "0.45.0" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
+markdownRenderer = "0.46.0" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
 mockk = "1.14.11" # https://github.com/mockk/mockk/releases
-naverMap = "3.24.0" # https://github.com/navermaps/android-map-sdk
+naverMap = "3.24.0" # https://github.com/navermaps/android-map-sdk/blob/master/CHANGELOG.md
 qrose = "1.3.1" # https://github.com/alexzhirkevich/qrose/releases
 robolectric = "4.17" # https://github.com/robolectric/robolectric/releases
 spotless = "8.10.4" # https://github.com/diffplug/spotless/releases
@@ -89,9 +88,9 @@ jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:naviga
 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
-androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidxCamera" }
-androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version.ref = "androidxCamera" }
-androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidxCamera" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidxCamerax" }
+androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version.ref = "androidxCamerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidxCamerax" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxComposeUi" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidxCredentials" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }
@@ -139,7 +138,6 @@ google-identity-googleid = { group = "com.google.android.libraries.identity.goog
 google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMap" }
 google-mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "googleMlkitBarcodeScanning" }
 google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
-google-oauth-client-jetty = { group = "com.google.oauth-client", name = "google-oauth-client-jetty", version.ref = "googleOauthClient" }
 google-play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "googlePlayIntegrity" }
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googleLocation" }
 

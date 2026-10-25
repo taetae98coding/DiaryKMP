@@ -24,4 +24,17 @@
     <string name="file_add_file_not_selected_message">Please choose a file.</string>
     <string name="file_add_file_unreadable_message">Couldn't read the file.</string>
     <string name="file_add_upload_succeeded_message">File uploaded.</string>
+    <string name="file_detail_download_button_content_description">Download</string>
+    <string name="file_detail_update_button_content_description">Update file</string>
+    <string name="file_detail_name_label">File name</string>
+    <string name="file_detail_load_failed_message">Couldn't load the file</string>
+    <string name="file_detail_loading_content_description">Loading file</string>
+    <string name="file_detail_name_blank_message">Please enter a file name.</string>
+    <string name="file_detail_name_too_long_message">File names can be up to 255 characters.</string>
+    <string name="file_detail_update_succeeded_message">File updated.</string>
+    <string name="file_detail_update_failed_message">Couldn't update the file.</string>
+    <string name="file_detail_download_succeeded_message">Downloaded: %1$s</string>
+    <string name="file_detail_download_directory_unavailable_message">Couldn't save to the download location. Check it in Settings.</string>
+    <string name="file_detail_download_failed_message">Couldn't download the file.</string>
+    <string name="file_detail_supporting_detail_format">%1$s · %2$s %3$s</string>
 </resources>

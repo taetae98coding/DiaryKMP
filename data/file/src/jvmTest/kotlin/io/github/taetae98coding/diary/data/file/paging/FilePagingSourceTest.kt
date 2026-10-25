@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -33,7 +34,7 @@ class FilePagingSourceTest :
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } returns secondPage
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
             val append = pager.append().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()
@@ -42,7 +43,7 @@ class FilePagingSourceTest :
             coVerify(exactly = 1) { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) }
         }
 
-        test("TC-FILE-STORAGE-DATA-003 돌려받은 파일이 20개면 이어서 요청하고 20개보다 적으면 더 요청하지 않는다") {
+        test("TC-8c18f957-6169-46d5-bb40-3829e210b08f 돌려받은 파일이 20개면 이어서 요청하고 20개보다 적으면 더 요청하지 않는다") {
             mapOf(
                 PAGE_SIZE to true,
                 PAGE_SIZE - 1 to false,
@@ -52,7 +53,7 @@ class FilePagingSourceTest :
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
                 coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = PAGE_SIZE) } returns emptyList()
-                val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+                val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
                 val refresh = pager.refresh().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()
                 pager.append()
@@ -67,12 +68,12 @@ class FilePagingSourceTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-004 이어서 불러오기에 실패해도 이미 불러온 파일은 남고 스스로 다시 요청하지 않는다") {
+        test("TC-63046bc0-52f0-4bd1-96ee-ce560fa074cf 이어서 불러오기에 실패해도 이미 불러온 파일은 남고 스스로 다시 요청하지 않는다") {
             val firstPage = List(PAGE_SIZE) { remoteFile() }
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } throws IllegalStateException("fetch")
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
             pager.append().shouldBeInstanceOf<PagingSource.LoadResult.Error<FileCursorRemoteEntity, *>>()
@@ -84,12 +85,12 @@ class FilePagingSourceTest :
         test("다시 불러오면 보던 자리와 관계없이 처음부터 불러온다") {
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns List(PAGE_SIZE) { remoteFile() }
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
 
             pager.getLastLoadedPage().shouldBeInstanceOf<PagingSource.LoadResult.Page<*, *>>()
-            FilePagingSource(fileRemoteDataSource = fileRemoteDataSource).getRefreshKey(state = pager.getPagingState(anchorPosition = PAGE_SIZE - 1)).shouldBeNull()
+            FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()).getRefreshKey(state = pager.getPagingState(anchorPosition = PAGE_SIZE - 1)).shouldBeNull()
         }
     }) {
     public companion object {

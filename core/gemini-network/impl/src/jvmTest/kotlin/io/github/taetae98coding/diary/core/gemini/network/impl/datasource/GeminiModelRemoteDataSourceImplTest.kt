@@ -42,7 +42,7 @@ import kotlin.uuid.Uuid
 
 class GeminiModelRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-GEMINI-MODEL-LIST-DOMAIN-001: 조회는 최대 개수인 1000개를 요청한다") {
+        test("TC-412278da-bcc1-4b72-96cb-742895a3aca1: 조회는 최대 개수인 1000개를 요청한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
@@ -55,7 +55,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 .parameters["pageSize"] shouldBe "1000"
         }
 
-        test("TC-GEMINI-MODEL-LIST-DOMAIN-002: 내용 생성에 쓸 수 있는 모델만 결과에 포함한다") {
+        test("TC-f818e1e6-d876-497c-9979-4f3afa182843: 내용 생성에 쓸 수 있는 모델만 결과에 포함한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val generateOnly = modelName()
             val generateAndCount = modelName()
@@ -74,7 +74,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 listOf(generateOnly, generateAndCount)
         }
 
-        test("TC-GEMINI-MODEL-LIST-DOMAIN-003: 받은 순서를 그대로 유지한다") {
+        test("TC-d663817b-9698-4ecf-82b0-8c82d5a750f3: 받은 순서를 그대로 유지한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val order = List(3) { modelName() }
             val content = listModelsResponse(*order.map { name -> model(name = name) }.toTypedArray())
@@ -90,7 +90,23 @@ class GeminiModelRemoteDataSourceImplTest :
             parameters.names() shouldBe setOf("pageSize")
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-001: 인증 정보를 담아 조회한다") {
+        test("TC-211ae1fb-8290-4e06-a1ca-5b8f35ee50f1: 다음 결과가 남아 있다고 알려 와도 이어서 받지 않는다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val name = modelName()
+            val content =
+                buildJsonObject {
+                    putJsonArray("models") { add(model(name = name)) }
+                    put("nextPageToken", "nextPageToken${fixtureMonkey.giveMeOne<Uuid>()}")
+                }.toString()
+            val engine = createEngine(content = content)
+            val dataSource = createDataSource(engine)
+
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(name)
+
+            engine.requestHistory.size shouldBe 1
+        }
+
+        test("TC-aa003166-63bd-4035-a7ad-ebd30f51f83a: 인증 정보를 담아 조회한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
@@ -103,7 +119,7 @@ class GeminiModelRemoteDataSourceImplTest :
             request.headers["x-goog-api-key"] shouldBe apiKey
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-002: 성공 응답의 모델 정보를 그대로 전달한다") {
+        test("TC-0f8409dd-24ce-4374-b402-7f86d29d4f0c: 성공 응답의 모델 정보를 그대로 전달한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val expected =
                 List(2) {
@@ -120,7 +136,7 @@ class GeminiModelRemoteDataSourceImplTest :
             actual.map { model -> Triple(model.id, model.displayName, model.description) } shouldContainExactly expected
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-003: 설명이 없는 모델도 전달한다") {
+        test("TC-c3829ff3-9290-4b6b-89f1-53b81d343d87: 설명이 없는 모델도 전달한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val name = modelName()
             val displayName = "Gemini ${fixtureMonkey.giveMeOne<Uuid>()}"
@@ -141,7 +157,7 @@ class GeminiModelRemoteDataSourceImplTest :
             actual.description shouldBe ""
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-004: 기준에 맞는 모델이 없으면 빈 목록을 성공으로 전달한다") {
+        test("TC-15f7886d-ad40-4789-b8d8-83e02bfd6897: 기준에 맞는 모델이 없으면 빈 목록을 성공으로 전달한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val contents =
                 listOf(
@@ -156,7 +172,7 @@ class GeminiModelRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-005: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
+        test("TC-dea588b7-4afa-480c-83dc-5124ef512c60: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             listOf(
                 MockEngine { respondError(HttpStatusCode.Unauthorized) },
@@ -171,7 +187,7 @@ class GeminiModelRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-006: 그 밖의 실패를 실패로 알린다") {
+        test("TC-20ea17d1-f65b-44dc-a808-189c1bffa637: 그 밖의 실패를 실패로 알린다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             listOf(
                 MockEngine { respondError(HttpStatusCode.BadRequest) },
@@ -189,7 +205,7 @@ class GeminiModelRemoteDataSourceImplTest :
             shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
         }
 
-        test("TC-GEMINI-MODEL-LIST-DATA-007: 조회할 때마다 새로 조회한다") {
+        test("TC-977b79c7-04bc-4bde-a1dc-271cf67cfb8e: 조회할 때마다 새로 조회한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val first = modelName()
             val second = modelName()
@@ -214,7 +230,7 @@ class GeminiModelRemoteDataSourceImplTest :
             engine.requestHistory.size shouldBe 2
         }
 
-        test("TC-GEMINI-MODEL-LIST-DOMAIN-004: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다") {
+        test("TC-50450572-6788-4784-8fbf-264fcf89cf61: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)

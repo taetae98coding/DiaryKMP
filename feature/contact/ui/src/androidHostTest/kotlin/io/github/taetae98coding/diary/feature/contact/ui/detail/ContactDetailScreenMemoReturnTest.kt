@@ -47,7 +47,7 @@ class ContactDetailScreenMemoReturnTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-007 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
+    fun `TC-2ec5fbc2-51a6-4168-b7f8-e6409d82734c 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val previousToday = Clock.System.todayIn(TimeZone.of(PREVIOUS_TIME_ZONE))
         val newToday = Clock.System.todayIn(TimeZone.of(NEW_TIME_ZONE))
@@ -89,7 +89,7 @@ class ContactDetailScreenMemoReturnTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-019 ContactDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
+    fun `TC-d1672a7e-7824-469d-bfb3-4efaa25c310e ContactDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
         val entryMemoTitle = memoTitle(prefix = "Entry")
 
         setScreenOnMemoTab(memoPagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = entryMemoTitle)))))
@@ -99,7 +99,7 @@ class ContactDetailScreenMemoReturnTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-019 ContactHome의 연락처 목록에서 선택한 연락처의 상세 화면으로 이동한다`() {
+    fun `TC-d1672a7e-7824-469d-bfb3-4efaa25c310e ContactHome의 연락처 목록에서 선택한 연락처의 상세 화면으로 이동한다`() {
         val id = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = NavBackStack<ScreenNavKey>(ContactHomeNavKey)
 
@@ -121,6 +121,7 @@ class ContactDetailScreenMemoReturnTest {
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                         viewModel = screenTestViewModel(MutableStateFlow(content())),

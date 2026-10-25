@@ -17,13 +17,13 @@ import kotlin.uuid.Uuid
 
 class ContactEntryTest :
     FunSpec({
-        test("TC-CONTACT-LIST-DETAIL-DOMAIN-002 연락처 목록에서 이어 진입한 연락처 추가는 목록·상세 배치의 상세 pane이다") {
+        test("TC-926f01a2-08f8-4544-8af2-210d0a109a4d 연락처 목록에서 이어 진입한 연락처 추가는 목록·상세 배치의 상세 pane이다") {
             val backStack = listOf(OtherNavKey, ContactHomeNavKey, ContactAddNavKey())
 
             metadataOf(backStack = backStack, key = ContactAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-CONTACT-LIST-DETAIL-DOMAIN-001 연락처 목록에서 진입하지 않은 연락처 추가는 목록·상세 배치에 참여하지 않는다") {
+        test("TC-cd2e45dc-c54e-45c1-afc4-4450fcbe4282 연락처 목록에서 진입하지 않은 연락처 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherNavKey, ContactAddNavKey()),
@@ -35,14 +35,14 @@ class ContactEntryTest :
             }
         }
 
-        test("TC-CONTACT-LIST-DETAIL-DOMAIN-003 연락처 목록에서 이어 진입한 연락처 상세는 목록·상세 배치의 상세 pane이다") {
+        test("TC-e00e024b-2f70-4e52-bfa7-02473718f721 연락처 목록에서 이어 진입한 연락처 상세는 목록·상세 배치의 상세 pane이다") {
             val detailKey = ContactDetailNavKey(id = Uuid.random())
             val backStack = listOf(OtherNavKey, ContactHomeNavKey, detailKey)
 
             metadataOf(backStack = backStack, key = detailKey).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-CONTACT-LIST-DETAIL-DOMAIN-004 연락처 목록에서 진입하지 않은 연락처 상세는 목록·상세 배치에 참여하지 않는다") {
+        test("TC-181daa80-ba23-4e1e-9a4e-cd22fea595d2 연락처 목록에서 진입하지 않은 연락처 상세는 목록·상세 배치에 참여하지 않는다") {
             val detailKey = ContactDetailNavKey(id = Uuid.random())
             val backStackCases =
                 listOf(

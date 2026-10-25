@@ -43,7 +43,7 @@ class MemoHomeScreenReselectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-009 메모 목적지를 다시 선택하면 메모 목록의 첫 항목으로 돌아간다`() {
+    fun `TC-6d6ea720-76ed-46dc-bc47-d20dcc847db7 메모 목적지를 다시 선택하면 메모 목록의 첫 항목으로 돌아간다`() {
         val reselectEvent = reselectEvent()
         setMemoHomeScreen(reselectEvent = reselectEvent)
 
@@ -58,7 +58,7 @@ class MemoHomeScreenReselectTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-010 이미 첫 메모를 보고 있으면 목록 자리를 바꾸지 않는다`() {
+    fun `TC-e8c22e00-ba72-44a3-af1b-6bae10c5d492 이미 첫 메모를 보고 있으면 목록 자리를 바꾸지 않는다`() {
         val reselectEvent = reselectEvent()
         setMemoHomeScreen(reselectEvent = reselectEvent)
 
@@ -69,7 +69,7 @@ class MemoHomeScreenReselectTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-013 다시 선택해도 목록의 조회 조건을 바꾸지 않는다`() {
+    fun `TC-8c50c1af-cd06-4f6e-a670-f91971d0d918 다시 선택해도 목록의 조회 조건을 바꾸지 않는다`() {
         val reselectEvent = reselectEvent()
         val viewModel = reselectTestViewModel()
         setMemoHomeScreen(

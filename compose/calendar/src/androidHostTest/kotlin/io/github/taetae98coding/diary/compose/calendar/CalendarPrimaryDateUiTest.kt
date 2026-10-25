@@ -43,7 +43,7 @@ class CalendarPrimaryDateUiTest {
     private var onPrimary = Color.Unspecified
 
     @Test
-    fun `TC-CALENDAR-FEATURE-017 지정한 주요 날짜가 강조된다`() {
+    fun `TC-1c298adc-031b-4bd8-ac42-d0e477d3624d 지정한 주요 날짜가 강조된다`() {
         val defaultContentColor = fixtureMonkey.giveMeColor()
         setCalendar(defaultContentColor = defaultContentColor) { listOf(july(day = 15)) }
 
@@ -52,7 +52,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-018 주요 날짜를 지정하지 않으면 어떤 날짜도 강조되지 않는다`() {
+    fun `TC-c3a0c52b-a5ef-4e83-bc45-c1c718db405d 주요 날짜를 지정하지 않으면 어떤 날짜도 강조되지 않는다`() {
         setCalendar(defaultContentColor = fixtureMonkey.giveMeColor()) { emptyList() }
 
         dayTextColors().apply {
@@ -62,7 +62,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-DOMAIN-001 주요 날짜 지정이 바뀌면 강조가 갱신된다`() {
+    fun `TC-0050dc58-0ef6-480e-99bd-a73eb2d328e4 주요 날짜 지정이 바뀌면 강조가 갱신된다`() {
         val defaultContentColor = fixtureMonkey.giveMeColor()
         var primaryDateList by mutableStateOf(emptyList<LocalDate>())
         setCalendar(defaultContentColor = defaultContentColor) { primaryDateList }
@@ -77,7 +77,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-DOMAIN-002 같은 주요 날짜를 여러 번 지정해도 한 번 지정한 것과 같다`() {
+    fun `TC-940876a7-96b9-4134-9733-44d2a5bc2aa3 같은 주요 날짜를 여러 번 지정해도 한 번 지정한 것과 같다`() {
         val defaultContentColor = fixtureMonkey.giveMeColor()
         setCalendar(defaultContentColor = defaultContentColor) { List(DUPLICATE_COUNT) { july(day = 15) } }
 
@@ -86,7 +86,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-DOMAIN-003 표시 중인 달에 없는 날짜를 주요 날짜로 지정해도 강조 대상이 없는 것으로 처리한다`() {
+    fun `TC-2f5b7704-ec2c-4140-a283-a5b9e87ae0ed 표시 중인 달에 없는 날짜를 주요 날짜로 지정해도 강조 대상이 없는 것으로 처리한다`() {
         setCalendar(defaultContentColor = fixtureMonkey.giveMeColor()) {
             listOf(LocalDate(year = 2026, month = Month.DECEMBER, day = 25))
         }
@@ -98,7 +98,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-008 주요 날짜는 요일과 공휴일 여부에 관계없이 주요 날짜로 구분된다`() {
+    fun `TC-164ab310-f5bf-4f00-ad6b-30317cdc322e 주요 날짜는 요일과 공휴일 여부에 관계없이 주요 날짜로 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val sunday = july(day = 12)
         val holiday = july(day = 13)
@@ -124,7 +124,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-010 이웃 달에 속한 주요 날짜는 이웃 달 구분보다 주요 날짜 강조를 우선한다`() {
+    fun `TC-86b7ead5-eca9-455c-b0f9-c0743dd7c6c8 이웃 달에 속한 주요 날짜는 이웃 달 구분보다 주요 날짜 강조를 우선한다`() {
         val defaultContentColor = fixtureMonkey.giveMeColor()
         val primaryDate = LocalDate(year = 2026, month = Month.JUNE, day = 28)
 
@@ -140,7 +140,7 @@ class CalendarPrimaryDateUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-011 주 전체가 지정한 달 밖이면 모든 날짜가 이웃 달로 구분되고 주요 날짜만 강조를 유지한다`() {
+    fun `TC-2327ab55-7229-480f-be44-493f594dda0f 주 전체가 지정한 달 밖이면 모든 날짜가 이웃 달로 구분되고 주요 날짜만 강조를 유지한다`() {
         val defaultContentColor = fixtureMonkey.giveMeColor()
         val colors = fixtureMonkey.giveMeCalendarColor()
 

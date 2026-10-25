@@ -30,6 +30,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
+                implementation(projects.core.testing)
             }
         }
     }

@@ -61,7 +61,7 @@ class AccountMemoRepositoryImplTest :
             }
         }
 
-        test("TC-MEMO-TAG-DATA-001 메모 저장은 연결할 태그를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
+        test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 메모 저장은 연결할 태그를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memo = memo().toDomain()
             val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())

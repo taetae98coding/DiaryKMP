@@ -35,7 +35,7 @@ class SyncWorkContactTest :
             "연락처" to "태그",
             "태그" to "연락처",
         ).forEach { (delayed, other) ->
-            test("TC-DATA-SYNC-DOMAIN-055 $delayed 업로드가 지연되어도 $other 업로드를 먼저 시작한다") {
+            test("TC-d02e1fe4-3710-497f-b721-5bd09e834ad1 $delayed 업로드가 지연되어도 $other 업로드를 먼저 시작한다") {
                 runTest {
                     val context = context(tagList = tags(size = 1), contactList = contacts(size = 1))
                     val callOrder = mutableListOf<String>()
@@ -56,7 +56,7 @@ class SyncWorkContactTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 태그가 실패해도 연락처는 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그가 실패해도 연락처는 끝까지 업로드한다") {
             val context = context(tagList = tags(size = 1), contactList = contacts(size = 201))
             val failure = TestException(fixtureMonkey.giveMeOne())
             val contactRequests = mutableListOf<Int>()
@@ -70,7 +70,7 @@ class SyncWorkContactTest :
             contactRequests shouldContainExactly listOf(100, 100, 1)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 연락처가 실패해도 태그와 장소와 웹 항목은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 연락처가 실패해도 태그와 장소와 웹 항목은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 201),
@@ -94,7 +94,7 @@ class SyncWorkContactTest :
             webRequests shouldContainExactly listOf(100, 100, 1)
         }
 
-        test("TC-DATA-SYNC-DATA-005 연락처 업로드는 최대 100개씩 나누어 요청한다") {
+        test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 연락처 업로드는 최대 100개씩 나누어 요청한다") {
             val context = context(contactList = contacts(size = 250))
             val requestSizeList = mutableListOf<Int>()
             coEvery { context.contactRemoteDataSource.push(any()) } answers {
@@ -106,7 +106,7 @@ class SyncWorkContactTest :
             requestSizeList shouldContainExactly listOf(100, 100, 50)
         }
 
-        test("TC-DATA-SYNC-DATA-032 연락처 업로드에는 전화번호 목록 전체가 순서대로 담긴다") {
+        test("TC-576f1564-4dff-442c-a107-8beb008e36c9 연락처 업로드에는 전화번호 목록 전체가 순서대로 담긴다") {
             val phoneNumberList =
                 listOf(
                     ContactPhoneNumberLocalEntity(number = "010-1234-5678"),
@@ -135,7 +135,7 @@ class SyncWorkContactTest :
             Triple("생일 없이 태어난 연도만 있는", null, true),
             Triple("생일과 태어난 연도가 모두 없는", null, false),
         ).forEach { (label, birthdayCalendar, hasBirthYearOnly) ->
-            test("TC-DATA-SYNC-DATA-034 $label 연락처의 업로드에는 생일의 날짜와 달력 구분, 태어난 연도가 함께 담긴다") {
+            test("TC-2ab0df88-4ebe-4b95-a0cb-5403c8f569d8 $label 연락처의 업로드에는 생일의 날짜와 달력 구분, 태어난 연도가 함께 담긴다") {
                 val birthday = birthdayCalendar?.let { fixtureMonkey.giveMeOne<LocalDate>() }
                 val birthYear = birthday?.year ?: if (hasBirthYearOnly) fixtureMonkey.giveMeOne<LocalDate>().year else null
                 val stored =
@@ -155,7 +155,7 @@ class SyncWorkContactTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-033 내려받은 연락처의 전화번호 목록이 기기의 목록을 대체한다") {
+        test("TC-f5c3db7c-930a-44dc-bc0f-de71333148ed 내려받은 연락처의 전화번호 목록이 기기의 목록을 대체한다") {
             val context = context()
             val pullList = contactPulls(usnList = listOf(1L))
             coEvery { context.contactRemoteDataSource.pull(usn = 0L) } returns pullList
@@ -170,7 +170,7 @@ class SyncWorkContactTest :
             savedList.single() shouldContainExactly pullList.map { pull -> pull.contact.toLocal() }
         }
 
-        test("TC-DATA-SYNC-DATA-016 연락처 내려받기는 기록된 커서로 요청하고 저장한 가장 큰 순번으로 다음 묶음을 요청한다") {
+        test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 연락처 내려받기는 기록된 커서로 요청하고 저장한 가장 큰 순번으로 다음 묶음을 요청한다") {
             val context = context()
             val cursor = 42L
             val pullList = contactPulls(usnList = listOf(50L, 47L))
@@ -191,7 +191,7 @@ class SyncWorkContactTest :
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 50L) }
         }
 
-        test("TC-DATA-SYNC-DATA-020 연락처 내려받기는 빈 응답을 받을 때까지 반복한다") {
+        test("TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 연락처 내려받기는 빈 응답을 받을 때까지 반복한다") {
             val context = context()
             coEvery { context.contactRemoteDataSource.pull(usn = 0L) } returns contactPulls(usnList = listOf(1L, 2L))
             coEvery { context.contactRemoteDataSource.pull(usn = 2L) } returns contactPulls(usnList = listOf(3L))
@@ -206,7 +206,7 @@ class SyncWorkContactTest :
             coVerify(exactly = 1) { context.accountContactSyncTransaction.upsert(context.accountId, any(), 3L) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-040 연락처 내려받기가 실패하면 동기화가 실패한다") {
+        test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 연락처 내려받기가 실패하면 동기화가 실패한다") {
             val context = context()
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.contactRemoteDataSource.pull(any()) } throws failure

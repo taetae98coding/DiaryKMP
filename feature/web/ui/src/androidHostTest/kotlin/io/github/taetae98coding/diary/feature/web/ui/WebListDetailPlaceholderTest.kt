@@ -4,11 +4,13 @@ package io.github.taetae98coding.diary.feature.web.ui
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -40,6 +42,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEADER
@@ -96,7 +99,7 @@ class WebListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-004 더보기로 돌아갔다가 다시 진입하면 상세 영역의 웹 추가는 입력과 태그 선택이 모두 비어 있는 상태로 시작한다`() {
+    fun `TC-f3b028ee-28a1-48d8-a1aa-135eef2a1fc9 더보기로 돌아갔다가 다시 진입하면 상세 영역의 웹 추가는 입력과 태그 선택이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setWebNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
@@ -117,18 +120,43 @@ class WebListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 목록에서 연 웹 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 목록에서 연 웹 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = WebDetailNavKey(id = Uuid.random()))
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 추가에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 추가에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = Uuid.random()))
     }
 
     @Test
-    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+    fun `TC-5c2564d0-eeb8-4bdb-9398-9a4856846a04 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
         assertPlaceholderRetained(route = TagDetailNavKey(id = Uuid.random()))
+    }
+
+    @Test
+    fun `TC-95056249-4b0a-4482-b23f-1d2c025f4702 목록과 상세를 함께 쓰는 환경에서는 웹 목록과 상세 영역의 웹 추가를 함께 표시한다`() {
+        setWebNavDisplay(input = placeholderInput())
+
+        backStack.toList() shouldBe listOf(MoreNavKey, WebHomeNavKey)
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertIsDisplayed()
+        composeRule.titleInput().assertIsDisplayed()
+        composeRule.urlInput().assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-d821e061-1d4a-4935-bd52-065c171ab4d4 한 화면만 제공하는 환경에서는 웹 목록과 웹 추가를 각각 단독으로 표시한다`() {
+        setWebNavDisplay(input = placeholderInput())
+
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+
+        composeRule.runOnIdle { backStack.navigateToWebAddFromHome() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(WEB_ADD_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertDoesNotExist()
     }
 
     private fun assertPlaceholderRetained(route: ScreenNavKey) {
@@ -175,6 +203,9 @@ class WebListDetailPlaceholderTest {
                                     clazzContentKey = { WEB_HOME_CONTENT_KEY },
                                     metadata = webHomeListPaneMetadata(backStack = backStack),
                                 ) { Text(text = WEB_HOME_CONTENT) }
+                                entry<WebAddNavKey>(
+                                    metadata = ListDetailSceneStrategy.detailPane(sceneKey = WebHomeNavKey),
+                                ) { Text(text = WEB_ADD_CONTENT) }
                                 entry<WebDetailNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<TagDetailNavKey> { Text(text = ROUTE_CONTENT) }
@@ -253,6 +284,7 @@ class WebListDetailPlaceholderTest {
         const val MORE_CONTENT = "MoreContent"
         const val WEB_HOME_CONTENT = "WebHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
+        const val WEB_ADD_CONTENT = "WebAddContent"
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.

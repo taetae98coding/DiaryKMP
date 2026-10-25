@@ -39,7 +39,7 @@ class QrAddScreenAddTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-ADD-FEATURE-019 처음 들어오면 제목과 설명이 비어 있고 제목 입력에 초점이 있다`() {
+    fun `TC-cdf3faae-47e3-4927-a8b2-a9442ffe1aef 처음 들어오면 제목과 설명이 비어 있고 제목 입력에 초점이 있다`() {
         setQrAddScreen(viewModel = screenTestViewModel())
 
         composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
@@ -50,18 +50,18 @@ class QrAddScreenAddTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-022 제목, 설명, 값이 모두 있으면 추가에 성공하고 성공 피드백을 제공한다`() {
+    fun `TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 제목, 설명, 값이 모두 있으면 추가에 성공하고 성공 피드백을 제공한다`() {
         assertAddSucceededMessage(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-022 설명이 비어 있어도 추가에 성공하고 성공 피드백을 제공한다`() {
+    fun `TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 설명이 비어 있어도 추가에 성공하고 성공 피드백을 제공한다`() {
         assertAddSucceededMessage(description = "")
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-022 기본 환경에서 추가 성공 피드백을 제공한다`() {
+    fun `TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 기본 환경에서 추가 성공 피드백을 제공한다`() {
         setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.AddSucceeded))
 
         clickAdd()
@@ -70,7 +70,7 @@ class QrAddScreenAddTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-024 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
+    fun `TC-018763b3-6a0e-4132-b201-64d8ed5b8b6d 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
         val useCase = mockk<AddQrUseCase>()
         val detail = qrTestFixtureMonkey.qrDetail()
         coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(qrTestFixtureMonkey.giveMeOne<String>()))
@@ -93,12 +93,12 @@ class QrAddScreenAddTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-026 제목이 공백이면 작성 내용은 유지된다`() {
+    fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf 제목이 공백이면 작성 내용은 유지된다`() {
         assertInputRetained(title = " ", description = qrTestFixtureMonkey.qrDetail().description, value = qrTestFixtureMonkey.qrDetail().value, exception = QrTitleBlankException())
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-026 값이 비어 있으면 작성 내용은 유지된다`() {
+    fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf 값이 비어 있으면 작성 내용은 유지된다`() {
         assertInputRetained(title = qrTestFixtureMonkey.qrDetail().title, description = qrTestFixtureMonkey.qrDetail().description, value = "", exception = QrValueEmptyException())
     }
 
@@ -121,19 +121,19 @@ class QrAddScreenAddTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-016 화면이 재생성되면 표시 중이던 추가 성공 피드백을 다시 표시하지 않는다`() {
+    fun `TC-cdefd908-e5c4-4fd9-9633-93186422b2df 화면이 재생성되면 표시 중이던 추가 성공 피드백을 다시 표시하지 않는다`() {
         assertFeedbackNotShownAfterRestore(result = Result.success(qrTestFixtureMonkey.giveMeOne<Uuid>()), message = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-016 화면이 재생성되면 표시 중이던 제목 입력 안내를 다시 표시하지 않는다`() {
+    fun `TC-cdefd908-e5c4-4fd9-9633-93186422b2df 화면이 재생성되면 표시 중이던 제목 입력 안내를 다시 표시하지 않는다`() {
         assertFeedbackNotShownAfterRestore(result = Result.failure(QrTitleBlankException()), message = KOREAN_TITLE_BLANK_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-DOMAIN-016 화면이 재생성되면 표시 중이던 QR 값 입력 안내를 다시 표시하지 않는다`() {
+    fun `TC-cdefd908-e5c4-4fd9-9633-93186422b2df 화면이 재생성되면 표시 중이던 QR 값 입력 안내를 다시 표시하지 않는다`() {
         assertFeedbackNotShownAfterRestore(result = Result.failure(QrValueEmptyException()), message = KOREAN_VALUE_EMPTY_MESSAGE)
     }
 
@@ -218,6 +218,7 @@ class QrAddScreenAddTest {
                 navigateToScan = {},
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
+                componentVisibleProvider = { QrAddScaffoldComponentVisible() },
                 viewModel = viewModel,
             )
         }

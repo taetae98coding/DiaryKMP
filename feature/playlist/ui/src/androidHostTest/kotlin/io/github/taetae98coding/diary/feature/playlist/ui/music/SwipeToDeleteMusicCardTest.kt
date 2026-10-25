@@ -31,7 +31,7 @@ class SwipeToDeleteMusicCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-022 곡 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
+    fun `TC-9978aa69-9804-4ff3-bd5a-96492a93752c 곡 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
         var clickCount = 0
         setCard(music = music(), onClick = { clickCount += 1 }, onDelete = { deleteCount += 1 })
@@ -44,7 +44,7 @@ class SwipeToDeleteMusicCardTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-024 곡 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
+    fun `TC-c955e4b9-2e82-4477-b800-4320914c66a3 곡 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
         var clickCount = 0
         val music = music()
@@ -59,7 +59,7 @@ class SwipeToDeleteMusicCardTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-025 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
+    fun `TC-debc98e9-c75e-482c-9070-52f930294fcd 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
         var deleteCount = 0
         setCard(music = null, onDelete = { deleteCount += 1 })
 

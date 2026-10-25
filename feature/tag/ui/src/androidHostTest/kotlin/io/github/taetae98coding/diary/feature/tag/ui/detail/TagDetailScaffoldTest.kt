@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
@@ -11,9 +12,13 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +32,7 @@ class TagDetailScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-022 태그 내용이 준비되지 않으면 로딩 상태를 표시한다`() {
+    fun `TC-18be6cac-d671-479d-bafc-87a099949731 태그 내용이 준비되지 않으면 로딩 상태를 표시한다`() {
         setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
@@ -39,12 +44,34 @@ class TagDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-001 제목이 조회되면 상단 바에 조회한 제목을 표시한다`() {
+    fun `TC-a51bbc33-302d-4e16-a3f9-3d4cd2c501f6 제목이 조회되면 상단 바에 조회한 제목을 표시한다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_DETAIL_TITLE)) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
         composeRule.onNodeWithText(TAG_DETAIL_TITLE).assertExists()
         composeRule.onNodeWithText(REMOVED_DEFAULT_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-49676df9-10af-4e7a-a5db-0db26aaa87ee 상단 폭보다 긴 제목은 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
+        val detail = tagDetail(title = LONG_TAG_DETAIL_TITLE, emoji = TAG_DETAIL_EMOJI)
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = detail) })
+
+        val rootWidth =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = detail.emojiWithTitle, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        (textLayoutResult.size.width > rootWidth) shouldBe true
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe detail.emojiWithTitle.length
     }
 
     @Test
@@ -104,6 +131,8 @@ class TagDetailScaffoldTest {
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val TAG_DETAIL_TITLE = "TagDetailTitle"
+        private const val TAG_DETAIL_EMOJI = "📌"
+        private val LONG_TAG_DETAIL_TITLE = "LongTagDetailTitle".repeat(20)
     }
 }
 
@@ -114,7 +143,7 @@ class TagDetailScaffoldActionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-015 기본 환경 완료되지 않은 태그의 완료 버튼 이름은 Finish tag이다`() {
+    fun `TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 기본 환경 완료되지 않은 태그의 완료 버튼 이름은 Finish tag이다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -122,7 +151,7 @@ class TagDetailScaffoldActionTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-015 기본 환경 완료된 태그의 완료 버튼 이름은 Restart tag이다`() {
+    fun `TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 기본 환경 완료된 태그의 완료 버튼 이름은 Restart tag이다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -131,7 +160,7 @@ class TagDetailScaffoldActionTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-FEATURE-015 한국어 완료되지 않은 태그의 완료 버튼 이름은 태그 완료이다`() {
+    fun `TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 한국어 완료되지 않은 태그의 완료 버튼 이름은 태그 완료이다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = false) })
 
         composeRule.onNodeWithContentDescription(KOREAN_FINISH_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -139,7 +168,7 @@ class TagDetailScaffoldActionTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-FEATURE-015 한국어 완료된 태그의 완료 버튼 이름은 태그 다시 시작이다`() {
+    fun `TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 한국어 완료된 태그의 완료 버튼 이름은 태그 다시 시작이다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
         composeRule.onNodeWithContentDescription(KOREAN_RESTART_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -195,7 +224,7 @@ class TagDetailScaffoldInProgressTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-021 완료를 처리하는 동안 완료 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-1381701b-a680-4770-b6e4-0a304c6b7efe 완료를 처리하는 동안 완료 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinishInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()
@@ -204,7 +233,7 @@ class TagDetailScaffoldInProgressTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-021 다시 시작을 처리하는 동안 다시 시작 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-1381701b-a680-4770-b6e4-0a304c6b7efe 다시 시작을 처리하는 동안 다시 시작 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true, isFinishInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()
@@ -213,7 +242,7 @@ class TagDetailScaffoldInProgressTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-021 삭제를 처리하는 동안 삭제 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-1381701b-a680-4770-b6e4-0a304c6b7efe 삭제를 처리하는 동안 삭제 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isDeleteInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()

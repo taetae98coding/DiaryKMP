@@ -34,7 +34,7 @@ MemoHome 목록은 `메모` 주요 목적지의 첫 화면이므로 앱의 공�
 
 버튼의 라벨에는 `문구와 접근성`의 완료된 메모 진입 라벨을 쓴다.
 
-버튼을 누르면 MemoFinishedList 화면을 창 너비와 관계없이 단독으로 표시한다. 화면의 구조와 문구는 [MemoFinishedList 화면 디자인](./memo-finished-list.md)을 따른다.
+버튼을 누르면 MemoFinishedList 화면을 MemoHome 목록과 함께 표시하지 않고 그 자리에 표시한다. 화면의 구조와 문구는 [MemoFinishedList 화면 디자인](./memo-finished-list.md)을, 넓은 창에서 메모 상세와 함께 쓰는 배치는 [MemoFinishedList 목록·상세 배치 디자인](./memo-finished-list-detail.md)을 따른다.
 
 ## 메모 추가 버튼
 
@@ -131,7 +131,7 @@ flowchart TD
 
 카드를 누르면 그 메모의 MemoDetail 화면을 연다. compact 창에서는 MemoDetail 화면을 단독으로 표시하고, 목록과 상세를 함께 표시하는 동안에는 [Memo 목록·상세 배치 디자인](./memo-list-detail.md)의 `상세 영역의 전환`을 따른다.
 
-이 카드는 [MemoFinishedList 화면 디자인](./memo-finished-list.md), [TagDetail 메모 탭 디자인](./tag-detail-memo.md), [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md)의 메모 목록과 [SearchHome 화면 디자인](./search-home.md)의 메모 결과에도 같은 형태로 쓴다.
+이 카드는 [MemoFinishedList 화면 디자인](./memo-finished-list.md), [TagDetail 메모 탭 디자인](./tag-detail-memo.md), [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md), [항목 완료 메모 목록 화면 디자인](./entity-memo-finished-list.md)의 메모 목록과 [SearchHome 화면 디자인](./search-home.md)의 메모 결과에도 같은 형태로 쓴다.
 
 아직 준비되지 않은 자리에는 [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)에 따라 자리 표시 카드를 표시한다. 자리 표시 카드는 눌러도 반응하지 않고 스와이프도 시작되지 않는다.
 

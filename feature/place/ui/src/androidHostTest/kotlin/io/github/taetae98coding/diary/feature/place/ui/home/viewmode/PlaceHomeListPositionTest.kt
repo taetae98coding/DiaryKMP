@@ -48,7 +48,7 @@ class PlaceHomeListPositionTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-026 화면이 회전하거나 창 크기가 바뀌어도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-1fcf3226-1ebd-4100-a0db-f91efb3d9677 화면이 회전하거나 창 크기가 바뀌어도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
         val restorationTester = StateRestorationTester(composeRule)
@@ -62,7 +62,7 @@ class PlaceHomeListPositionTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-026 앱의 백그라운드 진입 후 복귀해도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-1fcf3226-1ebd-4100-a0db-f91efb3d9677 앱의 백그라운드 진입 후 복귀해도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
         composeRule.setContent { PlaceHomeTestScaffold(placePagingDataFlow = placePagingDataFlow) }
@@ -77,7 +77,7 @@ class PlaceHomeListPositionTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-026 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-1fcf3226-1ebd-4100-a0db-f91efb3d9677 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
         var isPlaceHomeOnTop by mutableStateOf(true)
@@ -105,7 +105,7 @@ class PlaceHomeListPositionTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-027 지도 모드에 다녀오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
+    fun `TC-7377782b-af8b-40cb-af7e-c7787732ca4a 지도 모드에 다녀오면 목록 모드의 목록을 맨 위부터 보여 준다`() {
         val placeList = placeList()
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
         composeRule.setContent { PlaceHomeTestScaffold(placePagingDataFlow = placePagingDataFlow) }

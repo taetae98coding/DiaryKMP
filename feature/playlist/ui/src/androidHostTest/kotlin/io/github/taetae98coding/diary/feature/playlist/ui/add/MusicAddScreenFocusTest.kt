@@ -24,7 +24,7 @@ class MusicAddScreenFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-026 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
+    fun `TC-c2f5c3f6-09d2-4937-b5ed-54f5d1553973 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -33,7 +33,7 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-027 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-9f05a301-c3ea-4e8f-9ed8-7d576156a1e5 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded))
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
         composeRule.linkInput().performClick()
@@ -46,7 +46,7 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-010 제목이 공백이면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-61ac0ff3-333e-4024-9c18-54cd0419cec6 제목이 공백이면 제목 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.TitleBlank))
         composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
 
@@ -56,7 +56,7 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-010 링크가 YouTube 주소가 아니면 링크 입력으로 초점을 옮긴다`() {
+    fun `TC-61ac0ff3-333e-4024-9c18-54cd0419cec6 링크가 YouTube 주소가 아니면 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.LinkNotYoutube))
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
 
@@ -66,7 +66,7 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-019 링크가 공백이면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
+    fun `TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 공백이면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkBlank))
         composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
 
@@ -76,7 +76,7 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-019 링크가 YouTube 주소가 아니면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
+    fun `TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 YouTube 주소가 아니면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkNotYoutube))
         composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
 
@@ -86,12 +86,12 @@ class MusicAddScreenFocusTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-033 불러오기에 성공해도 입력 초점을 옮기지 않는다`() {
+    fun `TC-3fffbb1c-5cdc-4d00-a74e-44841d0b230c 불러오기에 성공해도 입력 초점을 옮기지 않는다`() {
         assertFetchKeepsFocus(effect = fetchedEffect())
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-033 영상 정보를 가져오지 못해도 입력 초점을 옮기지 않는다`() {
+    fun `TC-3fffbb1c-5cdc-4d00-a74e-44841d0b230c 영상 정보를 가져오지 못해도 입력 초점을 옮기지 않는다`() {
         assertFetchKeepsFocus(effect = MusicAddEffect.LinkFetchFailed)
     }
 

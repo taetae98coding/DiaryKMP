@@ -27,6 +27,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -36,6 +38,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -63,17 +66,17 @@ class MemoDetailScreenBoundaryTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-080 제목을 비우고 수정해도 성공을 안내하고 수정 동작을 계속 제공한다`() {
+    fun `TC-f61b02c3-0792-4678-9b4e-6bc39b1dd9b9 제목을 비우고 수정해도 성공을 안내하고 수정 동작을 계속 제공한다`() {
         assertBlankTitleUpdate(typedTitle = "")
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-080 제목에 공백만 두고 수정해도 성공을 안내하고 수정 동작을 계속 제공한다`() {
+    fun `TC-f61b02c3-0792-4678-9b4e-6bc39b1dd9b9 제목에 공백만 두고 수정해도 성공을 안내하고 수정 동작을 계속 제공한다`() {
         assertBlankTitleUpdate(typedTitle = BLANK_TITLE)
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-081 다른 앱에 다녀와도 수정 중이던 내용이 그대로다`() {
+    fun `TC-42eed8f6-6abf-4482-82cc-215ebd698cf9 다른 앱에 다녀와도 수정 중이던 내용이 그대로다`() {
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
         composeRule.setContent { Detail(viewModel = viewModel) }
@@ -93,7 +96,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-082 진입할 때 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-0764c8bb-98f0-423e-b171-98aacb4030ad 진입할 때 어느 입력에도 초점을 두지 않는다`() {
         val uiState = MutableStateFlow<MemoDetailUiState>(MemoDetailUiState.Loading)
         composeRule.setContent { Detail(viewModel = screenTestViewModel(uiState = uiState)) }
         composeRule.waitForIdle()
@@ -106,7 +109,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-083 수정 저장에 실패하면 안내 없이 입력을 유지하고 진행 상태만 해제한다`() {
+    fun `TC-adadf2cb-b987-4a83-a8b1-5457a8fe6645 수정 저장에 실패하면 안내 없이 입력을 유지하고 진행 상태만 해제한다`() {
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
         every { viewModel.update(any()) } just Runs
         composeRule.setContent { Detail(viewModel = viewModel) }
@@ -125,7 +128,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-084 시스템이 앱을 정리한 뒤 화면을 복원해도 수정 중이던 내용을 복원한다`() {
+    fun `TC-97602899-817d-4dc3-a910-6bf03d9dfdbf 시스템이 앱을 정리한 뒤 화면을 복원해도 수정 중이던 내용을 복원한다`() {
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val uiStateList = mutableListOf<MutableStateFlow<MemoDetailUiState>>()
         val restorationTester = StateRestorationTester(composeRule)
@@ -170,7 +173,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-085 삭제 저장에 실패하면 안내 없이 화면에 남는다`() {
+    fun `TC-99521be8-d19f-4211-8d1a-f7d766a9ad09 삭제 저장에 실패하면 안내 없이 화면에 남는다`() {
         var navigateUpCount = 0
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
         // 저장에 실패하면 삭제 성공 Effect가 오지 않는다.
@@ -188,7 +191,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-086 완료 저장에 실패하면 안내 없이 완료 동작이 그대로다`() {
+    fun `TC-a82081c9-eb59-4e31-9d25-84b26de5fa27 완료 저장에 실패하면 안내 없이 완료 동작이 그대로다`() {
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = false)))
         every { viewModel.finish() } just Runs
         composeRule.setContent { Detail(viewModel = viewModel) }
@@ -204,7 +207,7 @@ class MemoDetailScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-086 다시 시작 저장에 실패하면 안내 없이 다시 시작 동작이 그대로다`() {
+    fun `TC-a82081c9-eb59-4e31-9d25-84b26de5fa27 다시 시작 저장에 실패하면 안내 없이 다시 시작 동작이 그대로다`() {
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = true)))
         every { viewModel.restart() } just Runs
         composeRule.setContent { Detail(viewModel = viewModel) }
@@ -217,6 +220,26 @@ class MemoDetailScreenBoundaryTest {
         composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
         assertNoFeedbackShown()
+    }
+
+    @Test
+    fun `TC-8ab93b1c-4cf2-47a9-aba7-6d5982d2c4cf 당기거나 화면에 들어오거나 앱으로 돌아와도 새로고침하지 않는다`() {
+        val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
+        composeRule.setContent { Detail(viewModel = viewModel) }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
     }
 
     // 스낵바는 닫기 동작을 제공하므로, 닫기 동작을 가진 노드와 알려진 안내 문구가 없으면 안내가 표시되지 않은 것이다.
@@ -268,6 +291,7 @@ class MemoDetailScreenBoundaryTest {
                 contactViewModel = screenTestContactViewModel(),
                 placeViewModel = screenTestPlaceViewModel(),
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = navigateUp,
                 navigateToCopiedMemo = {},
@@ -289,6 +313,7 @@ class MemoDetailScreenBoundaryTest {
         private const val BLANK_TITLE = "   "
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Memo updated."
         private const val DEFAULT_CONFIRM = "Confirm"
+        private const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
         private val FEEDBACK_MESSAGE_LIST: List<String> =
             listOf(DEFAULT_UPDATE_SUCCEEDED_MESSAGE, DEFAULT_COPY_SUCCEEDED_MESSAGE, "Memo finished.", "Memo restarted.", "Memo deleted.", "Undo")
         private const val COLOR_RGB_MASK = 0xFFFFFF

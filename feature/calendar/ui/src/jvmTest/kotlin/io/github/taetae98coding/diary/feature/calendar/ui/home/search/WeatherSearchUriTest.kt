@@ -7,7 +7,7 @@ private const val NAVER_SEARCH_URI = "https://search.naver.com/search.naver?quer
 
 class WeatherSearchUriTest :
     FunSpec({
-        test("TC-CALENDAR-HOME-DOMAIN-008 지역명으로 날씨 검색 주소를 만든다") {
+        test("TC-b6356b74-4063-4095-b25e-3ab5da961f74 지역명으로 날씨 검색 주소를 만든다") {
             listOf(
                 "성남시" to "%EC%84%B1%EB%82%A8%EC%8B%9C%20%EB%82%A0%EC%94%A8",
                 "Paris" to "Paris%20%EB%82%A0%EC%94%A8",

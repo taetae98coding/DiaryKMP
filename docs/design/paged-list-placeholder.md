@@ -14,6 +14,7 @@
 | [TagDetail 웹 탭](./tag-detail-web.md) | 웹 카드 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 메모 카드 |
 | [항목 상세 메모 탭 공통](./entity-detail-memo.md) | 메모 카드 |
+| [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 메모 카드 |
 | [MemoHome 목록](./memo-home.md) | 메모 카드 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 메모 카드 |
 | [장소 보기 모드](./place-view-mode.md) | 장소 카드 |
@@ -21,6 +22,7 @@
 | [ContactHome 화면](./contact-home.md) | 연락처 카드 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 카드 |
 | [QrHome 화면](./qr-home.md) | QR 카드 |
+| [ChecklistHome 화면](./checklist-home.md) | 체크리스트 카드 |
 | [SearchHome 화면](./search-home.md) | 메모 카드 · 태그 카드 · 장소 카드 · 웹 카드 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 행 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 항목 |

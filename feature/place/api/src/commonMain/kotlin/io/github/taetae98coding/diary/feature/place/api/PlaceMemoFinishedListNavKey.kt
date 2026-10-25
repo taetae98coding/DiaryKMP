@@ -1,0 +1,12 @@
+package io.github.taetae98coding.diary.feature.place.api
+
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import kotlinx.serialization.Serializable
+import kotlin.uuid.Uuid
+
+@Serializable
+public data class PlaceMemoFinishedListNavKey(
+    val placeId: Uuid,
+) : ScreenNavKey {
+    override val screenName: String get() = "PlaceMemoFinishedList"
+}

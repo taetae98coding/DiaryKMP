@@ -42,4 +42,36 @@ internal interface AccountPlaceMemoDao {
         placeId: Uuid,
         sort: String,
     ): PagingSource<Int, MemoLocalEntity>
+
+    @Query(
+        """
+        SELECT memo.*
+        FROM memo
+        INNER JOIN account_memo
+            ON account_memo.memo_id = memo.id AND account_memo.account_id = :accountId
+        INNER JOIN memo_place
+            ON memo_place.memo_id = memo.id
+                AND memo_place.place_id = :placeId
+                AND memo_place.is_deleted = 0
+        INNER JOIN account_memo_place
+            ON account_memo_place.memo_id = memo_place.memo_id
+                AND account_memo_place.place_id = memo_place.place_id
+                AND account_memo_place.account_id = :accountId
+        WHERE memo.is_finished = 1
+            AND memo.is_deleted = 0
+        ORDER BY
+            CASE WHEN :sort = 'default' THEN memo.start IS NULL END DESC,
+            CASE WHEN :sort = 'default' THEN date(memo.start) END ASC,
+            CASE WHEN :sort = 'default' THEN memo.is_all_day END DESC,
+            CASE WHEN :sort = 'default' THEN memo.start END ASC,
+            CASE WHEN :sort = 'default' THEN memo.end_inclusive END ASC,
+            CASE WHEN :sort = 'recently_updated' THEN memo.updated_at END DESC,
+            memo.title ASC
+        """,
+    )
+    fun pageFinished(
+        accountId: Uuid,
+        placeId: Uuid,
+        sort: String,
+    ): PagingSource<Int, MemoLocalEntity>
 }

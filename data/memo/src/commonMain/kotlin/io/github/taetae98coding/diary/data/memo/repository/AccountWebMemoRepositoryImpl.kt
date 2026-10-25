@@ -32,4 +32,20 @@ internal class AccountWebMemoRepositoryImpl(
             },
             transform = { local -> local.toDomain() },
         )
+
+    override fun pageFinished(
+        account: Account,
+        webId: Uuid,
+        sort: ListSort,
+    ): Flow<PagingData<Memo>> =
+        pagingFlow(
+            pagingSourceFactory = {
+                accountWebMemoLocalDataSource.pageFinished(
+                    accountId = account.id,
+                    webId = webId,
+                    sort = sort.toLocal(),
+                )
+            },
+            transform = { local -> local.toDomain() },
+        )
 }

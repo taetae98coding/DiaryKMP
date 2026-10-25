@@ -39,7 +39,7 @@ class CalendarWeekOfMonthItemOverflowTest {
     private lateinit var scope: CoroutineScope
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-012 아이템이 한 번에 모두 보이지 않으면 스크롤해 나머지 아이템을 확인한다`() {
+    fun `TC-67594791-9738-454b-aa9d-aa02cae30e78 아이템이 한 번에 모두 보이지 않으면 스크롤해 나머지 아이템을 확인한다`() {
         setCalendarWeekOfMonth()
         composeRule.onNodeWithText(LAST_ITEM_TEXT).isNotDisplayed() shouldBe true
 
@@ -49,7 +49,7 @@ class CalendarWeekOfMonthItemOverflowTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-013 되돌린 뒤에도 다시 스크롤해 나머지 아이템을 확인한다`() {
+    fun `TC-f168197f-06f0-4029-a906-e85de9703232 되돌린 뒤에도 다시 스크롤해 나머지 아이템을 확인한다`() {
         setCalendarWeekOfMonth()
         scrollToLastItem()
         requestScrollToTop()
@@ -61,7 +61,7 @@ class CalendarWeekOfMonthItemOverflowTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-003 이미 첫 아이템 줄부터 보이는 상태에서 되돌리기를 요청해도 표시가 달라지지 않는다`() {
+    fun `TC-ab329b7a-563e-48f9-bc93-2241495a0763 이미 첫 아이템 줄부터 보이는 상태에서 되돌리기를 요청해도 표시가 달라지지 않는다`() {
         setCalendarWeekOfMonth()
         val before = composeRule.onNodeWithText(FIRST_ITEM_TEXT).getUnclippedBoundsInRoot()
 
@@ -73,7 +73,7 @@ class CalendarWeekOfMonthItemOverflowTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-004 되돌리기는 요청할 때마다 적용된다`() {
+    fun `TC-42e83782-a923-4b09-b406-403945b6af62 되돌리기는 요청할 때마다 적용된다`() {
         setCalendarWeekOfMonth()
         scrollToLastItem()
         requestScrollToTop()

@@ -55,7 +55,7 @@ class PlaceAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLACE-ADD-DOMAIN-007 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-361eb512-cb2a-42bf-b4d0-49ea7f623a1d 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = detail()
                 val secondDetail = detail()
@@ -82,7 +82,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-005 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-f3fccf17-885e-4620-9f20-482189daef9e 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val useCase = mockk<AddPlaceUseCase>()
@@ -103,7 +103,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-008 제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-276fe0b6-4c7a-420e-825c-dc7a061e21a7 제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(PlaceTitleBlankException())
@@ -123,7 +123,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-009 좌표가 성립하지 않으면 좌표 오류 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-839f33f5-6c41-4342-8bbb-203f3dd09e38 좌표가 성립하지 않으면 좌표 오류 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(PlaceCoordinateInvalidException())
@@ -143,7 +143,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-019 지도에서 고른 좌표로 장소를 추가한다") {
+        test("TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
@@ -173,7 +173,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-006 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-68a08b9a-ae59-4857-b38f-42601a414559 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddPlaceUseCase>()
@@ -195,7 +195,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-DOMAIN-014 저장된 기본 지도를 초기 지도 제공자로 지정한다") {
+        test("TC-4b7b891f-36d6-404a-980a-8bcdfba4d79b 저장된 기본 지도를 초기 지도 제공자로 지정한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(defaultProvider = provider)
@@ -207,7 +207,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-024 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
+        test("TC-324ffa89-7d94-4c54-b19a-93741f9ae256 기본 지도를 읽지 못하면 지도 제공자를 확인하지 않은 상태로 둔다") {
             runTest(mainDispatcher) {
                 val defaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { defaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException()))
@@ -284,7 +284,7 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-ADD-FEATURE-039 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-c35fbef8-5a2e-464a-a06f-e750fa20dc90 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())

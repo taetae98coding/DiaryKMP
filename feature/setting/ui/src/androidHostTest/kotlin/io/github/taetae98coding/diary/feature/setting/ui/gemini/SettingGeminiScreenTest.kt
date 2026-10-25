@@ -1,5 +1,13 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -16,6 +24,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -55,7 +66,7 @@ class SettingGeminiScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-020 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-f9e571da-19df-480b-b330-4acb5f36d403 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setScreen(navigateUp = { navigateUpCount += 1 })
 
@@ -66,7 +77,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-021 저장하지 않은 내용이 있어도 곧바로 돌아간다`() {
+    fun `TC-71dab48c-17fc-4d8c-a2ea-7fa8ba9de2e0 저장하지 않은 내용이 있어도 곧바로 돌아간다`() {
         val editingApiKey = editingApiKey()
         var navigateUpCount = 0
         val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
@@ -81,7 +92,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-004 인증 정보가 비어 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
+    fun `TC-bf792eb2-1157-4aa7-9dc1-849d7f0e871b 인증 정보가 비어 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
         setScreen(
             settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)),
@@ -97,7 +108,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-004 인증 정보에 공백만 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
+    fun `TC-bf792eb2-1157-4aa7-9dc1-849d7f0e871b 인증 정보에 공백만 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
         val systemPrompt = "prompt" + fixtureMonkey.giveMeOne<Int>()
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
         setScreen(
@@ -115,7 +126,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-032 모델은 목록에서 고를 뿐 직접 적을 수 없다`() {
+    fun `TC-b51630a9-a005-409d-851f-ea6ce36850e0 모델은 목록에서 고를 뿐 직접 적을 수 없다`() {
         setScreen()
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
@@ -124,7 +135,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-005 다이얼로그를 열면 입력란의 인증 정보로 조회한다`() {
+    fun `TC-54bf33da-7b16-4728-9208-c8b422ef52f7 다이얼로그를 열면 입력란의 인증 정보로 조회한다`() {
         val storedApiKey = storedApiKey()
         val editingSuffix = editingSuffix()
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
@@ -142,7 +153,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-003 화면에 들어오는 것만으로는 모델을 받아 오지 않는다`() {
+    fun `TC-4f82e618-8baf-419e-ae3a-ccb498f4e91d 화면에 들어오는 것만으로는 모델을 받아 오지 않는다`() {
         val storedApiKey = storedApiKey()
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
         setScreen(
@@ -155,7 +166,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-030 이미 받아 둔 목록이 있으면 다이얼로그를 열어도 다시 조회하지 않는다`() {
+    fun `TC-a0cb58d2-3f32-4fb7-a667-be0f915543a4 이미 받아 둔 목록이 있으면 다이얼로그를 열어도 다시 조회하지 않는다`() {
         val modelList = modelList()
         val storedApiKey = storedApiKey()
         val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList))
@@ -172,12 +183,12 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-033 받아 둔 목록이 있으면 인증 정보가 비어 있어도 모델 선택을 열어 고를 수 있다`() {
+    fun `TC-b127c219-d53c-4442-b0aa-125385d14c94 받아 둔 목록이 있으면 인증 정보가 비어 있어도 모델 선택을 열어 고를 수 있다`() {
         assertLoadedModelSelectableWithBlankApiKey(apiKey = "")
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-033 받아 둔 목록이 있으면 인증 정보가 공백뿐이어도 모델 선택을 열어 고를 수 있다`() {
+    fun `TC-b127c219-d53c-4442-b0aa-125385d14c94 받아 둔 목록이 있으면 인증 정보가 공백뿐이어도 모델 선택을 열어 고를 수 있다`() {
         assertLoadedModelSelectableWithBlankApiKey(apiKey = "   ")
     }
 
@@ -201,12 +212,12 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-034 받아 둔 목록이 있어도 인증 정보가 비어 있으면 다시 조회하지 않고 입력 필요를 알린다`() {
+    fun `TC-802a6bb0-5e64-45f3-bdd8-0038973d964d 받아 둔 목록이 있어도 인증 정보가 비어 있으면 다시 조회하지 않고 입력 필요를 알린다`() {
         assertReloadRejectedWithBlankApiKey(apiKey = "")
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-034 받아 둔 목록이 있어도 인증 정보가 공백뿐이면 다시 조회하지 않고 입력 필요를 알린다`() {
+    fun `TC-802a6bb0-5e64-45f3-bdd8-0038973d964d 받아 둔 목록이 있어도 인증 정보가 공백뿐이면 다시 조회하지 않고 입력 필요를 알린다`() {
         assertReloadRejectedWithBlankApiKey(apiKey = "   ")
     }
 
@@ -230,7 +241,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-014 모델을 골라도 저장하지 않는다`() {
+    fun `TC-3dc69964-ee78-415d-9564-54f8648d5eed 모델을 골라도 저장하지 않는다`() {
         val modelList = modelList()
         val storedApiKey = storedApiKey()
         val setting = GeminiSetting(apiKey = storedApiKey, model = modelList[0].id, systemPrompt = "")
@@ -249,7 +260,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-DATA-007 모델을 조회해도 인증 정보를 저장하지 않는다`() {
+    fun `TC-528e876a-2071-48db-97e0-140265dbfba0 모델을 조회해도 인증 정보를 저장하지 않는다`() {
         val editingApiKey = editingApiKey()
         val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
@@ -264,7 +275,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-015 저장 동작을 선택하면 입력한 세 값을 저장한다`() {
+    fun `TC-5305f042-c198-4a29-9d9b-7b490355f139 저장 동작을 선택하면 입력한 세 값을 저장한다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
@@ -278,7 +289,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-023 화면이 재생성되어도 입력 중이던 값과 저장 동작을 유지한다`() {
+    fun `TC-1aa3bc50-802d-4ef8-b2e2-9fe319706954 화면이 재생성되어도 입력 중이던 값과 저장 동작을 유지한다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         val restorationTester = StateRestorationTester(composeRule)
@@ -306,7 +317,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-024 저장된 설정을 채운 직후에는 저장 동작을 제공하지 않는다`() {
+    fun `TC-e84391f2-0ded-4490-9087-57dc56b22d96 저장된 설정을 채운 직후에는 저장 동작을 제공하지 않는다`() {
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
 
@@ -314,7 +325,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-025 인증 정보만 바꿔도 저장 동작을 제공한다`() {
+    fun `TC-abc5a5f7-d3f2-4b36-bbad-f592dd185ec1 인증 정보만 바꿔도 저장 동작을 제공한다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
@@ -325,7 +336,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-025 시스템 프롬프트만 바꿔도 저장 동작을 제공한다`() {
+    fun `TC-abc5a5f7-d3f2-4b36-bbad-f592dd185ec1 시스템 프롬프트만 바꿔도 저장 동작을 제공한다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
@@ -336,7 +347,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-025 인증 정보에 공백만 덧붙여도 저장 동작을 제공한다`() {
+    fun `TC-abc5a5f7-d3f2-4b36-bbad-f592dd185ec1 인증 정보에 공백만 덧붙여도 저장 동작을 제공한다`() {
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
 
@@ -346,7 +357,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-DOMAIN-004 인증 정보의 영문 대소문자만 바꿔도 저장 동작을 제공한다`() {
+    fun `TC-4c96577b-90ce-4721-9710-b2b44125dbb8 인증 정보의 영문 대소문자만 바꿔도 저장 동작을 제공한다`() {
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
 
@@ -356,7 +367,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-DOMAIN-004 시스템 프롬프트 앞에 공백만 더해도 저장 동작을 제공한다`() {
+    fun `TC-4c96577b-90ce-4721-9710-b2b44125dbb8 시스템 프롬프트 앞에 공백만 더해도 저장 동작을 제공한다`() {
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
 
@@ -366,7 +377,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-025 모델만 바꿔도 저장 동작을 제공한다`() {
+    fun `TC-abc5a5f7-d3f2-4b36-bbad-f592dd185ec1 모델만 바꿔도 저장 동작을 제공한다`() {
         val modelList = modelList()
         val setting = geminiSetting(model = modelList[0].id)
         setScreen(
@@ -383,7 +394,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-026 바꾼 값을 저장된 값으로 되돌리면 저장 동작을 다시 제공하지 않는다`() {
+    fun `TC-89ad8fd4-f725-4301-8a9a-fe5690471d1f 바꾼 값을 저장된 값으로 되돌리면 저장 동작을 다시 제공하지 않는다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)))
@@ -397,7 +408,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-027 저장에 성공하면 저장 동작을 더 제공하지 않는다`() {
+    fun `TC-ddd2e2c4-c02e-4d36-9a67-7026ca266269 저장에 성공하면 저장 동작을 더 제공하지 않는다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         val uiStateFlow = MutableStateFlow<SettingGeminiUiState>(SettingGeminiUiState.Content(setting = setting))
@@ -413,7 +424,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-028 저장에 실패하면 저장 동작을 계속 제공한다`() {
+    fun `TC-5dae2e8d-ad42-466a-8fe2-891e95121233 저장에 실패하면 저장 동작을 계속 제공한다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         val uiStateFlow = MutableStateFlow<SettingGeminiUiState>(SettingGeminiUiState.Content(setting = setting))
@@ -428,7 +439,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-029 저장을 처리하는 동안 값을 되돌리면 진행 표시까지 사라진다`() {
+    fun `TC-118ec14b-10fc-4fa9-bbc7-0aaae74e3fdd 저장을 처리하는 동안 값을 되돌리면 진행 표시까지 사라진다`() {
         val editingSuffix = editingSuffix()
         val setting = geminiSetting()
         val uiStateFlow = MutableStateFlow<SettingGeminiUiState>(SettingGeminiUiState.Content(setting = setting))
@@ -447,7 +458,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-011 다시 조회에 실패해도 받아 둔 목록과 고른 모델을 유지한다`() {
+    fun `TC-ef45d0e5-8837-402d-a394-2c7b9e9592f9 다시 조회에 실패해도 받아 둔 목록과 고른 모델을 유지한다`() {
         val modelList = modelList()
         val modelUiState = MutableStateFlow(SettingGeminiModelUiState(isLoaded = true, modelList = modelList))
         val failureChannel = Channel<SettingGeminiModelEffect>(Channel.BUFFERED)
@@ -473,12 +484,12 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-018 저장에 성공하면 입력을 비우지 않고 성공을 알린다`() {
+    fun `TC-4f7ca966-2ddc-4ddc-858d-befcae34e2ee 저장에 성공하면 입력을 비우지 않고 성공을 알린다`() {
         assertSaveFeedback(effect = SettingGeminiEffect.SaveSucceeded, message = DEFAULT_SAVE_SUCCEEDED_MESSAGE)
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-019 저장에 실패하면 입력을 유지하고 실패를 알린다`() {
+    fun `TC-e4611d27-bb3d-41c8-b08d-0c1028146247 저장에 실패하면 입력을 유지하고 실패를 알린다`() {
         assertSaveFeedback(effect = SettingGeminiEffect.SaveFailed, message = DEFAULT_SAVE_FAILED_MESSAGE)
     }
 
@@ -516,14 +527,14 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-035 받아 둔 목록이 있을 때 모델 선택을 연 채 재생성되면 닫힌 채로 돌아오고 조회하지 않는다`() {
+    fun `TC-bdddedd2-c974-4c93-8fef-c8511fe74127 받아 둔 목록이 있을 때 모델 선택을 연 채 재생성되면 닫힌 채로 돌아오고 조회하지 않는다`() {
         val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList()))
 
         assertModelDialogClosedAfterRestore(modelViewModel = modelViewModel, fetchCount = 0)
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-035 받아 둔 목록이 없을 때 모델 선택을 연 채 재생성되면 닫힌 채로 돌아오고 다시 조회하지 않는다`() {
+    fun `TC-bdddedd2-c974-4c93-8fef-c8511fe74127 받아 둔 목록이 없을 때 모델 선택을 연 채 재생성되면 닫힌 채로 돌아오고 다시 조회하지 않는다`() {
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
 
         assertModelDialogClosedAfterRestore(modelViewModel = modelViewModel, fetchCount = 1)
@@ -554,6 +565,174 @@ class SettingGeminiScreenTest {
 
         composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertDoesNotExist()
         verify(exactly = fetchCount) { modelViewModel.fetch(any()) }
+    }
+
+    @Test
+    fun `TC-58c04b0a-95d1-4a2e-b41d-5c9e01888f93 다른 앱에 다녀와도 입력 중이던 값과 저장 동작을 유지한다`() {
+        val editingSuffix = editingSuffix()
+        val setting = geminiSetting()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState())
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    SettingGeminiScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                        settingViewModel = settingViewModel,
+                        modelViewModel = modelViewModel,
+                    )
+                }
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+        verify(exactly = 0) { settingViewModel.save(any()) }
+    }
+
+    @Test
+    fun `TC-97e34f57-c3bf-4127-bb3d-f7d93e7b80a4 저장하지 않고 화면을 떠났다가 다시 들어오면 저장된 설정으로 시작하고 모델 목록을 새로 조회한다`() {
+        var isShown by mutableStateOf(true)
+
+        // 전환 이력에서 빠진 화면은 저장 상태와 화면 상태를 들고 있던 객체가 함께 사라지므로, 다시 들어온 화면은 저장 상태 없이 새 인스턴스로 구성된다.
+        assertFreshScreenStartsFromStoredSetting(
+            setContent = { content -> composeRule.setContent { if (isShown) content() } },
+            passBoundary = {
+                composeRule.runOnIdle { isShown = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isShown = true }
+            },
+        )
+    }
+
+    @Test
+    fun `TC-97e34f57-c3bf-4127-bb3d-f7d93e7b80a4 앱을 다시 실행하면 저장된 설정으로 시작하고 모델 목록을 새로 조회한다`() {
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 화면을 다시 구성한다.
+        assertFreshScreenStartsFromStoredSetting(
+            setContent = { content -> composeRule.setContent { key(launchCount) { content() } } },
+            passBoundary = { composeRule.runOnIdle { launchCount += 1 } },
+        )
+    }
+
+    private fun assertFreshScreenStartsFromStoredSetting(
+        setContent: (content: @Composable () -> Unit) -> Unit,
+        passBoundary: () -> Unit,
+    ) {
+        val setting = geminiSetting()
+        val editingSuffix = editingSuffix()
+        val firstSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val firstModelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList()))
+        val freshSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val freshModelViewModel = modelViewModel(SettingGeminiModelUiState())
+        var compositionCount = 0
+        setContent {
+            val isFirst = remember { compositionCount++ == 0 }
+
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = if (isFirst) firstSettingViewModel else freshSettingViewModel,
+                    modelViewModel = if (isFirst) firstModelViewModel else freshModelViewModel,
+                )
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+
+        passBoundary()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt).assertExists()
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
+        verify(exactly = 0) { firstSettingViewModel.save(any()) }
+        verify(exactly = 0) { freshSettingViewModel.save(any()) }
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { freshModelViewModel.fetch(apiKey = setting.apiKey) }
+    }
+
+    @Test
+    fun `TC-d6faa5a0-f406-49e0-8734-9ae8568b5254 시스템이 앱을 종료했다가 되살리면 입력은 유지되고 받아 둔 모델 목록과 열린 모델 선택은 이어지지 않는다`() {
+        val setting = geminiSetting()
+        val editingSuffix = editingSuffix()
+        val restorationTester = StateRestorationTester(composeRule)
+        val firstSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val firstModelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList()))
+        val revivedSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val revivedModelViewModel = modelViewModel(SettingGeminiModelUiState())
+        var isRevived = false
+        // 시스템이 앱을 종료했다가 되살리면 저장해 둔 화면 상태는 복원되지만 화면 상태를 들고 있던 객체는 새로 만들어진다.
+        restorationTester.setContent {
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = if (isRevived) revivedSettingViewModel else firstSettingViewModel,
+                    modelViewModel = if (isRevived) revivedModelViewModel else firstModelViewModel,
+                )
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
+
+        isRevived = true
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertDoesNotExist()
+        verify(exactly = 0) { revivedModelViewModel.fetch(any()) }
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { revivedModelViewModel.fetch(apiKey = setting.apiKey) }
+    }
+
+    @Test
+    fun `TC-b0b1f82f-1c75-443b-af5a-50102b153152 화면이 회전해도 받아 둔 모델 목록에서 다시 조회 없이 고를 수 있다`() {
+        val modelList = modelList()
+        val restorationTester = StateRestorationTester(composeRule)
+        val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting()))
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList))
+        restorationTester.setContent {
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = settingViewModel,
+                    modelViewModel = modelViewModel,
+                )
+            }
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
+        composeRule.onNodeWithText(modelList[1].id).assertExists()
+        verify(exactly = 0) { modelViewModel.fetch(any()) }
     }
 
     private fun setScreen(

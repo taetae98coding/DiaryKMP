@@ -76,7 +76,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             )
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-033 계정과 연결된 메모의 해제되지 않은 연결의 태그를 모두 조회한다") {
+        test("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 계정과 연결된 메모의 해제되지 않은 연결의 태그를 모두 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstTag = tag()
@@ -90,7 +90,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .first() shouldContainExactlyInAnyOrder listOf(firstTag, secondTag)
         }
 
-        test("TC-MEMO-DETAIL-DATA-005 해제된 연결의 태그는 조회되지 않는다") {
+        test("TC-278d2a9d-3386-4cee-a542-56f2577f0050 해제된 연결의 태그는 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -108,7 +108,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-DATA-010 가리키는 메모가 기기에 없는 연결은 메모별 태그 조회에 나타나지 않는다") {
+        test("TC-23953088-b463-4072-9ca9-13be23784eb2 가리키는 메모가 기기에 없는 연결은 메모별 태그 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -122,7 +122,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
         }
 
-        test("TC-MEMO-TAG-DOMAIN-011 계정과 연결되지 않은 태그를 메모에 연결해도 메모의 연결된 태그로 조회되지 않는다") {
+        test("TC-7a2f780f-348c-4006-8b7e-ea46cd179c08 계정과 연결되지 않은 태그를 메모에 연결해도 메모의 연결된 태그로 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -141,7 +141,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-001 다른 계정의 연결은 조회되지 않는다") {
+        test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 다른 계정의 연결은 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -151,7 +151,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-018 TC-MEMO-TAG-DOMAIN-012 완료된 태그의 연결도 조회된다") {
+        test("TC-a96e6ab1-53aa-412b-8818-9efac6db49e3 TC-76d211fc-cc39-4af9-ae09-da3e22841bda 완료된 태그의 연결도 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -164,7 +164,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldContainExactlyInAnyOrder listOf(finishedTag)
         }
 
-        test("TC-MEMO-DETAIL-DATA-018 TC-MEMO-DETAIL-FEATURE-049 TC-MEMO-TAG-DOMAIN-012 삭제된 태그의 연결은 조회되지 않는다") {
+        test("TC-a96e6ab1-53aa-412b-8818-9efac6db49e3 TC-fac3274a-65c0-48b6-a0aa-e43b7e597803 TC-76d211fc-cc39-4af9-ae09-da3e22841bda 삭제된 태그의 연결은 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -176,7 +176,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-DOMAIN-017 삭제된 태그의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+        test("TC-ee72205f-e02d-4403-b4ad-b743994d46bb 삭제된 태그의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -194,7 +194,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
         }
 
-        test("TC-MEMO-TAG-DOMAIN-018 태그의 이모지·제목·설명·컬러를 수정해도 메모와의 연결은 바뀌지 않는다") {
+        test("TC-038d714a-47cc-4ba1-ba9a-0531f3dc10bc 태그의 이모지·제목·설명·컬러를 수정해도 메모와의 연결은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -222,7 +222,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             "연결되지 않은 태그 하나를 새로 연결하면" to false,
             "연결된 태그 하나의 연결을 해제하면" to true,
         ).forEach { (label, isDeleted) ->
-            test("TC-MEMO-TAG-DATA-012 TC-DATA-SYNC-DOMAIN-001 $label 그 연결만 업로드 대기가 된다") {
+            test("TC-0c6f0881-63d7-456b-8439-9c1d76999476 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 $label 그 연결만 업로드 대기가 된다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo().copy(primaryTagId = null)
                 val keptTag = tag()
@@ -252,7 +252,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-019 연결된 태그가 완료되어도 조회 결과에 남는다") {
+        test("TC-bc8feb4b-8381-4ed7-ad9e-2b3c78442d89 연결된 태그가 완료되어도 조회 결과에 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -267,7 +267,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldContainExactlyInAnyOrder listOf(finishedTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-002 TC-MEMO-TAG-DOMAIN-013 조회한 태그는 제목 오름차순으로 정렬된다") {
+        test("TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d TC-d2942532-4b96-432c-8b0a-9acd2d608c22 조회한 태그는 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastTag = tag().let { tag -> tag.copy(detail = tag.detail.copy(title = LAST_TAG_TITLE)) }
@@ -282,7 +282,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .map { tag -> tag.detail.title } shouldBe listOf(FIRST_TAG_TITLE, LAST_TAG_TITLE)
         }
 
-        test("TC-MEMO-DETAIL-DATA-015 계정과 연결된 메모의 해제되지 않은 연결의 태그 id를 모두 조회한다") {
+        test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 계정과 연결된 메모의 해제되지 않은 연결의 태그 id를 모두 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstTag = tag()
@@ -294,7 +294,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.readTagIdList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder listOf(firstTag.id, secondTag.id)
         }
 
-        test("TC-MEMO-DETAIL-DATA-015 해제된 연결의 태그 id는 조회되지 않는다") {
+        test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 해제된 연결의 태그 id는 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -316,7 +316,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             "완료된" to { tag: TagLocalEntity -> tag.copy(isFinished = true) },
             "삭제된" to { tag: TagLocalEntity -> tag.copy(isDeleted = true) },
         ).forEach { (label, change) ->
-            test("TC-MEMO-DETAIL-DATA-015 $label 태그의 해제되지 않은 연결도 태그 id로 조회된다") {
+            test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 $label 태그의 해제되지 않은 연결도 태그 id로 조회된다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
                 val tag = tag()
@@ -329,7 +329,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-015 다른 계정의 연결은 태그 id로 조회되지 않는다") {
+        test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 다른 계정의 연결은 태그 id로 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -350,7 +350,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.readTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-009 TC-MEMO-DETAIL-FEATURE-051 선택 목록에는 선택할 수 있는 태그와 연결된 완료된 태그가 함께 담긴다") {
+        test("TC-8a88520a-5d49-4adb-abcc-d21a05f7ead8 TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 선택 목록에는 선택할 수 있는 태그와 연결된 완료된 태그가 함께 담긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val selectableTag = tag().withTitle(FIRST_TAG_TITLE)
@@ -368,7 +368,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(selectableTag, finishedTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-008 TC-MEMO-DETAIL-FEATURE-052 연결되지 않은 완료된 태그는 선택 목록에 담기지 않는다") {
+        test("TC-eef3ed3f-7869-4ba5-afd7-8c0158d21cce TC-c8b46a53-3227-4f18-9061-defb7a9cf9de 연결되지 않은 완료된 태그는 선택 목록에 담기지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val selectableTag = tag()
@@ -382,7 +382,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(selectableTag)
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-049 삭제된 태그는 연결이 남아 있어도 선택 목록에 담기지 않는다") {
+        test("TC-fac3274a-65c0-48b6-a0aa-e43b7e597803 삭제된 태그는 연결이 남아 있어도 선택 목록에 담기지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -398,7 +398,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-010 선택 목록은 완료 여부로 구분하지 않고 제목 오름차순으로 정렬한다") {
+        test("TC-b0aa3cdf-77a4-449a-bb0e-38fcff2ecbdf 선택 목록은 완료 여부로 구분하지 않고 제목 오름차순으로 정렬한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstTag = tag().withTitle(FIRST_TAG_TITLE)
@@ -417,7 +417,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(firstTag, finishedMiddleTag, lastTag)
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-053 연결이 해제되면 완료된 태그가 선택 목록에서 빠진다") {
+        test("TC-435c14a0-7434-48a6-9775-b8910c85738a 연결이 해제되면 완료된 태그가 선택 목록에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -443,7 +443,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-001 다른 계정의 태그는 선택 목록에 담기지 않는다") {
+        test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 다른 계정의 태그는 선택 목록에 담기지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -457,7 +457,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .shouldBeEmpty()
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-003 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-36238c18-3987-4f50-9051-4272285d7c16 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tagList =
@@ -481,7 +481,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(PAGE_SIZE).take(PAGE_SIZE)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-015 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
+        test("TC-5eaf66e6-583e-4d17-9bdc-e1a9fd38bf34 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val titleTag = tag().withDetail(emoji = "", title = "Travel", description = "")
@@ -506,7 +506,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-017 검색어를 만족하지 않으면 연결된 완료된 태그도 선택 목록에서 빠진다") {
+        test("TC-6fead397-e8d2-4843-bca0-d62477cafcce 검색어를 만족하지 않으면 연결된 완료된 태그도 선택 목록에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val selectableTag = tag().withDetail(emoji = "", title = "Travel", description = "")
@@ -524,7 +524,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(selectableTag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DATA-005 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
+        test("TC-ecf420f3-f92b-4577-8542-1b176636869a 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tagList =
@@ -541,7 +541,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .data shouldBe listOf(target)
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-038 연결이 바뀌면 조회 결과가 갱신된다") {
+        test("TC-ef9f8c54-750a-42b9-9491-ef622a6f420d 연결이 바뀌면 조회 결과가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val tag = tag()
@@ -554,7 +554,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldContainExactlyInAnyOrder listOf(tag)
         }
 
-        test("TC-MEMO-TAG-DOMAIN-014 필터를 고르지 않은 메모 목록에서 태그 연결은 노출과 순서를 바꾸지 않는다") {
+        test("TC-546496c5-218d-4e17-ae7b-937df11b75ef 필터를 고르지 않은 메모 목록에서 태그 연결은 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedMemo = memo().visible().withTitle(title = linkedTitle)
@@ -573,7 +573,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-TAG-DOMAIN-015 태그 필터를 고르지 않은 캘린더에서 태그 연결은 메모 노출을 바꾸지 않는다") {
+        test("TC-215cd5bd-6759-4904-9b87-33b084d3e62f 태그 필터를 고르지 않은 캘린더에서 태그 연결은 메모 노출을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
             val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
@@ -592,7 +592,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             calendarMemoList.map { memo -> memo.id } shouldContainExactlyInAnyOrder listOf(linkedMemo.id, unlinkedMemo.id)
         }
 
-        test("TC-MEMO-TAG-DOMAIN-016 연결된 태그의 제목은 메모 검색에 쓰이지 않는다") {
+        test("TC-953b1503-454f-4047-abff-2a6cd8878c14 연결된 태그의 제목은 메모 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }

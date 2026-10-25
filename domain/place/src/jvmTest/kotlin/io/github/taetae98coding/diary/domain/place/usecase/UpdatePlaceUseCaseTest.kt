@@ -63,13 +63,13 @@ class UpdatePlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 수정한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 수정을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-e4322045-cda0-47a9-a446-deb2016075f6 수정을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
 
-                Then("TC-PLACE-DETAIL-DOMAIN-004 입력한 내용과 수정 시각으로 수정한다") {
+                Then("TC-cef7c2d0-5c96-4770-98e7-0b394dce8b7c 입력한 내용과 수정 시각으로 수정한다") {
                     val expected = detail()
 
                     useCase(parameter = UpdatePlaceUseCase.Parameter(id = id, detail = expected)).shouldBeSuccess(1)
@@ -78,7 +78,7 @@ class UpdatePlaceUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-DETAIL-DOMAIN-006 설명과 주소가 비어 있으면 빈 설명과 빈 주소로 수정한다") {
+                Then("TC-e27a0440-cc0d-40ea-854f-993dd16342a4 설명과 주소가 비어 있으면 빈 설명과 빈 주소로 수정한다") {
                     useCase(
                         parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail(description = "", address = "")),
                     ).shouldBeSuccess(1)
@@ -93,7 +93,7 @@ class UpdatePlaceUseCaseTest :
                 "   " to "공백 문자로만 이루어진 제목",
             ).forEach { (blankTitle, label) ->
                 When("$label 과 유효한 좌표로 수정한다") {
-                    Then("TC-PLACE-DETAIL-DOMAIN-005 저장된 기존 제목으로 수정한다") {
+                    Then("TC-7759eb45-ad30-46a4-a547-e6ad5add9e07 저장된 기존 제목으로 수정한다") {
                         useCase(
                             parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail(title = blankTitle)),
                         ).shouldBeSuccess(1)
@@ -109,7 +109,7 @@ class UpdatePlaceUseCaseTest :
                 Coordinate(latitude = 0.0, longitude = 0.0),
             ).forEach { coordinate ->
                 When("유효 범위 경계 좌표 $coordinate 로 수정한다") {
-                    Then("TC-PLACE-DETAIL-DOMAIN-008 장소를 수정한다") {
+                    Then("TC-af3889f9-74b4-4a64-be8e-4e4c762284f1 장소를 수정한다") {
                         useCase(
                             parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail(coordinate = coordinate)),
                         ).shouldBeSuccess(1)
@@ -120,7 +120,7 @@ class UpdatePlaceUseCaseTest :
             }
 
             When("소수 여섯째 자리보다 긴 좌표로 수정한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-038 여섯째 자리로 반올림한 좌표로 수정한다") {
+                Then("TC-9f3e979c-cb2c-4373-bf7e-d54a2ba6a884 여섯째 자리로 반올림한 좌표로 수정한다") {
                     useCase(
                         parameter =
                             UpdatePlaceUseCase.Parameter(
@@ -158,7 +158,7 @@ class UpdatePlaceUseCaseTest :
                     )
 
                 When("공백이 아닌 제목으로 수정한다") {
-                    Then("TC-PLACE-DETAIL-DOMAIN-007 좌표 오류로 실패하고 아무 내용도 수정하지 않는다") {
+                    Then("TC-3c648035-b29d-4842-88df-bb82b836ca2b 좌표 오류로 실패하고 아무 내용도 수정하지 않는다") {
                         val result =
                             useCase(
                                 parameter =
@@ -181,7 +181,7 @@ class UpdatePlaceUseCaseTest :
                 }
 
                 When("제목을 비운 상태로 수정한다") {
-                    Then("TC-PLACE-DETAIL-DOMAIN-009 좌표 오류를 알리고 아무 내용도 수정하지 않는다") {
+                    Then("TC-bdbaf6bb-1411-4bcf-a55e-46b8e0b29dd4 좌표 오류를 알리고 아무 내용도 수정하지 않는다") {
                         val result =
                             useCase(
                                 parameter =
@@ -270,7 +270,7 @@ class UpdatePlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 수정한다") {
-                Then("TC-PLACE-DETAIL-DATA-010 수정은 성공으로 전달되고 기기에 반영한 내용을 되돌리지 않는다") {
+                Then("TC-8f437e19-20e2-49ef-b3d9-bb9f0f74746e 수정은 성공으로 전달되고 기기에 반영한 내용을 되돌리지 않는다") {
                     val expected = detail()
 
                     useCase(parameter = UpdatePlaceUseCase.Parameter(id = id, detail = expected)).shouldBeSuccess(1)
@@ -322,7 +322,7 @@ class UpdatePlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 수정한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 수정을 성공으로 다루지 않고 저장 실패를 전달한다") {
+                Then("TC-6d7ec354-4dd3-4336-9f46-42ddff1469ee 수정을 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = UpdatePlaceUseCase.Parameter(id = Uuid.random(), detail = detail()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
@@ -17,9 +18,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -33,9 +36,13 @@ internal class ContactHomeViewModel(
     val sortUiState: StateFlow<ListSortUiState>
         field = MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
 
+    val filterUiState: StateFlow<ContactHomeFilterUiState>
+        field = MutableStateFlow(ContactHomeFilterUiState())
+
     val contactPagingData: Flow<PagingData<Contact>> =
-        sortUiState
-            .flatMapLatest { (sort) -> pageContactUseCase(parameter = sort) }
+        combine(sortUiState, filterUiState) { sortUiState, filterUiState ->
+            PageContactUseCase.Parameter(sort = sortUiState.sort, filter = filterUiState.filter)
+        }.flatMapLatest { parameter -> pageContactUseCase(parameter = parameter) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
@@ -47,6 +54,18 @@ internal class ContactHomeViewModel(
 
     fun select(sort: ListSort) {
         sortUiState.value = ListSortUiState(sort = sort)
+    }
+
+    fun setBirthdayExistence(existence: ContactFilterExistence) {
+        filterUiState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthday = existence)) }
+    }
+
+    fun setBirthYearExistence(existence: ContactFilterExistence) {
+        filterUiState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthYear = existence)) }
+    }
+
+    fun setPhoneNumberExistence(existence: ContactFilterExistence) {
+        filterUiState.update { uiState -> uiState.copy(filter = uiState.filter.copy(phoneNumber = existence)) }
     }
 
     fun delete(id: Uuid) {

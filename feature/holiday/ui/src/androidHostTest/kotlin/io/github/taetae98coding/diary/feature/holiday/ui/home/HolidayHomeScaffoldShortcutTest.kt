@@ -32,7 +32,7 @@ class HolidayHomeScaffoldShortcutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-016 왼쪽 방향키를 누르면 이전 년도로 이동한다`() {
+    fun `TC-bd77cf90-eac1-4a44-ab84-f0b579ec6f47 왼쪽 방향키를 누르면 이전 년도로 이동한다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state)
 
@@ -44,7 +44,7 @@ class HolidayHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-016 오른쪽 방향키를 누르면 다음 년도로 이동한다`() {
+    fun `TC-bd77cf90-eac1-4a44-ab84-f0b579ec6f47 오른쪽 방향키를 누르면 다음 년도로 이동한다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state)
 
@@ -56,7 +56,7 @@ class HolidayHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-DOMAIN-013 1년에서 왼쪽 방향키를 눌러도 이전 년도로 이동하지 않는다`() {
+    fun `TC-ed6a3ba9-cfbc-4f01-9c1c-de26633cba97 1년에서 왼쪽 방향키를 눌러도 이전 년도로 이동하지 않는다`() {
         val state = HolidayHomeScaffoldState(initialYear = FIRST_YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state)
 
@@ -67,7 +67,7 @@ class HolidayHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-006 위쪽 방향키를 누르면 연차 개수가 하나 는다`() {
+    fun `TC-105a5761-c99f-4c15-8a4a-52206b6a59fb 위쪽 방향키를 누르면 연차 개수가 하나 는다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 
@@ -78,7 +78,7 @@ class HolidayHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-007 아래쪽 방향키를 누르면 연차 개수가 하나 준다`() {
+    fun `TC-c4b992eb-91b9-4839-95a7-b585cd3d7df0 아래쪽 방향키를 누르면 연차 개수가 하나 준다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 2)
         setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 
@@ -89,7 +89,7 @@ class HolidayHomeScaffoldShortcutTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-008 연차 개수가 0이면 아래쪽 방향키를 눌러도 줄지 않는다`() {
+    fun `TC-20f7cbec-2f83-4a85-a0bb-4167819af0b7 연차 개수가 0이면 아래쪽 방향키를 눌러도 줄지 않는다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
         setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 

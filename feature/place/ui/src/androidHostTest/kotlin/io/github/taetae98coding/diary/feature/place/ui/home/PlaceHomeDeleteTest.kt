@@ -62,7 +62,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-054 목록 모드에서 장소 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-bab09598-8421-4424-b1f4-2a18af1b800e 목록 모드에서 장소 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setPlaceHomeScreen()
 
         swipeCardLeft(environment.first)
@@ -74,7 +74,7 @@ class PlaceHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-HOME-FEATURE-054 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-bab09598-8421-4424-b1f4-2a18af1b800e 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         val environment = setPlaceHomeScreen(listViewModeDescription = KOREAN_LIST_VIEW_MODE_DESCRIPTION)
 
         swipeCardLeft(environment.first)
@@ -84,7 +84,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-057 장소 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+    fun `TC-685fc501-e0dc-4174-983b-c7e06f0f56c5 장소 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
         val environment = setPlaceHomeScreen()
 
         composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(environment.first.detail.title)).performTouchInput { swipeRight() }
@@ -97,7 +97,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-059 삭제를 실행 취소하면 그 장소의 삭제 되돌리기를 요청한다`() {
+    fun `TC-a9ca11c9-6511-4639-8078-b7ed9e907faf 삭제를 실행 취소하면 그 장소의 삭제 되돌리기를 요청한다`() {
         val environment = setPlaceHomeScreen()
 
         swipeCardLeft(environment.first)
@@ -108,7 +108,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-060 안내가 보이는 동안 다른 장소를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-292627a8-ee4d-48a7-9a10-f2801bb142b3 안내가 보이는 동안 다른 장소를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val environment = setPlaceHomeScreen()
 
         swipeCardLeft(environment.first)
@@ -126,7 +126,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-061 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-86978af6-de2f-4954-bcd7-46bb0530f85d 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setPlaceHomeScreen()
 
         swipeCardLeft(environment.first)
@@ -141,7 +141,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-063 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-1a339b80-41d6-4f95-9132-df7a936ae74b 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setPlaceHomeScreen(isShownProvider = { isShown })
 
@@ -159,7 +159,7 @@ class PlaceHomeDeleteTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-064 안내가 보이는 동안 보기 모드를 바꿔도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-30840d8f-3428-49a7-ade3-389ba9fecbd0 안내가 보이는 동안 보기 모드를 바꿔도 안내가 남고 실행 취소할 수 있다`() {
         val environment = setPlaceHomeScreen()
 
         swipeCardLeft(environment.first)

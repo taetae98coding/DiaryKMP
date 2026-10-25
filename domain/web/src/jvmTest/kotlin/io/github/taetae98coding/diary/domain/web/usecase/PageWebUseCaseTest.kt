@@ -38,7 +38,7 @@ class PageWebUseCaseTest :
                 )
 
             When("웹 목록을 페이지로 조회한다") {
-                Then("TC-WEB-HOME-DOMAIN-001 TC-WEB-HOME-DATA-001 현재 계정의 웹 항목을 페이지로 전달한다") {
+                Then("TC-4bd8debd-a708-44a1-a8c6-ed7ec28f4b0d TC-15ca546d-a9aa-4c94-b533-83e2ed65763b 현재 계정의 웹 항목을 페이지로 전달한다") {
                     val pagingData = useCase(parameter = ListSort.TITLE).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe webList
@@ -58,7 +58,7 @@ class PageWebUseCaseTest :
                 )
 
             When("웹 목록을 페이지로 조회한다") {
-                Then("TC-WEB-HOME-DOMAIN-002 실패를 그대로 전달한다") {
+                Then("TC-0e3aa805-7ba4-44cb-86c6-e816fedca70d 실패를 그대로 전달한다") {
                     useCase(parameter = ListSort.TITLE)
                         .first()
                         .shouldBeFailure()

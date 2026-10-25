@@ -58,7 +58,7 @@ class AccountTagRepositoryImplTest :
             verify(exactly = 1) { localDataSource.page(accountId = account.id, query = query, sort = ListSortLocalEntity.TITLE) }
         }
 
-        test("TC-TAG-HOME-DATA-006 최상위 태그 목록 페이지 조회는 현재 계정의 로컬 태그를 도메인 모델로 변환해 전달한다") {
+        test("TC-d99924f1-d849-49dc-81a2-f75fbf93edaa 최상위 태그 목록 페이지 조회는 현재 계정의 로컬 태그를 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localTagList = List(2) { localTag() }
             val localDataSource = mockk<AccountTagLocalDataSource>()
@@ -102,7 +102,7 @@ class AccountTagRepositoryImplTest :
             }
         }
 
-        test("TC-TAG-ADD-DATA-006 태그와 연결을 한 번의 저장 작업으로 함께 반영한다") {
+        test("TC-a9ca601b-2e0a-4754-a20f-47aabd8a2397 태그와 연결을 한 번의 저장 작업으로 함께 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val tag = tag()
             val firstToTagId = fixtureMonkey.giveMeOne<Uuid>()

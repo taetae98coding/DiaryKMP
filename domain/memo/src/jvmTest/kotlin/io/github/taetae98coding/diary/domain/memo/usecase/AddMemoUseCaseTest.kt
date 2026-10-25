@@ -55,7 +55,7 @@ class AddMemoUseCaseTest :
                     )
 
                 When("메모를 추가한다") {
-                    Then("TC-MEMO-ADD-DOMAIN-001 제목 공백 예외로 실패하고 메모를 저장하지 않는다") {
+                    Then("TC-e430b759-fab2-45cf-9ceb-37aa4dc2dce7 제목 공백 예외로 실패하고 메모를 저장하지 않는다") {
                         val result = useCase(parameter = AddMemoUseCase.Parameter(detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = blankTitle)))
 
                         result.shouldBeFailure().shouldBeInstanceOf<MemoTitleBlankException>()
@@ -89,7 +89,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-001 현재 계정과 연결된 메모로 초기 상태와 함께 저장한다") {
+                Then("TC-314023b2-9ae8-4398-8854-77af258e05b0 현재 계정과 연결된 메모로 초기 상태와 함께 저장한다") {
                     val title = "title-${fixtureMonkey.giveMeOne<String>()}"
 
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title)))
@@ -106,7 +106,7 @@ class AddMemoUseCaseTest :
                     memo.updatedAt shouldBe now
                 }
 
-                Then("TC-MEMO-ADD-DATA-002 입력한 설명과 컬러가 저장된 메모에 포함된다") {
+                Then("TC-cbe68117-98f2-4558-8fa7-bb579bd5b8e8 입력한 설명과 컬러가 저장된 메모에 포함된다") {
                     val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = detail))
@@ -118,7 +118,7 @@ class AddMemoUseCaseTest :
                     memo.detail.color shouldBe detail.color
                 }
 
-                Then("TC-MEMO-ADD-DATA-003 선택한 기간이 종일 여부와 함께 저장된 메모에 포함된다") {
+                Then("TC-894d4fd2-61ee-4e04-82a8-d78fe42d0194 선택한 기간이 종일 여부와 함께 저장된 메모에 포함된다") {
                     listOf(
                         fixtureMonkey.giveMeOne<MemoDateTime.AllDay>(),
                         fixtureMonkey.giveMeOne<MemoDateTime.DateTime>(),
@@ -136,7 +136,7 @@ class AddMemoUseCaseTest :
                     }
                 }
 
-                Then("TC-MEMO-ADD-DATA-004 기간을 선택하지 않으면 기간 없는 메모로 저장된다") {
+                Then("TC-fe6740a4-5365-4898-9467-f2b437286d37 기간을 선택하지 않으면 기간 없는 메모로 저장된다") {
                     val detail =
                         fixtureMonkey.giveMeOne<MemoDetail>().copy(
                             title = "title-${fixtureMonkey.giveMeOne<String>()}",
@@ -149,7 +149,7 @@ class AddMemoUseCaseTest :
                     memoSlot.captured.detail.dateTime shouldBe null
                 }
 
-                Then("TC-MEMO-ADD-DATA-005 선택한 태그가 메모의 태그 연결로 함께 저장된다") {
+                Then("TC-1bd7fb2b-b528-4cbf-b759-458a42d213c7 선택한 태그가 메모의 태그 연결로 함께 저장된다") {
                     val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
 
                     val result =
@@ -166,7 +166,7 @@ class AddMemoUseCaseTest :
                     memoSlot.captured.primaryTagId shouldBe null
                 }
 
-                Then("TC-MEMO-ADD-DATA-006 대표 태그로 지정한 태그가 메모의 대표 태그로 저장되고 연결에도 포함된다") {
+                Then("TC-6e42114a-4a75-4beb-a036-94280de2ecd1 대표 태그로 지정한 태그가 메모의 대표 태그로 저장되고 연결에도 포함된다") {
                     val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
 
@@ -185,7 +185,7 @@ class AddMemoUseCaseTest :
                     tagIdSetSlot.captured shouldBe setOf(primaryTagId, otherTagId)
                 }
 
-                Then("TC-MEMO-ADD-DATA-007 태그를 선택하지 않으면 태그 연결과 대표 태그 없이 저장된다") {
+                Then("TC-18e902c0-5bea-4526-beb1-1d560d0221ca 태그를 선택하지 않으면 태그 연결과 대표 태그 없이 저장된다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
@@ -193,7 +193,7 @@ class AddMemoUseCaseTest :
                     tagIdSetSlot.captured.shouldBeEmpty()
                 }
 
-                Then("TC-MEMO-ADD-DATA-008 TC-MEMO-TAG-DOMAIN-005 대표 태그만 지정해도 그 태그가 태그 연결에 포함된다") {
+                Then("TC-7ff5224b-a56f-43df-91ce-8159163bc6df TC-6e084cdf-c840-440d-9420-a8a2c48371b5 대표 태그만 지정해도 그 태그가 태그 연결에 포함된다") {
                     val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result =
@@ -210,7 +210,7 @@ class AddMemoUseCaseTest :
                     tagIdSetSlot.captured shouldBe setOf(primaryTagId)
                 }
 
-                Then("TC-MEMO-ADD-DOMAIN-006 태그를 선택하지 않아도 메모 추가가 성립한다") {
+                Then("TC-2ccf8ea0-9927-4e73-b8d1-a5f8c9122e46 태그를 선택하지 않아도 메모 추가가 성립한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess(memoSlot.captured.id)
@@ -240,7 +240,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("장소를 선택하고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-009 선택한 장소가 메모의 장소 연결로 함께 저장된다") {
+                Then("TC-f25ea7b1-9325-4512-9a0f-c406fbc398c7 선택한 장소가 메모의 장소 연결로 함께 저장된다") {
                     val placeIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
 
                     val result =
@@ -258,7 +258,7 @@ class AddMemoUseCaseTest :
             }
 
             When("장소를 선택하지 않고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-010 장소 연결 없이 저장된다") {
+                Then("TC-a254610c-7b48-4c2f-b062-91b924b87ac1 장소 연결 없이 저장된다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
@@ -290,7 +290,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("웹 항목을 선택하고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-015 TC-MEMO-ADD-DATA-018 선택한 웹 항목이 메모의 웹 연결로 함께 저장된다") {
+                Then("TC-0fbeac89-3b5d-423f-a31b-98aa534c3d4f TC-091ffad3-5a38-48c2-aba5-3d815113610a 선택한 웹 항목이 메모의 웹 연결로 함께 저장된다") {
                     val webIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
 
                     val result =
@@ -308,14 +308,14 @@ class AddMemoUseCaseTest :
             }
 
             When("웹 항목을 선택하지 않고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-016 웹 연결 없이 저장된다") {
+                Then("TC-c346741e-d2b1-4ca9-bbaf-677a26446589 웹 연결 없이 저장된다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
                     webIdSetSlot.captured.shouldBeEmpty()
                 }
 
-                Then("TC-MEMO-ADD-DOMAIN-012 웹 항목을 선택하지 않아도 메모 추가가 성립한다") {
+                Then("TC-9a0b6437-1143-4b68-9135-245283cdc1b6 웹 항목을 선택하지 않아도 메모 추가가 성립한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
@@ -355,7 +355,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("연락처를 선택하고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-019 TC-MEMO-ADD-DATA-022 선택한 연락처가 메모의 연락처 연결로 함께 저장된다") {
+                Then("TC-fff9337e-f12d-436c-8bcc-61b58f674a0a TC-9a7affe5-2910-408a-83fe-444074531be9 선택한 연락처가 메모의 연락처 연결로 함께 저장된다") {
                     val contactIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
 
                     val result =
@@ -373,14 +373,14 @@ class AddMemoUseCaseTest :
             }
 
             When("연락처를 선택하지 않고 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-020 연락처 연결 없이 저장된다") {
+                Then("TC-ed1cebe3-c2d8-4531-a6b4-ce2dc5a0ac36 연락처 연결 없이 저장된다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
                     contactIdSetSlot.captured.shouldBeEmpty()
                 }
 
-                Then("TC-MEMO-ADD-DOMAIN-013 연락처를 선택하지 않아도 메모 추가가 성립한다") {
+                Then("TC-eea843e6-d3fc-4312-a0e8-8cac50f8fa14 연락처를 선택하지 않아도 메모 추가가 성립한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
 
                     result.shouldBeSuccess()
@@ -445,7 +445,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DOMAIN-010 계정 조회 실패를 전달하고 메모를 저장하지 않는다") {
+                Then("TC-2ac5658b-d3a2-4e04-b229-3288e9e0f513 계정 조회 실패를 전달하고 메모를 저장하지 않는다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
@@ -474,7 +474,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-ADD-DATA-023 메모 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-0ad50339-a92e-40c2-b05a-07ecf700ee28 메모 저장 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")))
 
                     result.shouldBeSuccess()
@@ -508,7 +508,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-024 추가는 성공으로 전달되고 저장한 메모를 되돌리지 않는다") {
+                Then("TC-fdd4b34d-3987-4524-94ae-bf70cf1894d8 추가는 성공으로 전달되고 저장한 메모를 되돌리지 않는다") {
                     val memoId = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail())).shouldBeSuccess()
 
                     memoSlot.captured.id shouldBe memoId
@@ -535,7 +535,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-MEMO-ADD-DATA-025 게스트 계정으로 기기에 저장하고 추가를 성공으로 전달하며 서버 반영 여부는 동기화 요청에 맡긴다") {
+                Then("TC-2364d348-12f9-476a-8cf4-dc7f00ecdd29 게스트 계정으로 기기에 저장하고 추가를 성공으로 전달하며 서버 반영 여부는 동기화 요청에 맡긴다") {
                     useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountMemoRepository.upsert(account = Account.Guest, memo = any(), tagIdSet = any()) }
