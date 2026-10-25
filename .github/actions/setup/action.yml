@@ -30,6 +30,10 @@ runs:
       with:
         # 기본값은 기본 브랜치(develop)에서만 캐시를 쓰지만 CI는 main 대상 PR과 main 배포에서만 돌므로, PR을 뺀 실행이 캐시를 갱신한다.
         cache-read-only: ${{ github.event_name == 'pull_request' }}
+        # 실패 원인과 태스크별 소요 시간을 작업 요약의 링크로 바로 보도록 CI 빌드마다 scans.gradle.com에 올린다.
+        build-scan-publish: true
+        build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
+        build-scan-terms-of-use-agree: 'yes'
 
     # Kotlin/Native 툴체인과 의존성(~/.konan)은 Gradle User Home 밖에 있어 따로 캐시한다.
     - name: 🗂️ Kotlin/Native 캐시 복원
