@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Wave"
+  short_description: "slug 전체의 스펙·테스트 케이스·테스트 코드·구현 추적 전수 점검"
+  default_prompt: "Use $audit-wave to audit whole slugs for gaps and conflicts across spec, design, test cases, test code and implementation, delegating each feature area to a separate sonnet session, and report findings without fixing them."
