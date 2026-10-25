@@ -17,6 +17,16 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 
 자동화할 수 없는 케이스를 조용히 생략하지 않는다. 해당 케이스 아래에 `작성하지 않는 이유`를 기록하고, 작업 결과에도 미작성 ID를 요약한다. 테스트 실패를 피하려고 기대 결과를 약화하거나 문서와 다른 동작에 맞추지 않는다.
 
+## 작성 중 확인
+
+테스트를 작성하는 동안에는 바뀐 모듈의 테스트만 돌려 확인한다. 저장소 전체 실행은 `verify-wave`가 한 번만 맡는다.
+
+```bash
+./gradlew $(DIARY_AGENTS/scripts/changed-module-tasks.sh jvmTest) $(DIARY_AGENTS/scripts/changed-module-tasks.sh testAndroidHostTest) --continue
+```
+
+작성을 마치면 `DIARY_AGENTS/scripts/check-testcase-trace.py <slug>`로 ID 누락과 문서에 없는 ID가 없는지 확인한다.
+
 ## 추가 테스트
 
 문서 케이스를 모두 구현한 뒤 회귀 위험과 구현 계약을 검토해 필요한 테스트를 추가한다.
