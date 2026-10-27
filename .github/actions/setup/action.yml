@@ -14,9 +14,18 @@ runs:
   using: composite
   steps:
     # 러너 메모리에 맞춘 CI 전용 값이 프로젝트 gradle.properties보다 우선하도록 Gradle User Home에 둔다.
+    # 공통 값 뒤에 러너 OS별 값을 붙여, 같은 키는 OS별 값이 이긴다.
     - name: 📝 CI gradle.properties 복사
       shell: bash
-      run: mkdir -p ~/.gradle && cp .github/ci-gradle.properties ~/.gradle/gradle.properties
+      run: |
+        set -euo pipefail
+        case "$RUNNER_OS" in
+          Linux) os=linux ;;
+          macOS) os=macos ;;
+          *) echo "::error::CI gradle.properties가 없는 러너 OS입니다: $RUNNER_OS"; exit 1 ;;
+        esac
+        mkdir -p ~/.gradle
+        cat .github/ci.gradle.properties ".github/ci-$os.gradle.properties" > ~/.gradle/gradle.properties
 
     - name: ☕ JDK 21 설치
       uses: actions/setup-java@v6
