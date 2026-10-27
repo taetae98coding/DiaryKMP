@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalCoilApi::class)
+
 package io.github.taetae98coding.diary.compose.core.image
 
 import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.decode.DecodeResult
 import coil3.decode.DecodeUtils

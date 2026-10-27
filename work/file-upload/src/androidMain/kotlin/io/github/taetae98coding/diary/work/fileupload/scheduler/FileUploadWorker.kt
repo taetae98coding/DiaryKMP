@@ -81,7 +81,6 @@ internal class FileUploadWorker(
         try {
             setForeground(androidFileUploadNotifier.createForegroundInfo(name = name, percent = percent))
         } catch (_: IllegalStateException) {
-            Unit
         }
     }
 }

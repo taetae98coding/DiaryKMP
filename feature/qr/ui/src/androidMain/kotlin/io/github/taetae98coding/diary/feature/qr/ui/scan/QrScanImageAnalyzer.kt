@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalGetImage::class)
-
 package io.github.taetae98coding.diary.feature.qr.ui.scan
 
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScanner
