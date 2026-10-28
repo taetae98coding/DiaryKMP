@@ -171,7 +171,6 @@ class WebDetailTabTest {
         composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
-        verify(exactly = 0) { pageViewModel.refresh() }
     }
 
     @Test

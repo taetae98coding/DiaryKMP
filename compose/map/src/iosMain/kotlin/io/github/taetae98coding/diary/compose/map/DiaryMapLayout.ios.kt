@@ -1,3 +1,3 @@
 package io.github.taetae98coding.diary.compose.map
 
-public actual val defaultDiaryMapLayout: DiaryMapLayout = DiaryMapLayout.OVERLAY
+internal actual val diaryMapLayout: DiaryMapLayout = DiaryMapLayout.OVERLAY

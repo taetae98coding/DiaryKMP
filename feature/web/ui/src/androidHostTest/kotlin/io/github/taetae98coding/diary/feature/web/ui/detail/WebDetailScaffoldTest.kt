@@ -17,7 +17,6 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -458,98 +457,6 @@ class WebDetailScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
         composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
-    }
-
-    @Test
-    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 탭을 바꿨다가 웹 페이지 탭으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
-        val eventList = mutableListOf<WebDetailScaffoldEvent>()
-
-        setWebDetailScaffold(session = DiaryWebSession(failureId = 1), onEvent = eventList::add)
-        composeRule.waitForIdle()
-
-        composeRule.selectFormTab()
-        composeRule.selectPageTab()
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
-    }
-
-    @Test
-    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 표시 방식을 오갔다가 URL 방식으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
-        val eventList = mutableListOf<WebDetailScaffoldEvent>()
-
-        setWebDetailScaffold(
-            pageUiState = WebDetailPageUiState.Failure,
-            session = DiaryWebSession(failureId = 1),
-            onEvent = eventList::add,
-        )
-        composeRule.waitForIdle()
-
-        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
-        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
-    }
-
-    @Test
-    fun `TC-0a9f75ba-e039-4d5f-bf22-a9546dfb11c2 응답 본문 방식을 보는 동안 실패하면 URL 방식으로 바꿀 때 한 번 알린다`() {
-        val eventList = mutableListOf<WebDetailScaffoldEvent>()
-
-        setWebDetailScaffold(
-            pageUiState = WebDetailPageUiState.Failure,
-            initialViewMode = WebDetailViewMode.RESPONSE,
-            session = DiaryWebSession(failureId = 1),
-            onEvent = eventList::add,
-        )
-        composeRule.waitForIdle()
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 0
-
-        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
-    }
-
-    @Test
-    fun `TC-0a9f75ba-e039-4d5f-bf22-a9546dfb11c2 웹 정보 수정 탭을 보는 동안 실패하면 웹 페이지 탭을 고를 때 한 번 알린다`() {
-        val eventList = mutableListOf<WebDetailScaffoldEvent>()
-
-        setWebDetailScaffold(
-            initialTab = WebDetailTab.FORM,
-            session = DiaryWebSession(failureId = 1),
-            onEvent = eventList::add,
-        )
-        composeRule.waitForIdle()
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 0
-
-        composeRule.selectPageTab()
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
-    }
-
-    @Test
-    fun `TC-dc502268-12a5-42b9-bbc2-399e4ee17155 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
-        val restorationTester = StateRestorationTester(composeRule)
-        val eventList = mutableListOf<WebDetailScaffoldEvent>()
-        val uiState = testContentUiState()
-
-        SingletonDiaryWebSession.set(DiaryWebSession(failureId = 1))
-        restorationTester.setContent {
-            WebDetailScaffoldUnderTest(
-                uiState = uiState,
-                pageUiState = WebDetailPageUiState.Loading,
-                detail = uiState.detail,
-                initialTab = WebDetailTab.PAGE,
-                initialViewMode = WebDetailViewMode.URL,
-                onEvent = eventList::add,
-            )
-        }
-        composeRule.waitForIdle()
-
-        restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
     }
 
     @Test

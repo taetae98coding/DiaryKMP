@@ -27,7 +27,7 @@ internal class CalendarHomeBirthdayViewModel(
     private val getCalendarContactBirthdayUseCase: GetCalendarContactBirthdayUseCase,
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
-    private val fetchingYearMonthSet = mutableSetOf<YearMonth>()
+    private val fetchingYearSet = mutableSetOf<Int>()
 
     val uiState: StateFlow<CalendarHomeBirthdayUiState> =
         yearMonth
@@ -50,18 +50,17 @@ internal class CalendarHomeBirthdayViewModel(
     fun fetch(yearMonth: YearMonth) {
         this.yearMonth.value = yearMonth
 
-        // 같은 달의 동기화가 진행 중이면 다시 시작하지 않고, 다른 달이면 진행 중이어도 새로 요청한다.
-        if (!fetchingYearMonthSet.add(yearMonth)) return
+        val dateRange = yearMonth.calendarHomeFetchDateRange()
+        val yearList = (dateRange.start.year..dateRange.endInclusive.year).filter { year -> fetchingYearSet.add(year) }
+        if (yearList.isEmpty()) return
 
         viewModelScope.launch {
-            try {
-                val dateRange = yearMonth.calendarHomeFetchDateRange()
-
-                for (year in dateRange.start.year..dateRange.endInclusive.year) {
+            yearList.forEach { year ->
+                try {
                     fetchLunarUseCase(parameter = year)
+                } finally {
+                    fetchingYearSet.remove(year)
                 }
-            } finally {
-                fetchingYearMonthSet.remove(yearMonth)
             }
         }
     }

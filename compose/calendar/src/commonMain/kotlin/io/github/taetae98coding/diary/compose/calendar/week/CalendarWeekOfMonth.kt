@@ -21,8 +21,6 @@ import io.github.taetae98coding.diary.compose.calendar.dateRangeAt
 import io.github.taetae98coding.diary.compose.calendar.dayofmonth.CalendarDayOfMonthRow
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
 import io.github.taetae98coding.diary.compose.calendar.grid.verticalgrid.CalendarWeekOfMonthLazyVerticalGrid
-import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
-import io.github.taetae98coding.diary.compose.calendar.scroll.rememberCalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.select.CalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.select.calendarSelectBackground
 import io.github.taetae98coding.diary.compose.calendar.select.rememberCalendarSelectState
@@ -39,7 +37,6 @@ public fun CalendarWeekOfMonth(
     weekOfMonth: Int,
     modifier: Modifier = Modifier,
     selectState: CalendarSelectState = rememberCalendarSelectState(),
-    itemScrollState: CalendarItemScrollState = rememberCalendarItemScrollState(),
     onEvent: ((CalendarEvent) -> Unit)? = null,
     isDateClickEnabled: Boolean = false,
     isWeekClickEnabled: Boolean = false,
@@ -83,7 +80,6 @@ public fun CalendarWeekOfMonth(
                             )
                         } ?: Modifier,
                     ),
-            itemScrollState = itemScrollState,
             content = content,
         )
     }

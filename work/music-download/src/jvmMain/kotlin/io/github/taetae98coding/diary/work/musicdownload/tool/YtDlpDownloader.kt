@@ -18,12 +18,8 @@ internal class YtDlpDownloader(
     suspend fun download(
         videoId: String,
         path: MusicFilePath,
-        onProgress: suspend (Float) -> Unit,
     ): Boolean {
         val ytDlpPath = commandRunner.find(command = DownloadTool.YT_DLP.command) ?: return false
-        val progress = YtDlpProgress()
-
-        onProgress(0F)
 
         val exitCode =
             commandRunner.run(
@@ -37,16 +33,11 @@ internal class YtDlpDownloader(
                         "mp4",
                         // 링크에 재생 목록이 함께 붙어 있어도 그 영상 하나만 받는다.
                         "--no-playlist",
-                        // 진행률을 한 줄씩 받아 읽으려면 덮어쓰기 출력을 꺼야 한다.
-                        "--newline",
-                        "--no-colors",
                         "-o",
                         path.downloading,
                         videoId.toYoutubeVideoLink(),
                     ),
-            ) { line ->
-                progress.onLine(line = line)?.let { value -> onProgress(value) }
-            }
+            )
 
         return withContext(dispatcher) { path.complete(isDownloaded = exitCode == SUCCESS_EXIT_CODE) }
     }

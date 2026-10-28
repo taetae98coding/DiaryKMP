@@ -138,6 +138,7 @@
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
 | 권한 요청 공통 | [client](./client/permission.md) | — | — | — |
+| 기기 설정 화면 공통 | [client](./client/device-setting.md) | — | — | — |
 | 기기에 저장한 공휴일 | [client](./client/holiday-database.md) | — | — | — |
 | 기능 실패 로깅 | [client](./client/usecase-failure-logging.md) | — | — | — |
 | 날짜·시간 입력 컴포넌트 | [client](./client/diary-date-time-input.md) | — | — | [DiaryDateTimeInput 디자인](../design/diary-date-time-input.md) |
@@ -156,22 +157,27 @@
 | 메모 장소 카드 컴포넌트 | [client](./client/memo-place-card.md) | — | — | [메모 장소 카드 디자인](../design/memo-place-card.md) |
 | 메모 태그 | [client](./client/memo-tag.md) | [common](./common/memo-tag.md) | — | — |
 | 메모 태그 입력 컴포넌트 | [client](./client/memo-tag-input.md) | — | — | [메모 태그 입력 디자인](../design/memo-tag-input.md) |
+| 메모 항목 선택 입력 공통 | [client](./client/memo-entity-input.md) | — | — | [메모 연락처 입력 디자인](../design/memo-contact-input.md), [메모 웹 입력 디자인](../design/memo-web-input.md) |
 | 목록 빈 상태 | [client](./client/list-empty-state.md) | — | — | [목록 빈 상태 디자인](../design/list-empty-state.md) |
-| 목록 추가 단축키 | [client](./client/list-add-shortcut.md) | — | — | [목록 추가 단축키 디자인](../design/list-add-shortcut.md) |
 | 목록 정렬 | [client](./client/list-sort.md) | — | — | [목록 정렬 디자인](../design/list-sort.md) |
+| 목록 추가 단축키 | [client](./client/list-add-shortcut.md) | — | — | [목록 추가 단축키 디자인](../design/list-add-shortcut.md) |
 | 목록 필터 반영 | [client](./client/list-filter.md) | — | — | [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | 목록·상세 배치 공통 | [client](./client/list-detail-pane.md) | — | — | [목록·상세 배치 공통 디자인](../design/list-detail-pane.md) |
 | 새로고침 | [client](./client/sync-refresh.md) | — | — | [새로고침 디자인](../design/sync-refresh.md), [PlaceHome 디자인](../design/place-home.md) |
 | 설명 입력 컴포넌트 | [client](./client/description-input.md) | — | — | [설명 입력 디자인](../design/description-input.md) |
 | 알림 권한 요청 | [client](./client/notification-permission.md) | — | — | — |
 | 앱 로깅 | [client](./client/app-logging.md) | — | — | — |
+| 앱 밖 브라우저 열기 | [client](./client/external-browser-open.md) | — | — | — |
 | 앱 이름 | [client](./client/app-name.md) | — | — | — |
+| 앱 활성 상태 | [client](./client/app-active-state.md) | — | — | — |
+| 연도별 자료 동기화 | [client](./client/yearly-data-sync.md) | — | — | — |
 | 완료 목록 공통 | [client](./client/finished-list.md) | — | — | [완료 목록 공통 디자인](../design/finished-list.md) |
 | 웹 태그 | [client](./client/web-tag.md) | [common](./common/web-tag.md) | — | — |
 | 위치 권한 요청 | [client](./client/location-permission.md) | — | — | — |
 | 음력 자료 동기화 | [client](./client/lunar-fetch.md) | — | — | — |
 | 일일 메모 알림 | [client](./client/daily-memo-notification.md) | [common](./common/daily-memo-notification.md) | [server](./server/daily-memo-notification.md) | [일일 메모 알림 디자인](../design/daily-memo-notification.md) |
 | 입력 정지 대기 시간 | [client](./client/input-idle-delay.md) | — | — | — |
+| 장소 | [client](./client/place.md) | [common](./common/place.md) | — | — |
 | 장소 검색 공통 | [client](./client/place-search.md) | — | — | — |
 | 장소 검색 다이얼로그 컴포넌트 | [client](./client/place-search-dialog.md) | — | — | [장소 검색 다이얼로그 디자인](../design/place-search-dialog.md) |
 | 장소 보기 모드 | [client](./client/place-view-mode.md) | — | — | [장소 보기 모드 디자인](../design/place-view-mode.md) |
@@ -192,11 +198,12 @@
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
 | 푸시 알림 수신 등록 | [client](./client/fcm-token.md) | [common](./common/fcm-token.md) | [server](./server/fcm-token.md) | — |
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |
+| 항목 목록 화면 공통 | [client](./client/entity-home.md) | — | — | — |
 | 항목 상세 메모 탭 공통 | [client](./client/entity-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
 | 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | — |
+| 항목 연결 공통 | [client](./client/entity-link.md) | [common](./common/entity-link.md) | — | — |
 | 항목 완료 메모 목록 화면 | [client](./client/entity-memo-finished-list.md) | — | — | [항목 완료 메모 목록 화면 디자인](../design/entity-memo-finished-list.md) |
 | 항목 완료 메모 목록·상세 배치 | [client](./client/entity-memo-finished-list-detail.md) | — | — | [항목 완료 메모 목록·상세 배치 디자인](../design/entity-memo-finished-list-detail.md) |
-| 항목 연결 공통 | [client](./client/entity-link.md) | [common](./common/entity-link.md) | — | — |
 | 항목 추가 화면 공통 | [client](./client/entity-add.md) | — | — | [항목 추가 화면 공통 디자인](../design/entity-add.md) |
 | 항목 태그 연결 공통 | [client](./client/entity-tag.md) | [common](./common/entity-tag.md) | — | — |
 | 항목 태그 입력 컴포넌트 | [client](./client/entity-tag-input.md) | — | — | [항목 태그 입력 디자인](../design/entity-tag-input.md) |

@@ -46,20 +46,6 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-322ea784-4063-48d7-b96f-c631b64b1505 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
-        val allTagList = tagList(ALL_TAG_COUNT)
-        val isApplied = mutableStateOf(false)
-        val tagPagingData = MutableStateFlow(tagPagingDataOf(allTagList))
-        setTagHomeScaffold(isApplied = isApplied, tagPagingData = tagPagingData)
-
-        scrollToLast(tagList = allTagList)
-        switchFilter(isApplied = isApplied, value = true)
-
-        composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
-        composeRule.onNodeWithText(allTagList.last().title()).assertIsDisplayed()
-    }
-
-    @Test
     fun `TC-4b1b2ee2-4c1b-490b-a55d-2ffc118c9620 필터를 켜면 좁힌 결과가 놓일 때 목록을 처음부터 다시 본다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
@@ -173,34 +159,6 @@ class TagHomeFilterScrollTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(tagList.first().title()).assertDoesNotExist()
-    }
-
-    private fun switchFilter(
-        isApplied: MutableState<Boolean>,
-        value: Boolean,
-    ) {
-        composeRule.runOnIdle { isApplied.value = value }
-        composeRule.waitForIdle()
-    }
-
-    private fun setTagHomeScaffold(
-        isApplied: MutableState<Boolean>,
-        tagPagingData: MutableStateFlow<PagingData<Tag>>,
-    ) {
-        composeRule.setContent {
-            DiaryTheme {
-                // TagHomeScreen이 collectAsStateWithLifecycle로 읽어 넘기는 것과 같은 흐름을 만든다.
-                val currentIsApplied by isApplied
-
-                TagHomeScaffold(
-                    onTagListEvent = {},
-                    tagPagingItems = tagPagingData.collectAsLazyPagingItems(),
-                    onEvent = {},
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = currentIsApplied) },
-                )
-            }
-        }
-        composeRule.waitForIdle()
     }
 
     private fun setTagHomeScaffoldWithResult(

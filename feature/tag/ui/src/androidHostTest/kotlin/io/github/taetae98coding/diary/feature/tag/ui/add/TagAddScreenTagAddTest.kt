@@ -26,8 +26,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.awaitTagLinkPickerRows
 import io.github.taetae98coding.diary.feature.tag.ui.link.closeDialogByBack
 import io.github.taetae98coding.diary.feature.tag.ui.link.dialogNodeWithText
-import io.github.taetae98coding.diary.feature.tag.ui.link.refreshFailedTagPagingData
-import io.github.taetae98coding.diary.feature.tag.ui.link.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
@@ -61,7 +59,7 @@ class TagAddScreenTagAddTest {
     }
 
     @Test
-    fun `TC-5cd7e2ee-a6d8-4732-bfcc-bddf8f95b97f TC-bafce675-468e-430e-b1ca-2721e029fcd5 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+    fun `TC-e0e6d22e-74ef-45ae-81ff-d316d2540294 저장된 태그가 하나도 없어도 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(tagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -75,38 +73,9 @@ class TagAddScreenTagAddTest {
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.waitForIdle()
 
-        tagAddCount shouldBe 1
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-195afaca-9147-4f38-874f-a76b68481672 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
-        var tagAddCount = 0
-        setTagAddScreen(
-            tagPagingData = MutableStateFlow(refreshingTagPagingData()),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
-        composeRule.waitForIdle()
-
         tagAddCount shouldBe 0
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-    }
-
-    @Test
-    fun `TC-c9f7e125-bb4c-46e3-9dab-906e275e0945 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
-        var tagAddCount = 0
-        setTagAddScreen(
-            tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
-        composeRule.waitForIdle()
-
-        tagAddCount shouldBe 0
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
     }
 
     @Test
@@ -368,7 +337,6 @@ class TagAddScreenTagAddTest {
             return mockk<TagAddLinkViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
-                every { this@apply.selectableTagPagingData } returns tagPagingData
                 every { this@apply.selectionUiState } returns selectionUiState
                 every { link(id = any()) } answers {
                     selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet + firstArg<Uuid>())

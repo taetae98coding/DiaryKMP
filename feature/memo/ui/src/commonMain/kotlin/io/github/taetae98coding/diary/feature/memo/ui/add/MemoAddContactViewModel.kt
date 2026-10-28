@@ -48,8 +48,6 @@ internal class MemoAddContactViewModel(
 
     val contactPagingData: Flow<PagingData<Contact>> = selectablePaging.pagingData
 
-    val selectableContactPagingData: Flow<PagingData<Contact>> = selectablePaging.selectablePagingData
-
     fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }

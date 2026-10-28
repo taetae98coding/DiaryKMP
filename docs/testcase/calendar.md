@@ -2,7 +2,7 @@
 
 기준 스펙: [Calendar 컴포넌트 스펙](../spec/client/calendar.md)
 
-아이템이 각 주의 어느 날짜 칸에 어떤 크기로 놓이는지는 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)를, 아이템 영역의 스크롤을 맨 위로 되돌리는 요청이 각 주에 전달되는 것은 [CalendarMonth 테스트 케이스](calendar-month.md)의 TC-ffae68f7-f960-491b-a8d1-fd884b2ab2b0과 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)의 TC-984c3a12-435a-4fe9-ab50-37c9ffe2c095를, 날짜 선택은 [Calendar 날짜 선택 테스트 케이스](calendar-select.md)를 따른다.
+아이템이 각 주의 어느 날짜 칸에 어떤 크기로 놓이는지는 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)를, 날짜 선택은 [Calendar 날짜 선택 테스트 케이스](calendar-select.md)를 따른다.
 
 ## feature
 

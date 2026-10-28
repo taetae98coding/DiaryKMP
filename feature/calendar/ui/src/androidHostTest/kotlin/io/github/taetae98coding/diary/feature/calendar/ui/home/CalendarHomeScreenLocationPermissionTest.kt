@@ -25,13 +25,14 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHome
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Month
@@ -167,12 +168,15 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-5a2d8b68-b630-4611-a547-45ff9b401814 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화가 끝난 뒤 한 번 더 동기화한다`() {
-        val fetchGate = CompletableDeferred<Unit>()
+    fun `TC-a8603e91-fddb-42e4-bc82-3b2aee66db3e 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화를 멈추고 다시 동기화한다`() {
+        var isFetchCancelled = false
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {
-            fetchGate.await()
-            Result.success(Unit)
+            try {
+                awaitCancellation()
+            } finally {
+                isFetchCancelled = true
+            }
         }
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
         coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
@@ -193,13 +197,8 @@ class CalendarHomeScreenLocationPermissionTest {
         composeRule.waitForIdle()
 
         coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
-        coVerify(exactly = 0) { refreshCurrentWeatherUseCase(parameter = Unit) }
-
-        fetchGate.complete(Unit)
-        composeRule.waitForIdle()
-
         coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
-        coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
+        isFetchCancelled shouldBe true
     }
 
     private fun setCalendarHomeScreen(

@@ -7,8 +7,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_title_input_label
@@ -21,7 +19,6 @@ import org.jetbrains.compose.resources.stringResource
 public fun DiaryTitleInput(
     modifier: Modifier = Modifier,
     state: DiaryTitleInputState = rememberDiaryTitleInputState(),
-    nextFocusProvider: () -> FocusRequester = { FocusRequester.Default },
 ) {
     Card(modifier = modifier) {
         ClearTextField(
@@ -29,8 +26,7 @@ public fun DiaryTitleInput(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .focusRequester(state.focusRequester)
-                    .focusProperties { next = nextFocusProvider() },
+                    .focusRequester(state.focusRequester),
             label = { Text(text = stringResource(Res.string.diary_title_input_label)) },
             lineLimits = TextFieldLineLimits.SingleLine,
         )

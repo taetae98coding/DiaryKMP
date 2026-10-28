@@ -25,7 +25,7 @@ internal class MusicDownloadProxyHandler(
             if (appFileLocalDataSource.exists(directory = MUSIC_FILE_DIRECTORY, name = videoId.toMusicFileName())) {
                 true
             } else {
-                musicVideoDownloadJobRegistry.join(videoId = videoId, onProgress = {}) ?: download(videoId = videoId, path = path)
+                musicVideoDownloadJobRegistry.join(videoId = videoId) ?: download(videoId = videoId, path = path)
             }
 
         return if (isDownloaded) {
@@ -41,6 +41,6 @@ internal class MusicDownloadProxyHandler(
     ): Boolean {
         if (commandRunner.findMissingDownloadToolList().isNotEmpty()) return false
 
-        return musicVideoDownloadJobRegistry.download(videoId = videoId, path = path, onProgress = {})
+        return musicVideoDownloadJobRegistry.download(videoId = videoId, path = path)
     }
 }

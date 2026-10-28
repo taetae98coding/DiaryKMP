@@ -21,9 +21,6 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.map.DiaryMapState
-import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
@@ -174,32 +171,13 @@ class PlaceHomeRefreshTest {
     private fun exists(matcher: SemanticsMatcher): Boolean = composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 지도 모드의 목록에서 장소를 눌러 지도를 옮길 수 있다`() {
-        val place = viewModeTestPlace()
-        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-        setPlaceList(
-            uiStateFlow = MutableStateFlow(loadedUiState(listOf(place))),
-            isRefreshingFlow = MutableStateFlow(true),
-            mapState = mapState,
-        )
-
-        composeRule.onNodeWithText(place.detail.title).performClick()
-        composeRule.waitForIdle()
-
-        mapState.coordinate shouldBe place.detail.coordinate.toDiaryMapCoordinate()
-    }
-
-    @Test
-    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 지도 모드의 목록에서 지도 가운데에 있는 장소를 눌러 상세로 이동할 수 있다`() {
+    fun `TC-012035d7-4851-41ce-b19a-eab7ee9a460c 진행 표시 중에도 지도 모드의 목록에서 장소를 눌러 상세로 이동할 수 있다`() {
         val place = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
-        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-        mapState.moveTo(place.detail.coordinate.toDiaryMapCoordinate())
         setPlaceList(
             uiStateFlow = MutableStateFlow(loadedUiState(listOf(place))),
             isRefreshingFlow = MutableStateFlow(true),
             onEvent = eventList::add,
-            mapState = mapState,
         )
 
         composeRule.onNodeWithText(place.detail.title).performClick()
@@ -268,7 +246,6 @@ class PlaceHomeRefreshTest {
         uiStateFlow: MutableStateFlow<PlaceHomePlaceListUiState>,
         isRefreshingFlow: MutableStateFlow<Boolean>,
         onEvent: (PlaceHomeScaffoldEvent) -> Unit = {},
-        mapState: DiaryMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER),
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -277,7 +254,6 @@ class PlaceHomeRefreshTest {
 
                 PlaceList(
                     onEvent = onEvent,
-                    mapState = mapState,
                     placeListUiStateProvider = { uiState },
                     isRefreshingProvider = { isRefreshing },
                 )

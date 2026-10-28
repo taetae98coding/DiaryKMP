@@ -37,7 +37,6 @@ import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeVi
 import io.github.taetae98coding.diary.feature.place.ui.place_home_add_button_content_description
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-import kotlin.uuid.Uuid
 
 @Composable
 internal fun PlaceHomeScaffold(
@@ -163,7 +162,7 @@ private fun PlaceHomeScaffoldPreview(
         PlaceHomeScaffold(
             onEvent = {},
             state = PlaceHomeScaffoldState(initialViewMode = viewMode),
-            uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = null, currentLocationFetchId = Uuid.NIL) },
+            uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = null) },
             placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
         )

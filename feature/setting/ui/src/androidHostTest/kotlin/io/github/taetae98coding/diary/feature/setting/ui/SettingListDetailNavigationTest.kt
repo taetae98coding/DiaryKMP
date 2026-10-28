@@ -427,7 +427,6 @@ class SettingListDetailNavigationTest {
             factory<SettingGeminiModelViewModel> {
                 mockk(relaxed = true) {
                     every { uiState } returns MutableStateFlow(SettingGeminiModelUiState())
-                    every { effect } returns emptyFlow()
                 }
             }
             factory<SettingBrowserViewModel> {

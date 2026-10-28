@@ -51,7 +51,6 @@ public fun Calendar(
             CalendarMonth(
                 yearMonth = page.toYearMonth(),
                 selectState = state.selectState,
-                itemScrollState = state.itemScrollState,
                 onEvent = onEvent,
                 isDateClickEnabled = isDateClickEnabled,
                 isWeekClickEnabled = isWeekClickEnabled,

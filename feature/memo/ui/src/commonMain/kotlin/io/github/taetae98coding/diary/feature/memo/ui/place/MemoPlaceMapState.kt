@@ -7,21 +7,28 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapProvider
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 
 @Composable
 internal fun rememberMemoPlaceMapState(uiState: MemoPlaceCardUiState): DiaryMapState? {
     val mapUiState = uiState.mapUiState
     val placeUiState = uiState.placeUiState
 
-    if (mapUiState !is MemoPlaceMapUiState.Content || !placeUiState.isSelectedPlaceLoaded) return null
+    val firstPlaceCoordinate =
+        placeUiState.selectedPlaceList
+            .firstOrNull()
+            ?.detail
+            ?.coordinate
 
-    val initialCoordinate =
-        remember {
-            placeUiState.selectedPlaceList
-                .firstOrNull()
-                ?.detail
-                ?.coordinate ?: mapUiState.currentCoordinate
-        }
+    if (
+        mapUiState !is MemoPlaceMapUiState.Content ||
+        !placeUiState.isSelectedPlaceLoaded ||
+        !mapUiState.hasInitialCoordinate(firstPlaceCoordinate = firstPlaceCoordinate)
+    ) {
+        return null
+    }
+
+    val initialCoordinate = remember { firstPlaceCoordinate ?: mapUiState.currentCoordinate }
 
     return key(mapUiState.provider) {
         rememberDiaryMapState(
@@ -30,3 +37,5 @@ internal fun rememberMemoPlaceMapState(uiState: MemoPlaceCardUiState): DiaryMapS
         )
     }
 }
+
+private fun MemoPlaceMapUiState.Content.hasInitialCoordinate(firstPlaceCoordinate: Coordinate?): Boolean = firstPlaceCoordinate != null || isCurrentLocationFetched

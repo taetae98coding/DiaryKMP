@@ -77,7 +77,6 @@ internal fun screenTestContactViewModel(
     val viewModel = mockk<MemoContactViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.contactPagingData } returns contactPagingDataFlow
-    every { viewModel.selectableContactPagingData } returns contactPagingDataFlow
     return viewModel
 }
 

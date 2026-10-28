@@ -73,14 +73,17 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-0727b0ed-8675-4e28-a53b-255dad7d9c88 선택 중 앱이 백그라운드로 이동하면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-3319b2b1-d5f7-4ad7-80b1-febecaee22ff 선택 중 앱이 백그라운드로 이동해 조작이 끊기면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
+        // 백그라운드 이동은 화면 상태를 저장한 뒤 화면을 그대로 둔 채 제스처를 끊는 것으로 재현한다.
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         val selectedList = mutableListOf<LocalDateRange>()
+        lateinit var calendarState: CalendarState
         composeRule.setContent {
             CompositionLocalProvider(LocalSaveableStateRegistry provides registry) {
                 DiaryTheme {
+                    calendarState = rememberCalendarState(initialYearMonth = JULY_2026)
                     Calendar(
-                        state = rememberCalendarState(initialYearMonth = JULY_2026),
+                        state = calendarState,
                         onEvent = { event -> (event as? CalendarEvent.Select)?.let { selectedList += it.dateRange } },
                         isSelectEnabled = true,
                     ) {}
@@ -93,11 +96,12 @@ class CalendarSelectBoundaryTest {
         composeRule.runOnIdle { registry.performSave() }
         composeRule.performCancel()
 
-        selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+        selectedList shouldBe emptyList()
+        calendarState.selectState.dateRange.shouldBeNull()
     }
 
     @Test
-    fun `TC-66addbf7-6c50-4dc4-a900-ee53b437d6a1 선택 중 화면을 벗어나면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-3319b2b1-d5f7-4ad7-80b1-febecaee22ff 선택 중 화면을 벗어나면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
         var isShown by mutableStateOf(true)
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setContent {
@@ -117,7 +121,7 @@ class CalendarSelectBoundaryTest {
         composeRule.runOnIdle { isShown = false }
         composeRule.waitForIdle()
 
-        selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+        selectedList shouldBe emptyList()
     }
 
     @Test

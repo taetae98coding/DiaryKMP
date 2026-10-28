@@ -6,46 +6,37 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 
 @Stable
 internal class LoginPlatformSignInState {
     var isInProgress: Boolean by mutableStateOf(false)
         private set
 
-    private var acceptedResultCount: Int = 0
+    private var signInJob: Job? = null
 
     /**
-     * 받아들인 결과를 반환하고, 받지 않는 요청이나 결과면 null을 반환한다.
-     * [block]의 실패도 받아들인 결과일 때만 그대로 던진다.
+     * 진행 표시 중이면 요청을 받지 않고 null을 반환한다.
+     * 받은 요청은 진행 중이던 흐름을 취소한 뒤 [block]을 실행한다.
      */
     suspend fun <T : Any> signIn(
         isEndDetectable: Boolean,
         block: suspend () -> T,
-    ): T? = if (isInProgress) null else runSignIn(isEndDetectable = isEndDetectable, block = block)
-
-    private suspend fun <T : Any> runSignIn(
-        isEndDetectable: Boolean,
-        block: suspend () -> T,
     ): T? {
-        val acceptedResultCountAtStart = acceptedResultCount
+        if (isInProgress) return null
+
+        val job = currentCoroutineContext().job
+        signInJob?.cancel()
+        signInJob = job
         if (isEndDetectable) isInProgress = true
 
-        val outcome =
-            try {
-                Result.success(block())
-            } catch (exception: CancellationException) {
-                throw exception
-            } catch (throwable: Throwable) {
-                Result.failure(throwable)
-            } finally {
-                if (isEndDetectable) isInProgress = false
-            }
-
-        return if (acceptedResultCount == acceptedResultCountAtStart) {
-            outcome.getOrThrow().also { acceptedResultCount += 1 }
-        } else {
-            null
+        return try {
+            block()
+        } finally {
+            if (isEndDetectable) isInProgress = false
+            if (signInJob === job) signInJob = null
         }
     }
 }

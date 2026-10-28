@@ -13,13 +13,13 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -31,9 +31,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -52,23 +52,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = web()
-                val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
-                every { pageMemoSelectableWebUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = viewModel(pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase, isListOpened = false)
-
-                val itemList = flowOf(viewModel.selectableWebPagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { pageMemoSelectableWebUseCase(parameter = "") }
-            }
-        }
-
-        test("TC-69d47200-fb39-4656-84a7-e67cf2ea7816 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-a3b2c5f7-4665-46a0-af16-1126dc013c17 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { web() }
@@ -76,17 +60,20 @@ class MemoAddWebViewModelTest : FunSpec() {
                 val useCase = mockk<PageMemoSelectableWebUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allList)))
                 every { useCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedList)))
-                val viewModel = viewModel(pageMemoSelectableWebUseCase = useCase, isListOpened = false)
+                val viewModel = viewModel(pageMemoSelectableWebUseCase = useCase)
 
-                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.webPagingData.test {
-                    viewModel.updateQuery(query)
-                    runCurrent()
+                    flowOf(awaitItem()).asSnapshot() shouldBe allList
 
+                    // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 알려 준다.
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    expectNoEvents()
+
+                    advanceUntilIdle()
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedList
                     cancelAndIgnoreRemainingEvents()
                 }
-                verify(exactly = 0) { useCase(parameter = "") }
             }
         }
 
@@ -182,7 +169,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-05cb9f46-4a6a-4410-85cd-379e6994e718 삭제된 대상 웹 항목는 WebDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+        test("TC-e3ab310f-da8b-4f95-9484-ce8580f19ba6 삭제된 대상 웹 항목은 선택한 것으로 보이지 않지만 선택에 남는다") {
             runTest(mainDispatcher) {
                 val deletedTarget = web()
                 val viewModel =
@@ -197,6 +184,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                     expectMostRecentItem().selectedWebList.shouldBeEmpty()
                     cancelAndIgnoreRemainingEvents()
                 }
+                viewModel.selectionUiState.value shouldBe MemoAddWebSelectionUiState(webIdSet = setOf(deletedTarget.id))
             }
         }
 
@@ -413,7 +401,6 @@ class MemoAddWebViewModelTest : FunSpec() {
                 mockk<PageMemoSelectableWebUseCase>().apply {
                     every { this@apply(parameter = any()) } returns webPagingFlow
                 },
-            isListOpened: Boolean = true,
         ): MemoAddWebViewModel {
             // 선택한 식별자로 저장소를 조회하는 동작을 저장된 웹 목록에서 골라내는 방식으로 대신한다.
             val getSelectedWebUseCase = mockk<GetSelectedWebUseCase>()
@@ -431,10 +418,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                 initialWebId = initialWebId,
                 pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase,
                 getSelectedWebUseCase = getSelectedWebUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

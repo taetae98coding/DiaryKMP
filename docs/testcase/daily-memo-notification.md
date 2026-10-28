@@ -90,7 +90,7 @@ flowchart TD
 
 ### TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3: 받은 알림의 제목과 본문을 고치지 않고 그대로 표시한다
 
-- 근거: `client > domain > 표시 조건`
+- 근거: `client > domain > 표시 조건`, `common > domain > 알림 내용`
 - Given: Android에서 테스트 데이터의 경로로 테스트 데이터의 제목과 본문을 담은 알림이 도착한다.
 - When: 기기가 알림을 표시한다.
 - Then: 표시된 알림의 제목과 본문이 테스트 데이터의 기대 결과와 같다.

@@ -2,7 +2,6 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.add
 
-import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -12,25 +11,23 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
@@ -46,22 +43,6 @@ class WebAddTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
-        }
-
-        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = tag()
-                val useCase = mockk<PageTagUseCase>()
-                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = WebAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
-
-                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { useCase(parameter = "") }
-            }
         }
 
         test("TC-1f7abc2c-d694-4f46-be86-7ea3ce9a83bf 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {
@@ -119,7 +100,7 @@ class WebAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 TC-9736f0c2-8e4a-4caf-bad9-6a95a0969d9f TC-ef341fba-ece0-44e0-a0a4-21dbeaa96dbb 표시 기준에서 빠진 태그는 연결 대상에서 제외된다") {
+        test("TC-2355ae81-e9cb-4203-86cb-23b6bbca72f6 TC-ca3c3ae8-e1a0-4f98-942a-f044f063ee8b TC-ef341fba-ece0-44e0-a0a4-21dbeaa96dbb 표시 기준에서 빠진 태그는 제외된 것으로 표시되지만 선택은 남아 있다") {
             runTest(mainDispatcher) {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = emptyList())
@@ -172,7 +153,7 @@ class WebAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ab820c4b-068f-4fbd-bd6f-eb7357bbfb20 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-600fa417-a608-4189-bd8c-409ea8506e2e 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allTagList = List(2) { tag() }
@@ -187,15 +168,18 @@ class WebAddTagViewModelTest : FunSpec() {
                         getSelectedTagUseCase = mockk(relaxed = true),
                     )
 
-                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.tagPagingData.test {
-                    viewModel.updateQuery(query)
-                    runCurrent()
+                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
 
+                    // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 알려 준다.
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    expectNoEvents()
+
+                    advanceUntilIdle()
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
                     cancelAndIgnoreRemainingEvents()
                 }
-                verify(exactly = 0) { pageTagUseCase(parameter = "") }
             }
         }
     }

@@ -122,7 +122,7 @@ class MemoDetailScreenContactTest {
     }
 
     @Test
-    fun `TC-48dc2878-e69b-4edb-a10a-c730782d7a26 선택할 수 있는 연락처가 없으면 추가 항목이 ContactAdd 이동을 요청한다`() {
+    fun `TC-4d1eafd7-2dd1-4e36-937a-6c33914cadc3 연락처가 하나도 없어도 추가 항목을 누르면 연락처 선택 목록이 열린다`() {
         var contactAddCount = 0
         composeRule.setMemoDetailScreenWithContact(
             contactViewModel = memoDetailContactViewModel(contactList = emptyList()),
@@ -132,8 +132,9 @@ class MemoDetailScreenContactTest {
         composeRule.openMemoDetailContactPicker()
         composeRule.waitForIdle()
 
-        contactAddCount shouldBe 1
-        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertExists()
+        contactAddCount shouldBe 0
     }
 
     @Test

@@ -13,13 +13,13 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -31,9 +31,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -50,22 +50,6 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
-        }
-
-        test("TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = place()
-                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase, isListOpened = false)
-
-                val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
-            }
         }
 
         test("TC-65b06f4e-afc1-49bb-8e71-b7d9992aaa08 선택한 장소의 제목, 컬러, 위치가 바뀌면 장소 카드에 바로 반영된다") {
@@ -93,7 +77,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-762261d0-1140-4db7-a87e-309fcf2a1e63 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-338aec84-a9b2-42ce-9cb2-eadfa29397c0 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { place() }
@@ -101,17 +85,20 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val useCase = mockk<PagePlaceUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allList)))
                 every { useCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedList)))
-                val viewModel = viewModel(pagePlaceUseCase = useCase, isListOpened = false)
+                val viewModel = viewModel(pagePlaceUseCase = useCase)
 
-                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.placePagingData.test {
-                    viewModel.updateQuery(query)
-                    runCurrent()
+                    flowOf(awaitItem()).asSnapshot() shouldBe allList
 
+                    // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 알려 준다.
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    expectNoEvents()
+
+                    advanceUntilIdle()
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedList
                     cancelAndIgnoreRemainingEvents()
                 }
-                verify(exactly = 0) { useCase(parameter = "") }
             }
         }
 
@@ -218,7 +205,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-05cb9f46-4a6a-4410-85cd-379e6994e718 삭제된 대상 장소는 PlaceDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+        test("TC-e3ab310f-da8b-4f95-9484-ce8580f19ba6 삭제된 대상 장소는 선택한 것으로 보이지 않지만 선택에 남는다") {
             runTest(mainDispatcher) {
                 val deletedTarget = place()
                 val viewModel =
@@ -233,6 +220,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                     expectMostRecentItem().selectedPlaceList.shouldBeEmpty()
                     cancelAndIgnoreRemainingEvents()
                 }
+                viewModel.selectionUiState.value shouldBe MemoAddPlaceSelectionUiState(placeIdSet = setOf(deletedTarget.id))
             }
         }
 
@@ -430,7 +418,6 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 mockk<PagePlaceUseCase>().apply {
                     every { this@apply(parameter = any()) } returns placePagingFlow
                 },
-            isListOpened: Boolean = true,
         ): MemoAddPlaceViewModel {
             // 선택한 식별자로 저장소를 조회하는 동작을 저장된 장소 목록에서 골라내는 방식으로 대신한다.
             val getSelectedPlaceUseCase = mockk<GetSelectedPlaceUseCase>()
@@ -448,10 +435,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 initialPlaceId = initialPlaceId,
                 pagePlaceUseCase = pagePlaceUseCase,
                 getSelectedPlaceUseCase = getSelectedPlaceUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

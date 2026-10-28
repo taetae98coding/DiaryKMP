@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
@@ -28,7 +29,6 @@ import io.github.taetae98coding.diary.feature.search.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Before
@@ -36,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.compose.KoinApplication
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.context.stopKoin
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -44,16 +45,13 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
-// 유형별 결과가 떠난 동안에도 유지되는지와 다시 나타날 때 질의를 먼저 알리는 순서는 실제 ViewModel과 화면이 함께 정하므로,
+// 유형을 바꿨을 때 그 유형이 이미 현재 질의의 결과를 갖고 있는지는 실제 ViewModel과 화면이 함께 정하므로,
 // 조회만 대역으로 두고 제품 ViewModel로 화면을 띄운다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
 class SearchHomeTypeReturnTest {
     @get:Rule
     val composeRule = createComposeRule()
-
-    // 다른 질의의 결과가 이 조회보다 먼저 보이는지 확인하려고, 바뀐 질의의 결과는 테스트가 보낼 때까지 도착하지 않게 한다.
-    private val otherQueryMemoResult = MutableSharedFlow<Result<PagingData<Memo>>>(replay = 1)
 
     @Before
     fun setUp() {
@@ -68,10 +66,23 @@ class SearchHomeTypeReturnTest {
     }
 
     @Test
-    fun `TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 현재 질의를 반영한다`() {
+    fun `TC-46c6c87f-703d-4483-870e-8ddecc6d1770 처음 보는 유형으로 바꾸면 이미 반영된 현재 질의의 결과를 본다`() {
+        val memo = resultMemo()
+        val tag = resultTag()
+        setSearchHomeScreen(queryMemo = memo, queryTag = tag)
+        inputQuery(QUERY)
+        composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
+
+        composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
+
+        composeRule.onNodeWithText(tag.detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-46c6c87f-703d-4483-870e-8ddecc6d1770 다른 질의의 결과를 보여 준 뒤 떠났던 유형으로 돌아오면 현재 질의의 결과를 본다`() {
         val memo = resultMemo()
         val otherMemo = resultMemo()
-        setSearchHomeScreen(queryMemo = memo)
+        setSearchHomeScreen(queryMemo = memo, otherQueryMemo = otherMemo)
         inputQuery(QUERY)
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
 
@@ -81,11 +92,6 @@ class SearchHomeTypeReturnTest {
         composeRule.selectSearchHomeTab(MEMO_TAB_LABEL)
 
         composeRule.onNodeWithText(OTHER_QUERY).assertExists()
-        composeRule.onAllNodesWithText(memo.detail.title).fetchSemanticsNodes().isEmpty() shouldBe true
-
-        otherQueryMemoResult.tryEmit(Result.success(pagingDataOf(listOf(otherMemo)))) shouldBe true
-        composeRule.waitForIdle()
-
         composeRule.onNodeWithText(otherMemo.detail.title).assertIsDisplayed()
         composeRule.onAllNodesWithText(memo.detail.title).fetchSemanticsNodes().isEmpty() shouldBe true
     }
@@ -111,18 +117,31 @@ class SearchHomeTypeReturnTest {
         composeRule.waitForIdle()
     }
 
-    private fun setSearchHomeScreen(queryMemo: Memo) {
+    private fun setSearchHomeScreen(
+        queryMemo: Memo,
+        otherQueryMemo: Memo = resultMemo(),
+        queryTag: Tag = resultTag(),
+    ) {
         val searchMemoUseCase =
             mockk<SearchMemoUseCase>().apply {
                 every { this@apply(any()) } answers {
                     when (firstArg<SearchMemoUseCase.Parameter>().query) {
                         QUERY -> flowOf(Result.success(pagingDataOf(listOf(queryMemo))))
-                        OTHER_QUERY -> otherQueryMemoResult
+                        OTHER_QUERY -> flowOf(Result.success(pagingDataOf(listOf(otherQueryMemo))))
                         else -> flowOf(Result.success(PagingData.empty()))
                     }
                 }
             }
-        val searchTagUseCase = mockk<SearchTagUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
+        val searchTagUseCase =
+            mockk<SearchTagUseCase>().apply {
+                every { this@apply(any()) } answers {
+                    if (firstArg<SearchTagUseCase.Parameter>().query == QUERY) {
+                        flowOf(Result.success(pagingDataOf(listOf(queryTag))))
+                    } else {
+                        flowOf(Result.success(PagingData.empty()))
+                    }
+                }
+            }
         val searchPlaceUseCase = mockk<SearchPlaceUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
         val searchWebUseCase = mockk<SearchWebUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
         val viewModelModule =
@@ -152,6 +171,10 @@ class SearchHomeTypeReturnTest {
                             navigateToPlaceDetail = {},
                             navigateToWebDetail = {},
                             initialType = SearchHomeType.MEMO,
+                            memoViewModel = koinViewModel(),
+                            tagViewModel = koinViewModel(),
+                            placeViewModel = koinViewModel(),
+                            webViewModel = koinViewModel(),
                         )
                     }
                 }

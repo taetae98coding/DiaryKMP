@@ -224,7 +224,7 @@ class MusicDownloadWorkImplTest :
             }
 
             When("받은 만큼이 알려지면") {
-                Then("TC-b74b19d5-3bbe-4f57-be59-1ca915ef9616 TC-2e0849ff-ecd5-44d3-bdda-886a8b22489f 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
+                Then("TC-2e0849ff-ecd5-44d3-bdda-886a8b22489f 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var runningSnapshot: MusicDownloadState? = null

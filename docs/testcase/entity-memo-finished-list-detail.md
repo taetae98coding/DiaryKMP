@@ -10,14 +10,14 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-5f1f1653-fb84-43b8-a141-9c607a7509cb: 목록과 상세를 함께 쓰는 환경에서는 두 영역을 함께 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 상세 화면의 메모 탭에서 완료된 메모 확인을 선택한다.
 - Then: 대상 항목의 완료된 메모 목록을 목록·상세 배치의 목록 영역에 표시해 상세 영역과 함께 쓸 수 있다.
 
 ### TC-c5b859af-ea42-484b-8d3c-146cb3854cbf: 선택 전 상세에는 메모를 선택하라는 안내만 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이고 아직 메모를 선택하지 않았다.
 - When: 사용자가 상세 영역을 확인한다.
 - Then: 테스트 데이터의 언어 환경에 해당하는 안내가 표시되고, 선택 전 상세에는 사용자가 실행할 수 있는 동작이 없다.
@@ -30,35 +30,35 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-a1f401a9-7510-4695-9b53-528000c3ef8f: 메모를 선택하면 상세 영역에 그 메모의 상세 화면이 표시된다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 메모 목록에 메모가 있다.
 - When: 사용자가 목록에서 메모 하나를 선택한다.
 - Then: 메모 목록은 유지되고 상세 영역에 선택한 메모의 상세 화면이 표시된다.
 
 ### TC-3f4ed8d9-89a8-4af4-8fd3-b085c6961e97: 다른 메모를 선택하면 현재 상세를 교체한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 어떤 메모의 상세 화면이 표시되어 있다.
 - When: 사용자가 목록에서 다른 메모를 선택한다.
 - Then: 이전 상세를 쌓아 두지 않고 상세 영역이 새로 선택한 메모의 상세 화면으로 교체된다.
 
 ### TC-f7581140-8f0c-4adb-a8f9-f29690dc3859: 상세 영역에서 메모를 복사하면 복사한 메모의 상세로 바뀐다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용하고 있고, 목록에서 선택한 메모의 상세 화면이 상세 영역에 표시되어 있다.
 - When: 사용자가 상세 영역의 메모를 복사한다.
 - Then: 메모 목록은 유지되고 상세 영역에 복사한 메모의 상세 화면이 표시되며, 원본 메모의 상세 화면으로 돌아가는 기록은 남지 않는다.
 
 ### TC-680cb3a0-7cc4-4442-86a2-2a973905728d: 한 영역만 쓰는 환경에서는 현재 영역만 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 한 영역만 사용하는 환경이다.
 - When: 사용자가 완료된 메모 목록 또는 메모 상세를 사용한다.
 - Then: 현재 사용하는 화면만 단독으로 표시된다.
 
 ### TC-ed15c61f-9bee-4eb8-a6d7-e8fc1344b35f: 목록과 상세를 함께 표시하는 동안에도 공통 내비게이션을 제공하지 않는다
 
-- 근거: `feature > 함께 사용할 때의 행동`
+- 근거: [목록·상세 배치 공통 스펙의 함께 사용할 때의 행동](../spec/client/list-detail-pane.md#함께-사용할-때의-행동)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경에서 상세 화면의 메모 탭을 거쳐 완료 메모 목록 화면에 진입했다.
 - When: 사용자가 목록에서 테스트 데이터의 화면을 상세 영역에 연다.
 - Then: 주요 목적지의 공통 내비게이션이 제공되지 않는다.
@@ -71,7 +71,7 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-4be4919a-3bf7-40a7-966e-bb19deac0d00: 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 상세만 되돌린다
 
-- 근거: `feature > 뒤로가기`
+- 근거: `feature > 뒤로가기`, [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 테스트 데이터의 순서로 화면을 열었다.
 - When: 사용자가 뒤로간다.
 - Then: 메모 목록은 유지되고 상세 영역이 테스트 데이터의 기대 상태가 된다.
@@ -85,7 +85,7 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-69de256a-e21f-4869-9aee-af7ea3d53bd0: 완료된 메모 목록에서 이어 진입한 메모 상세는 목록과 함께 표시한다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 완료 메모 목록 화면에서 메모를 선택해 상세 영역의 화면을 연다.
 - Then: 메모 상세를 목록·상세 배치의 상세 영역에 표시한다.
@@ -100,14 +100,14 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-81d2c48e-04c1-484d-b56d-44faad51a460: 완료된 메모 목록의 상세 영역에는 메모 추가가 나타나지 않는다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경에서 완료 메모 목록 화면이 목록 영역에 표시되어 있다.
 - When: 사용자가 목록에서 실행할 수 있는 동작을 확인한다.
 - Then: 메모 추가 동작이 제공되지 않아 상세 영역이 메모 추가 화면이 되지 않는다.
 
 ### TC-5ecf6737-24b8-40d6-a688-4586275ef513: 뒤로가기는 상세 선택 여부와 관계없이 상세 화면의 메모 탭으로 돌아간다
 
-- 근거: `feature > 뒤로가기`
+- 근거: `feature > 뒤로가기`, [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기)
 - Given: 상세 화면의 메모 탭을 거쳐 완료 메모 목록 화면에 진입했고 상세 영역이 테스트 데이터의 상태다.
 - When: 사용자가 완료된 메모 목록 화면이 제공하는 뒤로가기 동작을 사용한다.
 - Then: 완료된 메모 목록과 상세 영역이 함께 닫히고 메모 탭이 선택된 같은 항목의 상세 화면으로 돌아간다.
@@ -120,14 +120,14 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-e26ded17-7725-49f3-9a27-08e5ba713edb: 상세가 선택 전 상태일 때 뒤로가면 목록 화면 전체를 떠나 메모 탭이 선택된 상세 화면으로 돌아간다
 
-- 근거: `feature > 뒤로가기`
+- 근거: `feature > 뒤로가기`, [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기)
 - Given: 목록과 상세를 함께 사용하고 있고, 상세 화면의 메모 탭을 거쳐 진입한 완료 메모 목록 화면의 상세 영역이 선택 전 상태다.
 - When: 사용자가 뒤로간다.
 - Then: 완료된 메모 목록과 상세 영역이 함께 닫히고, 메모 탭이 선택된 같은 항목의 상세 화면이 표시된다.
 
 ### TC-170510aa-f75c-496d-a57a-c3732a48e734: 상세 영역에서 메모를 삭제하면 선택 전 상태로 되돌아간다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 메모 상세가 놓여 있다.
 - When: 사용자가 상세 영역의 메모를 삭제한다.
 - Then: 완료된 메모 목록은 그대로 유지되고 상세 영역은 선택 전 상태가 된다.
@@ -135,7 +135,7 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-886d118a-6402-4f42-a0c9-9b7607b469da: 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고, 돌아오면 떠나기 전의 메모가 놓인다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 메모 상세가 놓여 있다.
 - When: 사용자가 그 메모에서 테스트 데이터의 화면으로 이동했다가 뒤로가기를 사용한다.
 - Then: 이동한 화면은 목록과 함께 표시되지 않고 단독으로 표시되며, 돌아오면 완료된 메모 목록과 함께 상세 영역에 떠나기 전의 메모 상세가 놓인다.

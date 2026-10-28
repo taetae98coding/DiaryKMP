@@ -83,17 +83,6 @@ internal fun tagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
             ),
     )
 
-internal fun refreshingTagPagingData(): PagingData<Tag> =
-    PagingData.from(
-        data = emptyList(),
-        sourceLoadStates =
-            LoadStates(
-                refresh = LoadState.Loading,
-                prepend = LoadState.NotLoading(endOfPaginationReached = false),
-                append = LoadState.NotLoading(endOfPaginationReached = false),
-            ),
-    )
-
 internal fun appendingTagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
     PagingData.from(
         data = tagList,
@@ -171,7 +160,6 @@ internal fun ComposeContentTestRule.setTagLinkPickerDialog(
     tagList: List<Tag> = emptyList(),
     uiState: TagLinkInputUiState = TagLinkInputUiState(),
     tagPagingData: PagingData<Tag> = tagPagingDataOf(tagList),
-    tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingData),
     query: String = "",
     onDismissRequest: () -> Unit = {},
     onClickAdd: () -> Unit = {},
@@ -179,6 +167,7 @@ internal fun ComposeContentTestRule.setTagLinkPickerDialog(
     onUnlink: (Uuid) -> Unit = {},
     onTagPagingItems: (LazyPagingItems<Tag>) -> Unit = {},
 ) {
+    val tagPagingDataFlow = MutableStateFlow(tagPagingData)
     setContent {
         DiaryTheme {
             val tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems()

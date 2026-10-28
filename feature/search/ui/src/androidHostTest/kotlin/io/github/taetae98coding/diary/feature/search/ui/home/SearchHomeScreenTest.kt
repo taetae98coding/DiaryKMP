@@ -143,27 +143,6 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-ac000104-817c-41bb-a7b8-d10d0eccf796 보고 있지 않은 유형의 결과를 미리 준비하지 않는다`() {
-        val memo = resultMemo()
-
-        composeRule.setSearchHomeScreen(memoList = listOf(memo))
-        inputQuery()
-
-        // 유형별 결과는 그 유형의 ViewModel이 만들어져 조회를 구독해야 찾기 시작하므로, ViewModel이 없으면 준비도 시작되지 않은 것이다.
-        val memoViewModel = searchMemoViewModelRef.shouldNotBeNull()
-        verify { memoViewModel.updateQuery(QUERY) }
-        composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
-        searchTagViewModelRef shouldBe null
-        searchPlaceViewModelRef shouldBe null
-        searchWebViewModelRef shouldBe null
-        composeRule.runOnIdle {
-            val subscriptionCount = searchResultSubscriptionCount()
-            (checkNotNull(subscriptionCount["memo"]) > 0) shouldBe true
-            subscriptionCount.filterKeys { type -> type != "memo" }.values.toSet() shouldBe setOf(0)
-        }
-    }
-
-    @Test
     fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 태그 유형으로 바꾸면 태그 결과를 본다`() {
         val memo = resultMemo()
         val tag = resultTag()
@@ -465,23 +444,22 @@ class SearchHomeScreenTest {
     }
 
     @Test
-    fun `TC-9ea84aad-f762-440e-81c7-030c8a398189 메모리 정리 뒤 복원해도 질의와 유형을 유지하고 곧바로 그 질의의 결과를 보여 준다`() {
+    fun `TC-9ca2b6b2-0572-4388-84c2-b00f983d3a92 메모리 정리 뒤 복원해도 질의와 유형을 유지하고 그 질의의 결과를 보여 준다`() {
         val place = resultPlace()
         val restorationTester = StateRestorationTester(composeRule)
         composeRule.setSearchHomeScreen(placeList = listOf(place), restorationTester = restorationTester)
         inputQuery()
         composeRule.selectSearchHomeTab(PLACE_TAB_LABEL)
         val placeViewModelBeforeRestore = searchPlaceViewModelRef
-        // 복원 뒤에는 입력을 멈춘 뒤의 반영이 일어나지 않게 막아, 결과가 곧바로 반영되었는지만 본다.
-        setSearchQueryApplied(isApplied = false)
         clearAppliedSearchQuery()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
+        // 입력을 멈춘 뒤에 반영하는 기준은 ViewModel 테스트가 검증하므로, 여기서는 복원한 질의가 새 ViewModel에 전달되는지만 본다.
         val placeViewModel = searchPlaceViewModelRef.shouldNotBeNull()
         (placeViewModel === placeViewModelBeforeRestore) shouldBe false
-        verify(exactly = 1) { placeViewModel.showQuery(QUERY) }
+        verify { placeViewModel.updateQuery(QUERY) }
         placeViewModel.uiState.value.appliedQuery shouldBe QUERY
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()

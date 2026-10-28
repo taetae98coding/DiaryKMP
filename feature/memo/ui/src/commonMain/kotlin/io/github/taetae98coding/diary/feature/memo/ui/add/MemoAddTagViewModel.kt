@@ -46,8 +46,6 @@ internal class MemoAddTagViewModel(
 
     val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData
 
-    val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData
-
     private val selectedTagList: Flow<List<Tag>> =
         selectionUiState
             .flatMapLatest { value -> getSelectedTagUseCase(parameter = value.tagIdSet) }

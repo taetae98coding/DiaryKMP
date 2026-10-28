@@ -188,30 +188,25 @@ class SyncWorkTest :
             reportList.shouldBeEmpty()
         }
 
-        listOf(
-            "세션 확인 중" to true,
-            "인증되지 않은 것으로 확인됨" to false,
-        ).forEach { (label, isSessionPending) ->
-            test("TC-184c320d-7763-4932-8c52-55eb8b129cad 세션이 $label 이면 갱신될 때까지 기다린 뒤 동기화한다") {
-                runTest {
-                    val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                    val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
-                    accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId).copy(isSessionPending = isSessionPending)))
-                    val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
+        test("TC-184c320d-7763-4932-8c52-55eb8b129cad 세션이 갱신되지 않았으면 갱신될 때까지 기다린 뒤 동기화한다") {
+            runTest {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
+                accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
+                val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
 
-                    val job = launch { context.subject.doWork() }
-                    runCurrent()
+                val job = launch { context.subject.doWork() }
+                runCurrent()
 
-                    job.isCompleted shouldBe false
-                    coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = any()) }
-                    coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+                job.isCompleted shouldBe false
+                coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = any()) }
+                coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
 
-                    accountFlow.emit(Result.success(sessionValidUser(accountId = accountId)))
-                    job.join()
+                accountFlow.emit(Result.success(sessionValidUser(accountId = accountId)))
+                job.join()
 
-                    coVerify(exactly = 1) { context.tagSyncLocalDataSource.readPendingList(accountId = accountId) }
-                    coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
-                }
+                coVerify(exactly = 1) { context.tagSyncLocalDataSource.readPendingList(accountId = accountId) }
+                coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
             }
         }
 

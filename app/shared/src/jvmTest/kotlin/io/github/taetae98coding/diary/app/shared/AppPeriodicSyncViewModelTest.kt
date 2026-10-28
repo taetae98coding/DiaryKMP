@@ -42,18 +42,15 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-cc07f234-2c6a-4021-a650-4a0161718819 TC-b7fbbed2-9c57-498e-91dd-d578a86ea847 TC-a4e73b81-e32d-4898-8ad2-2d9a37112d55 인증 여부와 관계없이 바뀐 계정을 주기 동기화 예약 계기로 전달한다") {
+        test("TC-cc07f234-2c6a-4021-a650-4a0161718819 TC-56ebf0e0-19c8-4454-8389-44dc03ca0d63 인증 여부와 관계없이 바뀐 계정을 주기 동기화 예약 계기로 전달한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
-                val pendingAccount = account.copy(isSessionValid = false, isSessionPending = true)
-                val invalidAccount = account.copy(isSessionValid = false, isSessionPending = false)
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val invalidAccount = account.copy(isSessionValid = false)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
                 viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
-                    accountFlow.value = pendingAccount
-                    awaitItem() shouldBe pendingAccount
                     accountFlow.value = invalidAccount
                     awaitItem() shouldBe invalidAccount
                     accountFlow.value = Account.Guest

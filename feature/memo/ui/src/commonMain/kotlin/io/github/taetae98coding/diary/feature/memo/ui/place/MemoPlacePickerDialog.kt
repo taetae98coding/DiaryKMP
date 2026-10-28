@@ -79,7 +79,7 @@ internal fun MemoPlacePickerDialog(
                 mapUiStateProvider = mapUiStateProvider,
             )
             DiaryPickerAddButton(
-                onClick = { onEvent(MemoPlacePickerEvent.ClickAdd(coordinate = state.addCoordinate(mapState = mapState, cardCoordinate = coordinateProvider()))) },
+                onClick = { onEvent(MemoPlacePickerEvent.ClickAdd(coordinate = coordinateProvider())) },
                 label = text.addLabel,
                 actionLabel = text.addActionLabel,
                 modifier = Modifier.fillMaxWidth(),
@@ -101,7 +101,7 @@ private fun MemoPlacePickerDialogBody(
     mapUiStateProvider: () -> MemoPlacePickerMapUiState = { MemoPlacePickerMapUiState() },
 ) {
     DiaryCrossfade(
-        targetState = state.shownViewMode(mapState = mapState),
+        targetState = state.viewMode,
         modifier = modifier,
     ) { viewMode ->
         when (viewMode) {

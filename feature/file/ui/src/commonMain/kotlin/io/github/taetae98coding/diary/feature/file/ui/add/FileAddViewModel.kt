@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.file.ui.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -14,8 +13,6 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseC
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -36,8 +33,6 @@ import org.koin.core.annotation.KoinViewModel
 internal class FileAddViewModel(
     private val readFileUploadSourceUseCase: ReadFileUploadSourceUseCase,
     private val requestFileUploadUseCase: RequestFileUploadUseCase,
-    private val startViewingFileScreenUseCase: StartViewingFileScreenUseCase,
-    private val stopViewingFileScreenUseCase: StopViewingFileScreenUseCase,
     getFileUploadStateUseCase: GetFileUploadStateUseCase,
     getFileUploadEventUseCase: GetFileUploadEventUseCase,
 ) : ViewModel() {
@@ -62,11 +57,10 @@ internal class FileAddViewModel(
     val effect: Flow<FileAddEffect> =
         merge(
             _effect.receiveAsFlow(),
-            getFileUploadEventUseCase(parameter = FileScreen.ADD).mapNotNull { result -> result.getOrNull()?.toEffect() },
+            getFileUploadEventUseCase(parameter = Unit).mapNotNull { result -> result.getOrNull()?.toEffect() },
         )
 
     private val inProgressSelectUriSet = mutableSetOf<FileUri>()
-    private var isViewing = false
 
     fun select(uri: FileUri) {
         if (!inProgressSelectUriSet.add(uri)) return
@@ -114,20 +108,6 @@ internal class FileAddViewModel(
         selectedFile.value = null
     }
 
-    fun startViewing() {
-        if (isViewing) return
-        isViewing = true
-
-        viewModelScope.launch { startViewingFileScreenUseCase(parameter = FileScreen.ADD) }
-    }
-
-    fun stopViewing() {
-        if (!isViewing) return
-        isViewing = false
-
-        viewModelScope.launch { stopViewingFileScreenUseCase(parameter = FileScreen.ADD) }
-    }
-
     private fun Throwable.toUploadFailureEffect(): FileAddEffect =
         when (this) {
             is FileTitleBlankException -> FileAddEffect.TitleBlank
@@ -135,10 +115,9 @@ internal class FileAddViewModel(
             else -> FileAddEffect.UploadFailed
         }
 
-    private fun FileUploadEvent.toEffect(): FileAddEffect? =
+    private fun FileUploadEvent.toEffect(): FileAddEffect =
         when (this) {
             is FileUploadEvent.Succeeded -> FileAddEffect.UploadSucceeded
-            is FileUploadEvent.SucceededOnFileAdd -> null
             is FileUploadEvent.TooLarge -> FileAddEffect.FileTooLarge
             is FileUploadEvent.Failed -> FileAddEffect.UploadFailed
         }

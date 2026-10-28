@@ -2,18 +2,12 @@ package io.github.taetae98coding.diary.compose.web
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebPage
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.filterNotNull
 
 public const val DIARY_WEB_VIEW_TEST_TAG: String = "DiaryWebView"
 
@@ -26,16 +20,9 @@ public expect fun DiaryWebView(
 @Composable
 public fun DiaryWebView(
     url: String,
-    onSessionImportFailed: () -> Unit,
     modifier: Modifier = Modifier,
-    sessionImportFailureState: DiaryWebSessionImportFailureState = rememberDiaryWebSessionImportFailureState(),
 ) {
     val session = SingletonDiaryWebSession.get()
-
-    SessionImportFailedEffect(
-        onSessionImportFailed = onSessionImportFailed,
-        state = sessionImportFailureState,
-    )
 
     DiaryCrossfade(
         targetState = session.importCount.takeUnless { session.isPreparing },
@@ -58,24 +45,6 @@ internal expect fun DiaryUrlWebView(
     modifier: Modifier = Modifier,
 )
 
-@Composable
-private fun SessionImportFailedEffect(
-    onSessionImportFailed: () -> Unit,
-    state: DiaryWebSessionImportFailureState,
-) {
-    val latestOnSessionImportFailed by rememberUpdatedState(onSessionImportFailed)
-
-    LaunchedEffect(state) {
-        snapshotFlow { SingletonDiaryWebSession.get().failureId }
-            .filterNotNull()
-            .filterNot { failureId -> state.isNotified(failureId) }
-            .collect { failureId ->
-                state.markNotified(failureId)
-                latestOnSessionImportFailed()
-            }
-    }
-}
-
 @ComponentPreview
 @Composable
 private fun DiaryWebViewPagePreview() {
@@ -88,9 +57,6 @@ private fun DiaryWebViewPagePreview() {
 @Composable
 private fun DiaryWebViewUrlPreview() {
     DiaryTheme {
-        DiaryWebView(
-            url = previewWebPage().baseUrl,
-            onSessionImportFailed = {},
-        )
+        DiaryWebView(url = previewWebPage().baseUrl)
     }
 }

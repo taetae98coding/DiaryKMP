@@ -100,35 +100,43 @@ class MemoPlaceMapStateTest {
     }
 
     @Test
-    fun `TC-ca9a2c3d-6156-4d6f-9fa2-17b71a953a42 지도 보기에서 장소 추가로 이동하면 카드가 아니라 지도 보기의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = cardCoordinate.toDiaryMapCoordinate())
-        val pickerState = MemoPlacePickerState()
-        lateinit var pickerMapState: DiaryMapState
+    fun `TC-b46cd42b-ec37-4db5-b9cb-df9d7986a676 노출하는 장소가 있으면 현재 위치 확인을 기다리지 않고 첫 번째 장소에서 지도를 시작한다`() {
+        val firstPlace = testPlace(title = FIRST_PLACE_TITLE)
+        var mapState: DiaryMapState? = null
 
         composeRule.setContent {
-            pickerMapState = rememberMemoPlacePickerMapState(cardMapState = cardMapState)
-        }
-        composeRule.runOnIdle {
-            pickerState.toggleViewMode()
-            pickerMapState.moveTo(pickerCoordinate)
+            mapState =
+                rememberMemoPlaceMapState(
+                    uiState = cardUiState(selectedPlaceList = listOf(firstPlace), mapUiState = locationNotFetchedMapUiState()),
+                )
         }
 
         composeRule.runOnIdle {
-            pickerState.addCoordinate(mapState = pickerMapState, cardCoordinate = cardCoordinate) shouldBe
-                Coordinate(latitude = pickerCoordinate.latitude, longitude = pickerCoordinate.longitude)
+            mapState.shouldNotBeNull().coordinate shouldBe firstPlace.detail.coordinate.toDiaryMapCoordinate()
         }
+    }
+
+    @Test
+    fun `TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 노출하는 장소가 없으면 현재 위치 확인이 끝나기 전에는 지도를 표시하지 않는다`() {
+        var mapState: DiaryMapState? = null
+
+        composeRule.setContent {
+            mapState = rememberMemoPlaceMapState(uiState = cardUiState(selectedPlaceList = emptyList(), mapUiState = locationNotFetchedMapUiState()))
+        }
+
+        composeRule.runOnIdle { mapState shouldBe null }
     }
 
     private fun cardUiState(
         selectedPlaceList: List<Place>,
-        mapUiState: MemoPlaceMapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>()),
+        mapUiState: MemoPlaceMapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>()),
     ): MemoPlaceCardUiState =
         MemoPlaceCardUiState(
             mapUiState = mapUiState,
             placeUiState = MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = selectedPlaceList),
         )
+
+    private fun locationNotFetchedMapUiState(): MemoPlaceMapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = false, currentCoordinate = null)
 
     private companion object {
         const val FIRST_PLACE_TITLE = "집"

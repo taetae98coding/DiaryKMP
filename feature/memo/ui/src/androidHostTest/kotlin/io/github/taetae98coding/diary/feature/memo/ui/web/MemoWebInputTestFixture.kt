@@ -64,7 +64,6 @@ internal fun screenTestWebViewModel(
     val viewModel = mockk<MemoWebViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.webPagingData } returns webPagingDataFlow
-    every { viewModel.selectableWebPagingData } returns webPagingDataFlow
     return viewModel
 }
 

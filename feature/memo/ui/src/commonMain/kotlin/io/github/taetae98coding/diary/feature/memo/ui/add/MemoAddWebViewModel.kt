@@ -48,8 +48,6 @@ internal class MemoAddWebViewModel(
 
     val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData
 
-    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData
-
     fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }

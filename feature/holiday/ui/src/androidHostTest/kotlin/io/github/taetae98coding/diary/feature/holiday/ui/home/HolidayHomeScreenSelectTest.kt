@@ -75,7 +75,7 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-7109366e-3598-458d-9b65-d9d69732da1e 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-da8ce08f-c23a-4d40-9510-6a7cffc935c4 기간을 선택하는 도중 시스템이 선택을 중단하면 MemoAdd 화면 이동이 요청되지 않고 선택이 남지 않는다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
 
@@ -84,7 +84,12 @@ class HolidayHomeScreenSelectTest {
         composeRule.onRoot().performTouchInput { cancel() }
         composeRule.waitForIdle()
 
-        navigatedDateRangeList shouldBe listOf(february(day = 6)..february(day = 9))
+        navigatedDateRangeList shouldBe emptyList()
+        composeRule.onNodeWithText(YEAR.toString()).assertExists()
+        // 남은 선택이 없으면 새로 길게 누른 날짜 하루만 선택되어 완료된다.
+        composeRule.performLongPress(composeRule.dayCenter(day = 7))
+        composeRule.performUp()
+        navigatedDateRangeList shouldBe listOf(february(day = 7)..february(day = 7))
     }
 
     @Test

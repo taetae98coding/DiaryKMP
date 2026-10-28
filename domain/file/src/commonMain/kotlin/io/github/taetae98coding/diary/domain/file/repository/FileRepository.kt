@@ -12,8 +12,6 @@ import kotlin.uuid.Uuid
 public interface FileRepository {
     public fun page(): Flow<PagingData<DiaryFile>>
 
-    public suspend fun refresh()
-
     public suspend fun readSource(uri: FileUri): FileUploadSource
 
     public suspend fun create(

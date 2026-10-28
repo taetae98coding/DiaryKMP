@@ -7,8 +7,6 @@ import kotlinx.datetime.Month
 
 internal const val FIRST_ITEM_TEXT: String = "FirstCalendarItem"
 internal const val SECOND_ITEM_TEXT: String = "SecondCalendarItem"
-internal const val THIRD_ITEM_TEXT: String = "ThirdCalendarItem"
-internal const val FOURTH_ITEM_TEXT: String = "FourthCalendarItem"
 
 private const val CALENDAR_TEST_YEAR = 2026
 

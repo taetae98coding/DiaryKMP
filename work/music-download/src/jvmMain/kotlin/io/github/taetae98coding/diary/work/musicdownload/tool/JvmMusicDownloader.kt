@@ -12,5 +12,5 @@ internal class JvmMusicDownloader(
         target: MusicDownloadTarget,
         path: MusicFilePath,
         onProgress: suspend (Float) -> Unit,
-    ): Boolean = musicVideoDownloadJobRegistry.download(videoId = target.videoId, path = path, onProgress = onProgress)
+    ): Boolean = musicVideoDownloadJobRegistry.download(videoId = target.videoId, path = path)
 }

@@ -66,5 +66,4 @@
     <string name="tag_detail_place_map_empty_description">Move the map to see other places.</string>
     <string name="tag_detail_place_list_view_mode_button_content_description">Show list</string>
     <string name="tag_detail_place_map_view_mode_button_content_description">Show map</string>
-    <string name="tag_detail_place_show_on_map_action">Show location on map</string>
 </resources>

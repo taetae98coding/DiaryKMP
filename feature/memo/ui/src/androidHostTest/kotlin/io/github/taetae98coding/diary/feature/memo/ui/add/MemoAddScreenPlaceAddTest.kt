@@ -169,7 +169,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-5600d7ed-8e54-4451-afb4-9ffc53f3a739 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
+    fun `TC-5600d7ed-8e54-4451-afb4-9ffc53f3a739 지도가 표시되지 않으면 목록의 장소 추가 항목이 지도 위치 없이 PlaceAdd 이동을 요청한다`() {
         var placeAddCount = 0
         var passedCoordinate: Coordinate? = null
         setMemoAddScreen(
@@ -181,6 +181,8 @@ class MemoAddScreenPlaceAddTest {
         )
 
         composeRule.openPlacePicker()
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).performClick()
+        composeRule.waitForIdle()
 
         placeAddCount shouldBe 1
         passedCoordinate shouldBe null

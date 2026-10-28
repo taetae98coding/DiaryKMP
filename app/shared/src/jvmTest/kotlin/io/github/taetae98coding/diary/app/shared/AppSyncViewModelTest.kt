@@ -96,8 +96,8 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-18021dfc-a467-4701-8427-e1b209a39732 로그인 세션의 인증 여부가 확인되기 전에는 동기화 계기가 발생하지 않고 확인된 뒤 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = true)
-                val refreshedAccount = account.copy(isSessionValid = true, isSessionPending = false)
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+                val refreshedAccount = account.copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -142,25 +142,20 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        listOf<Pair<String, (Account.User) -> Account.User>>(
-            "세션 확인 중" to { account -> account.copy(isSessionValid = false, isSessionPending = true) },
-            "인증되지 않은 것으로 확인됨" to { account -> account.copy(isSessionValid = false, isSessionPending = false) },
-        ).forEach { (label, invalidate) ->
-            test("TC-bce9da35-2f00-4bb6-9621-28916b11bd49 TC-f7816008-73c9-4079-a740-e4e695b0de94 같은 계정의 로그인 세션이 $label 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
-                runTest(mainDispatcher) {
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
-                    val accountFlow = MutableStateFlow<Account>(account)
-                    val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+        test("TC-bce9da35-2f00-4bb6-9621-28916b11bd49 TC-f7816008-73c9-4079-a740-e4e695b0de94 같은 계정의 로그인 세션이 인증되지 않은 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val accountFlow = MutableStateFlow<Account>(account)
+                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                    viewModel.uiState.authenticatedAccountId().test {
-                        awaitItem() shouldBe account.id
-                        accountFlow.value = invalidate(account)
-                        runCurrent()
-                        expectNoEvents()
-                        accountFlow.value = account
-                        awaitItem() shouldBe account.id
-                        expectNoEvents()
-                    }
+                viewModel.uiState.authenticatedAccountId().test {
+                    awaitItem() shouldBe account.id
+                    accountFlow.value = account.copy(isSessionValid = false)
+                    runCurrent()
+                    expectNoEvents()
+                    accountFlow.value = account
+                    awaitItem() shouldBe account.id
+                    expectNoEvents()
                 }
             }
         }

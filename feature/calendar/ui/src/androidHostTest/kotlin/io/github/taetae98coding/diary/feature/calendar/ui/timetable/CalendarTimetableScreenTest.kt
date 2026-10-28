@@ -216,7 +216,7 @@ class CalendarTimetableScreenTest {
                 }
 
         composeRule.onNodeWithText("23").assertIsDisplayed()
-        composeRule.onNodeWithText("10 AM").assertIsDisplayed()
+        composeRule.onNodeWithText(TEN_AM_LABEL).assertIsDisplayed()
         composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).assertDoesNotExist()
         textList.toSet() shouldBe setOf(SEPTEMBER_2026_TITLE, "Wed", "23") + hourLabelList
     }
@@ -450,7 +450,7 @@ class CalendarTimetableScreenTest {
     fun `TC-fd9b33ec-ecd4-41ec-a73e-8dc35c017ef7 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 시간대`() {
         val requestList = mutableListOf<MemoDateTime>()
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
-        val tenY = hourLabelCenterY(label = "10 AM")
+        val tenY = hourLabelCenterY(label = TEN_AM_LABEL)
         val hourHeight = hourLabelCenterY(label = "11 AM") - tenY
         val x =
             composeRule
@@ -494,6 +494,31 @@ class CalendarTimetableScreenTest {
         composeRule.waitForIdle()
 
         requestList shouldBe listOf(MemoDateTime.AllDay(dateRange = september(day = 23)..september(day = 23)))
+    }
+
+    @Test
+    fun `TC-68c831d5-cd30-4bc9-8790-09ce404ea2e7 시간대 선택 도중 조작이 끊기면 MemoAdd로 이동하지 않고 보던 날짜와 시간대를 유지한다`() {
+        val requestList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
+        val tenY = hourLabelCenterY(label = TEN_AM_LABEL)
+        val hourHeight = hourLabelCenterY(label = "11 AM") - tenY
+        val x =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width * 3F / 4F
+
+        composeRule.onRoot().performTouchInput {
+            down(Offset(x = x, y = tenY + hourHeight / 6F))
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveTo(Offset(x = x, y = tenY + hourHeight * 7F / 6F))
+            cancel()
+        }
+        composeRule.waitForIdle()
+
+        requestList shouldBe emptyList()
+        composeRule.onNodeWithText("23").assertExists()
+        hourLabelCenterY(label = TEN_AM_LABEL) shouldBe tenY
     }
 
     @Test
@@ -608,6 +633,7 @@ private const val FILTER_CONTENT_DESCRIPTION = "Filter"
 private const val CHUSEOK = "추석"
 private const val ANNIVERSARY = "기념일"
 private const val LONG_PRESS_MARGIN_MILLIS = 100L
+private const val TEN_AM_LABEL = "10 AM"
 
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 

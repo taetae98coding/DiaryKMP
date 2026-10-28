@@ -4,7 +4,7 @@
 
 설정 화면의 `플레이리스트` 항목을 선택해 SettingPlaylist로 이동하는 케이스는 [SettingHome 테스트 케이스](./setting-home.md)에서, 설정 목록과 함께 표시되는 상태의 시스템 뒤로가기 결과는 [Setting 목록·상세 배치 테스트 케이스](./setting-list-detail.md)에서 다룬다. 주소 후보와 프록시 상태가 정해지는 규칙은 [곡 다운로드 프록시 테스트 케이스](./music-download-proxy.md)에서 다루며, 이 문서는 정해진 상태를 화면이 어떻게 제공하는지만 다룬다.
 
-Android와 iOS에서 주소를 보관하는 환경별 저장 영역은 같은 저장 영역을 대상으로 한 [SettingMap 테스트 케이스](./setting-map.md)가 다룬다.
+표시 관계, 저장된 주소를 확인하기 전의 상태, Android와 iOS에서 입력한 뒤 저장하는 설정의 행동과 저장 동작의 제공 기준, 뒤로가기, 입력 상태의 유지와 초기화, 저장 시점과 기기별 보관은 [기기 설정 화면 공통 스펙](../spec/client/device-setting.md)에 위임되어 있으며, 이 문서의 케이스는 SettingPlaylist에서 관찰하는 결과를 기준으로 한다. Android와 iOS에서 주소를 보관하는 환경별 저장 영역은 공통 스펙의 `환경별 저장 영역`을 같은 저장 영역에서 확인하는 [SettingMap 테스트 케이스](./setting-map.md)가 다룬다.
 
 ## feature
 

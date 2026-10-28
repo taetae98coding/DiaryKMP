@@ -28,7 +28,6 @@ internal fun WebAddScreen(
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
-    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     DiaryTitleInputFocusEffect(state = state.titleState)
     WebTagAddedResultEffect(
@@ -57,8 +56,6 @@ internal fun WebAddScreen(
             handleWebFormEvent(
                 event = event,
                 state = state,
-                selectableTagPagingItems = selectableTagPagingItems,
-                navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,
             )
         },

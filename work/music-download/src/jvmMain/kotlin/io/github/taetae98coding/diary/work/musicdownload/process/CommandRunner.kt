@@ -32,10 +32,7 @@ internal class CommandRunner(
                 ?.absolutePath
         }
 
-    suspend fun run(
-        commandList: List<String>,
-        onLine: suspend (String) -> Unit = {},
-    ): Int =
+    suspend fun run(commandList: List<String>): Int =
         withContext(dispatcher) {
             val process =
                 ProcessBuilder(commandList)
@@ -43,12 +40,12 @@ internal class CommandRunner(
                     .start()
 
             try {
+                // 출력을 비우지 않으면 버퍼가 차서 프로세스가 멈추므로, 읽어서 버리며 취소를 확인한다.
                 process.inputStream.bufferedReader().use { reader ->
                     while (true) {
                         coroutineContext.ensureActive()
 
-                        val line = reader.readLine() ?: break
-                        onLine(line)
+                        reader.readLine() ?: break
                     }
                 }
 

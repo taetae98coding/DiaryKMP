@@ -21,7 +21,6 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageVi
 import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.tag.WebTagAddedResultEffect
-import io.github.taetae98coding.diary.feature.web.ui.web_detail_chrome_session_import_failed_message
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_open_failed_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -47,11 +46,9 @@ internal fun WebDetailScreen(
     val pageUiState by pageViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
-    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? WebDetailUiState.Content
     val uriHandler = LocalUriHandler.current
     val coroutineScope = rememberCoroutineScope()
-    val importFailedMessage = stringResource(Res.string.web_detail_chrome_session_import_failed_message)
     val openFailedMessage = stringResource(Res.string.web_detail_open_failed_message)
 
     WebTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
@@ -63,7 +60,7 @@ internal fun WebDetailScreen(
 
         LoadWebPageEffect(pageViewModel = pageViewModel, state = scaffoldState)
 
-        WebDetailScreenEffect(effect = webViewModel.effect, formState = formState, pageViewModel = pageViewModel, navigateUp = navigateUp)
+        WebDetailScreenEffect(effect = webViewModel.effect, formState = formState, navigateUp = navigateUp)
         DismissUndoSnackbarEffect(keyProvider = { scaffoldState.tab }, hostState = formState.snackbarHostState)
 
         WebDetailScaffold(
@@ -72,8 +69,6 @@ internal fun WebDetailScreen(
                     is WebDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
 
                     is WebDetailScaffoldEvent.ClickMemoAdd -> navigateToMemoAdd()
-
-                    is WebDetailScaffoldEvent.SessionImportFailed -> coroutineScope.launch { formState.snackbarHostState.showImmediate(message = importFailedMessage) }
 
                     is WebDetailScaffoldEvent.ClickRetry -> pageViewModel.retry()
 
@@ -95,7 +90,7 @@ internal fun WebDetailScreen(
                     is WebDetailScaffoldEvent.SelectViewMode -> scaffoldState.select(viewMode = event.viewMode)
                 }
             },
-            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, navigateToTagDetail = navigateToTagDetail) },
             onTagPickerEvent = { event -> handleWebDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = scaffoldState,

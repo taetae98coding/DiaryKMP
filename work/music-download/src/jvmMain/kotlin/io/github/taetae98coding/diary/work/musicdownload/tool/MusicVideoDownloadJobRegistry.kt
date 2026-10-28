@@ -5,10 +5,6 @@ import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.core.annotation.Single
@@ -21,56 +17,28 @@ internal class MusicVideoDownloadJobRegistry(
     @param:MusicDownloadScope private val scope: CoroutineScope,
 ) {
     private val mutex = Mutex()
-    private val jobMap = mutableMapOf<String, MusicVideoDownloadJob>()
+    private val jobMap = mutableMapOf<String, Deferred<Boolean>>()
 
     suspend fun download(
         videoId: String,
         path: MusicFilePath,
-        onProgress: suspend (Float) -> Unit,
     ): Boolean {
         val job = mutex.withLock { jobMap.getOrPut(videoId) { start(videoId = videoId, path = path) } }
 
-        return job.await(onProgress = onProgress)
+        return job.await()
     }
 
-    suspend fun join(
-        videoId: String,
-        onProgress: suspend (Float) -> Unit,
-    ): Boolean? = mutex.withLock { jobMap[videoId] }?.await(onProgress = onProgress)
-
-    private suspend fun MusicVideoDownloadJob.await(onProgress: suspend (Float) -> Unit): Boolean {
-        val job = this
-
-        return coroutineScope {
-            val collector = launch { job.progress.filterNotNull().collect { value -> onProgress(value) } }
-
-            try {
-                job.result.await()
-            } finally {
-                collector.cancel()
-            }
-        }
-    }
+    suspend fun join(videoId: String): Boolean? = mutex.withLock { jobMap[videoId] }?.await()
 
     private fun start(
         videoId: String,
         path: MusicFilePath,
-    ): MusicVideoDownloadJob {
-        val progress = MutableStateFlow<Float?>(null)
-        val result =
-            scope.async {
-                try {
-                    ytDlpDownloader.download(videoId = videoId, path = path) { value -> progress.value = value }
-                } finally {
-                    mutex.withLock { jobMap.remove(videoId) }
-                }
+    ): Deferred<Boolean> =
+        scope.async {
+            try {
+                ytDlpDownloader.download(videoId = videoId, path = path)
+            } finally {
+                mutex.withLock { jobMap.remove(videoId) }
             }
-
-        return MusicVideoDownloadJob(progress = progress, result = result)
-    }
+        }
 }
-
-private class MusicVideoDownloadJob(
-    val progress: MutableStateFlow<Float?>,
-    val result: Deferred<Boolean>,
-)

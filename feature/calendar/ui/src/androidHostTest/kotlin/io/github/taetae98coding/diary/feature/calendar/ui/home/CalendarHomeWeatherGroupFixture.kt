@@ -26,11 +26,8 @@ import kotlin.uuid.Uuid
 
 internal object CalendarHomeWeatherGroupFixture {
     const val SUNDAY_TEMPERATURE_TEXT = "17.8°/28.2°"
-    const val MONDAY_TEMPERATURE_TEXT = "15.1°/25.4°"
-    const val NEXT_SUNDAY_TEMPERATURE_TEXT = "19.6°/29.3°"
     const val TRIP_TITLE = "여행"
     const val APPOINTMENT_TITLE = "약속"
-    const val WORKSHOP_TITLE = "워크숍"
     const val HOLIDAY_NAME = "임시공휴일"
     const val BIRTHDAY_NAME = "홍길동"
     const val BIRTHDAY_TEXT = "🎂 홍길동"
@@ -54,15 +51,6 @@ internal object CalendarHomeWeatherGroupFixture {
             min = 15.1,
             max = 25.4,
             description = "흐림",
-        )
-
-    /** 7월 19일(일)의 날씨로, [sundayWeather]와 다른 주에 표시된다. */
-    fun nextSundayWeather(): CalendarWeather =
-        weather(
-            date = july(day = 19),
-            min = 19.6,
-            max = 29.3,
-            description = "비",
         )
 
     fun memo(
@@ -111,7 +99,6 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     memoList: List<CalendarMemo> = emptyList(),
     holidayList: List<Holiday> = emptyList(),
     birthdayList: List<CalendarContactBirthday> = emptyList(),
-    memoListFlow: MutableStateFlow<List<CalendarMemo>> = MutableStateFlow(memoList),
 ) {
     val holidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
@@ -121,7 +108,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     val memoViewModel =
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.select(any()) } returns Unit
-            every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
+            every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
             every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 

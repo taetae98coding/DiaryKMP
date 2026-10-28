@@ -95,8 +95,8 @@ class PageFileUseCaseTest :
         Given("세션 갱신 여부가 서로 다른 사용자 상태다") {
             When("파일 목록을 페이지로 조회한다") {
                 Then("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 서버에 목록을 요청한다") {
-                    listOf(true to false, false to true, false to false).forEach { (isSessionValid, isSessionPending) ->
-                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid, isSessionPending = isSessionPending)
+                    listOf(true, false).forEach { isSessionValid ->
+                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
                         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
                         val fileRepository = mockk<FileRepository>()
@@ -125,7 +125,7 @@ class PageFileUseCaseTest :
                     useCase(parameter = Unit).test {
                         awaitItem()
                         awaitItem()
-                        accountFlow.value = Result.success(account.copy(isSessionValid = false, isSessionPending = true))
+                        accountFlow.value = Result.success(account.copy(isSessionValid = false))
 
                         expectNoEvents()
                         verify(exactly = 1) { fileRepository.page() }

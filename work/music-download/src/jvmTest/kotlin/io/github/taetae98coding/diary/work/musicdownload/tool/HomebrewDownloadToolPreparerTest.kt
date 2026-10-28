@@ -24,7 +24,7 @@ class HomebrewDownloadToolPreparerTest :
 
                     preparer.prepare() shouldBe DownloadToolPrepareResult.Prepared
 
-                    coVerify(exactly = 0) { commandRunner.run(commandList = any(), onLine = any()) }
+                    coVerify(exactly = 0) { commandRunner.run(commandList = any()) }
                 }
             }
         }
@@ -48,7 +48,6 @@ class HomebrewDownloadToolPreparerTest :
                         coVerify(exactly = 1) {
                             commandRunner.run(
                                 commandList = listOf(BREW_PATH, "install") + missingList.map { tool -> tool.formula },
-                                onLine = any(),
                             )
                         }
                     }
@@ -64,7 +63,7 @@ class HomebrewDownloadToolPreparerTest :
 
                     preparer.prepare() shouldBe DownloadToolPrepareResult.NotInstalled
 
-                    coVerify(exactly = 0) { commandRunner.run(commandList = any(), onLine = any()) }
+                    coVerify(exactly = 0) { commandRunner.run(commandList = any()) }
                 }
             }
         }
@@ -116,7 +115,7 @@ class HomebrewDownloadToolPreparerTest :
                     }
                 }
 
-            coEvery { commandRunner.run(commandList = any(), onLine = any()) } answers
+            coEvery { commandRunner.run(commandList = any()) } answers
                 {
                     isRun = true
                     exitCode

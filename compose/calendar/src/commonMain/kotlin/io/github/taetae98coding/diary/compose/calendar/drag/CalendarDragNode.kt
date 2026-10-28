@@ -6,9 +6,7 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
@@ -28,7 +26,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-import kotlin.math.abs
 
 internal class CalendarDragNode(
     private var selectState: CalendarSelectState,
@@ -40,11 +37,9 @@ internal class CalendarDragNode(
     CompositionLocalConsumerModifierNode,
     GlobalPositionAwareModifierNode {
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode { detectDrag() })
-    private val interruptNode = delegate(CalendarDragInterruptNode())
 
     private var layoutCoordinates: LayoutCoordinates? = null
     private var session: CalendarDragSession? = null
-    private var isMoveSession = false
     private var pointerPosition = Offset.Zero
     private var pointerBoundsSize = IntSize.Zero
     private var edgeDirection = 0
@@ -63,9 +58,8 @@ internal class CalendarDragNode(
 
         if (this.selectState !== selectState || this.moveState !== moveState) {
             edgeDirection = 0
-            session?.endWithoutRelease(isMoveSession = isMoveSession)
+            session?.cancel()
             session = null
-            isMoveSession = false
             this.selectState = selectState
             this.moveState = moveState
             pointerInputNode.resetPointerInputHandler()
@@ -78,71 +72,50 @@ internal class CalendarDragNode(
 
     private suspend fun PointerInputScope.detectDrag() {
         val edgeWidth = CalendarDragDefaults.EdgeScrollWidth.toPx()
-        val monthSwipeDistance = CalendarDragDefaults.MonthSwipeDistance.toPx()
 
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
             val longPress = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+            var isReleased = false
 
-            interruptNode.startSession()
             session = startSession(position = longPress.position)
-            drag(position = longPress.position, size = size)
-            performHapticFeedback(HapticFeedbackType.LongPress)
-            updateEdgeScroll(position = longPress.position, size = size, edgeWidth = edgeWidth)
-
-            val end =
-                awaitDrag(
-                    longPress = longPress,
-                    edgeWidth = edgeWidth,
-                    monthSwipeDistance = monthSwipeDistance,
-                )
-            val endedSession = session
-
-            edgeDirection = 0
-            session = null
-            when (end) {
-                CalendarDragEnd.Released -> endedSession?.finish()
-
-                CalendarDragEnd.Interrupted ->
-                    if (isMoveSession) {
-                        endedSession?.finish()
-                    } else {
-                        endedSession?.let(interruptNode::interrupt)
-                    }
-
-                CalendarDragEnd.Lost -> endedSession?.endWithoutRelease(isMoveSession = isMoveSession)
+            try {
+                drag(position = longPress.position, size = size)
+                performHapticFeedback(HapticFeedbackType.LongPress)
+                updateEdgeScroll(position = longPress.position, size = size, edgeWidth = edgeWidth)
+                isReleased = awaitRelease(longPress = longPress, edgeWidth = edgeWidth)
+            } finally {
+                endSession(isReleased = isReleased)
             }
         }
     }
 
-    private suspend fun AwaitPointerEventScope.awaitDrag(
+    private suspend fun AwaitPointerEventScope.awaitRelease(
         longPress: PointerInputChange,
         edgeWidth: Float,
-        monthSwipeDistance: Float,
-    ): CalendarDragEnd {
-        val monthSwipe = CalendarMonthSwipe(distance = monthSwipeDistance)
+    ): Boolean {
         var change = longPress
-        var isInterrupted = false
+        var isCanceled = false
 
         while (!change.changedToUpIgnoreConsumed()) {
             val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-            val next = event.changes.firstOrNull { it.id == longPress.id } ?: return CalendarDragEnd.Lost
+            val next = event.changes.firstOrNull { it.id == longPress.id } ?: return false
 
             // 시스템이 제스처를 끊으면 Compose는 이미 소비된 손 뗌 이벤트를 합성해 보낸다.
-            isInterrupted = next.changedToUpIgnoreConsumed() && next.isConsumed
-            next.consume()
+            isCanceled = next.changedToUpIgnoreConsumed() && next.isConsumed
+            // 조작하는 동안 다른 손가락이 페이저 스와이프와 아이템 스크롤을 일으키지 않도록 모든 손가락을 먼저 소비한다.
+            event.changes.forEach { it.consume() }
             if (!next.changedToUpIgnoreConsumed()) {
                 if (drag(position = next.position, size = size)) {
                     performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                 }
                 updateEdgeScroll(position = next.position, size = size, edgeWidth = edgeWidth)
             }
-            trackMonthSwipe(event = event, primaryId = longPress.id, monthSwipe = monthSwipe)
 
             change = next
         }
 
-        return if (isInterrupted) CalendarDragEnd.Interrupted else CalendarDragEnd.Released
+        return !isCanceled
     }
 
     private fun startSession(position: Offset): CalendarDragSession {
@@ -153,9 +126,19 @@ internal class CalendarDragNode(
                 }
             }
 
-        isMoveSession = moveSession != null
-
         return moveSession ?: CalendarSelectDragSession(state = selectState, onSelect = onSelect)
+    }
+
+    private fun endSession(isReleased: Boolean) {
+        val endedSession = session ?: return
+
+        edgeDirection = 0
+        session = null
+        if (isReleased) {
+            endedSession.finish()
+        } else {
+            endedSession.cancel()
+        }
     }
 
     private fun drag(
@@ -171,22 +154,6 @@ internal class CalendarDragNode(
             date = dateAt(position, size),
             windowPosition = layoutCoordinates?.localToWindow(position),
         )
-    }
-
-    private fun trackMonthSwipe(
-        event: PointerEvent,
-        primaryId: PointerId,
-        monthSwipe: CalendarMonthSwipe,
-    ) {
-        event.changes.forEach { change ->
-            if (change.id == primaryId) return@forEach
-
-            // 이동을 유지한 채 달을 넘기는 손가락이므로, 페이저 스와이프와 아이템 스크롤을 일으키지 않게 소비한다.
-            change.consume()
-            if (!isMoveSession) return@forEach
-
-            monthSwipe.direction(change = change)?.let { direction -> startMonthScroll(direction = direction) }
-        }
     }
 
     private fun updateEdgeScroll(
@@ -215,12 +182,6 @@ internal class CalendarDragNode(
             }
     }
 
-    private fun startMonthScroll(direction: Int) {
-        if (animateScrollMonth == null || monthScrollJob?.isActive == true) return
-
-        monthScrollJob = coroutineScope.launch { scrollMonth(direction = direction) }
-    }
-
     private suspend fun scrollMonth(direction: Int): Boolean {
         val hasMoved = animateScrollMonth?.invoke(direction) ?: false
 
@@ -236,48 +197,5 @@ internal class CalendarDragNode(
     }
 }
 
-private enum class CalendarDragEnd {
-    Released,
-    Interrupted,
-    Lost,
-}
-
-private class CalendarMonthSwipe(
-    private val distance: Float,
-) {
-    private val startPositionMap = mutableMapOf<PointerId, Offset>()
-    private val swipedIdSet = mutableSetOf<PointerId>()
-
-    fun direction(change: PointerInputChange): Int? {
-        if (change.changedToUpIgnoreConsumed()) {
-            startPositionMap -= change.id
-            swipedIdSet -= change.id
-
-            return null
-        }
-
-        val offset = change.position - startPositionMap.getOrPut(change.id) { change.position }
-        val isSwiped = change.id !in swipedIdSet && abs(offset.x) > distance && abs(offset.x) > abs(offset.y)
-
-        if (isSwiped) {
-            swipedIdSet += change.id
-        }
-
-        return if (isSwiped) {
-            if (offset.x < 0) NEXT_MONTH_DIRECTION else PREVIOUS_MONTH_DIRECTION
-        } else {
-            null
-        }
-    }
-}
-
 private const val PREVIOUS_MONTH_DIRECTION = -1
 private const val NEXT_MONTH_DIRECTION = 1
-
-private fun CalendarDragSession.endWithoutRelease(isMoveSession: Boolean) {
-    if (isMoveSession) {
-        finish()
-    } else {
-        cancel()
-    }
-}

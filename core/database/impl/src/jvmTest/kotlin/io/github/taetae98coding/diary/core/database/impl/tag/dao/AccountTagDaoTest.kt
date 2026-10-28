@@ -85,7 +85,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe expectedIdList
         }
 
-        test("TC-16a8b240-b3d1-44f2-b4e0-e5f66cc537f4 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
+        test("TC-da2dec7b-ef85-460b-a158-bb9d8cb0d119 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableTag = tag(isFinished = false, isDeleted = false)
             val finishedTag = tag(isFinished = true, isDeleted = false)

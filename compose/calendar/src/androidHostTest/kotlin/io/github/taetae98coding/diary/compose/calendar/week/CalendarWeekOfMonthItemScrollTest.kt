@@ -2,22 +2,17 @@ package io.github.taetae98coding.diary.compose.calendar.week
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasScrollToNodeAction
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.calendar.FIRST_ITEM_TEXT
 import io.github.taetae98coding.diary.compose.calendar.SECOND_ITEM_TEXT
 import io.github.taetae98coding.diary.compose.calendar.july
-import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.textItem
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
@@ -37,32 +32,13 @@ class CalendarWeekOfMonthItemScrollTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val scrollToTopFlow = MutableStateFlow(false)
-
     @Test
-    fun `TC-984c3a12-435a-4fe9-ab50-37c9ffe2c095 되돌리기를 요청하면 첫 아이템 줄부터 다시 보인다`() {
-        val itemScrollState = CalendarItemScrollState()
-        setCalendarWeekOfMonth(
-            itemScrollState = itemScrollState,
-            hasLeadingGroupFlow = MutableStateFlow(false),
-        )
-        composeRule
-            .onNode(hasScrollToNodeAction())
-            .performScrollToNode(hasText(text = lastFilledItemText()))
-        composeRule.onNodeWithText(FIRST_ITEM_TEXT).isNotDisplayed() shouldBe true
-
-        requestScrollToTop()
-
-        composeRule.onNodeWithText(FIRST_ITEM_TEXT).assertIsDisplayed()
-    }
-
-    @Test
-    fun `TC-61053b13-566b-44e4-a179-91747dd77009 되돌리기 요청이 없으면 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+    fun `TC-61053b13-566b-44e4-a179-91747dd77009 위쪽 줄에 아이템이 새로 생겨도 보던 아이템이 계속 보인다`() {
         assertLeadingGroupStaysHidden(filledItemStart = july(day = 5), filledItemEndInclusive = july(day = 11))
     }
 
     @Test
-    fun `TC-61053b13-566b-44e4-a179-91747dd77009 첫 줄의 아이템이 주 중간에서 시작해도 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+    fun `TC-61053b13-566b-44e4-a179-91747dd77009 첫 줄의 아이템이 주 중간에서 시작해도 위쪽 줄에 새로 생긴 아이템은 바로 보이지 않는다`() {
         assertLeadingGroupStaysHidden(filledItemStart = july(day = 7), filledItemEndInclusive = july(day = 8))
     }
 
@@ -72,7 +48,6 @@ class CalendarWeekOfMonthItemScrollTest {
     ) {
         val hasLeadingGroupFlow = MutableStateFlow(false)
         setCalendarWeekOfMonth(
-            itemScrollState = CalendarItemScrollState(),
             hasLeadingGroupFlow = hasLeadingGroupFlow,
             filledItemStart = filledItemStart,
             filledItemEndInclusive = filledItemEndInclusive,
@@ -86,42 +61,13 @@ class CalendarWeekOfMonthItemScrollTest {
         composeRule.onNodeWithText(FIRST_ITEM_TEXT).assertIsDisplayed()
     }
 
-    @Test
-    fun `TC-8bc7ea35-f498-487c-91c4-fe9bfbe0e5f9 되돌리기를 요청하면 위쪽에 생긴 아이템이 바로 보인다`() {
-        val itemScrollState = CalendarItemScrollState()
-        val hasLeadingGroupFlow = MutableStateFlow(false)
-        setCalendarWeekOfMonth(
-            itemScrollState = itemScrollState,
-            hasLeadingGroupFlow = hasLeadingGroupFlow,
-        )
-        hasLeadingGroupFlow.value = true
-        composeRule.waitForIdle()
-
-        requestScrollToTop()
-
-        composeRule.onNodeWithText(SECOND_ITEM_TEXT).assertIsDisplayed()
-    }
-
-    private fun requestScrollToTop() {
-        scrollToTopFlow.value = true
-        composeRule.waitForIdle()
-    }
-
     private fun setCalendarWeekOfMonth(
-        itemScrollState: CalendarItemScrollState,
         hasLeadingGroupFlow: MutableStateFlow<Boolean>,
-        filledItemStart: LocalDate = july(day = 5),
-        filledItemEndInclusive: LocalDate = july(day = 11),
+        filledItemStart: LocalDate,
+        filledItemEndInclusive: LocalDate,
     ) {
         composeRule.setContent {
             val hasLeadingGroup by hasLeadingGroupFlow.collectAsStateWithLifecycle()
-            val isScrollToTopRequested by scrollToTopFlow.collectAsStateWithLifecycle()
-
-            LaunchedEffect(isScrollToTopRequested) {
-                if (isScrollToTopRequested) {
-                    itemScrollState.scrollToTop()
-                }
-            }
 
             DiaryTheme {
                 CalendarWeekOfMonth(
@@ -131,7 +77,6 @@ class CalendarWeekOfMonthItemScrollTest {
                         Modifier
                             .fillMaxWidth()
                             .height(WEEK_HEIGHT),
-                    itemScrollState = itemScrollState,
                 ) {
                     if (hasLeadingGroup) {
                         group { textItem(text = SECOND_ITEM_TEXT, start = july(day = 5), endInclusive = july(day = 11)) }
@@ -151,8 +96,6 @@ class CalendarWeekOfMonthItemScrollTest {
     }
 
     private fun filledItemText(index: Int): String = if (index == 0) FIRST_ITEM_TEXT else "$FILLED_ITEM_TEXT_PREFIX$index"
-
-    private fun lastFilledItemText(): String = filledItemText(index = FILLED_ITEM_COUNT - 1)
 
     companion object {
         private const val FILLED_ITEM_COUNT = 6

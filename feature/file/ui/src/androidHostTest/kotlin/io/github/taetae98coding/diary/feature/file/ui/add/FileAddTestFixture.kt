@@ -11,7 +11,6 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -23,17 +22,14 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseC
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
 import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 
 internal val fileAddFixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -59,7 +55,7 @@ private const val DESCRIPTION_INPUT_INDEX = 1
 internal class FileAddMocks {
     val state = MutableStateFlow<FileUploadState>(FileUploadState.Idle)
     val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fileAddFixtureMonkey.giveMeOne<Account.User>()))
-    private val eventChannel = Channel<FileUploadEvent>(Channel.UNLIMITED)
+    private val eventFlow = MutableSharedFlow<FileUploadEvent>(extraBufferCapacity = 16)
     private val sourceMap = mutableMapOf<FileUri, Result<FileUploadSource>>()
     val requestList = mutableListOf<RequestFileUploadUseCase.Parameter>()
 
@@ -96,7 +92,7 @@ internal class FileAddMocks {
 
     fun finish(event: FileUploadEvent) {
         state.value = FileUploadState.Idle
-        eventChannel.trySend(event)
+        eventFlow.tryEmit(event)
     }
 
     fun finishWithoutEvent() {
@@ -107,13 +103,11 @@ internal class FileAddMocks {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
         every { getStateUseCase(parameter = Unit) } returns state.map { value -> Result.success(value) }
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = FileScreen.ADD) } returns eventChannel.receiveAsFlow().map { event -> Result.success(event) }
+        every { getEventUseCase(parameter = Unit) } returns eventFlow.map { event -> Result.success(event) }
 
         return FileAddViewModel(
             readFileUploadSourceUseCase = readUseCase,
             requestFileUploadUseCase = requestUseCase,
-            startViewingFileScreenUseCase = mockk<StartViewingFileScreenUseCase>(relaxed = true),
-            stopViewingFileScreenUseCase = mockk<StopViewingFileScreenUseCase>(relaxed = true),
             getFileUploadStateUseCase = getStateUseCase,
             getFileUploadEventUseCase = getEventUseCase,
         )

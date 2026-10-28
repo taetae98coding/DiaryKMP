@@ -4,13 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-/**
- * [failureId]는 실패를 구분하는 번호라 같은 번호는 한 번만 알리며, 마지막 결과가 실패가 아니면 null이다.
- */
 public data class DiaryWebSession(
     val isPreparing: Boolean = false,
     val importCount: Int = 0,
-    val failureId: Int? = null,
 )
 
 /**

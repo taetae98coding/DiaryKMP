@@ -2,7 +2,6 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
-import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -14,6 +13,7 @@ import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -22,20 +22,17 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
@@ -51,31 +48,6 @@ class WebDetailTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
-        }
-
-        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val item = tag()
-                val parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")
-                val useCase = mockk<PageWebSelectableTagUseCase>()
-                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel =
-                    WebDetailTagViewModel(
-                        id = id,
-                        pageWebSelectableTagUseCase = useCase,
-                        getWebTagUseCase = mockk(relaxed = true),
-                        addWebTagUseCase = mockk(relaxed = true),
-                        removeWebTagUseCase = mockk(relaxed = true),
-                    )
-
-                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { useCase(parameter = parameter) }
-            }
         }
 
         test("TC-806007af-1e20-415d-af6c-996d9731eb0f 저장된 연결의 태그를 연결 대상으로 표시한다") {
@@ -302,7 +274,7 @@ class WebDetailTagViewModelTest : FunSpec() {
     }
 
     private fun restorationTests() {
-        test("TC-ab820c4b-068f-4fbd-bd6f-eb7357bbfb20 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-600fa417-a608-4189-bd8c-409ea8506e2e 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
@@ -315,17 +287,20 @@ class WebDetailTagViewModelTest : FunSpec() {
                 every {
                     useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = query))
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pageWebSelectableTagUseCase = useCase, isListOpened = false)
+                val viewModel = viewModel(id = id, pageWebSelectableTagUseCase = useCase)
 
-                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.tagPagingData.test {
-                    viewModel.updateQuery(query)
-                    runCurrent()
+                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
 
+                    // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 알려 준다.
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    expectNoEvents()
+
+                    advanceUntilIdle()
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
                     cancelAndIgnoreRemainingEvents()
                 }
-                verify(exactly = 0) { useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")) }
             }
         }
     }
@@ -339,7 +314,6 @@ class WebDetailTagViewModelTest : FunSpec() {
             mockk<PageWebSelectableTagUseCase>().apply {
                 every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
             },
-        isListOpened: Boolean = true,
     ): WebDetailTagViewModel {
         val getWebTagUseCase = mockk<GetWebTagUseCase>()
         every { getWebTagUseCase(parameter = id) } returns tagFlow
@@ -350,10 +324,7 @@ class WebDetailTagViewModelTest : FunSpec() {
             getWebTagUseCase = getWebTagUseCase,
             addWebTagUseCase = addWebTagUseCase,
             removeWebTagUseCase = removeWebTagUseCase,
-        ).apply {
-            // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-            if (isListOpened) updateQuery(query = "")
-        }
+        )
     }
 
     public companion object {

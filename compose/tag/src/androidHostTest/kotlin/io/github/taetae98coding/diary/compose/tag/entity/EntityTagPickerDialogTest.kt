@@ -20,7 +20,6 @@ import io.github.taetae98coding.diary.compose.tag.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,28 +54,6 @@ class EntityTagPickerDialogTest {
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         composeRule.pickerRows()[0].assertIsOn()
         composeRule.pickerRows()[1].assertIsOff()
-    }
-
-    @Test
-    fun `TC-bce47fd4-e845-4aa6-8010-6d543de51881 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
-        val tagPagingDataFlow = MutableStateFlow(refreshingEntityTagPagingData())
-        var tagPagingItems: LazyPagingItems<Tag>? = null
-        composeRule.setEntityTagPickerDialog(
-            tagPagingDataFlow = tagPagingDataFlow,
-            onTagPagingItems = { items -> tagPagingItems = items },
-        )
-        composeRule.waitForIdle()
-
-        tagPagingDataFlow.value = entityTagPagingDataOf(emptyList())
-        composeRule.awaitEntityTagPickerRefreshSettled { tagPagingItems }
-
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-        composeRule
-            .entityTagPickerList()
-            .fetchSemanticsNode()
-            .children
-            .shouldBeEmpty()
-        composeRule.onNode(hasTestTag(DIARY_PICKER_EMPTY_BOX_TEST_TAG)).assertDoesNotExist()
     }
 
     @Test

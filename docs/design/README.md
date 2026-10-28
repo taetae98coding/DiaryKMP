@@ -75,6 +75,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [ChecklistHome 화면](./checklist-home.md)
 - [Checklist 목록·상세 배치](./checklist-list-detail.md)
 - [칩 이름 표시](./chip.md)
+- [Chrome 로그인 이어받기](./chrome-session-import.md)
 - [ContactAdd 화면](./contact-add.md)
 - [ContactDetail 화면](./contact-detail.md)
 - [ContactHome 화면](./contact-home.md)

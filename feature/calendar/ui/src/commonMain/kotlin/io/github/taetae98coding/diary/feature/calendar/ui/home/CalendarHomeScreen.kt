@@ -51,10 +51,6 @@ internal fun CalendarHomeScreen(
         birthdayViewModel = birthdayViewModel,
     )
     FetchWeatherEffect(weatherViewModel = weatherViewModel)
-    ScrollItemToTopOnFirstWeatherEffect(
-        state = state,
-        weatherViewModel = weatherViewModel,
-    )
     RequestLocationPermissionEffect(
         permissionManager = permissionManager,
         weatherViewModel = weatherViewModel,

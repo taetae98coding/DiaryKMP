@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiStat
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.EXERCISE_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
@@ -219,19 +221,19 @@ class MemoDetailScreenTagTest {
 
     @Test
     @Config(qualifiers = "w480dp-h1200dp")
-    fun `TC-ae797087-ce02-4386-b34a-8aa2f4f77206 선택할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
-        val finishedTag = testTag(title = WORK_TAG_TITLE).copy(isFinished = true)
+    fun `TC-97393c65-b806-4cd0-af8d-7aaddba9b897 태그가 하나도 없어도 추가 항목을 누르면 태그 선택 목록이 열린다`() {
         var tagAddCount = 0
 
         composeRule.setMemoDetailScreenWithTag(
-            tagUiState = MutableStateFlow(MemoTagInputUiState(selectedTagList = listOf(finishedTag))),
-            tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(finishedTag))),
+            tagUiState = MutableStateFlow(MemoTagInputUiState()),
+            tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(emptyList())),
             navigateToTagAdd = { tagAddCount += 1 },
         )
         composeRule.openMemoDetailTagPicker()
-        composeRule.awaitTagPickerRows()
+        composeRule.waitForIdle()
 
-        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
         tagAddCount shouldBe 0
     }
 

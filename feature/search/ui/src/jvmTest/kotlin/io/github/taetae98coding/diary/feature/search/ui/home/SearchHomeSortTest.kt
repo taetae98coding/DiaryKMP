@@ -56,7 +56,7 @@ class SearchHomeSortTest : FunSpec() {
                         restartMemoUseCase = mockk(),
                         deleteMemoUseCase = mockk(),
                         restoreMemoUseCase = mockk(),
-                    ).also { viewModel -> viewModel.showQuery("") }
+                    )
                 val tagViewModel =
                     SearchHomeTagViewModel(
                         searchTagUseCase = searchTagUseCase,
@@ -64,7 +64,7 @@ class SearchHomeSortTest : FunSpec() {
                         restartTagUseCase = mockk(),
                         deleteTagUseCase = mockk(),
                         restoreTagUseCase = mockk(),
-                    ).also { viewModel -> viewModel.showQuery("") }
+                    )
 
                 memoViewModel.pagingData.test {
                     tagViewModel.pagingData.test {
@@ -92,7 +92,7 @@ class SearchHomeSortTest : FunSpec() {
                         restartMemoUseCase = mockk(),
                         deleteMemoUseCase = mockk(),
                         restoreMemoUseCase = mockk(),
-                    ).also { viewModel -> viewModel.showQuery("") }
+                    )
 
                 viewModel.pagingData.test {
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)
@@ -123,29 +123,29 @@ class SearchHomeSortTest : FunSpec() {
                     listOf(
                         {
                             SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomeTagViewModel(searchTagUseCase, mockk(), mockk(), mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomeWebViewModel(searchWebUseCase, mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
                             }
                         },
                     )
 
                 targetFactoryList.forEach { createTarget ->
                     val beforeRestore = createTarget()
-                    beforeRestore.showQuery(QUERY)
+                    beforeRestore.updateQuery(QUERY)
                     beforeRestore.pagingData.test {
                         advanceUntilIdle()
                         beforeRestore.select(ListSort.RECENTLY_UPDATED)
@@ -155,7 +155,7 @@ class SearchHomeSortTest : FunSpec() {
                     currentUiState(beforeRestore.viewModel).sort shouldBe ListSort.RECENTLY_UPDATED
 
                     val restored = createTarget()
-                    restored.showQuery(QUERY)
+                    restored.updateQuery(QUERY)
                     restored.pagingData.test {
                         advanceUntilIdle()
                         cancelAndIgnoreRemainingEvents()
@@ -175,7 +175,7 @@ class SearchHomeSortTest : FunSpec() {
     private class SortTarget(
         val viewModel: SearchHomeResultViewModel<*>,
         val select: (ListSort) -> Unit,
-        val showQuery: (String) -> Unit,
+        val updateQuery: (String) -> Unit,
         val pagingData: Flow<PagingData<*>>,
     )
 

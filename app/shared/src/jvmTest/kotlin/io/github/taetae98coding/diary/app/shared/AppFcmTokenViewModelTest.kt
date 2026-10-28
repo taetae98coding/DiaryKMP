@@ -244,7 +244,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("진행 중인 제출과 다른 계정의 제출 요청은 기다리지 않고 바로 제출 UseCase를 실행한다") {
+        test("TC-065688c3-be4c-4116-b1b1-f362455a7f78 진행 중인 제출과 다른 계정의 제출 요청은 기다리지 않고 바로 제출 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
@@ -258,7 +258,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("토큰 제출 요청이 반복되어도 진행 중에는 제출 UseCase를 한 번만 실행하고 끝나면 다시 제출할 수 있다") {
+        test("TC-065688c3-be4c-4116-b1b1-f362455a7f78 토큰 제출 요청이 반복되어도 진행 중에는 제출 UseCase를 한 번만 실행하고 끝나면 다시 제출할 수 있다") {
             runTest(mainDispatcher) {
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)

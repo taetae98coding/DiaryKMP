@@ -7,12 +7,15 @@ import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeather
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -40,7 +43,8 @@ internal class CalendarHomeWeatherViewModel(
             initialValue = CalendarHomeWeatherUiState(),
         )
 
-    private var isRefreshPending: Boolean = false
+    private var loadJob: Job? = null
+    private var isRefreshingOnLocationPermissionGranted = false
 
     fun fetch() {
         if (isLoading.value) return
@@ -49,27 +53,35 @@ internal class CalendarHomeWeatherViewModel(
     }
 
     fun refreshOnLocationPermissionGranted() {
-        if (isLoading.value) {
-            isRefreshPending = true
-            return
-        }
+        if (isRefreshingOnLocationPermissionGranted) return
+        isRefreshingOnLocationPermissionGranted = true
+        loadJob?.cancel()
 
-        load { refreshCurrentWeatherUseCase(parameter = Unit) }
+        load {
+            try {
+                refreshCurrentWeatherUseCase(parameter = Unit)
+            } finally {
+                isRefreshingOnLocationPermissionGranted = false
+            }
+        }
     }
 
     private fun load(block: suspend () -> Unit) {
         isLoading.value = true
-        viewModelScope.launch {
-            try {
-                block()
-                while (isRefreshPending) {
-                    isRefreshPending = false
-                    refreshCurrentWeatherUseCase(parameter = Unit)
+
+        // 시작하기 전에 loadJob에 담아 두어야, 멈춘 이전 작업이 뒤늦게 끝나며 새 작업의 진행 상태를 내리지 않는다.
+        val job =
+            viewModelScope.launch(start = CoroutineStart.LAZY) {
+                try {
+                    block()
+                } finally {
+                    if (loadJob == coroutineContext.job) {
+                        isLoading.value = false
+                    }
                 }
-            } finally {
-                isRefreshPending = false
-                isLoading.value = false
             }
-        }
+
+        loadJob = job
+        job.start()
     }
 }

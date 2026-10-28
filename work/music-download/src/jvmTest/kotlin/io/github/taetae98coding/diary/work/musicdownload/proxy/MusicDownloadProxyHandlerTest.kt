@@ -24,7 +24,7 @@ class MusicDownloadProxyHandlerTest :
 
                         handler.handle(videoId = value) shouldBe MusicDownloadProxyResponse.Rejected
 
-                        coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                        coVerify(exactly = 0) { registry.download(videoId = any(), path = any()) }
                     }
                 }
             }
@@ -39,7 +39,7 @@ class MusicDownloadProxyHandlerTest :
 
                     handler.handle(videoId = videoId) shouldBe MusicDownloadProxyResponse.Completed(path = "/tmp/music/$videoId.mp4")
 
-                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any()) }
                 }
             }
         }
@@ -53,7 +53,7 @@ class MusicDownloadProxyHandlerTest :
 
                     handler.handle(videoId = videoId) shouldBe MusicDownloadProxyResponse.Completed(path = "/tmp/music/$videoId.mp4")
 
-                    coVerify(exactly = 1) { registry.download(videoId = videoId, path = any(), onProgress = any()) }
+                    coVerify(exactly = 1) { registry.download(videoId = videoId, path = any()) }
                 }
             }
         }
@@ -75,8 +75,8 @@ class MusicDownloadProxyHandlerTest :
 
                         handler.handle(videoId = testVideoId()) shouldBe MusicDownloadProxyResponse.Failed
 
-                        coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
-                        coVerify(exactly = 0) { commandRunner.run(commandList = any(), onLine = any()) }
+                        coVerify(exactly = 0) { registry.download(videoId = any(), path = any()) }
+                        coVerify(exactly = 0) { commandRunner.run(commandList = any()) }
                     }
                 }
             }
@@ -92,8 +92,8 @@ class MusicDownloadProxyHandlerTest :
 
                     handler.handle(videoId = videoId) shouldBe MusicDownloadProxyResponse.Completed(path = "/tmp/music/$videoId.mp4")
 
-                    coVerify(exactly = 1) { registry.join(videoId = videoId, onProgress = any()) }
-                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 1) { registry.join(videoId = videoId) }
+                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any()) }
                     coVerify(exactly = 0) { commandRunner.find(command = any()) }
                 }
 
@@ -103,7 +103,7 @@ class MusicDownloadProxyHandlerTest :
 
                     handler.handle(videoId = testVideoId()) shouldBe MusicDownloadProxyResponse.Failed
 
-                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any()) }
                 }
             }
         }
@@ -124,8 +124,8 @@ private fun registry(
     joinResult: Boolean? = null,
 ): MusicVideoDownloadJobRegistry {
     val registry = mockk<MusicVideoDownloadJobRegistry>()
-    coEvery { registry.download(videoId = any(), path = any(), onProgress = any()) } returns result
-    coEvery { registry.join(videoId = any(), onProgress = any()) } returns joinResult
+    coEvery { registry.download(videoId = any(), path = any()) } returns result
+    coEvery { registry.join(videoId = any()) } returns joinResult
 
     return registry
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -39,7 +40,11 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import androidx.paging.PagingData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.cachedIn
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -49,7 +54,6 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -59,8 +63,7 @@ import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
@@ -71,23 +74,21 @@ import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailAccountVi
 import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailMocks
 import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FILE_HOME_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeRefreshUiState
-import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUiState
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUploadViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.After
@@ -116,25 +117,23 @@ class FileListDetailNavigationTest {
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, FileHomeNavKey)
     private val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
     private val homeUiState = MutableStateFlow<FileHomeUiState>(FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()))
-    private val uploadEventChannel = Channel<FileUploadEvent>(Channel.UNLIMITED)
-    private val startViewingFileScreenUseCase =
-        mockk<StartViewingFileScreenUseCase>().also { useCase ->
-            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
-        }
-    private val stopViewingFileScreenUseCase =
-        mockk<StopViewingFileScreenUseCase>().also { useCase ->
-            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
-        }
-    private val refreshViewModelList = mutableListOf<FileHomeRefreshViewModel>()
+    private val uploadSucceededChannel = Channel<FileUploadEvent.Succeeded>(Channel.UNLIMITED)
+    private val uploadEventFlow = MutableSharedFlow<FileUploadEvent>(extraBufferCapacity = 16)
 
     // null이면 테스트 창 크기로 정한 배치를 쓰고, 값을 두면 창 너비가 바뀐 것처럼 배치를 바꾼다.
     private var directiveOverride by mutableStateOf<PaneScaffoldDirective?>(null)
     private val addMocks = FileAddMocks()
     private val addViewModelList = mutableListOf<FileAddViewModel>()
-    private val homePagingData = MutableStateFlow(PagingData.empty<DiaryFile>())
+    private val pagingScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    // 목록을 다시 불러올 때 서버가 돌려줄 목록. null이면 목록을 바꾸지 않는다.
-    private var refreshedFileList: List<DiaryFile>? = null
+    // 목록을 불러올 때 서버가 돌려줄 목록과 불러온 횟수.
+    private var serverFileList: List<DiaryFile> = emptyList()
+    private var serverLoadCount = 0
+    private val homePagingData =
+        Pager(
+            config = PagingConfig(pageSize = 50, enablePlaceholders = false),
+            pagingSourceFactory = { homePagingSource() },
+        ).flow.cachedIn(pagingScope)
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
@@ -145,6 +144,7 @@ class FileListDetailNavigationTest {
     @After
     fun tearDown() {
         stopKoin()
+        pagingScope.cancel()
     }
 
     @Test
@@ -319,16 +319,13 @@ class FileListDetailNavigationTest {
     fun `TC-9c8360d6-d01d-4e46-92e8-97ae6585cfea 선택 전 FileAdd에서 올린 파일은 성공하면 같은 화면의 목록에 나타난다`() {
         val file = testFile()
         val uploaded = testFile()
-        refreshedFileList = listOf(uploaded, file)
         setFileNavDisplay(fileList = listOf(file))
+        serverFileList = listOf(uploaded, file)
         composeRule.runOnIdle { addMocks.state.value = FileUploadState.Uploading(percent = null) }
         composeRule.waitForIdle()
         listItem(uploaded).assertDoesNotExist()
 
-        composeRule.runOnIdle {
-            addMocks.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id))
-            uploadEventChannel.trySend(FileUploadEvent.SucceededOnFileAdd(fileId = uploaded.id))
-        }
+        composeRule.runOnIdle { finishUpload(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(UPLOAD_SUCCEEDED_MESSAGE).assertExists()
@@ -435,11 +432,35 @@ class FileListDetailNavigationTest {
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
 
-        composeRule.runOnIdle { uploadEventChannel.trySend(FileUploadEvent.Failed) }
+        composeRule.runOnIdle { finishUpload(event = FileUploadEvent.Failed) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertExists()
         composeRule.onNodeWithContentDescription(DOWNLOAD_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-db8c717d-84f3-48fc-a4a7-370eebee0fd4 상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 실패는 FileAdd에서만 알린다`() {
+        val file = testFile()
+        setFileNavDisplay(fileList = listOf(file))
+
+        composeRule.runOnIdle { finishUpload(event = FileUploadEvent.Failed) }
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodesWithText(UPLOAD_FAILED_MESSAGE).fetchSemanticsNodes() shouldHaveSize 1
+        composeRule.onNodeWithContentDescription(UPLOAD_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-db8c717d-84f3-48fc-a4a7-370eebee0fd4 상세 영역에 FileAdd가 놓인 동안 올리기에 성공하면 목록에서는 알리지 않고 처음부터 다시 불러온다`() {
+        val file = testFile()
+        setFileNavDisplay(fileList = listOf(file))
+
+        composeRule.runOnIdle { finishUpload(event = FileUploadEvent.Succeeded(fileId = file.id)) }
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodesWithText(UPLOAD_SUCCEEDED_MESSAGE).fetchSemanticsNodes() shouldHaveSize 1
+        serverLoadCount shouldBe 2
     }
 
     @Test
@@ -685,21 +706,26 @@ class FileListDetailNavigationTest {
 
         listItem(fileList[25]).assertExists()
         listItem(fileList.first()).assertDoesNotExist()
-        refreshViewModelList shouldHaveSize 1
-        verify(exactly = 0) { refreshViewModelList.single().refresh() }
+        serverLoadCount shouldBe 1
     }
 
-    @Test
-    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 목록과 함께 상세 영역에 FileDetail을 두면 FileHome을 계속 보고 있다고 알린다`() {
-        val file = testFile()
-        setFileNavDisplay(fileList = listOf(file))
-        coVerify(exactly = 1) { startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-
-        openDetail(file = file)
-
-        coVerify(exactly = 1) { startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-        coVerify(exactly = 0) { stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+    // 올리기 결과는 그때 보이는 화면이 받고, 성공은 FileHome이 받을 때까지 쌓인다.
+    private fun finishUpload(event: FileUploadEvent) {
+        addMocks.finish(event = event)
+        uploadEventFlow.tryEmit(event)
+        if (event is FileUploadEvent.Succeeded) uploadSucceededChannel.trySend(event)
     }
+
+    private fun homePagingSource(): PagingSource<Int, DiaryFile> =
+        object : PagingSource<Int, DiaryFile>() {
+            override fun getRefreshKey(state: PagingState<Int, DiaryFile>): Int? = null
+
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DiaryFile> {
+                serverLoadCount += 1
+
+                return LoadResult.Page(data = serverFileList, prevKey = null, nextKey = null)
+            }
+        }
 
     private fun singlePaneDirective(): PaneScaffoldDirective = PaneScaffoldDirective.Default.copy(maxHorizontalPartitions = 1)
 
@@ -858,7 +884,7 @@ class FileListDetailNavigationTest {
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
 
-        homePagingData.value = PagingData.from(fileList)
+        serverFileList = fileList
 
         return module {
             factory<FileHomeViewModel> {
@@ -871,23 +897,15 @@ class FileListDetailNavigationTest {
                 val getFileUploadStateUseCase = mockk<GetFileUploadStateUseCase>()
                 every { getFileUploadStateUseCase(parameter = Unit) } returns addMocks.state.map { state -> Result.success(state) }
                 val getFileUploadEventUseCase = mockk<GetFileUploadEventUseCase>()
-                every { getFileUploadEventUseCase(parameter = FileScreen.HOME) } returns uploadEventChannel.receiveAsFlow().map { event -> Result.success(event) }
+                every { getFileUploadEventUseCase(parameter = Unit) } returns uploadEventFlow.map { event -> Result.success(event) }
+                val getFileUploadSucceededEventUseCase = mockk<GetFileUploadSucceededEventUseCase>()
+                every { getFileUploadSucceededEventUseCase(parameter = Unit) } returns uploadSucceededChannel.receiveAsFlow().map { event -> Result.success(event) }
 
                 FileHomeUploadViewModel(
-                    startViewingFileScreenUseCase = startViewingFileScreenUseCase,
-                    stopViewingFileScreenUseCase = stopViewingFileScreenUseCase,
                     getFileUploadStateUseCase = getFileUploadStateUseCase,
                     getFileUploadEventUseCase = getFileUploadEventUseCase,
+                    getFileUploadSucceededEventUseCase = getFileUploadSucceededEventUseCase,
                 )
-            }
-            factory<FileHomeRefreshViewModel> {
-                mockk<FileHomeRefreshViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(FileHomeRefreshUiState())
-                    every { effect } returns emptyFlow()
-                    every { refreshAfterUploadOnFileAdd(firstFileIdBefore = any()) } answers {
-                        refreshedFileList?.let { fileList -> homePagingData.value = PagingData.from(fileList) }
-                    }
-                }.also { viewModel -> refreshViewModelList += viewModel }
             }
             factory<FileAddViewModel> { addMocks.viewModel().also { viewModel -> addViewModelList += viewModel } }
             factory<FileAddAccountViewModel> { FileAddAccountViewModel(getAccountUseCase = getAccountUseCase) }

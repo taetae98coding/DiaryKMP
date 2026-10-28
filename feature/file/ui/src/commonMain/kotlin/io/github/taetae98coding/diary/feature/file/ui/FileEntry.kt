@@ -51,7 +51,6 @@ private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(backStack: NavBackSta
             componentVisibleProvider = { FileHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isFileAddOnDetailPane()) },
             fileViewModel = koinViewModel(),
             uploadViewModel = koinViewModel(),
-            refreshViewModel = koinViewModel(),
         )
     }
 }

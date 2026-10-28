@@ -17,7 +17,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -87,8 +86,6 @@ class PlaceHomeMapStateTest {
     }
 
     private companion object {
-        private val currentLocationFetchId: Uuid = Uuid.random()
-
-        private fun loaded(defaultProvider: MapProvider): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = defaultProvider, initialCoordinate = null, currentLocationFetchId = currentLocationFetchId)
+        private fun loaded(defaultProvider: MapProvider): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = defaultProvider, initialCoordinate = null)
     }
 }

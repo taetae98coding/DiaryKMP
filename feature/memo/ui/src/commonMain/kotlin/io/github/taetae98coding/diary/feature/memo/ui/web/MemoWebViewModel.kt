@@ -36,8 +36,6 @@ internal class MemoWebViewModel(
 
     val webPagingData: Flow<PagingData<Web>> = selectablePaging.pagingData
 
-    val selectableWebPagingData: Flow<PagingData<Web>> = selectablePaging.selectablePagingData
-
     val uiState: StateFlow<MemoWebInputUiState> =
         getMemoWebUseCase(parameter = id)
             .map { result -> MemoWebInputUiState(selectedWebList = result.getOrNull().orEmpty()) }

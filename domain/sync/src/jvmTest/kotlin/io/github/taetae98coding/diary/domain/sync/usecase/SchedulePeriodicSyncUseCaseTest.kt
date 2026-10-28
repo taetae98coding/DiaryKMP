@@ -13,7 +13,6 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Duration.Companion.hours
 
@@ -86,38 +85,13 @@ class SchedulePeriodicSyncUseCaseTest :
             }
         }
 
-        Given("로그인 세션이 인증되지 않은 것으로 확인된 사용자 계정이 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = false)
+        Given("로그인 세션이 갱신되지 않은 사용자 계정이 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 
             When("앱이 계정을 확인한다") {
-                Then("TC-b7fbbed2-9c57-498e-91dd-d578a86ea847 주기 동기화 예약이 해제된다") {
-                    val syncManager = mockk<SyncManager>(relaxed = true)
-                    val useCase =
-                        SchedulePeriodicSyncUseCase(
-                            getAccountUseCase = getAccountUseCase,
-                            syncManager = syncManager,
-                        )
-
-                    val result = useCase(parameter = Unit)
-
-                    result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.cancelPeriodicSync() }
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
-                }
-            }
-        }
-
-        Given("주기 동기화가 예약되어 있고 로그인 세션을 확인하는 중인 사용자 계정이 있다") {
-            val pendingAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = true)
-            val validAccount = pendingAccount.copy(isSessionValid = true, isSessionPending = false)
-            val accountFlow = MutableStateFlow<Result<Account>>(Result.success(pendingAccount))
-            val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns accountFlow
-
-            When("세션을 확인하는 중인 계정이 확인된 뒤 세션이 인증된 계정이 확인된다") {
-                Then("TC-a4e73b81-e32d-4898-8ad2-2d9a37112d55 세션을 확인하는 동안에는 예약을 해제하지도 새로 잡지도 않는다") {
+                Then("TC-56ebf0e0-19c8-4454-8389-44dc03ca0d63 예약을 해제하지 않고 주기 동기화를 예약한다") {
                     val syncManager = mockk<SyncManager>(relaxed = true)
                     val useCase =
                         SchedulePeriodicSyncUseCase(
@@ -127,35 +101,8 @@ class SchedulePeriodicSyncUseCaseTest :
 
                     useCase(parameter = Unit).shouldBeSuccess(Unit)
 
-                    verify(exactly = 0) { syncManager.cancelPeriodicSync() }
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
-
-                    accountFlow.value = Result.success(validAccount)
-                    useCase(parameter = Unit).shouldBeSuccess(Unit)
-
-                    verify(exactly = 0) { syncManager.cancelPeriodicSync() }
                     verify(exactly = 1) { syncManager.schedulePeriodicSync(period = 4.hours) }
-                }
-            }
-        }
-
-        Given("주기 동기화가 예약되어 있지 않고 로그인 세션을 확인하는 중인 사용자 계정이 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = true)
-            val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
-
-            When("세션을 확인하는 중인 계정이 확인된다") {
-                Then("TC-dba098ee-22c5-49fd-bd8b-4a9a80cb3a7a 주기 동기화를 새로 예약하지 않는다") {
-                    val syncManager = mockk<SyncManager>(relaxed = true)
-                    val useCase =
-                        SchedulePeriodicSyncUseCase(
-                            getAccountUseCase = getAccountUseCase,
-                            syncManager = syncManager,
-                        )
-
-                    useCase(parameter = Unit).shouldBeSuccess(Unit)
-
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
+                    verify(exactly = 0) { syncManager.cancelPeriodicSync() }
                 }
             }
         }

@@ -22,7 +22,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,22 +52,6 @@ class MemoWebViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
-        }
-
-        test("TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = web()
-                val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
-                every { pageMemoSelectableWebUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = viewModel(pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase, isListOpened = false)
-
-                val itemList = flowOf(viewModel.selectableWebPagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { pageMemoSelectableWebUseCase(parameter = "") }
-            }
         }
 
         test("TC-c3bef457-737a-433c-9dff-e2186c03a571 웹 입력에 저장된 웹 연결이 표시된다") {
@@ -412,7 +395,6 @@ class MemoWebViewModelTest : FunSpec() {
                 mockk<PageMemoSelectableWebUseCase>().apply {
                     every { this@apply(parameter = any()) } returns webPagingFlow
                 },
-            isListOpened: Boolean = true,
         ): MemoWebViewModel {
             val getMemoWebUseCase = mockk<GetMemoWebUseCase>()
             every { getMemoWebUseCase(any()) } returns memoWebFlow
@@ -423,10 +405,7 @@ class MemoWebViewModelTest : FunSpec() {
                 getMemoWebUseCase = getMemoWebUseCase,
                 addMemoWebUseCase = addMemoWebUseCase,
                 removeMemoWebUseCase = removeMemoWebUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

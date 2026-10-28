@@ -46,8 +46,6 @@ internal const val OFFICE_PLACE_TITLE: String = "MemoPlaceOffice"
 internal const val HOME_PLACE_QUERY: String = "Home"
 internal const val KOREAN_MAP_DESCRIPTION: String = "메모 장소 지도"
 internal const val DEFAULT_MAP_DESCRIPTION: String = "Memo place map"
-internal const val KOREAN_SHOW_ON_MAP_ACTION: String = "지도에서 위치 보기"
-internal const val DEFAULT_SHOW_ON_MAP_ACTION: String = "Show location on map"
 internal const val KOREAN_PLACE_SELECT_LABEL: String = "장소 선택"
 internal const val DEFAULT_PLACE_SELECT_LABEL: String = "Select place"
 internal const val KOREAN_PLACE_PICKER_TITLE: String = "장소 선택"
@@ -90,7 +88,6 @@ internal fun screenTestPlaceViewModel(
     val viewModel = mockk<MemoPlaceViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.placePagingData } returns placePagingData
-    every { viewModel.selectablePlacePagingData } returns placePagingData
 
     return viewModel
 }

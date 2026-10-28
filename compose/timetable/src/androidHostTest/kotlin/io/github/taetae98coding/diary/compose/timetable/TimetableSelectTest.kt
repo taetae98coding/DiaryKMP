@@ -4,6 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -16,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.mockk
@@ -211,15 +217,63 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-a7bd5222-d39e-4034-8d15-3b144448e615 선택하는 동안 시스템이 조작을 중단하면 그 시점의 기간이 전달된다`() {
-        setTimetable()
+    fun `TC-316365e6-e847-486a-bdcd-12ea6c823b1d 선택하는 동안 시스템이 조작을 끊으면 선택이 취소되고 기간이 전달되지 않는다`() {
+        val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
+        setTimetable(state = state)
 
         performLongPress(timePosition(hour = 10, minute = 10))
         performMoveTo(timePosition(hour = 11, minute = 10))
         composeRule.onRoot().performTouchInput { cancel() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(selectTime(start = september(day = 23, hour = 10), endInclusive = september(day = 23, hour = 11, minute = 30)))
+        eventList shouldBe emptyList()
+        state.selectState.selection.shouldBeNull()
+    }
+
+    @Test
+    fun `TC-316365e6-e847-486a-bdcd-12ea6c823b1d 선택하는 동안 앱이 백그라운드로 이동해 조작이 끊기면 선택이 취소되고 기간이 전달되지 않는다`() {
+        // 백그라운드 이동은 화면 상태를 저장한 뒤 화면을 그대로 둔 채 제스처를 끊는 것으로 재현한다.
+        val registry = SaveableStateRegistry(restoredValues = null) { true }
+        val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
+        composeRule.setContent {
+            CompositionLocalProvider(LocalSaveableStateRegistry provides registry) {
+                DiaryTheme {
+                    Timetable(modifier = Modifier.fillMaxSize(), state = state, onEvent = { eventList += it }) {}
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        performLongPress(timePosition(hour = 10, minute = 10))
+        performMoveTo(timePosition(hour = 11, minute = 10))
+        composeRule.runOnIdle { registry.performSave() }
+        composeRule.onRoot().performTouchInput { cancel() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+        state.selectState.selection.shouldBeNull()
+    }
+
+    @Test
+    fun `TC-316365e6-e847-486a-bdcd-12ea6c823b1d 선택하는 동안 화면을 벗어나 Timetable이 사라지면 선택이 취소되고 기간이 전달되지 않는다`() {
+        var isShown by mutableStateOf(true)
+        val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
+        composeRule.setContent {
+            DiaryTheme {
+                if (isShown) {
+                    Timetable(modifier = Modifier.fillMaxSize(), state = state, onEvent = { eventList += it }) {}
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        performLongPress(timePosition(hour = 10, minute = 10))
+        performMoveTo(timePosition(hour = 11, minute = 10))
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+        state.selectState.selection.shouldBeNull()
     }
 
     @Test

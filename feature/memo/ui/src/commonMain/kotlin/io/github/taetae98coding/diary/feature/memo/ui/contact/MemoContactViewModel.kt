@@ -36,8 +36,6 @@ internal class MemoContactViewModel(
 
     val contactPagingData: Flow<PagingData<Contact>> = selectablePaging.pagingData
 
-    val selectableContactPagingData: Flow<PagingData<Contact>> = selectablePaging.selectablePagingData
-
     val uiState: StateFlow<MemoContactInputUiState> =
         getMemoContactUseCase(parameter = id)
             .map { result -> MemoContactInputUiState(selectedContactList = result.getOrNull().orEmpty()) }

@@ -44,6 +44,7 @@ internal fun ContactDetailScreen(
         effect = viewModel.effect,
         state = state,
     )
+
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = state.snackbarHostState)
 
     ContactDetailScaffold(

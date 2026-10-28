@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.feature.file.ui.add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
@@ -22,7 +21,6 @@ internal fun FileAddScreen(
     val uiState by uploadViewModel.uiState.collectAsStateWithLifecycle()
 
     DiaryTitleInputFocusEffect(state = state.titleState)
-    FileAddViewingEffect(uploadViewModel = uploadViewModel)
     FileAddScreenEffect(
         effect = uploadViewModel.effect,
         state = state,
@@ -45,15 +43,6 @@ internal fun FileAddScreen(
         uiStateProvider = { uiState },
         componentVisibleProvider = componentVisibleProvider,
     )
-}
-
-@Composable
-private fun FileAddViewingEffect(uploadViewModel: FileAddViewModel) {
-    LifecycleStartEffect(uploadViewModel) {
-        uploadViewModel.startViewing()
-
-        onStopOrDispose { uploadViewModel.stopViewing() }
-    }
 }
 
 @Composable

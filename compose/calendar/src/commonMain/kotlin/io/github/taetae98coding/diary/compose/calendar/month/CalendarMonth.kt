@@ -10,8 +10,6 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.WEEKS_PER_MONTH
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
-import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
-import io.github.taetae98coding.diary.compose.calendar.scroll.rememberCalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.select.CalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.select.rememberCalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarBarText
@@ -27,7 +25,6 @@ internal fun CalendarMonth(
     yearMonth: YearMonth,
     modifier: Modifier = Modifier,
     selectState: CalendarSelectState = rememberCalendarSelectState(),
-    itemScrollState: CalendarItemScrollState = rememberCalendarItemScrollState(),
     onEvent: ((CalendarEvent) -> Unit)? = null,
     isDateClickEnabled: Boolean = false,
     isWeekClickEnabled: Boolean = false,
@@ -43,7 +40,6 @@ internal fun CalendarMonth(
                 weekOfMonth = weekOfMonth,
                 modifier = Modifier.weight(1F),
                 selectState = selectState,
-                itemScrollState = itemScrollState,
                 onEvent = onEvent,
                 isDateClickEnabled = isDateClickEnabled,
                 isWeekClickEnabled = isWeekClickEnabled,

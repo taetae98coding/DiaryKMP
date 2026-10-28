@@ -59,7 +59,6 @@ internal fun screenTestLinkViewModel(
     val viewModel = mockk<TagAddLinkViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.tagPagingData } returns tagPagingData
-    every { viewModel.selectableTagPagingData } returns tagPagingData
     every { viewModel.selectionUiState } returns selectionUiState
     return viewModel
 }

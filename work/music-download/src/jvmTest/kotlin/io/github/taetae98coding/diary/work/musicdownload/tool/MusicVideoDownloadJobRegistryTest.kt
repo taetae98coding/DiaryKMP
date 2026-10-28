@@ -20,8 +20,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 
-private const val PROGRESS_ARGUMENT_INDEX = 2
-
 class MusicVideoDownloadJobRegistryTest :
     BehaviorSpec({
         Given("한 영상을 받는 중이다") {
@@ -31,19 +29,19 @@ class MusicVideoDownloadJobRegistryTest :
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } coAnswers { gate.await() }
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        val first = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        val first = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
-                        val second = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        val second = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
                         gate.complete(true)
                         advanceUntilIdle()
 
                         first.await() shouldBe true
                         second.await() shouldBe true
-                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any()) }
                     }
                 }
 
@@ -52,46 +50,19 @@ class MusicVideoDownloadJobRegistryTest :
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } coAnswers { gate.await() }
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        val first = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        val first = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
-                        val second = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        val second = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
                         gate.complete(false)
                         advanceUntilIdle()
 
                         first.await() shouldBe false
                         second.await() shouldBe false
-                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
-                    }
-                }
-
-                Then("합류한 요청도 진행률을 함께 받는다") {
-                    runTest {
-                        val videoId = testVideoId()
-                        val gate = CompletableDeferred<Boolean>()
-                        var report: suspend (Float) -> Unit = {}
-                        val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers
-                            {
-                                report = arg(PROGRESS_ARGUMENT_INDEX)
-                                gate.await()
-                            }
-                        val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
-                        val joinedProgressList = mutableListOf<Float>()
-
-                        launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
-                        advanceUntilIdle()
-                        launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = { value -> joinedProgressList += value }) }
-                        advanceUntilIdle()
-                        report(0.62F)
-                        advanceUntilIdle()
-                        gate.complete(true)
-                        advanceUntilIdle()
-
-                        joinedProgressList shouldBe listOf(0.62F)
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any()) }
                     }
                 }
             }
@@ -102,18 +73,18 @@ class MusicVideoDownloadJobRegistryTest :
                         val videoId = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } coAnswers { gate.await() }
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
-                        val joined = async { registry.join(videoId = videoId, onProgress = {}) }
+                        val joined = async { registry.join(videoId = videoId) }
                         advanceUntilIdle()
                         gate.complete(true)
                         advanceUntilIdle()
 
                         joined.await() shouldBe true
-                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any()) }
                     }
                 }
             }
@@ -125,15 +96,15 @@ class MusicVideoDownloadJobRegistryTest :
                         val second = testVideoId()
                         val gate = CompletableDeferred<Boolean>()
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } coAnswers { gate.await() }
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        launch { registry.download(videoId = first, path = testMusicFilePath(first), onProgress = {}) }
-                        launch { registry.download(videoId = second, path = testMusicFilePath(second), onProgress = {}) }
+                        launch { registry.download(videoId = first, path = testMusicFilePath(first)) }
+                        launch { registry.download(videoId = second, path = testMusicFilePath(second)) }
                         advanceUntilIdle()
 
-                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = first, path = any(), onProgress = any()) }
-                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = second, path = any(), onProgress = any()) }
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = first, path = any()) }
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = second, path = any()) }
 
                         gate.complete(true)
                         advanceUntilIdle()
@@ -148,7 +119,7 @@ class MusicVideoDownloadJobRegistryTest :
                         val gate = CompletableDeferred<Boolean>()
                         var isCompleted = false
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } coAnswers
                             {
                                 val result = gate.await()
                                 isCompleted = true
@@ -157,7 +128,7 @@ class MusicVideoDownloadJobRegistryTest :
                         val scope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler) + CoroutineExceptionHandler { _, _ -> })
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = scope)
 
-                        val request = launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        val request = launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId)) }
                         advanceUntilIdle()
                         request.cancel()
                         advanceUntilIdle()
@@ -177,9 +148,9 @@ class MusicVideoDownloadJobRegistryTest :
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        registry.join(videoId = testVideoId(), onProgress = {}) shouldBe null
+                        registry.join(videoId = testVideoId()) shouldBe null
 
-                        coVerify(exactly = 0) { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) }
+                        coVerify(exactly = 0) { ytDlpDownloader.download(videoId = any(), path = any()) }
                     }
                 }
             }
@@ -191,13 +162,13 @@ class MusicVideoDownloadJobRegistryTest :
                     runTest {
                         val videoId = testVideoId()
                         val ytDlpDownloader = mockk<YtDlpDownloader>()
-                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } returns false
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any()) } returns false
                         val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
 
-                        registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) shouldBe false
-                        registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) shouldBe false
+                        registry.download(videoId = videoId, path = testMusicFilePath(videoId)) shouldBe false
+                        registry.download(videoId = videoId, path = testMusicFilePath(videoId)) shouldBe false
 
-                        coVerify(exactly = 2) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
+                        coVerify(exactly = 2) { ytDlpDownloader.download(videoId = videoId, path = any()) }
                     }
                 }
             }

@@ -2,7 +2,6 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
-import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
@@ -15,6 +14,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -22,10 +22,8 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -34,9 +32,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -55,23 +53,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = tag()
-                val useCase = mockk<PageTagUseCase>()
-                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = MemoAddTagViewModel(initialPrimaryTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
-
-                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { useCase(parameter = "") }
-            }
-        }
-
-        test("TC-774a56d6-fec9-4aa6-97bb-1a0825284ea3 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { tag() }
@@ -79,17 +61,20 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val useCase = mockk<PageTagUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allList)))
                 every { useCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedList)))
-                val viewModel = viewModel(pageTagUseCase = useCase, isListOpened = false)
+                val viewModel = viewModel(pageTagUseCase = useCase)
 
-                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.tagPagingData.test {
-                    viewModel.updateQuery(query)
-                    runCurrent()
+                    flowOf(awaitItem()).asSnapshot() shouldBe allList
 
+                    // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 알려 준다.
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    expectNoEvents()
+
+                    advanceUntilIdle()
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedList
                     cancelAndIgnoreRemainingEvents()
                 }
-                verify(exactly = 0) { useCase(parameter = "") }
             }
         }
 
@@ -521,7 +506,7 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-16a8b240-b3d1-44f2-b4e0-e5f66cc537f4 완료되었거나 삭제된 대상 태그는 선택과 대표 지정 없이 시작한다") {
+        test("TC-da2dec7b-ef85-460b-a158-bb9d8cb0d119 완료되었거나 삭제된 대상 태그는 선택·대표 태그로 보이지 않지만 선택과 대표 지정에 남는다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
                 val finishedTag = tag().copy(isFinished = true)
@@ -543,6 +528,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                         uiState.primaryTagId shouldBe null
                         cancelAndIgnoreRemainingEvents()
                     }
+                    viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = setOf(targetTag.id), primaryTagId = targetTag.id)
                 }
             }
         }
@@ -614,7 +600,6 @@ class MemoAddTagViewModelTest : FunSpec() {
                     every { this@apply(parameter = any()) } returns
                         pageTagListFlow.map { result -> result.map { tagList -> PagingData.from(tagList) } }
                 },
-            isListOpened: Boolean = true,
         ): MemoAddTagViewModel {
             // 선택 상태 조회는 선택할 수 있는 태그 가운데 요청한 식별자의 태그만 돌려준다.
             val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -628,10 +613,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 initialPrimaryTagId = initialPrimaryTagId,
                 pageTagUseCase = pageTagUseCase,
                 getSelectedTagUseCase = getSelectedTagUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

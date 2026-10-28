@@ -6,11 +6,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.isDialog
-import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -27,13 +24,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_PLACE_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
-import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
-import io.github.taetae98coding.diary.feature.memo.ui.place.refreshFailedPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.refreshingPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
@@ -82,7 +78,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-051ea8eb-a1d4-4a9e-b539-7f48864cac11 TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택할 수 있는 장소가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 PlaceAdd 이동을 요청한다`() {
+    fun `TC-331315c3-32f6-46eb-9282-e389707b6447 장소가 하나도 없어도 추가 항목을 누르면 장소 선택 목록이 열린다`() {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placeList = emptyList()),
@@ -91,8 +87,9 @@ class MemoAddScreenPlaceTest {
 
         composeRule.openPlacePicker()
 
-        placeAddCount shouldBe 1
-        composeRule.onNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertDoesNotExist()
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).assertExists()
+        placeAddCount shouldBe 0
     }
 
     @Test
@@ -107,33 +104,6 @@ class MemoAddScreenPlaceTest {
 
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
         placeAddCount shouldBe 0
-    }
-
-    @Test
-    fun `TC-7211c1f6-2da6-49c4-a38f-d56324a76368 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
-        var placeAddCount = 0
-        setMemoAddScreen(
-            viewModels = screenTestRealViewModel(placePagingDataFlow = MutableStateFlow(refreshFailedPlacePagingData())),
-            navigateToPlaceAdd = { placeAddCount += 1 },
-        )
-
-        composeRule.openPlacePicker()
-
-        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
-        placeAddCount shouldBe 0
-    }
-
-    @Test
-    fun `TC-af75366c-2658-41e6-ae42-6168aefd537f 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
-        val placePagingDataFlow = MutableStateFlow(refreshingPlacePagingData())
-        setMemoAddScreen(viewModels = screenTestRealViewModel(placePagingDataFlow = placePagingDataFlow))
-        composeRule.openPlacePicker()
-
-        placePagingDataFlow.value = placePagingDataOf(emptyList())
-        composeRule.waitForIdle()
-
-        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
-        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     @Test

@@ -11,7 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -51,8 +50,6 @@ internal fun TagDetailPlacePagingList(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
         filterProvider = scopeProvider,
-        itemListProvider = { placePagingItems.itemSnapshotList.items },
-        isRefreshingProvider = { placePagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(

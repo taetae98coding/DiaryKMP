@@ -5,7 +5,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation3.runtime.result.ResultEventBus
-import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_PICKER_TAG_ADD
@@ -16,8 +15,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.awaitTagLinkPickerRows
 import io.github.taetae98coding.diary.feature.tag.ui.link.dialogNodeWithText
-import io.github.taetae98coding.diary.feature.tag.ui.link.refreshFailedTagPagingData
-import io.github.taetae98coding.diary.feature.tag.ui.link.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.github.taetae98coding.diary.feature.tag.ui.sendTagAddedResult
@@ -172,62 +169,16 @@ class TagDetailScreenLinkTest {
     }
 
     @Test
-    fun `TC-5cd7e2ee-a6d8-4732-bfcc-bddf8f95b97f 나타낼 태그가 없으면 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+    fun `TC-e0e6d22e-74ef-45ae-81ff-d316d2540294 태그가 하나도 없어도 태그 연결 칩을 누르면 태그 선택 목록이 열린다`() {
         var tagAddCount = 0
         setTagDetailScreen(navigateToTagAdd = { tagAddCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.waitForIdle()
 
-        tagAddCount shouldBe 1
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-195afaca-9147-4f38-874f-a76b68481672 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
-        var tagAddCount = 0
-        setTagDetailScreen(
-            tagPagingData = refreshingTagPagingData(),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
-        composeRule.waitForIdle()
-
         tagAddCount shouldBe 0
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-    }
-
-    @Test
-    fun `TC-c9f7e125-bb4c-46e3-9dab-906e275e0945 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
-        var tagAddCount = 0
-        setTagDetailScreen(
-            tagPagingData = refreshFailedTagPagingData(),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
-        composeRule.waitForIdle()
-
-        tagAddCount shouldBe 0
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-    }
-
-    @Test
-    fun `TC-8770c574-43cd-40d6-bad5-828568e805ab 연결할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
-        val finishedTag = testTag(title = EXERCISE_TAG_TITLE, isFinished = true)
-        var tagAddCount = 0
-        setTagDetailScreen(
-            linkUiState = TagLinkInputUiState(linkedTagList = listOf(finishedTag)),
-            selectableTagList = listOf(finishedTag),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
-        composeRule.awaitTagLinkPickerRows()
-
-        tagAddCount shouldBe 0
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
     }
 
     @Test
@@ -264,7 +215,6 @@ class TagDetailScreenLinkTest {
             MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE))),
         linkUiState: TagLinkInputUiState = TagLinkInputUiState(),
         selectableTagList: List<Tag> = emptyList(),
-        tagPagingData: PagingData<Tag> = tagPagingDataOf(selectableTagList),
         navigateToDetail: (Uuid) -> Unit = {},
         navigateToTagAdd: () -> Unit = {},
         resultEventBus: ResultEventBus = ResultEventBus(),
@@ -272,7 +222,7 @@ class TagDetailScreenLinkTest {
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(uiState = uiState),
             linkUiState = linkUiState,
-            tagPagingData = tagPagingData,
+            tagPagingData = tagPagingDataOf(selectableTagList),
             navigateToDetail = navigateToDetail,
             navigateToTagAdd = navigateToTagAdd,
             resultEventBus = resultEventBus,

@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import org.koin.compose.KoinApplication
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import kotlin.uuid.Uuid
@@ -52,15 +53,6 @@ private val memoPagingDataFlow = MutableStateFlow(pagingDataOf<Memo>(emptyList()
 private val tagPagingDataFlow = MutableStateFlow(pagingDataOf<Tag>(emptyList()))
 private val placePagingDataFlow = MutableStateFlow(pagingDataOf<Place>(emptyList()))
 private val webPagingDataFlow = MutableStateFlow(pagingDataOf<Web>(emptyList()))
-
-/** 유형별 결과 조회를 구독하는 수를 돌려준다. 구독이 없으면 그 유형의 결과 준비가 시작되지 않은 것이다. */
-internal fun searchResultSubscriptionCount(): Map<String, Int> =
-    mapOf(
-        "memo" to memoPagingDataFlow.subscriptionCount.value,
-        "tag" to tagPagingDataFlow.subscriptionCount.value,
-        "place" to placePagingDataFlow.subscriptionCount.value,
-        "web" to webPagingDataFlow.subscriptionCount.value,
-    )
 
 // 검색어 반영 시점은 ViewModel 테스트가 검증하므로, 화면 테스트에서는 입력한 질의가 곧바로 반영된 것으로 다룬다.
 // 반영을 기다리는 상태를 확인하는 테스트만 반영을 멈춘다.
@@ -97,7 +89,6 @@ private val searchHomeViewModelModule =
                 every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
                 every { effect } returns memoEffectChannel.receiveAsFlow()
                 every { finish(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Finished(id = firstArg())) }
                 every { restart(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Restarted(id = firstArg())) }
@@ -112,7 +103,6 @@ private val searchHomeViewModelModule =
                 every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
                 every { effect } returns tagEffectChannel.receiveAsFlow()
                 every { finish(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Finished(id = firstArg())) }
                 every { restart(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Restarted(id = firstArg())) }
@@ -127,7 +117,6 @@ private val searchHomeViewModelModule =
                 every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
                 every { effect } returns placeEffectChannel.receiveAsFlow()
                 every { delete(id = any()) } answers { placeEffectChannel.trySend(PlaceListEffect.Deleted(id = firstArg())) }
                 searchPlaceViewModelRef = this
@@ -140,7 +129,6 @@ private val searchHomeViewModelModule =
                 every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
-                every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
                 every { effect } returns webEffectChannel.receiveAsFlow()
                 every { delete(id = any()) } answers { webEffectChannel.trySend(WebListEffect.Deleted(id = firstArg())) }
                 searchWebViewModelRef = this
@@ -148,7 +136,7 @@ private val searchHomeViewModelModule =
         }
     }
 
-// 유형별 ViewModel은 각 Content가 Koin으로 얻으므로, 조회 결과는 ViewModel을 대신 넣어 정한다.
+// 유형별 ViewModel은 Koin으로 얻으므로, 조회 결과는 ViewModel을 대신 넣어 정한다.
 internal fun ComposeContentTestRule.setSearchHomeScreen(
     isQueryAppliedImmediately: Boolean = true,
     memoList: List<Memo> = emptyList(),
@@ -167,20 +155,13 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     lifecycleOwner: LifecycleOwner? = null,
     restorationTester: StateRestorationTester? = null,
 ) {
-    appliedQueryFlow.value = ""
-    isQueryApplied = isQueryAppliedImmediately
-    memoPagingDataFlow.value = pagingDataOf(memoList)
-    tagPagingDataFlow.value = pagingDataOf(tagList)
-    placePagingDataFlow.value = pagingDataOf(placeList)
-    webPagingDataFlow.value = pagingDataOf(webList)
-    memoEffectChannel = Channel(Channel.BUFFERED)
-    tagEffectChannel = Channel(Channel.BUFFERED)
-    placeEffectChannel = Channel(Channel.BUFFERED)
-    webEffectChannel = Channel(Channel.BUFFERED)
-    searchMemoViewModelRef = null
-    searchTagViewModelRef = null
-    searchPlaceViewModelRef = null
-    searchWebViewModelRef = null
+    resetSearchHomeViewModelFake(
+        isQueryAppliedImmediately = isQueryAppliedImmediately,
+        memoList = memoList,
+        tagList = tagList,
+        placeList = placeList,
+        webList = webList,
+    )
 
     // 메모리 정리 뒤 복원을 흉내 낼 때는 복원 테스트 도구로 화면을 띄운다. 복원하면 화면 상태만 되살아나고 유형별 ViewModel은 새로 만들어진다.
     val setScreenContent: (@Composable () -> Unit) -> Unit =
@@ -221,6 +202,10 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
                                         navigateToPlaceDetail = navigateToPlaceDetail,
                                         navigateToWebDetail = navigateToWebDetail,
                                         initialType = initialTypeProvider(),
+                                        memoViewModel = koinViewModel(),
+                                        tagViewModel = koinViewModel(),
+                                        placeViewModel = koinViewModel(),
+                                        webViewModel = koinViewModel(),
                                     )
                                 }
                             }
@@ -258,4 +243,27 @@ internal fun updateSearchTagResult(tagList: List<Tag>) {
 
 internal fun sendSearchMemoEffect(effect: SearchHomeMemoEffect) {
     memoEffectChannel.trySend(effect).getOrThrow()
+}
+
+private fun resetSearchHomeViewModelFake(
+    isQueryAppliedImmediately: Boolean,
+    memoList: List<Memo>,
+    tagList: List<Tag>,
+    placeList: List<Place>,
+    webList: List<Web>,
+) {
+    appliedQueryFlow.value = ""
+    isQueryApplied = isQueryAppliedImmediately
+    memoPagingDataFlow.value = pagingDataOf(memoList)
+    tagPagingDataFlow.value = pagingDataOf(tagList)
+    placePagingDataFlow.value = pagingDataOf(placeList)
+    webPagingDataFlow.value = pagingDataOf(webList)
+    memoEffectChannel = Channel(Channel.BUFFERED)
+    tagEffectChannel = Channel(Channel.BUFFERED)
+    placeEffectChannel = Channel(Channel.BUFFERED)
+    webEffectChannel = Channel(Channel.BUFFERED)
+    searchMemoViewModelRef = null
+    searchTagViewModelRef = null
+    searchPlaceViewModelRef = null
+    searchWebViewModelRef = null
 }

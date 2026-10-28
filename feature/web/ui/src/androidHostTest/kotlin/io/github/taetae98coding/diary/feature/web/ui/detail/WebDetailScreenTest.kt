@@ -207,7 +207,6 @@ class WebDetailScreenTest {
 
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
-        verify(exactly = 0) { pageViewModel.refresh() }
     }
 
     @Test
@@ -292,17 +291,6 @@ class WebDetailScreenTest {
         composeRule.onAllNodesWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.urlInput().assert(hasText(detail.url))
-    }
-
-    @Test
-    fun `TC-d9d1473a-519d-46ec-8521-5665c3a60e57 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
-        val pageViewModel = pageViewModel()
-        val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.UpdateSucceeded))
-
-        setWebDetailScreen(webViewModel = webViewModel, pageViewModel = pageViewModel)
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { pageViewModel.refresh() }
     }
 
     @Test
@@ -459,17 +447,14 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
-        val uiState = testContentUiState()
+    fun `TC-29750711-90d6-4e1a-a866-01504152678d 로그인 정보를 가져오지 못해도 화면은 따로 알리지 않고 주소를 그대로 연다`() {
+        setWebDetailScreen(webSession = DiaryWebSession(isPreparing = true))
 
-        setWebDetailScreen(
-            uiState = uiState,
-            webSession = DiaryWebSession(failureId = 1),
-        )
+        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1)) }
+        composeRule.waitForIdle()
 
-        composeRule.awaitText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE)
-        composeRule.onAllNodesWithText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertDoesNotExist()
     }
 
@@ -586,7 +571,6 @@ class WebDetailScreenTest {
             every { viewModel.uiState } returns MutableStateFlow(pageUiState)
             justRun { viewModel.load() }
             justRun { viewModel.retry() }
-            justRun { viewModel.refresh() }
 
             return viewModel
         }

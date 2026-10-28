@@ -13,7 +13,7 @@ import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemot
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
 import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.file.mapper.toDomain
-import io.github.taetae98coding.diary.data.file.paging.FilePagingSourceHolder
+import io.github.taetae98coding.diary.data.file.paging.FilePagingSource
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
@@ -30,7 +30,6 @@ private const val UNKNOWN_MIME_TYPE = "application/octet-stream"
 internal class FileRepositoryImpl(
     private val fileLocalDataSource: FileLocalDataSource,
     private val fileRemoteDataSource: FileRemoteDataSource,
-    private val filePagingSourceHolder: FilePagingSourceHolder,
     private val fileUpdateHolder: FileUpdateHolder,
 ) : FileRepository {
     override fun page(): Flow<PagingData<DiaryFile>> =
@@ -41,17 +40,8 @@ internal class FileRepositoryImpl(
                     initialLoadSize = PAGE_SIZE,
                     enablePlaceholders = false,
                 ),
-            pagingSourceFactory = filePagingSourceHolder.createList()::createSource,
+            pagingSourceFactory = { FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = fileUpdateHolder) },
         ).flow
-
-    // 받는 동안 다른 계정의 목록으로 바뀌었으면, 받은 첫 페이지는 지금 목록의 것이 아니므로 버린다.
-    override suspend fun refresh() {
-        val list = filePagingSourceHolder.latestList() ?: return
-        val loadStartVersion = fileUpdateHolder.currentVersion()
-        val firstPage = fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE)
-
-        if (filePagingSourceHolder.isLatest(list = list)) list.invalidate(firstPage = firstPage, loadStartVersion = loadStartVersion)
-    }
 
     // 이름을 읽은 뒤 나머지 정보를 읽지 못해도 실패에 이름을 실어, 호출자가 어느 파일이 실패했는지 알 수 있게 한다.
     override suspend fun readSource(uri: FileUri): FileUploadSource {

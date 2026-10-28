@@ -2,7 +2,7 @@
 
 기준 스펙: [PlaceAdd 화면 스펙](../spec/client/place-add.md)
 
-이 문서에서 `data > 동기화`, `domain > 추가 요청 제한`, `domain > 추가되는 항목의 태그 연결`, `domain > 태그 선택과 추가 성립 조건`, `domain > 항목의 계정 연결`, `feature > 뒤로가기`, `feature > 작성 상태 유지`, `feature > 저장 실패`, `feature > 태그 입력` 절은 [항목 추가 화면 공통 스펙](../spec/client/entity-add.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `data > 동기화`, `domain > 추가 요청 제한`, `domain > 추가되는 항목의 태그 연결`, `domain > 태그 선택과 추가 성립 조건`, `domain > 항목의 계정 연결`, `feature > 뒤로가기`, `feature > 작성 상태 유지`, `feature > 저장 실패`, `feature > 태그 입력` 절은 [항목 추가 화면 공통 스펙](../spec/client/entity-add.md)이 소유한다. `domain > 좌표를 읽는 방법`, `domain > 좌표의 정밀도` 절은 [장소 앱 스펙](../spec/client/place.md)이, `domain > 좌표의 유효 범위` 절은 [장소 스펙](../spec/common/place.md)이 소유하고, `feature > 좌표 오류`의 피드백은 [장소 앱 스펙](../spec/client/place.md)의 `좌표 오류`를 따른다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 PlaceHome에서 장소 추가를 선택해 PlaceAdd로 이동하고 보고 있던 지도 위치를 넘기는 케이스는 [PlaceHome 테스트 케이스](./place-home.md)에서, 메모 장소 카드에서 같은 방식으로 이동하며 지도 위치를 넘기는 케이스는 [메모 장소 카드 테스트 케이스](./memo-place-card.md)에서 다룬다. 저장한 장소의 상세 확인과 수정·삭제 케이스는 [PlaceDetail 테스트 케이스](./place-detail.md)에서 다룬다. 지도 표시, 지도 제공자 전환, 지점 선택 자체의 케이스는 [DiaryMap 테스트 케이스](./diary-map.md)에서 다룬다. 설명과 컬러 입력 자체의 케이스는 [설명 입력 테스트 케이스](./description-input.md)와 [DiaryColorInput 테스트 케이스](./diary-color-input.md)에서 다룬다.
 

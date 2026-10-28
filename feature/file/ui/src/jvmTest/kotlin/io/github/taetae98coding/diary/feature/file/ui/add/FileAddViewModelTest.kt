@@ -5,7 +5,6 @@ package io.github.taetae98coding.diary.feature.file.ui.add
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
@@ -18,8 +17,6 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseC
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -303,13 +300,12 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("FileHome에 보내는 성공은 이 화면에서 알리지 않는다") {
+        test("결과를 받지 못한 흐름은 알리지 않는다") {
             runTest(mainDispatcher) {
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
                 val viewModel = viewModel(eventChannel = eventChannel)
 
                 viewModel.effect.test {
-                    eventChannel.send(Result.success(FileUploadEvent.SucceededOnFileAdd(fileId = fixtureMonkey.giveMeOne<Uuid>())))
                     eventChannel.send(Result.failure(IllegalStateException("event")))
                     expectNoEvents()
                 }
@@ -340,46 +336,6 @@ class FileAddViewModelTest : FunSpec() {
             }
         }
 
-        test("FileAdd를 보기 시작하고 그만 보는 것을 알린다") {
-            runTest(mainDispatcher) {
-                val startUseCase = mockk<StartViewingFileScreenUseCase>()
-                coEvery { startUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
-                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
-                coEvery { stopUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
-                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
-
-                viewModel.startViewing()
-                advanceUntilIdle()
-                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.ADD) }
-                coVerify(exactly = 0) { stopUseCase(parameter = any()) }
-
-                viewModel.stopViewing()
-                advanceUntilIdle()
-                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.ADD) }
-            }
-        }
-
-        test("이미 보고 있거나 보고 있지 않을 때 다시 알리면 UseCase를 다시 실행하지 않는다") {
-            runTest(mainDispatcher) {
-                val startUseCase = mockk<StartViewingFileScreenUseCase>()
-                coEvery { startUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
-                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
-                coEvery { stopUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
-                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
-
-                viewModel.stopViewing()
-                viewModel.startViewing()
-                viewModel.startViewing()
-                advanceUntilIdle()
-                viewModel.stopViewing()
-                viewModel.stopViewing()
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.ADD) }
-                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.ADD) }
-            }
-        }
-
         test("같은 파일을 읽는 중에 다시 고르면 한 번만 읽는다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
@@ -401,19 +357,15 @@ class FileAddViewModelTest : FunSpec() {
         requestUseCase: RequestFileUploadUseCase = mockk<RequestFileUploadUseCase>().also { useCase -> coEvery { useCase(parameter = any()) } returns Result.success(Unit) },
         stateFlow: MutableStateFlow<Result<FileUploadState>> = MutableStateFlow(Result.success(FileUploadState.Idle)),
         eventChannel: Channel<Result<FileUploadEvent>> = Channel(Channel.UNLIMITED),
-        startUseCase: StartViewingFileScreenUseCase = mockk(relaxed = true),
-        stopUseCase: StopViewingFileScreenUseCase = mockk(relaxed = true),
     ): FileAddViewModel {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
         every { getStateUseCase(parameter = Unit) } returns stateFlow
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = FileScreen.ADD) } returns eventChannel.receiveAsFlow()
+        every { getEventUseCase(parameter = Unit) } returns eventChannel.receiveAsFlow()
 
         return FileAddViewModel(
             readFileUploadSourceUseCase = readUseCase,
             requestFileUploadUseCase = requestUseCase,
-            startViewingFileScreenUseCase = startUseCase,
-            stopViewingFileScreenUseCase = stopUseCase,
             getFileUploadStateUseCase = getStateUseCase,
             getFileUploadEventUseCase = getEventUseCase,
         )

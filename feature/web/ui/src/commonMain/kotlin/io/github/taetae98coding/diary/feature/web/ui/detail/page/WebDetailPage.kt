@@ -66,9 +66,7 @@ internal fun WebDetailPage(
             when (mode) {
                 WebDetailViewMode.URL ->
                     UrlWebView(
-                        onEvent = onEvent,
                         modifier = Modifier.fillMaxSize(),
-                        state = state,
                         urlProvider = urlProvider,
                     )
 
@@ -85,9 +83,7 @@ internal fun WebDetailPage(
 
 @Composable
 private fun UrlWebView(
-    onEvent: (WebDetailScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
-    state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     urlProvider: () -> String = { "" },
 ) {
     val contentDescription = stringResource(Res.string.web_detail_page_content_description)
@@ -95,8 +91,6 @@ private fun UrlWebView(
     DiaryWebView(
         url = urlProvider(),
         modifier = modifier.semantics { this.contentDescription = contentDescription },
-        onSessionImportFailed = { onEvent(WebDetailScaffoldEvent.SessionImportFailed) },
-        sessionImportFailureState = state.sessionImportFailureState,
     )
 }
 

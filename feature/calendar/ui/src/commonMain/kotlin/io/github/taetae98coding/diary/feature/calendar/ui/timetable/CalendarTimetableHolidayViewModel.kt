@@ -28,7 +28,7 @@ internal class CalendarTimetableHolidayViewModel(
     private val getCalendarHolidayUseCase: GetCalendarHolidayUseCase,
 ) : ViewModel() {
     private val yearList = MutableStateFlow<List<Int>>(emptyList())
-    private var isFetching = false
+    private val fetchingYearSet = mutableSetOf<Int>()
 
     val uiState: StateFlow<CalendarTimetableHolidayUiState> =
         yearList
@@ -45,14 +45,16 @@ internal class CalendarTimetableHolidayViewModel(
 
         this.yearList.value = yearList
 
-        if (isFetching) return
+        val fetchYearList = yearList.filter { year -> fetchingYearSet.add(year) }
+        if (fetchYearList.isEmpty()) return
 
-        isFetching = true
         viewModelScope.launch {
-            try {
-                yearList.forEach { year -> fetchHolidayUseCase(parameter = year) }
-            } finally {
-                isFetching = false
+            fetchYearList.forEach { year ->
+                try {
+                    fetchHolidayUseCase(parameter = year)
+                } finally {
+                    fetchingYearSet.remove(year)
+                }
             }
         }
     }

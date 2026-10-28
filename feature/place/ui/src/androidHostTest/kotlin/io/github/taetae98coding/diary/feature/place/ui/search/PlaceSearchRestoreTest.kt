@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -31,37 +30,21 @@ class PlaceSearchRestoreTest {
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
-        composeRule.mainClock.autoAdvance = true
         searchList.size shouldBe 1
 
+        composeRule.mainClock.autoAdvance = true
         restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(query).assertExists()
         searchList.size shouldBe 2
-        searchList.last().request.query shouldBe query
+        searchList.last().query shouldBe query
     }
 
-    @Test
-    fun `TC-81c26b48-4cfa-4f8a-9b2f-234ba59a7885 복원한 검색어로는 기다리지 않고 곧바로 검색한다`() {
-        val query = randomText(prefix = QUERY_PREFIX)
-        val searchList = setRestorablePlaceSearchEffect()
-
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
-        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
-        composeRule.mainClock.autoAdvance = true
-        searchList.size shouldBe 1
-
-        val restoredAt = composeRule.mainClock.currentTime
-        restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        searchList.size shouldBe 2
-        searchList.last().timeMillis - restoredAt shouldBeLessThan SEARCH_DELAY_MILLIS
-    }
-
-    private fun setRestorablePlaceSearchEffect(): List<Search> {
-        val searchList = mutableListOf<Search>()
+    private fun setRestorablePlaceSearchEffect(): List<PlaceSearchRequest> {
+        val searchList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
         restorationTester.setContent {
@@ -70,7 +53,7 @@ class PlaceSearchRestoreTest {
 
                 PlaceSearchEffect(
                     state = state,
-                    onSearch = { request -> searchList += Search(request = request, timeMillis = composeRule.mainClock.currentTime) },
+                    onSearch = { request -> searchList += request },
                     onClear = {},
                 )
                 PlaceSearchQueryInput(
@@ -82,11 +65,6 @@ class PlaceSearchRestoreTest {
 
         return searchList
     }
-
-    private data class Search(
-        val request: PlaceSearchRequest,
-        val timeMillis: Long,
-    )
 
     private companion object {
         private const val QUERY_PREFIX = "query"

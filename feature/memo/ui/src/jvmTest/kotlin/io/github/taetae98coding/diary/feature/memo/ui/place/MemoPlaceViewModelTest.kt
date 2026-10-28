@@ -21,7 +21,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,22 +51,6 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
-        }
-
-        test("TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
-            runTest(mainDispatcher) {
-                val item = place()
-                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase, isListOpened = false)
-
-                val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
-                viewModel.viewModelScope.cancel()
-                advanceUntilIdle()
-
-                itemList shouldBe listOf(item)
-                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
-            }
         }
 
         test("저장된 장소 연결이 조회되지 않으면 로딩 상태를 유지한다") {
@@ -418,7 +401,6 @@ class MemoPlaceViewModelTest : FunSpec() {
                 mockk<PagePlaceUseCase>().apply {
                     every { this@apply(parameter = any()) } returns placePagingFlow
                 },
-            isListOpened: Boolean = true,
         ): MemoPlaceViewModel {
             val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
             every { getMemoPlaceUseCase(any()) } returns memoPlaceFlow
@@ -429,10 +411,7 @@ class MemoPlaceViewModelTest : FunSpec() {
                 getMemoPlaceUseCase = getMemoPlaceUseCase,
                 addMemoPlaceUseCase = addMemoPlaceUseCase,
                 removeMemoPlaceUseCase = removeMemoPlaceUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

@@ -83,7 +83,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-4cc32c1d-0dba-430a-a32d-f7c02a65d8a7 제공자를 바꾸면 곧바로 다시 검색한다`() {
+    fun `TC-3df85429-996d-43ad-86e1-fd8d32290d4c 제공자를 바꾸면 0_2초가 지난 뒤 다시 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val requestList = mutableListOf<PlaceSearchRequest>()
 
@@ -98,9 +98,31 @@ class PlaceSearchTriggerTest {
         composeRule.runOnIdle { state().mapState.select(DiaryMapProvider.GOOGLE) }
         composeRule.mainClock.advanceTimeBy(IMMEDIATE_MILLIS)
 
+        requestList.size shouldBe 1
+
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS)
+
         requestList.size shouldBe 2
         requestList.last().provider shouldBe MapProvider.GOOGLE
         requestList.last().query shouldBe query
+    }
+
+    @Test
+    fun `TC-f0af275c-669c-4614-89d4-fb32041377b3 제공자를 바꾸면 다시 검색을 기다리지 않고 결과를 비운다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        var clearCount = 0
+
+        composeRule.mainClock.autoAdvance = false
+        val state = composeRule.setPlaceSearchEffect(onClear = { clearCount++ })
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+        val clearCountAfterSearch = clearCount
+
+        composeRule.runOnIdle { state().mapState.select(DiaryMapProvider.GOOGLE) }
+        composeRule.mainClock.advanceTimeBy(IMMEDIATE_MILLIS)
+
+        clearCount shouldBe clearCountAfterSearch + 1
     }
 
     @Test

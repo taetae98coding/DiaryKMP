@@ -10,14 +10,14 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-1d96471b-ff5a-4901-8354-c098e2456c1e: 목록과 상세를 함께 쓰는 환경에서는 두 영역을 함께 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 TagDetail 화면의 메모 탭에서 완료된 메모 확인을 선택한다.
 - Then: 대상 태그의 완료된 메모 목록을 목록·상세 배치의 목록 영역에 표시해 상세 영역과 함께 쓸 수 있다.
 
 ### TC-3ed26e7e-3ce6-48a3-8039-e7ef1437841b: 선택 전 상세에는 메모를 선택하라는 안내만 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이고 아직 메모를 선택하지 않았다.
 - When: 사용자가 상세 영역을 확인한다.
 - Then: 테스트 데이터의 언어 환경에 해당하는 안내가 표시되고, 선택 전 상세에는 사용자가 실행할 수 있는 동작이 없다.
@@ -30,35 +30,35 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-80dc456e-1256-41b6-9760-5a524c376a51: 메모를 선택하면 상세 영역에 그 메모의 상세 화면이 표시된다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 메모 목록에 메모가 있다.
 - When: 사용자가 목록에서 메모 하나를 선택한다.
 - Then: 메모 목록은 유지되고 상세 영역에 선택한 메모의 상세 화면이 표시된다.
 
 ### TC-8f821eb7-1426-4b14-9dad-5a91c5e51e4f: 다른 메모를 선택하면 현재 상세를 교체한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 어떤 메모의 상세 화면이 표시되어 있다.
 - When: 사용자가 목록에서 다른 메모를 선택한다.
 - Then: 이전 상세를 쌓아 두지 않고 상세 영역이 새로 선택한 메모의 상세 화면으로 교체된다.
 
 ### TC-762386df-655e-4d63-a1bb-8fd0fca5f3c8: 상세 영역에서 메모를 복사하면 복사한 메모의 상세로 바뀐다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용하고 있고, 목록에서 선택한 메모의 상세 화면이 상세 영역에 표시되어 있다.
 - When: 사용자가 상세 영역의 메모를 복사한다.
 - Then: 메모 목록은 유지되고 상세 영역에 복사한 메모의 상세 화면이 표시되며, 원본 메모의 상세 화면으로 돌아가는 기록은 남지 않는다.
 
 ### TC-762bd757-ca59-46fe-8465-a294ff2be17d: 한 영역만 쓰는 환경에서는 현재 영역만 표시한다
 
-- 근거: `feature > 상세 영역의 구성`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
 - Given: 한 영역만 사용하는 환경이다.
 - When: 사용자가 완료된 메모 목록 또는 메모 상세를 사용한다.
 - Then: 현재 사용하는 화면만 단독으로 표시된다.
 
 ### TC-0c0a2f95-91df-4e18-95b5-6c757937c929: 목록과 상세를 함께 표시하는 동안에도 공통 내비게이션을 제공하지 않는다
 
-- 근거: `feature > 함께 사용할 때의 행동`
+- 근거: [목록·상세 배치 공통 스펙의 함께 사용할 때의 행동](../spec/client/list-detail-pane.md#함께-사용할-때의-행동)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경에서 TagDetail 메모 탭을 거쳐 TagMemoFinishedList 화면에 진입했다.
 - When: 사용자가 목록에서 테스트 데이터의 화면을 상세 영역에 연다.
 - Then: 주요 목적지의 공통 내비게이션이 제공되지 않는다.
@@ -71,7 +71,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-370da243-e4a5-422b-9ad8-8a58d583ccd8: 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 상세만 되돌린다
 
-- 근거: `feature > 뒤로가기`
+- 근거: [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기), [항목 완료 메모 목록·상세 배치 스펙의 뒤로가기](../spec/client/entity-memo-finished-list-detail.md#뒤로가기)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 테스트 데이터의 순서로 화면을 열었다.
 - When: 사용자가 뒤로간다.
 - Then: 메모 목록은 유지되고 상세 영역이 테스트 데이터의 기대 상태가 된다.
@@ -85,7 +85,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-5d4035f7-5d0b-4a78-9d62-bc8832d86406: 완료된 메모 목록에서 이어 진입한 메모 상세는 목록과 함께 표시한다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 TagMemoFinishedList 화면에서 테스트 데이터의 순서로 상세 영역의 화면을 연다.
 - Then: 각 화면을 목록·상세 배치의 상세 영역에 표시한다.
@@ -93,7 +93,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-82555806-07af-4604-9e2c-148db442cb25: TagMemoFinishedList에서 진입하지 않은 화면은 이 배치에 참여하지 않는다
 
-- 근거: `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 TagMemoFinishedList가 아닌 화면에서 테스트 데이터의 화면으로 이동한다.
 - Then: 해당 화면을 TagMemoFinishedList의 목록·상세 배치에 참여시키지 않는다.
@@ -101,14 +101,14 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-adf79acc-8a88-4f10-847f-bb9c2ab76aa0: 완료된 메모 목록의 상세 영역에는 메모 추가가 나타나지 않는다
 
-- 근거: `feature > 상세 영역의 구성`, `domain > 상세 선택`
+- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성), [MemoFinishedList 목록·상세 배치 스펙의 상세 선택](../spec/client/memo-finished-list-detail.md#상세-선택)
 - Given: 목록과 상세를 함께 사용할 수 있는 환경에서 TagMemoFinishedList 화면이 목록 영역에 표시되어 있다.
 - When: 사용자가 목록에서 실행할 수 있는 동작을 확인한다.
 - Then: 메모 추가 동작이 제공되지 않아 상세 영역이 메모 추가 화면이 되지 않는다.
 
 ### TC-7e9aa6ec-0f1d-4fb3-8a3a-43b9083e1c5d: 뒤로가기는 상세 선택 여부와 관계없이 TagDetail 메모 탭으로 돌아간다
 
-- 근거: `feature > 뒤로가기`
+- 근거: [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기), [항목 완료 메모 목록·상세 배치 스펙의 뒤로가기](../spec/client/entity-memo-finished-list-detail.md#뒤로가기)
 - Given: TagDetail 메모 탭을 거쳐 TagMemoFinishedList 화면에 진입했고 상세 영역이 테스트 데이터의 상태다.
 - When: 사용자가 완료된 메모 목록 화면이 제공하는 뒤로가기 동작을 사용한다.
 - Then: 완료된 메모 목록과 상세 영역이 함께 닫히고 메모 탭이 선택된 같은 태그의 TagDetail 화면으로 돌아간다.
@@ -121,7 +121,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-16070905-ee83-4cd0-81c4-a2b2df72c7be: 상세가 선택 전 상태일 때 뒤로가면 목록 화면 전체를 떠나 메모 탭이 선택된 TagDetail로 돌아간다
 
-- 근거: `feature > 뒤로가기`
+- 근거: [목록·상세 배치 공통 스펙의 뒤로가기](../spec/client/list-detail-pane.md#뒤로가기), [항목 완료 메모 목록·상세 배치 스펙의 뒤로가기](../spec/client/entity-memo-finished-list-detail.md#뒤로가기)
 - Given: 목록과 상세를 함께 사용하고 있고, TagDetail 메모 탭을 거쳐 진입한 TagMemoFinishedList 화면의 상세 영역이 선택 전 상태다.
 - When: 사용자가 뒤로간다.
 - Then: 완료된 메모 목록과 상세 영역이 함께 닫히고, 메모 탭이 선택된 같은 태그의 TagDetail 화면이 표시된다.
@@ -130,7 +130,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-ddf41b93-c51b-4080-b5ff-7c4ee2c8cf15: 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다
 
-- 근거: `domain > 유지와 초기화 기준`
+- 근거: [항목 완료 메모 목록·상세 배치 스펙의 유지와 초기화 기준](../spec/client/entity-memo-finished-list-detail.md#유지와-초기화-기준)
 - Given: TagDetail 메모 탭을 거쳐 진입한 TagMemoFinishedList 화면의 상세 영역에 테스트 데이터의 화면이 놓여 있다.
 - When: 사용자가 완료된 메모 목록 화면이 제공하는 뒤로가기로 TagDetail 화면에 돌아간 뒤, 다시 완료된 메모 확인을 선택한다.
 - Then: 완료된 메모 목록만 열린 상태로 돌아와 상세는 선택 전 상태이며, 떠나기 전에 열었던 메모 상세는 남아 있지 않다.
@@ -143,7 +143,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-9983c108-678b-49fe-b0af-fc7d90664706: 화면이 재생성되거나 앱이 백그라운드에 다녀오거나 시스템이 앱을 정리했다가 다시 만들어도 상세 선택이 그대로다
 
-- 근거: `domain > 유지와 초기화 기준`
+- 근거: [항목 완료 메모 목록·상세 배치 스펙의 유지와 초기화 기준](../spec/client/entity-memo-finished-list-detail.md#유지와-초기화-기준)
 - Given: 목록과 상세를 함께 사용하고 있고, TagMemoFinishedList 화면의 상세 영역에 메모 A의 상세가 놓여 있다.
 - When: 테스트 데이터의 경계를 지난다.
 - Then: 완료된 메모 목록과 함께 메모 A의 상세가 그대로 놓여 있고, 뒤로가면 완료된 메모 목록만 열린 상태로 돌아간다.
@@ -157,7 +157,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-b6547b5b-6ef1-4acf-bbcc-24493d9812b5: 표시 비율을 조절한 뒤 화면이 재생성되거나 앱이 백그라운드에 다녀오거나 시스템이 앱을 정리했다가 다시 만들어도 조절한 비율이 그대로다
 
-- 근거: `domain > 유지와 초기화 기준`
+- 근거: [항목 완료 메모 목록·상세 배치 스펙의 유지와 초기화 기준](../spec/client/entity-memo-finished-list-detail.md#유지와-초기화-기준)
 - Given: 완료된 메모 목록과 상세 영역이 함께 표시되어 있다.
 - When: 사용자가 두 영역의 표시 비율을 조절한 뒤 테스트 데이터의 경계를 지난다.
 - Then: 조절하는 동안 결과가 즉시 반영되고, 경계를 지난 뒤에도 조절한 비율이 그대로다.
@@ -173,7 +173,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-5cfa0e32-597c-4f58-b60b-802b4acdcd08: 표시 비율을 조절한 뒤 TagDetail 화면으로 돌아갔다가 다시 진입하거나 앱을 다시 실행하면 기본 비율로 돌아간다
 
-- 근거: `domain > 유지와 초기화 기준`
+- 근거: [항목 완료 메모 목록·상세 배치 스펙의 유지와 초기화 기준](../spec/client/entity-memo-finished-list-detail.md#유지와-초기화-기준)
 - Given: 완료된 메모 목록과 상세 영역이 함께 표시되어 있다.
 - When: 사용자가 두 영역의 표시 비율을 조절한 뒤 테스트 데이터의 경계를 지난다.
 - Then: 경계를 지난 뒤 표시 비율이 기본 비율로 돌아간다.
@@ -188,7 +188,7 @@ TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배�
 
 ### TC-ec63217f-2237-4f2a-bb43-9b5ebef7c6f9: 앱을 종료하고 다시 실행하면 상세 선택이 초기화된다
 
-- 근거: `domain > 유지와 초기화 기준`
+- 근거: [항목 완료 메모 목록·상세 배치 스펙의 유지와 초기화 기준](../spec/client/entity-memo-finished-list-detail.md#유지와-초기화-기준)
 - Given: TagDetail 메모 탭을 거쳐 진입한 TagMemoFinishedList 화면의 상세 영역에 목록에서 고른 메모의 상세가 놓여 있다.
 - When: 사용자가 앱을 종료하고 다시 실행한다.
 - Then: 앱은 시작 화면 하나만 열린 상태로 시작하고, 종료 전에 열었던 TagDetail, 완료된 메모 목록과 메모 상세는 남아 있지 않다. 이어 같은 태그의 TagDetail 메모 탭에서 완료된 메모 확인을 선택했을 때 완료된 메모 목록만 열리고 상세가 선택 전 상태로 놓이는 것은 남은 선택이 없을 때의 진입과 같아 `TC-ddf41b93-c51b-4080-b5ff-7c4ee2c8cf15`가 검증한다.

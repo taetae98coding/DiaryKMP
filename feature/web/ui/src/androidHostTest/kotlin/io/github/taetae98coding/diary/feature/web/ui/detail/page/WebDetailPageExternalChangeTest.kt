@@ -56,7 +56,7 @@ class WebDetailPageExternalChangeTest {
     }
 
     @Test
-    fun `TC-bbf59348-1a5e-45fd-9e10-c40393dd2eb5 URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
+    fun `TC-7c727b40-2b54-4988-9a89-0629343f8fce URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
         val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
         var uiState: WebDetailUiState by mutableStateOf(initial)
         composeRule.setContent {

@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.graphics.Color
-import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -27,13 +26,13 @@ internal fun CalendarWeekOfMonthGridScope.calendarHomeItems(
     onHolidayClick: (Holiday) -> Unit,
     onEvent: (CalendarHomeScaffoldEvent) -> Unit,
 ) {
-    val weatherItems: CalendarWeekOfMonthGridGroupScope.() -> Unit = {
+    group {
         weatherItem(
             onWeatherClick = onWeatherClick,
             weatherProvider = weatherProvider,
         )
     }
-    val nameItems: CalendarWeekOfMonthGridGroupScope.() -> Unit = {
+    group {
         memoItem(
             moveState = moveState,
             memoProvider = memoProvider,
@@ -52,23 +51,5 @@ internal fun CalendarWeekOfMonthGridScope.calendarHomeItems(
             nonHolidayNameColor = nonHolidayNameColor,
             onHolidayClick = onHolidayClick,
         )
-    }
-
-    val isSingleRow =
-        isSingleRow(
-            weatherProvider = weatherProvider,
-            holidayProvider = holidayProvider,
-            memoProvider = memoProvider,
-            birthdayProvider = birthdayProvider,
-        )
-
-    if (isSingleRow) {
-        group {
-            weatherItems()
-            nameItems()
-        }
-    } else {
-        group { weatherItems() }
-        group { nameItems() }
     }
 }

@@ -105,7 +105,6 @@ internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): WebAdd
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagSelectionUiState } returns MutableStateFlow(WebAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns flowOf(PagingData.from(tagList))
-    every { viewModel.selectableTagPagingData } returns flowOf(PagingData.from(tagList))
     return viewModel
 }
 
@@ -126,7 +125,6 @@ internal fun detailTagScreenTestViewModel(
     val viewModel = mockk<WebDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
-    every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     return viewModel
 }
 

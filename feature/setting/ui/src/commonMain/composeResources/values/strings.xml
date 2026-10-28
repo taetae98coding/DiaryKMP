@@ -39,7 +39,6 @@
     <string name="setting_gemini_model_unselected">Not selected</string>
     <string name="setting_gemini_model_missing_message">This model isn't in the loaded list</string>
     <string name="setting_gemini_model_picker_title">Select model</string>
-    <string name="setting_gemini_model_reload_button_content_description">Reload models</string>
     <string name="setting_gemini_model_loading_content_description">Loading models</string>
     <string name="setting_gemini_model_empty_message">No available models</string>
     <string name="setting_gemini_model_invalid_api_key_message">Check your API key</string>

@@ -154,7 +154,7 @@ class MemoContactPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-a68a0a0f-53e6-49d9-bf55-e0d70b4b88ce 검색어가 비어 있으면 나타낼 연락처가 없어도 결과 없음을 알리지 않는다`() {
+    fun `검색어가 비어 있으면 나타낼 연락처가 없어도 결과 없음을 알리지 않는다`() {
         composeRule.setMemoContactPickerDialogHost(contactList = emptyList())
         composeRule.waitForIdle()
 

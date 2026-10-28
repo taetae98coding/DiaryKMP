@@ -44,7 +44,7 @@ class AwaitFileUploadAccountChangeUseCaseTest :
             When("계정 A의 세션 갱신 여부만 바뀌거나 계정 상태를 확인하지 못한다") {
                 Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa 계정이 바뀐 것으로 보지 않고 계속 기다린다") {
                     listOf<(Account.User) -> Result<Account>>(
-                        { account -> Result.success(account.copy(isSessionValid = !account.isSessionValid, isSessionPending = !account.isSessionPending)) },
+                        { account -> Result.success(account.copy(isSessionValid = !account.isSessionValid)) },
                         { Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())) },
                     ).forEach { change ->
                         runTest {

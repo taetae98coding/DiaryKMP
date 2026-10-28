@@ -17,8 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
@@ -35,14 +33,10 @@ internal fun PlaceCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     place: Place? = null,
-    onClickLabel: String? = null,
 ) {
     Card(
         onClick = onClick,
-        modifier =
-            modifier
-                .testTag(PLACE_CARD_TEST_TAG)
-                .semantics { onClickLabel?.let { label -> onClick(label = label, action = null) } },
+        modifier = modifier.testTag(PLACE_CARD_TEST_TAG),
         enabled = place != null,
     ) {
         Row(

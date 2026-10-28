@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -85,41 +84,24 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-5414e004-7086-416f-82d2-9554e9842fa6 목록이 없는 동안 조회하면 진행 표시를 보여 준다`() {
+    fun `TC-5414e004-7086-416f-82d2-9554e9842fa6 조회하는 동안 진행 표시를 보여 준다`() {
         setDialog(uiState = SettingGeminiModelUiState(isInProgress = true))
 
         composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().size shouldBe 1
     }
 
     @Test
-    fun `TC-ef45d0e5-8837-402d-a394-2c7b9e9592f9 조회에 실패해도 받아 둔 목록을 계속 고를 수 있다`() {
+    fun `TC-c041e172-eb66-4967-93e4-6589f737dd13 실패 안내에서 다시 시도하면 다시 조회를 요청한다`() {
+        var retryCount = 0
         setDialog(
-            uiState =
-                SettingGeminiModelUiState(
-                    isLoaded = true,
-                    modelList = MODEL_LIST,
-                    failure = SettingGeminiModelFailure.UNKNOWN,
-                ),
+            uiState = SettingGeminiModelUiState(failure = SettingGeminiModelFailure.UNKNOWN),
+            onRetry = { retryCount += 1 },
         )
 
-        composeRule.onNodeWithText(DEFAULT_FETCH_FAILED_MESSAGE).assertDoesNotExist()
-        MODEL_LIST.forEach { model ->
-            composeRule.onNodeWithText(model.id).assert(hasClickAction())
-        }
-    }
-
-    @Test
-    fun `다시 불러오기 동작을 제공한다`() {
-        var reloadCount = 0
-        setDialog(
-            uiState = SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST),
-            onReload = { reloadCount += 1 },
-        )
-
-        composeRule.onNodeWithContentDescription(DEFAULT_RELOAD_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_RETRY_ACTION).performClick()
         composeRule.waitForIdle()
 
-        reloadCount shouldBe 1
+        retryCount shouldBe 1
     }
 
     @Test
@@ -135,7 +117,7 @@ class SettingGeminiModelDialogTest {
         uiState: SettingGeminiModelUiState,
         selectedModel: String = "",
         onSelect: (String) -> Unit = {},
-        onReload: () -> Unit = {},
+        onRetry: () -> Unit = {},
         onDismissRequest: () -> Unit = {},
     ) {
         composeRule.setContent {
@@ -144,7 +126,7 @@ class SettingGeminiModelDialogTest {
                     onDismissRequest = onDismissRequest,
                     onEvent = { event ->
                         when (event) {
-                            is SettingGeminiModelDialogEvent.ClickReload -> onReload()
+                            is SettingGeminiModelDialogEvent.ClickRetry -> onRetry()
                             is SettingGeminiModelDialogEvent.SelectModel -> onSelect(event.id)
                         }
                     },
@@ -160,7 +142,6 @@ class SettingGeminiModelDialogTest {
         private const val DEFAULT_INVALID_API_KEY_MESSAGE = "Check your API key"
         private const val DEFAULT_FETCH_FAILED_MESSAGE = "Couldn't load models"
         private const val DEFAULT_RETRY_ACTION = "Retry"
-        private const val DEFAULT_RELOAD_DESCRIPTION = "Reload models"
         private const val DEFAULT_LOADING_DESCRIPTION = "Loading models"
 
         private val MODEL_LIST =

@@ -95,7 +95,7 @@ class MemoContactPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-a68a0a0f-53e6-49d9-bf55-e0d70b4b88ce 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
+    fun `목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
         composeRule.setMemoContactPickerDialog(contactPagingData = refreshingContactPagingData())
 
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()

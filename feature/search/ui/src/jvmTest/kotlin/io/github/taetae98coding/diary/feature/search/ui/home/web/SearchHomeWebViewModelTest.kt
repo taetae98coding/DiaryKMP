@@ -73,6 +73,33 @@ class SearchHomeWebViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-07661b59-0122-4916-8758-afa28bf8bdbd 웹 결과가 보이는 상태에서 질의를 바꿔 다시 조회하지 못하면 이전 결과를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val itemList = listOf(searchWeb(title = "여행 항목"))
+                val useCase =
+                    mockk<SearchWebUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchWebUseCase.Parameter>().query == QUERY) successPagingDataFlowOf(itemList) else failurePagingDataFlow()
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot() shouldBe itemList
+
+                    viewModel.updateQuery(OTHER_QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-a463251f-bc66-4f34-b83a-184e76b8e745 웹 결과를 조회하지 못하면 빈 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(searchWebUseCase(failurePagingDataFlow()))
@@ -92,16 +119,12 @@ class SearchHomeWebViewModelTest : FunSpec() {
     }
 
     public companion object {
-        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
-        private fun viewModel(
-            searchWebUseCase: SearchWebUseCase,
-            isQueryShown: Boolean = true,
-        ): SearchHomeWebViewModel =
+        private fun viewModel(searchWebUseCase: SearchWebUseCase): SearchHomeWebViewModel =
             SearchHomeWebViewModel(
                 searchWebUseCase = searchWebUseCase,
                 deleteWebUseCase = mockk(),
                 restoreWebUseCase = mockk(),
-            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
+            )
 
         private fun searchWebUseCase(flow: Flow<Result<PagingData<Web>>>): SearchWebUseCase =
             mockk<SearchWebUseCase>().apply {

@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
-import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagAddFormState
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkAddedResultEffect
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkPickerEvent
@@ -28,7 +27,6 @@ internal fun TagAddScreen(
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val linkUiState by linkViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = linkViewModel.tagPagingData.collectAsLazyPagingItems()
-    val selectableTagPagingItems = linkViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
     TagLinkAddedResultEffect(
@@ -59,12 +57,7 @@ internal fun TagAddScreen(
 
                 is TagAddScaffoldEvent.ClickLink -> navigateToDetail(event.id)
 
-                is TagAddScaffoldEvent.ClickLinkAdd ->
-                    if (selectableTagPagingItems.isConfirmedEmpty()) {
-                        navigateToTagAdd()
-                    } else {
-                        scaffoldState.linkPickerDialogState.show()
-                    }
+                is TagAddScaffoldEvent.ClickLinkAdd -> scaffoldState.linkPickerDialogState.show()
             }
         },
         onLinkPickerEvent = { event ->

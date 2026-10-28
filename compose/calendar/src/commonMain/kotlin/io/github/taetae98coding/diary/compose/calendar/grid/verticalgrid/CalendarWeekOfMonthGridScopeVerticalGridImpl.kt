@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import kotlinx.datetime.LocalDateRange
 
 internal class CalendarWeekOfMonthGridScopeVerticalGridImpl(
-    override val dateRange: LocalDateRange,
+    private val dateRange: LocalDateRange,
 ) : CalendarWeekOfMonthGridScope {
     val groupList: List<CalendarWeekOfMonthGridGroupScopeVerticalGridImpl>
         field = mutableListOf<CalendarWeekOfMonthGridGroupScopeVerticalGridImpl>()

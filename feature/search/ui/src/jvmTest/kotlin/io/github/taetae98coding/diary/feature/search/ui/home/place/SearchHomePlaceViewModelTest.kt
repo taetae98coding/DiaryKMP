@@ -73,6 +73,33 @@ class SearchHomePlaceViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-07661b59-0122-4916-8758-afa28bf8bdbd 장소 결과가 보이는 상태에서 질의를 바꿔 다시 조회하지 못하면 이전 결과를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val itemList = listOf(searchPlace(title = "여행 항목"))
+                val useCase =
+                    mockk<SearchPlaceUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchPlaceUseCase.Parameter>().query == QUERY) successPagingDataFlowOf(itemList) else failurePagingDataFlow()
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot() shouldBe itemList
+
+                    viewModel.updateQuery(OTHER_QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-a463251f-bc66-4f34-b83a-184e76b8e745 장소 결과를 조회하지 못하면 빈 결과를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(searchPlaceUseCase(failurePagingDataFlow()))
@@ -92,16 +119,12 @@ class SearchHomePlaceViewModelTest : FunSpec() {
     }
 
     public companion object {
-        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
-        private fun viewModel(
-            searchPlaceUseCase: SearchPlaceUseCase,
-            isQueryShown: Boolean = true,
-        ): SearchHomePlaceViewModel =
+        private fun viewModel(searchPlaceUseCase: SearchPlaceUseCase): SearchHomePlaceViewModel =
             SearchHomePlaceViewModel(
                 searchPlaceUseCase = searchPlaceUseCase,
                 deletePlaceUseCase = mockk(),
                 restorePlaceUseCase = mockk(),
-            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
+            )
 
         private fun searchPlaceUseCase(flow: Flow<Result<PagingData<Place>>>): SearchPlaceUseCase =
             mockk<SearchPlaceUseCase>().apply {

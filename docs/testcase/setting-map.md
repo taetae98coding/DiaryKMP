@@ -4,6 +4,8 @@
 
 설정 화면 본문에서 `지도` 항목을 선택해 SettingMap으로 이동하는 케이스는 [SettingHome 테스트 케이스](./setting-home.md)에서 다룬다. 설정 목록과 함께 표시되는 상태의 시스템 뒤로가기 결과는 [Setting 목록·상세 배치 테스트 케이스](./setting-list-detail.md)에서, 저장된 기본 지도를 지도 화면이 초기 제공자로 사용하는 케이스는 [PlaceHome 테스트 케이스](./place-home.md)에서 다룬다.
 
+표시 관계, 저장된 설정을 확인하기 전의 상태, 고르면 바로 저장하는 설정의 행동, 뒤로가기, 저장 시점과 기기별 보관, 환경별 저장 영역은 [기기 설정 화면 공통 스펙](../spec/client/device-setting.md)에 위임되어 있으며, 이 문서의 케이스는 SettingMap에서 관찰하는 결과를 기준으로 한다. 공통 스펙의 `환경별 저장 영역` 케이스는 같은 저장 영역을 쓰는 SettingGemini, SettingPlaylist, SettingFile을 대신해 이 문서가 갖는다.
+
 ## feature
 
 ### TC-c37e4ed2-e073-46bf-9293-6aa3db8ceaba: 단독 화면에서 뒤로가면 설정 목록으로 돌아간다

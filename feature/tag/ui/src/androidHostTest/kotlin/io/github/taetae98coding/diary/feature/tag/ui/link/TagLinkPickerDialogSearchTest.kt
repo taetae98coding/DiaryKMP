@@ -258,7 +258,7 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-41c3b709-42e1-4340-8f1a-8fc2c0e68cec 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
+    fun `TC-2a30f51f-399f-4eb9-8448-dd3b3dad1c32 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: DialogState

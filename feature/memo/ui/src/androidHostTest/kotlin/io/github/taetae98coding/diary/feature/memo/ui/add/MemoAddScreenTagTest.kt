@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.isDialog
-import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -23,6 +20,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_UNSET_DESCRIPTION
@@ -33,16 +31,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshFailedTagPagingData
-import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingData
-import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPickerList
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -328,7 +322,7 @@ class MemoAddScreenTagPickerOpenTest {
     }
 
     @Test
-    fun `TC-61ce1729-5728-49b9-b04e-9f713d2730b3 TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 나타낼 태그가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 TagAdd 이동을 요청한다`() {
+    fun `TC-97393c65-b806-4cd0-af8d-7aaddba9b897 태그가 하나도 없어도 추가 항목을 누르면 태그 선택 목록이 열린다`() {
         var tagAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(tagList = emptyList()),
@@ -338,52 +332,9 @@ class MemoAddScreenTagPickerOpenTest {
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        tagAddCount shouldBe 1
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-2a50e362-551c-4bfc-a9f1-b648e2c3d532 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
-        var tagAddCount = 0
-        setMemoAddScreen(
-            viewModels = screenTestRealViewModel(tagPagingDataFlow = MutableStateFlow(refreshFailedTagPagingData())),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
-        composeRule.waitForIdle()
-
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
         tagAddCount shouldBe 0
-    }
-
-    @Test
-    fun `TC-97a11e8c-7a85-4d1b-ad40-90e913faf0cc 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
-        var tagAddCount = 0
-        setMemoAddScreen(
-            viewModels = screenTestRealViewModel(tagPagingDataFlow = MutableStateFlow(refreshingTagPagingData())),
-            navigateToTagAdd = { tagAddCount += 1 },
-        )
-
-        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-        tagAddCount shouldBe 0
-    }
-
-    @Test
-    fun `TC-f7129b78-9d3a-4fcb-8cf0-3eafe7a9d64a 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
-        val tagPagingDataFlow = MutableStateFlow(refreshingTagPagingData())
-        setMemoAddScreen(viewModels = screenTestRealViewModel(tagPagingDataFlow = tagPagingDataFlow))
-        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        tagPagingDataFlow.value = tagPagingDataOf(emptyList())
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     private fun setMemoAddScreen(

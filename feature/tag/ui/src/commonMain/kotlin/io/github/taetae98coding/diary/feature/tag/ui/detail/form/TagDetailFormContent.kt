@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -39,7 +38,6 @@ internal fun TagDetailFormContent(
         val viewModel = koinViewModel<TagDetailLinkViewModel> { parametersOf(id) }
         val linkUiState by viewModel.uiState.collectAsStateWithLifecycle()
         val tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems()
-        val selectableTagPagingItems = viewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
         TagLinkAddedResultEffect(
             requestKey = tagAddRequestKey,
@@ -49,13 +47,7 @@ internal fun TagDetailFormContent(
         TagDetailFormTab(
             onEvent = { event ->
                 when (event) {
-                    is TagDetailFormContentEvent.ClickLink ->
-                        if (selectableTagPagingItems.isConfirmedEmpty()) {
-                            navigateToTagAdd()
-                        } else {
-                            state.linkPickerDialogState.show()
-                        }
-
+                    is TagDetailFormContentEvent.ClickLink -> state.linkPickerDialogState.show()
                     is TagDetailFormContentEvent.ClickTag -> navigateToDetail(event.id)
                 }
             },
