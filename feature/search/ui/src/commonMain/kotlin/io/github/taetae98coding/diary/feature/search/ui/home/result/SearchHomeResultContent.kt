@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
@@ -26,6 +27,8 @@ internal fun <T : Any> SearchHomeResultContent(
     ListQueryScrollEffect(
         listState = listState,
         sortProvider = { uiState.sort },
+        itemListProvider = { pagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { pagingItems.loadState.refresh is LoadState.Loading },
     )
 
     content(

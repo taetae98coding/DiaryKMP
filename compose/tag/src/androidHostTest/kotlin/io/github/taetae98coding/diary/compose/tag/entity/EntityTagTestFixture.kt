@@ -105,6 +105,17 @@ internal fun appendFailedEntityTagPagingDataOf(tagList: List<Tag>): PagingData<T
             ),
     )
 
+internal fun refreshingEntityTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Loading,
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun refreshFailedEntityTagPagingData(): PagingData<Tag> =
     PagingData.from(
         data = emptyList(),
@@ -160,6 +171,7 @@ internal fun ComposeContentTestRule.setEntityTagPickerDialog(
     tagList: List<Tag> = emptyList(),
     uiState: EntityTagInputUiState = EntityTagInputUiState(),
     tagPagingData: PagingData<Tag> = entityTagPagingDataOf(tagList),
+    tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingData),
     query: String = "",
     onDismissRequest: () -> Unit = {},
     onClickAdd: () -> Unit = {},
@@ -167,7 +179,6 @@ internal fun ComposeContentTestRule.setEntityTagPickerDialog(
     onRemove: (Uuid) -> Unit = {},
     onTagPagingItems: (LazyPagingItems<Tag>) -> Unit = {},
 ) {
-    val tagPagingDataFlow = MutableStateFlow(tagPagingData)
     setContent {
         DiaryTheme {
             val tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems()

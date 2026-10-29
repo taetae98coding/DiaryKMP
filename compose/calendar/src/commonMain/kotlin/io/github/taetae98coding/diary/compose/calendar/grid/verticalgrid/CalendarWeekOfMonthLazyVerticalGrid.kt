@@ -10,11 +10,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.dateRangeAt
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
+import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
+import io.github.taetae98coding.diary.compose.calendar.scroll.rememberCalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarBarText
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -30,6 +33,7 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
     yearMonth: YearMonth,
     weekOfMonth: Int,
     modifier: Modifier = Modifier,
+    itemScrollState: CalendarItemScrollState = rememberCalendarItemScrollState(),
     content: CalendarWeekOfMonthGridScope.() -> Unit,
 ) {
     val dateRange =
@@ -39,6 +43,10 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
     val gridState = rememberLazyGridState()
     val itemSpacing = DiaryTheme.dimens.calendarItemSpacing
 
+    DisposableEffect(itemScrollState, gridState) {
+        itemScrollState.register(gridState)
+        onDispose { itemScrollState.unregister(gridState) }
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(DAYS_PER_WEEK),
         modifier = modifier,

@@ -1,8 +1,12 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
@@ -18,6 +22,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_ADD_LABEL
+import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.contact.FIRST_CONTACT_NAME
@@ -26,7 +31,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.SECOND_CONTACT_NAM
 import io.github.taetae98coding.diary.feature.memo.ui.contact.SECOND_CONTACT_PHONE_NUMBER
 import io.github.taetae98coding.diary.feature.memo.ui.contact.awaitContactPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.contact.contactDialogNodeWithText
+import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPickerList
+import io.github.taetae98coding.diary.feature.memo.ui.contact.refreshFailedContactPagingData
+import io.github.taetae98coding.diary.feature.memo.ui.contact.refreshingContactPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -37,6 +45,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -128,7 +137,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-4d1eafd7-2dd1-4e36-937a-6c33914cadc3 연락처가 하나도 없어도 추가 항목을 누르면 연락처 선택 목록이 열린다`() {
+    fun `TC-48dc2878-e69b-4edb-a10a-c730782d7a26 TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택할 수 있는 연락처가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 ContactAdd 이동을 요청한다`() {
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestRealViewModel(contactList = emptyList()),
@@ -137,9 +146,50 @@ class MemoAddScreenContactTest {
 
         composeRule.openContactPicker()
 
-        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
-        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertExists()
+        contactAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-4bc850f0-04e1-490d-bca1-e5299d7a1d34 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
+        var contactAddCount = 0
+        composeRule.setMemoAddScreenForContact(
+            viewModels = screenTestViewModel(contactPagingData = MutableStateFlow(refreshingContactPagingData())),
+            navigateToContactAdd = { contactAddCount += 1 },
+        )
+
+        composeRule.openContactPicker()
+
         contactAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-7468b5e8-aafb-4cdf-b63f-cbd10c563375 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+        var contactAddCount = 0
+        composeRule.setMemoAddScreenForContact(
+            viewModels = screenTestViewModel(contactPagingData = MutableStateFlow(refreshFailedContactPagingData())),
+            navigateToContactAdd = { contactAddCount += 1 },
+        )
+
+        composeRule.openContactPicker()
+
+        contactAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-a68a0a0f-53e6-49d9-bf55-e0d70b4b88ce 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+        val contactPagingData = MutableStateFlow(refreshingContactPagingData())
+        composeRule.setMemoAddScreenForContact(viewModels = screenTestViewModel(contactPagingData = contactPagingData))
+        composeRule.openContactPicker()
+
+        contactPagingData.value = contactPagingDataOf(emptyList())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     @Test

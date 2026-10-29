@@ -122,7 +122,7 @@ class MemoDetailScreenWebTest {
     }
 
     @Test
-    fun `TC-e9c21154-d1d7-4d34-910a-a65b66a360d9 웹 항목이 하나도 없어도 추가 항목을 누르면 웹 선택 목록이 열린다`() {
+    fun `TC-5590412d-9887-4f1c-b2ca-36577da63ad6 선택할 수 있는 웹 항목이 없으면 추가 항목이 WebAdd 이동을 요청한다`() {
         var webAddCount = 0
         composeRule.setMemoDetailScreenWithWeb(
             webViewModel = memoDetailWebViewModel(webList = emptyList()),
@@ -132,9 +132,8 @@ class MemoDetailScreenWebTest {
         composeRule.openMemoDetailWebPicker()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
-        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_ADD_LABEL).assertExists()
-        webAddCount shouldBe 0
+        webAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
     }
 
     @Test

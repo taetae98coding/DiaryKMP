@@ -58,6 +58,7 @@ internal fun screenTestTagViewModel(
     val viewModel = mockk<MemoTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.tagPagingData } returns tagPagingDataFlow
+    every { viewModel.selectableTagPagingData } returns tagPagingDataFlow
     return viewModel
 }
 

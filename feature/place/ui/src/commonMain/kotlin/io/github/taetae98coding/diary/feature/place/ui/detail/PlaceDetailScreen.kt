@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
@@ -21,6 +22,7 @@ import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoContent
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoFloatingActionButton
@@ -59,6 +61,7 @@ internal fun PlaceDetailScreen(
     val searchUiState by searchViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? PlaceDetailUiState.Content
     val scaffoldState = key(content?.id) { rememberPlaceDetailFormState(initialDetail = content?.detail ?: PlaceDetail.EMPTY, defaultProvider = content?.defaultProvider) }
     val isUpdateEnabled by rememberIsUpdateEnabled(scaffoldState = scaffoldState, uiStateProvider = { uiState })
@@ -99,10 +102,12 @@ internal fun PlaceDetailScreen(
             tab = tab,
             id = id,
             viewModelStoreProvider = viewModelStoreProvider,
+            navigateToTagAdd = navigateToTagAdd,
             navigateToTagDetail = navigateToTagDetail,
             navigateToMemoDetail = navigateToMemoDetail,
             navigateToMemoFinishedList = navigateToMemoFinishedList,
             state = scaffoldState,
+            selectableTagPagingItems = selectableTagPagingItems,
             uiStateProvider = { uiState },
             tagUiStateProvider = { tagUiState },
         )
@@ -148,10 +153,12 @@ private fun TabContent(
     tab: PlaceDetailTab,
     id: Uuid,
     viewModelStoreProvider: ViewModelStoreProvider,
+    navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     navigateToMemoFinishedList: () -> Unit,
     state: PlaceFormState,
+    selectableTagPagingItems: LazyPagingItems<Tag>,
     uiStateProvider: () -> PlaceDetailUiState = { PlaceDetailUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
@@ -162,6 +169,8 @@ private fun TabContent(
                     handlePlaceFormEvent(
                         event = event,
                         state = state,
+                        selectableTagPagingItems = selectableTagPagingItems,
+                        navigateToTagAdd = navigateToTagAdd,
                         navigateToTagDetail = navigateToTagDetail,
                     )
                 },

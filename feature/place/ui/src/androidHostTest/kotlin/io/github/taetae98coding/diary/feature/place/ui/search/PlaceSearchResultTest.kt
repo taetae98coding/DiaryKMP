@@ -141,24 +141,50 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-97ce25be-aefd-4aa2-a719-ce41283abafd 지도 가운데에 있는 장소를 목록에서 누르면 그 장소를 고른다`() {
+    fun `TC-779e6a90-ec04-4057-9765-0a0c9f60a0a9 목록의 장소를 누르면 지도가 그 장소의 좌표를 가운데에 둔다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
         val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+        val otherCoordinate = DiaryMapCoordinate(latitude = place.coordinate.latitude + 1.0, longitude = place.coordinate.longitude + 1.0)
+        val placeCoordinate = DiaryMapCoordinate(latitude = place.coordinate.latitude, longitude = place.coordinate.longitude)
+        val state = composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) })
 
-        assertListClickSelects(place = place, mapCoordinate = place.coordinate.toDiaryMapCoordinate())
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.runOnIdle { state().mapState.moveTo(otherCoordinate) }
+        composeRule.onNodeWithText(place.name).assert(hasClickAction()).performClick()
+        composeRule.runOnIdle { state().mapState.coordinate shouldBe placeCoordinate }
+
+        composeRule.runOnIdle { state().mapState.moveTo(otherCoordinate) }
+        composeRule.onNodeWithText(place.name).performClick()
+        composeRule.runOnIdle { state().mapState.coordinate shouldBe placeCoordinate }
     }
 
     @Test
-    fun `TC-97ce25be-aefd-4aa2-a719-ce41283abafd 지도 가운데에 있지 않은 장소를 목록에서 눌러도 지도를 옮기지 않고 그 장소를 고른다`() {
-        val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+    fun `TC-a0ec67c2-62cf-4a51-8088-dace5a7091e1 지도 가운데에 있지 않은 장소를 목록에서 눌러도 장소를 고르지 않고 결과 목록이 그대로 표시된다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val first = searchedPlace(name = randomText(prefix = FIRST_PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+        val second = searchedPlace(name = randomText(prefix = SECOND_PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+        val selectedList = mutableListOf<SearchedPlace>()
+        val state =
+            composeRule.setPlaceSearchContent(
+                uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(first, second)) },
+                onSelect = selectedList::add,
+            )
 
-        assertListClickSelects(place = place, mapCoordinate = place.coordinate.toDiaryMapCoordinate().shifted())
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.runOnIdle { state().mapState.moveTo(first.coordinate.toDiaryMapCoordinate().shifted()) }
+        composeRule.onNodeWithText(first.name).performClick()
+        composeRule.waitForIdle()
+
+        selectedList shouldBe emptyList()
+        composeRule.onNodeWithText(first.name).assertExists()
+        composeRule.onNodeWithText(second.name).assertExists()
+        composeRule.runOnIdle { state().query shouldBe query }
     }
 
-    private fun assertListClickSelects(
-        place: SearchedPlace,
-        mapCoordinate: DiaryMapCoordinate,
-    ) {
+    @Test
+    fun `TC-97ce25be-aefd-4aa2-a719-ce41283abafd 지도 가운데에 있는 장소를 목록에서 누르면 그 장소를 고른다`() {
         val query = randomText(prefix = QUERY_PREFIX)
+        val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
         val selectedList = mutableListOf<SearchedPlace>()
         val state =
             composeRule.setPlaceSearchContent(
@@ -167,12 +193,35 @@ class PlaceSearchResultTest {
             )
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
-        composeRule.runOnIdle { state().mapState.moveTo(mapCoordinate) }
-        composeRule.onNodeWithText(place.name).assert(hasClickAction()).performClick()
+        composeRule.runOnIdle { state().mapState.moveTo(place.coordinate.toDiaryMapCoordinate()) }
+        composeRule.onNodeWithText(place.name).performClick()
         composeRule.waitForIdle()
 
         selectedList shouldBe listOf(place)
-        composeRule.runOnIdle { state().mapState.coordinate shouldBe mapCoordinate }
+        composeRule.runOnIdle { state().mapState.coordinate shouldBe place.coordinate.toDiaryMapCoordinate() }
+    }
+
+    @Test
+    fun `TC-a48e3fc4-c94a-4708-8d7a-534704f7eb09 목록의 장소를 두 번 누르면 처음에는 지도를 옮기고 다음에는 그 장소를 고른다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val place = searchedPlace(name = randomText(prefix = PLACE_NAME_PREFIX), address = randomText(prefix = PLACE_ADDRESS_PREFIX))
+        val selectedList = mutableListOf<SearchedPlace>()
+        val state =
+            composeRule.setPlaceSearchContent(
+                uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) },
+                onSelect = selectedList::add,
+            )
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.runOnIdle { state().mapState.moveTo(place.coordinate.toDiaryMapCoordinate().shifted()) }
+        composeRule.onNodeWithText(place.name).performClick()
+        composeRule.runOnIdle {
+            state().mapState.coordinate shouldBe place.coordinate.toDiaryMapCoordinate()
+            selectedList shouldBe emptyList()
+        }
+
+        composeRule.onNodeWithText(place.name).performClick()
+        composeRule.runOnIdle { selectedList shouldBe listOf(place) }
     }
 
     @Test

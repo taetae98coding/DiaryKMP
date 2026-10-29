@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail.form
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -22,10 +23,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -49,6 +53,31 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-bafce675-468e-430e-b1ca-2721e029fcd5 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = "")
+                val useCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    TagDetailLinkViewModel(
+                        id = id,
+                        pageTagLinkSelectableTagUseCase = useCase,
+                        getLinkedTagUseCase = mockk(relaxed = true),
+                        addTagLinkUseCase = mockk(relaxed = true),
+                        removeTagLinkUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
         }
 
         test("TC-35995748-4049-436d-af96-2e0466241b9e 저장된 연결의 도착 태그를 연결 대상으로 표시한다") {

@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.toCoordinate
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInput
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCard
@@ -99,7 +100,7 @@ private fun SplitForm(
         )
         MemoPlaceFillHeightCard(
             onPlaceClick = { id -> onEvent(MemoFormEvent.ClickPlace(id = id)) },
-            onAddClick = { onEvent(MemoFormEvent.ClickPlaceAdd) },
+            onAddClick = { onEvent(MemoFormEvent.ClickPlaceAdd(coordinate = placeMapState?.coordinate?.toCoordinate())) },
             modifier =
                 Modifier
                     .fillMaxHeight()
@@ -138,7 +139,7 @@ private fun ColumnForm(
     ) {
         MemoPlaceCard(
             onPlaceClick = { id -> onEvent(MemoFormEvent.ClickPlace(id = id)) },
-            onAddClick = { onEvent(MemoFormEvent.ClickPlaceAdd) },
+            onAddClick = { onEvent(MemoFormEvent.ClickPlaceAdd(coordinate = placeMapState?.coordinate?.toCoordinate())) },
             modifier = Modifier.fillMaxWidth(),
             mapState = placeMapState,
             uiStateProvider = placeCardUiStateProvider,

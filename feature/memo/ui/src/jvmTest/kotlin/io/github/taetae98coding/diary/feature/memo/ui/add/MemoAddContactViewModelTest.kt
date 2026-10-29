@@ -20,6 +20,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -50,6 +51,22 @@ class MemoAddContactViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = contact()
+                val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+                every { pageMemoSelectableContactUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase)
+
+                val itemList = flowOf(viewModel.selectableContactPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableContactUseCase(parameter = "") }
+            }
         }
 
         test("TC-f6951ae2-267d-4a58-8689-c2562dd77d1f 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {

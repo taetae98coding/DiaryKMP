@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 internal class MemoSelectablePaging<T : Any>(
@@ -21,6 +22,12 @@ internal class MemoSelectablePaging<T : Any>(
     val pagingData: Flow<PagingData<T>> =
         query
             .debounceSearchQuery()
+            .flatMapLatest { value -> page(value) }
+            .map { result -> result.getOrElse { PagingData.empty() } }
+            .cachedIn(scope)
+
+    val selectablePagingData: Flow<PagingData<T>> =
+        flowOf("")
             .flatMapLatest { value -> page(value) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(scope)

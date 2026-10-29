@@ -41,6 +41,7 @@ internal fun PlaceHomeContent(
         secondary = {
             PlaceList(
                 onEvent = onEvent,
+                mapState = mapState,
                 placeListUiStateProvider = placeListUiStateProvider,
                 isRefreshingProvider = isRefreshingProvider,
                 sortProvider = sortProvider,

@@ -80,21 +80,25 @@ internal fun screenTestViewModel(
     every { tagViewModel.uiState } returns MutableStateFlow(MemoTagInputUiState())
     every { tagViewModel.selectionUiState } returns MutableStateFlow(MemoTagSelectionUiState())
     every { tagViewModel.tagPagingData } returns tagPagingData
+    every { tagViewModel.selectableTagPagingData } returns tagPagingData
 
     val webViewModel = mockk<MemoAddWebViewModel>(relaxed = true)
     every { webViewModel.uiState } returns MutableStateFlow(MemoWebInputUiState())
     every { webViewModel.selectionUiState } returns MutableStateFlow(MemoAddWebSelectionUiState())
     every { webViewModel.webPagingData } returns webPagingData
+    every { webViewModel.selectableWebPagingData } returns webPagingData
 
     val contactViewModel = mockk<MemoAddContactViewModel>(relaxed = true)
     every { contactViewModel.uiState } returns MutableStateFlow(MemoContactInputUiState())
     every { contactViewModel.selectionUiState } returns MutableStateFlow(MemoAddContactSelectionUiState())
     every { contactViewModel.contactPagingData } returns contactPagingData
+    every { contactViewModel.selectableContactPagingData } returns contactPagingData
 
     val placeViewModel = mockk<MemoAddPlaceViewModel>(relaxed = true)
     every { placeViewModel.uiState } returns MutableStateFlow(MemoPlaceInputUiState())
     every { placeViewModel.selectionUiState } returns MutableStateFlow(MemoAddPlaceSelectionUiState())
     every { placeViewModel.placePagingData } returns placePagingData
+    every { placeViewModel.selectablePlacePagingData } returns placePagingData
 
     return MemoAddScreenViewModels(
         viewModel = viewModel,

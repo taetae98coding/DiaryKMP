@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.tag
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
@@ -27,9 +28,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -58,6 +61,34 @@ class MemoTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = "")
+                val useCase = mockk<PageMemoSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    MemoTagViewModel(
+                        id = id,
+                        pageMemoSelectableTagUseCase = useCase,
+                        getMemoTagUseCase = mockk(relaxed = true),
+                        findMemoUseCase = mockk(relaxed = true),
+                        addMemoTagUseCase = mockk(relaxed = true),
+                        removeMemoTagUseCase = mockk(relaxed = true),
+                        setMemoPrimaryTagUseCase = mockk(relaxed = true),
+                        unsetMemoPrimaryTagUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
         }
 
         test("TC-9e8b60ea-4926-41d9-9477-9e7d43b9c1d3 선택한 태그가 삭제되면 선택과 대표 지정이 해제된 것으로 표시된다") {

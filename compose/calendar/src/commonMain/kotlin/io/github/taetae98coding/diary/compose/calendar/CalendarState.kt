@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
+import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.select.CalendarSelectState
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -24,6 +25,8 @@ public class CalendarState(
     public val selectState: CalendarSelectState = CalendarSelectState()
 
     public val moveState: CalendarItemMoveState = CalendarItemMoveState()
+
+    public val itemScrollState: CalendarItemScrollState = CalendarItemScrollState()
 
     public val currentYearMonth: YearMonth
         get() = pagerState.currentPage.toYearMonth()

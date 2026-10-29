@@ -23,7 +23,10 @@ import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.feature.place.ui.Res
+import io.github.taetae98coding.diary.feature.place.ui.place_show_on_map_action
 import io.github.taetae98coding.diary.feature.place.ui.previewSearchedPlace
+import org.jetbrains.compose.resources.stringResource
 
 internal const val PLACE_SEARCH_ROW_COLOR_INDICATOR_TEST_TAG: String = "PlaceSearchRowColorIndicator"
 
@@ -33,11 +36,13 @@ internal fun PlaceSearchRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val showOnMapActionLabel = stringResource(Res.string.place_show_on_map_action)
+
     Row(
         modifier =
             modifier
                 .clip(RoundedCornerShape(PlaceSearchRowDefaults.CornerSize))
-                .clickable(role = Role.Button, onClick = onClick)
+                .clickable(onClickLabel = showOnMapActionLabel, role = Role.Button, onClick = onClick)
                 .minimumInteractiveComponentSize()
                 .padding(PlaceSearchRowDefaults.Padding),
         horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.colorIndicatorSpacing),

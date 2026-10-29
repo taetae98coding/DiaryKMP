@@ -52,6 +52,8 @@ internal class MemoAddPlaceViewModel(
 
     val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData
 
+    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData
+
     fun updateQuery(query: String) {
         selectablePaging.updateQuery(query)
     }

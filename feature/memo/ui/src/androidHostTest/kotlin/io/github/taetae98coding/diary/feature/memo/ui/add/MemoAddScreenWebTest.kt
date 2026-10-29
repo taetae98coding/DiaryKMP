@@ -1,8 +1,12 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
@@ -23,6 +27,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendWebAddedResult
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_ADD_LABEL
+import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.DOCS_WEB_TITLE
@@ -30,13 +35,17 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.DOCS_WEB_URL
 import io.github.taetae98coding.diary.feature.memo.ui.web.WIKI_WEB_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.WIKI_WEB_URL
 import io.github.taetae98coding.diary.feature.memo.ui.web.awaitWebPickerRows
+import io.github.taetae98coding.diary.feature.memo.ui.web.refreshFailedWebPagingData
+import io.github.taetae98coding.diary.feature.memo.ui.web.refreshingWebPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogNodeWithText
+import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPickerList
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -128,7 +137,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-e9c21154-d1d7-4d34-910a-a65b66a360d9 웹 항목이 하나도 없어도 추가 항목을 누르면 웹 선택 목록이 열린다`() {
+    fun `TC-5590412d-9887-4f1c-b2ca-36577da63ad6 TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택할 수 있는 웹 항목이 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 WebAdd 이동을 요청한다`() {
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
             viewModels = screenTestRealViewModel(webList = emptyList()),
@@ -137,9 +146,50 @@ class MemoAddScreenWebTest {
 
         composeRule.openWebPicker()
 
-        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
-        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_ADD_LABEL).assertExists()
+        webAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-b2244317-117b-4155-b9d9-b878e91f13e0 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
+        var webAddCount = 0
+        composeRule.setMemoAddScreenForWeb(
+            viewModels = screenTestViewModel(webPagingData = MutableStateFlow(refreshingWebPagingData())),
+            navigateToWebAdd = { webAddCount += 1 },
+        )
+
+        composeRule.openWebPicker()
+
         webAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-bafc6159-4597-4eb4-a68d-dcfb894022d0 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+        var webAddCount = 0
+        composeRule.setMemoAddScreenForWeb(
+            viewModels = screenTestViewModel(webPagingData = MutableStateFlow(refreshFailedWebPagingData())),
+            navigateToWebAdd = { webAddCount += 1 },
+        )
+
+        composeRule.openWebPicker()
+
+        webAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+        val webPagingData = MutableStateFlow(refreshingWebPagingData())
+        composeRule.setMemoAddScreenForWeb(viewModels = screenTestViewModel(webPagingData = webPagingData))
+        composeRule.openWebPicker()
+
+        webPagingData.value = webPagingDataOf(emptyList())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     @Test

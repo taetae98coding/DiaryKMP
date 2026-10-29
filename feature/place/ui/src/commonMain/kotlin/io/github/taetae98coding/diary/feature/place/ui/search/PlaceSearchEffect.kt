@@ -24,6 +24,11 @@ internal fun PlaceSearchEffect(
     val latestOnClear by rememberUpdatedState(onClear)
 
     LaunchedEffect(state) {
+        snapshotFlow { state.mapState.bounds }
+            .collect { bounds -> state.updateSearchBounds(bounds = bounds, center = state.mapState.coordinate) }
+    }
+
+    LaunchedEffect(state) {
         snapshotFlow { state.mapState.provider }
             .drop(1)
             .collect { latestOnClear() }
@@ -36,7 +41,7 @@ internal fun PlaceSearchEffect(
             PlaceSearchTrigger(
                 query = state.query,
                 provider = provider,
-                bounds = state.mapState.bounds.takeIf { provider == DiaryMapProvider.GOOGLE },
+                searchBounds = state.searchBounds.takeIf { provider == DiaryMapProvider.GOOGLE },
             )
         }.collectLatest { trigger ->
             if (trigger.query.isBlank()) {
@@ -50,7 +55,10 @@ internal fun PlaceSearchEffect(
                 PlaceSearchRequest(
                     query = trigger.query,
                     provider = trigger.provider.toMapProvider(),
-                    bounds = trigger.bounds?.toCoordinateBounds(),
+                    bounds =
+                        state.mapState.bounds
+                            .takeIf { trigger.provider == DiaryMapProvider.GOOGLE }
+                            ?.toCoordinateBounds(),
                 ),
             )
         }
@@ -60,5 +68,5 @@ internal fun PlaceSearchEffect(
 private data class PlaceSearchTrigger(
     val query: String,
     val provider: DiaryMapProvider,
-    val bounds: DiaryMapBounds?,
+    val searchBounds: DiaryMapBounds?,
 )

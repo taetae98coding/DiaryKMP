@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.form
 
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 import kotlin.uuid.Uuid
 
 internal sealed interface MemoFormEvent {
@@ -25,5 +26,7 @@ internal sealed interface MemoFormEvent {
         val id: Uuid,
     ) : MemoFormEvent
 
-    data object ClickPlaceAdd : MemoFormEvent
+    data class ClickPlaceAdd(
+        val coordinate: Coordinate?,
+    ) : MemoFormEvent
 }

@@ -62,6 +62,18 @@ class TagAddScreenLinkTest {
     }
 
     @Test
+    fun `TC-5cd7e2ee-a6d8-4732-bfcc-bddf8f95b97f 나타낼 태그가 없으면 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+        var tagAddCount = 0
+        setTagAddScreen(tagList = emptyList(), navigateToTagAdd = { tagAddCount += 1 })
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-04ae832a-16cf-443d-95d6-5f9542e39b50 목록에서 태그 두 개를 누르면 목록과 연결 입력에 연결 상태로 표시된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setTagAddScreen(tagList = tagList)
@@ -290,6 +302,7 @@ class TagAddScreenLinkTest {
             val viewModel = mockk<TagAddLinkViewModel>(relaxed = true)
             every { viewModel.uiState } returns uiState
             every { viewModel.tagPagingData } returns tagPagingData
+            every { viewModel.selectableTagPagingData } returns tagPagingData
             every { viewModel.selectionUiState } returns selectionUiState
             every { viewModel.link(any()) } answers {
                 selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet + firstArg<Uuid>())

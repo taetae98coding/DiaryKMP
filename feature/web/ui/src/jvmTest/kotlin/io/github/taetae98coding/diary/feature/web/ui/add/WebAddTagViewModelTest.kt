@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.add
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -18,9 +19,12 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -43,6 +47,22 @@ class WebAddTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = tag()
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = WebAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = "") }
+            }
         }
 
         test("TC-1f7abc2c-d694-4f46-be86-7ea3ce9a83bf 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {

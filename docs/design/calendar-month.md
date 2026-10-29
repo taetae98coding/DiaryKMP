@@ -13,3 +13,7 @@
 ## 여러 주에 걸친 아이템
 
 스펙에 따라 각 주로 나뉜 아이템 조각의 날짜 칸과 줄 배치는 [CalendarWeekOfMonth 컴포넌트 디자인](calendar-week-of-month.md)의 아이템 배치를 따른다.
+
+## 아이템 스크롤 되돌림
+
+아이템 영역의 스크롤을 맨 위로 되돌릴 때 여섯 주는 같은 시점에 함께 되돌아간다. 되돌리는 표현은 [CalendarWeekOfMonth 컴포넌트 디자인](calendar-week-of-month.md)의 아이템 스크롤 되돌림을 따른다.

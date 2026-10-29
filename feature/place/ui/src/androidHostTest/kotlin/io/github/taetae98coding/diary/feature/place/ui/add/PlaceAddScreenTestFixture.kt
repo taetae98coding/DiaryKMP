@@ -93,6 +93,7 @@ internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): PlaceA
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.selectionUiState } returns MutableStateFlow(PlaceAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
+    every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
 }
 

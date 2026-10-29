@@ -4,17 +4,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 
 @Stable
 internal class MemoPlacePickerState(
     initialViewMode: MemoPlacePickerViewMode = MemoPlacePickerViewMode.LIST,
+    initialIsMapViewVisited: Boolean = false,
 ) {
     var viewMode: MemoPlacePickerViewMode by mutableStateOf(initialViewMode)
         private set
 
-    var isMapViewVisited: Boolean by mutableStateOf(false)
+    var isMapViewVisited: Boolean by mutableStateOf(initialIsMapViewVisited)
         private set
 
     fun toggleViewMode() {
@@ -28,7 +34,36 @@ internal class MemoPlacePickerState(
             isMapViewVisited = true
         }
     }
+
+    fun shownViewMode(mapState: DiaryMapState?): MemoPlacePickerViewMode =
+        if (mapState == null) {
+            MemoPlacePickerViewMode.LIST
+        } else {
+            viewMode
+        }
+
+    fun addCoordinate(
+        mapState: DiaryMapState?,
+        cardCoordinate: Coordinate?,
+    ): Coordinate? =
+        when (shownViewMode(mapState = mapState)) {
+            MemoPlacePickerViewMode.LIST -> cardCoordinate
+            MemoPlacePickerViewMode.MAP -> mapState?.coordinate?.toCoordinate()
+        }
+
+    companion object {
+        val Saver: Saver<MemoPlacePickerState, Any> =
+            listSaver(
+                save = { state -> listOf(state.viewMode.name, state.isMapViewVisited) },
+                restore = { saved ->
+                    MemoPlacePickerState(
+                        initialViewMode = MemoPlacePickerViewMode.valueOf(saved[0] as String),
+                        initialIsMapViewVisited = saved[1] as Boolean,
+                    )
+                },
+            )
+    }
 }
 
 @Composable
-internal fun rememberMemoPlacePickerState(): MemoPlacePickerState = remember { MemoPlacePickerState() }
+internal fun rememberMemoPlacePickerState(): MemoPlacePickerState = rememberSaveable(saver = MemoPlacePickerState.Saver) { MemoPlacePickerState() }

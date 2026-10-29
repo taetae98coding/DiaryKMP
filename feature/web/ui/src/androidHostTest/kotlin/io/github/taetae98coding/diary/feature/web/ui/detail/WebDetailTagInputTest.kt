@@ -109,16 +109,32 @@ class WebDetailTagInputTest {
     }
 
     @Test
-    fun `TC-d875e7bb-5b14-4bf7-a15f-1189e73c3464 태그가 하나도 없어도 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setWebDetailScreen(navigateToTagAdd = { tagAddCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
         composeRule.waitForIdle()
 
+        tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-fabf498e-c08a-4be2-bebc-687386bce4cd 연결할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
+        val finishedTag = webTestTag(title = LINKED_TAG_TITLE).copy(isFinished = true)
+        var tagAddCount = 0
+        setWebDetailScreen(
+            tagList = listOf(finishedTag),
+            selectableTagList = listOf(finishedTag),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
         tagAddCount shouldBe 0
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-        composeRule.onNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
     }
 
     @Test

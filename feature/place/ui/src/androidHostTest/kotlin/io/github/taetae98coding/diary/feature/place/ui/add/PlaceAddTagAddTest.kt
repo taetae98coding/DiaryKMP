@@ -57,6 +57,48 @@ class PlaceAddTagAddTest {
     }
 
     @Test
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
+        var tagAddCount = 0
+        setPlaceAddScreen(tagList = emptyList(), navigateToTagAdd = { tagAddCount += 1 })
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-96219ea8-242e-4062-a664-95fd6391a863 목록의 대상을 확인하는 중에는 태그 추가 항목이 목록을 연다`() {
+        var tagAddCount = 0
+        setPlaceAddScreen(
+            tagPagingData = MutableStateFlow(refreshingTagPagingData()),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-e24a5301-61a9-42f4-98d0-5d503eb9cc4a 목록의 대상을 처음 불러오지 못하면 태그 추가 항목이 목록을 연다`() {
+        var tagAddCount = 0
+        setPlaceAddScreen(
+            tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-6397d89f-db81-4ca1-bbe0-13d8857d9eed 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = listOf(placeTestTag(title = WORK_TAG_TITLE)), navigateToTagAdd = { tagAddCount += 1 })
@@ -171,7 +213,7 @@ class PlaceAddTagAddTest {
     private fun dialogNodeWithText(text: String): SemanticsNodeInteraction = composeRule.onNode(hasText(text) and hasAnyAncestor(isDialog()))
 
     @Test
-    fun `TC-d875e7bb-5b14-4bf7-a15f-1189e73c3464 저장된 태그가 하나도 없어도 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 TC-275e3447-faf3-4877-861a-c88b99f5dc75 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 추가 항목이 TagAdd 이동을 요청한다`() {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(loadedTagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -183,9 +225,8 @@ class PlaceAddTagAddTest {
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
         composeRule.waitForIdle()
 
-        tagAddCount shouldBe 0
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-        dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
+        tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
     }
 
     private fun closeDialogByBack() {
@@ -197,10 +238,10 @@ class PlaceAddTagAddTest {
 
     private fun setPlaceAddScreen(
         tagList: List<Tag> = emptyList(),
+        tagPagingData: MutableStateFlow<PagingData<Tag>> = MutableStateFlow(loadedTagPagingDataOf(tagList)),
         navigateToTagAdd: () -> Unit = {},
         resultEventBus: ResultEventBus = ResultEventBus(),
-        tagViewModel: PlaceAddTagViewModel =
-            selectionTagViewModel(tagList = tagList, tagPagingData = MutableStateFlow(loadedTagPagingDataOf(tagList))),
+        tagViewModel: PlaceAddTagViewModel = selectionTagViewModel(tagList = tagList, tagPagingData = tagPagingData),
     ) {
         composeRule.setContent {
             PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
@@ -239,6 +280,28 @@ class PlaceAddTagAddTest {
                     ),
             )
 
+        fun refreshingTagPagingData(): PagingData<Tag> =
+            PagingData.from(
+                data = emptyList(),
+                sourceLoadStates =
+                    LoadStates(
+                        refresh = LoadState.Loading,
+                        prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                        append = LoadState.NotLoading(endOfPaginationReached = false),
+                    ),
+            )
+
+        fun refreshFailedTagPagingData(): PagingData<Tag> =
+            PagingData.from(
+                data = emptyList(),
+                sourceLoadStates =
+                    LoadStates(
+                        refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                        prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                        append = LoadState.NotLoading(endOfPaginationReached = false),
+                    ),
+            )
+
         /**
          * 고른 태그를 보관하고 표시하는 동작만 남긴 태그 ViewModel을 만든다.
          */
@@ -256,6 +319,7 @@ class PlaceAddTagAddTest {
             return mockk<PlaceAddTagViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
+                every { this@apply.selectableTagPagingData } returns tagPagingData
                 every { this@apply.selectionUiState } returns tagIdSet
                 every { add(id = any()) } answers {
                     tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet + firstArg<Uuid>())

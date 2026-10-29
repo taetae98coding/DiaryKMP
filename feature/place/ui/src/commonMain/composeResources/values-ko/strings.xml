@@ -37,5 +37,6 @@
     <string name="place_search_empty_message">검색 결과가 없습니다</string>
     <string name="place_search_failed_message">장소를 검색하지 못했습니다</string>
     <string name="place_detail_open_external_map_failed_message">지도를 열지 못했습니다.</string>
+    <string name="place_show_on_map_action">지도에서 위치 보기</string>
     <string name="place_memo_finished_list_empty_title">이 장소에서 완료한 메모가 없습니다</string>
 </resources>

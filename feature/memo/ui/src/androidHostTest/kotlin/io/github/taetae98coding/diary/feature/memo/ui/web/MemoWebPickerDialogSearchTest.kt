@@ -150,7 +150,7 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
-    fun `검색어가 비어 있으면 나타낼 웹 항목이 없어도 결과 없음을 알리지 않는다`() {
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 검색어가 비어 있으면 나타낼 웹 항목이 없어도 결과 없음을 알리지 않는다`() {
         composeRule.setMemoWebPickerDialogHost(webList = emptyList())
         composeRule.waitForIdle()
 

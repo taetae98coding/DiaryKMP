@@ -21,6 +21,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,6 +52,22 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = place()
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
+
+                val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
+            }
         }
 
         test("저장된 장소 연결이 조회되지 않으면 로딩 상태를 유지한다") {

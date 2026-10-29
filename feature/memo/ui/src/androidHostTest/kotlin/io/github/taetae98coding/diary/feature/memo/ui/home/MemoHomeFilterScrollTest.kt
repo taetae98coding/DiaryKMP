@@ -142,6 +142,18 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
+    fun `TC-217929f7-e4cd-4baf-a36d-0a7d794ec354 좁힌 결과가 놓이기 전에는 목록 위치를 유지한다`() {
+        val environment = setScrolledMemoHome()
+
+        composeRule.runOnIdle {
+            environment.filterUiStateFlow.value = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST))
+        }
+        composeRule.waitForIdle()
+
+        assertPositionKept(environment)
+    }
+
+    @Test
     fun `TC-d92cdc8c-7c18-442b-913c-6c192f13900d 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
         val environment = setScrolledMemoHome()
         val addedMemo = addedMemo()

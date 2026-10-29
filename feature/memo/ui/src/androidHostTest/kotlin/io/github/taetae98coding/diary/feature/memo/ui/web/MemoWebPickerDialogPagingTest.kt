@@ -52,7 +52,7 @@ class MemoWebPickerDialogPagingTest {
     }
 
     @Test
-    fun `목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
+    fun `TC-43b72770-1f1d-4dfc-a7ce-c08c7a8a4c4c 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
         composeRule.setMemoWebPickerDialog(webPagingData = refreshingWebPagingData())
 
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()

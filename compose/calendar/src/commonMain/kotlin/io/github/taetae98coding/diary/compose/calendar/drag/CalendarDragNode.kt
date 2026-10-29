@@ -6,7 +6,9 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
+import kotlin.math.abs
 
 internal class CalendarDragNode(
     private var selectState: CalendarSelectState,
@@ -40,6 +43,7 @@ internal class CalendarDragNode(
 
     private var layoutCoordinates: LayoutCoordinates? = null
     private var session: CalendarDragSession? = null
+    private var isMoveSession = false
     private var pointerPosition = Offset.Zero
     private var pointerBoundsSize = IntSize.Zero
     private var edgeDirection = 0
@@ -60,6 +64,7 @@ internal class CalendarDragNode(
             edgeDirection = 0
             session?.cancel()
             session = null
+            isMoveSession = false
             this.selectState = selectState
             this.moveState = moveState
             pointerInputNode.resetPointerInputHandler()
@@ -72,6 +77,7 @@ internal class CalendarDragNode(
 
     private suspend fun PointerInputScope.detectDrag() {
         val edgeWidth = CalendarDragDefaults.EdgeScrollWidth.toPx()
+        val monthSwipeDistance = CalendarDragDefaults.MonthSwipeDistance.toPx()
 
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
@@ -83,7 +89,12 @@ internal class CalendarDragNode(
                 drag(position = longPress.position, size = size)
                 performHapticFeedback(HapticFeedbackType.LongPress)
                 updateEdgeScroll(position = longPress.position, size = size, edgeWidth = edgeWidth)
-                isReleased = awaitRelease(longPress = longPress, edgeWidth = edgeWidth)
+                isReleased =
+                    awaitRelease(
+                        longPress = longPress,
+                        edgeWidth = edgeWidth,
+                        monthSwipeDistance = monthSwipeDistance,
+                    )
             } finally {
                 endSession(isReleased = isReleased)
             }
@@ -93,7 +104,9 @@ internal class CalendarDragNode(
     private suspend fun AwaitPointerEventScope.awaitRelease(
         longPress: PointerInputChange,
         edgeWidth: Float,
+        monthSwipeDistance: Float,
     ): Boolean {
+        val monthSwipe = CalendarMonthSwipe(distance = monthSwipeDistance)
         var change = longPress
         var isCanceled = false
 
@@ -111,6 +124,9 @@ internal class CalendarDragNode(
                 }
                 updateEdgeScroll(position = next.position, size = size, edgeWidth = edgeWidth)
             }
+            if (isMoveSession) {
+                monthSwipe.track(event = event, primaryId = longPress.id, onSwipe = ::startMonthScroll)
+            }
 
             change = next
         }
@@ -126,6 +142,8 @@ internal class CalendarDragNode(
                 }
             }
 
+        isMoveSession = moveSession != null
+
         return moveSession ?: CalendarSelectDragSession(state = selectState, onSelect = onSelect)
     }
 
@@ -134,6 +152,7 @@ internal class CalendarDragNode(
 
         edgeDirection = 0
         session = null
+        isMoveSession = false
         if (isReleased) {
             endedSession.finish()
         } else {
@@ -182,6 +201,12 @@ internal class CalendarDragNode(
             }
     }
 
+    private fun startMonthScroll(direction: Int) {
+        if (animateScrollMonth == null || monthScrollJob?.isActive == true) return
+
+        monthScrollJob = coroutineScope.launch { scrollMonth(direction = direction) }
+    }
+
     private suspend fun scrollMonth(direction: Int): Boolean {
         val hasMoved = animateScrollMonth?.invoke(direction) ?: false
 
@@ -194,6 +219,47 @@ internal class CalendarDragNode(
 
     private fun performHapticFeedback(type: HapticFeedbackType) {
         currentValueOf(LocalHapticFeedback).performHapticFeedback(type)
+    }
+}
+
+private class CalendarMonthSwipe(
+    private val distance: Float,
+) {
+    private val startPositionMap = mutableMapOf<PointerId, Offset>()
+    private val swipedIdSet = mutableSetOf<PointerId>()
+
+    fun track(
+        event: PointerEvent,
+        primaryId: PointerId,
+        onSwipe: (direction: Int) -> Unit,
+    ) {
+        event.changes.forEach { change ->
+            if (change.id == primaryId) return@forEach
+
+            direction(change = change)?.let(onSwipe)
+        }
+    }
+
+    private fun direction(change: PointerInputChange): Int? {
+        if (change.changedToUpIgnoreConsumed()) {
+            startPositionMap -= change.id
+            swipedIdSet -= change.id
+
+            return null
+        }
+
+        val offset = change.position - startPositionMap.getOrPut(change.id) { change.position }
+        val isSwiped = change.id !in swipedIdSet && abs(offset.x) > distance && abs(offset.x) > abs(offset.y)
+
+        if (isSwiped) {
+            swipedIdSet += change.id
+        }
+
+        return if (isSwiped) {
+            if (offset.x < 0) NEXT_MONTH_DIRECTION else PREVIOUS_MONTH_DIRECTION
+        } else {
+            null
+        }
     }
 }
 

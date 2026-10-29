@@ -49,6 +49,8 @@ internal class MemoPlaceViewModel(
 
     val placePagingData: Flow<PagingData<Place>> = selectablePaging.pagingData
 
+    val selectablePlacePagingData: Flow<PagingData<Place>> = selectablePaging.selectablePagingData
+
     private val inProgressSelectPlaceSet = mutableSetOf<Uuid>()
     private val inProgressUnselectPlaceSet = mutableSetOf<Uuid>()
 

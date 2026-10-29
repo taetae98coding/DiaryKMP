@@ -2,9 +2,14 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
@@ -13,6 +18,9 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.Calendar
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 @Composable
 internal fun UpdateTodayEffect(state: CalendarHomeScaffoldState) {
@@ -38,6 +46,35 @@ internal fun FetchHolidayEffect(
 internal fun FetchWeatherEffect(weatherViewModel: CalendarHomeWeatherViewModel) {
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         weatherViewModel.fetch()
+    }
+}
+
+@Composable
+internal fun ScrollItemToTopOnFirstWeatherEffect(
+    weatherViewModel: CalendarHomeWeatherViewModel,
+    state: CalendarHomeScaffoldState,
+) {
+    var isHandled by remember { mutableStateOf(false) }
+    val firstWeatherFlow =
+        remember(weatherViewModel) {
+            flow {
+                var hadWeather: Boolean? = null
+
+                weatherViewModel
+                    .uiState
+                    .map { uiState -> uiState.weatherReport.weatherList.isNotEmpty() }
+                    .distinctUntilChanged()
+                    .collect { hasWeather ->
+                        if (hadWeather == null && hasWeather) isHandled = true
+                        if (!isHandled && hadWeather == false && hasWeather) emit(Unit)
+                        hadWeather = hasWeather
+                    }
+            }
+        }
+
+    CollectEffect(effect = firstWeatherFlow) {
+        isHandled = true
+        state.calendarState.itemScrollState.scrollToTop()
     }
 }
 

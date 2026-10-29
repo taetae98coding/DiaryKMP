@@ -20,6 +20,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -50,6 +51,22 @@ class MemoAddWebViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = web()
+                val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
+                every { pageMemoSelectableWebUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase)
+
+                val itemList = flowOf(viewModel.selectableWebPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableWebUseCase(parameter = "") }
+            }
         }
 
         test("TC-a3b2c5f7-4665-46a0-af16-1126dc013c17 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {

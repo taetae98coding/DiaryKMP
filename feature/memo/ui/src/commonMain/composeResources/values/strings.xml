@@ -61,6 +61,7 @@
     <string name="memo_contact_picker_search_empty_description">Try a different search query.</string>
     <string name="memo_contact_add_action">Add contact</string>
     <string name="memo_place_map_content_description">Memo place map</string>
+    <string name="memo_place_show_on_map_action">Show location on map</string>
     <string name="memo_place_select_label">Select place</string>
     <string name="memo_place_select_action">Select place</string>
     <string name="memo_place_picker_title">Select Place</string>

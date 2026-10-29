@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -22,10 +23,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -48,6 +52,31 @@ class WebDetailTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")
+                val useCase = mockk<PageWebSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    WebDetailTagViewModel(
+                        id = id,
+                        pageWebSelectableTagUseCase = useCase,
+                        getWebTagUseCase = mockk(relaxed = true),
+                        addWebTagUseCase = mockk(relaxed = true),
+                        removeWebTagUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
         }
 
         test("TC-806007af-1e20-415d-af6c-996d9731eb0f 저장된 연결의 태그를 연결 대상으로 표시한다") {

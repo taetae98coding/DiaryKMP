@@ -100,6 +100,44 @@ class MemoPlaceMapStateTest {
     }
 
     @Test
+    fun `TC-ca9a2c3d-6156-4d6f-9fa2-17b71a953a42 지도 보기에서 장소 추가로 이동하면 카드가 아니라 지도 보기의 지도 위치를 넘긴다`() {
+        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = cardCoordinate.toDiaryMapCoordinate())
+        val pickerState = MemoPlacePickerState()
+        lateinit var pickerMapState: DiaryMapState
+
+        composeRule.setContent {
+            pickerMapState = rememberMemoPlacePickerMapState(cardMapState = cardMapState)
+        }
+        composeRule.runOnIdle {
+            pickerState.toggleViewMode()
+            pickerMapState.moveTo(pickerCoordinate)
+        }
+
+        composeRule.runOnIdle {
+            pickerState.addCoordinate(mapState = pickerMapState, cardCoordinate = cardCoordinate) shouldBe
+                Coordinate(latitude = pickerCoordinate.latitude, longitude = pickerCoordinate.longitude)
+        }
+    }
+
+    @Test
+    fun `TC-6f7e7eb7-7b0f-4556-9d47-24e0d4fe9605 목록 보기의 내용을 보여 주는 동안 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
+        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val pickerMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+        val returnedState =
+            MemoPlacePickerState().apply {
+                toggleViewMode()
+                pickerMapState.moveTo(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+                toggleViewMode()
+            }
+        val mapViewState = MemoPlacePickerState().apply { toggleViewMode() }
+
+        returnedState.addCoordinate(mapState = pickerMapState, cardCoordinate = cardCoordinate) shouldBe cardCoordinate
+        mapViewState.addCoordinate(mapState = null, cardCoordinate = cardCoordinate) shouldBe cardCoordinate
+    }
+
+    @Test
     fun `TC-b46cd42b-ec37-4db5-b9cb-df9d7986a676 노출하는 장소가 있으면 현재 위치 확인을 기다리지 않고 첫 번째 장소에서 지도를 시작한다`() {
         val firstPlace = testPlace(title = FIRST_PLACE_TITLE)
         var mapState: DiaryMapState? = null

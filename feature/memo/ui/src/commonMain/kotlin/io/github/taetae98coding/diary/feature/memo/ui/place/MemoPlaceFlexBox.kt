@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.core.layout.DiaryScrollableChipFle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.moveToOrSelect
 import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res
@@ -68,7 +69,7 @@ private fun LookaheadScope.PlaceChips(
         key(place.id) {
             MemoPlaceChip(
                 place = place,
-                onClick = { if (mapState != null) onPlaceClick(place.id) },
+                onClick = { mapState?.moveToOrSelect(coordinate = place.detail.coordinate) { onPlaceClick(place.id) } },
                 modifier = Modifier.animateBounds(lookaheadScope = this@PlaceChips),
             )
         }

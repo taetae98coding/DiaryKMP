@@ -171,6 +171,21 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
+    fun `TC-f898b7cc-0191-4de5-98cb-2b4c6ce2a319 지도 보기에 있지만 카드의 지도를 표시할 수 없으면 목록 보기의 내용을 보여 준다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE)
+        setDialog(
+            state = MemoPlacePickerState(initialViewMode = MemoPlacePickerViewMode.MAP, initialIsMapViewVisited = true),
+            mapState = null,
+            placeList = listOf(homePlace),
+        )
+
+        composeRule.placeDialogSearchField().assertExists()
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_ACTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_ACTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-dcc67ec4-f921-4d3c-b8be-4de7ac04f7ee 목록 보기에서 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
         val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val eventList = mutableListOf<MemoPlacePickerEvent>()
@@ -187,7 +202,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     @Test
-    fun `TC-994ab58b-cce4-4f44-811e-24276321eb0f 화면이 재생성되거나 복원되면 목록 보기로 돌아가고 지도 보기의 지도 상태는 유지된다`() {
+    fun `TC-d8e45de3-c185-4bf4-bfea-ada296d40606 화면이 재생성되거나 복원되어도 지도 보기와 그 지도 상태가 유지된다`() {
         val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         val restorationTester = StateRestorationTester(composeRule)
@@ -207,7 +222,7 @@ class MemoPlacePickerMapViewTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.runOnIdle {
-            state.viewMode shouldBe MemoPlacePickerViewMode.LIST
+            state.viewMode shouldBe MemoPlacePickerViewMode.MAP
             pickerMapState.provider shouldBe DiaryMapProvider.GOOGLE
             pickerMapState.coordinate shouldBe coordinate
         }

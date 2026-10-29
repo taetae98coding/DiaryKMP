@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,6 +41,13 @@ internal class WebDetailTagViewModel(
     val tagPagingData: Flow<PagingData<Tag>> =
         query
             .debounceSearchQuery()
+            .flatMapLatest { value ->
+                pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = value))
+            }.map { result -> result.getOrElse { PagingData.empty() } }
+            .cachedIn(viewModelScope)
+
+    val selectableTagPagingData: Flow<PagingData<Tag>> =
+        flowOf("")
             .flatMapLatest { value ->
                 pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = value))
             }.map { result -> result.getOrElse { PagingData.empty() } }

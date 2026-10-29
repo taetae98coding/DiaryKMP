@@ -37,6 +37,7 @@ class MemoPlaceCardTest {
         composeRule.setMemoPlaceCard(uiStateProvider = { placeCardUiState(selectedPlaceList = listOf(place)) })
 
         composeRule.onNodeWithContentDescription(KOREAN_MAP_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assert(hasClickLabel(KOREAN_SHOW_ON_MAP_ACTION))
         composeRule.onNodeWithText(KOREAN_PLACE_SELECT_LABEL).assert(hasClickLabel(KOREAN_PLACE_SELECT_LABEL))
     }
 
@@ -46,6 +47,7 @@ class MemoPlaceCardTest {
         composeRule.setMemoPlaceCard(uiStateProvider = { placeCardUiState(selectedPlaceList = listOf(place)) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assert(hasClickLabel(DEFAULT_SHOW_ON_MAP_ACTION))
         composeRule.onNodeWithText(DEFAULT_PLACE_SELECT_LABEL).assert(hasClickLabel(DEFAULT_PLACE_SELECT_LABEL))
     }
 
@@ -81,7 +83,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-16def837-7242-4e9f-ac6e-b05b1748d3a7 지도가 표시되지 않는 동안 장소를 선택해도 지도가 나타나지 않는다`() {
+    fun `TC-16def837-7242-4e9f-ac6e-b05b1748d3a7 지도가 표시되지 않는 동안 장소를 선택해도 지도 이동이 일어나지 않는다`() {
         val place = testPlace(title = HOME_PLACE_TITLE)
 
         composeRule.setMemoPlaceCard(uiStateProvider = { placeCardUiState(selectedPlaceList = listOf(place)) })
@@ -93,7 +95,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-16def837-7242-4e9f-ac6e-b05b1748d3a7 지도가 표시되지 않는 동안 목록의 장소를 눌러도 장소 상세로 이동하지 않고 선택이 바뀌지 않는다`() {
+    fun `TC-900c168f-4d21-46d2-bc65-fe3e44cd6992 목록의 장소를 눌러도 장소 상세로 이동하지 않고 선택이 바뀌지 않는다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         var placeClickCount = 0
         var addClickCount = 0

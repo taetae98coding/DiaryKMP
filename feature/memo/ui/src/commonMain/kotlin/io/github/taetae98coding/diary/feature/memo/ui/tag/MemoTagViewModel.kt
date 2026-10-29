@@ -43,6 +43,8 @@ internal class MemoTagViewModel(
 
     val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData
 
+    val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData
+
     val uiState: StateFlow<MemoTagInputUiState> =
         combine(
             getMemoTagUseCase(parameter = id),

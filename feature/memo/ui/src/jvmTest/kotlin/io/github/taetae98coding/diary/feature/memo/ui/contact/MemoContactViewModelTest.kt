@@ -22,6 +22,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,6 +53,22 @@ class MemoContactViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = contact()
+                val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+                every { pageMemoSelectableContactUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase)
+
+                val itemList = flowOf(viewModel.selectableContactPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableContactUseCase(parameter = "") }
+            }
         }
 
         test("TC-aeaaf285-fa56-4843-9f4e-3245ff80c70b 연락처 입력에 저장된 연락처 연결이 표시된다") {

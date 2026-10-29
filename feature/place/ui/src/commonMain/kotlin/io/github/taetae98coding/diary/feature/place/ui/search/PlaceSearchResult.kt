@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.place_search_empty_message
@@ -49,7 +50,7 @@ internal fun PlaceSearchResult(
                 )
             } else {
                 PlaceSearchList(
-                    onPlaceClick = onSelect,
+                    onPlaceClick = { place -> state.showOnMapOrSelect(coordinate = place.coordinate.toDiaryMapCoordinate()) { onSelect(place) } },
                     placeList = uiState.placeList,
                     modifier = modifier,
                 )

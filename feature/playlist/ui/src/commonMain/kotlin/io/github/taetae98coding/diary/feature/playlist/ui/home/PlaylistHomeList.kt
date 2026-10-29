@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -49,6 +50,8 @@ internal fun PlaylistHomeList(
     ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
+        itemListProvider = { musicPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { musicPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(

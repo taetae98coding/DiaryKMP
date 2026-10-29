@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
+import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiSettingRequiredEffect
@@ -64,6 +65,7 @@ internal fun MemoAddScreen(
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
+    val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
 
     MemoAddEnterEffect(addRequestKey = addRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
     MemoAddFormEffect(scaffoldState = scaffoldState, isStandalone = isStandalone, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
@@ -79,9 +81,14 @@ internal fun MemoAddScreen(
             handleMemoFormEvent(
                 event = event,
                 state = scaffoldState,
+                selectablePagingItems = selectablePagingItems,
+                navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,
+                navigateToWebAdd = navigateToWebAdd,
                 navigateToWebDetail = navigateToWebDetail,
+                navigateToContactAdd = navigateToContactAdd,
                 navigateToContactDetail = navigateToContactDetail,
+                navigateToPlaceAdd = navigateToPlaceAdd,
                 navigateToPlaceDetail = navigateToPlaceDetail,
             )
         },

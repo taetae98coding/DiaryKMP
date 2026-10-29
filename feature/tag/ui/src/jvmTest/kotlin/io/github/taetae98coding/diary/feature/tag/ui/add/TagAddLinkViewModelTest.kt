@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -17,10 +18,13 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -43,6 +47,22 @@ class TagAddLinkViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-bafce675-468e-430e-b1ca-2721e029fcd5 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = tag()
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = TagAddLinkViewModel(pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = "") }
+            }
         }
 
         test("TC-e74af70e-67e2-4b8e-8bff-1ab703d9adea 처음에는 연결 대상으로 표시하는 태그가 없다") {

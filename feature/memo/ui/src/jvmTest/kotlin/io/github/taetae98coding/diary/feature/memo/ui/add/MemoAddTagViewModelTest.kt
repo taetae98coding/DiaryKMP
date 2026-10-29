@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
@@ -22,8 +23,10 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -51,6 +54,22 @@ class MemoAddTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = tag()
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = MemoAddTagViewModel(initialPrimaryTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = "") }
+            }
         }
 
         test("TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
