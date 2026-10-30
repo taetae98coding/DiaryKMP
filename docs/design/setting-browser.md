@@ -2,13 +2,11 @@
 
 기준 스펙: [SettingBrowser 화면 스펙](../spec/client/setting-browser.md)
 
+화면 구조와 공통 문구는 [기기 설정 화면 공통 디자인](./device-setting.md)을 따른다. 이 문서는 이 화면에서만 다른 표현을 다룬다.
+
 ## 화면 구조
 
-SettingBrowser의 단독·목록/상세 배치와 표시 상태에 따른 뒤로가기 동작 노출은 [Setting 목록·상세 배치 디자인](./setting-list-detail.md)을 따른다.
-
-화면 상단에는 제목이 있는 상단 바를 두고, 뒤로가기 동작을 제공하는 상태에서는 상단 바에 함께 배치한다.
-
-본문에는 브라우저 설정을 설정별 영역으로 나누어 세로로 배치한다. 설정 항목이 늘어나 본문이 표시 영역보다 길어지면 위아래로 스크롤할 수 있다.
+본문에는 브라우저 설정을 설정별 영역으로 나누어 세로로 배치한다.
 
 ## Chrome 프로필 선택
 
@@ -28,12 +26,11 @@ Chrome 프로필이 하나도 없으면 묶음에 `선택 안 함` 한 줄만 �
 
 ## 문구와 접근성
 
-한국어 환경과 그 외 기본 환경에서는 다음 문구를 사용한다.
+한국어 환경과 그 외 기본 환경에서는 다음 문구를 사용한다. 뒤로가기 접근성 이름은 [기기 설정 화면 공통 디자인](./device-setting.md)의 `문구와 접근성`을 따른다.
 
 | 문구 | 한국어 | 그 외 기본 |
 | --- | --- | --- |
 | 상단 바 제목 | `브라우저 설정` | `Browser Settings` |
-| 뒤로가기 접근성 이름 | `뒤로가기` | `Navigate up` |
 | Chrome 로그인 이어받기 설정 이름 | `Chrome 로그인 이어받기` | `Use Chrome logins` |
 | Chrome 로그인 이어받기 보조 문구 | `고른 Chrome 프로필에서 로그인한 사이트를 앱 안에서도 로그인된 상태로 엽니다` | `Opens sites you're signed in to in the chosen Chrome profile as signed in inside the app` |
 | 선택 안 함 항목 이름 | `선택 안 함` | `None` |

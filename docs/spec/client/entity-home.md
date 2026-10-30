@@ -4,7 +4,7 @@
 
 나누어 불러오는 목록이 나타나는 순서와 아직 준비되지 않은 자리의 처리는 [페이지 조회 목록의 자리 표시 스펙](./paged-list-placeholder.md)을, 목록이 비어 있을 때의 안내는 [목록 빈 상태 스펙](./list-empty-state.md)을, 목록 카드에서 삭제를 실행하는 상호작용과 그 뒤의 안내는 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 정렬 선택은 [목록 정렬 스펙](./list-sort.md)을, 목록을 당겨 새로고침하는 조작은 [새로고침 스펙](./sync-refresh.md)을, 목록과 상세를 함께 사용하는 배치는 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다.
 
-이 문서는 화면 하나를 정하지 않으므로 디자인 문서를 두지 않는다.
+디자인: [항목 목록 화면 공통 디자인](../../design/entity-home.md). 이 디자인은 적용 대상 중 ContactHome, QrHome, WebHome, ChecklistHome, PlaylistHome이 함께 쓰는 표현만 다룬다.
 
 ## 적용 대상
 

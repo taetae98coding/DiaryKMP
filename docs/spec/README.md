@@ -62,7 +62,7 @@
 | ChecklistDetail 화면 | [client](./client/checklist-detail.md) | — | — | [ChecklistDetail 디자인](../design/checklist-detail.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
 | Checklist 목록·상세 배치 | [client](./client/checklist-list-detail.md) | — | — | [Checklist 목록·상세 배치 디자인](../design/checklist-list-detail.md) |
-| Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | — |
+| Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | [Chrome 로그인 이어받기 디자인](../design/chrome-session-import.md) |
 | Contact 목록·상세 배치 | [client](./client/contact-list-detail.md) | — | — | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |
 | ContactAdd 화면 | [client](./client/contact-add.md) | — | — | [ContactAdd 디자인](../design/contact-add.md) |
 | ContactDetail 메모 탭 | [client](./client/contact-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [ContactDetail 디자인](../design/contact-detail.md) |
@@ -138,7 +138,7 @@
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
 | 권한 요청 공통 | [client](./client/permission.md) | — | — | — |
-| 기기 설정 화면 공통 | [client](./client/device-setting.md) | — | — | — |
+| 기기 설정 화면 공통 | [client](./client/device-setting.md) | — | — | [기기 설정 화면 공통 디자인](../design/device-setting.md) |
 | 기기에 저장한 공휴일 | [client](./client/holiday-database.md) | — | — | — |
 | 기능 실패 로깅 | [client](./client/usecase-failure-logging.md) | — | — | — |
 | 날짜·시간 입력 컴포넌트 | [client](./client/diary-date-time-input.md) | — | — | [DiaryDateTimeInput 디자인](../design/diary-date-time-input.md) |
@@ -198,9 +198,9 @@
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
 | 푸시 알림 수신 등록 | [client](./client/fcm-token.md) | [common](./common/fcm-token.md) | [server](./server/fcm-token.md) | — |
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |
-| 항목 목록 화면 공통 | [client](./client/entity-home.md) | — | — | — |
+| 항목 목록 화면 공통 | [client](./client/entity-home.md) | — | — | [항목 목록 화면 공통 디자인](../design/entity-home.md) |
 | 항목 상세 메모 탭 공통 | [client](./client/entity-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
-| 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | — |
+| 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | [항목 상세 화면 공통 디자인](../design/entity-detail.md) |
 | 항목 연결 공통 | [client](./client/entity-link.md) | [common](./common/entity-link.md) | — | — |
 | 항목 완료 메모 목록 화면 | [client](./client/entity-memo-finished-list.md) | — | — | [항목 완료 메모 목록 화면 디자인](../design/entity-memo-finished-list.md) |
 | 항목 완료 메모 목록·상세 배치 | [client](./client/entity-memo-finished-list-detail.md) | — | — | [항목 완료 메모 목록·상세 배치 디자인](../design/entity-memo-finished-list-detail.md) |
