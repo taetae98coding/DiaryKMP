@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.app.shared
 
 import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -31,7 +32,14 @@ class ChromeSessionImportFailedEffectTest {
         composeRule.mainClock.advanceTimeByFrame()
 
         composeRule.onAllNodesWithText(DEFAULT_IMPORT_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
-        composeRule.runOnIdle { snackbarHostState.currentSnackbarData?.visuals?.message shouldBe DEFAULT_IMPORT_FAILED_MESSAGE }
+        composeRule.runOnIdle {
+            val visuals = snackbarHostState.currentSnackbarData?.visuals
+
+            visuals?.message shouldBe DEFAULT_IMPORT_FAILED_MESSAGE
+            visuals?.duration shouldBe SnackbarDuration.Short
+            visuals?.actionLabel shouldBe null
+            visuals?.withDismissAction shouldBe false
+        }
     }
 
     @Test

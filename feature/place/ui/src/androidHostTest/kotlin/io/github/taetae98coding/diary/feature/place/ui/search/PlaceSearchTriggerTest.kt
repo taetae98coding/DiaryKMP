@@ -5,8 +5,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toCoordinateBounds
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.boundsAround
+import io.github.taetae98coding.diary.feature.place.ui.reportCamera
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -190,10 +196,150 @@ class PlaceSearchTriggerTest {
         requestList.single().bounds shouldBe null
     }
 
+    @Test
+    fun `TC-bc47b8df-c5e9-4cc9-a567-d5e882cf9b4e Google로 검색할 때 지도를 옮기면 바뀐 영역을 기준으로 다시 검색한다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val movedBounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN)
+        val requestList = mutableListOf<PlaceSearchRequest>()
+
+        composeRule.mainClock.autoAdvance = false
+        val state = composeRule.setPlaceSearchEffect(initialProvider = DiaryMapProvider.GOOGLE, onSearch = { request -> requestList += request })
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList.size shouldBe 1
+
+        composeRule.runOnIdle { state().mapState.reportCamera(center = randomCoordinate(), bounds = movedBounds) }
+        composeRule.mainClock.advanceTimeBy(IMMEDIATE_MILLIS)
+
+        requestList.size shouldBe 1
+
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS)
+
+        requestList.size shouldBe 2
+        requestList.last().provider shouldBe MapProvider.GOOGLE
+        requestList.last().query shouldBe query
+        requestList.last().bounds shouldBe movedBounds.toCoordinateBounds()
+    }
+
+    @Test
+    fun `TC-a5ab0598-65a5-4f72-83cd-568afdf6f714 네이버로 검색할 때는 지도를 옮겨도 다시 검색하지 않고 결과도 비우지 않는다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val requestList = mutableListOf<PlaceSearchRequest>()
+        var clearCount = 0
+
+        composeRule.mainClock.autoAdvance = false
+        val state =
+            composeRule.setPlaceSearchEffect(
+                initialProvider = DiaryMapProvider.NAVER,
+                onSearch = { request -> requestList += request },
+                onClear = { clearCount++ },
+            )
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+        val clearCountAfterSearch = clearCount
+
+        composeRule.runOnIdle {
+            state().mapState.reportCamera(center = randomCoordinate(), bounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN))
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList.size shouldBe 1
+        clearCount shouldBe clearCountAfterSearch
+    }
+
+    @Test
+    fun `TC-6bf0069a-8bac-4bc6-8008-cb85fb9e9229 검색어가 비어 있으면 지도를 옮겨도 검색하지 않는다`() {
+        val requestList = mutableListOf<PlaceSearchRequest>()
+
+        composeRule.mainClock.autoAdvance = false
+        val state = composeRule.setPlaceSearchEffect(initialProvider = DiaryMapProvider.GOOGLE, onSearch = { request -> requestList += request })
+
+        composeRule.runOnIdle {
+            state().mapState.reportCamera(center = randomCoordinate(), bounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN))
+        }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-2bf9ced9-1602-4210-a48b-58e0942f6a44 목록의 장소를 눌러 지도가 옮겨져도 다시 검색하지 않고 그 뒤 직접 옮기면 다시 검색한다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val shownCoordinate = randomCoordinate()
+        val draggedBounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN)
+        val requestList = mutableListOf<PlaceSearchRequest>()
+        var clearCount = 0
+
+        composeRule.mainClock.autoAdvance = false
+        val state =
+            composeRule.setPlaceSearchEffect(
+                initialProvider = DiaryMapProvider.GOOGLE,
+                onSearch = { request -> requestList += request },
+                onClear = { clearCount++ },
+            )
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+        val clearCountAfterSearch = clearCount
+
+        composeRule.runOnIdle { state().showOnMapAndReport(coordinate = shownCoordinate) }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList.size shouldBe 1
+        clearCount shouldBe clearCountAfterSearch
+
+        composeRule.runOnIdle { state().mapState.reportCamera(center = randomCoordinate(), bounds = draggedBounds) }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList.size shouldBe 2
+        requestList.last().bounds shouldBe draggedBounds.toCoordinateBounds()
+    }
+
+    @Test
+    fun `TC-b6c6e3e0-1fb9-4e3e-b4e3-33615d59275e 목록의 장소로 지도를 옮긴 뒤 검색어를 바꾸면 그때 보고 있는 영역을 기준으로 검색한다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val changedQuery = randomText(prefix = CHANGED_QUERY_PREFIX)
+        val shownCoordinate = randomCoordinate()
+        val requestList = mutableListOf<PlaceSearchRequest>()
+
+        composeRule.mainClock.autoAdvance = false
+        val state = composeRule.setPlaceSearchEffect(initialProvider = DiaryMapProvider.GOOGLE, onSearch = { request -> requestList += request })
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+        composeRule.runOnIdle { state().showOnMapAndReport(coordinate = shownCoordinate) }
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        composeRule.onNodeWithText(query).performTextReplacement(changedQuery)
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+
+        requestList.size shouldBe 2
+        requestList.last().query shouldBe changedQuery
+        requestList.last().bounds shouldBe boundsAround(center = shownCoordinate, span = BOUNDS_SPAN).toCoordinateBounds()
+    }
+
+    // 목록의 장소를 누르면 지도가 그 장소로 옮겨지고, 옮겨진 지도는 그 장소를 가운데에 둔 영역을 알려 온다.
+    private fun PlaceSearchDialogState.showOnMapAndReport(coordinate: DiaryMapCoordinate) {
+        showOnMap(coordinate)
+        mapState.reportCamera(center = coordinate, bounds = boundsAround(center = coordinate, span = BOUNDS_SPAN))
+    }
+
+    private fun randomCoordinate(): DiaryMapCoordinate = fixtureMonkey.coordinateInFormPrecision().toDiaryMapCoordinate()
+
     private companion object {
         private const val QUERY_PREFIX = "query"
         private const val CHANGED_QUERY_PREFIX = "changed-query"
         private const val BLANK_QUERY = "   "
+        private const val BOUNDS_SPAN = 0.01
 
         // 기다림 없이 실행되는 것을 확인하려고 debounce 시간보다 짧게 둔다.
         private const val IMMEDIATE_MILLIS = SEARCH_DELAY_MILLIS - 1

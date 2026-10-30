@@ -327,6 +327,19 @@ class TimetableSelectTest {
     }
 
     @Test
+    fun `TC-fce1ec99-239c-4b2f-8f01-f7d9a04527cd 선택을 완료하면 선택된 기간이 없는 상태가 된다`() {
+        val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
+        setTimetable(state = state)
+
+        performLongPress(timePosition(hour = 10, minute = 10))
+        performMoveTo(timePosition(hour = 11, minute = 10))
+        performUp()
+
+        eventList shouldBe listOf(selectTime(start = september(day = 23, hour = 10), endInclusive = september(day = 23, hour = 11, minute = 30)))
+        state.selectState.selection.shouldBeNull()
+    }
+
+    @Test
     fun `선택을 완료하면 다음 길게 누르기는 새 칸에서 시작한다`() {
         setTimetable()
 

@@ -67,17 +67,17 @@ class ColorPickerDialogTest {
 
     @Test
     fun `TC-55fc5ea7-b73d-477f-973f-a07b22b75764 유효한 Hex 입력만 편집 컬러에 반영한다`() {
-        setColorPickerDialog(initialColor = BASE_COLOR)
+        val state = setColorPickerDialog(initialColor = BASE_COLOR)
 
         listOf(
-            "#3A7BD5" to TYPED_CHANNELS,
-            "3A7BD5" to TYPED_CHANNELS,
-            "#3a7bd5" to TYPED_CHANNELS,
-            "#3A7BD" to BASE_CHANNELS,
-            "#3A7BD5F" to BASE_CHANNELS,
-            "#GGGGGG" to BASE_CHANNELS,
-            "" to BASE_CHANNELS,
-        ).forEach { (input, channels) ->
+            "#3A7BD5" to TYPED_COLOR,
+            "3A7BD5" to TYPED_COLOR,
+            "#3a7bd5" to TYPED_COLOR,
+            "#3A7BD" to BASE_COLOR,
+            "#3A7BD5F" to BASE_COLOR,
+            "#GGGGGG" to BASE_COLOR,
+            "" to BASE_COLOR,
+        ).forEach { (input, expectedColor) ->
             composeRule.onNode(hasSetTextAction()).performTextReplacement(BASE_HEX)
             composeRule.waitForIdle()
 
@@ -88,6 +88,8 @@ class ColorPickerDialogTest {
             }
             composeRule.waitForIdle()
 
+            composeRule.runOnIdle { state.color shouldBe expectedColor }
+            val channels = if (expectedColor == TYPED_COLOR) TYPED_CHANNELS else BASE_CHANNELS
             assertChannelSliders(red = channels[0], green = channels[1], blue = channels[2])
         }
     }
@@ -127,6 +129,7 @@ class ColorPickerDialogTest {
         private const val BASE_HEX = "#102030"
         private const val DEFAULT_RANDOM_DESCRIPTION = "Random color"
         private val BASE_COLOR = Color(color = 0xFF102030.toInt())
+        private val TYPED_COLOR = Color(color = 0xFF3A7BD5.toInt())
         private val BASE_CHANNELS = listOf(16F, 32F, 48F)
         private val TYPED_CHANNELS = listOf(58F, 123F, 213F)
         private val HEX_REGEX = Regex(pattern = "#[0-9A-F]{6}")

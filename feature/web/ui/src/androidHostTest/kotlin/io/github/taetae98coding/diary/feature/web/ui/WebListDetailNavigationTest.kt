@@ -180,6 +180,35 @@ class WebListDetailNavigationTest {
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
     }
 
+    @Test
+    fun `TC-90d8f866-86e9-4286-9a54-885e416c1536 웹 추가가 함께 놓여 있어도 목록의 뒤로가기는 더보기로 돌아간다`() {
+        val listedWeb = listedWeb()
+        setWebNavDisplay(webList = listOf(listedWeb))
+        waitUntilWebIsDisplayed(listedWeb)
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(WebListDetailMoreNavKey)
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-a4f96282-7dfd-4902-b5f8-874cb19af10d 상세 영역에 웹 추가가 놓인 상태에서 시스템 뒤로가기를 사용하면 더보기로 돌아간다`() {
+        val listedWeb = listedWeb()
+        setWebNavDisplay(webList = listOf(listedWeb))
+        waitUntilWebIsDisplayed(listedWeb)
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(WebListDetailMoreNavKey)
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.onNode(webCard(listedWeb)).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+    }
+
     private fun scrollToPositionWeb(webList: List<Web>) {
         waitUntilWebIsDisplayed(webList.first())
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
@@ -330,6 +359,7 @@ class WebListDetailNavigationTest {
         const val ADDED_TITLE = "added-web-title"
         const val DEFAULT_ADD_WEB_DESCRIPTION = "Add web"
         const val DEFAULT_SEARCH_DESCRIPTION = "Search"
+        const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         const val POSITION_WEB_COUNT = 60
         const val POSITION_SCROLL_INDEX = 50
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L

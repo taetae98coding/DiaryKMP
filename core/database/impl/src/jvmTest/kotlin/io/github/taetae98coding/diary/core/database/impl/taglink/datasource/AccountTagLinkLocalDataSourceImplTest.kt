@@ -300,6 +300,21 @@ class AccountTagLinkLocalDataSourceImplTest :
                 .isDeleted shouldBe false
         }
 
+        test("TC-8ea7bca7-89db-449f-be91-1ce8db3a1c14 완료된 태그의 연결도 조회되고 연결과 해제가 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val fromTag = tag().copy(isFinished = true)
+            val firstToTag = tag()
+            val secondToTag = tag()
+            insertTag(accountId, fromTag, firstToTag, secondToTag)
+            link(accountId = accountId, fromTagId = fromTag.id, toTagId = firstToTag.id)
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(firstToTag.id)
+
+            link(accountId = accountId, fromTagId = fromTag.id, toTagId = secondToTag.id)
+            unlink(accountId = accountId, fromTagId = fromTag.id, toTagId = firstToTag.id)
+
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(secondToTag.id)
+        }
+
         test("TC-37d8d16f-6808-40f5-9c2d-021988f69afa 삭제된 도착 태그는 조회되지 않고 다른 기기에서 받은 내용으로 삭제가 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag()

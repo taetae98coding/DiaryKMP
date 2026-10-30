@@ -4,6 +4,8 @@
 
 이 문서에서 `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이 소유한다. `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결의 상태와 시각` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. `domain > 연결된 태그의 조회` 절은 [항목 태그 연결 앱 스펙](../spec/client/entity-tag.md)이, `domain > 대상 항목과 태그의 연결`, `domain > 연결할 수 있는 태그`, `domain > 태그와 대상 항목의 상태 변화` 절은 [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)이 소유한다. `domain > 연결의 의미` 절은 [장소 태그 앱 스펙](../spec/client/place-tag.md)이 소유한다. 다만 태그와 태그의 연결을 따라 조회되지 않는 규칙은 [태그 연결 스펙](../spec/common/tag-link.md)의 `연결의 의미`가, 그 규칙이 앱의 조회 결과에 적용되는 범위는 [태그 연결 앱 스펙](../spec/client/tag-link.md)의 `연결의 의미`가 소유하므로, 그 케이스의 근거는 해당 절을 직접 링크한다. 나머지 케이스의 절은 [장소 태그 스펙](../spec/common/place-tag.md)이 소유한다.
 
+`domain > 장소 컬러` 중 태그를 연결하거나 해제해도 장소의 컬러가 바뀌지 않는 규칙은 `TC-13ae46b2-5a38-4f9e-a24d-6ae65b6acd79`가, 태그에 연결된 장소가 장소 자신의 컬러로 지도 핀에 지정되는 것은 [TagDetail 장소 탭 테스트 케이스](./tag-detail-place.md)의 지도 핀 케이스가 다룬다. 카드와 지도 핀에 실제로 보이는 색은 화면 색상이므로 케이스로 쓰지 않는다.
+
 ## domain
 
 ### TC-36040314-b2fa-4cd6-9b33-b1d5710bd002: 하나의 장소에 여러 태그를 연결할 수 있다

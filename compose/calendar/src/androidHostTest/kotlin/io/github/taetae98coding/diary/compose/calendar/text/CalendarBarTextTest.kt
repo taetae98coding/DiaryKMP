@@ -161,7 +161,7 @@ class CalendarBarTextTest {
     }
 
     @Test
-    fun `글자색은 지정한 색과 관계없이 화면 기본 글자색을 사용한다`() {
+    fun `TC-5dcb29ed-bdd5-432a-be74-13129d2891fc 글자색은 지정한 색과 관계없이 화면 기본 글자색을 사용한다`() {
         composeRule.setContent {
             DiaryTheme {
                 CompositionLocalProvider(LocalContentColor provides DEFAULT_CONTENT_COLOR) {

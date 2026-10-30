@@ -1,10 +1,24 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.search.DEFAULT_QUERY_PLACEHOLDER
+import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +37,22 @@ class PlaceAddSearchApplyTest {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
+        composeRule.runOnIdle { state.applySearchedPlace(place) }
+
+        composeRule.runOnIdle {
+            state.detail.coordinate shouldBe place.coordinate
+        }
+    }
+
+    @Test
+    fun `TC-bb58367c-7232-4e5e-b197-9a2727b22ecc 위도와 경도가 입력되어 있어도 검색에서 고른 장소의 좌표로 바뀐다`() {
+        val state = composeRule.setPlaceAddScaffoldState()
+        val place = searchedPlace().copy(coordinate = fixtureMonkey.coordinateInFormPrecision())
+
+        composeRule.runOnIdle {
+            state.latitudeState.setTextAndPlaceCursorAtEnd(TYPED_LATITUDE)
+            state.longitudeState.setTextAndPlaceCursorAtEnd(TYPED_LONGITUDE)
+        }
         composeRule.runOnIdle { state.applySearchedPlace(place) }
 
         composeRule.runOnIdle {
@@ -63,16 +93,35 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-2a719891-3e86-46ad-892d-ae1c4cca2bde 검색에서 고른 장소로 추가할 내용이 만들어진다`() {
-        val state = composeRule.setPlaceAddScaffoldState()
+    fun `TC-2a719891-3e86-46ad-892d-ae1c4cca2bde 검색에서 고른 장소로 장소 추가를 실행하면 고른 장소의 이름, 좌표와 주소로 추가한다`() {
         val place = searchedPlace()
+        val viewModel = screenTestViewModel(uiState = PlaceAddUiState(defaultProvider = MapProvider.GOOGLE))
+        every { viewModel.add(any(), tagIdSet = any()) } returns Unit
 
-        composeRule.runOnIdle { state.applySearchedPlace(place) }
+        // 목록의 장소가 이미 지도 가운데에 있으면 한 번 눌러 고르므로, 지도를 옮기지 않도록 그 장소의 좌표에서 시작한다.
+        composeRule.setPlaceAddScreen(
+            viewModel = viewModel,
+            searchViewModel = searchScreenTestViewModel(uiState = PlaceSearchUiState.Content(placeList = listOf(place))),
+            initialCoordinate = place.coordinate,
+        )
+        composeRule.waitForIdle()
 
-        composeRule.runOnIdle {
-            state.detail.title shouldBe place.name
-            state.detail.coordinate shouldBe place.coordinate
-            state.detail.address shouldBe place.address
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(SEARCH_QUERY)
+        composeRule.waitForIdle()
+        // 고른 좌표는 입력이 멈춘 뒤 화면의 지도로 옮겨지는데, 호스트 테스트 환경의 지도는 옮기지 못하므로 그 전에 추가를 실행한다.
+        composeRule.mainClock.autoAdvance = false
+        composeRule.onNode(hasText(place.name) and hasClickAction()).performClick()
+        composeRule.mainClock.advanceTimeBy(BEFORE_MAP_REFLECT_MILLIS)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.mainClock.advanceTimeByFrame()
+
+        verify(exactly = 1) {
+            viewModel.add(
+                match { detail -> detail.title == place.name && detail.coordinate == place.coordinate && detail.address == place.address },
+                tagIdSet = emptySet(),
+            )
         }
     }
 
@@ -136,8 +185,12 @@ class PlaceAddSearchApplyTest {
     }
 
     private companion object {
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
         private const val BLANK_TITLE = "   "
         private const val SEARCHED_ADDRESS = "Searched Address"
+        private const val SEARCH_QUERY = "query"
+        private const val BEFORE_MAP_REFLECT_MILLIS = 100L
 
         private fun searchedPlace(): SearchedPlace =
             SearchedPlace(

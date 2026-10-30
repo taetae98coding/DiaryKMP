@@ -21,6 +21,10 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import kotlin.io.path.createTempFile
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.readText
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -143,18 +147,18 @@ class UseCaseTest :
             }
         }
 
-        Given("기록 수단이 등록되어 있지 않고 작업이 실패하도록 준비되어 있다") {
-            val recording = recordingDelegate()
-
+        Given("기록 수단이 하나도 등록되지 않은 새 실행 환경에서 작업이 실패하도록 준비되어 있다") {
             When("작업을 실행한다") {
-                Then("TC-b976a725-ee2a-41b6-b7e8-8df3f47c0c0d 그 수단에 로그가 남지 않고 실패 결과는 그대로 전달된다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
-                    val useCase = FailingUseCase(throwable = failure)
+                Then("TC-b976a725-ee2a-41b6-b7e8-8df3f47c0c0d 실패 로그는 어디에도 남지 않고 실패 결과는 그대로 전달된다") {
+                    // 공통 창구는 등록을 해제할 수 없어 앞선 테스트가 등록한 수단이 남으므로, 아무것도 등록하지 않은 새 프로세스에서 실행한다.
+                    val failureMessage = "failure${fixtureMonkey.giveMeOne<Int>()}"
+                    val parameter = "parameter${fixtureMonkey.giveMeOne<Int>()}"
 
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<String>())
+                    val result = runNoDelegateFailure(failureMessage = failureMessage, parameter = parameter)
 
-                    result.shouldBeFailure() shouldBeSameInstanceAs failure
-                    recording.logList.shouldBeEmpty()
+                    result.exitCode shouldBe 0
+                    result.output shouldBe "IllegalStateException:$failureMessage"
+                    result.errorOutput shouldBe ""
                 }
             }
         }
@@ -247,6 +251,45 @@ class UseCaseTest :
             }
         }
     })
+
+private fun runNoDelegateFailure(
+    failureMessage: String,
+    parameter: String,
+): NoDelegateFailureResult {
+    val java =
+        ProcessHandle
+            .current()
+            .info()
+            .command()
+            .orElseThrow()
+    val errorFile = createTempFile(prefix = "no-delegate-failure", suffix = ".err")
+    val process =
+        ProcessBuilder(
+            java,
+            "-cp",
+            System.getProperty("java.class.path"),
+            "io.github.taetae98coding.diary.domain.core.NoDelegateFailureMainKt",
+            failureMessage,
+            parameter,
+        ).redirectError(errorFile.toFile())
+            .start()
+    val output = process.inputStream.bufferedReader().use { reader -> reader.readText() }
+
+    check(process.waitFor(PROCESS_TIMEOUT_SECONDS, TimeUnit.SECONDS)) { "process timed out" }
+    return NoDelegateFailureResult(
+        exitCode = process.exitValue(),
+        output = output,
+        errorOutput = errorFile.readText().also { errorFile.deleteIfExists() },
+    )
+}
+
+private data class NoDelegateFailureResult(
+    val exitCode: Int,
+    val output: String,
+    val errorOutput: String,
+)
+
+private const val PROCESS_TIMEOUT_SECONDS = 30L
 
 private class FailingUseCase(
     private val throwable: Throwable,

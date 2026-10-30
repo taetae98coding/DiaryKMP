@@ -13,19 +13,13 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -52,8 +46,8 @@ class RoutineAddScreenTest {
 
     @Test
     fun `TC-c184ab41-d30d-4136-8434-2a5d1b8fd176 입력한 제목과 설명을 화면에 유지한다`() {
-        val title = fixtureMonkey.giveMeOne<String>()
-        val description = fixtureMonkey.giveMeOne<String>()
+        val title = TYPED_TITLE
+        val description = TYPED_DESCRIPTION
         setRoutineAddScreen()
 
         composeRule.titleInput().performTextInput(title)
@@ -66,8 +60,8 @@ class RoutineAddScreenTest {
 
     @Test
     fun `TC-8a81e75d-a18f-4b36-8f91-81c9c9ef26bc 추가를 실행해도 입력 내용과 화면 상태가 바뀌지 않는다`() {
-        val title = fixtureMonkey.giveMeOne<String>()
-        val description = fixtureMonkey.giveMeOne<String>()
+        val title = TYPED_TITLE
+        val description = TYPED_DESCRIPTION
         var navigateUpCount = 0
         setRoutineAddScreen(navigateUp = { navigateUpCount += 1 })
         composeRule.titleInput().performTextInput(title)
@@ -142,6 +136,9 @@ class RoutineAddScreenTest {
     private companion object {
         private const val TITLE_INPUT_INDEX = 0
         private const val DESCRIPTION_INPUT_INDEX = 1
+
+        private const val TYPED_TITLE = "Morning stretch"
+        private const val TYPED_DESCRIPTION = "Ten minutes after waking up"
 
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add routine"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"

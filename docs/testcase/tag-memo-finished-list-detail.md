@@ -2,6 +2,8 @@
 
 기준 스펙: [TagMemoFinishedList 목록·상세 배치 스펙](../spec/client/tag-memo-finished-list-detail.md)
 
+상세 선택, 뒤로가기와 유지·초기화 기준은 기준 스펙이 [항목 완료 메모 목록·상세 배치 스펙](../spec/client/entity-memo-finished-list-detail.md)에 위임하고, 그 스펙은 상세 영역의 구성과 상세 선택을 [MemoFinishedList 목록·상세 배치 스펙](../spec/client/memo-finished-list-detail.md)에, 함께 사용할 때의 행동과 뒤로가기의 공통 규칙을 [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)에 맡기므로, 그 규칙을 다루는 케이스의 `근거`는 그 스펙들의 절을 가리킨다.
+
 TagDetail 메모 탭에서 진입한 메모 상세와 메모 추가는 이 배치에 참여하지 않는다. 그 동작의 케이스는 [TagDetail 메모 탭 테스트 케이스](./tag-detail-memo.md)에서 다룬다.
 
 목록과 상세를 함께 표시하는 동안 상세 영역의 메모 상세 화면에 목록으로 돌아가는 동작이 없다는 결과는 같은 화면을 대상으로 한 [Memo 목록·상세 배치 테스트 케이스](./memo-list-detail.md)의 TC-3176086c-a211-477a-a6c6-7bb1a3ee511b가 다룬다.

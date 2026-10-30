@@ -20,6 +20,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -185,6 +186,27 @@ class AccountChecklistTransactionImplTest :
             AccountChecklistItemLocalDataSourceImpl(database = database)
                 .get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED)
                 .first() shouldBe itemList
+        }
+
+        test("TC-f48529a1-3a4b-459b-978e-79ed218d0b58 1ms씩 늦어지는 생성 시각으로 함께 저장한 체크 항목은 추가순으로 넣어 둔 순서대로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val now = instant()
+            val itemList =
+                List(3) { index ->
+                    val createdAt = now + index.milliseconds
+                    fixtureMonkey
+                        .localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
+                        .copy(createdAt = createdAt, updatedAt = createdAt)
+                }
+
+            // 저장 순서가 아니라 생성 시각이 조회 순서를 정하는지 보도록 거꾸로 넘긴다.
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList.reversed())
+
+            AccountChecklistItemLocalDataSourceImpl(database = database)
+                .get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED)
+                .first()
+                .map { item -> item.id } shouldBe itemList.map { item -> item.id }
         }
 
         test("TC-22a04f2e-eeb4-482f-b03a-23437e354955 저장에 실패하면 체크리스트, 체크 항목과 계정 연결 중 어느 것도 남지 않는다") {

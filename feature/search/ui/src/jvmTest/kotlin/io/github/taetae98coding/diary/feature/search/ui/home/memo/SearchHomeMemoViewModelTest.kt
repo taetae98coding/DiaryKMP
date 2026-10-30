@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.memo
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -10,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.feature.search.ui.home.OTHER_QUERY
 import io.github.taetae98coding.diary.feature.search.ui.home.QUERY
+import io.github.taetae98coding.diary.feature.search.ui.home.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.search.ui.home.currentUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.failurePagingDataFlow
 import io.github.taetae98coding.diary.feature.search.ui.home.searchMemo
@@ -50,6 +52,37 @@ class SearchHomeMemoViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-0b1f20fb-8af3-4b2e-b580-2732e779f48e 이어서 조회하지 못하면 이미 나타난 결과를 그대로 둔다") {
+            runTest(mainDispatcher) {
+                val firstPage = listOf(searchMemo(), searchMemo())
+                val useCase =
+                    mockk<SearchMemoUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchMemoUseCase.Parameter>().query == QUERY) {
+                                appendFailingPagingData(firstPage = firstPage).map { pagingData -> Result.success(pagingData) }
+                            } else {
+                                successPagingDataFlowOf(emptyList())
+                            }
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    val itemList =
+                        flowOf(awaitItem()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                            appendScrollWhile { true }
+                        }
+
+                    itemList shouldBe firstPage
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
         }
 
         test("TC-346988d0-4bef-426f-84c5-0f9054e4072e 질의를 입력하면 그 질의로 조회한 결과를 노출한다") {

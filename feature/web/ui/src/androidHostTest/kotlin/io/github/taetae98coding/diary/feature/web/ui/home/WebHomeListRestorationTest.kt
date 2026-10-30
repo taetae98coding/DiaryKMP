@@ -13,7 +13,9 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.web.ui.refreshableList
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +27,11 @@ import org.robolectric.annotation.Config
 class WebHomeListRestorationTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-54f0044b-2119-4127-aac3-2a602e15e8ee 화면이 재생성되어도 보던 목록 위치를 유지한다`() {

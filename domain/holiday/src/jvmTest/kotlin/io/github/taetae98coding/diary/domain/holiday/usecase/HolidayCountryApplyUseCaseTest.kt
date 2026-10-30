@@ -95,6 +95,30 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
+        Given("TC-7a642f47-9d21-43dd-831a-b17904807b0c 적용 국가가 한국과 미국이고 공휴일을 제공하지 않는 국가가 있다") {
+            listOf(
+                false to true,
+                true to false,
+                false to false,
+            ).forEach { (isKoreaProvided, isUnitedStatesProvided) ->
+                val year = fixtureMonkey.giveMeOne<Int>()
+                val koreaHolidayList = if (isKoreaProvided) listOf(holiday(name = "korea")) else emptyList()
+                val unitedStatesHolidayList = if (isUnitedStatesProvided) listOf(holiday(name = "united-states")) else emptyList()
+                val repository = mockk<HolidayRepository>()
+                coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns koreaHolidayList
+                coEvery { repository.fetch(country = HolidayCountry.UNITED_STATES, year = year) } returns unitedStatesHolidayList
+                val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET), holidayRepository = repository)
+
+                When("한국 제공 $isKoreaProvided, 미국 제공 $isUnitedStatesProvided 인 연도의 공휴일 동기화를 요청한다") {
+                    val result = useCase(parameter = year)
+
+                    Then("동기화가 성공하고 결과에는 공휴일을 제공한 국가의 공휴일만 담긴다") {
+                        result.shouldBeSuccess() shouldContainExactlyInAnyOrder koreaHolidayList + unitedStatesHolidayList
+                    }
+                }
+            }
+        }
+
         Given("TC-edbe175e-0d29-4bcd-a7be-20a72a8a4d7f 저장된 국가 설정을 읽을 수 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val repository = mockk<HolidayRepository>()

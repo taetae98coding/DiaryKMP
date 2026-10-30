@@ -3,12 +3,14 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.place
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.feature.search.ui.home.OTHER_QUERY
 import io.github.taetae98coding.diary.feature.search.ui.home.QUERY
+import io.github.taetae98coding.diary.feature.search.ui.home.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.search.ui.home.failurePagingDataFlow
 import io.github.taetae98coding.diary.feature.search.ui.home.searchPlace
 import io.github.taetae98coding.diary.feature.search.ui.home.successPagingDataFlowOf
@@ -22,6 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -40,6 +43,37 @@ class SearchHomePlaceViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-0b1f20fb-8af3-4b2e-b580-2732e779f48e 이어서 조회하지 못하면 이미 나타난 결과를 그대로 둔다") {
+            runTest(mainDispatcher) {
+                val firstPage = listOf(searchPlace(), searchPlace())
+                val useCase =
+                    mockk<SearchPlaceUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchPlaceUseCase.Parameter>().query == QUERY) {
+                                appendFailingPagingData(firstPage = firstPage).map { pagingData -> Result.success(pagingData) }
+                            } else {
+                                successPagingDataFlowOf(emptyList())
+                            }
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    val itemList =
+                        flowOf(awaitItem()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                            appendScrollWhile { true }
+                        }
+
+                    itemList shouldBe firstPage
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
         }
 
         test("TC-bfe7428a-4630-4061-a412-7e2dfb88cd9a 질의를 바꾸면 바뀐 질의의 결과를 노출한다") {

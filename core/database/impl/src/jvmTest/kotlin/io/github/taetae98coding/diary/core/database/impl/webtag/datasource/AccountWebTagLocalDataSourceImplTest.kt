@@ -460,7 +460,7 @@ class AccountWebTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
         }
 
-        test("TC-514c141c-6bad-40e1-b1bd-77c64ccfdfc2 연결할 수 있는 태그는 계정과 연결된 완료·삭제되지 않은 태그다") {
+        test("TC-514c141c-6bad-40e1-b1bd-77c64ccfdfc2 연결할 수 있는 태그는 계정과 연결된 미완료·미삭제 태그다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()

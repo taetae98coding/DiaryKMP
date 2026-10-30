@@ -4,6 +4,8 @@
 
 이 문서에서 `domain > 대상 항목`, `domain > 정렬`, `feature > 빈 상태`, `feature > 추가 미제공`, `feature > 불러오기 실패`, `feature > 새로고침`, `feature > 상세 확인` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. `domain > 실행 경계` 절 중 정렬 선택과 보던 자리는 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
+목록 표시, 상세 대상 항목, 빈 상태 문구, 메모 상세 확인, 다시 시작·삭제·실행 취소, 정렬과 날짜 그룹, 실행 경계, 항목별 완료 메모 조회와 상태 변경의 저장은 기준 스펙이 [항목 완료 메모 목록 화면 스펙](../spec/client/entity-memo-finished-list.md)에 위임하므로, 그 규칙을 다루는 케이스의 `근거`는 그 스펙의 절을 가리킨다.
+
 자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
 당겨서 새로고침과 진행 표시는 [새로고침 테스트 케이스](./sync-refresh.md)가, 메모 상세를 목록과 함께 표시하는 배치와 그 뒤로가기는 [TagMemoFinishedList 목록·상세 배치 테스트 케이스](./tag-memo-finished-list-detail.md)가 다룬다.

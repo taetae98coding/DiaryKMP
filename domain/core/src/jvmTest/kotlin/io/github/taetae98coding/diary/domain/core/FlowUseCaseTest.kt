@@ -12,6 +12,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import kotlinx.coroutines.awaitCancellation
@@ -42,6 +43,26 @@ class FlowUseCaseTest :
                     val log = recording.logList.single().shouldBeInstanceOf<ConsoleLog>()
                     log.tag shouldBe "FailingFlowUseCase"
                     log.throwable shouldBeSameInstanceAs failure
+                }
+            }
+        }
+
+        Given("콘솔 기록 수단이 등록되어 있고 특정 문자열을 입력 값으로 받은 지속 관찰하는 작업이 실패하도록 준비되어 있다") {
+            val recording = recordingDelegate()
+            DiaryLogger.add(delegate = recording.delegate)
+
+            When("작업을 관찰한다") {
+                Then("TC-7d961071-3576-4a0b-8b28-21d4cf998249 실패 로그에 입력 값이 포함되지 않는다") {
+                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val useCase = FailingFlowUseCase(throwable = failure)
+                    val parameter = "parameter-" + fixtureMonkey.giveMeOne<String>()
+
+                    useCase(parameter = parameter).test {
+                        awaitItem().shouldBeFailure()
+                        awaitComplete()
+                    }
+
+                    recording.logList.single().toString() shouldNotContain parameter
                 }
             }
         }

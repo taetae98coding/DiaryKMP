@@ -249,6 +249,29 @@ class TagAddLinkViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-5f49f83f-744f-4940-81bd-847cb076bf35 연결 대상으로 표시하는 태그는 선택 목록의 페이지와 관계없이 고른 태그 전체를 한 번에 조회한다") {
+            runTest(mainDispatcher) {
+                val tagList = List(2) { tag() }
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } answers {
+                    val tagIdSet = firstArg<Set<Uuid>>()
+                    flowOf(Result.success(tagList.filter { tag -> tag.id in tagIdSet }))
+                }
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                val viewModel = TagAddLinkViewModel(pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
+                tagList.forEach { tag -> viewModel.link(id = tag.id) }
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().linkedTagList shouldBe tagList
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                verify { getSelectedTagUseCase(parameter = tagList.map { tag -> tag.id }.toSet()) }
+            }
+        }
     }
 
     private fun viewModel(

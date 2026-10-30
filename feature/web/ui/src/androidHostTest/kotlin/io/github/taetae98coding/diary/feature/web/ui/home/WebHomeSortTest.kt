@@ -15,8 +15,10 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +30,11 @@ import org.robolectric.annotation.Config
 class WebHomeSortTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-b6b0f8a7-7834-461a-959e-8ad75a569e11 목록 위에 현재 정렬을 표시한다`() {

@@ -17,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -80,6 +81,32 @@ class FetchMemoDraftUseCaseTest :
                     val timeZone = requestSlot.captured.timeZone
                     timeZone shouldBe TimeZone.currentSystemDefault()
                     requestSlot.captured.now shouldBe now.toLocalDateTime(timeZone)
+                }
+            }
+        }
+
+        Given("도우미를 연 뒤 저장된 Gemini 설정이 바뀌었다") {
+            When("메모 초안을 조회하면") {
+                Then("TC-c5df7d5f-6386-4350-8e19-85d16fc93017: 조회하는 시점에 저장된 설정으로 요청한다") {
+                    val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSetting>())
+                    val settingList = mutableListOf<GeminiSetting>()
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            coEvery { fetch(capture(settingList), any()) } returns MemoDraft.EMPTY
+                        }
+                    val useCase =
+                        FetchMemoDraftUseCase(
+                            geminiSettingRepository = mockk { every { get() } returns settingFlow },
+                            memoDraftRepository = memoDraftRepository,
+                            clock = Clock.System,
+                        )
+                    useCase(parameter = emptyParameter()).shouldBeSuccess()
+                    val changedSetting = fixtureMonkey.giveMeOne<GeminiSetting>()
+
+                    settingFlow.value = changedSetting
+                    useCase(parameter = emptyParameter()).shouldBeSuccess()
+
+                    settingList.last() shouldBe changedSetting
                 }
             }
         }

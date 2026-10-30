@@ -79,6 +79,7 @@ class CalendarTimetableScreenDisplayTest {
     val composeRule = createComposeRule()
 
     private var holidayFetchCount = 0
+    private val holidayFetchDateRangeList = mutableListOf<LocalDateRange>()
 
     @Before
     fun setUp() {
@@ -170,7 +171,7 @@ class CalendarTimetableScreenDisplayTest {
     }
 
     @Test
-    fun `공휴일 여부가 참인 공휴일의 날짜만 강조된다`() {
+    fun `TC-0a31630e-142b-4c97-99e5-8effcb9b873c 공휴일 여부가 참인 공휴일의 날짜만 강조된다`() {
         var holidayColor = Color.Unspecified
 
         setTimetableScreen(
@@ -298,6 +299,25 @@ class CalendarTimetableScreenDisplayTest {
         composeRule.runOnIdle { holidayFetchCount } shouldBe fetchCountBeforeLeave
     }
 
+    @Test
+    fun `TC-8d3fe609-038e-4bcd-a8ec-66bff9b97ba1 다른 화면에서 돌아오면 그 시점의 표시 날짜를 기준으로 공휴일을 다시 동기화한다`() {
+        val isShown = mutableStateOf(true)
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            isShown = isShown,
+        )
+        composeRule.runOnIdle { holidayFetchDateRangeList.isNotEmpty() } shouldBe true
+
+        composeRule.runOnIdle { isShown.value = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { holidayFetchDateRangeList.clear() }
+        composeRule.runOnIdle { isShown.value = true }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { holidayFetchDateRangeList.toList() } shouldBe listOf(september(day = 23)..september(day = 23))
+    }
+
     private fun setTimetableScreen(
         type: CalendarTimetableNavKey.Type,
         date: LocalDate? = null,
@@ -317,7 +337,10 @@ class CalendarTimetableScreenDisplayTest {
             }
         val holidayViewModel =
             mockk<CalendarTimetableHolidayViewModel>().also { viewModel ->
-                every { viewModel.fetch(any()) } answers { holidayFetchCount += 1 }
+                every { viewModel.fetch(any()) } answers {
+                    holidayFetchCount += 1
+                    holidayFetchDateRangeList += firstArg<LocalDateRange>()
+                }
                 every { viewModel.uiState } returns
                     MutableStateFlow(holidayList).mapState { list -> CalendarTimetableHolidayUiState(holidayList = list) }
             }

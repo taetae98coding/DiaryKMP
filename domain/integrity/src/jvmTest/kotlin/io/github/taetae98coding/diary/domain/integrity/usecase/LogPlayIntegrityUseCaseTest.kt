@@ -198,7 +198,9 @@ class LogPlayIntegrityUseCaseTest :
             }
         }
 
-        Given("토큰 발급이나 서버 요청이 실패한다") {
+        // 무결성 확인 정보 발급 실패, 서버의 실패 응답, 확인 준비 만료는 모두 저장소가 판정 결과를 가져오지 못하는 것으로 이 계층에 전달된다.
+        // 실패 종류별 전달과 확인 준비를 다시 하는 동작은 AndroidPlayIntegrityTokenProviderTest가 같은 ID로 확인한다.
+        Given("판정 결과를 가져오지 못한다") {
             val repository = mockk<PlayIntegrityRepository>()
             coEvery { repository.fetch() } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val logList = recordLog()
@@ -206,7 +208,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)(parameter = Unit)
 
-                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
+                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 끝난다") {
                     result.shouldBeFailure()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                     logList.filterIsInstance<CrashlyticsLog>().shouldBeEmpty()

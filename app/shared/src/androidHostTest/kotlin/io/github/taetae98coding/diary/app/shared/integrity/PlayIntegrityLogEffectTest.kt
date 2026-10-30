@@ -8,10 +8,14 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.app.shared.AppState
+import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.rememberAppState
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
+import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
@@ -29,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -60,6 +65,26 @@ class PlayIntegrityLogEffectTest {
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+
+        composeRule.runOnIdle { verify(exactly = 1) { log() } }
+    }
+
+    @Test
+    fun `TC-b3a4543d-af80-4381-911b-d8020936c773 앱 안에서 화면을 이동하는 것은 계기가 아니다`() {
+        val log = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        lateinit var appState: AppState
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                appState = rememberAppState()
+                PlayIntegrityLogEffect(log = log)
+            }
+        }
+        composeRule.runOnIdle { verify(exactly = 1) { log() } }
+
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
+        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Calendar) }
 
         composeRule.runOnIdle { verify(exactly = 1) { log() } }
     }

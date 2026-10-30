@@ -10,8 +10,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -26,10 +29,13 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.text.TextLayoutResult
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -38,6 +44,7 @@ import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import org.junit.Rule
@@ -52,6 +59,9 @@ import kotlin.math.abs
 class TimetableTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    private var onPrimary = Color.Unspecified
+    private var sundayAndHolidayColor = Color.Unspecified
 
     @Test
     fun `TC-e08e0804-45e1-4f11-b1cf-6d2977588800 하루 형식은 지정한 날짜 하나를 요일과 일로 표시한다`() {
@@ -431,6 +441,48 @@ class TimetableTest {
         composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-0df196ee-33f7-4cfc-8f30-a674a99d1512 현재 시각이 속한 날짜를 주요 날짜로 강조한다`() {
+        var now by mutableStateOf<LocalDateTime?>(TEN_O_CLOCK_ON_23)
+        setColoredTimetable(nowProvider = { now })
+
+        WEEK_DAY_LIST.forEach { day -> coloredTextCount(text = day.toString(), color = onPrimary) shouldBe if (day == 23) 1 else 0 }
+
+        composeRule.runOnIdle { now = null }
+        composeRule.waitForIdle()
+
+        WEEK_DAY_LIST.forEach { day -> coloredTextCount(text = day.toString(), color = onPrimary) shouldBe 0 }
+    }
+
+    @Test
+    fun `TC-74b4b09b-dd03-4651-acd5-a13ab7074f1c 지정한 공휴일 날짜를 일요일과 같은 방식으로 강조한다`() {
+        var holidayList by mutableStateOf(listOf(september(day = 22)..september(day = 22)))
+        var now by mutableStateOf<LocalDateTime?>(null)
+        setColoredTimetable(nowProvider = { now }, holidayProvider = { holidayList })
+
+        coloredTextCount(text = "22", color = sundayAndHolidayColor) shouldBe 1
+        coloredTextCount(text = TUESDAY_TITLE, color = sundayAndHolidayColor) shouldBe 1
+        coloredTextCount(text = "20", color = sundayAndHolidayColor) shouldBe 1
+        coloredTextCount(text = "24", color = sundayAndHolidayColor) shouldBe 0
+
+        composeRule.runOnIdle { holidayList = listOf(september(day = 24)..september(day = 24)) }
+        composeRule.waitForIdle()
+
+        coloredTextCount(text = "22", color = sundayAndHolidayColor) shouldBe 0
+        coloredTextCount(text = TUESDAY_TITLE, color = sundayAndHolidayColor) shouldBe 0
+        coloredTextCount(text = "24", color = sundayAndHolidayColor) shouldBe 1
+        coloredTextCount(text = THURSDAY_TITLE, color = sundayAndHolidayColor) shouldBe 1
+
+        composeRule.runOnIdle {
+            holidayList = listOf(september(day = 23)..september(day = 23))
+            now = TEN_O_CLOCK_ON_23
+        }
+        composeRule.waitForIdle()
+
+        coloredTextCount(text = "23", color = onPrimary) shouldBe 1
+        coloredTextCount(text = "23", color = sundayAndHolidayColor) shouldBe 0
+    }
+
     private fun setTimetable(
         type: TimetableType = TimetableType.DAY,
         date: LocalDate = september(day = 23),
@@ -444,6 +496,47 @@ class TimetableTest {
             TimetableContent(state = state, now = now, content = content)
         }
         composeRule.waitForIdle()
+    }
+
+    private fun setColoredTimetable(
+        nowProvider: () -> LocalDateTime?,
+        holidayProvider: () -> List<LocalDateRange> = { emptyList() },
+    ) {
+        val state = TimetableState(type = TimetableType.WEEK, initialDate = september(day = 20))
+        composeRule.setContent {
+            DiaryTheme {
+                onPrimary = DiaryTheme.colorScheme.onPrimary
+                sundayAndHolidayColor = CalendarDefaults.colors().sundayAndHolidayColor
+
+                Timetable(
+                    state = state,
+                    nowProvider = nowProvider,
+                    holidayProvider = holidayProvider,
+                ) {}
+            }
+        }
+        composeRule.waitForIdle()
+    }
+
+    private fun coloredTextCount(
+        text: String,
+        color: Color,
+    ): Int {
+        val nodes = composeRule.onAllNodesWithText(text, useUnmergedTree = true)
+
+        return List(nodes.fetchSemanticsNodes().size) { index -> nodes[index].textColor() }
+            .count { textColor -> textColor == color }
+    }
+
+    private fun SemanticsNodeInteraction.textColor(): Color {
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action ->
+            action(textLayoutResults)
+        }
+
+        return textLayoutResults
+            .single()
+            .layoutInput.style.color
     }
 
     private fun assertWeekColumnOrder(dayList: List<Int>) {
@@ -539,6 +632,9 @@ private fun TimetableScope.meetingItem() {
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 
 private val WEEKDAY_TITLE_LIST = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+private val WEEK_DAY_LIST = 20..26
+private const val TUESDAY_TITLE = "Tue"
+private const val THURSDAY_TITLE = "Thu"
 private const val COLUMN_ALIGNMENT_TOLERANCE_PX = 1F
 
 private const val MEETING = "Meeting"

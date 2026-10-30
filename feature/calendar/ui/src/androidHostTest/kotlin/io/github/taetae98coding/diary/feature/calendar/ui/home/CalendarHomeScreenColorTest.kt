@@ -62,7 +62,7 @@ class CalendarHomeScreenColorTest {
     }
 
     @Test
-    fun `공휴일 여부가 참인 공휴일의 날짜만 강조된다`() {
+    fun `TC-367bf08c-972a-4982-a7ea-dafd4524ac61 공휴일 여부가 참인 공휴일의 날짜만 강조된다`() {
         var holidayColor = Color.Unspecified
         setCalendarHomeScreen(
             holidayList =

@@ -6,6 +6,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.model.weather.Weather
+import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
@@ -138,6 +139,29 @@ class GetCurrentCalendarWeatherUseCaseTest :
                             max = highestMax,
                         )
                     actual.weatherList shouldBe listOf(earlyForecast, lateForecast)
+                }
+            }
+        }
+
+        Given("TC-503663c5-d0b5-475f-a6a5-652c8c931b9c 날씨 상태 두 개가 함께 온 날씨 하나가 저장되어 있다") {
+            val representativeCondition = fixtureMonkey.giveMeOne<WeatherCondition>()
+            val otherCondition = fixtureMonkey.giveMeOne<WeatherCondition>()
+            val weather = currentWeather(day = 1, hour = 6).copy(conditionList = listOf(representativeCondition, otherCondition))
+            val useCase = useCase(weatherList = listOf(weather))
+
+            When("캘린더 날짜별 날씨를 관찰한다") {
+                val actual =
+                    useCase(parameter = Unit)
+                        .first()
+                        .shouldBeSuccess()
+                        .weatherList
+                        .single()
+                        .weatherList
+                        .single()
+
+                Then("날씨 상태를 받은 순서 그대로 담아 첫 번째 상태를 대표 상태로 제공한다") {
+                    actual.conditionList shouldBe listOf(representativeCondition, otherCondition)
+                    actual.conditionList.first() shouldBe representativeCondition
                 }
             }
         }

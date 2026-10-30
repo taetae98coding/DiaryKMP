@@ -54,9 +54,11 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,6 +70,11 @@ import org.robolectric.annotation.Config
 class WebDetailTabTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-0ae97bb1-0094-411e-a1df-e7d472faa163 웹 페이지를 탭으로 두는 배치에서는 웹 페이지 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {

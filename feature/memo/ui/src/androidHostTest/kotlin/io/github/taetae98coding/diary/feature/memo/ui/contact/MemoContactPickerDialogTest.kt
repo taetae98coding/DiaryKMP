@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.contact
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -13,6 +15,10 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
+import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
@@ -194,6 +200,41 @@ class MemoContactPickerDialogAddTest {
 
         contactAddCount shouldBe 1
         selectedIdList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-6e297fd3-569e-4470-a09c-1942b49371ae 목록에서 여러 연락처를 차례로 누르면 누른 연락처가 모두 선택 상태로 표시된다`() {
+        val firstContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        val secondContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
+        val viewModel = screenTestRealViewModel(contactList = listOf(firstContact, secondContact)).contactViewModel
+        composeRule.setContent {
+            val uiState by viewModel.uiState.collectAsState()
+            DiaryTheme {
+                MemoContactPickerDialog(
+                    searchFieldState = rememberDiaryPickerSearchFieldState(initialText = ""),
+                    contactPagingItems = viewModel.contactPagingData.collectAsLazyPagingItems(),
+                    uiStateProvider = { uiState },
+                    onDismissRequest = {},
+                    onEvent = { event ->
+                        when (event) {
+                            is MemoContactPickerEvent.Select -> viewModel.selectContact(id = event.id)
+                            is MemoContactPickerEvent.Unselect -> viewModel.unselectContact(id = event.id)
+                            else -> Unit
+                        }
+                    },
+                )
+            }
+        }
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
+        composeRule.waitForIdle()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_NAME).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).onFirst().assertIsOn()
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).onLast().assertIsOn()
+        viewModel.selectionUiState.value.contactIdSet shouldBe setOf(firstContact.id, secondContact.id)
     }
 
     @Test

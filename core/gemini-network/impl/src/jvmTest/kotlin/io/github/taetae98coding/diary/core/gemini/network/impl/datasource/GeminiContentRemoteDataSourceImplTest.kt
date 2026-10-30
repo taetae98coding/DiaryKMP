@@ -79,6 +79,19 @@ class GeminiContentRemoteDataSourceImplTest :
             body["generationConfig"]!!.jsonObject["responseSchema"] shouldBe SCHEMA
         }
 
+        test("TC-3a3766f6-143b-423d-a9ad-bc65853f66ef: 지시문을 더하거나 다듬지 않고 받은 그대로 한 조각으로 담는다") {
+            val request = request().copy(systemInstruction = "  첫 줄 지시\n\n둘째 줄 지시  ")
+            val engine = createEngine()
+            val dataSource = createDataSource(engine)
+
+            dataSource.generate(request = request)
+
+            engine.requestHistory
+                .single()
+                .bodyAsJsonObject()
+                .textOf("systemInstruction") shouldBe request.systemInstruction
+        }
+
         test("TC-0ea03cb6-5be1-4857-915b-b2aaf75e2102: 지시문이 비어 있으면 요청에 담지 않는다") {
             val request = request()
             listOf("", "   ").forEach { blank ->

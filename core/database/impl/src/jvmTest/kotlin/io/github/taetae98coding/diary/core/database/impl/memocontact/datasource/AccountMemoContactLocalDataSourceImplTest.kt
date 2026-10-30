@@ -389,6 +389,47 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(renamedContact)
         }
 
+        test("TC-fb167467-8ef1-4575-bb94-2d086a298a3d 저장된 연락처의 전화번호가 바뀌면 연결된 연락처 조회와 열려 있는 선택 목록에 스스로 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val contact = contact(name = FIRST_CONTACT_NAME)
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+            val phoneNumber = ContactPhoneNumberLocalEntity(number = "phone-${fixtureMonkey.giveMeOne<String>()}")
+            val changedContact = contact.copy(detail = contact.detail.copy(phoneNumberList = listOf(phoneNumber)))
+
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+                awaitItem() shouldBe listOf(contact)
+
+                awaitSelectableContactInvalidated(accountId = accountId) {
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+                }
+
+                awaitItem() shouldBe listOf(changedContact)
+                cancelAndIgnoreRemainingEvents()
+            }
+            loadSelectableContact(accountId = accountId) shouldBe listOf(changedContact)
+        }
+
+        test("TC-9a65e00a-646d-4c19-84d0-8de55beb0b49 저장된 연락처가 삭제되면 연결된 연락처 조회와 열려 있는 선택 목록에서 스스로 사라진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val contact = contact(name = FIRST_CONTACT_NAME)
+            val otherContact = contact(name = LAST_CONTACT_NAME)
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact, otherContact))
+
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+                awaitItem() shouldBe listOf(contact, otherContact)
+
+                awaitSelectableContactInvalidated(accountId = accountId) {
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+                }
+
+                awaitItem() shouldBe listOf(otherContact)
+                cancelAndIgnoreRemainingEvents()
+            }
+            loadSelectableContact(accountId = accountId) shouldBe listOf(otherContact)
+        }
+
         test("검색어의 대소문자는 판정에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact(name = "AndroidDeveloper")

@@ -70,6 +70,27 @@ class MemoDraftRepositoryImplTest :
             systemInstructionSlot.captured shouldBe setting.systemPrompt
         }
 
+        test("TC-3a3766f6-143b-423d-a9ad-bc65853f66ef: 저장된 시스템 프롬프트를 지시문을 더하지 않고 그대로 보낸다") {
+            val systemPrompt = "  첫 줄 지시\n\n둘째 줄 지시  "
+            val systemInstructionSlot = slot<String>()
+            val remoteDataSource =
+                mockk<GeminiContentRemoteDataSource> {
+                    coEvery {
+                        generateStructuredContent(
+                            apiKey = any(),
+                            model = any(),
+                            systemInstruction = capture(systemInstructionSlot),
+                            prompt = any(),
+                            responseSchema = any(),
+                        )
+                    } returns JsonObject(emptyMap())
+                }
+
+            MemoDraftRepositoryImpl(geminiContentRemoteDataSource = remoteDataSource).fetch(setting = setting.copy(systemPrompt = systemPrompt), request = request)
+
+            systemInstructionSlot.captured shouldBe systemPrompt
+        }
+
         test("TC-5491e9af-67be-4bf7-bc56-76eb638b6889: 프롬프트와 입력 중인 내용, 지금 시각과 시간대를 함께 보낸다") {
             val prompt = fetchPrompt(request = request)
 

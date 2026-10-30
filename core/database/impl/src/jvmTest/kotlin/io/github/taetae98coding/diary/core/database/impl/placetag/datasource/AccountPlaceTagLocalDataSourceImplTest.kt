@@ -471,7 +471,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
         }
 
-        test("TC-514c141c-6bad-40e1-b1bd-77c64ccfdfc2 연결할 수 있는 태그는 계정과 연결된 완료·삭제되지 않은 태그다") {
+        test("TC-514c141c-6bad-40e1-b1bd-77c64ccfdfc2 연결할 수 있는 태그는 계정과 연결된 미완료·미삭제 태그다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -761,7 +761,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             placeTagSyncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
         }
 
-        test("TC-7b76bc8d-ce67-4e8f-8798-77c0f5bebeb7 연결된 태그는 페이지로 나누지 않고 조회한다") {
+        test("TC-7b76bc8d-ce67-4e8f-8798-77c0f5bebeb7 TC-74e4c103-2255-4f3b-8e5f-0dba291014d6 연결된 태그는 페이지로 나누지 않고 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val finishedTag = tag(title = "z-finished").copy(isFinished = true)
@@ -779,6 +779,19 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 (linkedTagList + finishedTag + activeTag).map { value -> value.id }
         }
 
+        test("TC-6cddd37e-ef3a-48f0-869d-c33623995b26 검색어를 만족하는 태그는 목록의 첫 페이지에 나타난다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place()
+            val matchedTag = tag(title = "z-matched-$SEARCH_ONLY_QUERY")
+            insertPlace(accountId, place)
+            insertTag(accountId, *List(SELECTABLE_PAGE_SIZE) { index -> tag(title = "a-other-$index") }.toTypedArray())
+            insertTag(accountId, matchedTag)
+
+            dataSource
+                .pageSelectableTag(accountId = accountId, placeId = place.id, query = SEARCH_ONLY_QUERY)
+                .pagedTagIdList(loadSize = SELECTABLE_PAGE_SIZE) shouldBe listOf(matchedTag.id)
+        }
+
         test("TC-0040fa16-bd85-4002-9e38-ad256ce90a59 태그 선택 목록을 페이지 단위로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -793,6 +806,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
     }) {
     companion object {
         private const val TAG_ONLY_TITLE: String = "PlaceTagOnlyTitle"
+        private const val SEARCH_ONLY_QUERY: String = "PlaceTagSearchOnly"
         private const val SELECTABLE_PAGE_SIZE: Int = 3
 
         private suspend fun PagingSource<Int, TagLocalEntity>.pagedTagIdList(loadSize: Int = 100): List<Uuid> {
