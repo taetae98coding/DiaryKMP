@@ -16,11 +16,11 @@
 
 ## 저장된 값을 확인하기 전
 
-[SettingFile 화면](./setting-file.md), [SettingGemini 화면](./setting-gemini.md), [SettingMap 화면](./setting-map.md), [SettingPlaylist 화면](./setting-playlist.md)은 저장된 값을 확인하기 전이거나 읽지 못한 상태에서 그 값을 보여 주는 자리를 표시하지 않고, 별도의 로딩 안내나 오류 안내도 표시하지 않는다. 어느 자리까지 감추는지는 각 화면 문서가 정한다.
+[SettingFile 화면](./setting-file.md), [SettingGemini 화면](./setting-gemini.md), [SettingMap 화면](./setting-map.md)은 저장된 값을 확인하기 전이거나 읽지 못한 상태에서 그 값을 보여 주는 자리를 표시하지 않고, 별도의 로딩 안내나 오류 안내도 표시하지 않는다. 어느 자리까지 감추는지는 각 화면 문서가 정한다.
 
 ## 입력한 뒤 저장하는 설정
 
-이 절은 [SettingGemini 화면](./setting-gemini.md)과 Android·iOS의 [SettingPlaylist 화면](./setting-playlist.md)처럼 값을 입력한 뒤 저장 버튼으로 저장하는 설정이 따른다.
+이 절은 [SettingGemini 화면](./setting-gemini.md)처럼 값을 입력한 뒤 저장 버튼으로 저장하는 설정이 따른다.
 
 ### 저장 버튼
 
@@ -64,8 +64,6 @@
 
 ## 이 문서를 참조하는 문서
 
-- [SettingBrowser 화면 디자인](./setting-browser.md): 화면 구조, 문구
 - [SettingFile 화면 디자인](./setting-file.md): 화면 구조, 저장된 값을 확인하기 전, 문구
 - [SettingGemini 화면 디자인](./setting-gemini.md): 모든 절
 - [SettingMap 화면 디자인](./setting-map.md): 화면 구조, 저장된 값을 확인하기 전, 문구
-- [SettingPlaylist 화면 디자인](./setting-playlist.md): 모든 절. `입력한 뒤 저장하는 설정`은 Android와 iOS에서만 따른다

@@ -15,8 +15,6 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -34,7 +32,6 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.compose.resources.stringResource
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,11 +46,6 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 class WebDetailPageExternalChangeTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
-
-    @After
-    fun resetWebSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
 
     @Test
     fun `TC-7c727b40-2b54-4988-9a89-0629343f8fce URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
@@ -88,10 +80,9 @@ class WebDetailPageExternalChangeTest {
     }
 
     @Test
-    fun `TC-65d715a6-48b8-4cb9-992e-0d7bb6b42725 수정으로 URL이 바뀌어도 로그인 정보를 다시 가져오지 않고 새 주소를 연다`() {
+    fun `TC-65d715a6-48b8-4cb9-992e-0d7bb6b42725 수정으로 URL이 바뀌면 진행 상태 없이 새 주소를 연다`() {
         val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
         var uiState: WebDetailUiState by mutableStateOf(initial)
-        SingletonDiaryWebSession.set(DiaryWebSession(importCount = IMPORTED_COUNT))
         composeRule.setContent {
             DiaryTheme {
                 val state = rememberWebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
@@ -134,6 +125,5 @@ class WebDetailPageExternalChangeTest {
     private companion object {
         const val INITIAL_URL = "https://developer.android.com/"
         const val CHANGED_URL = "https://kotlinlang.org/"
-        const val IMPORTED_COUNT = 1
     }
 }

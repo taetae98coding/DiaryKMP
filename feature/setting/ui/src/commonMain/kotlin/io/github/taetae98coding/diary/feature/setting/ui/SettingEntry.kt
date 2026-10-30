@@ -10,15 +10,11 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScaffoldComponentVisible
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScreen
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScreen
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
@@ -30,8 +26,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayS
 import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeScreen
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
-import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistScaffoldComponentVisible
-import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -39,8 +33,6 @@ public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack
     settingHolidayEntry(backStack = backStack)
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
-    settingBrowserEntry(backStack = backStack)
-    settingPlaylistEntry(backStack = backStack)
     settingFileEntry(backStack = backStack)
 }
 
@@ -57,8 +49,6 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             navigateToHoliday = { backStack.navigateToSettingDetail(SettingHolidayNavKey) },
             navigateToMap = { backStack.navigateToSettingDetail(SettingMapNavKey) },
             navigateToGemini = { backStack.navigateToSettingDetail(SettingGeminiNavKey) },
-            navigateToBrowser = { backStack.navigateToSettingDetail(SettingBrowserNavKey) },
-            navigateToPlaylist = { backStack.navigateToSettingDetail(SettingPlaylistNavKey) },
             navigateToFile = { backStack.navigateToSettingDetail(SettingFileNavKey) },
             viewModel = koinViewModel(),
         )
@@ -110,38 +100,6 @@ private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBa
             },
             settingViewModel = koinViewModel(),
             modelViewModel = koinViewModel(),
-        )
-    }
-}
-
-private fun EntryProviderScope<ScreenNavKey>.settingBrowserEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<SettingBrowserNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
-    ) {
-        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-
-        SettingBrowserScreen(
-            navigateUp = backStack::removeLastOrNull,
-            componentVisibleProvider = {
-                SettingBrowserScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
-            },
-            viewModel = koinViewModel(),
-        )
-    }
-}
-
-private fun EntryProviderScope<ScreenNavKey>.settingPlaylistEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<SettingPlaylistNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
-    ) {
-        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-
-        SettingPlaylistScreen(
-            navigateUp = backStack::removeLastOrNull,
-            componentVisibleProvider = {
-                SettingPlaylistScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
-            },
-            viewModel = koinViewModel(),
         )
     }
 }

@@ -143,22 +143,6 @@ class PlaylistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-35d55f8a-46a4-48d5-98dd-cf227182ffb6 삭제 안내가 보이는 동안 내려받기 준비 안내가 나타나면 새 안내만 남는다`() {
-        val environment = setPlaylistHomeScreen()
-
-        swipeFirstCardLeft()
-        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
-
-        environment.downloadEffectChannel.trySend(PlaylistHomeDownloadEffect.ProxyUnreachable).getOrThrow()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(DEFAULT_PROXY_UNREACHABLE_MESSAGE).assertExists()
-        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
-        verify(exactly = 0) { environment.viewModel.restore(id = any()) }
-    }
-
-    @Test
     fun `TC-1843defb-1459-47cd-8f17-6936dacdbda2 목록에서 곡을 삭제해도 화면을 이동하지 않는다`() {
         var navigateCount = 0
         setPlaylistHomeScreen(onNavigate = { navigateCount += 1 })
@@ -191,11 +175,6 @@ class PlaylistHomeDeleteTest {
         val syncViewModel = mockk<SyncRefreshViewModel>()
         every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
-        val downloadEffectChannel = Channel<PlaylistHomeDownloadEffect>(capacity = Channel.BUFFERED)
-        val downloadViewModel = mockk<PlaylistHomeDownloadViewModel>()
-        every { downloadViewModel.uiState } returns MutableStateFlow(PlaylistHomeDownloadUiState())
-        every { downloadViewModel.effect } returns downloadEffectChannel.receiveAsFlow()
-        justRun { downloadViewModel.download(sort = any()) }
 
         composeRule.setContent {
             DiaryTheme {
@@ -207,7 +186,6 @@ class PlaylistHomeDeleteTest {
                         componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible() },
                         musicViewModel = viewModel,
                         syncViewModel = syncViewModel,
-                        downloadViewModel = downloadViewModel,
                     )
                 }
             }
@@ -218,9 +196,7 @@ class PlaylistHomeDeleteTest {
 
         return Environment(
             viewModel = viewModel,
-            downloadViewModel = downloadViewModel,
             effectChannel = effectChannel,
-            downloadEffectChannel = downloadEffectChannel,
             first = first,
             second = second,
         )
@@ -228,9 +204,7 @@ class PlaylistHomeDeleteTest {
 
     private class Environment(
         val viewModel: PlaylistHomeViewModel,
-        val downloadViewModel: PlaylistHomeDownloadViewModel,
         val effectChannel: Channel<PlaylistHomeEffect>,
-        val downloadEffectChannel: Channel<PlaylistHomeDownloadEffect>,
         val first: Music,
         val second: Music,
     )
@@ -242,7 +216,6 @@ class PlaylistHomeDeleteTest {
         const val KOREAN_DELETED_MESSAGE = "곡이 삭제되었습니다."
         const val DEFAULT_UNDO_ACTION = "Undo"
         const val KOREAN_UNDO_ACTION = "실행 취소"
-        const val DEFAULT_PROXY_UNREACHABLE_MESSAGE = "Could not connect to the download proxy."
         const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
     }

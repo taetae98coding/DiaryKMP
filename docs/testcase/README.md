@@ -41,7 +41,6 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [캘린더 메모 이동](./calendar-memo-move.md) | [캘린더 메모 이동](../spec/client/calendar-memo-move.md) |
 | [캘린더 메모 표시](./calendar-memo.md) | [캘린더 메모 표시](../spec/client/calendar-memo.md) |
 | [캘린더 연락처 생일 표시](./calendar-contact-birthday.md) | [캘린더 연락처 생일 표시](../spec/client/calendar-contact-birthday.md) |
-| [Chrome 로그인 이어받기](./chrome-session-import.md) | [Chrome 로그인 이어받기](../spec/client/chrome-session-import.md) |
 | [CalendarMonth](./calendar-month.md) | [CalendarMonth 컴포넌트](../spec/client/calendar-month.md) |
 | [Calendar 날짜 선택](./calendar-select.md) | [Calendar 날짜 선택](../spec/client/calendar-select.md) |
 | [CalendarTimetable](./calendar-timetable.md) | [CalendarTimetable 화면](../spec/client/calendar-timetable.md) |
@@ -107,8 +106,6 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [MoreHome](./more-home.md) | [MoreHome 화면](../spec/client/more-home.md) |
 | [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/client/music-add.md) |
 | [MusicDetail](./music-detail.md) | [MusicDetail 화면](../spec/client/music-detail.md) |
-| [곡 다운로드](./music-download.md) | [곡 다운로드](../spec/client/music-download.md) |
-| [곡 다운로드 프록시](./music-download-proxy.md) | [곡 다운로드 프록시](../spec/client/music-download-proxy.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/client/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/client/notification-permission.md) |
 | [Play Integrity 판정 기록](./play-integrity-logging.md) | [Play Integrity 판정 기록(client)](../spec/client/play-integrity-logging.md), [Play Integrity 판정 기록(common)](../spec/common/play-integrity-logging.md), [Play Integrity 판정 기록(server)](../spec/server/play-integrity-logging.md) |
@@ -132,14 +129,12 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/client/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/client/screen-view-logging.md) |
-| [SettingBrowser](./setting-browser.md) | [SettingBrowser 화면](../spec/client/setting-browser.md) |
 | [SettingFile](./setting-file.md) | [SettingFile 화면](../spec/client/setting-file.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/client/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/client/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/client/setting-home.md) |
 | [Setting 목록·상세 배치](./setting-list-detail.md) | [Setting 목록·상세 배치](../spec/client/setting-list-detail.md) |
 | [SettingMap](./setting-map.md) | [SettingMap 화면](../spec/client/setting-map.md) |
-| [SettingPlaylist](./setting-playlist.md) | [SettingPlaylist 화면](../spec/client/setting-playlist.md) |
 | [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md) | [SwipeToFinishAndDelete 컴포넌트](../spec/client/swipe-to-finish-and-delete.md) |
 | [새로고침](./sync-refresh.md) | [새로고침](../spec/client/sync-refresh.md) |
 | [TagAdd](./tag-add.md) | [TagAdd 화면](../spec/client/tag-add.md) |
@@ -198,8 +193,8 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 - [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)과 [앱 스펙](../spec/client/entity-tag.md) → [메모 태그](./memo-tag.md), [웹 태그](./web-tag.md), [장소 태그](./place-tag.md)
 - [항목 추가 화면 공통 스펙](../spec/client/entity-add.md) → [MemoAdd](./memo-add.md), [TagAdd](./tag-add.md), [PlaceAdd](./place-add.md), [WebAdd](./web-add.md), [ContactAdd](./contact-add.md), [MusicAdd](./music-add.md), [QrAdd](./qr-add.md), [RoutineAdd](./routine-add.md), [ChecklistAdd](./checklist-add.md)
   - 각 추가 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
-- [기기 설정 화면 공통 스펙](../spec/client/device-setting.md) → [SettingMap](./setting-map.md), [SettingBrowser](./setting-browser.md), [SettingFile](./setting-file.md), [SettingGemini](./setting-gemini.md), [SettingPlaylist](./setting-playlist.md)
-  - 각 설정 문서가 공통 스펙의 절을 자기 설정 값과 화면에 맞춰 각각 갖는다. `환경별 저장 영역`의 케이스는 [SettingMap](./setting-map.md)과 [SettingBrowser](./setting-browser.md)가 갖고, 같은 저장 영역을 쓰는 나머지 설정 문서는 이 절의 케이스를 따로 두지 않는다.
+- [기기 설정 화면 공통 스펙](../spec/client/device-setting.md) → [SettingMap](./setting-map.md), [SettingFile](./setting-file.md), [SettingGemini](./setting-gemini.md)
+  - 각 설정 문서가 공통 스펙의 절을 자기 설정 값과 화면에 맞춰 각각 갖는다. `환경별 저장 영역`의 케이스는 [SettingMap](./setting-map.md)이 갖고, 같은 저장 영역을 쓰는 나머지 설정 문서는 이 절의 케이스를 따로 두지 않는다.
 - [장소 검색 공통 스펙](../spec/client/place-search.md) → [Google 장소 검색](./google-place-search.md), [네이버 장소 검색](./naver-place-search.md)
 - [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md)의 `안내와 실행 취소` → [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [항목 완료 메모 목록](./entity-memo-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [WebHome](./web-home.md), [TagDetail 웹 탭](./tag-detail-web.md), [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md), [ContactHome](./contact-home.md), [PlaylistHome](./playlist-home.md), [QrHome](./qr-home.md), [ChecklistHome](./checklist-home.md), [SearchHome](./search-home.md)
   - 화면이 재생성되거나 앱이 백그라운드에 다녀올 때의 실행 경계 케이스는 [MemoHome 목록](./memo-home.md)이 대표로 갖고, 나머지 목록 문서는 이 경계의 케이스를 따로 두지 않는다. 그 밖의 케이스는 각 문서가 자기 목록의 안내와 동작에 맞춰 갖는다.

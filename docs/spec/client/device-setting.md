@@ -7,10 +7,8 @@
 이 문서를 참조하는 문서는 다음과 같다.
 
 - [SettingMap 화면 스펙](./setting-map.md): 고르면 바로 저장하는 설정
-- [SettingBrowser 화면 스펙](./setting-browser.md): 고르면 바로 저장하는 설정
 - [SettingFile 화면 스펙](./setting-file.md): 고르면 바로 저장하지만 실패를 알리는 설정
 - [SettingGemini 화면 스펙](./setting-gemini.md): 입력한 뒤 저장하는 설정
-- [SettingPlaylist 화면 스펙](./setting-playlist.md): Android와 iOS에서 입력한 뒤 저장하는 설정
 - [공휴일 노출 설정 스펙](./holiday-visibility.md): 환경별 저장 영역
 
 ## feature
@@ -25,7 +23,7 @@
 
 ### 고르면 바로 저장하는 설정
 
-이 절은 SettingMap과 SettingBrowser에 적용한다.
+이 절은 SettingMap에 적용한다.
 
 사용자가 선택하지 않은 항목을 고르면 즉시 저장되고 선택 상태가 바뀐다. 이미 선택한 항목을 다시 고르면 아무것도 바뀌지 않는다.
 
@@ -35,13 +33,13 @@
 
 ### 화면에 보이는 값
 
-이 절은 SettingMap, SettingBrowser와 SettingFile에 적용한다.
+이 절은 SettingMap과 SettingFile에 적용한다.
 
 화면의 현재 값은 저장된 값을 따르므로 사용자가 값을 바꾸면 새로고침 없이 바로 바뀐 값을 보여 준다. 이 화면들에는 저장된 값을 당겨서 새로고침하는 수단이 없다.
 
 ### 입력한 뒤 저장하는 설정
 
-이 절은 SettingGemini와 Android·iOS의 SettingPlaylist에 적용한다.
+이 절은 SettingGemini에 적용한다.
 
 화면에 진입하면 저장해 둔 값이 입력된 상태로 시작한다. 한 번도 저장하지 않았으면 비어 있는 상태로 시작한다. 입력란은 화면에 들어와 저장된 값을 처음 확인했을 때 한 번만 채우며, 그 뒤 저장된 값이 바뀌어도 입력 중인 내용을 덮어쓰지 않는다.
 

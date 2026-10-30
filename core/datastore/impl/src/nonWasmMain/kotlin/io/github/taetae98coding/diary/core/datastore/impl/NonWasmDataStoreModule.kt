@@ -2,13 +2,11 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.OkioStorage
-import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
-import io.github.taetae98coding.diary.core.datastore.impl.di.MusicDownloadProxySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -52,24 +50,6 @@ public class NonWasmDataStoreModule {
             pathResolver = pathResolver,
             serializer = GeminiSettingSerializer,
             name = DataStoreModule.GEMINI_SETTING_NAME,
-        )
-
-    @Single
-    @BrowserSettingStorage
-    internal fun providesBrowserSettingStorage(pathResolver: SettingPathResolver): Storage<BrowserSettingData> =
-        createSettingStorage(
-            pathResolver = pathResolver,
-            serializer = BrowserSettingSerializer,
-            name = DataStoreModule.BROWSER_SETTING_NAME,
-        )
-
-    @Single
-    @MusicDownloadProxySettingStorage
-    internal fun providesMusicDownloadProxySettingStorage(pathResolver: SettingPathResolver): Storage<MusicDownloadProxySettingData> =
-        createSettingStorage(
-            pathResolver = pathResolver,
-            serializer = MusicDownloadProxySettingSerializer,
-            name = DataStoreModule.MUSIC_DOWNLOAD_PROXY_SETTING_NAME,
         )
 
     @Single

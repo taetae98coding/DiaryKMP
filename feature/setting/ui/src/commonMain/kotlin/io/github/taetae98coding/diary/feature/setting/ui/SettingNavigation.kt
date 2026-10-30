@@ -2,16 +2,14 @@ package io.github.taetae98coding.diary.feature.setting.ui
 
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 
 private val settingDetailNavKeySet: Set<ScreenNavKey> =
-    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingBrowserNavKey, SettingPlaylistNavKey, SettingFileNavKey)
+    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingFileNavKey)
 
 internal fun NavBackStack<ScreenNavKey>.navigateToSettingDetail(destination: ScreenNavKey) {
     require(destination in settingDetailNavKeySet)

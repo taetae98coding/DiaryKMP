@@ -1,10 +1,7 @@
 package io.github.taetae98coding.diary.compose.web
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebPage
@@ -22,21 +19,10 @@ public fun DiaryWebView(
     url: String,
     modifier: Modifier = Modifier,
 ) {
-    val session = SingletonDiaryWebSession.get()
-
-    DiaryCrossfade(
-        targetState = session.importCount.takeUnless { session.isPreparing },
+    DiaryUrlWebView(
+        url = url,
         modifier = modifier,
-    ) { importCount ->
-        if (importCount == null) {
-            DiaryLoadingBox(modifier = Modifier.fillMaxSize())
-        } else {
-            DiaryUrlWebView(
-                url = url,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-    }
+    )
 }
 
 @Composable

@@ -32,8 +32,6 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.withKeyDown
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DIARY_WEB_VIEW_TEST_TAG
-import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
@@ -47,7 +45,6 @@ import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_descr
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.kotest.matchers.shouldBe
 import org.jetbrains.compose.resources.stringResource
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,11 +56,6 @@ import org.robolectric.annotation.Config
 class WebDetailScaffoldTest {
     @get:Rule
     val composeRule = createComposeRule()
-
-    @After
-    fun resetWebSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
 
     @Test
     fun `TC-43a42162-c097-4b5c-923a-12c3dae536be TC-9fefbcc7-d4f5-4852-85ac-cfbb935982fe 조회 중에는 제목과 본문 영역을 표시하지 않고 탭 줄은 표시한다`() {
@@ -460,35 +452,6 @@ class WebDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-d32b61fb-d3a1-451c-8c14-d78139dcea15 응답 본문 방식에서는 가져오기가 시작되어도 표시가 바뀌지 않고 URL 방식으로 바꾸면 진행 상태를 거친다`() {
-        SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1))
-        val uiState = testContentUiState()
-        composeRule.setContent {
-            WebDetailScaffoldUnderTest(
-                uiState = uiState,
-                pageUiState = WebDetailPageUiState.Failure,
-                detail = uiState.detail,
-                initialTab = WebDetailTab.PAGE,
-                initialViewMode = WebDetailViewMode.RESPONSE,
-                onEvent = {},
-            )
-        }
-        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isPreparing = true, importCount = 1)) }
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-
-        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
-
-        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertDoesNotExist()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
-    }
-
-    @Test
     fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌리면 응답 본문 대신 URL 방식으로 표시한다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
         composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
@@ -618,10 +581,8 @@ class WebDetailScaffoldTest {
         detail: WebDetail = (uiState as? WebDetailUiState.Content)?.detail ?: WebDetail.EMPTY,
         initialTab: WebDetailTab = WebDetailTab.PAGE,
         initialViewMode: WebDetailViewMode = WebDetailViewMode.URL,
-        session: DiaryWebSession = DiaryWebSession(),
         onEvent: (WebDetailScaffoldEvent) -> Unit = {},
     ) {
-        SingletonDiaryWebSession.set(session)
         composeRule.setContent {
             WebDetailScaffoldUnderTest(
                 uiState = uiState,

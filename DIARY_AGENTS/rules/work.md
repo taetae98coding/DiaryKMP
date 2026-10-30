@@ -69,7 +69,7 @@ override suspend fun doWork(): Result =
 
 ## 코루틴 예약기
 
-즉시 실행 예약기는 Android 외 모든 플랫폼(iOS 포함)에서 쓴다. Android에서도 스펙이 앱이 화면 앞에 있는 동안만 진행을 보장하도록 정한 작업은 `WorkManager` 대신 즉시 실행 예약기를 쓴다. 예: `work:music-download`([음악 다운로드](../../docs/spec/client/music-download.md)의 `진행 유지 범위`). 주기 예약기는 JVM 데스크톱·웹에서 쓴다.
+즉시 실행 예약기는 Android 외 모든 플랫폼(iOS 포함)에서 쓴다. Android에서도 스펙이 앱이 화면 앞에 있는 동안만 진행을 보장하도록 정한 작업은 `WorkManager` 대신 즉시 실행 예약기를 쓴다. 주기 예약기는 JVM 데스크톱·웹에서 쓴다.
 
 - 작업마다 전용 `CoroutineScope`를 Koin `@Single`로 둔다. `SupervisorJob`과 빈 `CoroutineExceptionHandler`를 붙여 한 작업의 실패가 다른 작업이나 앱을 죽이지 않게 한다. 화면 수명과 무관해야 하므로 ViewModel의 스코프를 쓰지 않는다.
 - 주기 예약기는 한 주기의 실패를 잡고 다음 주기를 계속 기다린다. 스펙이 주기 동기화가 실패해도 예약은 해제되지 않는다고 정했다.

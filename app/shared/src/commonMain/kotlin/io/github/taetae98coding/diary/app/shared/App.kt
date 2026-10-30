@@ -1,13 +1,6 @@
 package io.github.taetae98coding.diary.app.shared
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
@@ -28,11 +21,9 @@ public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
     val periodicSyncViewModel = koinViewModel<AppPeriodicSyncViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
-    val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
     val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
     val fileUploadViewModel = koinViewModel<AppFileUploadViewModel>()
     val appState = rememberAppState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     DiaryImageLoaderEffect()
     RequestPermissionEffect(
@@ -55,12 +46,6 @@ public fun App(modifier: Modifier = Modifier) {
         reconcile = fileUploadViewModel::reconcile,
         uiState = fileUploadViewModel.uiState,
     )
-    ChromeSessionImportEffect(requestImport = chromeSessionViewModel::requestImport)
-    DiaryWebSessionEffect(session = chromeSessionViewModel.session)
-    ChromeSessionImportFailedEffect(
-        snackbarHostState = snackbarHostState,
-        effect = chromeSessionViewModel.effect,
-    )
     PlayIntegrityLogEffect(log = playIntegrityViewModel::log)
     ScreenViewEffect(
         log = DiaryLogger::log,
@@ -73,7 +58,6 @@ public fun App(modifier: Modifier = Modifier) {
 
     AppContent(
         appState = appState,
-        snackbarHostState = snackbarHostState,
         modifier = modifier,
     )
 }
@@ -81,23 +65,12 @@ public fun App(modifier: Modifier = Modifier) {
 @Composable
 private fun AppContent(
     appState: AppState,
-    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     DiaryTheme {
-        Box(modifier = modifier) {
-            AppScaffold(
-                appState = appState,
-                modifier = Modifier.fillMaxSize(),
-            )
-            // 어느 화면을 보고 있든 앱 전체의 알림을 보여 주므로 화면별 Scaffold가 아니라 앱 루트에 둔다.
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .safeDrawingPadding(),
-            )
-        }
+        AppScaffold(
+            appState = appState,
+            modifier = modifier,
+        )
     }
 }

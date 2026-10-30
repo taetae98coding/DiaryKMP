@@ -24,8 +24,8 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -187,8 +187,8 @@ class AppStateTest :
             }
         }
 
-        test("TC-ea755929-3e47-49eb-8fa6-fb8faafdb8e5 단독 화면에서 뒤로가면 설정 목록으로 돌아가고 공통 내비게이션은 계속 숨긴다") {
-            val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + SettingHomeNavKey + SettingBrowserNavKey).toTypedArray())
+        test("TC-8cbf380d-d0b9-456a-a873-f94e35d5deea 단독 화면에서 뒤로가면 설정 목록으로 돌아가고 공통 내비게이션은 계속 숨긴다") {
+            val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + SettingHomeNavKey + SettingMapNavKey).toTypedArray())
             appState.isNavigationVisible.shouldBeFalse()
 
             appState.backStack.removeLast()

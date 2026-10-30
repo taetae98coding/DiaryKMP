@@ -2,7 +2,7 @@
 
 기준 스펙: [PlaylistHome 화면 스펙](../spec/client/playlist-home.md)
 
-목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/client/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서, 목록의 곡을 기기에 내려받는 케이스는 [곡 다운로드 테스트 케이스](./music-download.md)에서, 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
+목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/client/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서, 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
 
 추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
 
@@ -134,33 +134,6 @@
 - When: PlaylistHome 화면이 표시된다.
 - Then: 그 곡의 카드에 제목이 표시되고 가수 자리는 비어 있다.
 
-### TC-f1bc9446-2add-480b-b066-1c019d30c3da: 목록 상태와 관계없이 다운로드를 실행할 수 있다
-
-- 근거: `feature > 곡 다운로드`
-- Given: PlaylistHome 화면이 표시되어 있고 목록이 테스트 데이터의 상태다.
-- When: 사용자가 화면에서 할 수 있는 동작을 확인한다.
-- Then: 다운로드를 실행할 수 있고 비활성으로 표시되지 않는다.
-- 테스트 데이터:
-
-| 목록 상태 |
-| --- |
-| 곡이 있음 |
-| 곡이 없어 빈 상태 안내가 표시됨 |
-
-### TC-4128e4dc-6dbe-4604-9e60-f88b29b1c998: 다운로드를 선택하면 목록의 곡 내려받기가 시작된다
-
-- 근거: `feature > 곡 다운로드`
-- Given: 영상 ID를 얻을 수 있는 링크가 저장된 곡이 있는 PlaylistHome 화면이 표시되어 있다.
-- When: 사용자가 다운로드를 선택한다.
-- Then: 목록의 곡을 내려받는 동작이 한 번 시작된다.
-
-### TC-bcfbbe85-8a44-4f2b-b17d-115b4e420267: 화면을 떠났다 돌아와도 다운로드 상태가 유지된다
-
-- 근거: `feature > 곡 다운로드`
-- Given: 다운로드를 실행해 한 곡이 62%까지 진행된 채 멈춰 있는 PlaylistHome 화면이 표시되어 있다.
-- When: 사용자가 곡 상세로 이동했다가 PlaylistHome으로 돌아온다.
-- Then: 그 곡의 항목에 다운로드 중 `62%`가 그대로 표시된다.
-
 ### TC-9978aa69-9804-4ff3-bd5a-96492a93752c: 곡 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다
 
 - 근거: `feature > 삭제`
@@ -222,13 +195,6 @@
 - Given: PlaylistHome 화면에서 곡을 삭제해 안내와 실행 취소 동작이 표시되어 있다.
 - When: 사용자가 PlaylistHome 화면을 떠났다가 다시 돌아온다.
 - Then: 안내와 실행 취소 동작이 보이지 않고, 삭제를 되돌리는 요청은 일어나지 않는다.
-
-### TC-35d55f8a-46a4-48d5-98dd-cf227182ffb6: 삭제 안내가 보이는 동안 내려받기 준비 안내가 나타나면 새 안내만 남는다
-
-- 근거: `feature > 안내와 실행 취소`
-- Given: PlaylistHome 화면에서 곡을 삭제해 삭제 안내와 실행 취소 동작이 표시되어 있다.
-- When: 삭제 안내가 사라지기 전에 내려받기 준비 안내가 나타난다.
-- Then: 삭제 안내와 실행 취소 동작은 사라지고 내려받기 준비 안내만 표시되며, 삭제를 되돌리는 요청은 일어나지 않는다.
 
 ### TC-1843defb-1459-47cd-8f17-6936dacdbda2: 목록에서 곡을 삭제해도 화면을 이동하지 않는다
 
@@ -295,13 +261,6 @@
 - When: 사용자가 그 삭제를 실행 취소한다.
 - Then: 곡의 삭제 여부가 바뀌지 않아 삭제된 채로 남고, 저장하지 못했다는 별도 안내도 표시되지 않는다.
 
-### TC-8a4fff34-827d-4dab-94b4-ea0a67b2a18c: 목록에서의 삭제와 실행 취소는 곡의 다운로드 상태와 진행 중인 다운로드를 바꾸지 않는다
-
-- 근거: `domain > 삭제와 실행 취소의 상태 전이`
-- Given: 현재 계정과 연결된 곡에 다운로드 상태가 있다.
-- When: 그 곡을 목록에서 삭제한 뒤 실행 취소한다.
-- Then: 그 곡의 다운로드 상태는 삭제 전과 같게 조회되고, 다운로드를 새로 시작하거나 진행 중인 다운로드를 멈추는 요청은 일어나지 않는다.
-
 ## data
 
 ### TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c: 곡 목록을 페이지 단위로 조회한다
@@ -330,7 +289,7 @@
 - 근거: `data > 목록 조회`
 - Given: 로그인한 사용자 계정이 있다.
 - When: PlaylistHome 화면에 진입한다.
-- Then: 서버로 곡 내려받기 요청이 발생하지 않는다.
+- Then: 서버에서 곡을 가져오는 요청이 발생하지 않는다.
 
 ### TC-7307cbf3-ef78-41be-8151-6553701363ac: 삭제와 실행 취소를 저장하면 동기화가 요청된다
 

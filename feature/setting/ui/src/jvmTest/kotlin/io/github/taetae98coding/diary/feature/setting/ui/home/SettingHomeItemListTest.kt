@@ -6,14 +6,12 @@ import io.kotest.matchers.shouldBe
 
 class SettingHomeItemListTest :
     FunSpec({
-        test("TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7 설정 항목은 공휴일, 지도, Gemini, 브라우저, 플레이리스트, 파일 순서다") {
+        test("TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7 설정 항목은 공휴일, 지도, Gemini, 파일 순서다") {
             settingHomeItemList shouldContainExactly
                 listOf(
                     SettingHomeItem.HOLIDAY,
                     SettingHomeItem.MAP,
                     SettingHomeItem.GEMINI,
-                    SettingHomeItem.BROWSER,
-                    SettingHomeItem.PLAYLIST,
                     SettingHomeItem.FILE,
                 )
         }

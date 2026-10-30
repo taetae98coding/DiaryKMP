@@ -11,13 +11,8 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
-import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
-import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
-import io.github.taetae98coding.diary.domain.playlist.usecase.RequestMusicDownloadUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -32,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -210,51 +204,6 @@ class PlaylistHomeViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { restoreMusicUseCase(parameter = id) }
-            }
-        }
-
-        test("TC-8a4fff34-827d-4dab-94b4-ea0a67b2a18c 목록에서 삭제하고 실행 취소해도 곡의 다운로드 상태가 바뀌지 않고 다운로드를 요청하지 않는다") {
-            runTest(mainDispatcher) {
-                val music = music(title = "Alpha")
-                val stateMap = mapOf(MusicDownloadTarget(id = music.id, videoId = "dQw4w9WgXcQ") to MusicDownloadState.Running(progress = 0.62F))
-                val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
-                every { getMusicDownloadStateUseCase(parameter = Unit) } returns MutableStateFlow(Result.success(stateMap))
-                val getMusicDownloadEventUseCase = mockk<GetMusicDownloadEventUseCase>()
-                every { getMusicDownloadEventUseCase(parameter = Unit) } returns emptyFlow()
-                val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
-                val downloadViewModel =
-                    PlaylistHomeDownloadViewModel(
-                        getMusicDownloadStateUseCase = getMusicDownloadStateUseCase,
-                        getMusicDownloadEventUseCase = getMusicDownloadEventUseCase,
-                        requestMusicDownloadUseCase = requestMusicDownloadUseCase,
-                    )
-                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
-                coEvery { deleteMusicUseCase(parameter = music.id) } returns Result.success(1)
-                val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
-                coEvery { restoreMusicUseCase(parameter = music.id) } returns Result.success(1)
-                val viewModel =
-                    viewModel(
-                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(listOf(music)))),
-                        deleteMusicUseCase = deleteMusicUseCase,
-                        restoreMusicUseCase = restoreMusicUseCase,
-                    )
-
-                downloadViewModel.uiState.test {
-                    awaitItem()
-                    advanceUntilIdle()
-                    awaitItem() shouldBe PlaylistHomeDownloadUiState(stateMap = stateMap)
-
-                    viewModel.delete(id = music.id)
-                    advanceUntilIdle()
-                    viewModel.restore(id = music.id)
-                    advanceUntilIdle()
-
-                    expectNoEvents()
-                    downloadViewModel.uiState.value shouldBe PlaylistHomeDownloadUiState(stateMap = stateMap)
-                }
-                coVerify(exactly = 1) { deleteMusicUseCase(parameter = music.id) }
-                coVerify(exactly = 1) { restoreMusicUseCase(parameter = music.id) }
-                coVerify(exactly = 0) { requestMusicDownloadUseCase(parameter = any()) }
             }
         }
 

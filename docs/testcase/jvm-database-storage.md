@@ -2,7 +2,7 @@
 
 기준 스펙: [데스크톱 앱 데이터 저장 위치 스펙](../spec/client/jvm-database-storage.md)
 
-앱 설정을 그 환경의 저장 위치에 두고 개발 환경과 운영 환경이 서로의 설정을 공유하지 않는 케이스는 [SettingMap 테스트 케이스](./setting-map.md)의 `TC-ed3a40a4-f5dd-4773-a6c9-98521ec66ec8`과 [SettingBrowser 테스트 케이스](./setting-browser.md)의 `TC-64e07364-2bf6-48ca-9310-24ba84efa879`이 다룬다. 앱 설정은 한 저장 영역을 함께 쓰므로 이 문서에 같은 케이스를 두지 않는다.
+앱 설정을 그 환경의 저장 위치에 두고 개발 환경과 운영 환경이 서로의 설정을 공유하지 않는 케이스는 [SettingMap 테스트 케이스](./setting-map.md)의 `TC-ed3a40a4-f5dd-4773-a6c9-98521ec66ec8`이 다룬다. 앱 설정은 한 저장 영역을 함께 쓰므로 이 문서에 같은 케이스를 두지 않는다.
 
 ## data
 

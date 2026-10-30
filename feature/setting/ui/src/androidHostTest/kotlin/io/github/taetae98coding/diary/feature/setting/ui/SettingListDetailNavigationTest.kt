@@ -39,19 +39,15 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserUiState
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileUiState
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiUiState
@@ -65,8 +61,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeViewMod
 import io.github.taetae98coding.diary.feature.setting.ui.home.settingHomeItemList
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapUiState
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapViewModel
-import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistUiState
-import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -200,16 +194,16 @@ class SettingListDetailNavigationTest {
     @Test
     fun `TC-d460b908-7f6d-45ff-87be-813e714c539b 현재 상세인 설정 항목을 다시 선택해도 입력 중이던 내용이 남는다`() {
         setSettingNavDisplay()
-        composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).performClick()
+        composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).performClick()
         composeRule.waitForIdle()
-        composeRule.onNode(hasSetTextAction()).performTextInput(EDITING_PROXY_ADDRESS)
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).performClick()
+        composeRule.onAllNodes(hasSetTextAction())[0].performTextInput(EDITING_TEXT)
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, SettingHomeNavKey, SettingPlaylistNavKey)
-        composeRule.onNode(hasSetTextAction()).assert(hasText(EDITING_PROXY_ADDRESS))
+        composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, SettingHomeNavKey, SettingGeminiNavKey)
+        composeRule.onAllNodes(hasSetTextAction())[0].assert(hasText(EDITING_TEXT))
     }
 
     @Test
@@ -222,8 +216,6 @@ class SettingListDetailNavigationTest {
             DEFAULT_HOLIDAY_ITEM_LABEL to SettingHolidayNavKey,
             DEFAULT_MAP_ITEM_LABEL to SettingMapNavKey,
             DEFAULT_GEMINI_ITEM_LABEL to SettingGeminiNavKey,
-            DEFAULT_BROWSER_ITEM_LABEL to SettingBrowserNavKey,
-            DEFAULT_PLAYLIST_ITEM_LABEL to SettingPlaylistNavKey,
             DEFAULT_FILE_ITEM_LABEL to SettingFileNavKey,
         ).forEach { (itemLabel, detail) ->
             composeRule.onNodeWithText(itemLabel).performClick()
@@ -412,26 +404,15 @@ class SettingListDetailNavigationTest {
                     every { uiState } returns MutableStateFlow(SettingHolidayUiState.Loading)
                 }
             }
-            factory<SettingPlaylistViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY))
-                    every { effect } returns emptyFlow()
-                }
-            }
             factory<SettingGeminiViewModel> {
                 mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingGeminiUiState.Loading)
+                    every { uiState } returns MutableStateFlow(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
                     every { effect } returns emptyFlow()
                 }
             }
             factory<SettingGeminiModelViewModel> {
                 mockk(relaxed = true) {
                     every { uiState } returns MutableStateFlow(SettingGeminiModelUiState())
-                }
-            }
-            factory<SettingBrowserViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingBrowserUiState.Loading)
                 }
             }
             factory<SettingFileViewModel> {
@@ -453,14 +434,12 @@ class SettingListDetailNavigationTest {
         const val DEFAULT_MAP_ITEM_LABEL = "Map"
         const val DEFAULT_GOOGLE_LABEL = "Google"
         const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
-        const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
-        const val DEFAULT_PLAYLIST_ITEM_LABEL = "Playlist"
         const val DEFAULT_FILE_ITEM_LABEL = "Files"
         const val DEFAULT_SETTING_HOME_TITLE = "Settings"
         val settingItemLabelList: List<String> =
-            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_BROWSER_ITEM_LABEL, DEFAULT_PLAYLIST_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
+            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
-        const val EDITING_PROXY_ADDRESS = "http://192.168.0.10:54321"
+        const val EDITING_TEXT = "editing"
         const val DEFAULT_HOLIDAY_LOADING_DESCRIPTION = "Loading holidays"
         const val ADD_DESCRIPTION_WORD = "Add"
     }

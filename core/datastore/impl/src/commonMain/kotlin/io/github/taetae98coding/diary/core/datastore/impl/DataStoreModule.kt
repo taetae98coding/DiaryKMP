@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
@@ -14,8 +12,6 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataS
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
-import io.github.taetae98coding.diary.core.datastore.impl.di.MusicDownloadProxySettingDataStore
-import io.github.taetae98coding.diary.core.datastore.impl.di.MusicDownloadProxySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import kotlinx.coroutines.CoroutineDispatcher
@@ -57,24 +53,6 @@ public class DataStoreModule {
     ): DataStore<GeminiSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
 
     @Single
-    @BrowserSettingDataStore
-    internal fun providesBrowserSettingDataStore(
-        @BrowserSettingStorage
-        storage: Storage<BrowserSettingData>,
-        @DiarySettingDispatcher
-        dispatcher: CoroutineDispatcher,
-    ): DataStore<BrowserSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = BrowserSettingSerializer)
-
-    @Single
-    @MusicDownloadProxySettingDataStore
-    internal fun providesMusicDownloadProxySettingDataStore(
-        @MusicDownloadProxySettingStorage
-        storage: Storage<MusicDownloadProxySettingData>,
-        @DiarySettingDispatcher
-        dispatcher: CoroutineDispatcher,
-    ): DataStore<MusicDownloadProxySettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = MusicDownloadProxySettingSerializer)
-
-    @Single
     @FileDownloadSettingDataStore
     internal fun providesFileDownloadSettingDataStore(
         @FileDownloadSettingStorage
@@ -97,8 +75,6 @@ public class DataStoreModule {
         const val HOLIDAY_SETTING_NAME: String = "holiday-setting.json"
         const val GEMINI_SETTING_NAME: String = "gemini-setting.json"
         const val SYNC_TIME_NAME: String = "sync-time.json"
-        const val BROWSER_SETTING_NAME: String = "browser-setting.json"
-        const val MUSIC_DOWNLOAD_PROXY_SETTING_NAME: String = "music-download-proxy-setting.json"
         const val FILE_DOWNLOAD_SETTING_NAME: String = "file-download-setting.json"
     }
 }

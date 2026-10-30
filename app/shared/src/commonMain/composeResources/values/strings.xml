@@ -4,5 +4,4 @@
     <string name="top_level_navigation_calendar_label">Calendar</string>
     <string name="top_level_navigation_routine_label">Routine</string>
     <string name="top_level_navigation_more_label">More</string>
-    <string name="chrome_session_import_failed_message">Couldn't get Chrome logins.</string>
 </resources>

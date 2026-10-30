@@ -11,9 +11,6 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
-import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
-import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
@@ -91,40 +88,6 @@ class PlaylistHomeScreenTest {
         verify(exactly = 1) { syncViewModel.refresh() }
     }
 
-    @Test
-    fun `TC-e1bac529-07e2-4782-a84f-43c7943ad242 목록을 당겨 새로고침해도 곡의 다운로드 상태가 그대로 유지된다`() {
-        val done = testMusic(title = MUSIC_TITLE)
-        val failed = testMusic(title = MUSIC_ARTIST)
-        val musicPagingDataFlow = MutableStateFlow(musicPagingDataOf(listOf(done, failed)))
-        val syncViewModel = syncViewModel()
-        every { syncViewModel.refresh() } answers { musicPagingDataFlow.value = musicPagingDataOf(listOf(done, failed)) }
-        val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
-        every { getMusicDownloadStateUseCase(parameter = Unit) } returns
-            MutableStateFlow(Result.success(mapOf(done.downloadTarget() to MusicDownloadState.Done, failed.downloadTarget() to MusicDownloadState.Failed)))
-        val getMusicDownloadEventUseCase = mockk<GetMusicDownloadEventUseCase>()
-        every { getMusicDownloadEventUseCase(parameter = Unit) } returns emptyFlow()
-        val downloadViewModel =
-            PlaylistHomeDownloadViewModel(
-                getMusicDownloadStateUseCase = getMusicDownloadStateUseCase,
-                getMusicDownloadEventUseCase = getMusicDownloadEventUseCase,
-                requestMusicDownloadUseCase = mockk(),
-            )
-        setPlaylistHomeScreen(
-            musicPagingDataFlow = musicPagingDataFlow,
-            syncViewModel = syncViewModel,
-            downloadViewModel = downloadViewModel,
-        )
-        composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_FAILED_DESCRIPTION).assertExists()
-
-        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { syncViewModel.refresh() }
-        composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_FAILED_DESCRIPTION).assertExists()
-    }
-
     private fun setPlaylistHomeScreen(
         musicList: List<Music> = emptyList(),
         navigateUp: () -> Unit = {},
@@ -132,7 +95,6 @@ class PlaylistHomeScreenTest {
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: SyncRefreshViewModel = syncViewModel(),
-        downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         setPlaylistHomeScreen(
             musicPagingDataFlow = MutableStateFlow(musicPagingDataOf(musicList)),
@@ -141,7 +103,6 @@ class PlaylistHomeScreenTest {
             navigateToDetail = navigateToDetail,
             componentVisible = componentVisible,
             syncViewModel = syncViewModel,
-            downloadViewModel = downloadViewModel,
         )
     }
 
@@ -152,7 +113,6 @@ class PlaylistHomeScreenTest {
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: SyncRefreshViewModel = syncViewModel(),
-        downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
         every { musicViewModel.musicPagingData } returns musicPagingDataFlow
@@ -168,18 +128,10 @@ class PlaylistHomeScreenTest {
                     componentVisibleProvider = { componentVisible },
                     musicViewModel = musicViewModel,
                     syncViewModel = syncViewModel,
-                    downloadViewModel = downloadViewModel,
                 )
             }
         }
         composeRule.waitForIdle()
-    }
-
-    private fun downloadViewModel(): PlaylistHomeDownloadViewModel {
-        val viewModel = mockk<PlaylistHomeDownloadViewModel>(relaxed = true)
-        every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeDownloadUiState())
-        every { viewModel.effect } returns emptyFlow()
-        return viewModel
     }
 
     private fun syncViewModel(): SyncRefreshViewModel {
@@ -194,7 +146,5 @@ class PlaylistHomeScreenTest {
         private const val MUSIC_ARTIST = "ScreenMusicArtist"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"
-        private const val DEFAULT_DONE_DESCRIPTION = "Downloaded"
-        private const val DEFAULT_FAILED_DESCRIPTION = "Download failed"
     }
 }

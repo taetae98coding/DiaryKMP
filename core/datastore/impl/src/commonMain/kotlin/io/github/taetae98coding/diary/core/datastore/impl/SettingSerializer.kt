@@ -37,12 +37,6 @@ internal val MapSettingSerializer: SettingSerializer<MapSettingData> =
         defaultValue = MapSettingData(),
     )
 
-internal val BrowserSettingSerializer: SettingSerializer<BrowserSettingData> =
-    SettingSerializer(
-        serializer = BrowserSettingData.serializer(),
-        defaultValue = BrowserSettingData(),
-    )
-
 internal val HolidaySettingSerializer: SettingSerializer<HolidaySettingData> =
     SettingSerializer(
         serializer = HolidaySettingData.serializer(),
@@ -59,12 +53,6 @@ internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingData> =
     SettingSerializer(
         serializer = GeminiSettingData.serializer(),
         defaultValue = GeminiSettingData(),
-    )
-
-internal val MusicDownloadProxySettingSerializer: SettingSerializer<MusicDownloadProxySettingData> =
-    SettingSerializer(
-        serializer = MusicDownloadProxySettingData.serializer(),
-        defaultValue = MusicDownloadProxySettingData(),
     )
 
 internal val FileDownloadSettingSerializer: SettingSerializer<FileDownloadSettingData> =

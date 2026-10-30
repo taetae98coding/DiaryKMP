@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
-import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MusicDownloadProxySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -32,16 +31,6 @@ class SettingRestartTest :
             val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.GEMINI_SETTING_NAME)
 
             createSettingKoin(restartedDirectory).get<GeminiSettingLocalDataSource>().get().first() shouldBe setting
-        }
-
-        test("TC-df85b79c-0ff0-4794-8830-eddf076c29bf 앱을 다시 시작해도 저장한 프록시 주소를 제공한다") {
-            val address = "http://proxy-${fixtureMonkey.giveMeOne<Uuid>()}:27180"
-            val directory = createTempDirectory("diary-setting")
-            createSettingKoin(directory).get<MusicDownloadProxySettingLocalDataSource>().upsertAddress(address = address)
-
-            val restartedDirectory = restartedDirectory(directory = directory, name = DataStoreModule.MUSIC_DOWNLOAD_PROXY_SETTING_NAME)
-
-            createSettingKoin(restartedDirectory).get<MusicDownloadProxySettingLocalDataSource>().getAddress().first() shouldBe address
         }
     })
 

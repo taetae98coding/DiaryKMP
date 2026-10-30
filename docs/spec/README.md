@@ -62,7 +62,6 @@
 | ChecklistDetail 화면 | [client](./client/checklist-detail.md) | — | — | [ChecklistDetail 디자인](../design/checklist-detail.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
 | Checklist 목록·상세 배치 | [client](./client/checklist-list-detail.md) | — | — | [Checklist 목록·상세 배치 디자인](../design/checklist-list-detail.md) |
-| Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | [Chrome 로그인 이어받기 디자인](../design/chrome-session-import.md) |
 | Contact 목록·상세 배치 | [client](./client/contact-list-detail.md) | — | — | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |
 | ContactAdd 화면 | [client](./client/contact-add.md) | — | — | [ContactAdd 디자인](../design/contact-add.md) |
 | ContactDetail 메모 탭 | [client](./client/contact-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [ContactDetail 디자인](../design/contact-detail.md) |
@@ -104,13 +103,11 @@
 | RoutineHome 화면 | [client](./client/routine-home.md) | — | — | [RoutineHome 디자인](../design/routine-home.md) |
 | SearchHome 화면 | [client](./client/search-home.md) | — | — | [SearchHome 디자인](../design/search-home.md) |
 | Setting 목록·상세 배치 | [client](./client/setting-list-detail.md) | — | — | [Setting 목록·상세 배치 디자인](../design/setting-list-detail.md) |
-| SettingBrowser 화면 | [client](./client/setting-browser.md) | — | — | [SettingBrowser 디자인](../design/setting-browser.md) |
 | SettingFile 화면 | [client](./client/setting-file.md) | — | — | [SettingFile 디자인](../design/setting-file.md) |
 | SettingGemini 화면 | [client](./client/setting-gemini.md) | — | — | [SettingGemini 디자인](../design/setting-gemini.md) |
 | SettingHoliday 화면 | [client](./client/setting-holiday.md) | — | — | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
-| SettingPlaylist 화면 | [client](./client/setting-playlist.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
@@ -132,8 +129,6 @@
 | WebHome 화면 | [client](./client/web-home.md) | — | — | [WebHome 디자인](../design/web-home.md) |
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
-| 곡 다운로드 | [client](./client/music-download.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
-| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |

@@ -48,16 +48,6 @@ class SettingHomeScreenTest {
     }
 
     @Test
-    fun `TC-facac3a1-3a7c-49ac-a628-f195e6ef35b6 브라우저 항목을 선택하면 SettingBrowser 화면으로 이동한다`() {
-        assertNavigatesOnlyTo(itemLabel = DEFAULT_BROWSER_ITEM_LABEL, expected = SettingHomeItem.BROWSER)
-    }
-
-    @Test
-    fun `TC-a7570b35-ca10-4b3d-a047-f20b4a7fd24d 플레이리스트 항목을 선택하면 SettingPlaylist 화면으로 이동한다`() {
-        assertNavigatesOnlyTo(itemLabel = DEFAULT_PLAYLIST_ITEM_LABEL, expected = SettingHomeItem.PLAYLIST)
-    }
-
-    @Test
     fun `TC-0f6496a7-770e-4119-ab1b-5525f71ff982 파일 항목을 선택하면 SettingFile 화면으로 이동한다`() {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_FILE_ITEM_LABEL, expected = SettingHomeItem.FILE)
     }
@@ -71,8 +61,6 @@ class SettingHomeScreenTest {
             navigateToHoliday = { navigatedItemList += SettingHomeItem.HOLIDAY },
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
-            navigateToBrowser = { navigatedItemList += SettingHomeItem.BROWSER },
-            navigateToPlaylist = { navigatedItemList += SettingHomeItem.PLAYLIST },
             navigateToFile = { navigatedItemList += SettingHomeItem.FILE },
         )
 
@@ -87,8 +75,6 @@ class SettingHomeScreenTest {
         navigateToHoliday: () -> Unit = {},
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
-        navigateToBrowser: () -> Unit = {},
-        navigateToPlaylist: () -> Unit = {},
         navigateToFile: () -> Unit = {},
         viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Content(itemList = settingHomeItemList)),
     ) {
@@ -99,8 +85,6 @@ class SettingHomeScreenTest {
                     navigateToHoliday = navigateToHoliday,
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
-                    navigateToBrowser = navigateToBrowser,
-                    navigateToPlaylist = navigateToPlaylist,
                     navigateToFile = navigateToFile,
                     viewModel = viewModel,
                 )
@@ -113,8 +97,6 @@ class SettingHomeScreenTest {
         private const val DEFAULT_HOLIDAY_ITEM_LABEL = "Holiday"
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
-        private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
-        private const val DEFAULT_PLAYLIST_ITEM_LABEL = "Playlist"
         private const val DEFAULT_FILE_ITEM_LABEL = "Files"
 
         private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {

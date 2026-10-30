@@ -99,8 +99,6 @@ Bottom Sheet의 제목과 내용은 `Bottom Sheet 가로 여백`으로 좌우를
 - [QrHome 화면](./qr-home.md)
 - [RoutineAdd 화면](./routine-add.md)
 - [SearchHome 화면](./search-home.md)
-- [SettingBrowser 화면](./setting-browser.md)
-- [SettingPlaylist 화면](./setting-playlist.md)
 - [SettingGemini 화면](./setting-gemini.md)
 - [SettingHoliday 화면](./setting-holiday.md)
 - [SettingMap 화면](./setting-map.md)

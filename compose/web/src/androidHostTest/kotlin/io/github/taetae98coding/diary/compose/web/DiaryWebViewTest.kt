@@ -1,12 +1,10 @@
 package io.github.taetae98coding.diary.compose.web
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,29 +19,8 @@ class DiaryWebViewTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    @After
-    fun resetSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
-
     @Test
-    fun `TC-f117a124-06f3-42eb-af49-da9a1bad9df5 로그인 정보를 가져오는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
-        setDiaryWebView(session = DiaryWebSession(isPreparing = true))
-
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-fcdc5498-e502-467d-a4af-67e4bd7bc361 가져오는 중이 아니면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
-        setDiaryWebView(session = DiaryWebSession())
-
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `앱이 세션을 갱신하기 전에도 웹 표시 수단이 주소를 연다`() {
+    fun `진행 표시 없이 웹 표시 수단이 주소를 연다`() {
         composeRule.setContent {
             DiaryTheme {
                 DiaryWebView(url = URL)
@@ -52,43 +29,5 @@ class DiaryWebViewTest {
 
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-3a2b7c2b-d44c-4454-a6b0-42b409f82495 TC-46cc26ce-4c78-4aa8-881a-726c5004305b 가져오기가 시작되면 진행 표시로 바뀌고 끝나면 웹 표시 수단이 다시 열린다`() {
-        setDiaryWebView(session = DiaryWebSession())
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isPreparing = true)) }
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1)) }
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-29750711-90d6-4e1a-a866-01504152678d 가져오기가 실패로 끝나도 웹 표시 수단이 주소를 연다`() {
-        setDiaryWebView(session = DiaryWebSession(isPreparing = true))
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1)) }
-
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    private fun setDiaryWebView(session: DiaryWebSession) {
-        SingletonDiaryWebSession.set(session)
-        composeRule.setContent {
-            DiaryWebViewUnderTest()
-        }
-    }
-
-    @Composable
-    private fun DiaryWebViewUnderTest() {
-        DiaryTheme {
-            DiaryWebView(url = URL)
-        }
     }
 }

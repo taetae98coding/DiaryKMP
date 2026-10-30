@@ -3,13 +3,11 @@ package io.github.taetae98coding.diary.feature.setting.ui
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
@@ -32,12 +30,7 @@ class SettingNavigationTest :
                     SettingMapNavKey to SettingHolidayNavKey,
                     SettingHolidayNavKey to SettingGeminiNavKey,
                     SettingGeminiNavKey to SettingMapNavKey,
-                    SettingGeminiNavKey to SettingBrowserNavKey,
-                    SettingGeminiNavKey to SettingPlaylistNavKey,
-                    SettingBrowserNavKey to SettingHolidayNavKey,
-                    SettingBrowserNavKey to SettingPlaylistNavKey,
-                    SettingPlaylistNavKey to SettingMapNavKey,
-                    SettingPlaylistNavKey to SettingFileNavKey,
+                    SettingGeminiNavKey to SettingFileNavKey,
                     SettingFileNavKey to SettingHolidayNavKey,
                 )
 
@@ -67,8 +60,6 @@ class SettingNavigationTest :
                     SettingHolidayNavKey,
                     SettingMapNavKey,
                     SettingGeminiNavKey,
-                    SettingBrowserNavKey,
-                    SettingPlaylistNavKey,
                     SettingFileNavKey,
                 )
 
@@ -95,8 +86,6 @@ private val settingDetailList: List<ScreenNavKey> =
         SettingHolidayNavKey,
         SettingMapNavKey,
         SettingGeminiNavKey,
-        SettingBrowserNavKey,
-        SettingPlaylistNavKey,
         SettingFileNavKey,
     )
 
