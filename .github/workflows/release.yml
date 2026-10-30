@@ -1,7 +1,7 @@
 name: Release
 
 # main은 test를 통과한 PR만 머지되므로 배포에서는 테스트를 다시 돌리지 않는다.
-# 버전은 빌드 잡마다 작업 트리에만 적용하고, 두 플랫폼 배포가 모두 성공하거나 이미 올라가 있을 때만 커밋·태그한다.
+# 버전은 빌드 잡마다 작업 트리에만 적용하고, 고른 플랫폼 배포가 모두 성공하거나 이미 올라가 있을 때만 커밋·태그한다.
 # 그래서 실패한 뒤 같은 입력으로 다시 실행하면 같은 버전이 계산되고, 이미 올라간 플랫폼은 건너뛴다.
 on:
   workflow_dispatch:
@@ -20,6 +20,11 @@ on:
         required: false
         type: boolean
         default: true
+      macos:
+        description: macOS 데스크톱 앱을 TestFlight로 배포한다
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: release
@@ -56,9 +61,10 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           ANDROID: ${{ inputs.android }}
           IOS: ${{ inputs.ios }}
+          MACOS: ${{ inputs.macos }}
         run: |
           set -euo pipefail
-          if [ "$ANDROID" != "true" ] && [ "$IOS" != "true" ]; then
+          if [ "$ANDROID" != "true" ] && [ "$IOS" != "true" ] && [ "$MACOS" != "true" ]; then
             echo "::error::배포할 플랫폼을 하나 이상 골라야 합니다."
             exit 1
           fi
@@ -98,6 +104,7 @@ jobs:
     outputs:
       android: ${{ steps.play.outputs.exists }}
       ios: ${{ steps.asc.outputs.exists }}
+      macos: ${{ steps.asc_macos.outputs.exists }}
     steps:
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
@@ -129,8 +136,23 @@ jobs:
           BUILD: ${{ needs.version.outputs.build }}
         run: |
           set -euo pipefail
-          exists=$(python3 .github/scripts/store_build_exists.py asc "$ASC_APP_ID" "$VERSION" "$BUILD")
-          echo "App Store Connect $VERSION ($BUILD) 존재: $exists"
+          exists=$(python3 .github/scripts/store_build_exists.py asc "$ASC_APP_ID" "$VERSION" "$BUILD" IOS)
+          echo "App Store Connect iOS $VERSION ($BUILD) 존재: $exists"
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
+      - id: asc_macos
+        name: 🖥️ App Store Connect에 같은 macOS 빌드가 있는지 확인
+        if: inputs.macos
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+        run: |
+          set -euo pipefail
+          exists=$(python3 .github/scripts/store_build_exists.py asc "$ASC_APP_ID" "$VERSION" "$BUILD" MAC_OS)
+          echo "App Store Connect macOS $VERSION ($BUILD) 존재: $exists"
           echo "exists=$exists" >> "$GITHUB_OUTPUT"
 
   android:
@@ -340,16 +362,137 @@ jobs:
           rm -f local.properties iosApp/Firebase/real/GoogleService-Info.plist iosApp/Config/RealLocal.xcconfig
           rm -rf "$RUNNER_TEMP/asc" "$RUNNER_TEMP/Diary.xcarchive" "$RUNNER_TEMP/export"
 
+  macos:
+    name: 🖥️ macOS → TestFlight
+    needs: [version, check]
+    if: inputs.macos && needs.check.outputs.macos != 'true'
+    # Compose는 빌드하는 머신의 아키텍처로만 패키징하므로 Apple Silicon 러너에서 arm64 앱을 만든다.
+    runs-on: macos-latest
+    timeout-minutes: 90
+    env:
+      PKG_DIR: app/jvm/build/compose/binaries/main-release/pkg
+    steps:
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: 🔢 버전 적용
+        uses: ./.github/actions/apply-version
+        with:
+          version: ${{ needs.version.outputs.version }}
+          build: ${{ needs.version.outputs.build }}
+
+      - name: 🧰 빌드 환경 준비
+        uses: ./.github/actions/setup
+        with:
+          local-properties: ${{ secrets.LOCAL_PROPERTIES }}
+
+      - name: 🔐 프로비저닝 프로파일·API 키 복원
+        env:
+          MAC_PROVISIONING_PROFILE_BASE64: ${{ secrets.MAC_PROVISIONING_PROFILE_BASE64 }}
+          MAC_RUNTIME_PROVISIONING_PROFILE_BASE64: ${{ secrets.MAC_RUNTIME_PROVISIONING_PROFILE_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mac"
+          echo "$MAC_PROVISIONING_PROFILE_BASE64" | base64 -d > "$RUNNER_TEMP/mac/embedded.provisionprofile"
+          echo "$MAC_RUNTIME_PROVISIONING_PROFILE_BASE64" | base64 -d > "$RUNNER_TEMP/mac/runtime.provisionprofile"
+          # altool은 이 폴더에서 AuthKey_<키 ID>.p8을 찾는다.
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8"
+
+      # Compose는 Gradle에서 codesign과 productbuild를 직접 부르므로 Xcode 클라우드 서명을 쓸 수 없다.
+      # 앱 서명용 Mac App Distribution과 설치 패키지 서명용 Mac Installer Distribution 인증서를 임시 키체인에 넣는다.
+      - id: keychain
+        name: 🔑 임시 키체인에 배포 인증서 준비
+        env:
+          MAC_APP_SIGNING_P12_BASE64: ${{ secrets.MAC_APP_SIGNING_P12_BASE64 }}
+          MAC_INSTALLER_SIGNING_P12_BASE64: ${{ secrets.MAC_INSTALLER_SIGNING_P12_BASE64 }}
+          MAC_SIGNING_P12_PASSWORD: ${{ secrets.MAC_SIGNING_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          keychain="$RUNNER_TEMP/diary-mac.keychain-db"
+          password=$(openssl rand -hex 16)
+          security list-keychains -d user | tr -d '"' | xargs > "$RUNNER_TEMP/keychains.orig"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          for p12 in "$MAC_APP_SIGNING_P12_BASE64" "$MAC_INSTALLER_SIGNING_P12_BASE64"; do
+            echo "$p12" | base64 -d > "$RUNNER_TEMP/mac.p12"
+            security import "$RUNNER_TEMP/mac.p12" -k "$keychain" -P "$MAC_SIGNING_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/productbuild -T /usr/bin/security
+            rm -f "$RUNNER_TEMP/mac.p12"
+          done
+          curl -fsSL -o "$RUNNER_TEMP/AppleWWDRCAG3.cer" https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          security import "$RUNNER_TEMP/AppleWWDRCAG3.cer" -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild: -s -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain"
+          # Compose는 identity 앞에 인증서 종류를 붙여 찾으므로 "이름 (팀 ID)" 부분만 넘긴다.
+          identity=$(security find-identity -v "$keychain" | sed -nE 's/.*"3rd Party Mac Developer Application: (.*)"$/\1/p' | head -1)
+          if [ -z "$identity" ] || ! security find-identity -v "$keychain" | grep -q "3rd Party Mac Developer Installer: $identity"; then
+            security find-identity -v "$keychain"
+            echo "::error::임시 키체인에 Mac App Distribution과 Mac Installer Distribution 인증서가 함께 있어야 합니다."
+            exit 1
+          fi
+          echo "identity=$identity" >> "$GITHUB_OUTPUT"
+          echo "keychain=$keychain" >> "$GITHUB_OUTPUT"
+
+      - name: 🏗️ real Mac App Store 패키지 빌드
+        env:
+          IDENTITY: ${{ steps.keychain.outputs.identity }}
+          KEYCHAIN: ${{ steps.keychain.outputs.keychain }}
+        run: |
+          set -euo pipefail
+          ./gradlew :app:jvm:packageReleasePkg \
+            -Pbuildkonfig.flavor=real \
+            -Pdiary.mac.appStore=true \
+            -Pdiary.mac.provisioningProfile="$RUNNER_TEMP/mac/embedded.provisionprofile" \
+            -Pdiary.mac.runtimeProvisioningProfile="$RUNNER_TEMP/mac/runtime.provisionprofile" \
+            -Pcompose.desktop.mac.sign=true \
+            -Pcompose.desktop.mac.signing.identity="$IDENTITY" \
+            -Pcompose.desktop.mac.signing.keychain="$KEYCHAIN"
+
+      - name: 🔍 패키지 서명 확인
+        run: |
+          set -euo pipefail
+          pkg=$(find "$PKG_DIR" -name '*.pkg' | head -1)
+          if [ -z "$pkg" ]; then
+            echo "::error::$PKG_DIR 에 pkg가 없습니다."
+            exit 1
+          fi
+          pkgutil --check-signature "$pkg"
+          echo "PKG=$pkg" >> "$GITHUB_ENV"
+
+      - name: 🚀 TestFlight에 업로드
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: xcrun altool --upload-app --type macos --file "$PKG" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: 🧹 비밀 파일·임시 키체인 정리
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/keychains.orig" ]; then
+            # shellcheck disable=SC2046
+            security list-keychains -d user -s $(cat "$RUNNER_TEMP/keychains.orig")
+          fi
+          security delete-keychain "$RUNNER_TEMP/diary-mac.keychain-db" 2>/dev/null || true
+          rm -f local.properties
+          rm -rf "$RUNNER_TEMP/mac" "$HOME/.appstoreconnect/private_keys"
+
   finalize:
     name: 🏷️ 버전 커밋·태그·GitHub Release
-    needs: [version, check, android, ios]
-    # 두 플랫폼이 모두 올라갔거나(성공), 이미 올라가 있거나 배포 대상이 아니어서(skip) 스토어와 저장소의 버전이 어긋나지 않을 때만 남긴다.
+    needs: [version, check, android, ios, macos]
+    # 고른 플랫폼이 모두 올라갔거나(성공), 이미 올라가 있거나 배포 대상이 아니어서(skip) 스토어와 저장소의 버전이 어긋나지 않을 때만 남긴다.
     if: >-
       !cancelled()
       && needs.version.result == 'success'
       && needs.check.result == 'success'
       && contains(fromJSON('["success", "skipped"]'), needs.android.result)
       && contains(fromJSON('["success", "skipped"]'), needs.ios.result)
+      && contains(fromJSON('["success", "skipped"]'), needs.macos.result)
     runs-on: ubuntu-latest
     permissions:
       contents: write

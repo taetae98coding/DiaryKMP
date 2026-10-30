@@ -30,7 +30,7 @@ class FileDownloadSettingRepositoryImplTest :
 
             listOf(
                 null to FileDownloadSetting(directory = null),
-                local to FileDownloadSetting(directory = FileDownloadDirectory(uri = local.uri, name = local.name)),
+                local to FileDownloadSetting(directory = FileDownloadDirectory(uri = local.uri, name = local.name, bookmark = local.bookmark)),
             ).forEach { (stored, expected) ->
                 val settingDataSource = mockk<FileDownloadSettingLocalDataSource>()
                 every { settingDataSource.getDirectory() } returns flowOf(stored)
@@ -55,8 +55,8 @@ class FileDownloadSettingRepositoryImplTest :
 
             coVerifyOrder {
                 downloadDataSource.retainDirectory(uri = uri)
-                settingDataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = retained.uri, name = retained.name))
-                downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = previous.uri, name = previous.name))
+                settingDataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = retained.uri, name = retained.name, bookmark = retained.bookmark))
+                downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = previous.uri, name = previous.name, bookmark = previous.bookmark))
             }
         }
 
@@ -82,7 +82,7 @@ class FileDownloadSettingRepositoryImplTest :
 
             coVerifyOrder {
                 settingDataSource.upsertDirectory(directory = null)
-                downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = stored.uri, name = stored.name))
+                downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = stored.uri, name = stored.name, bookmark = stored.bookmark))
             }
         }
 
@@ -94,7 +94,7 @@ class FileDownloadSettingRepositoryImplTest :
 
             FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).unsetDirectory()
 
-            coVerify(exactly = 1) { downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = stored.uri, name = stored.name)) }
+            coVerify(exactly = 1) { downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = stored.uri, name = stored.name, bookmark = stored.bookmark)) }
             confirmVerified(downloadDataSource)
         }
 

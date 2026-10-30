@@ -42,7 +42,23 @@ class FileDownloadSettingLocalDataSourceImplTest :
         test("TC-786bc68f-5f47-40d0-975b-a7463878d6d4 저장한 폴더는 저장소를 다시 열어도 유지된다") {
             runTest {
                 val path = tempSettingPath()
-                val directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>())
+                val directory =
+                    FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = fixtureMonkey.nonBlankString())
+
+                withDataStore(path = path) { dataStore ->
+                    FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).upsertDirectory(directory = directory)
+                }
+
+                withDataStore(path = path) { dataStore ->
+                    FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).getDirectory().first() shouldBe directory
+                }
+            }
+        }
+
+        test("TC-786bc68f-5f47-40d0-975b-a7463878d6d4 북마크가 비어 있는 폴더도 저장소를 다시 열면 비어 있는 북마크로 유지된다") {
+            runTest {
+                val path = tempSettingPath()
+                val directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = "")
 
                 withDataStore(path = path) { dataStore ->
                     FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).upsertDirectory(directory = directory)
@@ -59,7 +75,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
                 withDataStore(path = tempSettingPath()) { dataStore ->
                     val dataSource = FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore)
 
-                    dataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>()))
+                    dataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = fixtureMonkey.nonBlankString()))
                     dataSource.upsertDirectory(directory = null)
 
                     dataSource.getDirectory().first() shouldBe null

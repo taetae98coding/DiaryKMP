@@ -15,6 +15,20 @@ private fun pathSegment(prefix: String): String = prefix + fixtureMonkey.giveMeO
 
 class ApplicationSupportDirectoryTest :
     FunSpec({
+        test("TC-0e9a5c1b-a8e3-49c7-9135-ca01551db260 Mac App Store로 배포한 앱은 앱 전용 보관 공간의 홈 폴더를 기준으로 삼는다") {
+            val userHome = "/Users/" + pathSegment(prefix = "home-")
+            val containerHome = "$userHome/Library/Containers/" + pathSegment(prefix = "app-") + "/Data"
+            val cases =
+                listOf(
+                    mapOf("APP_SANDBOX_CONTAINER_ID" to pathSegment(prefix = "app-"), "HOME" to containerHome) to containerHome,
+                    mapOf("HOME" to userHome) to userHome,
+                )
+
+            cases.forEach { (environment, expectedHome) ->
+                userHomeDirectory(environment = environment, userHomeProperty = userHome) shouldBe Paths.get(expectedHome)
+            }
+        }
+
         test("사용자 홈의 Application Support 아래 이름이 같은 영역을 가리킨다") {
             val userHome = Paths.get("/Users", pathSegment(prefix = "home-"))
             val directoryName = pathSegment(prefix = "Diary-")

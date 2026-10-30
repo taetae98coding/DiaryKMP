@@ -14,6 +14,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(projects.library.applicationSupport)
+                implementation(projects.library.foundation)
             }
         }
 

@@ -19,6 +19,19 @@
   | 개발 | `DiaryDev` | `/Users/user/Library/Application Support/DiaryDev/diary.db` |
   | 운영 | `Diary` | `/Users/user/Library/Application Support/Diary/diary.db` |
 
+### TC-0e9a5c1b-a8e3-49c7-9135-ca01551db260: Mac App Store로 배포한 앱은 앱 전용 보관 공간의 홈 폴더 아래에 저장 위치를 둔다
+
+- 근거: `data > 환경별 저장 위치`
+- Given: 앱이 테스트 데이터의 실행 방식으로 실행되었고, 사용자의 홈 폴더가 `/Users/user`, 앱 전용 보관 공간의 홈 폴더가 `/Users/user/Library/Containers/io.github.taetae98coding.diary/Data`다.
+- When: 앱이 저장 위치의 기준이 되는 홈 폴더를 정한다.
+- Then: 테스트 데이터의 홈 폴더를 기준으로 삼는다.
+- 테스트 데이터:
+
+  | 실행 방식 | 기준 홈 폴더 |
+  | --- | --- |
+  | Mac App Store로 배포한 앱 | `/Users/user/Library/Containers/io.github.taetae98coding.diary/Data` |
+  | 사용자가 직접 실행한 앱 | `/Users/user` |
+
 ### TC-f725c335-e15d-4411-aaae-72b543402133: 개발 환경과 운영 환경의 저장 위치를 분리한다
 
 - 근거: `data > 환경별 저장 위치`
