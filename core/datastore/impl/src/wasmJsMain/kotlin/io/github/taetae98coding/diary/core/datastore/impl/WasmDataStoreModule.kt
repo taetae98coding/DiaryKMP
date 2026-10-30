@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorag
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -52,6 +53,14 @@ public class WasmDataStoreModule {
         WebLocalStorage(
             serializer = FileDownloadSettingSerializer,
             name = DataStoreModule.FILE_DOWNLOAD_SETTING_NAME,
+        )
+
+    @Single
+    @WebLoginStorage
+    internal fun providesWebLoginStorage(): Storage<WebLoginData> =
+        WebLocalStorage(
+            serializer = WebLoginSerializer,
+            name = DataStoreModule.WEB_LOGIN_NAME,
         )
 
     @Single

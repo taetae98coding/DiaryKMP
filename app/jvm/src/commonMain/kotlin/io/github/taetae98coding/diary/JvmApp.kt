@@ -6,7 +6,9 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import io.github.taetae98coding.diary.app.shared.App
 import io.github.taetae98coding.diary.app.shared.initializer.StartupInitializer
+import io.github.taetae98coding.diary.app.shared.web.saveWebLoginOnExit
 import java.awt.Dimension
+import kotlin.system.exitProcess
 
 private const val WIDTH = 1080
 private const val HEIGHT = 920
@@ -25,9 +27,13 @@ internal fun main() {
     singleWindowApplication(
         state = WindowState(size = DpSize(width = WIDTH.dp, height = HEIGHT.dp)),
         title = requireNotNull(System.getProperty(APP_NAME_PROPERTY)) { "$APP_NAME_PROPERTY is missing" },
+        exitProcessOnExit = false,
     ) {
         window.minimumSize = Dimension(MIN_WIDTH, MIN_HEIGHT)
 
         App()
     }
+
+    saveWebLoginOnExit()
+    exitProcess(0)
 }

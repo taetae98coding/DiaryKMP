@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorag
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -59,6 +60,15 @@ public class NonWasmDataStoreModule {
             pathResolver = pathResolver,
             serializer = FileDownloadSettingSerializer,
             name = DataStoreModule.FILE_DOWNLOAD_SETTING_NAME,
+        )
+
+    @Single
+    @WebLoginStorage
+    internal fun providesWebLoginStorage(pathResolver: SettingPathResolver): Storage<WebLoginData> =
+        createSettingStorage(
+            pathResolver = pathResolver,
+            serializer = WebLoginSerializer,
+            name = DataStoreModule.WEB_LOGIN_NAME,
         )
 
     @Single

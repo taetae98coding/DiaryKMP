@@ -34,6 +34,7 @@ kotlin {
                 implementation(projects.core.network.impl)
                 implementation(projects.core.supabase.impl)
                 implementation(projects.core.weatherNetwork.impl)
+                implementation(projects.core.webCookie.impl)
                 implementation(projects.core.webNetwork.impl)
                 implementation(projects.core.youtubeNetwork.impl)
                 implementation(projects.data.account)

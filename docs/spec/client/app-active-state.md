@@ -23,3 +23,4 @@ Android와 iOS에서는 앱이 화면에 다시 보이게 되는 것이 다시 �
 - [데이터 동기화 앱 스펙](./data-sync.md): 활성 상태
 - [푸시 알림 수신 등록 스펙](./fcm-token.md): 활성 상태
 - [Play Integrity 판정 기록 스펙](./play-integrity-logging.md): 활성 상태
+- [앱 안 웹 로그인 유지 스펙](./web-login-persistence.md): 활성 상태

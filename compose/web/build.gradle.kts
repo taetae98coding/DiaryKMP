@@ -10,6 +10,12 @@ kotlin {
             }
         }
 
+        androidMain {
+            dependencies {
+                implementation(projects.core.webCookie.api)
+            }
+        }
+
         jvmMain {
             dependencies {
                 implementation(projects.library.webkit)

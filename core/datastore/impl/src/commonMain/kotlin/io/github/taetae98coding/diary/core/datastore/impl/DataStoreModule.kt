@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginDataStore
+import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.annotation.ComponentScan
@@ -70,12 +72,22 @@ public class DataStoreModule {
         dispatcher: CoroutineDispatcher,
     ): DataStore<SyncTimeData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = SyncTimeSerializer)
 
+    @Single
+    @WebLoginDataStore
+    internal fun providesWebLoginDataStore(
+        @WebLoginStorage
+        storage: Storage<WebLoginData>,
+        @DiarySettingDispatcher
+        dispatcher: CoroutineDispatcher,
+    ): DataStore<WebLoginData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = WebLoginSerializer)
+
     internal companion object {
         const val MAP_SETTING_NAME: String = "map-setting.json"
         const val HOLIDAY_SETTING_NAME: String = "holiday-setting.json"
         const val GEMINI_SETTING_NAME: String = "gemini-setting.json"
         const val SYNC_TIME_NAME: String = "sync-time.json"
         const val FILE_DOWNLOAD_SETTING_NAME: String = "file-download-setting.json"
+        const val WEB_LOGIN_NAME: String = "web-login.json"
     }
 }
 

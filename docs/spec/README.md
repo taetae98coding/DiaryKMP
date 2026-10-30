@@ -163,6 +163,7 @@
 | 알림 권한 요청 | [client](./client/notification-permission.md) | — | — | — |
 | 앱 로깅 | [client](./client/app-logging.md) | — | — | — |
 | 앱 밖 브라우저 열기 | [client](./client/external-browser-open.md) | — | — | — |
+| 앱 안 웹 로그인 유지 | [client](./client/web-login-persistence.md) | — | — | [WebDetail 디자인](../design/web-detail.md) |
 | 앱 이름 | [client](./client/app-name.md) | — | — | — |
 | 앱 활성 상태 | [client](./client/app-active-state.md) | — | — | — |
 | 연도별 자료 동기화 | [client](./client/yearly-data-sync.md) | — | — | — |

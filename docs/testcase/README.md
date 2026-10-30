@@ -35,6 +35,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | --- | --- |
 | [계정 조회](./account.md) | [계정 조회](../spec/client/account.md) |
 | [앱 로깅](./app-logging.md) | [앱 로깅](../spec/client/app-logging.md) |
+| [앱 안 웹 로그인 유지](./web-login-persistence.md) | [앱 안 웹 로그인 유지](../spec/client/web-login-persistence.md) |
 | [앱 이름](./app-name.md) | [앱 이름](../spec/client/app-name.md) |
 | [CalendarBarText](./calendar-bar-text.md) | [CalendarBarText 컴포넌트](../spec/client/calendar-bar-text.md) |
 | [CalendarHome](./calendar-home.md) | [CalendarHome](../spec/client/calendar-home.md) |
