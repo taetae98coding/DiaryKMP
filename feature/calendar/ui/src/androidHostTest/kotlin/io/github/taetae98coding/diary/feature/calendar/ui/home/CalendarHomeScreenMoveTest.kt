@@ -45,8 +45,10 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -741,6 +743,78 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `TC-917ab40e-77fa-4e45-997a-6d6a966d3f8d 이동 중 다른 손가락으로 아이템 영역을 움직여도 아이템 영역이 스크롤되지 않는다`() {
+        val memoList = filledWeekMemoList()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(memoList),
+            onState = { capturedState = it },
+        )
+        val movingTitle = topFilledMemoTitle()
+
+        val pressPosition = memoPressPosition(title = movingTitle, day = 6)
+        performLongPress(pressPosition)
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = movingTitle)
+        performSecondaryDown(Offset(x = dayCenter(day = 10).x, y = pressPosition.y))
+        repeat(ITEM_DRAG_STEP_COUNT) { performSecondaryMoveBy(itemDragStep()) }
+
+        initialFilledMemoTopMap.shouldNotBeEmpty()
+        filledMemoTopMap(exceptTitle = movingTitle) shouldBe initialFilledMemoTopMap
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memoList.first { memo -> memo.title == movingTitle }.id
+        performSecondaryUp()
+        performUp()
+    }
+
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `TC-ce96d89f-83e2-41be-a791-cfef84c780d7 이동하는 손가락을 위아래로 움직여도 아이템 영역이 스크롤되지 않는다`() {
+        val memoList = filledWeekMemoList()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(memoList),
+            onState = { capturedState = it },
+        )
+        val movingTitle = topFilledMemoTitle()
+
+        val pressPosition = memoPressPosition(title = movingTitle, day = 6)
+        performLongPress(pressPosition)
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = movingTitle)
+        // 이동하는 손가락이 같은 주 안에 머물도록 첫 아이템 줄에서 그 위의 날짜 숫자 쪽으로만 끌어 올린다.
+        repeat(ITEM_DRAG_STEP_COUNT) { step ->
+            performMoveTo(pressPosition + Offset(x = 0F, y = -memoRowHeight(title = movingTitle) * (step + 1) / ITEM_DRAG_STEP_COUNT))
+        }
+
+        initialFilledMemoTopMap.shouldNotBeEmpty()
+        filledMemoTopMap(exceptTitle = movingTitle) shouldBe initialFilledMemoTopMap
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memoList.first { memo -> memo.title == movingTitle }.id
+        performUp()
+    }
+
+    // 위 두 케이스가 스크롤되지 않음을 확인하는 이동이 메모 이동 중이 아닐 때는 실제로 아이템 영역을 스크롤하는지 확인한다.
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `메모 이동 중이 아니면 같은 세로 이동으로 아이템 영역이 스크롤된다`() {
+        setCalendarHomeScreen(memoListFlow = MutableStateFlow(filledWeekMemoList()))
+        val pressTitle = topFilledMemoTitle()
+
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = null)
+        composeRule.onRoot().performTouchInput { down(memoPressPosition(title = pressTitle, day = 10)) }
+        repeat(ITEM_DRAG_STEP_COUNT) { composeRule.onRoot().performTouchInput { moveBy(itemDragStep()) } }
+        performUp()
+
+        filledMemoTopMap(exceptTitle = null) shouldNotBe initialFilledMemoTopMap
+    }
+
+    @Test
     fun `TC-2b1d4867-3f02-4491-8a2b-c8f1f8400bf9 가장자리 영역 안에서 이동을 시작하면 곧바로 달 이동이 시작된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 18), endInclusive = july(day = 18))
         var capturedState: CalendarHomeScaffoldState? = null
@@ -1210,6 +1284,40 @@ class CalendarHomeScreenMoveTest {
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
         )
 
+    // 7월 5일부터 11일까지의 주를 한 번에 모두 보이지 않을 만큼 같은 기간의 메모로 채운다.
+    private fun filledWeekMemoList(): List<CalendarMemo> =
+        List(FILLED_MEMO_COUNT) { index ->
+            memo(title = filledMemoTitle(index = index), start = july(day = 5), endInclusive = july(day = 11))
+        }
+
+    private fun filledMemoTitle(index: Int): String = "$FILLED_MEMO_TITLE_PREFIX$index"
+
+    // 같은 기간의 메모 사이의 줄 순서는 목록 순서로 정해지지 않으므로, 가장 위 줄에 보이는 메모를 고른다.
+    private fun topFilledMemoTitle(): String =
+        filledMemoTopMap(exceptTitle = null)
+            .minBy { (_, top) -> top }
+            .key
+
+    // 화면에 구성된 채움 메모의 위쪽 위치. 스크롤되면 위치가 바뀌거나 구성에서 빠지고 새 메모가 들어온다.
+    private fun filledMemoTopMap(exceptTitle: String?): Map<String, Float> =
+        List(FILLED_MEMO_COUNT) { index -> filledMemoTitle(index = index) }
+            .filter { title -> title != exceptTitle }
+            .mapNotNull { title ->
+                composeRule
+                    .onAllNodesWithText(title)
+                    .fetchSemanticsNodes()
+                    .firstOrNull()
+                    ?.let { node -> title to node.boundsInRoot.top }
+            }.toMap()
+
+    private fun memoRowHeight(title: String): Float =
+        composeRule
+            .onAllNodesWithText(title)[0]
+            .fetchSemanticsNode()
+            .boundsInRoot.height
+
+    private fun itemDragStep(): Offset = Offset(x = 0F, y = -with(composeRule.density) { ITEM_DRAG_STEP_DISTANCE.toPx() })
+
     private fun june(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JUNE, day = day)
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
@@ -1239,6 +1347,13 @@ class CalendarHomeScreenMoveTest {
         private const val SECONDARY_POINTER_ID = 1
         private const val BELOW_CALENDAR_DISTANCE = 200F
         private val MONTH_SWIPE_DISTANCE = 64.dp
+        private const val FILLED_MEMO_COUNT = 20
+
+        // 기본 화면에서는 한 주에 아이템이 한 줄만 보여 스크롤 여부를 다른 아이템의 위치로 확인할 수 없으므로 화면을 세로로 늘린다.
+        private const val TALL_SCREEN_QUALIFIERS = "h1200dp"
+        private const val FILLED_MEMO_TITLE_PREFIX = "채움"
+        private const val ITEM_DRAG_STEP_COUNT = 10
+        private val ITEM_DRAG_STEP_DISTANCE = 10.dp
 
         // 페이저 스와이프로 처리되면 달이 넘어가는 거리여야 달 이동이 일어나지 않음을 확인할 수 있다.
         private const val PAGE_CROSSING_RATIO = 0.7F
