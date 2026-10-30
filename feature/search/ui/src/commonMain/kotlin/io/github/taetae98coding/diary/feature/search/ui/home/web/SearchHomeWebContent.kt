@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.web
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import kotlin.uuid.Uuid
 internal fun SearchHomeWebContent(
     viewModel: SearchHomeWebViewModel,
     pagingItems: LazyPagingItems<Web>,
+    listState: LazyListState,
     snackbarHostState: SnackbarHostState,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
@@ -22,6 +24,7 @@ internal fun SearchHomeWebContent(
     SearchHomeResultContent(
         viewModel = viewModel,
         pagingItems = pagingItems,
+        listState = listState,
     ) { state ->
         WebListUndoSnackbarEffect(
             onRestore = viewModel::restore,

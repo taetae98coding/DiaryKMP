@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.tag
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import kotlin.uuid.Uuid
 internal fun SearchHomeTagContent(
     viewModel: SearchHomeTagViewModel,
     pagingItems: LazyPagingItems<Tag>,
+    listState: LazyListState,
     snackbarHostState: SnackbarHostState,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
@@ -23,6 +25,7 @@ internal fun SearchHomeTagContent(
     SearchHomeResultContent(
         viewModel = viewModel,
         pagingItems = pagingItems,
+        listState = listState,
     ) { state ->
         TagListUndoSnackbarEffect(
             onRestart = { id -> viewModel.undo(effect = TagListEffect.Finished(id = id)) },

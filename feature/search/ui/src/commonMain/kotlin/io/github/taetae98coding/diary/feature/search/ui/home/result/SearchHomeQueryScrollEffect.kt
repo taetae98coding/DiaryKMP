@@ -18,6 +18,7 @@ internal fun SearchHomeQueryScrollEffect(
     LaunchedEffect(listState) {
         snapshotFlow { latestQueryProvider() }
             .drop(1)
-            .collect { listState.scrollToItem(0) }
+            // 보고 있지 않은 유형의 목록은 배치되지 않으므로, 배치를 기다리지 않고 다음 배치의 자리를 정한다.
+            .collect { listState.requestScrollToItem(0) }
     }
 }

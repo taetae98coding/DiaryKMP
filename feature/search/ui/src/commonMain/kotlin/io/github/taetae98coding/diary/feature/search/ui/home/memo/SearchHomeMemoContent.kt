@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.memo
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import kotlin.uuid.Uuid
 internal fun SearchHomeMemoContent(
     viewModel: SearchHomeMemoViewModel,
     pagingItems: LazyPagingItems<Memo>,
+    listState: LazyListState,
     snackbarHostState: SnackbarHostState,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
@@ -21,6 +23,7 @@ internal fun SearchHomeMemoContent(
     SearchHomeResultContent(
         viewModel = viewModel,
         pagingItems = pagingItems,
+        listState = listState,
     ) { state ->
         SearchHomeMemoUndoSnackbarEffect(
             onUndo = viewModel::undo,
