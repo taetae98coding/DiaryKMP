@@ -44,7 +44,7 @@
 
 ### DataSource 연산 이름
 
-`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`)다. `find`를 `suspend`로 선언하지 않는다.
+`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`), 원격 결과를 만들어지는 대로 나누어 받으면 `stream`(`Flow`)이다. `find`를 `suspend`로 선언하지 않는다.
 
 저장소나 원격에 쓰는 연산은 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
 

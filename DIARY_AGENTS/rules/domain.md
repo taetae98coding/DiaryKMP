@@ -14,6 +14,7 @@ Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가�
 | `find` | 식별자나 조건으로 하나를 찾아 관찰하는 조회. `Flow`를 반환하고, 없을 수 있으면 `Flow<T?>`로 둔다 |
 | `page` | 페이징 조회. `Flow<PagingData<T>>`를 반환한다 |
 | `read` | 관찰하지 않고 한 번 읽고 끝나는 조회. `suspend`로 값을 반환한다. 무엇을 읽는지 접미사로 드러낸다(`readTagIdSet`, `readPendingList`) |
+| `stream` | 한 번 실행하고 끝나는 원격 연산이 결과를 만들어지는 대로 나누어 받는다. `Flow`를 반환하며, 중간 진행을 내보내다가 마지막 결과를 내보낸 뒤 끝난다. 값이 바뀌는 것을 계속 지켜보는 `get`·`find`와 달리 끝이 있다. 예: `MemoDraftRepository.stream` |
 | `create` | 넘긴 값이 그대로 저장되지 않고 다른 자원으로 교환되는 생성. 예: `SessionRepository.create(credential)`은 credential을 세션으로 바꾼다 |
 | `upsert` | 행이 없으면 INSERT, 있으면 UPDATE |
 | `update*` | 항상 기존 행을 갱신한다. 무엇을 갱신하는지 접미사로 드러낸다(`updateFinished`, `updateDetail`) |
@@ -79,6 +80,7 @@ public class SelectMemoFilterTagUseCase internal constructor(
 
 - `sync`와 `refresh`는 데이터를 반환하지 않고 로컬에 반영만 한다. `fetch`는 얻은 데이터를 반환할 수 있고, 호출자가 값을 쓰지 않으면 반환하지 않아도 된다.
 - 값이 바뀌는 것을 관찰해야 하는 조회는 `get`, `find`, `page`로 두고 `FlowUseCase`로 노출한다. 저장소의 값을 한 번 읽고 끝나는 조회는 `read`로, 호출 시점의 서버 데이터를 한 번 얻고 끝나는 조회는 `fetch`로 두고 `UseCase`로 노출한다.
+- 서버 데이터를 만들어지는 대로 나누어 받는 Repository 연산은 `fetch`가 아니라 `stream`으로 둔다. 이를 감싼 UseCase가 중간 진행을 파라미터로 받은 콜백에 넘기고 마지막 결과만 반환하며 끝나면, 한 번 실행하고 끝나는 기능이므로 `UseCase`로 노출하고 `Fetch` 이름을 쓴다. 예: `FetchMemoDraftUseCase`가 `MemoDraftRepository.stream`을 감싼다.
 - 세 이름을 한 Repository에 모두 선언하지 않는다. 호출자가 있는 연산만 선언한다.
 - 이 세 이름은 위 표의 의미에만 쓴다. 예: 세션 인증 유효 여부는 `isRefreshed`가 아니라 `isSessionValid`. 외부 라이브러리의 이름을 옮기는 경우(`refreshToken`, `SessionStatus.RefreshFailure`)는 원본 어휘를 유지한다.
 
