@@ -73,19 +73,21 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 고향은 목록에 표시하지 않는다`() {
+    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 고향, 알게 된 경로는 목록에 표시하지 않는다`() {
         val contact =
             testContact(
                 name = CONTACT_NAME,
                 phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
                 description = CONTACT_DESCRIPTION,
                 hometown = CONTACT_HOMETOWN,
+                howWeMet = CONTACT_HOW_WE_MET,
             )
 
         setContactHomeList(contactList = listOf(contact))
 
         composeRule.onNodeWithText(CONTACT_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(CONTACT_HOMETOWN).assertDoesNotExist()
+        composeRule.onNodeWithText(CONTACT_HOW_WE_MET).assertDoesNotExist()
     }
 
     @Test
@@ -172,6 +174,7 @@ class ContactHomeListTest {
         private const val OTHER_CONTACT_PHONE_NUMBER = "010-3333-4444"
         private const val CONTACT_DESCRIPTION = "ContactHomeListDescription"
         private const val CONTACT_HOMETOWN = "ContactHomeListHometown"
+        private const val CONTACT_HOW_WE_MET = "ContactHomeListHowWeMet"
         private const val RESTORATION_CONTACT_COUNT = 40
         private const val RESTORATION_SCROLL_INDEX = 30
     }

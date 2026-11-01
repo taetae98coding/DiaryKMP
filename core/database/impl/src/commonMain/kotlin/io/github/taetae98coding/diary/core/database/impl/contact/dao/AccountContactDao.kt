@@ -78,7 +78,7 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         SET name = :name, description = :description, height_centimeter = :heightCentimeter,
             foot_size_millimeter = :footSizeMillimeter, birthday = :birthday,
             birthday_calendar = :birthdayCalendar, birth_year = :birthYear, hometown = :hometown,
-            phone_number_list = :phoneNumberList, updated_at = :updatedAt
+            how_we_met = :howWeMet, phone_number_list = :phoneNumberList, updated_at = :updatedAt
         WHERE id = :contactId
             AND EXISTS(
                 SELECT 1
@@ -98,6 +98,7 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         birthdayCalendar: ContactBirthdayCalendarLocalEntity?,
         birthYear: Int?,
         hometown: String?,
+        howWeMet: String,
         phoneNumberList: List<ContactPhoneNumberLocalEntity>,
         updatedAt: Instant,
     ): Int

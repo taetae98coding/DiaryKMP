@@ -306,9 +306,13 @@ class AccountMemoContactLocalDataSourceImplTest :
                 contact(name = HOMETOWN_CONTACT_NAME).let { contact ->
                     contact.copy(detail = contact.detail.copy(hometown = SEARCH_QUERY))
                 }
+            val howWeMetMatchedContact =
+                contact(name = HOW_WE_MET_CONTACT_NAME).let { contact ->
+                    contact.copy(detail = contact.detail.copy(howWeMet = SEARCH_QUERY))
+                }
             contactTransaction.upsert(
                 accountId = accountId,
-                contactList = listOf(nameMatchedContact, descriptionMatchedContact, phoneNumberMatchedContact, hometownMatchedContact),
+                contactList = listOf(nameMatchedContact, descriptionMatchedContact, phoneNumberMatchedContact, hometownMatchedContact, howWeMetMatchedContact),
             )
 
             loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedContact, nameMatchedContact)
@@ -442,6 +446,7 @@ class AccountMemoContactLocalDataSourceImplTest :
         private const val FIRST_CONTACT_NAME = "AppleContact"
         private const val LAST_CONTACT_NAME = "ZebraContact"
         private const val HOMETOWN_CONTACT_NAME = "HometownContact"
+        private const val HOW_WE_MET_CONTACT_NAME = "HowWeMetContact"
         private const val SEARCH_QUERY = "searchable"
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
         private const val PAGE_SIZE = 20

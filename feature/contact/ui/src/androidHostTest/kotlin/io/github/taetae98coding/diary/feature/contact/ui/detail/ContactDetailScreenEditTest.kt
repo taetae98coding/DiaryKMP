@@ -39,6 +39,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.howWeMetInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
@@ -164,6 +165,7 @@ class ContactDetailScreenEditTest {
         composeRule.heightInput().assert(hasText(STORED_HEIGHT_TEXT))
         composeRule.footSizeInput().assert(hasText(STORED_FOOT_SIZE_TEXT))
         composeRule.hometownInput().assert(hasText(stored.hometown))
+        composeRule.howWeMetInput().assert(hasText(stored.howWeMet))
         composeRule.onNodeWithText(STORED_BIRTHDAY_TEXT).assertExists()
         composeRule.phoneNumberRowCount() shouldBe stored.phoneNumberList.size
         composeRule.phoneNumberInput().assert(hasText(stored.phoneNumberList.first().number))
@@ -357,6 +359,7 @@ class ContactDetailScreenEditTest {
         heightInput().performTextReplacement(EDITED_HEIGHT_TEXT)
         footSizeInput().performTextReplacement(EDITED_FOOT_SIZE_TEXT)
         hometownInput().performTextReplacement(input.hometown)
+        howWeMetInput().performTextReplacement(input.howWeMet)
         onNodeWithContentDescription(DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION).performSemanticsAction(SemanticsActions.OnClick)
         waitForIdle()
         addPhoneNumberRowOnScreen()
@@ -373,6 +376,7 @@ class ContactDetailScreenEditTest {
         heightInput().assert(hasText(EDITED_HEIGHT_TEXT))
         footSizeInput().assert(hasText(EDITED_FOOT_SIZE_TEXT))
         hometownInput().assert(hasText(input.hometown))
+        howWeMetInput().assert(hasText(input.howWeMet))
         onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         phoneNumberRowCount() shouldBe STORED_PHONE_NUMBER_COUNT + 1 + blankPhoneNumberRowCount
         phoneNumberInput(row = 1).assert(hasText(input.phoneNumber))
@@ -382,6 +386,7 @@ class ContactDetailScreenEditTest {
         val name: String,
         val description: String,
         val hometown: String,
+        val howWeMet: String,
         val phoneNumber: String,
     )
 
@@ -408,6 +413,7 @@ class ContactDetailScreenEditTest {
                 footSize = 250.millimeter,
                 birthday = ContactBirthday(date = LocalDate(year = 1994, month = 3, day = 21), calendar = ContactBirthdayCalendar.SOLAR),
                 hometown = "고향-${fixtureMonkey.giveMeOne<Int>()}",
+                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<Int>()}",
                 phoneNumberList = List(STORED_PHONE_NUMBER_COUNT) { "010-${fixtureMonkey.giveMeOne<Int>()}" },
             )
 
@@ -416,6 +422,7 @@ class ContactDetailScreenEditTest {
                 name = "이름-${fixtureMonkey.giveMeOne<Int>()}",
                 description = "설명-${fixtureMonkey.giveMeOne<Int>()}",
                 hometown = "고향-${fixtureMonkey.giveMeOne<Int>()}",
+                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<Int>()}",
                 phoneNumber = "02-${fixtureMonkey.giveMeOne<Int>()}",
             )
     }

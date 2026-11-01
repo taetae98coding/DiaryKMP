@@ -36,14 +36,16 @@ internal const val HEIGHT_INPUT_INDEX = 2
 internal const val FOOT_SIZE_INPUT_INDEX = 3
 internal const val BIRTH_YEAR_INPUT_INDEX = 4
 internal const val HOMETOWN_INPUT_INDEX = 5
-internal const val PHONE_NUMBER_INPUT_INDEX = 6
-internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 6
+internal const val HOW_WE_MET_INPUT_INDEX = 6
+internal const val PHONE_NUMBER_INPUT_INDEX = 7
+internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 7
 
 internal const val TYPED_NAME = "ContactName"
 internal const val TYPED_DESCRIPTION = "ContactDescription"
 internal const val TYPED_HEIGHT = "175.5"
 internal const val TYPED_FOOT_SIZE = "250"
 internal const val TYPED_HOMETOWN = "강원도 춘천시"
+internal const val TYPED_HOW_WE_MET = "대학 동아리 신입생 환영회"
 internal const val TYPED_BIRTH_YEAR = "1990"
 internal const val TYPED_FIRST_PHONE_NUMBER = "010-1234-5678"
 internal const val TYPED_SECOND_PHONE_NUMBER = "02-987-6543"
@@ -61,6 +63,7 @@ internal const val DEFAULT_BIRTHDAY_CALENDAR_LUNAR = "Lunar"
 internal const val DEFAULT_BIRTH_YEAR_LABEL = "Birth year"
 internal const val DEFAULT_BIRTH_YEAR_FROM_BIRTHDAY = "Taken from the birthday."
 internal const val DEFAULT_HOMETOWN_LABEL = "Hometown"
+internal const val DEFAULT_HOW_WE_MET_LABEL = "How we met"
 internal const val DEFAULT_PHONE_NUMBER_LABEL = "Phone numbers"
 internal const val DEFAULT_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "Add phone number"
 internal const val DEFAULT_PHONE_NUMBER_REMOVE_BUTTON_DESCRIPTION = "Remove phone number"
@@ -80,6 +83,7 @@ internal const val KOREAN_BIRTHDAY_LABEL = "생일"
 internal const val KOREAN_BIRTHDAY_NOT_SET = "선택 안 함"
 internal const val KOREAN_BIRTH_YEAR_LABEL = "태어난 연도"
 internal const val KOREAN_HOMETOWN_LABEL = "고향"
+internal const val KOREAN_HOW_WE_MET_LABEL = "알게 된 경로"
 internal const val KOREAN_PHONE_NUMBER_LABEL = "전화번호"
 internal const val KOREAN_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "전화번호 추가"
 internal const val KOREAN_ADD_BUTTON_DESCRIPTION = "연락처 추가"
@@ -150,6 +154,8 @@ internal fun ComposeContentTestRule.birthYearInput(): SemanticsNodeInteraction =
 
 internal fun ComposeContentTestRule.hometownInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[HOMETOWN_INPUT_INDEX]
 
+internal fun ComposeContentTestRule.howWeMetInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[HOW_WE_MET_INPUT_INDEX]
+
 internal fun ComposeContentTestRule.phoneNumberInput(row: Int = 0): SemanticsNodeInteraction = onAllNodes(isTextInput())[PHONE_NUMBER_INPUT_INDEX + row]
 
 internal fun ComposeContentTestRule.inputCount(): Int = onAllNodes(isTextInput()).fetchSemanticsNodes().size
@@ -177,6 +183,7 @@ internal fun ComposeContentTestRule.fillAllInput() {
     descriptionInput().performTextInput(TYPED_DESCRIPTION)
     footSizeInput().performTextInput(TYPED_FOOT_SIZE)
     hometownInput().performTextInput(TYPED_HOMETOWN)
+    howWeMetInput().performTextInput(TYPED_HOW_WE_MET)
     selectBirthday()
     addPhoneNumberRow()
     phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)

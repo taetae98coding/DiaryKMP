@@ -41,6 +41,7 @@ class ContactPushRequestRemoteEntityTest :
                     "birthdayCalendar",
                     "birthYear",
                     "hometown",
+                    "howWeMet",
                     "phoneNumberList",
                 )
         }

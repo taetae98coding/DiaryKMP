@@ -19,6 +19,7 @@ internal class ContactFormState(
     val footSizeState: TextFieldState,
     val birthdayState: ContactBirthdayInputState,
     val hometownState: TextFieldState,
+    val howWeMetState: TextFieldState,
     val phoneNumberState: ContactPhoneNumberInputState,
     val snackbarHostState: SnackbarHostState,
 ) {
@@ -32,6 +33,7 @@ internal class ContactFormState(
                 birthday = birthdayState.birthday,
                 birthYear = birthdayState.birthYear,
                 hometown = hometownState.text.toString(),
+                howWeMet = howWeMetState.text.toString(),
                 phoneNumberList = phoneNumberState.rowList.map { row -> ContactPhoneNumber(number = row.number) },
             )
 }
@@ -67,13 +69,14 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             initialBirthYear = initialDetail.birthYear,
         )
     val hometownState = rememberTextFieldState(initialText = initialDetail.hometown)
+    val howWeMetState = rememberTextFieldState(initialText = initialDetail.howWeMet)
     val phoneNumberState =
         rememberContactPhoneNumberInputState(
             initialRowList = initialDetail.phoneNumberList.map { phoneNumber -> ContactPhoneNumberRowState(initialNumber = phoneNumber.number) },
         )
     val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, snackbarHostState) {
+    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, howWeMetState, phoneNumberState, snackbarHostState) {
         ContactFormState(
             nameState = nameState,
             descriptionState = descriptionState,
@@ -81,6 +84,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             footSizeState = footSizeState,
             birthdayState = birthdayState,
             hometownState = hometownState,
+            howWeMetState = howWeMetState,
             phoneNumberState = phoneNumberState,
             snackbarHostState = snackbarHostState,
         )

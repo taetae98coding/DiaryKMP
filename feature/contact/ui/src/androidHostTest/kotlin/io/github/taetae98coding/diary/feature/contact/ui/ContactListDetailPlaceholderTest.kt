@@ -74,6 +74,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.effectViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.howWeMetInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.inputCount
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
@@ -165,6 +166,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.footSizeInput().assert(hasText(""))
         composeRule.birthYearInput().assert(hasText(""))
         composeRule.hometownInput().assert(hasText(""))
+        composeRule.howWeMetInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_PHONE_NUMBER
         composeRule.onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
         viewModelList shouldHaveSize 2
@@ -690,6 +692,7 @@ class ContactListDetailPlaceholderTest {
         footSizeInput().assert(hasText(""))
         birthYearInput().assert(hasText(""))
         hometownInput().assert(hasText(""))
+        howWeMetInput().assert(hasText(""))
         onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
     }
 
@@ -712,6 +715,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
         composeRule.hometownInput().assert(hasText(input.hometown))
+        composeRule.howWeMetInput().assert(hasText(input.howWeMet))
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.onAllNodesWithText(todayDisplayText()).onFirst().assertExists()
         composeRule.birthYearInput().assert(hasText(today().year.toString()))
@@ -872,6 +876,7 @@ class ContactListDetailPlaceholderTest {
         heightInput().performTextInput(TYPED_HEIGHT)
         footSizeInput().performTextInput(TYPED_FOOT_SIZE)
         hometownInput().performTextInput(input.hometown)
+        howWeMetInput().performTextInput(input.howWeMet)
         selectBirthday()
         addPhoneNumberRow()
         phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
@@ -883,6 +888,7 @@ class ContactListDetailPlaceholderTest {
         val name: String,
         val description: String,
         val hometown: String,
+        val howWeMet: String,
     )
 
     private companion object {
@@ -912,6 +918,7 @@ class ContactListDetailPlaceholderTest {
                 name = "name-${fixtureMonkey.giveMeOne<String>()}",
                 description = "description-${fixtureMonkey.giveMeOne<String>()}",
                 hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
+                howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}",
             )
     }
 }

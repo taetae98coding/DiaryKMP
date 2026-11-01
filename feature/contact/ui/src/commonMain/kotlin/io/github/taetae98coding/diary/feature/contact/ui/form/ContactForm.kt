@@ -43,6 +43,10 @@ internal fun ContactForm(
             state = state.hometownState,
             modifier = Modifier.fillMaxWidth(),
         )
+        ContactHowWeMetInput(
+            state = state.howWeMetState,
+            modifier = Modifier.fillMaxWidth(),
+        )
         ContactPhoneNumberInput(
             state = state.phoneNumberState,
             modifier = Modifier.fillMaxWidth(),

@@ -66,6 +66,11 @@ class ContactDetailUpdateVisibilityTest {
     }
 
     @Test
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 알게 된 경로를 바꾸면 수정 동작을 제공한다`() {
+        assertUpdateVisible { detail -> howWeMetState.setTextAndPlaceCursorAtEnd("${detail.howWeMet}-${fixtureMonkey.giveMeOne<String>()}") }
+    }
+
+    @Test
     fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 전화번호 항목을 추가하면 수정 동작을 제공한다`() {
         assertUpdateVisible { phoneNumberState.add() }
     }
@@ -155,6 +160,7 @@ class ContactDetailUpdateVisibilityTest {
                 footSize = 250.millimeter,
                 birthday = ContactBirthday(date = LocalDate(year = 1994, month = 3, day = 21), calendar = ContactBirthdayCalendar.SOLAR),
                 hometown = "고향-${fixtureMonkey.giveMeOne<String>()}",
+                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<String>()}",
                 phoneNumberList = listOf("번호-${fixtureMonkey.giveMeOne<String>()}", "번호-${fixtureMonkey.giveMeOne<String>()}"),
             )
     }

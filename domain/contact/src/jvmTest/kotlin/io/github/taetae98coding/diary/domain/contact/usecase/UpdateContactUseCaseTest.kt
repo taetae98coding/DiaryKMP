@@ -110,6 +110,7 @@ class UpdateContactUseCaseTest :
                                         footSize = null,
                                         birthday = null,
                                         hometown = "",
+                                        howWeMet = "",
                                         phoneNumberList = emptyList(),
                                     ),
                             ),
@@ -120,6 +121,7 @@ class UpdateContactUseCaseTest :
                     detailSlot.captured.footSize shouldBe null
                     detailSlot.captured.birthday shouldBe null
                     detailSlot.captured.hometown shouldBe ""
+                    detailSlot.captured.howWeMet shouldBe ""
                     detailSlot.captured.phoneNumberList shouldBe emptyList()
                 }
 
@@ -131,6 +133,16 @@ class UpdateContactUseCaseTest :
                     ).shouldBeSuccess(1)
 
                     detailSlot.captured.hometown shouldBe hometown
+                }
+
+                Then("TC-94176a78-3cde-40e5-a765-31ebb560be13 입력한 알게 된 경로를 그대로 반영한다") {
+                    val howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+
+                    useCase(
+                        parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(howWeMet = howWeMet)),
+                    ).shouldBeSuccess(1)
+
+                    detailSlot.captured.howWeMet shouldBe howWeMet
                 }
 
                 Then("TC-a265a315-496d-4472-81d3-20daceae4119 달력 구분만 바꿔도 그 구분으로 반영한다") {
@@ -432,6 +444,7 @@ class UpdateContactUseCaseTest :
             birthday: ContactBirthday? = null,
             birthYear: Int? = birthday?.date?.year,
             hometown: String = "",
+            howWeMet: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
             ContactDetail(
@@ -442,6 +455,7 @@ class UpdateContactUseCaseTest :
                 birthday = birthday,
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = phoneNumberList,
             )
     }

@@ -76,7 +76,7 @@ class DiaryDatabaseMigrationTest :
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 4).close()
+            helper.runMigrationsAndValidate(version = 5).close()
 
             val database =
                 Room
@@ -153,6 +153,53 @@ class DiaryDatabaseMigrationTest :
                 }
             }
         }
+
+        test("TC-066194b1-e95c-4e7e-a246-e1de8e25a8db 알게 된 경로가 생기는 업데이트에서 연락처만 처음부터 다시 내려받는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
+            val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
+            val memoUsn = fixtureMonkey.giveMeOne<Long>()
+
+            helper.createDatabase(version = 4).use { connection ->
+                connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
+                connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
+            }
+            helper.runMigrationsAndValidate(version = 5).close()
+
+            val database =
+                Room
+                    .databaseBuilder<DiaryDatabase>(name = databasePath.toString())
+                    .setDriver(BundledSQLiteDriver())
+                    .build()
+            try {
+                val cursorDataSource = SyncCursorLocalDataSourceImpl(database = database)
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe 0L
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe memoUsn
+            } finally {
+                database.close()
+            }
+        }
+
+        test("TC-0fbc4ba6-6989-406a-87d3-e41faf5359fa 앱을 업데이트하면 기존 연락처는 비어 있는 알게 된 경로를 갖는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>().toEpochMilliseconds()
+            val isDirty = fixtureMonkey.giveMeOne<Boolean>()
+
+            helper.createDatabase(version = 4).use { connection ->
+                connection.execSQL("INSERT INTO contact (id, name, updated_at) VALUES ('$contactId', 'contact', $updatedAt)")
+                connection.execSQL(
+                    "INSERT INTO account_contact (account_id, contact_id, is_dirty) VALUES ('$accountId', '$contactId', ${if (isDirty) 1 else 0})",
+                )
+            }
+
+            helper.runMigrationsAndValidate(version = 5).use { connection ->
+                connection.readText(sql = "SELECT how_we_met FROM contact WHERE id = ?", contactId = contactId) shouldBe ""
+                connection.readLong(sql = "SELECT updated_at FROM contact WHERE id = ?", contactId = contactId) shouldBe updatedAt
+                connection.readLong(sql = "SELECT is_dirty FROM account_contact WHERE contact_id = ?", contactId = contactId) shouldBe
+                    if (isDirty) 1L else 0L
+            }
+        }
     })
 
 private fun SQLiteConnection.readLong(
@@ -163,6 +210,16 @@ private fun SQLiteConnection.readLong(
         statement.bindText(1, contactId.toString())
         statement.step()
         statement.getLong(0)
+    }
+
+private fun SQLiteConnection.readText(
+    sql: String,
+    contactId: Uuid,
+): String =
+    prepare(sql).use { statement ->
+        statement.bindText(1, contactId.toString())
+        statement.step()
+        statement.getText(0)
     }
 
 private fun SQLiteConnection.readBirthYear(contactId: Uuid): Long? =

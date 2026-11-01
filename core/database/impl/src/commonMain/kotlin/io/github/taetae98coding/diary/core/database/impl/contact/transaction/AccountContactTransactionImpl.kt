@@ -53,6 +53,7 @@ internal class AccountContactTransactionImpl(
                 birthdayCalendar = detail.birthdayCalendar,
                 birthYear = detail.birthYear,
                 hometown = detail.hometown,
+                howWeMet = detail.howWeMet,
                 phoneNumberList = detail.phoneNumberList,
                 updatedAt = updatedAt,
             )

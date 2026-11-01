@@ -20,6 +20,7 @@ internal fun testContactDetail(
     birthday: ContactBirthday? = null,
     birthYear: Int? = birthday?.date?.year,
     hometown: String = "",
+    howWeMet: String = "",
     phoneNumberList: List<String> = emptyList(),
 ): ContactDetail =
     ContactDetail(
@@ -30,5 +31,6 @@ internal fun testContactDetail(
         birthday = birthday,
         birthYear = birthYear,
         hometown = hometown,
+        howWeMet = howWeMet,
         phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
     )

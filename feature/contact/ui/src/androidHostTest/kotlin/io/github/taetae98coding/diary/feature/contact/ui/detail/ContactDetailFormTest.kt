@@ -45,7 +45,7 @@ class ContactDetailFormTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-fa515331-9493-41a3-9cae-8687bb10ae74 저장된 이름과 설명, 키, 신발 사이즈, 생일, 고향을 입력에 채운다`() {
+    fun `TC-fa515331-9493-41a3-9cae-8687bb10ae74 저장된 이름과 설명, 키, 신발 사이즈, 생일, 고향, 알게 된 경로를 입력에 채운다`() {
         val detail =
             testContactDetail(
                 name = CONTACT_NAME,
@@ -54,6 +54,7 @@ class ContactDetailFormTest {
                 footSize = 270.millimeter,
                 birthday = ContactBirthday(date = LocalDate(1994, 3, 21), calendar = ContactBirthdayCalendar.LUNAR),
                 hometown = CONTACT_HOMETOWN,
+                howWeMet = CONTACT_HOW_WE_MET,
             )
 
         setContactDetailScaffold(detail = detail)
@@ -64,6 +65,7 @@ class ContactDetailFormTest {
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
         composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
+        composeRule.onNode(hasText(CONTACT_HOW_WE_MET) and hasSetTextAction()).assertExists()
     }
 
     @Test
@@ -149,6 +151,29 @@ class ContactDetailFormTest {
     }
 
     @Test
+    fun `TC-9417bbeb-b812-4030-80e5-c826825b4589 채워진 알게 된 경로를 다른 값으로 바꿀 수 있다`() {
+        val detail = testContactDetail(name = CONTACT_NAME, howWeMet = CONTACT_HOW_WE_MET)
+
+        setContactDetailScaffold(detail = detail)
+        composeRule.onNode(hasText(CONTACT_HOW_WE_MET) and hasSetTextAction()).performTextReplacement(OTHER_CONTACT_HOW_WE_MET)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText(OTHER_CONTACT_HOW_WE_MET) and hasSetTextAction()).assertExists()
+        composeRule.onNode(hasText(CONTACT_HOW_WE_MET) and hasSetTextAction()).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-9417bbeb-b812-4030-80e5-c826825b4589 알게 된 경로가 없던 연락처에도 알게 된 경로를 입력할 수 있다`() {
+        val detail = testContactDetail(name = CONTACT_NAME, howWeMet = "")
+
+        setContactDetailScaffold(detail = detail)
+        composeRule.onNode(hasText(HOW_WE_MET_LABEL) and hasSetTextAction()).performTextReplacement(CONTACT_HOW_WE_MET)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText(CONTACT_HOW_WE_MET) and hasSetTextAction()).assertExists()
+    }
+
+    @Test
     fun `TC-5c68a7c9-415a-4db6-a150-80fd7d7656cb 저장된 양력 구분을 골라진 상태로 채운다`() {
         setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
 
@@ -224,13 +249,14 @@ class ContactDetailFormTest {
 
     @Test
     fun `TC-a0abfce7-53b6-4147-80cd-abb7db9817bc 값이 없는 정보는 비어 있는 상태로 채운다`() {
-        val detail = testContactDetail(name = CONTACT_NAME, description = "", hometown = "")
+        val detail = testContactDetail(name = CONTACT_NAME, description = "", hometown = "", howWeMet = "")
 
         setContactDetailScaffold(detail = detail)
 
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onAllNodesWithContentDescription(FIRST_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 0)
         composeRule.onNode(hasText(HOMETOWN_LABEL) and hasSetTextAction()).assertExists()
+        composeRule.onNode(hasText(HOW_WE_MET_LABEL) and hasSetTextAction()).assertExists()
     }
 
     @Test
@@ -305,6 +331,9 @@ class ContactDetailFormTest {
         private const val CONTACT_HOMETOWN = "ContactDetailFormHometown"
         private const val OTHER_CONTACT_HOMETOWN = "ContactDetailFormOtherHometown"
         private const val HOMETOWN_LABEL = "Hometown"
+        private const val CONTACT_HOW_WE_MET = "ContactDetailFormHowWeMet"
+        private const val OTHER_CONTACT_HOW_WE_MET = "ContactDetailFormOtherHowWeMet"
+        private const val HOW_WE_MET_LABEL = "How we met"
         private const val HEIGHT_TEXT = "180.5"
         private const val FOOT_SIZE_TEXT = "270"
         private const val BIRTHDAY_TEXT = "Mar 21, 1994"

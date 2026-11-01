@@ -78,6 +78,7 @@ public fun FixtureMonkey.contactDetailCase(
     val name = "name-${giveMeOne<String>()}"
     val description = "description-${giveMeOne<String>()}"
     val hometown = if (hasMeasure) "hometown-${giveMeOne<String>()}" else ""
+    val howWeMet = if (hasMeasure) "how-we-met-${giveMeOne<String>()}" else ""
     // 키는 센티미터와 밀리미터를 오가며 저장하므로, 왕복에서 부동소수점 오차가 끼지 않도록 소수점 아래 한 자리 값으로 만든다.
     val heightCentimeter = if (hasMeasure) randomInt(bound = 2000) / 10.0 else null
     val footSizeMillimeter = if (hasMeasure) randomInt(bound = 500) else null
@@ -95,6 +96,7 @@ public fun FixtureMonkey.contactDetailCase(
                 birthday = calendarCase?.let { case -> ContactBirthday(date = requireNotNull(birthday), calendar = case.domain) },
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumber(number = number) },
             ),
         local =
@@ -107,6 +109,7 @@ public fun FixtureMonkey.contactDetailCase(
                 birthdayCalendar = calendarCase?.local,
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberLocalEntity(number = number) },
             ),
         remote =
@@ -119,6 +122,7 @@ public fun FixtureMonkey.contactDetailCase(
                 birthdayCalendar = calendarCase?.remote,
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberRemoteEntity(number = number) },
             ),
     )

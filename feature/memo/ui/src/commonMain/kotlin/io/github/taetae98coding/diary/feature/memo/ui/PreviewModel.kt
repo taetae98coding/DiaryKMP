@@ -24,6 +24,7 @@ internal fun previewContact(
                 birthday = null,
                 birthYear = null,
                 hometown = "",
+                howWeMet = "",
                 phoneNumberList = listOf(ContactPhoneNumber(number = phoneNumber)),
             ),
         isFavorite = false,

@@ -49,7 +49,7 @@ class AccountContactTransactionImplTest :
                 transactor.usePrepared(
                     """
                     SELECT id, name, description, height_centimeter, foot_size_millimeter, birthday, birthday_calendar, birth_year,
-                        hometown, phone_number_list, is_favorite, is_deleted, updated_at, created_at
+                        hometown, how_we_met, phone_number_list, is_favorite, is_deleted, updated_at, created_at
                     FROM contact
                     ORDER BY id ASC
                     """,
@@ -344,6 +344,7 @@ class AccountContactTransactionImplTest :
                 birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR,
                 birthYear = 1998,
                 hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
+                howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}",
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
 
@@ -369,12 +370,13 @@ class AccountContactTransactionImplTest :
                         birthdayCalendar = if (isNull(6)) null else ContactBirthdayCalendarLocalEntity.fromPersistentValue(getText(6)),
                         birthYear = if (isNull(7)) null else getInt(7),
                         hometown = getText(8),
-                        phoneNumberList = Json.decodeFromString(getText(9)),
+                        howWeMet = getText(9),
+                        phoneNumberList = Json.decodeFromString(getText(10)),
                     ),
-                isFavorite = getBoolean(10),
-                isDeleted = getBoolean(11),
-                updatedAt = Instant.fromEpochMilliseconds(getLong(12)),
-                createdAt = Instant.fromEpochMilliseconds(getLong(13)),
+                isFavorite = getBoolean(11),
+                isDeleted = getBoolean(12),
+                updatedAt = Instant.fromEpochMilliseconds(getLong(13)),
+                createdAt = Instant.fromEpochMilliseconds(getLong(14)),
             )
 
         private fun SQLiteStatement.toAccountContact(): AccountContactLocalEntity =

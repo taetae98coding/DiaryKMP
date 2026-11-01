@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactRemoteEntity
@@ -153,6 +154,48 @@ class SyncWorkContactTest :
                 detail.birthdayCalendar shouldBe birthdayCalendar?.toRemote()
                 detail.birthYear shouldBe birthYear
             }
+        }
+
+        listOf(
+            "알게 된 경로가 있는" to false,
+            "알게 된 경로가 비어 있는" to true,
+        ).forEach { (label, isEmpty) ->
+            test("TC-d97f26f1-42c6-4c74-b77f-eab310b25581 $label 연락처의 업로드에는 알게 된 경로가 담긴다") {
+                val howWeMet = if (isEmpty) "" else "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+                val stored = contact().let { value -> value.copy(detail = value.detail.copy(howWeMet = howWeMet)) }
+                val context = context(contactList = listOf(stored))
+                val requestList = mutableListOf<List<ContactRemoteEntity>>()
+                coEvery { context.contactRemoteDataSource.push(any()) } answers { requestList += firstArg<List<ContactRemoteEntity>>() }
+
+                context.subject.doWork()
+
+                requestList
+                    .single()
+                    .single()
+                    .detail.howWeMet shouldBe howWeMet
+            }
+        }
+
+        test("TC-392dc2b2-5e73-4ab4-ada3-199066c6cc2f 내려받은 연락처의 알게 된 경로가 기기에 저장된다") {
+            val context = context()
+            val howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+            val pulled =
+                contactPulls(usnList = listOf(1L)).map { pull ->
+                    pull.copy(contact = pull.contact.copy(detail = pull.contact.detail.copy(howWeMet = howWeMet)))
+                }
+            coEvery { context.contactRemoteDataSource.pull(usn = 0L) } returns pulled
+            coEvery { context.contactRemoteDataSource.pull(usn = 1L) } returns emptyList()
+            val savedList = mutableListOf<List<ContactLocalEntity>>()
+            coEvery { context.accountContactSyncTransaction.upsert(any(), any(), any()) } answers {
+                savedList += secondArg<List<ContactLocalEntity>>()
+            }
+
+            context.subject.doWork()
+
+            savedList
+                .single()
+                .single()
+                .detail.howWeMet shouldBe howWeMet
         }
 
         test("TC-f5c3db7c-930a-44dc-bc0f-de71333148ed 내려받은 연락처의 전화번호 목록이 기기의 목록을 대체한다") {

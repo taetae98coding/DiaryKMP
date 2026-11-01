@@ -20,6 +20,8 @@ public data class ContactDetailLocalEntity(
     val birthYear: Int?,
     @ColumnInfo(name = "hometown", defaultValue = "")
     val hometown: String,
+    @ColumnInfo(name = "how_we_met", defaultValue = "")
+    val howWeMet: String,
     @ColumnInfo(name = "phone_number_list", defaultValue = "'[]'")
     val phoneNumberList: List<ContactPhoneNumberLocalEntity>,
 )
