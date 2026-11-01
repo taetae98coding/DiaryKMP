@@ -18,6 +18,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -88,6 +89,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.detail.memoDetailUiState
 import io.github.taetae98coding.diary.feature.memo.ui.detail.screenTestTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.finished.MemoFinishedListViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiEffect
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeViewModel
@@ -110,6 +112,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
@@ -154,6 +157,7 @@ class MemoEntryNavigationTest {
     private val finishedPagingData = MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
     private val detailContentMap = mutableMapOf<Uuid, DetailContent>()
     private var copiedId: Uuid = fixtureMonkey.giveMeOne<Uuid>()
+    private var isGeminiSettingMissing: Boolean = false
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
@@ -332,6 +336,44 @@ class MemoEntryNavigationTest {
         }
     }
 
+    @Test
+    fun `TC-061303d8-59e2-40eb-aec4-eca114a536e4 TC-0b0bd3c2-f4dd-4f43-b06d-6fabb9f1b5a9 설정이 갖춰지지 않아 SettingGemini 화면에 다녀와도 메모 입력이 남는다`() {
+        isGeminiSettingMissing = true
+        val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        setMemoNavDisplay()
+
+        listOf(MemoAddNavKey(), detailKey).forEach { memoKey ->
+            composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, memoKey)) }
+            composeRule.waitForIdle()
+            composeRule.onAllNodes(hasSetTextAction())[TITLE_INPUT_INDEX].performTextInput(EDIT_SUFFIX)
+            composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INPUT_INDEX].performTextInput(EDIT_SUFFIX)
+            composeRule.waitForIdle()
+            val writtenTextList = composeRule.editableTextList()
+            val storedDescription = if (memoKey is MemoDetailNavKey) detailContentOf(memoKey.id).description else ""
+            writtenTextList[DESCRIPTION_INPUT_INDEX] shouldBe storedDescription + EDIT_SUFFIX
+
+            composeRule.onNode(actionButton(DEFAULT_GEMINI_BUTTON_DESCRIPTION)).performClick()
+            composeRule.waitForIdle()
+
+            backStack.toList() shouldBe listOf(MemoHomeNavKey, memoKey, SettingGeminiNavKey)
+            composeRule.onNodeWithText(entryContent(SettingGeminiNavKey)).assertIsDisplayed()
+
+            pressBack()
+
+            backStack.toList() shouldBe listOf(MemoHomeNavKey, memoKey)
+            composeRule.editableTextList() shouldBe writtenTextList
+        }
+    }
+
+    // 제목과 설명 입력에 적어 둔 값을 순서대로 읽는다.
+    private fun ComposeTestRule.editableTextList(): List<String> =
+        listOf(TITLE_INPUT_INDEX, DESCRIPTION_INPUT_INDEX).map { index ->
+            onAllNodes(hasSetTextAction())[index]
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.EditableText]
+                .text
+        }
+
     private fun showDetail(
         entryKey: ScreenNavKey,
         detailKey: MemoDetailNavKey,
@@ -431,9 +473,12 @@ class MemoEntryNavigationTest {
                 mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
             }
             factory<MemoGeminiViewModel> {
+                val geminiEffectChannel = Channel<MemoGeminiEffect>(capacity = Channel.BUFFERED)
+
                 mockk<MemoGeminiViewModel>(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(MemoGeminiUiState())
-                    every { effect } returns emptyFlow()
+                    every { uiState } returns MutableStateFlow(MemoGeminiUiState(isButtonVisible = isGeminiSettingMissing))
+                    every { effect } returns geminiEffectChannel.receiveAsFlow()
+                    every { open() } answers { geminiEffectChannel.trySend(MemoGeminiEffect.SettingRequired).getOrThrow() }
                 }
             }
         }
@@ -479,6 +524,7 @@ class MemoEntryNavigationTest {
                                         entry<PlaceMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
                                         entry<WebDetailNavKey> { key -> Text(text = entryContent(key)) }
                                         entry<WebMemoFinishedListNavKey> { key -> Text(text = entryContent(key)) }
+                                        entry<SettingGeminiNavKey> { key -> Text(text = entryContent(key)) }
                                         memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
                                     },
                             )
@@ -572,6 +618,9 @@ class MemoEntryNavigationTest {
         const val ALL_DAY_START_DATE_TEXT = "Jul 19, 2026"
         const val ALL_DAY_END_DATE_TEXT = "Jul 28, 2026"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Writing assistant"
+        const val TITLE_INPUT_INDEX = 0
+        const val DESCRIPTION_INPUT_INDEX = 1
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun entryKeyList(): List<ScreenNavKey> {

@@ -100,6 +100,7 @@ private fun ComposeContentTestRule.setMemoAddScreenForContact(
                 navigateToContactDetail = navigateToContactDetail,
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
+                navigateToGeminiSetting = {},
                 initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,

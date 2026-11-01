@@ -24,6 +24,7 @@ kotlin {
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.place.api)
                 implementation(projects.feature.search.api)
+                implementation(projects.feature.setting.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.web.api)
             }

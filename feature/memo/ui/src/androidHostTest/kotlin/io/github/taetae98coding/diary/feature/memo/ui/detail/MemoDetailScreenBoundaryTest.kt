@@ -303,6 +303,7 @@ class MemoDetailScreenBoundaryTest {
                 navigateToContactDetail = {},
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
+                navigateToGeminiSetting = {},
                 componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                 isStandalone = true,
             )

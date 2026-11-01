@@ -179,6 +179,7 @@ class MemoAddScreenRecordTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,

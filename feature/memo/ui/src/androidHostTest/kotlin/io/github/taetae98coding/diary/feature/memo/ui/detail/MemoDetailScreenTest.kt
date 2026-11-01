@@ -150,6 +150,7 @@ class MemoDetailScreenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -202,6 +203,7 @@ class MemoDetailScreenTest {
                         navigateToContactDetail = {},
                         navigateToPlaceAdd = {},
                         navigateToPlaceDetail = {},
+                        navigateToGeminiSetting = {},
                         componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                         isStandalone = true,
                     )
@@ -258,6 +260,7 @@ class MemoDetailScreenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -384,6 +387,7 @@ class MemoDetailScreenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -519,6 +523,7 @@ class MemoDetailScreenDateTimeTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -703,6 +708,7 @@ class MemoDetailScreenActionTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -786,6 +792,7 @@ class MemoDetailScreenActionTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -869,6 +876,7 @@ class MemoDetailScreenCopiedResultTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -961,6 +969,7 @@ class MemoDetailScreenMessageTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -1001,6 +1010,7 @@ class MemoDetailScreenMessageTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )

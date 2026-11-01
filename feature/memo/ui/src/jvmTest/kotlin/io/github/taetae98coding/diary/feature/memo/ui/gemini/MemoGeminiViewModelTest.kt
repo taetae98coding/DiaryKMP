@@ -89,7 +89,7 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다") {
+        test("TC-061303d8-59e2-40eb-aec4-eca114a536e4 설정이 갖춰지지 않으면 열지 않고 설정 화면 이동을 요청한다") {
             listOf(
                 COMPLETE_SETTING.copy(apiKey = ""),
                 COMPLETE_SETTING.copy(model = ""),

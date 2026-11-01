@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -195,6 +196,33 @@ class AppStateTest :
 
             appState.backStack.last() shouldBe SettingHomeNavKey
             appState.isNavigationVisible.shouldBeFalse()
+        }
+
+        test("TC-cce39916-2629-4082-b4bb-21482205e6e7 메모 화면에서 이동한 SettingGemini에서는 창 너비와 관계없이 공통 내비게이션을 숨긴다") {
+            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+                listOf(false, true).forEach { isListDetailTwoPane ->
+                    val appState =
+                        createAppState(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Memo.key,
+                            memoKey,
+                            SettingGeminiNavKey,
+                            isListDetailTwoPane = isListDetailTwoPane,
+                        )
+
+                    appState.isNavigationVisible.shouldBeFalse()
+                }
+            }
+        }
+
+        test("TC-860eb13f-d620-4f83-8842-183db8f5d350 메모 화면에서 이동한 SettingGemini에서 뒤로가면 그 메모 화면으로 돌아간다") {
+            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+                val appState = createAppState(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, memoKey, SettingGeminiNavKey)
+
+                appState.backStack.removeLast()
+
+                appState.backStack.toList() shouldBe listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, memoKey)
+            }
         }
 
         test("TC-713b65da-f06b-4d3a-8cd4-4fe3d4ceacb3 주요 목적지 복귀 후 내비게이션 표시") {

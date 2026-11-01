@@ -2,7 +2,7 @@
 
 기준 스펙: [메모 Gemini 작성 도우미 스펙](../spec/client/memo-gemini.md)
 
-MemoAdd 화면과 MemoDetail 화면이 같은 도우미를 제공하므로 이 문서의 케이스는 두 화면 모두에 적용된다. 반영한 내용으로 메모를 추가하거나 수정하는 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)와 [MemoDetail 테스트 케이스](./memo-detail.md)에서 다룬다. Gemini 설정의 저장과 조회는 [SettingGemini 테스트 케이스](./setting-gemini.md)에서 다룬다.
+MemoAdd 화면과 MemoDetail 화면이 같은 도우미를 제공하므로 이 문서의 케이스는 두 화면 모두에 적용된다. 반영한 내용으로 메모를 추가하거나 수정하는 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)와 [MemoDetail 테스트 케이스](./memo-detail.md)에서 다룬다. Gemini 설정의 저장과 조회는 [SettingGemini 테스트 케이스](./setting-gemini.md)에서 다룬다. 설정이 갖춰지지 않아 이동한 SettingGemini 화면의 표시와 뒤로가기도 그 문서에서 다룬다.
 
 ## feature
 
@@ -13,12 +13,12 @@ MemoAdd 화면과 MemoDetail 화면이 같은 도우미를 제공하므로 이 �
 - When: 사용자가 작성 도우미를 시작한다.
 - Then: 도우미가 열리고 프롬프트를 입력할 수 있는 상태로 표시되며, 프롬프트는 비어 있다.
 
-### TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591: 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다
+### TC-061303d8-59e2-40eb-aec4-eca114a536e4: 설정이 갖춰지지 않으면 열지 않고 SettingGemini 화면으로 이동한다
 
 - 근거: `feature > 도우미 시작`
 - Given: 저장된 Gemini 설정이 테스트 데이터의 상태다.
 - When: 사용자가 작성 도우미를 시작한다.
-- Then: 도우미가 열리지 않고 Gemini 설정이 필요하다는 안내가 표시되며, 생성 요청이 외부 경계로 나가지 않는다.
+- Then: 도우미가 열리지 않고 SettingGemini 화면으로 이동하며, 생성 요청이 외부 경계로 나가지 않는다.
 - 테스트 데이터:
 
 | 인증 정보 | 모델 |
@@ -26,6 +26,14 @@ MemoAdd 화면과 MemoDetail 화면이 같은 도우미를 제공하므로 이 �
 | 비어 있음 | 값 있음 |
 | 값 있음 | 비어 있음 |
 | 비어 있음 | 비어 있음 |
+
+### TC-0b0bd3c2-f4dd-4f43-b06d-6fabb9f1b5a9: SettingGemini 화면에 다녀와도 메모 입력이 남는다
+
+- 근거: `feature > 도우미 시작`
+- Given: 저장된 Gemini 설정에 인증 정보가 없고, 테스트 데이터의 메모 화면에서 제목과 설명 입력에 값을 적어 두었다.
+- When: 사용자가 작성 도우미를 시작해 SettingGemini 화면으로 이동했다가 뒤로가 메모 화면으로 돌아온다.
+- Then: 제목과 설명 입력에 적어 두었던 값이 그대로 표시된다.
+- 테스트 데이터: MemoAdd 화면, MemoDetail 화면
 
 ### TC-89a9d719-1f85-46a3-abb4-9d2edb552fb6: 설정을 확인하지 못하면 시작 동작을 제공하지 않는다
 
@@ -211,7 +219,7 @@ MemoAdd 화면과 MemoDetail 화면이 같은 도우미를 제공하므로 이 �
 ### TC-0ec6cbee-1d11-4ba6-821f-d497a54fa715: 다른 화면에서 저장한 설정으로 다음 시작을 판정한다
 
 - 근거: `feature > 도우미 시작`
-- Given: 저장된 Gemini 설정의 인증 정보가 비어 있는 상태로 화면이 표시되어 있고, 사용자가 도우미를 시작해 Gemini 설정이 필요하다는 안내를 받았다.
+- Given: 저장된 Gemini 설정의 인증 정보가 비어 있는 상태로 화면이 표시되어 있고, 사용자가 도우미를 시작했지만 도우미가 열리지 않았다.
 - When: 다른 화면에서 인증 정보와 모델을 채운 설정이 저장된 뒤, 사용자가 이 화면을 다시 열지 않고 도우미를 시작한다.
 - Then: 도우미가 열리고 프롬프트를 입력할 수 있는 상태로 표시된다.
 

@@ -65,6 +65,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 navigateToContactDetail = {},
                 navigateToPlaceAdd = navigateToPlaceAdd,
                 navigateToPlaceDetail = navigateToPlaceDetail,
+                navigateToGeminiSetting = {},
                 componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                 isStandalone = true,
             )

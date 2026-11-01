@@ -270,6 +270,7 @@ class MemoDetailScreenWebTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -312,6 +313,7 @@ class MemoDetailScreenWebTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                     isStandalone = true,
                 )

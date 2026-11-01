@@ -16,6 +16,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(projects.core.testing)
+                implementation(projects.feature.memo.api)
                 implementation(projects.feature.more.api)
             }
         }

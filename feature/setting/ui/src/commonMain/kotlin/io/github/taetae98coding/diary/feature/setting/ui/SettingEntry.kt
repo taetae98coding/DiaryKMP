@@ -57,7 +57,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
 
 private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingHolidayNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
@@ -73,7 +73,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavB
 
 private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingMapNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
@@ -89,7 +89,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackS
 
 private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingGeminiNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
@@ -106,7 +106,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBa
 
 private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingFileNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        metadata = { key -> backStack.settingDetailPaneMetadata(key) },
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
         val viewModel = koinViewModel<SettingFileViewModel>()
@@ -120,4 +120,10 @@ private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBack
             viewModel = viewModel,
         )
     }
+}
+
+private fun NavBackStack<ScreenNavKey>.settingDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> {
+    if (!isSettingListDetailPane(key)) return emptyMap()
+
+    return ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 }

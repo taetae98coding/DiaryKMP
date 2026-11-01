@@ -30,3 +30,10 @@ internal fun NavBackStack<ScreenNavKey>.navigateUpFromSettingHome() {
         removeLastOrNull()
     }
 }
+
+internal fun List<ScreenNavKey>.isSettingListDetailPane(key: ScreenNavKey): Boolean {
+    val index = lastIndexOf(key)
+    if (index < 0 || key !in settingDetailNavKeySet) return false
+
+    return getOrNull(index - 1) == SettingHomeNavKey
+}

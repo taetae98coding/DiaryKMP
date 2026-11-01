@@ -39,6 +39,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilter
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
@@ -148,6 +149,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
                 )
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
             initialDateTime = key.initialDateTime(),
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
@@ -190,6 +192,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
                 )
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
             addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
@@ -257,6 +260,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
             )
         },
         navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+        navigateToGeminiSetting = { backStack.add(SettingGeminiNavKey) },
         initialDateTime = null,
         addRequestKey = addRequestKey,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },

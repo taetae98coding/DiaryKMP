@@ -154,6 +154,7 @@ private fun TestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
         navigateToContactDetail = {},
         navigateToPlaceAdd = {},
         navigateToPlaceDetail = {},
+        navigateToGeminiSetting = {},
         initialDateTime = null,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
         isStandalone = true,

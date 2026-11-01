@@ -85,7 +85,6 @@
     <string name="memo_detail_copy_succeeded_message">Memo copied.</string>
     <string name="memo_gemini_button_content_description">Writing assistant</string>
     <string name="memo_gemini_title">Writing Assistant</string>
-    <string name="memo_gemini_setting_required_message">Please finish Gemini settings first.</string>
     <string name="memo_gemini_prompt_label">Prompt</string>
     <string name="memo_gemini_prompt_placeholder">What memo should I write?</string>
     <string name="memo_gemini_generate_action">Generate</string>

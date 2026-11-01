@@ -38,6 +38,7 @@ internal fun MemoAddScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
+    navigateToGeminiSetting: () -> Unit,
     initialDateTime: DiaryDateTimeInputValue?,
     addRequestKey: Uuid,
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible,
@@ -68,7 +69,7 @@ internal fun MemoAddScreen(
     val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
 
     MemoAddEnterEffect(addRequestKey = addRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
-    MemoAddFormEffect(scaffoldState = scaffoldState, isStandalone = isStandalone, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
+    MemoAddFormEffect(scaffoldState = scaffoldState, isStandalone = isStandalone, addViewModel = addViewModel, geminiViewModel = geminiViewModel, navigateToGeminiSetting = navigateToGeminiSetting)
 
     MemoAddScaffold(
         state = scaffoldState,
@@ -137,12 +138,13 @@ private fun MemoAddFormEffect(
     isStandalone: Boolean,
     addViewModel: MemoAddViewModel,
     geminiViewModel: MemoGeminiViewModel,
+    navigateToGeminiSetting: () -> Unit,
 ) {
     if (isStandalone) {
         DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
     }
     MemoAddScreenEffect(effect = addViewModel.effect, scaffoldState = scaffoldState)
-    MemoGeminiSettingRequiredEffect(snackbarHostState = scaffoldState.snackbarHostState, effect = geminiViewModel.effect)
+    MemoGeminiSettingRequiredEffect(navigateToGeminiSetting = navigateToGeminiSetting, effect = geminiViewModel.effect)
 }
 
 internal fun MemoAddNavKey.initialDateTime(): DiaryDateTimeInputValue? =
