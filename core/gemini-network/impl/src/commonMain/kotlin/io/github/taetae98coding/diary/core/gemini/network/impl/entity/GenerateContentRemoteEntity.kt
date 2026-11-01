@@ -14,11 +14,18 @@ internal data class GenerateContentRequestRemoteEntity(
 @Serializable
 internal data class GenerateContentResponseRemoteEntity(
     @SerialName("candidates") val candidates: List<CandidateRemoteEntity> = emptyList(),
+    @SerialName("promptFeedback") val promptFeedback: PromptFeedbackRemoteEntity? = null,
 )
 
 @Serializable
 internal data class CandidateRemoteEntity(
     @SerialName("content") val content: ContentRemoteEntity? = null,
+    @SerialName("finishReason") val finishReason: String = "",
+)
+
+@Serializable
+internal data class PromptFeedbackRemoteEntity(
+    @SerialName("blockReason") val blockReason: String = "",
 )
 
 @Serializable
@@ -29,6 +36,7 @@ internal data class ContentRemoteEntity(
 @Serializable
 internal data class PartRemoteEntity(
     @SerialName("text") val text: String = "",
+    @SerialName("thought") val isThought: Boolean = false,
 )
 
 @Serializable

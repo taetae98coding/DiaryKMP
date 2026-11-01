@@ -135,7 +135,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 생성에 실패하면 원인을 알리고 적었던 프롬프트와 메모 입력을 유지한다`() {
+    fun `TC-37fa34eb-5306-4a2d-af56-d0e3f60b7c7c 생성에 실패하면 이유를 알리고 적었던 프롬프트와 메모 입력을 유지한다`() {
         val memoText = memoText()
         val prompt = promptText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())

@@ -93,6 +93,13 @@
     <string name="memo_gemini_generating_message">생성하고 있습니다</string>
     <string name="memo_gemini_invalid_api_key_message">API 키를 확인해 주세요</string>
     <string name="memo_gemini_failed_message">생성하지 못했습니다</string>
+    <string name="memo_gemini_quota_exceeded_message">요청 한도를 넘었습니다. 잠시 뒤 다시 시도해 주세요</string>
+    <string name="memo_gemini_model_not_found_message">모델을 찾을 수 없습니다. Gemini 설정에서 모델을 다시 골라 주세요</string>
+    <string name="memo_gemini_blocked_message">Gemini 안전 정책에 따라 생성하지 않았습니다. 프롬프트를 고쳐 주세요</string>
+    <string name="memo_gemini_truncated_message">내용이 너무 길어 끝까지 만들지 못했습니다</string>
+    <string name="memo_gemini_timeout_message">응답이 오지 않습니다. 잠시 뒤 다시 시도해 주세요</string>
+    <string name="memo_gemini_network_message">네트워크에 연결할 수 없습니다</string>
+    <string name="memo_gemini_server_message">Gemini 서버에 문제가 있습니다. 잠시 뒤 다시 시도해 주세요</string>
     <string name="memo_gemini_empty_message">생성된 내용이 없습니다</string>
     <string name="memo_gemini_title_label">제목</string>
     <string name="memo_gemini_description_label">설명</string>

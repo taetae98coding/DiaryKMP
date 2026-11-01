@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -31,6 +32,12 @@ internal fun previewContact(
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,
         createdAt = Instant.DISTANT_PAST,
+    )
+
+internal fun previewMemoDraftProgress(): MemoDraftProgress =
+    MemoDraftProgress(
+        title = "주간 회고 정리",
+        description = "## 이번 주\n- 한 일",
     )
 
 internal fun previewMemoDraft(): MemoDraft =

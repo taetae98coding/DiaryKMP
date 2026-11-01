@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
@@ -42,6 +43,7 @@ internal fun createGeminiHttpClient(
         baseUrl = GEMINI_BASE_URL,
         engine = engine,
         json = json,
+        configure = { install(HttpTimeout) },
     ) {
         contentType(ContentType.Application.Json)
     }

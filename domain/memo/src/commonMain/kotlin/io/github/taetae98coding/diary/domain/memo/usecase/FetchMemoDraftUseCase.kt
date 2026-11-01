@@ -2,10 +2,14 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -31,9 +35,22 @@ public class FetchMemoDraftUseCase internal constructor(
                 timeZone = timeZone,
             )
 
-        return memoDraftRepository
-            .fetch(setting = setting, request = request)
-            .toUsable()
+        var draft: MemoDraft? = null
+
+        memoDraftRepository
+            .stream(setting = setting, request = request)
+            .collect { generation ->
+                when (generation) {
+                    is MemoDraftGeneration.InProgress -> parameter.onProgress(generation.progress)
+                    is MemoDraftGeneration.Completed -> draft = generation.draft
+                }
+            }
+
+        return checkNotNull(draft) { "Memo draft generation ended without a result" }.toUsable()
+    }
+
+    override fun onFailure(throwable: Throwable) {
+        DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
     }
 
     private fun MemoDraft.toUsable(): MemoDraft =
@@ -54,6 +71,7 @@ public class FetchMemoDraftUseCase internal constructor(
         val title: String,
         val description: String,
         val dateTime: MemoDateTime?,
+        val onProgress: (MemoDraftProgress) -> Unit = {},
     )
 
     private companion object {

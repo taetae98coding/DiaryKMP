@@ -78,9 +78,14 @@ private fun MemoGeminiDialogPage(
                 modifier = modifier,
                 promptState = promptState,
                 failureProvider = { uiStateProvider().failure },
+                failureDescriptionProvider = { uiStateProvider().failureDescription },
             )
 
-        MemoGeminiStep.GENERATING -> MemoGeminiGeneratingPage(modifier = modifier)
+        MemoGeminiStep.GENERATING ->
+            MemoGeminiGeneratingPage(
+                modifier = modifier,
+                progressProvider = { uiStateProvider().progress },
+            )
 
         MemoGeminiStep.RESULT ->
             MemoGeminiResultPage(

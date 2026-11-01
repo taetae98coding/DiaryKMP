@@ -4,12 +4,18 @@ package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
+import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
@@ -17,6 +23,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +64,10 @@ private val PARAMETER =
         description = "",
         dateTime = null,
     )
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
+private const val PROGRESS_COUNT = 3
 
 class MemoGeminiViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -162,7 +173,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchMemoDraftUseCase(parameter) }
+                coVerify(exactly = 1) { fetchMemoDraftUseCase(match { sent -> sent.copy(onProgress = parameter.onProgress) == parameter }) }
             }
         }
 
@@ -304,19 +315,21 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 생성 실패의 원인을 구분해 알린다") {
+        test("TC-37fa34eb-5306-4a2d-af56-d0e3f60b7c7c 생성 실패의 이유를 구분해 알린다") {
             listOf(
                 GeminiApiKeyInvalidException() to MemoGeminiFailure.INVALID_API_KEY,
+                GeminiRequestException.QuotaExceeded(cause = null) to MemoGeminiFailure.QUOTA_EXCEEDED,
+                GeminiRequestException.ModelNotFound(cause = null) to MemoGeminiFailure.MODEL_NOT_FOUND,
+                GeminiRequestException.Blocked(cause = null) to MemoGeminiFailure.BLOCKED,
+                GeminiRequestException.Truncated(cause = null) to MemoGeminiFailure.TRUNCATED,
+                GeminiRequestException.Timeout(cause = null) to MemoGeminiFailure.TIMEOUT,
+                GeminiRequestException.Network(cause = null) to MemoGeminiFailure.NETWORK,
+                GeminiRequestException.Server(cause = null) to MemoGeminiFailure.SERVER,
+                GeminiRequestException.Other(description = "", cause = null) to MemoGeminiFailure.UNKNOWN,
                 IllegalStateException("generate failed") to MemoGeminiFailure.UNKNOWN,
             ).forEach { (throwable, expected) ->
                 runTest(mainDispatcher) {
-                    val viewModel =
-                        createViewModel(
-                            fetchMemoDraftUseCase =
-                                mockk {
-                                    coEvery { this@mockk(any()) } returns Result.failure(throwable)
-                                },
-                        )
+                    val viewModel = failingViewModel(throwable)
                     advanceUntilIdle()
                     viewModel.open()
 
@@ -327,7 +340,132 @@ class MemoGeminiViewModelTest : FunSpec() {
 
                     uiState.step shouldBe MemoGeminiStep.PROMPT
                     uiState.failure shouldBe expected
+                    uiState.failureDescription shouldBe ""
                 }
+            }
+        }
+
+        test("TC-da9bb546-e1b1-4d67-a91e-42cf5e0ae8c3 그 밖의 실패에서 Gemini가 돌려준 설명을 함께 알린다") {
+            runTest(mainDispatcher) {
+                val description = fixtureMonkey.nonBlankString()
+                val viewModel = failingViewModel(GeminiRequestException.Other(description = description, cause = null))
+                advanceUntilIdle()
+                viewModel.open()
+
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+
+                val uiState = viewModel.uiState.value
+
+                uiState.failure shouldBe MemoGeminiFailure.UNKNOWN
+                uiState.failureDescription shouldBe description
+            }
+        }
+
+        test("TC-11c3ed9d-2f48-41c6-8682-ddb76b0b5379 생성하는 동안 받은 제목과 설명을 알린다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<MemoDraft>>()
+                val parameterSlot = slot<FetchMemoDraftUseCase.Parameter>()
+                val viewModel =
+                    createViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(capture(parameterSlot)) } coAnswers { completion.await() }
+                            },
+                    )
+                advanceUntilIdle()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+
+                List(PROGRESS_COUNT) { fixtureMonkey.giveMeOne<MemoDraftProgress>() }.forEach { progress ->
+                    parameterSlot.captured.onProgress(progress)
+                    advanceUntilIdle()
+
+                    viewModel.uiState.value.step shouldBe MemoGeminiStep.GENERATING
+                    viewModel.uiState.value.progress shouldBe progress
+                }
+
+                completion.complete(Result.success(DRAFT))
+                advanceUntilIdle()
+
+                viewModel.uiState.value.step shouldBe MemoGeminiStep.RESULT
+                viewModel.uiState.value.progress shouldBe MemoDraftProgress.EMPTY
+            }
+        }
+
+        test("TC-9a7e13eb-a822-47f3-812b-adc76fbc39d3 생성 도중 실패하면 받던 내용을 버리고 실패 이유를 알린다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<MemoDraft>>()
+                val parameterSlot = slot<FetchMemoDraftUseCase.Parameter>()
+                val viewModel =
+                    createViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(capture(parameterSlot)) } coAnswers { completion.await() }
+                            },
+                    )
+                advanceUntilIdle()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                advanceUntilIdle()
+
+                completion.complete(Result.failure(GeminiRequestException.Network(cause = null)))
+                advanceUntilIdle()
+
+                val uiState = viewModel.uiState.value
+
+                uiState.step shouldBe MemoGeminiStep.PROMPT
+                uiState.failure shouldBe MemoGeminiFailure.NETWORK
+                uiState.progress shouldBe MemoDraftProgress.EMPTY
+                uiState.draft shouldBe MemoDraft.EMPTY
+            }
+        }
+
+        test("TC-9bd9cf15-aeb8-4f21-ad73-2e0b0bd4614c 취소하면 받아 보여 주던 내용도 버린다") {
+            runTest(mainDispatcher) {
+                val parameterSlot = slot<FetchMemoDraftUseCase.Parameter>()
+                val viewModel =
+                    createViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(capture(parameterSlot)) } coAnswers { CompletableDeferred<Result<MemoDraft>>().await() }
+                            },
+                    )
+                advanceUntilIdle()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                advanceUntilIdle()
+
+                viewModel.cancel()
+                advanceUntilIdle()
+
+                viewModel.uiState.value.step shouldBe MemoGeminiStep.PROMPT
+                viewModel.uiState.value.progress shouldBe MemoDraftProgress.EMPTY
+            }
+        }
+
+        test("생성 요청에 화면이 넘긴 입력 내용을 그대로 담는다") {
+            runTest(mainDispatcher) {
+                val parameterSlot = slot<FetchMemoDraftUseCase.Parameter>()
+                val viewModel =
+                    createViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(capture(parameterSlot)) } returns Result.success(DRAFT)
+                            },
+                    )
+                advanceUntilIdle()
+                viewModel.open()
+
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+
+                parameterSlot.captured.copy(onProgress = PARAMETER.onProgress) shouldBe PARAMETER
             }
         }
 
@@ -577,6 +715,14 @@ private fun createUnsubscribedViewModel(fetchMemoDraftUseCase: FetchMemoDraftUse
                 every { this@mockk(Unit) } returns flowOf(Result.success(COMPLETE_SETTING))
             },
         fetchMemoDraftUseCase = fetchMemoDraftUseCase,
+    )
+
+private fun TestScope.failingViewModel(throwable: Throwable): MemoGeminiViewModel =
+    createViewModel(
+        fetchMemoDraftUseCase =
+            mockk {
+                coEvery { this@mockk(any()) } returns Result.failure(throwable)
+            },
     )
 
 // 화면이 늘 상태를 구독하므로, 테스트도 같은 조건에서 관찰하도록 구독을 먼저 시작한다.

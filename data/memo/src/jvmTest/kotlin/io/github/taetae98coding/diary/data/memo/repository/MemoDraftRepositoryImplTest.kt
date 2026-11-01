@@ -4,16 +4,25 @@ import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiContentRemoteDataSource
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
+import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -31,6 +40,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 private val json = Json
 
@@ -65,6 +76,10 @@ class MemoDraftRepositoryImplTest :
             val systemPrompt = "  첫 줄 지시\n\n둘째 줄 지시  "
 
             fetchCapturing(setting = setting.copy(systemPrompt = systemPrompt), request = request).systemInstruction shouldBe systemPrompt
+        }
+
+        test("TC-7fbc6869-e13c-4bd8-9965-0e2292c8d0ba: 조각 사이 대기를 2분으로 요청한다") {
+            fetchCapturing(setting = setting, request = request).idleTimeout shouldBe 2.minutes
         }
 
         test("TC-5491e9af-67be-4bf7-bc56-76eb638b6889: 프롬프트와 입력 중인 내용, 지금 시각과 시간대를 함께 보낸다") {
@@ -263,19 +278,94 @@ class MemoDraftRepositoryImplTest :
             }
         }
 
+        test("TC-b2c73e80-0370-41e4-849b-c578276c14f2: 여러 조각을 이어 붙인 전체를 결과로 삼는다") {
+            val content =
+                buildJsonObject {
+                    put("title", "주간 회고")
+                    put("description", "## 이번 주\n- 한 일")
+                    put("period", period(allDay = true, startDate = "2026-11-07", endDate = "2026-11-08"))
+                }.toString()
+            val chunkList = content.chunked(size = 5)
 
-        test("인증 실패를 화면이 구분할 수 있는 도메인 실패로 바꿔 알린다") {
-            val cause = GeminiException.InvalidApiKey(cause = IllegalStateException("unauthorized"))
-            val repository = repositoryThrowing(cause)
+            val actual = fetchGenerationList(chunkFlow = flowOf(*chunkList.toTypedArray())).completedDraft()
 
-            shouldThrow<GeminiApiKeyInvalidException> { repository.fetch(setting = setting, request = request) }.cause shouldBe cause
+            actual.title shouldBe "주간 회고"
+            actual.description shouldBe "## 이번 주\n- 한 일"
+            actual.dateTime shouldBe MemoDateTime.AllDay(dateRange = LocalDate(2026, 11, 7)..LocalDate(2026, 11, 8))
         }
 
-        test("TC-659c06e0-8cc6-4e57-8cbc-be3ed3159758: 구조화된 형태가 아닌 응답의 실패는 인증 실패로 바꾸지 않는다") {
-            val cause = GeminiException.InvalidContent(cause = IllegalStateException("not json"))
-            val repository = repositoryThrowing(cause)
+        test("TC-11c3ed9d-2f48-41c6-8682-ddb76b0b5379: 조각을 받을 때마다 그때까지 이어 붙인 제목과 설명을 알린다") {
+            val actual =
+                fetchGenerationList(
+                    chunkFlow = flowOf("""{"title":"주간""", """ 회고","desc""", """ription":"## 이번""", """ 주"}"""),
+                )
 
-            shouldThrow<GeminiException.InvalidContent> { repository.fetch(setting = setting, request = request) } shouldBe cause
+            actual.progressList() shouldContainExactly
+                listOf(
+                    MemoDraftProgress(title = "주간", description = ""),
+                    MemoDraftProgress(title = "주간 회고", description = ""),
+                    MemoDraftProgress(title = "주간 회고", description = "## 이번"),
+                    MemoDraftProgress(title = "주간 회고", description = "## 이번 주"),
+                )
+            actual.last() shouldBe MemoDraftGeneration.Completed(draft = MemoDraft(title = "주간 회고", description = "## 이번 주", dateTime = null))
+        }
+
+        test("바뀐 내용이 없는 조각에서는 진행을 다시 알리지 않는다") {
+            val actual = fetchGenerationList(chunkFlow = flowOf("""{"title":"제목"""", ",", " ", """"period":null}"""))
+
+            actual.progressList() shouldContainExactly listOf(MemoDraftProgress(title = "제목", description = ""))
+        }
+
+        test("TC-9a7e13eb-a822-47f3-812b-adc76fbc39d3: 조각을 받는 도중 실패하면 결과 없이 실패를 알린다") {
+            val failure = GeminiException.Network(cause = IllegalStateException("connection reset"))
+            val chunkFlow =
+                flow {
+                    emit("""{"title":"주간""")
+                    throw failure
+                }
+            val generationList = mutableListOf<MemoDraftGeneration>()
+
+            shouldThrow<GeminiRequestException.Network> {
+                repositoryStreaming(chunkFlow = chunkFlow).stream(setting = setting, request = request).collect { generation -> generationList += generation }
+            }.cause shouldBe failure
+            generationList.filterIsInstance<MemoDraftGeneration.Completed>() shouldBe emptyList()
+        }
+
+        test("TC-cafafa06-f52a-4988-ab6e-164c6d4fd04b: 원격 실패를 실패 이유를 나눌 수 있는 도메인 실패로 바꿔 알린다") {
+            val description = "Request contains an invalid argument."
+            listOf<Pair<Throwable, (Throwable) -> Unit>>(
+                GeminiException.InvalidApiKey(cause = null) to { it.shouldBeInstanceOf<GeminiApiKeyInvalidException>() },
+                GeminiException.QuotaExceeded(cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.QuotaExceeded>() },
+                GeminiException.ModelNotFound(cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.ModelNotFound>() },
+                GeminiException.Blocked(detail = "blockReason=SAFETY") to { it.shouldBeInstanceOf<GeminiRequestException.Blocked>() },
+                GeminiException.Truncated(detail = "finishReason=MAX_TOKENS") to { it.shouldBeInstanceOf<GeminiRequestException.Truncated>() },
+                GeminiException.Timeout(cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.Timeout>() },
+                GeminiException.Network(cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.Network>() },
+                GeminiException.Server(cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.Server>() },
+                GeminiException.Other(description = description, cause = null) to { it.shouldBeInstanceOf<GeminiRequestException.Other>().description shouldBe description },
+            ).forEach { (cause, assertFailure) ->
+                val actual = shouldThrow<Exception> { repositoryThrowing(cause).stream(setting = setting, request = request).toList() }
+
+                assertFailure(actual)
+                actual.cause shouldBe cause
+            }
+        }
+
+        test("TC-659c06e0-8cc6-4e57-8cbc-be3ed3159758: 이어 붙인 전체가 구조화된 형태가 아니면 설명 없는 그 밖의 실패로 알린다") {
+            listOf(
+                emptyList(),
+                listOf("생성된 ", "문장입니다"),
+                listOf("[1, ", "2]"),
+                listOf("""{"title":"끊긴"""),
+            ).forEach { chunkList ->
+                val actual =
+                    shouldThrow<GeminiRequestException.Other> {
+                        fetchGenerationList(chunkFlow = flowOf(*chunkList.toTypedArray()))
+                    }
+
+                actual.description shouldBe ""
+                actual.cause.shouldBeInstanceOf<GeminiException.InvalidContent>()
+            }
         }
     })
 
@@ -285,6 +375,7 @@ private data class CapturedRequest(
     val systemInstruction: String,
     val prompt: String,
     val responseJsonSchema: JsonObject,
+    val idleTimeout: Duration,
 )
 
 private suspend fun fetchCapturing(
@@ -296,20 +387,22 @@ private suspend fun fetchCapturing(
     val systemInstructionSlot = slot<String>()
     val promptSlot = slot<String>()
     val schemaSlot = slot<JsonObject>()
+    val timeoutSlot = slot<Duration>()
     val remoteDataSource =
         mockk<GeminiContentRemoteDataSource> {
-            coEvery {
-                generateStructuredContent(
+            every {
+                streamStructuredContent(
                     apiKey = capture(apiKeySlot),
                     model = capture(modelSlot),
                     systemInstruction = capture(systemInstructionSlot),
                     prompt = capture(promptSlot),
                     responseJsonSchema = capture(schemaSlot),
+                    idleTimeout = capture(timeoutSlot),
                 )
-            } returns JsonObject(emptyMap())
+            } returns flowOf("{}")
         }
 
-    MemoDraftRepositoryImpl(geminiContentRemoteDataSource = remoteDataSource).fetch(setting = setting, request = request)
+    MemoDraftRepositoryImpl(geminiContentRemoteDataSource = remoteDataSource).stream(setting = setting, request = request).toList()
 
     return CapturedRequest(
         apiKey = apiKeySlot.captured,
@@ -317,26 +410,32 @@ private suspend fun fetchCapturing(
         systemInstruction = systemInstructionSlot.captured,
         prompt = promptSlot.captured,
         responseJsonSchema = schemaSlot.captured,
+        idleTimeout = timeoutSlot.captured,
     )
 }
 
 private suspend fun fetchPrompt(request: MemoDraftRequest): JsonObject = json.parseToJsonElement(fetchCapturing(setting = setting, request = request).prompt).jsonObject
 
-private suspend fun fetchDraft(content: JsonObject) =
-    MemoDraftRepositoryImpl(
-        geminiContentRemoteDataSource =
-            mockk {
-                coEvery { generateStructuredContent(any(), any(), any(), any(), any()) } returns content
-            },
-    ).fetch(setting = setting, request = request)
+private suspend fun fetchDraft(content: JsonObject) = fetchGenerationList(chunkFlow = flowOf(content.toString())).completedDraft()
 
-private fun repositoryThrowing(cause: Throwable): MemoDraftRepositoryImpl =
+private suspend fun fetchGenerationList(chunkFlow: Flow<String>): List<MemoDraftGeneration> =
+    repositoryStreaming(chunkFlow = chunkFlow)
+        .stream(setting = setting, request = request)
+        .toList()
+
+private fun repositoryStreaming(chunkFlow: Flow<String>): MemoDraftRepositoryImpl =
     MemoDraftRepositoryImpl(
         geminiContentRemoteDataSource =
             mockk {
-                coEvery { generateStructuredContent(any(), any(), any(), any(), any()) } throws cause
+                every { streamStructuredContent(any(), any(), any(), any(), any(), any()) } returns chunkFlow
             },
     )
+
+private fun repositoryThrowing(cause: Throwable): MemoDraftRepositoryImpl = repositoryStreaming(chunkFlow = flow { throw cause })
+
+private fun List<MemoDraftGeneration>.completedDraft(): MemoDraft = filterIsInstance<MemoDraftGeneration.Completed>().single().draft
+
+private fun List<MemoDraftGeneration>.progressList(): List<MemoDraftProgress> = filterIsInstance<MemoDraftGeneration.InProgress>().map { generation -> generation.progress }
 
 private fun period(
     allDay: Boolean,
