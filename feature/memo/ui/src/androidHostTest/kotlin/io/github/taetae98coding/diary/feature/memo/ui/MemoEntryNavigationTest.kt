@@ -274,7 +274,7 @@ class MemoEntryNavigationTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 TC-231b6a8e-83cc-4cf4-8c2d-558f5715280a 목록과 함께 표시된 상세 영역에서 뒤로가거나 삭제하면 목록을 유지하고 선택한 메모가 없을 때의 상태로 돌아간다`() {
+    fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 TC-231b6a8e-83cc-4cf4-8c2d-558f5715280a 넓은 창 상세에서 뒤로가거나 삭제하면 목록은 남고 선택이 해제된다`() {
         setMemoNavDisplay()
 
         listOf(::pressBack, ::deleteOnDetail).forEach { leaveDetail ->
