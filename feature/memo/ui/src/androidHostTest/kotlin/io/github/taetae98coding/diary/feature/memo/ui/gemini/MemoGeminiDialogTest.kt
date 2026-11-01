@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasClickAction
@@ -199,6 +201,44 @@ class MemoGeminiDialogTest {
         composeRule.waitForIdle()
 
         dismissCount shouldBe 1
+    }
+
+    @Test
+    fun `프롬프트 입력과 생성 중에는 상태의 동작과 함께 닫기 버튼으로 닫는다`() {
+        var dismissCount = 0
+        val events = mutableListOf<MemoGeminiDialogEvent>()
+        val uiState = mutableStateOf(MemoGeminiUiState(step = MemoGeminiStep.PROMPT))
+        composeRule.setContent {
+            DiaryTheme {
+                MemoGeminiDialogHost(
+                    onEvent = events::add,
+                    onDismissRequest = { dismissCount += 1 },
+                    uiStateProvider = { uiState.value },
+                )
+            }
+        }
+
+        listOf(
+            MemoGeminiStep.PROMPT to DEFAULT_GENERATE_ACTION,
+            MemoGeminiStep.GENERATING to DEFAULT_CANCEL_ACTION,
+        ).forEachIndexed { index, (step, stepAction) ->
+            composeRule.runOnIdle { uiState.value = MemoGeminiUiState(step = step) }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(stepAction).assertExists()
+            composeRule.onNodeWithText(DEFAULT_CLOSE_ACTION).performClick()
+            composeRule.waitForIdle()
+
+            dismissCount shouldBe index + 1
+            events shouldBe emptyList()
+        }
+    }
+
+    @Test
+    fun `결과 확인 상태에는 닫기 버튼을 하나만 둔다`() {
+        setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT))
+
+        composeRule.onAllNodesWithText(DEFAULT_CLOSE_ACTION).assertCountEquals(1)
     }
 
     @Test

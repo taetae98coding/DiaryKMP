@@ -83,8 +83,8 @@
     <string name="memo_detail_delete_button_content_description">메모 삭제</string>
     <string name="memo_detail_update_succeeded_message">메모가 수정되었습니다.</string>
     <string name="memo_detail_copy_succeeded_message">메모가 복사되었습니다.</string>
-    <string name="memo_gemini_button_content_description">작성 도우미</string>
-    <string name="memo_gemini_title">작성 도우미</string>
+    <string name="memo_gemini_button_content_description">AI 작성</string>
+    <string name="memo_gemini_title">AI 작성</string>
     <string name="memo_gemini_prompt_label">프롬프트</string>
     <string name="memo_gemini_prompt_placeholder">어떤 메모를 만들까요?</string>
     <string name="memo_gemini_generate_action">생성</string>

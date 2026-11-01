@@ -91,11 +91,11 @@ class MemoGeminiSettingRequiredTest {
     }
 
     private companion object {
-        private const val DEFAULT_BUTTON_DESCRIPTION = "Writing assistant"
+        private const val DEFAULT_BUTTON_DESCRIPTION = "Write with AI"
         private const val DEFAULT_REMOVED_SETTING_REQUIRED_MESSAGE = "Please finish Gemini settings first."
-        private const val DEFAULT_DIALOG_TITLE = "Writing Assistant"
-        private const val KOREAN_BUTTON_DESCRIPTION = "작성 도우미"
+        private const val DEFAULT_DIALOG_TITLE = "Write with AI"
+        private const val KOREAN_BUTTON_DESCRIPTION = "AI 작성"
         private const val KOREAN_REMOVED_SETTING_REQUIRED_MESSAGE = "Gemini 설정을 먼저 완료해 주세요."
-        private const val KOREAN_DIALOG_TITLE = "작성 도우미"
+        private const val KOREAN_DIALOG_TITLE = "AI 작성"
     }
 }

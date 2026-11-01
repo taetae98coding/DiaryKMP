@@ -618,7 +618,7 @@ class MemoEntryNavigationTest {
         const val ALL_DAY_START_DATE_TEXT = "Jul 19, 2026"
         const val ALL_DAY_END_DATE_TEXT = "Jul 28, 2026"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
-        const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Writing assistant"
+        const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Write with AI"
         const val TITLE_INPUT_INDEX = 0
         const val DESCRIPTION_INPUT_INDEX = 1
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()

@@ -122,6 +122,6 @@ class MemoGeminiTopBarActionTest {
     }
 
     private companion object {
-        private const val DEFAULT_BUTTON_DESCRIPTION = "Writing assistant"
+        private const val DEFAULT_BUTTON_DESCRIPTION = "Write with AI"
     }
 }
