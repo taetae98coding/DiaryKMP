@@ -65,6 +65,10 @@ public interface HolidaySettingLocalDataSource {
 }
 ```
 
+### 원격 엔티티의 버전과 기본값
+
+Supabase 동기화 요청에 담는 `core:network` 원격 엔티티는 버전을 나누지 않고 현재 형식 하나만 두며, 프로퍼티에 기본값을 두지 않는다. 이유와 서버 쪽 버전 규칙은 [supabase.md](supabase.md)의 `동기화 계약의 버전`을 따른다.
+
 ## 계층 의존 방향
 
 Repository·Manager 계약은 `domain:*`이 선언하고 `data:*`와 `work:*`가 구현한다. 의존은 `data:* → domain:*`, `work:* → domain:*` 방향이고, `domain:*`은 어떤 `data:*`나 `work:*`도 참조하지 않는다.
