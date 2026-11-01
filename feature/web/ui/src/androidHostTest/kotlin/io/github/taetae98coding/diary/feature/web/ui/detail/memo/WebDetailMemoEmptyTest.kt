@@ -24,11 +24,13 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.setWebDetailMemoScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +42,11 @@ import org.robolectric.annotation.Config
 class WebDetailMemoEmptyTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-09f741a3-70a6-49d5-bdeb-2aace0e8999c 연결된 메모가 없으면 빈 상태 안내를 표시한다`() {

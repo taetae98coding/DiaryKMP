@@ -59,6 +59,6 @@ internal class GooglePlaceRemoteDataSourceImpl(
         private const val LANGUAGE_CODE = "ko"
         private const val FIELD_MASK_HEADER = "X-Goog-FieldMask"
         private const val FIELD_MASK =
-            "places.id,places.displayName,places.location,places.types,places.formattedAddress,places.shortFormattedAddress,places.googleMapsUri"
+            "places.displayName,places.location,places.formattedAddress,places.shortFormattedAddress"
     }
 }

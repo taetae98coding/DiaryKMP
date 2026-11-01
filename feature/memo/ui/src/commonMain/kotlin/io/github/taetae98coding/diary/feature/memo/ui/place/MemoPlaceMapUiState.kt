@@ -8,6 +8,7 @@ internal sealed interface MemoPlaceMapUiState {
 
     data class Content(
         val provider: MapProvider,
+        val isCurrentLocationFetched: Boolean,
         val currentCoordinate: Coordinate?,
     ) : MemoPlaceMapUiState
 }

@@ -27,7 +27,6 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.music.SwipeToDeleteMusicCard
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_empty_description
@@ -45,7 +44,6 @@ internal fun PlaylistHomeList(
     isRefreshingProvider: () -> Boolean = { false },
     isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
-    downloadStateProvider: (Music) -> MusicDownloadState? = { null },
 ) {
     ListQueryScrollEffect(
         staggeredGridState = gridState,
@@ -97,7 +95,6 @@ internal fun PlaylistHomeList(
                                 .animateItem()
                                 .fillMaxWidth(),
                         music = music,
-                        downloadStateProvider = { music?.let(downloadStateProvider) },
                     )
                 }
             }

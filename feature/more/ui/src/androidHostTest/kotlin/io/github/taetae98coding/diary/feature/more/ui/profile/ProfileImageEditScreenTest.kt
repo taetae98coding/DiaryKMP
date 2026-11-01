@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.more.ui.profile
 
+import androidx.compose.material3.Text
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
@@ -19,6 +20,10 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pinch
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import coil3.ColorImage
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -28,6 +33,9 @@ import coil3.test.FakeImageLoaderEngine
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
+import io.github.taetae98coding.diary.feature.more.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPicker
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
@@ -59,9 +67,18 @@ class ProfileImageEditScreenTest {
 
     @Before
     fun setUp() {
+        setImageLoader(isEveryPhotoUnreadable = false)
+    }
+
+    private fun setImageLoader(isEveryPhotoUnreadable: Boolean) {
+        val builder = FakeImageLoaderEngine.Builder()
+        if (isEveryPhotoUnreadable) {
+            builder.intercept({ true }) { chain ->
+                ErrorResult(image = null, request = chain.request, throwable = IllegalStateException("Unreadable photo."))
+            }
+        }
         val engine =
-            FakeImageLoaderEngine
-                .Builder()
+            builder
                 .intercept(LANDSCAPE_URI, ColorImage(color = IMAGE_COLOR, width = LANDSCAPE_WIDTH, height = LANDSCAPE_HEIGHT))
                 .intercept(PORTRAIT_URI, ColorImage(color = IMAGE_COLOR, width = LANDSCAPE_HEIGHT, height = LANDSCAPE_WIDTH))
                 .intercept(SQUARE_URI, ColorImage(color = IMAGE_COLOR, width = SQUARE_SIZE, height = SQUARE_SIZE))
@@ -461,6 +478,70 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
+    fun `TC-1411ee23-d22e-4e3d-b3d3-761f62a5ea64 앱 정리 뒤 복원했을 때 고른 사진을 더 이상 읽을 수 없으면 읽기 실패로 처리한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        var latestState: ProfileImageEditState? = null
+        restorationTester.setContent {
+            DiaryTheme {
+                val state = rememberProfileImageEditState()
+
+                latestState = state
+                ProfileImageEditScaffold(onEvent = {}, state = state)
+            }
+        }
+        composeRule.runOnIdle { checkNotNull(latestState).changePhoto(uri = FileUri(LANDSCAPE_URI)) }
+        awaitReady()
+
+        // 새 이미지 로더는 메모리에 읽어 둔 사진이 없으므로, 복원된 화면이 사진을 다시 읽다가 실패한다.
+        composeRule.runOnIdle { setImageLoader(isEveryPhotoUnreadable = true) }
+        restorationTester.emulateSavedInstanceStateRestore()
+        awaitText(DEFAULT_UNREADABLE_MESSAGE)
+
+        composeRule.onNodeWithText(DEFAULT_UNREADABLE_MESSAGE).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_CHOOSE_PHOTO_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-0e295d05-5f0d-47cc-9e23-710d75eca41d 화면을 떠난 뒤 다시 진입하면 사진이 없는 상태로 시작한다`() {
+        val backStack = NavBackStack<ScreenNavKey>(MoreHomeNavKey, ProfileImageEditNavKey)
+        val viewModel = screenTestViewModel()
+        val photoPicker = screenTestPhotoPicker(LANDSCAPE_URI)
+        composeRule.setContent {
+            DiaryTheme {
+                NavDisplay(
+                    backStack = backStack,
+                    // 화면을 떠나면 저장 상태를 버리는 것은 앱이 쓰는 저장 상태 decorator가 정하므로 그것만 둔다.
+                    entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                    entryProvider =
+                        entryProvider {
+                            entry<MoreHomeNavKey> { Text(text = MORE_HOME_CONTENT) }
+                            entry<ProfileImageEditNavKey> {
+                                ProfileImageEditScreen(
+                                    navigateUp = backStack::removeLastOrNull,
+                                    photoPicker = photoPicker,
+                                    viewModel = viewModel,
+                                )
+                            }
+                        },
+                )
+            }
+        }
+        choosePhoto()
+        awaitReady()
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput { swipeLeft() }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_HOME_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(ProfileImageEditNavKey) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-43d7c75f-d9f1-4c4a-93c8-8c391112198e 반영을 실행하면 사진의 위치와 비율로 표현한 남길 영역으로 프로필 이미지를 바꾸도록 요청한다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI))
@@ -532,6 +613,7 @@ class ProfileImageEditScreenTest {
         private const val DEFAULT_EMPTY_MESSAGE = "Choose a photo to get started."
         private const val DEFAULT_UNREADABLE_MESSAGE = "Couldn't open the photo."
         private const val DEFAULT_FAILED_MESSAGE = "Couldn't update the profile photo."
+        private const val MORE_HOME_CONTENT = "MoreHomeContent"
         private val LANDSCAPE_INITIAL_REGION = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
         private val INITIAL_REGION_CASES =
             listOf(

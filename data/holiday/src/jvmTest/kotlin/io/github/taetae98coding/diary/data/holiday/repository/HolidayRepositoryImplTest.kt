@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.Runs
@@ -26,8 +27,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 
 private val fixtureMonkey: FixtureMonkey =
@@ -407,6 +412,103 @@ class HolidayRepositoryImplTest :
             ).fetch(country = HolidayCountry.KOREA, year = year)
 
             coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+        }
+
+        test("TC-0da603fd-884c-4461-8ee5-ea53853d0af6 같은 연도의 동기화가 진행 중이면 새로 원격 조회하지 않고 그 결과를 함께 기다린다") {
+            runTest {
+                val year = fixtureMonkey.giveMeOne<Int>()
+                val remoteHolidayList = listOf(remoteHoliday())
+                val localHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
+                val response = CompletableDeferred<List<HolidayRemoteEntity>>()
+                val remoteDataSource = mockk<HolidayRemoteDataSource>()
+                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
+                val localDataSource = mockk<HolidayLocalDataSource>()
+                every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(localHolidayList)
+                val transaction = mockk<HolidayTransaction>()
+                coEvery { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = localHolidayList) } just Runs
+                val repository =
+                    HolidayRepositoryImpl(
+                        holidayRemoteDataSource = remoteDataSource,
+                        holidayLocalDataSource = localDataSource,
+                        holidayTransaction = transaction,
+                        holidayFetchedKeySet = HolidayFetchedKeySet(),
+                    )
+
+                val first = async { repository.fetch(country = HolidayCountry.KOREA, year = year) }
+                runCurrent()
+                val second = async { repository.fetch(country = HolidayCountry.KOREA, year = year) }
+                runCurrent()
+
+                second.isCompleted shouldBe false
+
+                response.complete(remoteHolidayList)
+                first.await()
+
+                second.await() shouldBe localHolidayList.map { local -> local.toDomain() }
+                coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            }
+        }
+
+        test("TC-9a8e88b8-2229-4368-8555-dbe88ee8678d 진행 중이던 동기화가 실패하면 함께 기다린 요청이 다시 원격 조회한다") {
+            runTest {
+                val year = fixtureMonkey.giveMeOne<Int>()
+                val remoteHolidayList = listOf(remoteHoliday())
+                val localHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
+                val response = CompletableDeferred<List<HolidayRemoteEntity>>()
+                val remoteDataSource = mockk<HolidayRemoteDataSource>()
+                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() } andThen remoteHolidayList
+                val transaction = mockk<HolidayTransaction>()
+                coEvery { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = localHolidayList) } just Runs
+                val repository =
+                    HolidayRepositoryImpl(
+                        holidayRemoteDataSource = remoteDataSource,
+                        holidayLocalDataSource = mockk(),
+                        holidayTransaction = transaction,
+                        holidayFetchedKeySet = HolidayFetchedKeySet(),
+                    )
+
+                val first = async { runCatching { repository.fetch(country = HolidayCountry.KOREA, year = year) } }
+                runCurrent()
+                val second = async { repository.fetch(country = HolidayCountry.KOREA, year = year) }
+                runCurrent()
+
+                response.completeExceptionally(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+
+                first.await().shouldBeFailure<IllegalStateException>()
+                second.await() shouldBe localHolidayList.map { local -> local.toDomain() }
+                coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
+            }
+        }
+
+        test("TC-d5cb9bf4-52c0-4c6c-952e-fe28bd4a1db7 다른 연도의 동기화는 진행 중인 동기화를 기다리지 않는다") {
+            runTest {
+                val year = fixtureMonkey.giveMeOne<Int>()
+                val otherYear = generateSequence { fixtureMonkey.giveMeOne<Int>() }.first { candidate -> candidate != year }
+                val remoteHolidayList = listOf(remoteHoliday())
+                val response = CompletableDeferred<List<HolidayRemoteEntity>>()
+                val remoteDataSource = mockk<HolidayRemoteDataSource>()
+                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = otherYear) } returns remoteHolidayList
+                val transaction = mockk<HolidayTransaction>()
+                coEvery { transaction.upsert(country = any(), year = any(), holidayList = any()) } just Runs
+                val repository =
+                    HolidayRepositoryImpl(
+                        holidayRemoteDataSource = remoteDataSource,
+                        holidayLocalDataSource = mockk(),
+                        holidayTransaction = transaction,
+                        holidayFetchedKeySet = HolidayFetchedKeySet(),
+                    )
+
+                val first = async { repository.fetch(country = HolidayCountry.KOREA, year = year) }
+                runCurrent()
+
+                repository.fetch(country = HolidayCountry.KOREA, year = otherYear) shouldBe
+                    remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = otherYear).toDomain() }
+                first.isCompleted shouldBe false
+
+                response.complete(emptyList())
+                first.await()
+            }
         }
 
         test("전체 로컬 공휴일을 순서대로 도메인 공휴일로 제공한다") {

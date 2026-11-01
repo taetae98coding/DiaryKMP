@@ -2,25 +2,24 @@ package io.github.taetae98coding.diary.feature.file.ui.home
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
-import io.github.taetae98coding.diary.feature.file.ui.file_home_load_failed_message
-import io.github.taetae98coding.diary.feature.file.ui.file_home_retry
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_failed_message
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_too_large_message
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -29,94 +28,80 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import kotlin.uuid.Uuid
 
 @Composable
 internal fun FileHomeScreenEffect(
     uploadViewModel: FileHomeUploadViewModel,
-    refreshViewModel: FileHomeRefreshViewModel,
-    fileViewModel: FileHomeViewModel,
     navigateToAdd: () -> Unit,
     uiStateProvider: () -> FileHomeUiState,
-    refreshUiStateProvider: () -> FileHomeRefreshUiState,
+    componentVisibleProvider: () -> FileHomeScaffoldComponentVisible,
     listState: LazyListState,
     filePagingItems: LazyPagingItems<DiaryFile>,
     snackbarHostState: SnackbarHostState,
-    refresh: () -> Unit,
+    onAccountChangeStart: () -> Unit,
+    onAccountChangeFinish: () -> Unit,
 ) {
-    FileHomeViewingEffect(uploadViewModel = uploadViewModel)
+    var isScrollToTopPending by rememberSaveable { mutableStateOf(false) }
+    var refreshBefore by remember { mutableStateOf<FileHomeRefreshSnapshot?>(null) }
 
     UploadFileEffect(
-        effect = uploadViewModel.effect,
-        filePagingItems = filePagingItems,
+        uploadViewModel = uploadViewModel,
+        // 목록과 함께 FileAdd가 보이면 결과는 FileAdd가 알린다.
+        isResultVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
         snackbarHostState = snackbarHostState,
         navigateToAdd = navigateToAdd,
-        refreshAfterUpload = refreshViewModel::refreshAfterUpload,
-        refreshAfterUploadOnFileAdd = refreshViewModel::refreshAfterUploadOnFileAdd,
+        onSucceeded = {
+            refreshBefore = filePagingItems.refreshSnapshot()
+            filePagingItems.refresh()
+            isScrollToTopPending = true
+        },
     )
 
-    RefreshFailedEffect(
-        effect = refreshViewModel.effect,
-        uiStateProvider = uiStateProvider,
-        snackbarHostState = snackbarHostState,
-        onRetry = refresh,
-    )
-
-    ScrollToTopAfterRefreshEffect(
-        refreshUiStateProvider = refreshUiStateProvider,
-        listState = listState,
-        filePagingItems = filePagingItems,
-        onScrolledToTop = refreshViewModel::onScrolledToTop,
-    )
+    if (isScrollToTopPending) {
+        ScrollToTopAfterRefreshEffect(
+            listState = listState,
+            filePagingItems = filePagingItems,
+            refreshBeforeProvider = { refreshBefore },
+            onFinished = {
+                refreshBefore = null
+                isScrollToTopPending = false
+            },
+        )
+    }
 
     AccountChangedEffect(
         uiStateProvider = uiStateProvider,
         listState = listState,
         filePagingItems = filePagingItems,
-        onChanged = refreshViewModel::cancelRefresh,
-        onChangeStart = fileViewModel::startAccountChange,
-        onChangeFinish = fileViewModel::finishAccountChange,
+        onChangeStart = onAccountChangeStart,
+        onChangeFinish = onAccountChangeFinish,
     )
 }
 
 @Composable
-private fun FileHomeViewingEffect(uploadViewModel: FileHomeUploadViewModel) {
-    LifecycleStartEffect(uploadViewModel) {
-        uploadViewModel.startViewing()
-
-        onStopOrDispose { uploadViewModel.stopViewing() }
-    }
-}
-
-@Composable
 private fun UploadFileEffect(
-    effect: Flow<FileHomeUploadEffect>,
-    filePagingItems: LazyPagingItems<DiaryFile>,
+    uploadViewModel: FileHomeUploadViewModel,
+    isResultVisibleProvider: () -> Boolean,
     snackbarHostState: SnackbarHostState,
     navigateToAdd: () -> Unit,
-    refreshAfterUpload: (firstFileIdBefore: Uuid) -> Unit,
-    refreshAfterUploadOnFileAdd: (firstFileIdBefore: Uuid) -> Unit,
+    onSucceeded: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val tooLargeMessage = stringResource(Res.string.file_home_upload_too_large_message)
     val failedMessage = stringResource(Res.string.file_home_upload_failed_message)
 
-    CollectEffect(effect) { value ->
+    CollectEffect(uploadViewModel.effect) { value ->
         when (value) {
             is FileHomeUploadEffect.UploadSucceeded -> {
-                filePagingItems.refreshAfterUpload(refreshList = refreshAfterUpload)
-            }
-
-            is FileHomeUploadEffect.UploadSucceededOnFileAdd -> {
-                filePagingItems.refreshAfterUpload(refreshList = refreshAfterUploadOnFileAdd)
+                onSucceeded()
             }
 
             is FileHomeUploadEffect.UploadTooLarge -> {
-                coroutineScope.launch { snackbarHostState.showImmediate(message = tooLargeMessage) }
+                if (isResultVisibleProvider()) coroutineScope.launch { snackbarHostState.showImmediate(message = tooLargeMessage) }
             }
 
             is FileHomeUploadEffect.UploadFailed -> {
-                coroutineScope.launch { snackbarHostState.showImmediate(message = failedMessage) }
+                if (isResultVisibleProvider()) coroutineScope.launch { snackbarHostState.showImmediate(message = failedMessage) }
             }
 
             is FileHomeUploadEffect.NavigateToAdd -> {
@@ -126,70 +111,35 @@ private fun UploadFileEffect(
     }
 }
 
-private fun LazyPagingItems<DiaryFile>.refreshAfterUpload(refreshList: (firstFileIdBefore: Uuid) -> Unit) {
-    val firstFile = takeIf { items -> items.itemCount > 0 }?.peek(index = 0)
+private class FileHomeRefreshSnapshot(
+    val refresh: LoadState,
+    val itemList: Any,
+)
 
-    if (firstFile != null && loadState.refresh !is LoadState.Loading) {
-        refreshList(firstFile.id)
-    } else {
-        refresh()
-    }
-}
+private fun LazyPagingItems<DiaryFile>.refreshSnapshot(): FileHomeRefreshSnapshot = FileHomeRefreshSnapshot(refresh = loadState.refresh, itemList = itemSnapshotList)
 
-@Composable
-private fun RefreshFailedEffect(
-    effect: Flow<FileHomeRefreshEffect>,
-    uiStateProvider: () -> FileHomeUiState,
-    snackbarHostState: SnackbarHostState,
-    onRetry: () -> Unit,
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val message = stringResource(Res.string.file_home_load_failed_message)
-    val actionLabel = stringResource(Res.string.file_home_retry)
-    val latestUiStateProvider by rememberUpdatedState(uiStateProvider)
-    val latestOnRetry by rememberUpdatedState(onRetry)
-
-    CollectEffect(effect) { value ->
-        when (value) {
-            is FileHomeRefreshEffect.RefreshFailed -> {
-                if (latestUiStateProvider() is FileHomeUiState.User) {
-                    coroutineScope.launch {
-                        val result = snackbarHostState.showImmediate(message = message, actionLabel = actionLabel)
-
-                        if (result == SnackbarResult.ActionPerformed) latestOnRetry()
-                    }
-                }
-            }
-        }
-    }
-}
-
+// 새 목록이 나타나기 전에 처음으로 옮기면 LazyList가 앞선 첫 항목의 키를 따라 그 자리로 되돌아가므로, 다시 불러오기가 끝난 뒤에 옮긴다.
+// 화면이 다시 만들어져 다시 불러오기 전의 상태를 모르면 지금 상태에서부터 끝나기를 기다린다.
 @Composable
 private fun ScrollToTopAfterRefreshEffect(
-    refreshUiStateProvider: () -> FileHomeRefreshUiState,
     listState: LazyListState,
     filePagingItems: LazyPagingItems<DiaryFile>,
-    onScrolledToTop: () -> Unit,
+    refreshBeforeProvider: () -> FileHomeRefreshSnapshot?,
+    onFinished: () -> Unit,
 ) {
-    val latestRefreshUiStateProvider by rememberUpdatedState(refreshUiStateProvider)
-    val latestOnScrolledToTop by rememberUpdatedState(onScrolledToTop)
+    val latestOnFinished by rememberUpdatedState(onFinished)
 
     LaunchedEffect(listState, filePagingItems) {
-        snapshotFlow { latestRefreshUiStateProvider().scrollToTop to filePagingItems.itemSnapshotList.firstOrNull()?.id }
-            .filter { (scrollToTop, firstFileId) ->
-                scrollToTop is FileHomeScrollToTop.AfterFirstFileChanges && firstFileId != null && firstFileId != scrollToTop.firstFileIdBefore
-            }.collect {
-                listState.scrollToItem(index = 0)
-                latestOnScrolledToTop()
-            }
+        val refreshBefore = refreshBeforeProvider() ?: filePagingItems.refreshSnapshot()
+        val refresh = filePagingItems.awaitRefreshSettled(refreshBefore = refreshBefore)
+
+        if (refresh is LoadState.NotLoading) listState.scrollToItem(index = 0)
+        latestOnFinished()
     }
 }
 
 // 불러오는 중이 한 프레임 안에 끝나면 snapshotFlow가 그 상태를 건너뛰므로, 결과가 달라진 것으로도 끝났다고 본다.
-private suspend fun LazyPagingItems<DiaryFile>.awaitRefreshSettled(
-    refreshBefore: LoadState,
-    itemListBefore: Any,
-): LoadState {
+private suspend fun LazyPagingItems<DiaryFile>.awaitRefreshSettled(refreshBefore: FileHomeRefreshSnapshot): LoadState {
     var isLoadingSeen = false
 
     return snapshotFlow { loadState.refresh to itemSnapshotList }
@@ -198,51 +148,41 @@ private suspend fun LazyPagingItems<DiaryFile>.awaitRefreshSettled(
                 isLoadingSeen = true
                 false
             } else {
-                isLoadingSeen || refresh !== refreshBefore || itemList !== itemListBefore
+                isLoadingSeen || refresh !== refreshBefore.refresh || itemList !== refreshBefore.itemList
             }
         }.first
 }
 
 // 목록의 자리는 계정과 무관하게 화면이 들고 있어 계정이 바뀌어도 그대로 남는다. 처음 읽는 계정은 되살린 화면의 계정일 수 있어 건너뛴다.
+// Paging은 새 계정의 첫 페이지가 올 때까지 앞선 계정의 파일을 들고 있으므로 그동안 목록을 가린다.
 @Composable
 private fun AccountChangedEffect(
     uiStateProvider: () -> FileHomeUiState,
     listState: LazyListState,
     filePagingItems: LazyPagingItems<DiaryFile>,
-    onChanged: () -> Unit,
     onChangeStart: () -> Unit,
     onChangeFinish: () -> Unit,
 ) {
     val latestUiStateProvider by rememberUpdatedState(uiStateProvider)
-    val latestOnChanged by rememberUpdatedState(onChanged)
     val latestOnChangeStart by rememberUpdatedState(onChangeStart)
     val latestOnChangeFinish by rememberUpdatedState(onChangeFinish)
 
     LaunchedEffect(listState, filePagingItems) {
         snapshotFlow { latestUiStateProvider() }
             .filter { uiState -> uiState !is FileHomeUiState.Loading }
-            .map { uiState -> uiState.toListOwner() }
+            .map { uiState -> (uiState as? FileHomeUiState.User)?.accountId }
             .distinctUntilChanged()
             .drop(1)
             .collectLatest {
-                val refreshBefore = filePagingItems.loadState.refresh
-                val itemListBefore = filePagingItems.itemSnapshotList
+                val refreshBefore = filePagingItems.refreshSnapshot()
 
-                latestOnChanged()
                 latestOnChangeStart()
                 listState.requestScrollToItem(index = 0)
                 try {
-                    filePagingItems.awaitRefreshSettled(refreshBefore = refreshBefore, itemListBefore = itemListBefore)
+                    filePagingItems.awaitRefreshSettled(refreshBefore = refreshBefore)
                 } finally {
                     latestOnChangeFinish()
                 }
             }
     }
 }
-
-private fun FileHomeUiState.toListOwner(): Any =
-    when (this) {
-        is FileHomeUiState.Loading -> FileHomeUiState.Loading
-        is FileHomeUiState.Guest -> FileHomeUiState.Guest
-        is FileHomeUiState.User -> accountId
-    }

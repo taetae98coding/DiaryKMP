@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.tag
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
@@ -135,6 +136,28 @@ class TagCardTest {
         textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe emojiWithTitle.length
     }
 
+    @Test
+    fun `카드 폭보다 긴 제목은 시간이 지나면 그려지는 위치가 바뀐다`() {
+        val baseTag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+        val tag = baseTag.copy(detail = baseTag.detail.copy(emoji = EMOJI, title = LONG_TITLE))
+        composeRule.mainClock.autoAdvance = false
+        setTagCard(tag)
+        composeRule.mainClock.advanceTimeByFrame()
+
+        val first = captureCard()
+        val sameTime = captureCard()
+        composeRule.mainClock.advanceTimeBy(MARQUEE_MOVE_MILLIS)
+        val later = captureCard()
+
+        sameTime.contentEquals(first) shouldBe true
+        later.contentEquals(first) shouldBe false
+    }
+
+    private fun captureCard(): IntArray {
+        val pixelMap = composeRule.onNodeWithTag(TAG_CARD_TEST_TAG).captureToImage().toPixelMap()
+        return IntArray(pixelMap.width * pixelMap.height) { index -> pixelMap[index % pixelMap.width, index / pixelMap.width].toArgb() }
+    }
+
     private fun tag(colorArgb: Int): Tag =
         fixtureMonkey
             .giveMeKotlinBuilder<Tag>()
@@ -167,5 +190,8 @@ class TagCardTest {
         private const val BESIDE_INDICATOR_OFFSET = 4f
         private const val EMOJI = "🏃"
         private val LONG_TITLE = "LongTagCardTitle".repeat(20)
+
+        // 반복 이동은 처음 1.2초를 기다린 뒤 시작하므로 그보다 충분히 뒤의 화면을 비교한다.
+        private const val MARQUEE_MOVE_MILLIS = 3_000L
     }
 }

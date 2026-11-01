@@ -101,9 +101,10 @@ class CalendarHomeScreenTimetableTest {
         val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE)
         val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = september(day = 22))
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
+        // 날씨는 이름 아이템보다 위 줄을 차지하므로 다른 주에 두어 작은 화면에서도 모든 아이템이 한 번에 보이게 한다.
         val weather =
             calendarWeather(
-                date = september(day = 25),
+                date = september(day = 29),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList = listOf("clear sky"),
             )

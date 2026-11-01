@@ -56,6 +56,7 @@ internal fun testContact(
     birthday: ContactBirthday? = null,
     birthYear: Int? = birthday?.date?.year,
     hometown: String = "",
+    howWeMet: String = "",
     isFavorite: Boolean = false,
 ): Contact =
     Contact(
@@ -69,6 +70,7 @@ internal fun testContact(
                 birthday = birthday,
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
             ),
         isFavorite = isFavorite,

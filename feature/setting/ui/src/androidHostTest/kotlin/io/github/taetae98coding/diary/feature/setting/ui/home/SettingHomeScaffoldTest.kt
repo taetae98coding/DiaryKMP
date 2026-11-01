@@ -61,8 +61,6 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText("공휴일").assertExists()
         composeRule.onNodeWithText("지도").assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
-        composeRule.onNodeWithText("브라우저").assertExists()
-        composeRule.onNodeWithText("플레이리스트").assertExists()
         composeRule.onNodeWithText("파일").assertExists()
     }
 
@@ -73,8 +71,6 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
-        composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertExists()
-        composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assertExists()
     }
 
@@ -85,8 +81,6 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assert(hasClickAction())
-        composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assert(hasClickAction())
-        composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assert(hasClickAction())
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe CLICKABLE_NODE_COUNT
     }
@@ -96,32 +90,7 @@ class SettingHomeScaffoldTest {
         setSettingHomeScaffold()
 
         displayedItemLabels() shouldBe
-            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_BROWSER_ITEM_LABEL, DEFAULT_PLAYLIST_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
-    }
-
-    @Test
-    fun `TC-2f983b47-41cf-4382-8b81-09b996c3ab20 브라우저 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
-        setSettingHomeScaffold(
-            uiState =
-                SettingHomeUiState.Content(
-                    itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.PLAYLIST, SettingHomeItem.FILE),
-                ),
-        )
-
-        composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertDoesNotExist()
-        displayedItemLabels() shouldBe listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_PLAYLIST_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
-    }
-
-    @Test
-    fun `TC-cfe6e208-1394-4aac-aa77-3ea5630d41c1 브라우저, 플레이리스트와 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
-        setSettingHomeScaffold(
-            uiState = SettingHomeUiState.Content(itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI)),
-        )
-
-        composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertDoesNotExist()
-        composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).assertDoesNotExist()
-        composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assertDoesNotExist()
-        displayedItemLabels() shouldBe listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL)
+            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
     }
 
     @Test
@@ -132,7 +101,7 @@ class SettingHomeScaffoldTest {
 
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assertDoesNotExist()
         displayedItemLabels() shouldBe
-            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_BROWSER_ITEM_LABEL, DEFAULT_PLAYLIST_ITEM_LABEL)
+            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL)
     }
 
     @Test
@@ -171,12 +140,10 @@ class SettingHomeScaffoldTest {
         private const val DEFAULT_HOLIDAY_ITEM_LABEL = "Holiday"
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
-        private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
-        private const val DEFAULT_PLAYLIST_ITEM_LABEL = "Playlist"
         private const val DEFAULT_FILE_ITEM_LABEL = "Files"
 
         private const val NAVIGATE_UP_CLICKABLE_COUNT = 1
-        private const val SETTING_ITEM_CLICKABLE_COUNT = 6
+        private const val SETTING_ITEM_CLICKABLE_COUNT = 4
         private const val CLICKABLE_NODE_COUNT = NAVIGATE_UP_CLICKABLE_COUNT + SETTING_ITEM_CLICKABLE_COUNT
     }
 }

@@ -15,8 +15,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.testing.asPagingSourceFactory
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -32,6 +35,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingDat
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -416,6 +420,36 @@ class MemoHomeFilterBottomSheetContentTest {
         composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
     }
 
+    // 선택할 수 있는 태그를 한 번에 TAG_PAGE_SIZE씩 나누어 불러오도록 실제 페이지 조회로 구성한다.
+    @Test
+    fun `TC-ec90da60-7577-40cb-9491-263f65260903 태그 필터를 열면 이동 없이 선택할 수 있는 태그 전체가 제목 오름차순으로 채워진다`() {
+        val tagList = List(PAGED_TAG_COUNT) { index -> tag(title = "$PAGED_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}") }
+        val tagPagingFlow =
+            Pager(
+                config = PagingConfig(pageSize = TAG_PAGE_SIZE, initialLoadSize = TAG_PAGE_SIZE, prefetchDistance = 1),
+                pagingSourceFactory = tagList.asPagingSourceFactory(),
+            ).flow
+
+        composeRule.setContent {
+            DiaryTheme {
+                MemoHomeFilterBottomSheetContent(
+                    tagPagingItems = tagPagingFlow.collectAsLazyPagingItems(),
+                    uiStateProvider = { MemoHomeFilterUiState() },
+                    onEvent = {},
+                    onTagFilterEvent = {},
+                )
+            }
+        }
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(tagList.last().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule
+            .onAllNodesWithText(PAGED_TAG_TITLE_PREFIX, substring = true)
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text } } shouldContainExactly tagList.map { tag -> tag.detail.title }.sorted()
+    }
+
     // 필터를 연 채로 조회 결과가 바뀌는 것을 재현하려고, 화면에 넘기는 태그 흐름을 테스트가 바꾼다.
     private fun setSwitchingContent(
         selectedTagIdSet: Set<Uuid> = emptySet(),
@@ -467,6 +501,9 @@ class MemoHomeFilterBottomSheetContentTest {
         private const val UNSELECT_ALL_CONTENT_DESCRIPTION = "Clear tag filter"
         private const val ADD_LABEL = "Add tag"
         private const val TAG_UPDATE_TIMEOUT_MILLIS = 5_000L
+        private const val TAG_PAGE_SIZE = 20
+        private const val PAGED_TAG_COUNT = TAG_PAGE_SIZE * 3
+        private const val PAGED_TAG_TITLE_PREFIX = "PagedFilterTag"
         private const val TAG_INACTIVE_DESCRIPTION = "Tag filter is not applied while the tag axis is Without."
 
         private val fixtureMonkey: FixtureMonkey =

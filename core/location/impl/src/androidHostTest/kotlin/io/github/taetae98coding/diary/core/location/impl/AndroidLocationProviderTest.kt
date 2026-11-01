@@ -6,6 +6,7 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.Tasks
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -14,9 +15,11 @@ import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -100,6 +103,19 @@ class AndroidLocationProviderTest {
         val location = runBlocking { withTimeout(TIMEOUT_MILLIS) { locationProvider.getCurrentLocation() } }
 
         location shouldBe Location(latitude = freshLocation.latitude, longitude = freshLocation.longitude)
+    }
+
+    @Test
+    fun `TC-5e76c876-a97e-4206-b886-54b705300fec 디바이스 위치를 새로 확인할 때 정밀한 정확도를 요구하지 않는다`() {
+        val priority = slot<Int>()
+        val freshLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
+        every { client.lastLocation } returns Tasks.forResult<android.location.Location>(null)
+        every { client.getCurrentLocation(capture(priority), any<CancellationToken>()) } returns Tasks.forResult(freshLocation)
+        val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
+
+        runBlocking { withTimeout(TIMEOUT_MILLIS) { locationProvider.getCurrentLocation() } }
+
+        priority.captured shouldNotBe Priority.PRIORITY_HIGH_ACCURACY
     }
 
     private companion object {

@@ -44,7 +44,7 @@
 
 ### DataSource 연산 이름
 
-`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`)다. `find`를 `suspend`로 선언하지 않는다.
+`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`), 원격 결과를 만들어지는 대로 나누어 받으면 `stream`(`Flow`)이다. `find`를 `suspend`로 선언하지 않는다.
 
 저장소나 원격에 쓰는 연산은 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
 
@@ -64,6 +64,10 @@ public interface HolidaySettingLocalDataSource {
     public suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>)
 }
 ```
+
+### 원격 엔티티의 버전과 기본값
+
+Supabase 동기화 요청에 담는 `core:network` 원격 엔티티는 버전을 나누지 않고 현재 형식 하나만 두며, 프로퍼티에 기본값을 두지 않는다. 이유와 서버 쪽 버전 규칙은 [supabase.md](supabase.md)의 `동기화 계약의 버전`을 따른다.
 
 ## 계층 의존 방향
 

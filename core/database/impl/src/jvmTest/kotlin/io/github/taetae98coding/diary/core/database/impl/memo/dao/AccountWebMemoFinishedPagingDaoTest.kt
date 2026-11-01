@@ -395,6 +395,46 @@ class AccountWebMemoFinishedPagingDaoTest :
             pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
         }
 
+        test("TC-235ef526-ec6e-465b-a139-06d9cb2573a4 다시 시작·삭제와 각 실행 취소는 메모 상태와 수정 시각을 바꾸고 웹 연결은 그대로 둔다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = web()
+            val targetMemo = memo(isFinished = true, isDeleted = false)
+            insertWebMemo(accountId, target, targetMemo)
+            val storedConnectionList = database.memoWebDao().findByMemoIdList(listOf(targetMemo.id))
+            val memoDao = database.accountMemoDao()
+            var previousUpdatedAt = targetMemo.updatedAt
+
+            suspend fun assertStateChanged(
+                isFinished: Boolean,
+                isDeleted: Boolean,
+                change: suspend (updatedAt: Instant) -> Unit,
+            ) {
+                val updatedAt = generateSequence { instant() }.first { value -> value != previousUpdatedAt }
+
+                change(updatedAt)
+
+                val stored = memoDao.find(accountId = accountId, memoId = targetMemo.id).first()
+                stored?.isFinished shouldBe isFinished
+                stored?.isDeleted shouldBe isDeleted
+                stored?.updatedAt shouldBe updatedAt
+                database.memoWebDao().findByMemoIdList(listOf(targetMemo.id)) shouldBe storedConnectionList
+                previousUpdatedAt = updatedAt
+            }
+
+            assertStateChanged(isFinished = false, isDeleted = false) { updatedAt ->
+                memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = updatedAt)
+            }
+            assertStateChanged(isFinished = true, isDeleted = false) { updatedAt ->
+                memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = updatedAt)
+            }
+            assertStateChanged(isFinished = true, isDeleted = true) { updatedAt ->
+                memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = updatedAt)
+            }
+            assertStateChanged(isFinished = true, isDeleted = false) { updatedAt ->
+                memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = updatedAt)
+            }
+        }
+
         test("TC-91a11878-ec7e-4518-864b-df647754913e 삭제한 메모는 완료 목록과 메모 탭 목록 어디에도 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = web()

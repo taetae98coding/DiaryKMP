@@ -9,12 +9,14 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
@@ -195,6 +197,22 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.onNodeWithContentDescription(BIRTHDAY_DESCRIPTION).assert(buttonRole)
     }
 
+    // 기본 화면 높이에서는 한 주에 아이템 한 줄만 보여 나머지 줄이 구성되지 않으므로, 세 줄이 모두 보이는 높이로 연다.
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `TC-011e0a79-b3cf-4cc5-acae-ce245ee0b991 같은 기간의 메모 제목·생일·공휴일 이름은 메모, 생일, 공휴일 이름 순으로 놓인다`() {
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            holidayList = listOf(Holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, dateRange = july(day = 17)..july(day = 17))),
+            birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 17))))),
+            memoList = listOf(memo(title = TRIP_TITLE, date = july(day = 17))),
+        )
+        composeRule.waitForIdle()
+
+        (bottom(text = TRIP_TITLE) <= top(text = BIRTHDAY_TEXT)) shouldBe true
+        (bottom(text = BIRTHDAY_TEXT) <= top(text = CONSTITUTION_DAY_NAME)) shouldBe true
+    }
+
     @Test
     fun `생일과 메모 제목은 같은 주에 함께 표시된다`() {
         setCalendarHomeScreen(
@@ -268,6 +286,10 @@ class CalendarHomeScreenBirthdayTest {
         }
     }
 
+    private fun top(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
+
+    private fun bottom(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().bottom
+
     private fun birthday(
         name: String,
         date: LocalDate,
@@ -292,6 +314,7 @@ class CalendarHomeScreenBirthdayTest {
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 
     companion object {
+        private const val TALL_SCREEN_QUALIFIERS = "w411dp-h2000dp"
         private const val NAME = "홍길동"
         private const val SUMMER_NAME = "여름"
         private const val BIRTHDAY_TEXT = "🎂 홍길동"

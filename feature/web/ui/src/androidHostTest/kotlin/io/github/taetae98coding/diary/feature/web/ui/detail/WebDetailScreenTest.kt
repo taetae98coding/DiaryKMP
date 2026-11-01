@@ -23,8 +23,6 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
@@ -42,7 +40,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,11 +51,6 @@ import org.robolectric.annotation.Config
 class WebDetailScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
-
-    @After
-    fun resetWebSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
 
     @Test
     fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
@@ -207,7 +199,6 @@ class WebDetailScreenTest {
 
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
-        verify(exactly = 0) { pageViewModel.refresh() }
     }
 
     @Test
@@ -292,17 +283,6 @@ class WebDetailScreenTest {
         composeRule.onAllNodesWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.urlInput().assert(hasText(detail.url))
-    }
-
-    @Test
-    fun `TC-d9d1473a-519d-46ec-8521-5665c3a60e57 수정에 성공하면 웹 페이지 다시 불러오기를 한 번 요청한다`() {
-        val pageViewModel = pageViewModel()
-        val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.UpdateSucceeded))
-
-        setWebDetailScreen(webViewModel = webViewModel, pageViewModel = pageViewModel)
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { pageViewModel.refresh() }
     }
 
     @Test
@@ -458,21 +438,6 @@ class WebDetailScreenTest {
         verify(exactly = 1) { recreatedPageViewModel.load() }
     }
 
-    @Test
-    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
-        val uiState = testContentUiState()
-
-        setWebDetailScreen(
-            uiState = uiState,
-            webSession = DiaryWebSession(failureId = 1),
-        )
-
-        composeRule.awaitText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE)
-        composeRule.onAllNodesWithText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
-        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
-        composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertDoesNotExist()
-    }
-
     private fun assertEditedContentIsNotRestoredOnEntry() {
         val detail = testWebDetail(headerList = listOf(WebHeader(name = SAVED_HEADER_NAME, value = SAVED_HEADER_VALUE)))
         val enteredWebViewModelList = List(ENTRY_COUNT) { webViewModel(uiState = testContentUiState(detail = detail)) }
@@ -527,9 +492,7 @@ class WebDetailScreenTest {
         pageViewModel: WebDetailPageViewModel = pageViewModel(),
         uriHandler: UriHandler = mockk(relaxed = true),
         navigateUp: () -> Unit = {},
-        webSession: DiaryWebSession = DiaryWebSession(),
     ) {
-        SingletonDiaryWebSession.set(webSession)
         composeRule.setContent {
             WebDetailScreenTestTheme {
                 CompositionLocalProvider(LocalUriHandler provides uriHandler) {
@@ -565,7 +528,6 @@ class WebDetailScreenTest {
 
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Web updated."
         private const val DEFAULT_HEADER_NAME_BLANK_MESSAGE = "Please enter a header name."
-        private const val DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE = "Couldn't get Chrome logins."
 
         private fun webViewModel(
             uiState: WebDetailUiState = testContentUiState(),
@@ -586,7 +548,6 @@ class WebDetailScreenTest {
             every { viewModel.uiState } returns MutableStateFlow(pageUiState)
             justRun { viewModel.load() }
             justRun { viewModel.retry() }
-            justRun { viewModel.refresh() }
 
             return viewModel
         }

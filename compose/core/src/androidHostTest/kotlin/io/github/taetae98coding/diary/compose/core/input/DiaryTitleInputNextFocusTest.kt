@@ -11,7 +11,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
@@ -29,16 +28,16 @@ class DiaryTitleInputNextFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-f8b8e282-11fe-40b8-ae77-3c1e3767cf42 설명 입력 상태이면 Tab을 눌렀을 때 설명 입력으로 초점이 옮겨 간다`() {
+    fun `TC-06582590-cccb-406b-af8d-bb503dce1236 설명 입력 상태여도 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
         setTitleWithDescription(descriptionText = "")
 
         pressTabOnTitle()
 
-        composeRule.onAllNodes(hasSetTextAction()).onLast().assertIsFocused()
+        composeRule.onAllNodesWithContentDescription(CLEAR_DESCRIPTION).onFirst().assertIsFocused()
     }
 
     @Test
-    fun `TC-acbbc8d9-8cde-490b-99f8-8ce8b4bba246 마크다운 미리보기 상태이면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
+    fun `TC-06582590-cccb-406b-af8d-bb503dce1236 마크다운 미리보기 상태이면 Tab을 눌렀을 때 제목 지우기로 초점이 옮겨 간다`() {
         setTitleWithDescription(descriptionText = DESCRIPTION_TEXT)
 
         pressTabOnTitle()
@@ -65,10 +64,7 @@ class DiaryTitleInputNextFocusTest {
                 val descriptionState = rememberDiaryDescriptionInputState(initialText = descriptionText)
 
                 Column {
-                    DiaryTitleInput(
-                        state = rememberDiaryTitleInputState(initialText = TITLE_TEXT),
-                        nextFocusProvider = { descriptionState.focusTarget },
-                    )
+                    DiaryTitleInput(state = rememberDiaryTitleInputState(initialText = TITLE_TEXT))
                     DiaryDescriptionInput(state = descriptionState)
                 }
             }

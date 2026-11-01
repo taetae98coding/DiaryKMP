@@ -124,21 +124,51 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-2b5c10af-8e06-4e19-87cf-58d56f796d77 TC-6c9103e0-62b8-4abe-98bb-dbd98e9a377c 동기화 진행 중 발생한 새 동기화 조건은 무시한다") {
+        test("TC-0dc3e62e-adf9-4b4f-ab29-fa5c606e0a64 공휴일 동기화가 진행 중이어도 달을 이동하면 이동한 달의 대상 연도를 요청한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val useCase = mockk<FetchHolidayUseCase>()
                 coEvery { useCase(parameter = year) } coAnswers { completion.await() }
+                coEvery { useCase(parameter = year + 1) } returns Result.success(emptyList())
                 val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
+                advanceUntilIdle()
                 viewModel.fetch(YearMonth(year = year + 1, month = Month.JANUARY))
-                completion.complete(Result.success(emptyList()))
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { useCase(parameter = year) }
-                coVerify(exactly = 0) { useCase(parameter = year + 1) }
+                coVerify(exactly = 1) { useCase(parameter = year + 1) }
+
+                completion.complete(Result.success(emptyList()))
+                advanceUntilIdle()
+            }
+        }
+
+        test("진행 중인 연도마다 동기화가 모두 끝날 때까지 진행 중임을 알린다") {
+            runTest(mainDispatcher) {
+                val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
+                val firstCompletion = CompletableDeferred<Result<List<Holiday>>>()
+                val secondCompletion = CompletableDeferred<Result<List<Holiday>>>()
+                val useCase = mockk<FetchHolidayUseCase>()
+                coEvery { useCase(parameter = year) } coAnswers { firstCompletion.await() }
+                coEvery { useCase(parameter = year + 1) } coAnswers { secondCompletion.await() }
+                val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
+                backgroundScope.launch { viewModel.uiState.collect {} }
+
+                viewModel.fetch(YearMonth(year = year, month = Month.JULY))
+                viewModel.fetch(YearMonth(year = year, month = Month.NOVEMBER))
+                advanceUntilIdle()
+                firstCompletion.complete(Result.success(emptyList()))
+                advanceUntilIdle()
+
+                viewModel.uiState.value.isFetching shouldBe true
+
+                secondCompletion.complete(Result.success(emptyList()))
+                advanceUntilIdle()
+
+                viewModel.uiState.value.isFetching shouldBe false
             }
         }
 
@@ -311,7 +341,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-8fb515ef-8e56-4e31-b83b-0e3426460f38 동기화가 진행 중이어도 이동한 달의 공휴일을 표시한다") {
+        test("TC-0c472441-cce7-4380-9c3d-0f7304284bad 동기화가 끝나지 않아도 이동한 달의 공휴일을 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val otherYear = year + 2
@@ -319,7 +349,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                 val otherYearHoliday = holiday(year = otherYear)
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
-                coEvery { fetchHolidayUseCase(parameter = year) } coAnswers { completion.await() }
+                coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
                 val viewModel =
                     holidayViewModel(
                         fetchHolidayUseCase = fetchHolidayUseCase,
@@ -340,8 +370,6 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                     awaitItem() shouldBe listOf(otherYearHoliday)
                 }
-
-                coVerify(exactly = 0) { fetchHolidayUseCase(parameter = otherYear) }
 
                 completion.complete(Result.success(emptyList()))
                 advanceUntilIdle()

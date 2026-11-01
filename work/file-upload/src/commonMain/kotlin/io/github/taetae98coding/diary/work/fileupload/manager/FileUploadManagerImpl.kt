@@ -1,13 +1,11 @@
 package io.github.taetae98coding.diary.work.fileupload.manager
 
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.work.fileupload.scheduler.FileUploadWorkScheduler
-import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import kotlinx.coroutines.flow.Flow
@@ -19,12 +17,15 @@ internal class FileUploadManagerImpl(
     private val fileUploadWorkScheduler: FileUploadWorkScheduler,
     private val fileRepository: FileRepository,
     private val fileUploadEventHolder: FileUploadEventHolder,
-    private val fileScreenViewingHolder: FileScreenViewingHolder,
 ) : FileUploadManager {
     override val state: Flow<FileUploadState>
         get() = fileUploadWorkScheduler.state
 
-    override fun getEvent(screen: FileScreen): Flow<FileUploadEvent> = fileUploadEventHolder.getEvent(screen = screen)
+    override val event: Flow<FileUploadEvent>
+        get() = fileUploadEventHolder.event
+
+    override val succeededEvent: Flow<FileUploadEvent.Succeeded>
+        get() = fileUploadEventHolder.succeededEvent
 
     override suspend fun requestUpload(
         content: FileUploadContent,
@@ -41,13 +42,5 @@ internal class FileUploadManagerImpl(
     override suspend fun cancelUpload(exceptAccountId: Uuid?) {
         fileUploadWorkScheduler.cancel(exceptAccountId = exceptAccountId).forEach { uri -> fileRepository.removeUploadSource(uri = uri) }
         fileRepository.deleteContinuedUpload(exceptAccountId = exceptAccountId)
-    }
-
-    override fun startViewing(screen: FileScreen) {
-        fileScreenViewingHolder.start(screen = screen)
-    }
-
-    override fun stopViewing(screen: FileScreen) {
-        fileScreenViewingHolder.stop(screen = screen)
     }
 }

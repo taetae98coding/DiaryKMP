@@ -205,7 +205,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-6faad95e-ebe2-46bb-babd-927f02021377 음력 자료 동기화가 진행 중이어도 새로 요청한다") {
+        test("TC-b33b42a3-60bf-4bd2-aef9-c2647807390d 음력 자료 동기화가 진행 중이어도 이동한 달에 새로 필요한 연도는 요청한다") {
             runTest(mainDispatcher) {
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
                 coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
@@ -213,10 +213,11 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
                 advanceUntilIdle()
-                viewModel.fetch(YearMonth(year = 2026, month = Month.AUGUST))
+                viewModel.fetch(YearMonth(year = 2026, month = Month.NOVEMBER))
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { fetchLunarUseCase(parameter = 2026) }
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2026) }
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2027) }
                 viewModel.viewModelScope.cancel()
             }
         }
@@ -227,16 +228,12 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                 coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
                 val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
 
-                val date = fixtureMonkey.giveMeOne<LocalDate>()
-                val yearMonth = YearMonth(year = date.year, month = date.month)
-
-                viewModel.fetch(yearMonth)
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
                 advanceUntilIdle()
-                viewModel.fetch(yearMonth)
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
                 advanceUntilIdle()
 
-                // 첫 연도의 동기화가 끝나지 않으므로, 조회 기간이 앞 연도에 걸치는 달도 요청은 한 번뿐이다.
-                coVerify(exactly = 1) { fetchLunarUseCase(parameter = any()) }
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2026) }
                 viewModel.viewModelScope.cancel()
             }
         }

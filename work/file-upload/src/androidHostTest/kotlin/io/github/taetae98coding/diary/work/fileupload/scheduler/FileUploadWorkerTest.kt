@@ -11,7 +11,6 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
@@ -21,7 +20,6 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadNotifier
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResult
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultReporter
-import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.text.FileUploadText
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
@@ -132,14 +130,12 @@ class FileUploadWorkerTest {
                     Result.success(FileUploadStep.Started(source = source)),
                     Result.success(FileUploadStep.Completed(source = source, file = file)),
                 )
-            val viewingHolder = FileScreenViewingHolder().apply { start(screen = FileScreen.HOME) }
             val work =
                 FileUploadWorkImpl(
                     uploadFileUseCase = uploadFileUseCase,
                     fileRepository = mockk<FileRepository>(relaxed = true),
                     fileUploadResultReporter =
                         FileUploadResultReporter(
-                            fileScreenViewingHolder = viewingHolder,
                             fileUploadEventHolder = FileUploadEventHolder(),
                             fileUploadNotifier = mockk<FileUploadNotifier>(relaxed = true),
                         ),
@@ -176,7 +172,6 @@ class FileUploadWorkerTest {
                     fileRepository = mockk<FileRepository>(relaxed = true),
                     fileUploadResultReporter =
                         FileUploadResultReporter(
-                            fileScreenViewingHolder = FileScreenViewingHolder(),
                             fileUploadEventHolder = FileUploadEventHolder(),
                             fileUploadNotifier = notifier,
                         ),

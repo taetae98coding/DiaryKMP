@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.compose.calendar.select
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDateRange
 import org.junit.Rule
@@ -101,15 +102,17 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-61d44098-7302-4863-aea4-13b09caea4c9 시스템이 선택 제스처를 중단하면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-3319b2b1-d5f7-4ad7-80b1-febecaee22ff 시스템이 선택 제스처를 끊으면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
+        val calendarState = CalendarState(initialYearMonth = JULY_2026)
         val selectedList = mutableListOf<LocalDateRange>()
-        composeRule.setCalendar(onSelect = { selectedList += it })
+        composeRule.setCalendar(calendarState = calendarState, onSelect = { selectedList += it })
 
         composeRule.performLongPress(composeRule.dayCenter(day = 14))
         composeRule.performMoveTo(composeRule.dayCenter(day = 17))
         composeRule.performCancel()
 
-        selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+        selectedList shouldBe emptyList()
+        calendarState.selectState.dateRange.shouldBeNull()
     }
 
     @Test

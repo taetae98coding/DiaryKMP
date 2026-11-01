@@ -284,6 +284,31 @@ class AccountContactLocalDataSourceImplTest :
                 .single()
                 .detail.hometown shouldBe ""
         }
+
+        test("TC-0c9d59e7-16ed-466a-94ff-10c48fbd9833 알게 된 경로를 연락처의 값으로 함께 저장한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+            val stored =
+                contact(name = FIRST_NAME).let { contact ->
+                    contact.copy(detail = contact.detail.copy(howWeMet = howWeMet))
+                }
+            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(stored)
+        }
+
+        test("TC-c5a0e434-17b1-4ced-861d-9a5c2ca7206b 알게 된 경로를 비우면 비어 있는 값으로 저장한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val stored =
+                contact(name = FIRST_NAME).let { contact ->
+                    contact.copy(detail = contact.detail.copy(howWeMet = ""))
+                }
+            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME)
+                .single()
+                .detail.howWeMet shouldBe ""
+        }
     }) {
     public companion object {
         private const val PAGE_SIZE = 20
@@ -319,6 +344,7 @@ class AccountContactLocalDataSourceImplTest :
                         birthdayCalendar = null,
                         birthYear = null,
                         hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
+                        howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}",
                         phoneNumberList = phoneNumberList,
                     ),
                 isFavorite = isFavorite,

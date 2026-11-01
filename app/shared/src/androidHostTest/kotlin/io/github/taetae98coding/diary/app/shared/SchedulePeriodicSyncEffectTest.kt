@@ -51,17 +51,16 @@ class SchedulePeriodicSyncEffectTest {
     }
 
     @Test
-    fun `TC-b7fbbed2-9c57-498e-91dd-d578a86ea847 로그인 세션이 인증되지 않은 것으로 확인되면 주기 동기화 예약을 다시 정한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
+    fun `TC-56ebf0e0-19c8-4454-8389-44dc03ca0d63 로그인 세션이 갱신되지 않은 사용자로 바뀌면 주기 동기화 예약을 다시 정한다`() {
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
         setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync)
 
-        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = account.copy(isSessionPending = true, isSessionValid = false)) }
-        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = account.copy(isSessionPending = false, isSessionValid = false)) }
+        composeRule.runOnIdle { uiStateFlow.value = AppPeriodicSyncUiState.Confirmed(account = account.copy(isSessionValid = false)) }
 
         composeRule.runOnIdle {
-            verify(exactly = 3) { schedulePeriodicSync() }
+            verify(exactly = 2) { schedulePeriodicSync() }
         }
     }
 

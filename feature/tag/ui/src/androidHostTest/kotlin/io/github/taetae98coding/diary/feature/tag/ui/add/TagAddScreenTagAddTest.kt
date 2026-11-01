@@ -191,8 +191,11 @@ class TagAddScreenTagAddTest {
     @Test
     fun `TC-c0f9fe7b-1665-41c2-893e-df56af537926 연결 입력에서 태그 추가로 이동해도 입력한 내용과 고른 연결이 유지된다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
-        setTagAddScreen(tagList = listOf(linkedTag))
+        var tagAddCount = 0
+        setTagAddScreen(tagList = listOf(linkedTag), navigateToTagAdd = { tagAddCount += 1 })
+        composeRule.inputEmoji(emoji = TYPED_EMOJI)
         composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         linkTag(title = WORK_TAG_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
@@ -200,7 +203,10 @@ class TagAddScreenTagAddTest {
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
         composeRule.waitForIdle()
 
+        tagAddCount shouldBe 1
+        composeRule.emojiInput().assert(hasText(TYPED_EMOJI))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
     }
 
@@ -348,6 +354,8 @@ class TagAddScreenTagAddTest {
     private companion object {
         const val DEFAULT_ADD_BUTTON_DESCRIPTION: String = "Add tag"
         const val TYPED_TITLE: String = "TagAddTitleInput"
+        const val TYPED_DESCRIPTION: String = "TagAddDescriptionInput"
+        const val TYPED_EMOJI: String = "\uD83C\uDFC3"
         val REQUESTED_KEY: Uuid = Uuid.parse("30000000-0000-0000-0000-000000000002")
         val OTHER_REQUEST_KEY: Uuid = Uuid.parse("30000000-0000-0000-0000-000000000003")
 

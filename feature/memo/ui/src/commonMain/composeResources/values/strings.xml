@@ -83,9 +83,8 @@
     <string name="memo_detail_delete_button_content_description">Delete memo</string>
     <string name="memo_detail_update_succeeded_message">Memo updated.</string>
     <string name="memo_detail_copy_succeeded_message">Memo copied.</string>
-    <string name="memo_gemini_button_content_description">Writing assistant</string>
-    <string name="memo_gemini_title">Writing Assistant</string>
-    <string name="memo_gemini_setting_required_message">Please finish Gemini settings first.</string>
+    <string name="memo_gemini_button_content_description">Write with AI</string>
+    <string name="memo_gemini_title">Write with AI</string>
     <string name="memo_gemini_prompt_label">Prompt</string>
     <string name="memo_gemini_prompt_placeholder">What memo should I write?</string>
     <string name="memo_gemini_generate_action">Generate</string>
@@ -94,6 +93,13 @@
     <string name="memo_gemini_generating_message">Generating</string>
     <string name="memo_gemini_invalid_api_key_message">Check your API key</string>
     <string name="memo_gemini_failed_message">Couldn't generate</string>
+    <string name="memo_gemini_quota_exceeded_message">Request limit reached. Try again later</string>
+    <string name="memo_gemini_model_not_found_message">Model not found. Choose a model again in Gemini settings</string>
+    <string name="memo_gemini_blocked_message">Blocked by Gemini's safety policy. Edit your prompt</string>
+    <string name="memo_gemini_truncated_message">The response was too long to finish</string>
+    <string name="memo_gemini_timeout_message">No response. Try again later</string>
+    <string name="memo_gemini_network_message">Can't connect to the network</string>
+    <string name="memo_gemini_server_message">Gemini is having trouble. Try again later</string>
     <string name="memo_gemini_empty_message">Nothing was generated</string>
     <string name="memo_gemini_title_label">Title</string>
     <string name="memo_gemini_description_label">Description</string>

@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreenTestTheme
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
@@ -29,21 +30,22 @@ class MemoGeminiSettingRequiredTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 기본 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
-        assertSettingRequired(buttonDescription = DEFAULT_BUTTON_DESCRIPTION, expectedMessage = DEFAULT_SETTING_REQUIRED_MESSAGE, dialogTitle = DEFAULT_DIALOG_TITLE)
+    fun `TC-061303d8-59e2-40eb-aec4-eca114a536e4 기본 환경에서 설정이 갖춰지지 않으면 열지 않고 SettingGemini 화면으로 이동한다`() {
+        assertSettingRequired(buttonDescription = DEFAULT_BUTTON_DESCRIPTION, removedMessage = DEFAULT_REMOVED_SETTING_REQUIRED_MESSAGE, dialogTitle = DEFAULT_DIALOG_TITLE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 한국어 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
-        assertSettingRequired(buttonDescription = KOREAN_BUTTON_DESCRIPTION, expectedMessage = KOREAN_SETTING_REQUIRED_MESSAGE, dialogTitle = KOREAN_DIALOG_TITLE)
+    fun `TC-061303d8-59e2-40eb-aec4-eca114a536e4 한국어 환경에서 설정이 갖춰지지 않으면 열지 않고 SettingGemini 화면으로 이동한다`() {
+        assertSettingRequired(buttonDescription = KOREAN_BUTTON_DESCRIPTION, removedMessage = KOREAN_REMOVED_SETTING_REQUIRED_MESSAGE, dialogTitle = KOREAN_DIALOG_TITLE)
     }
 
     private fun assertSettingRequired(
         buttonDescription: String,
-        expectedMessage: String,
+        removedMessage: String,
         dialogTitle: String,
     ) {
+        var geminiSettingCount = 0
         val effect = Channel<MemoGeminiEffect>(capacity = Channel.BUFFERED)
         val geminiViewModel = screenTestGeminiViewModel(uiState = MutableStateFlow(MemoGeminiUiState(isButtonVisible = true)))
         every { geminiViewModel.effect } returns effect.receiveAsFlow()
@@ -61,6 +63,7 @@ class MemoGeminiSettingRequiredTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToGeminiSetting = { geminiSettingCount += 1 },
                     initialDateTime = null,
                     addRequestKey = TEST_ADD_REQUEST_KEY,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
@@ -82,16 +85,17 @@ class MemoGeminiSettingRequiredTest {
 
         verify(exactly = 1) { geminiViewModel.open() }
         verify(exactly = 0) { geminiViewModel.generate(any()) }
-        composeRule.onNodeWithText(expectedMessage).assertExists()
+        geminiSettingCount shouldBe 1
+        composeRule.onNodeWithText(removedMessage).assertDoesNotExist()
         composeRule.onNodeWithText(dialogTitle).assertDoesNotExist()
     }
 
     private companion object {
-        private const val DEFAULT_BUTTON_DESCRIPTION = "Writing assistant"
-        private const val DEFAULT_SETTING_REQUIRED_MESSAGE = "Please finish Gemini settings first."
-        private const val DEFAULT_DIALOG_TITLE = "Writing Assistant"
-        private const val KOREAN_BUTTON_DESCRIPTION = "작성 도우미"
-        private const val KOREAN_SETTING_REQUIRED_MESSAGE = "Gemini 설정을 먼저 완료해 주세요."
-        private const val KOREAN_DIALOG_TITLE = "작성 도우미"
+        private const val DEFAULT_BUTTON_DESCRIPTION = "Write with AI"
+        private const val DEFAULT_REMOVED_SETTING_REQUIRED_MESSAGE = "Please finish Gemini settings first."
+        private const val DEFAULT_DIALOG_TITLE = "Write with AI"
+        private const val KOREAN_BUTTON_DESCRIPTION = "AI 작성"
+        private const val KOREAN_REMOVED_SETTING_REQUIRED_MESSAGE = "Gemini 설정을 먼저 완료해 주세요."
+        private const val KOREAN_DIALOG_TITLE = "AI 작성"
     }
 }

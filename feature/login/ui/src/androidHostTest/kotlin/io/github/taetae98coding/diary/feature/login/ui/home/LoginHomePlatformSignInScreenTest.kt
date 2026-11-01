@@ -24,9 +24,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -131,69 +129,19 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 인증 결과는 무시한다`() {
-        val lateCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-        assertLateResultIgnored { late -> late.complete(lateCredential) }
-    }
-
-    @Test
-    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 사용자 취소는 무시한다`() {
-        assertLateResultIgnored { late -> late.completeExceptionally(GoogleCredentialsUserCancelException()) }
-    }
-
-    @Test
-    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 인증 결과 획득 실패는 무시한다`() {
-        assertLateResultIgnored { late -> late.completeExceptionally(GoogleCredentialsException()) }
-    }
-
-    @Test
-    fun `TC-defc1c2d-8ec9-444f-9806-8a8016c32d2c 앱 로그인 처리 실패 뒤 이전 흐름의 결과는 무시하고 새 흐름의 결과는 받는다`() {
-        val firstCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+    fun `TC-6244d246-78da-4803-9a83-38d4785949d9 다시 선택한 뒤 이전 흐름이 돌려준 인증 결과는 받지 않는다`() {
         val staleCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-        val newCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-        val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
-        val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-        val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
-        val platformResultList = List(size = 3) { CompletableDeferred<GoogleCredential>() }
-        coEvery { googleCredentialsManager.signIn() } coAnswers { platformResultList[0].await() } coAndThen
-            { platformResultList[1].await() } coAndThen { platformResultList[2].await() }
-        every { viewModel.signInWithGoogle(any()) } answers { effect.trySend(LoginHomeEffect.SignInFailed).getOrThrow() }
-        composeRule.setLoginHomeScreen(viewModel = viewModel, googleCredentialsManager = googleCredentialsManager)
-
-        clickGoogleSignIn(times = 2)
-        platformResultList[0].complete(firstCredential)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(DEFAULT_SIGN_IN_FAILED_MESSAGE).assertExists()
-        clickGoogleSignIn(times = 1)
-        platformResultList[1].complete(staleCredential)
-        composeRule.waitForIdle()
-        platformResultList[2].complete(newCredential)
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { viewModel.signInWithGoogle(firstCredential) }
-        verify(exactly = 0) { viewModel.signInWithGoogle(staleCredential) }
-        verify(exactly = 1) { viewModel.signInWithGoogle(newCredential) }
+        assertPreviousFlowResultIgnored { previous -> previous.complete(staleCredential) }
     }
 
     @Test
-    fun `TC-cef4818e-52ef-4185-b4df-632cf9974b27 앱 로그인 처리 전 한 흐름이 실패해도 나머지 흐름의 인증 결과로 로그인한다`() {
-        val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-        val viewModel = screenTestViewModel()
-        val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
-        val platformResultList = List(size = 2) { CompletableDeferred<GoogleCredential>() }
-        coEvery { googleCredentialsManager.signIn() } coAnswers { platformResultList[0].await() } coAndThen
-            { platformResultList[1].await() }
-        every { viewModel.signInWithGoogle(credential) } returns Unit
-        composeRule.setLoginHomeScreen(viewModel = viewModel, googleCredentialsManager = googleCredentialsManager)
+    fun `TC-6244d246-78da-4803-9a83-38d4785949d9 다시 선택한 뒤 이전 흐름이 돌려준 사용자 취소는 받지 않는다`() {
+        assertPreviousFlowResultIgnored { previous -> previous.completeExceptionally(GoogleCredentialsUserCancelException()) }
+    }
 
-        clickGoogleSignIn(times = 2)
-        platformResultList[0].completeExceptionally(GoogleCredentialsException())
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(DEFAULT_SIGN_IN_FAILED_MESSAGE).assertExists()
-        platformResultList[1].complete(credential)
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { viewModel.signInWithGoogle(credential) }
+    @Test
+    fun `TC-6244d246-78da-4803-9a83-38d4785949d9 다시 선택한 뒤 이전 흐름이 돌려준 인증 결과 획득 실패는 받지 않는다`() {
+        assertPreviousFlowResultIgnored { previous -> previous.completeExceptionally(GoogleCredentialsException()) }
     }
 
     @Test
@@ -259,8 +207,8 @@ class LoginHomePlatformSignInScreenTest {
         composeRule.onNodeWithText(DEFAULT_SIGN_IN_FAILED_MESSAGE).assertDoesNotExist()
     }
 
-    private fun assertLateResultIgnored(completeLate: (CompletableDeferred<GoogleCredential>) -> Unit) {
-        val firstCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+    private fun assertPreviousFlowResultIgnored(completePrevious: (CompletableDeferred<GoogleCredential>) -> Unit) {
+        val newCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
         val platformResultList = List(size = 2) { CompletableDeferred<GoogleCredential>() }
@@ -270,13 +218,14 @@ class LoginHomePlatformSignInScreenTest {
         composeRule.setLoginHomeScreen(viewModel = viewModel, googleCredentialsManager = googleCredentialsManager)
 
         clickGoogleSignIn(times = 2)
-        platformResultList[0].complete(firstCredential)
+        completePrevious(platformResultList[0])
         composeRule.waitForIdle()
-        completeLate(platformResultList[1])
+        composeRule.onNodeWithText(DEFAULT_SIGN_IN_FAILED_MESSAGE).assertDoesNotExist()
+        platformResultList[1].complete(newCredential)
         composeRule.waitForIdle()
 
         verify(exactly = 1) { viewModel.signInWithGoogle(any()) }
-        verify(exactly = 1) { viewModel.signInWithGoogle(firstCredential) }
+        verify(exactly = 1) { viewModel.signInWithGoogle(newCredential) }
         composeRule.onNodeWithText(DEFAULT_SIGN_IN_FAILED_MESSAGE).assertDoesNotExist()
     }
 

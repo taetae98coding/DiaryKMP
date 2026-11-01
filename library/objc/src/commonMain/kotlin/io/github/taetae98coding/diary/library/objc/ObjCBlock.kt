@@ -10,16 +10,17 @@ import java.lang.invoke.MethodType
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * completion handler로 넘길 Objective-C 블록(`void (^)(void)`, `void (^)(BOOL)`)을 만든다. 런타임이 복사·해제하지 않는
+ * completion handler로 넘길 Objective-C 블록(`void (^)(void)`, `void (^)(BOOL)`, `void (^)(id)`)을 만든다. 런타임이 복사·해제하지 않는
  * 전역 블록 형태로 만들고, 블록이 호출되면 등록한 콜백을 한 번 실행한다. 콜백이 어느 스레드에서 불리는지는 블록을 받는 API가 정한다.
  */
 public object ObjCBlock {
     private const val BLOCK_IS_GLOBAL = 1 shl 28
     private const val BLOCK_HAS_SIGNATURE = 1 shl 30
 
-    // 반환 없이 블록 포인터만 받는 함수와, 블록 포인터와 BOOL을 받는 함수의 objc 타입 인코딩.
+    // 반환 없이 블록 포인터만 받는 함수, 블록 포인터와 BOOL을 받는 함수, 블록 포인터와 객체를 받는 함수의 objc 타입 인코딩.
     private const val VOID_SIGNATURE = "v8@?0"
     private const val BOOLEAN_SIGNATURE = "v12@?0B8"
+    private const val OBJECT_SIGNATURE = "v16@?0@8"
 
     private const val ISA_FIELD = "isa"
     private const val FLAGS_FIELD = "flags"
@@ -45,6 +46,7 @@ public object ObjCBlock {
         )
 
     private val callbacks = ConcurrentHashMap<Long, (Boolean) -> Unit>()
+    private val objectCallbacks = ConcurrentHashMap<Long, (MemorySegment) -> Unit>()
 
     private val voidInvokeStub: MemorySegment =
         ObjCRuntime.upcallStub(
@@ -62,12 +64,33 @@ public object ObjCBlock {
             descriptor = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.JAVA_BOOLEAN),
         )
 
+    private val objectInvokeStub: MemorySegment =
+        ObjCRuntime.upcallStub(
+            handle =
+                MethodHandles.lookup().bind(
+                    this,
+                    "invokeObject",
+                    MethodType.methodType(Void.TYPE, MemorySegment::class.java, MemorySegment::class.java),
+                ),
+            descriptor = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS),
+        )
+
     private val voidDescriptor: MemorySegment = descriptor(signature = VOID_SIGNATURE)
     private val booleanDescriptor: MemorySegment = descriptor(signature = BOOLEAN_SIGNATURE)
+    private val objectDescriptor: MemorySegment = descriptor(signature = OBJECT_SIGNATURE)
 
     public fun create(callback: () -> Unit): MemorySegment = create(invokeStub = voidInvokeStub, descriptor = voidDescriptor, callback = { _ -> callback() })
 
     public fun createBoolean(callback: (Boolean) -> Unit): MemorySegment = create(invokeStub = booleanInvokeStub, descriptor = booleanDescriptor, callback = callback)
+
+    // 블록이 받은 객체는 블록이 끝나면 해제될 수 있으므로 콜백 안에서만 쓴다.
+    public fun createObject(callback: (MemorySegment) -> Unit): MemorySegment {
+        val block = allocateBlock(invokeStub = objectInvokeStub, descriptor = objectDescriptor)
+
+        objectCallbacks[block.address()] = callback
+
+        return block
+    }
 
     public fun invokeAddress(block: MemorySegment): MemorySegment =
         block
@@ -80,6 +103,17 @@ public object ObjCBlock {
         descriptor: MemorySegment,
         callback: (Boolean) -> Unit,
     ): MemorySegment {
+        val block = allocateBlock(invokeStub = invokeStub, descriptor = descriptor)
+
+        callbacks[block.address()] = callback
+
+        return block
+    }
+
+    private fun allocateBlock(
+        invokeStub: MemorySegment,
+        descriptor: MemorySegment,
+    ): MemorySegment {
         val block = Arena.global().allocate(blockLayout)
 
         block.set(ValueLayout.ADDRESS, blockLayout.byteOffset(MemoryLayout.PathElement.groupElement(ISA_FIELD)), ObjCRuntime.concreteGlobalBlock)
@@ -87,8 +121,6 @@ public object ObjCBlock {
         block.set(ValueLayout.JAVA_INT, blockLayout.byteOffset(MemoryLayout.PathElement.groupElement(RESERVED_FIELD)), 0)
         block.set(ValueLayout.ADDRESS, blockLayout.byteOffset(MemoryLayout.PathElement.groupElement(INVOKE_FIELD)), invokeStub)
         block.set(ValueLayout.ADDRESS, blockLayout.byteOffset(MemoryLayout.PathElement.groupElement(DESCRIPTOR_FIELD)), descriptor)
-
-        callbacks[block.address()] = callback
 
         return block
     }
@@ -116,6 +148,19 @@ public object ObjCBlock {
     ) {
         try {
             callbacks.remove(block.address())?.invoke(value)
+        } catch (throwable: Throwable) {
+            Thread.currentThread().uncaughtExceptionHandler?.uncaughtException(Thread.currentThread(), throwable)
+        }
+    }
+
+    // 네이티브 프레임으로 예외가 전파되면 JVM이 중단되므로 여기서 모두 삼킨다.
+    @Suppress("unused")
+    private fun invokeObject(
+        block: MemorySegment,
+        value: MemorySegment,
+    ) {
+        try {
+            objectCallbacks.remove(block.address())?.invoke(value)
         } catch (throwable: Throwable) {
             Thread.currentThread().uncaughtExceptionHandler?.uncaughtException(Thread.currentThread(), throwable)
         }

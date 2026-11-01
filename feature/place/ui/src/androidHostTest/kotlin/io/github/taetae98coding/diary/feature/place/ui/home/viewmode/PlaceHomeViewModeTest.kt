@@ -28,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -63,7 +62,7 @@ class PlaceHomeViewModeTest {
         val place = viewModeTestPlace()
         setPlaceHomeScaffold(
             state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
-            uiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null, currentLocationFetchId = Uuid.random()),
+            uiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null),
             placeList = listOf(place),
         )
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()

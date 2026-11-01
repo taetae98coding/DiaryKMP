@@ -45,8 +45,10 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -220,7 +222,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-c7af792f-5fc5-48e8-954e-01ccd9f1f618 손을 떼지 않고 이동이 끝나도 그 시점의 기간이 반영된다`() {
+    fun `TC-2878d451-5ea4-4917-a22d-1cdbdb446c94 시스템이 조작을 끊으면 이동이 취소되고 기간이 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -232,7 +234,7 @@ class CalendarHomeScreenMoveTest {
         performMoveTo(dayCenter(day = 22))
         performCancel()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
         capturedState
             ?.calendarState
             ?.moveState
@@ -241,7 +243,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-c7af792f-5fc5-48e8-954e-01ccd9f1f618 이동 중 캘린더 상태가 새로 만들어져 이동이 끝나도 그 시점의 기간이 반영된다`() {
+    fun `TC-2878d451-5ea4-4917-a22d-1cdbdb446c94 이동 중 캘린더 상태가 새로 만들어지면 이동이 취소되고 기간이 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var calendarStateGeneration by mutableStateOf(0)
         var capturedState: CalendarHomeScaffoldState? = null
@@ -257,14 +259,14 @@ class CalendarHomeScreenMoveTest {
         composeRule.runOnIdle { calendarStateGeneration++ }
         composeRule.waitForIdle()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
         movingState?.moving.shouldBeNull()
         performUp()
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
     }
 
     @Test
-    fun `TC-4d00ac00-6707-4bf3-830e-1a285d9f4e01 화면이 재생성되면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-8b61394a-25d0-4763-b243-98bc3f3c3beb 화면이 재생성되면 이동 중 표시가 남지 않고 기간이 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val restorationTester = StateRestorationTester(composeRule)
         var capturedState: CalendarHomeScaffoldState? = null
@@ -279,7 +281,7 @@ class CalendarHomeScreenMoveTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
         capturedState
             ?.calendarState
             ?.moveState
@@ -288,7 +290,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-9cee0ad2-bc06-4ab7-b251-45577b45404d 앱이 백그라운드로 이동해도 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-2878d451-5ea4-4917-a22d-1cdbdb446c94 앱이 백그라운드로 이동해 조작이 끊기면 이동이 취소되고 기간이 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         var capturedState: CalendarHomeScaffoldState? = null
@@ -303,7 +305,7 @@ class CalendarHomeScreenMoveTest {
         composeRule.runOnIdle { registry.performSave() }
         performCancel()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
         capturedState
             ?.calendarState
             ?.moveState
@@ -312,12 +314,14 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-d46d5d52-57a0-44b6-9822-9c2cf7358486 화면을 벗어나면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-2878d451-5ea4-4917-a22d-1cdbdb446c94 화면을 벗어나면 이동이 취소되고 기간이 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var isShown by mutableStateOf(true)
+        var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(listOf(memo)),
             isShown = { isShown },
+            onState = { capturedState = it },
         )
 
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
@@ -325,7 +329,12 @@ class CalendarHomeScreenMoveTest {
         composeRule.runOnIdle { isShown = false }
         composeRule.waitForIdle()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movedList shouldBe emptyList()
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
     }
 
     @Test
@@ -341,15 +350,22 @@ class CalendarHomeScreenMoveTest {
 
         val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
         performLongPress(pressPosition)
+        composeRule.mainClock.autoAdvance = false
+        performMove(Offset(x = rootWidth() - 1F, y = pressPosition.y))
+        // 가장자리로 옮기는 드래그 자체의 기간 변경 피드백은 빼고 달 이동으로 인한 피드백만 센다.
         clearMocks(hapticFeedback, answers = false)
-
-        performSecondaryDown(secondaryPosition(pressPosition))
-        performSecondaryMoveBy(monthSwipeDelta(direction = -1))
+        // 2026년 8월 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 8월 15일이므로 7월 15일에서 31일을 옮긴 기간이 된다.
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == august(day = 14)..august(day = 16)
+        }
 
         capturedState?.calendarState?.currentYearMonth shouldBe AUGUST_2026
         verify(exactly = 1) { hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) }
-        performSecondaryUp()
-        performUp()
+        performUpAndSettle()
     }
 
     @Test
@@ -724,6 +740,113 @@ class CalendarHomeScreenMoveTest {
             ?.key shouldBe memo.id
         performSecondaryUp()
         performUp()
+    }
+
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `TC-917ab40e-77fa-4e45-997a-6d6a966d3f8d 이동 중 다른 손가락으로 아이템 영역을 움직여도 아이템 영역이 스크롤되지 않는다`() {
+        val memoList = filledWeekMemoList()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(memoList),
+            onState = { capturedState = it },
+        )
+        val movingTitle = topFilledMemoTitle()
+
+        val pressPosition = memoPressPosition(title = movingTitle, day = 6)
+        performLongPress(pressPosition)
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = movingTitle)
+        performSecondaryDown(Offset(x = dayCenter(day = 10).x, y = pressPosition.y))
+        repeat(ITEM_DRAG_STEP_COUNT) { performSecondaryMoveBy(itemDragStep()) }
+
+        initialFilledMemoTopMap.shouldNotBeEmpty()
+        filledMemoTopMap(exceptTitle = movingTitle) shouldBe initialFilledMemoTopMap
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memoList.first { memo -> memo.title == movingTitle }.id
+        performSecondaryUp()
+        performUp()
+    }
+
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `TC-ce96d89f-83e2-41be-a791-cfef84c780d7 이동하는 손가락을 위아래로 움직여도 아이템 영역이 스크롤되지 않는다`() {
+        val memoList = filledWeekMemoList()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(memoList),
+            onState = { capturedState = it },
+        )
+        val movingTitle = topFilledMemoTitle()
+
+        val pressPosition = memoPressPosition(title = movingTitle, day = 6)
+        performLongPress(pressPosition)
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = movingTitle)
+        // 이동하는 손가락이 같은 주 안에 머물도록 첫 아이템 줄에서 그 위의 날짜 숫자 쪽으로만 끌어 올린다.
+        repeat(ITEM_DRAG_STEP_COUNT) { step ->
+            performMoveTo(pressPosition + Offset(x = 0F, y = -memoRowHeight(title = movingTitle) * (step + 1) / ITEM_DRAG_STEP_COUNT))
+        }
+
+        initialFilledMemoTopMap.shouldNotBeEmpty()
+        filledMemoTopMap(exceptTitle = movingTitle) shouldBe initialFilledMemoTopMap
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memoList.first { memo -> memo.title == movingTitle }.id
+        performUp()
+    }
+
+    // 위 두 케이스가 스크롤되지 않음을 확인하는 이동이 메모 이동 중이 아닐 때는 실제로 아이템 영역을 스크롤하는지 확인한다.
+    @Test
+    @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
+    fun `메모 이동 중이 아니면 같은 세로 이동으로 아이템 영역이 스크롤된다`() {
+        setCalendarHomeScreen(memoListFlow = MutableStateFlow(filledWeekMemoList()))
+        val pressTitle = topFilledMemoTitle()
+
+        val initialFilledMemoTopMap = filledMemoTopMap(exceptTitle = null)
+        composeRule.onRoot().performTouchInput { down(memoPressPosition(title = pressTitle, day = 10)) }
+        repeat(ITEM_DRAG_STEP_COUNT) { composeRule.onRoot().performTouchInput { moveBy(itemDragStep()) } }
+        performUp()
+
+        filledMemoTopMap(exceptTitle = null) shouldNotBe initialFilledMemoTopMap
+    }
+
+    @Test
+    fun `TC-2b1d4867-3f02-4491-8a2b-c8f1f8400bf9 가장자리 영역 안에서 이동을 시작하면 곧바로 달 이동이 시작된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 18), endInclusive = july(day = 18))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+        val memoBounds = composeRule.onNodeWithText(MEETING_TITLE).fetchSemanticsNode().boundsInRoot
+        val start = Offset(x = memoBounds.right - 1F, y = memoBounds.center.y)
+
+        // 가장자리에서 길게 누르면 달 이동이 곧바로 반복되어 idle 상태가 되지 않으므로, 클록을 직접 진행해 길게 누르기를 인식시킨다.
+        composeRule.mainClock.autoAdvance = false
+        var longPressTimeoutMillis = 0L
+        composeRule.onRoot().performTouchInput {
+            down(start)
+            longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis
+        }
+        composeRule.mainClock.advanceTimeBy(longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+
+        // 2026년 8월 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 8월 15일이다.
+        advanceTimeUntil {
+            val calendarState = capturedState?.calendarState
+
+            calendarState?.currentYearMonth == AUGUST_2026 &&
+                calendarState.moveState.moving?.toDateRange == august(day = 15)..august(day = 15)
+        }
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUpAndSettle()
     }
 
     @Test
@@ -1161,6 +1284,40 @@ class CalendarHomeScreenMoveTest {
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
         )
 
+    // 7월 5일부터 11일까지의 주를 한 번에 모두 보이지 않을 만큼 같은 기간의 메모로 채운다.
+    private fun filledWeekMemoList(): List<CalendarMemo> =
+        List(FILLED_MEMO_COUNT) { index ->
+            memo(title = filledMemoTitle(index = index), start = july(day = 5), endInclusive = july(day = 11))
+        }
+
+    private fun filledMemoTitle(index: Int): String = "$FILLED_MEMO_TITLE_PREFIX$index"
+
+    // 같은 기간의 메모 사이의 줄 순서는 목록 순서로 정해지지 않으므로, 가장 위 줄에 보이는 메모를 고른다.
+    private fun topFilledMemoTitle(): String =
+        filledMemoTopMap(exceptTitle = null)
+            .minBy { (_, top) -> top }
+            .key
+
+    // 화면에 구성된 채움 메모의 위쪽 위치. 스크롤되면 위치가 바뀌거나 구성에서 빠지고 새 메모가 들어온다.
+    private fun filledMemoTopMap(exceptTitle: String?): Map<String, Float> =
+        List(FILLED_MEMO_COUNT) { index -> filledMemoTitle(index = index) }
+            .filter { title -> title != exceptTitle }
+            .mapNotNull { title ->
+                composeRule
+                    .onAllNodesWithText(title)
+                    .fetchSemanticsNodes()
+                    .firstOrNull()
+                    ?.let { node -> title to node.boundsInRoot.top }
+            }.toMap()
+
+    private fun memoRowHeight(title: String): Float =
+        composeRule
+            .onAllNodesWithText(title)[0]
+            .fetchSemanticsNode()
+            .boundsInRoot.height
+
+    private fun itemDragStep(): Offset = Offset(x = 0F, y = -with(composeRule.density) { ITEM_DRAG_STEP_DISTANCE.toPx() })
+
     private fun june(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JUNE, day = day)
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
@@ -1190,6 +1347,13 @@ class CalendarHomeScreenMoveTest {
         private const val SECONDARY_POINTER_ID = 1
         private const val BELOW_CALENDAR_DISTANCE = 200F
         private val MONTH_SWIPE_DISTANCE = 64.dp
+        private const val FILLED_MEMO_COUNT = 20
+
+        // 기본 화면에서는 한 주에 아이템이 한 줄만 보여 스크롤 여부를 다른 아이템의 위치로 확인할 수 없으므로 화면을 세로로 늘린다.
+        private const val TALL_SCREEN_QUALIFIERS = "h1200dp"
+        private const val FILLED_MEMO_TITLE_PREFIX = "채움"
+        private const val ITEM_DRAG_STEP_COUNT = 10
+        private val ITEM_DRAG_STEP_DISTANCE = 10.dp
 
         // 페이저 스와이프로 처리되면 달이 넘어가는 거리여야 달 이동이 일어나지 않음을 확인할 수 있다.
         private const val PAGE_CROSSING_RATIO = 0.7F

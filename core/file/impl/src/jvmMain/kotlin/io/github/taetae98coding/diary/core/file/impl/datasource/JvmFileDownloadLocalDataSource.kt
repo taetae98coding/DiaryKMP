@@ -26,6 +26,7 @@ internal class JvmFileDownloadLocalDataSource(
     private val dispatcher: CoroutineDispatcher,
     @FileDownloadDefaultDirectory
     private val defaultDirectory: String,
+    private val directoryBookmark: DirectoryBookmark,
 ) : FileDownloadLocalDataSource {
     override val isDirectorySelectable: Boolean = true
 
@@ -35,15 +36,12 @@ internal class JvmFileDownloadLocalDataSource(
         write: suspend (RawSink) -> Unit,
     ): FileDownloadResult =
         withContext(dispatcher) {
-            val target = directory?.toPath() ?: defaultPath()
-            val (path, name) = target.createNewFile(nameCandidate = nameCandidate)
-
-            try {
-                Files.newOutputStream(path).asSink().use { sink -> write(sink) }
-            } catch (throwable: Throwable) {
-                Files.deleteIfExists(path)
-                throw throwable
-            }
+            val name =
+                if (directory == null) {
+                    defaultPath().saveNewFile(nameCandidate = nameCandidate, write = write)
+                } else {
+                    directory.accessScoped { directory.toPath().saveNewFile(nameCandidate = nameCandidate, write = write) }
+                }
 
             FileDownloadResult.Saved(name = name)
         }
@@ -54,10 +52,44 @@ internal class JvmFileDownloadLocalDataSource(
 
             check(Files.isDirectory(path)) { "Not a directory. path=$path" }
 
-            FileDownloadDirectory(uri = path.toString(), name = path.fileName?.toString() ?: path.toString())
+            FileDownloadDirectory(
+                uri = path.toString(),
+                name = path.fileName?.toString() ?: path.toString(),
+                bookmark = directoryBookmark.create(path = path.toString()),
+            )
         }
 
     override suspend fun releaseDirectory(directory: FileDownloadDirectory): Unit = Unit
+
+    // 북마크 없이 저장한 폴더는 경로만으로 연다.
+    private suspend fun <T> FileDownloadDirectory.accessScoped(block: suspend () -> T): T {
+        if (bookmark.isEmpty()) return block()
+
+        val access =
+            try {
+                directoryBookmark.startAccessing(bookmark = bookmark)
+            } catch (exception: IllegalStateException) {
+                throw FileDownloadDirectoryUnavailableException(message = "Bookmark cannot be resolved. uri=$uri", cause = exception)
+            }
+
+        return access.use { block() }
+    }
+
+    private suspend fun Path.saveNewFile(
+        nameCandidate: (index: Int) -> String,
+        write: suspend (RawSink) -> Unit,
+    ): String {
+        val (path, name) = createNewFile(nameCandidate = nameCandidate)
+
+        try {
+            Files.newOutputStream(path).asSink().use { sink -> write(sink) }
+        } catch (throwable: Throwable) {
+            Files.deleteIfExists(path)
+            throw throwable
+        }
+
+        return name
+    }
 
     private fun defaultPath(): Path =
         try {

@@ -67,10 +67,11 @@ internal fun FileHomeList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
+    isRefreshFailedProvider: () -> Boolean = { false },
     isAccountChangingProvider: () -> Boolean = { false },
 ) {
     DiaryCrossfade(
-        targetState = if (isAccountChangingProvider()) FileHomeListContent.LOADING else filePagingItems.content(),
+        targetState = if (isAccountChangingProvider()) FileHomeListContent.LOADING else filePagingItems.content(isRefreshFailed = isRefreshFailedProvider()),
         modifier = modifier,
     ) { content ->
         when (content) {
@@ -197,11 +198,11 @@ private fun FileHomeAppendFailed(
     }
 }
 
-private fun LazyPagingItems<DiaryFile>.content(): FileHomeListContent =
+private fun LazyPagingItems<DiaryFile>.content(isRefreshFailed: Boolean): FileHomeListContent =
     when {
-        itemCount > 0 -> FileHomeListContent.LIST
-        loadState.refresh is LoadState.Loading -> FileHomeListContent.LOADING
         loadState.refresh is LoadState.Error -> FileHomeListContent.FAILED
+        itemCount > 0 && (!isRefreshFailed || loadState.refresh is LoadState.NotLoading) -> FileHomeListContent.LIST
+        loadState.refresh is LoadState.Loading -> FileHomeListContent.LOADING
         else -> FileHomeListContent.EMPTY
     }
 

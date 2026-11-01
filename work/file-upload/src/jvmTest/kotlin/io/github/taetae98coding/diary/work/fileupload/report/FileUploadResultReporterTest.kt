@@ -3,10 +3,8 @@ package io.github.taetae98coding.diary.work.fileupload.report
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -20,91 +18,17 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileUploadResultReporterTest :
     BehaviorSpec({
-        Given("올리기가 끝나는 순간 FileHome을 보고 있다") {
+        Given("올리기 결과를 받는 화면이 있다") {
             When("테스트 데이터의 결과를 알린다") {
-                Then("TC-5da2bfe7-f73d-417d-84b3-02dce8dd9fd4 결과 알림을 보내지 않고 FileHome에만 결과를 전달한다") {
+                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 TC-f33a3f46-e611-4fd6-b6a4-453ca777497a 결과 알림을 보내고 화면에도 결과를 전달한다") {
                     resultEventList().forEach { (result, event) ->
                         runTest {
-                            val fixture = ReporterFixture(viewingScreen = FileScreen.HOME)
+                            val fixture = ReporterFixture()
 
-                            fixture.eventHolder.getEvent(screen = FileScreen.ADD).test {
-                                fixture.eventHolder.getEvent(screen = FileScreen.HOME).test {
-                                    fixture.reporter.report(result = result)
-
-                                    awaitItem() shouldBe event
-                                    expectNoEvents()
-                                }
-                                expectNoEvents()
-                            }
-                            verify(exactly = 0) { fixture.notifier.notifyResult(result = any()) }
-                        }
-                    }
-                }
-            }
-        }
-
-        Given("올리기가 끝나는 순간 FileHome에서 연 FileAdd를 보고 있다") {
-            When("테스트 데이터의 결과를 알린다") {
-                Then("TC-5350c0cb-1742-4ebc-b0eb-916fea8cd90a TC-f33a3f46-e611-4fd6-b6a4-453ca777497a 결과 알림을 보내지 않고 FileAdd에 결과를 전달한다") {
-                    resultEventList().forEach { (result, event) ->
-                        runTest {
-                            val fixture = ReporterFixture(viewingScreen = FileScreen.ADD)
-
-                            fixture.eventHolder.getEvent(screen = FileScreen.ADD).test {
+                            fixture.eventHolder.event.test {
                                 fixture.reporter.report(result = result)
 
                                 awaitItem() shouldBe event
-                                expectNoEvents()
-                            }
-                            verify(exactly = 0) { fixture.notifier.notifyResult(result = any()) }
-                        }
-                    }
-                }
-            }
-
-            When("올리기가 성공으로 끝난다") {
-                Then("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileHome에는 FileAdd를 보는 동안 성공했다고 전달한다") {
-                    runTest {
-                        val fixture = ReporterFixture(viewingScreen = FileScreen.ADD)
-                        val fileId = fixtureMonkey.giveMeOne<Uuid>()
-
-                        fixture.eventHolder.getEvent(screen = FileScreen.HOME).test {
-                            fixture.reporter.report(result = FileUploadResult.Succeeded(name = fixtureMonkey.giveMeOne<String>(), fileId = fileId))
-
-                            awaitItem() shouldBe FileUploadEvent.SucceededOnFileAdd(fileId = fileId)
-                            expectNoEvents()
-                        }
-                    }
-                }
-            }
-
-            When("올리기가 실패로 끝난다") {
-                Then("TC-ad53df91-30c2-4c79-ba3d-f0f479def34a FileHome에는 아무것도 전달하지 않는다") {
-                    listOf(FileUploadResult.TooLarge, FileUploadResult.Failed(name = fixtureMonkey.giveMeOne<String>())).forEach { result ->
-                        runTest {
-                            val fixture = ReporterFixture(viewingScreen = FileScreen.ADD)
-
-                            fixture.eventHolder.getEvent(screen = FileScreen.HOME).test {
-                                fixture.reporter.report(result = result)
-
-                                expectNoEvents()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Given("올리기가 끝나는 순간 파일 화면을 보고 있지 않다") {
-            When("테스트 데이터의 결과를 알린다") {
-                Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d 화면에 전달하지 않고 결과 알림을 보낸다") {
-                    resultEventList().forEach { (result, _) ->
-                        runTest {
-                            val fixture = ReporterFixture(viewingScreen = null)
-
-                            fixture.eventHolder.getEvent(screen = FileScreen.HOME).test {
-                                fixture.reporter.report(result = result)
-
                                 expectNoEvents()
                             }
                             verify(exactly = 1) { fixture.notifier.notifyResult(result = result) }
@@ -114,26 +38,48 @@ class FileUploadResultReporterTest :
             }
         }
 
-        Given("FileAdd를 보는 동안 올리기를 시작한 뒤 FileHome을 거쳐 화면을 떠났다") {
-            When("올리기가 끝나 결과를 알린다") {
-                Then("TC-0cfddb99-8c07-4897-a998-4682648a3f46 끝나는 순간을 기준으로 결과 알림을 보내고 앱 화면 안에는 안내를 전달하지 않는다") {
+        Given("올리기 결과를 받는 화면이 없다") {
+            When("테스트 데이터의 결과를 알린 뒤 화면이 결과를 받기 시작한다") {
+                Then("TC-0cfddb99-8c07-4897-a998-4682648a3f46 TC-d144a188-a4a5-4b91-8cd3-9c558f8d8d3d TC-59947c2f-2fce-4c84-a2c4-77bf7137348b 결과 알림만 보내고 화면에는 지난 결과를 전달하지 않는다") {
+                    resultEventList().forEach { (result, _) ->
+                        runTest {
+                            val fixture = ReporterFixture()
+
+                            fixture.reporter.report(result = result)
+
+                            fixture.eventHolder.event.test { expectNoEvents() }
+                            verify(exactly = 1) { fixture.notifier.notifyResult(result = result) }
+                        }
+                    }
+                }
+            }
+
+            When("올리기가 성공으로 끝난 뒤 FileHome이 성공을 받기 시작한다") {
+                Then("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 쌓아 둔 성공을 한 번 전달한다") {
                     runTest {
-                        val fixture = ReporterFixture(viewingScreen = FileScreen.ADD)
-                        val result = FileUploadResult.Succeeded(name = fixtureMonkey.giveMeOne<String>(), fileId = fixtureMonkey.giveMeOne<Uuid>())
+                        val fixture = ReporterFixture()
+                        val fileId = fixtureMonkey.giveMeOne<Uuid>()
 
-                        fixture.viewingHolder.start(screen = FileScreen.HOME)
-                        fixture.viewingHolder.stop(screen = FileScreen.ADD)
-                        fixture.viewingHolder.stop(screen = FileScreen.HOME)
-                        fixture.eventHolder.getEvent(screen = FileScreen.ADD).test {
-                            fixture.eventHolder.getEvent(screen = FileScreen.HOME).test {
-                                fixture.reporter.report(result = result)
+                        fixture.reporter.report(result = FileUploadResult.Succeeded(name = fixtureMonkey.giveMeOne<String>(), fileId = fileId))
 
-                                expectNoEvents()
-                            }
+                        fixture.eventHolder.succeededEvent.test {
+                            awaitItem() shouldBe FileUploadEvent.Succeeded(fileId = fileId)
                             expectNoEvents()
                         }
+                    }
+                }
+            }
 
-                        verify(exactly = 1) { fixture.notifier.notifyResult(result = result) }
+            When("올리기가 실패로 끝난 뒤 FileHome이 성공을 받기 시작한다") {
+                Then("아무것도 전달하지 않는다") {
+                    listOf(FileUploadResult.TooLarge, FileUploadResult.Failed(name = fixtureMonkey.giveMeOne<String>())).forEach { result ->
+                        runTest {
+                            val fixture = ReporterFixture()
+
+                            fixture.reporter.report(result = result)
+
+                            fixture.eventHolder.succeededEvent.test { expectNoEvents() }
+                        }
                     }
                 }
             }
@@ -151,10 +97,7 @@ private fun resultEventList(): List<Pair<FileUploadResult, FileUploadEvent>> {
     )
 }
 
-private class ReporterFixture(
-    viewingScreen: FileScreen?,
-) {
-    val viewingHolder = FileScreenViewingHolder().also { holder -> viewingScreen?.let(holder::start) }
+private class ReporterFixture {
     val eventHolder = FileUploadEventHolder()
     val notifier =
         mockk<FileUploadNotifier> {
@@ -162,7 +105,6 @@ private class ReporterFixture(
         }
     val reporter =
         FileUploadResultReporter(
-            fileScreenViewingHolder = viewingHolder,
             fileUploadEventHolder = eventHolder,
             fileUploadNotifier = notifier,
         )

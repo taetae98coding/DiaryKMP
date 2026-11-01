@@ -3,8 +3,12 @@ package io.github.taetae98coding.diary.work.sync.scheduler
 import android.content.Context
 import androidx.work.Configuration
 import androidx.work.NetworkType
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.model.WorkSpecDao
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
@@ -78,6 +82,22 @@ class AndroidSyncWorkSchedulerTest {
         connectNetwork()
 
         executeCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-256bc8db-cc86-4649-a40c-f44095821c08 동기화 작업은 즉시 실행을 요청한다`() {
+        AndroidSyncWorkScheduler(context = context).sync()
+
+        enqueuedWorkSpec().expedited shouldBe true
+    }
+
+    @Test
+    fun `TC-8c8013fd-784a-49d3-9fe9-b4610fba2bc8 즉시 실행 한도를 넘으면 취소하지 않고 일반 작업으로 전환하도록 요청한다`() {
+        AndroidSyncWorkScheduler(context = context).sync()
+
+        val workSpec = enqueuedWorkSpec()
+        workSpec.outOfQuotaPolicy shouldBe OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
+        enqueuedWorkInfo().state shouldBe WorkInfo.State.ENQUEUED
     }
 
     @Test
@@ -165,6 +185,15 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     private fun enqueuedWorkInfo(): WorkInfo = enqueuedWorkInfoList().single()
+
+    // 즉시 실행 요청과 한도 초과 정책은 WorkInfo에 드러나지 않아 WorkManager가 저장한 요청 정보를 읽는다.
+    // 저장소 타입의 상위 타입이 테스트 컴파일 경로에 없어 저장소는 리플렉션으로 꺼낸다.
+    private fun enqueuedWorkSpec(): WorkSpec {
+        val workDatabase = WorkManagerImpl::class.java.getMethod("getWorkDatabase").invoke(WorkManagerImpl.getInstance(context))
+        val workSpecDao = workDatabase.javaClass.getMethod("workSpecDao").invoke(workDatabase) as WorkSpecDao
+
+        return requireNotNull(workSpecDao.getWorkSpec(enqueuedWorkInfo().id.toString()))
+    }
 
     private fun enqueuedWorkInfoList(): List<WorkInfo> =
         WorkManager

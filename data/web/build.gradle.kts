@@ -7,6 +7,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database.api)
+                implementation(projects.core.datastore.api)
+                implementation(projects.core.webCookie.api)
                 implementation(projects.core.webNetwork.api)
                 implementation(projects.data.core)
                 implementation(projects.domain.web)

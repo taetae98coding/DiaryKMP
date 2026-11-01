@@ -49,6 +49,8 @@ internal fun FileHomeScaffold(
     uiStateProvider: () -> FileHomeUiState = { FileHomeUiState.Loading },
     uploadUiStateProvider: () -> FileHomeUploadUiState = { FileHomeUploadUiState() },
     isRefreshingProvider: () -> Boolean = { false },
+    isRefreshFailedProvider: () -> Boolean = { false },
+    isAccountChangingProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     componentVisibleProvider: () -> FileHomeScaffoldComponentVisible = { FileHomeScaffoldComponentVisible() },
 ) {
@@ -102,7 +104,8 @@ internal fun FileHomeScaffold(
                         listState = listState,
                         filePagingItems = filePagingItems,
                         isRefreshingProvider = isRefreshingProvider,
-                        isAccountChangingProvider = { (uiStateProvider() as? FileHomeUiState.User)?.isAccountChanging == true },
+                        isRefreshFailedProvider = isRefreshFailedProvider,
+                        isAccountChangingProvider = isAccountChangingProvider,
                     )
                 }
             }
@@ -127,6 +130,7 @@ private fun FileHomeUserBody(
     listState: LazyListState = rememberLazyListState(),
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isRefreshFailedProvider: () -> Boolean = { false },
     isAccountChangingProvider: () -> Boolean = { false },
 ) {
     DiaryPullToRefreshBox(
@@ -139,6 +143,7 @@ private fun FileHomeUserBody(
             modifier = Modifier.fillMaxSize(),
             listState = listState,
             filePagingItems = filePagingItems,
+            isRefreshFailedProvider = isRefreshFailedProvider,
             isAccountChangingProvider = isAccountChangingProvider,
         )
     }

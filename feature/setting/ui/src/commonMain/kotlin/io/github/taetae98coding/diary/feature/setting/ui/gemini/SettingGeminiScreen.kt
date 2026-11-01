@@ -35,7 +35,6 @@ internal fun SettingGeminiScreen(
     SettingGeminiScreenEffect(
         state = formState,
         effect = settingViewModel.effect,
-        modelEffect = modelViewModel.effect,
     )
 
     SettingGeminiScaffold(
@@ -46,19 +45,11 @@ internal fun SettingGeminiScreen(
                 }
 
                 is SettingGeminiScaffoldEvent.ClickModel -> {
-                    when {
-                        modelUiState.isLoaded -> {
-                            formState.modelDialogState.show()
-                        }
-
-                        formState.apiKey.isBlank() -> {
-                            coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyBlankMessage) }
-                        }
-
-                        else -> {
-                            modelViewModel.fetch(apiKey = formState.apiKey)
-                            formState.modelDialogState.show()
-                        }
+                    if (formState.apiKey.isBlank()) {
+                        coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyBlankMessage) }
+                    } else {
+                        modelViewModel.fetch(apiKey = formState.apiKey)
+                        formState.modelDialogState.show()
                     }
                 }
 
@@ -69,14 +60,7 @@ internal fun SettingGeminiScreen(
         },
         onModelDialogEvent = { event ->
             when (event) {
-                is SettingGeminiModelDialogEvent.ClickReload -> {
-                    if (formState.apiKey.isBlank()) {
-                        coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyBlankMessage) }
-                    } else {
-                        modelViewModel.fetch(apiKey = formState.apiKey)
-                    }
-                }
-
+                is SettingGeminiModelDialogEvent.ClickRetry -> modelViewModel.fetch(apiKey = formState.apiKey)
                 is SettingGeminiModelDialogEvent.SelectModel -> formState.model = event.id
             }
         },

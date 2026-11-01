@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.core.database.impl.tag.transaction
 
 import androidx.room3.Room
+import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -12,10 +13,16 @@ import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLo
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.AccountTagSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.spyk
+import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -65,6 +72,57 @@ class AccountTagTransactionImplTest :
             syncDataSource
                 .readPendingList(accountId = accountId)
                 .any { tag -> tag.id == tagId } shouldBe true
+        }
+
+        suspend fun countRows(table: String): Long =
+            database.useReaderConnection { transactor ->
+                transactor.usePrepared("SELECT COUNT(*) FROM $table") { statement ->
+                    statement.step()
+                    statement.getLong(0)
+                }
+            }
+
+        test("TC-a9ca601b-2e0a-4754-a20f-47aabd8a2397 새 태그와 계정 연결, 고른 태그로 향하는 연결을 모두 기기에 저장한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstToTag = tag().copy(isDeleted = false)
+            val secondToTag = tag().copy(isDeleted = false)
+            val newTag = tag()
+            insertWithSyncState(accountId, firstToTag, isDirty = false)
+            insertWithSyncState(accountId, secondToTag, isDirty = false)
+            val linkList = listOf(firstToTag, secondToTag).map { toTag -> link(fromTagId = newTag.id, toTagId = toTag.id) }
+
+            transaction.upsert(accountId = accountId, tagList = listOf(newTag), tagLinkList = linkList)
+
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(newTag)
+            AccountTagLinkLocalDataSourceImpl(database = database)
+                .getTagList(accountId = accountId, fromTagId = newTag.id)
+                .first()
+                .map { tag -> tag.id } shouldContainExactlyInAnyOrder listOf(firstToTag.id, secondToTag.id)
+        }
+
+        test("TC-a660dc59-56d9-4824-99f4-aa8a8d9bb043 연결을 저장하지 못하면 새 태그와 계정 연결, 연결 중 어느 것도 남지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val toTag = tag()
+            val newTag = tag()
+            insertWithSyncState(accountId, toTag, isDirty = false)
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failingDatabase = spyk(database)
+            every { failingDatabase.accountTagLinkDao() } throws throwable
+            val failingTransaction = AccountTagTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.upsert(
+                    accountId = accountId,
+                    tagList = listOf(newTag),
+                    tagLinkList = listOf(link(fromTagId = newTag.id, toTagId = toTag.id)),
+                )
+            }.message shouldBe throwable.message
+
+            countRows("tag") shouldBe 1
+            countRows("account_tag") shouldBe 1
+            countRows("tag_link") shouldBe 0
+            countRows("account_tag_link") shouldBe 0
+            syncDataSource.readPendingList(accountId = accountId) shouldBe emptyList()
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
@@ -137,6 +195,11 @@ class AccountTagTransactionImplTest :
                 .setExp(TagLocalEntity::updatedAt, instant())
                 .setExp(TagLocalEntity::createdAt, instant())
                 .sample()
+
+        private fun link(
+            fromTagId: Uuid,
+            toTagId: Uuid,
+        ): TagLinkLocalEntity = TagLinkLocalEntity(fromTagId = fromTagId, toTagId = toTagId, isDeleted = false, updatedAt = instant(), createdAt = instant())
 
         private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }

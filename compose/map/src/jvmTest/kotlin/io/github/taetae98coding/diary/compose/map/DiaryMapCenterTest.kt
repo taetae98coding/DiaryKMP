@@ -40,6 +40,20 @@ class DiaryMapCenterTest : FunSpec() {
             }
 
             DiaryMapState(initialProvider = DiaryMapProvider.NAVER).isCentered(center) shouldBe false
+
+            val antimeridianBounds = DiaryMapBounds(south = center.latitude - span / 2, north = center.latitude + span / 2, west = ANTIMERIDIAN - span / 2, east = -ANTIMERIDIAN + span / 2)
+            val antimeridianCenter = center.copy(longitude = ANTIMERIDIAN - within / 2)
+
+            listOf(
+                antimeridianCenter.copy(longitude = -ANTIMERIDIAN + within / 2) to true,
+                antimeridianCenter.copy(longitude = -ANTIMERIDIAN + beyond) to false,
+            ).forEach { (target, expected) ->
+                val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+
+                state.moveCamera(DiaryMapCamera(latitude = antimeridianCenter.latitude, longitude = antimeridianCenter.longitude, zoom = randomZoom(), bounds = antimeridianBounds))
+
+                state.isCentered(target) shouldBe expected
+            }
         }
 
         test("TC-d2ae97cc-d8ad-43e6-a1f4-345e6700327b 지도를 옮기도록 지정하면 지도가 새 위치를 알려 오기 전에도 그 좌표가 가운데에 있다") {
@@ -67,6 +81,7 @@ class DiaryMapCenterTest : FunSpec() {
         private const val WITHIN_RATIO = 0.005
         private const val BEYOND_RATIO = 0.02
         private const val OTHER_PLACE_OFFSET = 5.0
+        private const val ANTIMERIDIAN = 180.0
         private const val LATITUDE_RANGE = 120
         private const val LATITUDE_MIN = -60.0
         private const val LONGITUDE_RANGE = 340

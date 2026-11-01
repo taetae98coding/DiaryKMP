@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.compose.map
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -15,26 +14,21 @@ import kotlin.uuid.Uuid
 public fun DiaryMap(
     modifier: Modifier = Modifier,
     state: DiaryMapState = rememberDiaryMapState(),
-    layout: DiaryMapLayout = defaultDiaryMapLayout,
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     val dispatchSpotClick = rememberDispatch(callback = onSpotClick)
     val dispatchPinClick = rememberDispatch(callback = onPinClick)
+    val map: @Composable () -> Unit = {
+        DiaryMapContent(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            onSpotClick = dispatchSpotClick,
+            onPinClick = dispatchPinClick,
+        )
+    }
 
-    val map =
-        remember(state, dispatchSpotClick, dispatchPinClick) {
-            movableContentOf {
-                DiaryMapContent(
-                    state = state,
-                    modifier = Modifier.fillMaxSize(),
-                    onSpotClick = dispatchSpotClick,
-                    onPinClick = dispatchPinClick,
-                )
-            }
-        }
-
-    when (layout) {
+    when (diaryMapLayout) {
         DiaryMapLayout.OVERLAY ->
             DiaryMapOverlayLayout(
                 state = state,
@@ -52,8 +46,8 @@ public fun DiaryMap(
 }
 
 /**
- * 지도는 [movableContentOf]로 붙잡아 두므로 콜백이 키로 쓰인다.
- * 호출자가 매번 새로 만드는 람다를 그대로 키로 쓰면 지도가 다시 만들어지므로,
+ * 플랫폼 지도는 콜백을 키로 다시 만들어진다.
+ * 호출자가 매번 새로 만드는 람다를 그대로 넘기면 지도가 다시 만들어지므로,
  * 신원이 고정된 콜백으로 감싸 최신 콜백을 호출하고 사용하지 않을 때만 `null`로 둔다.
  */
 @Composable

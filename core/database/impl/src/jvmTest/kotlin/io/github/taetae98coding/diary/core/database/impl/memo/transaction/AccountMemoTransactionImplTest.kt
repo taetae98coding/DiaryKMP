@@ -706,7 +706,7 @@ class AccountMemoTransactionImplTest :
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe tagId
         }
 
-        test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 대표 태그 지정 저장이 실패하면 연결도 만들어지지 않는다") {
+        test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 TC-b7d27335-e85f-49d3-b8c3-1032a8666ebf 대표 태그 지정 저장이 실패하면 연결도 만들어지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(primaryTagId = null)

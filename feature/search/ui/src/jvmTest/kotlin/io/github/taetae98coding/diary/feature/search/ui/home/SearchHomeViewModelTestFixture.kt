@@ -37,6 +37,8 @@ internal fun <T : Any> successPagingDataFlowOf(itemList: List<T>): Flow<Result<P
 
 internal fun <T : Any> failurePagingDataFlow(): Flow<Result<PagingData<T>>> = flowOf(Result.failure(IllegalStateException()))
 
+internal fun searchMemo(): Memo = searchMemo(title = fixtureMonkey.giveMeOne())
+
 internal fun searchMemo(title: String): Memo =
     fixtureMonkey
         .giveMeKotlinBuilder<Memo>()
@@ -45,6 +47,8 @@ internal fun searchMemo(title: String): Memo =
         .setExp(Memo::updatedAt, instant())
         .setExp(Memo::createdAt, instant())
         .sample()
+
+internal fun searchTag(): Tag = searchTag(title = fixtureMonkey.giveMeOne())
 
 internal fun searchTag(title: String): Tag =
     fixtureMonkey
@@ -55,6 +59,8 @@ internal fun searchTag(title: String): Tag =
         .setExp(Tag::createdAt, instant())
         .sample()
 
+internal fun searchPlace(): Place = searchPlace(title = fixtureMonkey.giveMeOne())
+
 internal fun searchPlace(title: String): Place =
     fixtureMonkey
         .giveMeKotlinBuilder<Place>()
@@ -63,6 +69,8 @@ internal fun searchPlace(title: String): Place =
         .setExp(Place::updatedAt, instant())
         .setExp(Place::createdAt, instant())
         .sample()
+
+internal fun searchWeb(): Web = searchWeb(title = fixtureMonkey.giveMeOne())
 
 internal fun searchWeb(title: String): Web =
     fixtureMonkey

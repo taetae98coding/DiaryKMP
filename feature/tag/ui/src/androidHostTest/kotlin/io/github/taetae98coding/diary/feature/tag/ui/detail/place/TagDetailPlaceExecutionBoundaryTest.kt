@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
@@ -122,23 +123,23 @@ class TagDetailPlaceExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 시스템이 앱을 종료했다가 되살려도 지도 모드를 유지하고 새로 확인한 위치에서 지도를 시작한다`() {
-        assertRestoreStartsAtFetchedLocation(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+    fun `TC-47ead7cd-c668-45fc-b08e-b512f97b998c 되살아난 뒤 다른 위치를 확인해도 지도 모드와 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
+        assertRestoreContinuesMovedMap(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
     }
 
     @Test
-    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-47ead7cd-c668-45fc-b08e-b512f97b998c 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 지도를 이어서 보여 준다`() {
         val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
 
-        assertRestoreStartsAtFetchedLocation(beforeCoordinate = coordinate, afterCoordinate = coordinate)
+        assertRestoreContinuesMovedMap(beforeCoordinate = coordinate, afterCoordinate = coordinate)
     }
 
     @Test
-    fun `TC-b6a6603e-b755-40dc-915d-68d7079ae96e 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
-        assertRestoreStartsAtFetchedLocation(beforeCoordinate = null, afterCoordinate = null)
+    fun `TC-47ead7cd-c668-45fc-b08e-b512f97b998c 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 지도를 이어서 보여 준다`() {
+        assertRestoreContinuesMovedMap(beforeCoordinate = null, afterCoordinate = null)
     }
 
-    private fun assertRestoreStartsAtFetchedLocation(
+    private fun assertRestoreContinuesMovedMap(
         beforeCoordinate: Coordinate?,
         afterCoordinate: Coordinate?,
     ) {
@@ -149,9 +150,10 @@ class TagDetailPlaceExecutionBoundaryTest {
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceTab(mapViewModel = mapViewModel) }
         selectMapMode()
-        val initialMapCoordinate = composeRule.runOnIdle { mapState.coordinate }
-        beforeCoordinate?.let { composeRule.runOnIdle { initialMapCoordinate shouldBe it.toDiaryMapCoordinate() } }
-        composeRule.runOnIdle { mapState.moveTo(movedCoordinate.toDiaryMapCoordinate()) }
+        composeRule.runOnIdle {
+            mapState.select(DiaryMapProvider.GOOGLE)
+            mapState.moveTo(movedCoordinate.toDiaryMapCoordinate())
+        }
 
         mapViewModel = mapViewModel(afterFetch)
         restorationTester.emulateSavedInstanceStateRestore()
@@ -159,7 +161,8 @@ class TagDetailPlaceExecutionBoundaryTest {
 
         composeRule.runOnIdle {
             placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP
-            mapState.coordinate shouldBe (afterCoordinate?.toDiaryMapCoordinate() ?: initialMapCoordinate)
+            mapState.provider shouldBe DiaryMapProvider.GOOGLE
+            mapState.coordinate shouldBe movedCoordinate.toDiaryMapCoordinate()
         }
         coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
         coVerify(exactly = 1) { afterFetch(parameter = Unit) }

@@ -23,9 +23,8 @@ internal class SessionRepositoryImpl(
 
                 is SupabaseSessionStatus.Initializing,
                 is SupabaseSessionStatus.RefreshFailure,
-                -> Session.Pending
-
-                is SupabaseSessionStatus.NotAuthenticated -> Session.NotAuthenticated
+                is SupabaseSessionStatus.NotAuthenticated,
+                -> Session.NotAuthenticated
             }
         }
 

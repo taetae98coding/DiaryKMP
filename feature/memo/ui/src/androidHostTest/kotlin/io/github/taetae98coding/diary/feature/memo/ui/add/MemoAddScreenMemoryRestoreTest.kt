@@ -357,6 +357,7 @@ private fun MemoryRestoreTestMemoAddScreen(
         navigateToContactDetail = {},
         navigateToPlaceAdd = {},
         navigateToPlaceDetail = {},
+        navigateToGeminiSetting = {},
         initialDateTime = initialDateTime,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
         isStandalone = true,

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.searchEntry(backStack: NavBackStack<ScreenNavKey>) {
     searchHomeEntry(backStack = backStack)
@@ -23,6 +24,10 @@ private fun EntryProviderScope<ScreenNavKey>.searchHomeEntry(backStack: NavBackS
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             initialType = key.initialType,
+            memoViewModel = koinViewModel(),
+            tagViewModel = koinViewModel(),
+            placeViewModel = koinViewModel(),
+            webViewModel = koinViewModel(),
         )
     }
 }

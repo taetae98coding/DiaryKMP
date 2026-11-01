@@ -20,6 +20,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -87,6 +92,31 @@ class FetchCurrentWeatherUseCaseTest :
                 useCase(parameter = Unit)
 
                 Then("TC-ebc481d2-6b8f-4bc6-a2e2-36931ce3f977 오류 보고가 남지 않는다") {
+                    reportList.shouldBeEmpty()
+                }
+            }
+        }
+
+        Given("오류 보고 기록 수단이 등록되어 있고 현재 날씨 동기화가 끝나지 않도록 준비되어 있다") {
+            val onStart = CompletableDeferred<Unit>()
+            val repository = mockk<WeatherRepository>()
+            coEvery { repository.fetch() } coAnswers {
+                onStart.complete(Unit)
+                awaitCancellation()
+            }
+            val useCase = FetchCurrentWeatherUseCase(weatherRepository = repository)
+
+            val reportList = recordCrashlyticsLog()
+
+            When("위치 권한을 새로 허용해 진행 중이던 동기화가 멈춘다") {
+                coroutineScope {
+                    val job = launch { useCase(parameter = Unit) }
+
+                    onStart.await()
+                    job.cancelAndJoin()
+                }
+
+                Then("TC-4c46a618-d3d2-43be-9b55-2c5eec821f89 멈춘 동기화에 대한 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }

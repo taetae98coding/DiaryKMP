@@ -9,6 +9,9 @@ import io.github.taetae98coding.diary.app.shared.integrity.PlayIntegrityLogEffec
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
 import io.github.taetae98coding.diary.app.shared.navigation.OpenDeepLinkEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
+import io.github.taetae98coding.diary.app.shared.web.DiaryWebSessionEffect
+import io.github.taetae98coding.diary.app.shared.web.RestoreWebLoginEffect
+import io.github.taetae98coding.diary.app.shared.web.SaveWebLoginEffect
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
@@ -21,9 +24,9 @@ public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
     val periodicSyncViewModel = koinViewModel<AppPeriodicSyncViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
-    val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
     val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
     val fileUploadViewModel = koinViewModel<AppFileUploadViewModel>()
+    val webLoginViewModel = koinViewModel<AppWebLoginViewModel>()
     val appState = rememberAppState()
 
     DiaryImageLoaderEffect()
@@ -47,9 +50,10 @@ public fun App(modifier: Modifier = Modifier) {
         reconcile = fileUploadViewModel::reconcile,
         uiState = fileUploadViewModel.uiState,
     )
-    ChromeSessionImportEffect(requestImport = chromeSessionViewModel::requestImport)
-    DiaryWebSessionEffect(session = chromeSessionViewModel.session)
     PlayIntegrityLogEffect(log = playIntegrityViewModel::log)
+    RestoreWebLoginEffect(restore = webLoginViewModel::restore)
+    DiaryWebSessionEffect(session = webLoginViewModel.session)
+    SaveWebLoginEffect(save = webLoginViewModel::save)
     ScreenViewEffect(
         log = DiaryLogger::log,
         appState = appState,
@@ -59,6 +63,17 @@ public fun App(modifier: Modifier = Modifier) {
         appState = appState,
     )
 
+    AppContent(
+        appState = appState,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AppContent(
+    appState: AppState,
+    modifier: Modifier = Modifier,
+) {
     DiaryTheme {
         AppScaffold(
             appState = appState,

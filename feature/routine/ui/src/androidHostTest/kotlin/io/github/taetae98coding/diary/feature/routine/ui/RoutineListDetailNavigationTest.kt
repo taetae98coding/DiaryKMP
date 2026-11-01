@@ -2,11 +2,12 @@
 
 package io.github.taetae98coding.diary.feature.routine.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -48,7 +49,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [36], qualifiers = "w1280dp-h800dp")
 class RoutineListDetailNavigationTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestTopLevelNavKey, RoutineHomeNavKey)
 
@@ -82,6 +83,20 @@ class RoutineListDetailNavigationTest {
         backStack.last() shouldBe RoutineAddNavKey
         composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-8ac57d1f-2a84-4caa-8944-bbebde25bf75 상세 영역에 루틴 추가가 놓인 상태에서 뒤로가면 배치를 떠나 기본 목적지로 돌아간다`() {
+        setRoutineNavDisplay()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertExists()
+
+        composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestTopLevelNavKey)
+        composeRule.onNodeWithText(TOP_LEVEL_CONTENT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_ADD_TITLE).assertDoesNotExist()
     }
 
     private fun setRoutineNavDisplay() {
@@ -140,7 +155,7 @@ class RoutineListDetailNavigationTest {
     }
 }
 
-// 캘린더 홈처럼 루틴이 아닌 주요 목적지를 대신한다. 다른 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+// 기본 목적지인 캘린더 홈처럼 루틴이 아닌 주요 목적지를 대신한다. 다른 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
 private data object NavigationTestTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "NavigationTestTopLevel"

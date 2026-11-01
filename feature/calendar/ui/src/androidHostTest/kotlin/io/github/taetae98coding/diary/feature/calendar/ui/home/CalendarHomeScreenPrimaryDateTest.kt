@@ -124,6 +124,28 @@ class CalendarHomeScreenPrimaryDateTest {
         assertTodayMovedToAugustFirst()
     }
 
+    @Test
+    fun `TC-4787736d-700d-4ac6-82b5-d92bd6b18e63 화면을 보는 동안 자정이 지나도 오늘 기준을 다시 정하지 않는다`() {
+        val clock = clockAt(date = JULY_31_2026)
+        setCalendarHomeScreen(clock = clock)
+        primaryColoredCount(text = JULY_31_2026.day.toString()) shouldBe 1
+
+        composeRule.runOnIdle { every { clock.now() } returns noonOf(AUGUST_1_2026) }
+        composeRule.mainClock.advanceTimeBy(milliseconds = AFTER_MIDNIGHT_WAIT_MILLIS)
+        moveToNextMonth()
+
+        // 2026년 8월 캘린더의 첫 주는 7월 26일 일요일부터 시작하므로 7월 31일과 8월 1일이 함께 표시된다.
+        composeRule.onNodeWithText(englishTitle(AUGUST_2026)).assertIsDisplayed()
+        primaryColoredCount(text = JULY_31_2026.day.toString()) shouldBe 1
+        primaryColoredCount(text = AUGUST_1_2026.day.toString()) shouldBe 0
+        primaryColoredTotalCount() shouldBe 1
+
+        composeRule.onNodeWithContentDescription(TODAY_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(englishTitle(JULY_2026)).assertIsDisplayed()
+    }
+
     // 2026년 7월 캘린더의 마지막 주는 8월 1일 토요일까지 표시하므로, 보던 7월에서 바뀐 오늘이 강조되는지와 오늘 버튼의 목적지를 함께 확인한다.
     private fun assertTodayMovedToAugustFirst() {
         composeRule.onNodeWithText(englishTitle(JULY_2026)).assertIsDisplayed()
@@ -234,6 +256,7 @@ class CalendarHomeScreenPrimaryDateTest {
         // 오늘이 속한 달의 캘린더에 오늘이 함께 표시될 여지를 없애기 위해 두 달 뒤로 이동한다.
         private const val SWIPE_COUNT = 2
         private const val MAX_DAY_OF_MONTH = 31
+        private const val AFTER_MIDNIGHT_WAIT_MILLIS = 120_000L
         private val JUNE_30_2026 = LocalDate(year = 2026, month = Month.JUNE, day = 30)
         private val JULY_15_2026 = LocalDate(year = 2026, month = Month.JULY, day = 15)
         private val JULY_31_2026 = LocalDate(year = 2026, month = Month.JULY, day = 31)

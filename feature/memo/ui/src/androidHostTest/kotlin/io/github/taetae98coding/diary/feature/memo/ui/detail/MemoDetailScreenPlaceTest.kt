@@ -169,6 +169,7 @@ class MemoDetailScreenPlaceTest {
                 navigateToContactDetail = {},
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
+                navigateToGeminiSetting = {},
                 componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
                 isStandalone = true,
             )

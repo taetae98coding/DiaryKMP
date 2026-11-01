@@ -102,7 +102,7 @@ internal class BackgroundSessionFileUploadTransport(
 
 wasm처럼 `IO`가 없는 플랫폼이 있으므로 어떤 dispatcher를 줄지는 플랫폼 소스셋의 Koin 모듈이 소유한다.
 
-1. 모듈의 `impl/di`(domain은 `di`)에 `internal` `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `BrowserCookieDispatcher`, `DiarySettingDispatcher`, `HolidayDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다. Composable이 만드는 보조 class의 qualifier는 위에 적은 대로 public으로 보조 class 곁에 둔다.
+1. 모듈의 `impl/di`(domain은 `di`)에 `internal` `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `LocationDispatcher`, `DiarySettingDispatcher`, `HolidayDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다. Composable이 만드는 보조 class의 qualifier는 위에 적은 대로 public으로 보조 class 곁에 둔다.
 2. Koin 모듈의 제공 함수가 그 qualifier로 `CoroutineDispatcher`를 제공한다. `Dispatchers.IO`·`Dispatchers.Default`는 제공 함수에서만 참조하고, 기본 인자로도 두지 않는다. `IO`는 wasm에 없으므로 플랫폼 소스셋의 모듈에서, 모든 플랫폼에 있는 `Default`는 `commonMain` 모듈에서 제공해도 된다. 작업 전용 `CoroutineScope`를 만드는 제공 함수도 dispatcher를 명시해 넘긴다.
 3. 컴포넌트는 같은 qualifier로 `CoroutineDispatcher`를 주입받는다.
 4. 테스트는 `runTest`의 `testScheduler`를 공유하는 `TestDispatcher`(`StandardTestDispatcher(testScheduler)`, `UnconfinedTestDispatcher(testScheduler)`)를 생성자에 넘긴다. 모든 코루틴이 테스트 스레드 하나에서 실행되어 결과가 결정적이다. scope를 받는 컴포넌트에는 `runTest`의 `backgroundScope`를 넘긴다. 실패를 삼키는 `CoroutineExceptionHandler`처럼 제공 함수의 scope와 같은 구성이 필요하면 `CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler) + ...)`로 직접 만들어도 된다. 실제 서버처럼 다른 스레드의 작업을 기다릴 때는 `withTimeout` 대신 `runTest(timeout = ...)`로 한도를 준다. `runTest` 안의 `withTimeout`은 가상 시간으로 흘러 곧바로 시간 초과가 난다.

@@ -15,6 +15,7 @@ internal fun ContactDetailLocalEntity.toRemote(): ContactDetailRemoteEntity =
         birthdayCalendar = birthday?.let { birthdayCalendar.toRemoteOrSolar() },
         birthYear = birthday?.year ?: birthYear,
         hometown = hometown,
+        howWeMet = howWeMet,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toRemote() },
     )
 
@@ -28,6 +29,7 @@ internal fun ContactDetailRemoteEntity.toLocal(): ContactDetailLocalEntity =
         birthdayCalendar = birthday?.let { birthdayCalendar.toLocalOrSolar() },
         birthYear = birthYear,
         hometown = hometown,
+        howWeMet = howWeMet,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toLocal() },
     )
 

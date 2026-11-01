@@ -5,13 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,7 +19,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
-import io.github.taetae98coding.diary.compose.core.icon.RefreshIcon
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
@@ -32,7 +28,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_fe
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_invalid_api_key_message
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_loading_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_picker_title
-import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_reload_button_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_retry_action
 import org.jetbrains.compose.resources.stringResource
 
@@ -49,51 +44,12 @@ internal fun SettingGeminiModelDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            ReloadRow(
-                onEvent = onEvent,
-                modifier = Modifier.fillMaxWidth(),
-                uiStateProvider = uiStateProvider,
-            )
-            Content(
-                onEvent = onEvent,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1F, fill = false),
-                selectedModelProvider = selectedModelProvider,
-                uiStateProvider = uiStateProvider,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ReloadRow(
-    onEvent: (SettingGeminiModelDialogEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    uiStateProvider: () -> SettingGeminiModelUiState = { SettingGeminiModelUiState() },
-) {
-    val uiState = uiStateProvider()
-    val loadingDescription = stringResource(Res.string.setting_gemini_model_loading_content_description)
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.CenterEnd,
-    ) {
-        if (uiState.isInProgress && uiState.isLoaded) {
-            CircularWavyProgressIndicator(
-                modifier =
-                    Modifier
-                        .padding(SettingGeminiModelDialogDefaults.ReloadProgressPadding)
-                        .size(DiaryTheme.dimens.inProgressIndicatorSize)
-                        .semantics { contentDescription = loadingDescription },
-            )
-        } else {
-            IconButton(onClick = { onEvent(SettingGeminiModelDialogEvent.ClickReload) }) {
-                RefreshIcon(contentDescription = stringResource(Res.string.setting_gemini_model_reload_button_content_description))
-            }
-        }
+        Content(
+            onEvent = onEvent,
+            modifier = Modifier.fillMaxWidth(),
+            selectedModelProvider = selectedModelProvider,
+            uiStateProvider = uiStateProvider,
+        )
     }
 }
 
@@ -108,9 +64,9 @@ private fun Content(
     val failure = uiState.failure
 
     when {
-        uiState.isInProgress && !uiState.isLoaded -> LoadingBox(modifier = modifier)
+        uiState.isInProgress -> LoadingBox(modifier = modifier)
 
-        !uiState.isLoaded && failure != null ->
+        failure != null ->
             FailureBox(
                 onEvent = onEvent,
                 modifier = modifier,
@@ -172,7 +128,7 @@ private fun FailureBox(
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            TextButton(onClick = { onEvent(SettingGeminiModelDialogEvent.ClickReload) }) {
+            TextButton(onClick = { onEvent(SettingGeminiModelDialogEvent.ClickRetry) }) {
                 Text(text = stringResource(Res.string.setting_gemini_model_retry_action))
             }
         }

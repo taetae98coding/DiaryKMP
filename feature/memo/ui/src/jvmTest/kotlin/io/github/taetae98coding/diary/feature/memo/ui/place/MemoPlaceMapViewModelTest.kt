@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -12,7 +13,6 @@ import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProvid
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -70,17 +70,17 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 현재 위치를 확인하기 전에는 지도 로딩 상태를 유지하고 확인이 끝나면 지도를 제공한다") {
+        test("TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 현재 위치를 확인하기 전에는 확인하지 않은 상태로 지도를 제공하고 확인이 끝나면 확인한 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     advanceUntilIdle()
-                    expectNoEvents()
+                    expectMostRecentItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = false, currentCoordinate = null)
 
                     viewModel.fetchCurrentLocation()
-                    awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Content>()
+                    awaitFetchedContent().isCurrentLocationFetched shouldBe true
                 }
             }
         }
@@ -93,7 +93,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = provider, currentCoordinate = null)
+                        awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = provider, isCurrentLocationFetched = true, currentCoordinate = null)
                     }
                 }
             }
@@ -114,7 +114,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = coordinate)
+                        awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = coordinate)
                     }
                 }
             }
@@ -131,7 +131,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = null)
+                    awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = null)
                 }
             }
         }
@@ -149,7 +149,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = coordinate)
+                    awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = coordinate)
 
                     repeat(REPEAT_COUNT) { viewModel.fetchCurrentLocation() }
                     advanceUntilIdle()
@@ -175,7 +175,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = beforeCoordinate)
+                        awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = beforeCoordinate)
                     }
                 }
 
@@ -186,13 +186,13 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = afterCoordinate)
+                        awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = afterCoordinate)
                     }
                 }
             }
         }
 
-        test("TC-ccada8e8-fc89-41f3-afbe-6446af288e35 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 지도 로딩 상태를 유지한다") {
+        test("TC-ccada8e8-fc89-41f3-afbe-6446af288e35 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 확인하지 않은 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val restoredCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val restoredLocation = CompletableDeferred<Result<Coordinate>>()
@@ -207,7 +207,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Content>()
+                        awaitFetchedContent()
                     }
                 }
 
@@ -220,10 +220,10 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
                         advanceUntilIdle()
-                        expectNoEvents()
+                        expectMostRecentItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = false, currentCoordinate = null)
 
                         restoredLocation.complete(Result.success(restoredCoordinate))
-                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = restoredCoordinate)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = restoredCoordinate)
                     }
                 }
 
@@ -239,11 +239,11 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = null)
+                    awaitFetchedContent() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = null)
 
                     storedProvider.value = Result.success(MapProvider.GOOGLE)
 
-                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.GOOGLE, currentCoordinate = null)
+                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.GOOGLE, isCurrentLocationFetched = true, currentCoordinate = null)
                 }
             }
         }
@@ -254,6 +254,15 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private suspend fun ReceiveTurbine<MemoPlaceMapUiState>.awaitFetchedContent(): MemoPlaceMapUiState.Content {
+            var item = awaitItem()
+            while (item !is MemoPlaceMapUiState.Content || !item.isCurrentLocationFetched) {
+                item = awaitItem()
+            }
+
+            return item
+        }
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

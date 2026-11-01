@@ -58,7 +58,6 @@ private fun TitleRow(
         DiaryTitleInput(
             state = state.titleState,
             modifier = Modifier.weight(1F),
-            nextFocusProvider = { state.descriptionState.focusTarget },
         )
     }
 }

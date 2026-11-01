@@ -20,8 +20,10 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.web.ui.refreshableList
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +35,11 @@ import org.robolectric.annotation.Config
 class WebHomeScaffoldTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-3743b05e-be76-4e63-a0df-984a4fcc040a 목록에 웹 항목의 제목과 URL을 카드로 표시한다`() {

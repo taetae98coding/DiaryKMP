@@ -17,8 +17,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -92,11 +94,17 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-5a2d8b68-b630-4611-a547-45ff9b401814 동기화가 진행 중에 위치 권한을 허용하면 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
+        test("TC-a8603e91-fddb-42e4-bc82-3b2aee66db3e 동기화가 진행 중에 위치 권한을 허용하면 진행 중이던 동기화를 멈추고 다시 동기화한다") {
             runTest(mainDispatcher) {
-                val completion = CompletableDeferred<Result<Unit>>()
+                var isFetchCancelled = false
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { completion.await() }
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        isFetchCancelled = true
+                    }
+                }
                 val useCase = successfulRefreshCurrentWeatherUseCase()
                 val viewModel =
                     weatherViewModel(
@@ -108,11 +116,8 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
-                coVerify(exactly = 0) { useCase(parameter = Unit) }
 
-                completion.complete(Result.success(Unit))
-                advanceUntilIdle()
-
+                isFetchCancelled shouldBe true
                 coVerify(exactly = 1) { useCase(parameter = Unit) }
                 coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
                 backgroundScope.launch { viewModel.uiState.collect {} }
@@ -121,48 +126,64 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-0f4b9267-d3ac-4c1a-9fa9-3f0681761783 동기화가 진행 중에 위치 권한 허용이 여러 번 일어나도 끝난 뒤 한 번만 더 동기화한다") {
+        test("TC-9cdd82dd-35eb-4ac9-92a9-d63369e3f466 새로 허용해 다시 받는 동기화가 진행 중이면 다시 허용해도 이어 간다") {
             runTest(mainDispatcher) {
-                val completion = CompletableDeferred<Result<Unit>>()
-                val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { completion.await() }
-                val useCase = successfulRefreshCurrentWeatherUseCase()
-                val viewModel =
-                    weatherViewModel(
-                        fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
-                        refreshCurrentWeatherUseCase = useCase,
-                    )
+                var isRefreshCancelled = false
+                val refreshCompletion = CompletableDeferred<Result<Unit>>()
+                val useCase = mockk<RefreshCurrentWeatherUseCase>()
+                coEvery { useCase(parameter = Unit) } coAnswers {
+                    try {
+                        refreshCompletion.await()
+                    } catch (exception: CancellationException) {
+                        isRefreshCancelled = true
+                        throw exception
+                    }
+                }
+                val viewModel = weatherViewModel(refreshCurrentWeatherUseCase = useCase)
 
-                viewModel.fetch()
+                viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
                 viewModel.refreshOnLocationPermissionGranted()
-                viewModel.refreshOnLocationPermissionGranted()
-                completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
+                isRefreshCancelled shouldBe false
                 coVerify(exactly = 1) { useCase(parameter = Unit) }
+
+                refreshCompletion.complete(Result.success(Unit))
+                advanceUntilIdle()
+                viewModel.refreshOnLocationPermissionGranted()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(parameter = Unit) }
             }
         }
 
-        test("진행 중이던 동기화가 실패해도 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
+        test("TC-254dd50d-aa6f-4461-9e67-9f4882d82f0d 멈추고 다시 받는 동안 이미 표시하던 날씨를 계속 표시한다") {
             runTest(mainDispatcher) {
-                val completion = CompletableDeferred<Result<Unit>>()
+                val calendarWeather = calendarWeather()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { completion.await() }
-                val useCase = successfulRefreshCurrentWeatherUseCase()
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                val refreshCompletion = CompletableDeferred<Result<Unit>>()
+                val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
+                coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } coAnswers { refreshCompletion.await() }
                 val viewModel =
                     weatherViewModel(
                         fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
-                        refreshCurrentWeatherUseCase = useCase,
+                        refreshCurrentWeatherUseCase = refreshCurrentWeatherUseCase,
+                        getCurrentCalendarWeatherUseCase =
+                            getCurrentCalendarWeatherUseCase(Result.success(CalendarWeatherReport(weatherList = listOf(calendarWeather)))),
                     )
-
+                backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.fetch()
                 advanceUntilIdle()
+
                 viewModel.refreshOnLocationPermissionGranted()
-                completion.complete(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                viewModel.uiState.value.weatherReport.weatherList shouldBe listOf(calendarWeather)
+
+                refreshCompletion.complete(Result.success(Unit))
+                advanceUntilIdle()
             }
         }
 
@@ -186,11 +207,10 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-cfac82d4-8af3-4b80-ab6b-ca2c2b56fde5 날씨 동기화 중에 위치 권한을 허용하면 한 번 더 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
+        test("TC-cfac82d4-8af3-4b80-ab6b-ca2c2b56fde5 날씨 동기화 중에 위치 권한을 허용하면 다시 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
             runTest(mainDispatcher) {
-                val fetchCompletion = CompletableDeferred<Result<Unit>>()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { fetchCompletion.await() }
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
                 val refreshCompletion = CompletableDeferred<Result<Unit>>()
                 val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
                 coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } coAnswers { refreshCompletion.await() }
@@ -203,7 +223,6 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 viewModel.fetch()
                 advanceUntilIdle()
                 viewModel.refreshOnLocationPermissionGranted()
-                fetchCompletion.complete(Result.success(Unit))
                 advanceUntilIdle()
                 coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
                 backgroundScope.launch { viewModel.uiState.collect {} }

@@ -2,7 +2,7 @@
 
 기준 스펙: [WebHome 화면 스펙](../spec/client/web-home.md)
 
-목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 고를 수 있는 정렬과 정렬 선택·반영·유지는 [목록 정렬 스펙](../spec/client/list-sort.md)에, 삭제 안내와 실행 취소는 [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소`에 위임되어 있으며, 이 문서의 케이스는 WebHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 WebHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 웹 항목을 작성해 추가하는 케이스는 [WebAdd 테스트 케이스](./web-add.md)에서, 선택한 웹 항목의 상세와 웹 페이지 불러오기 케이스는 [WebDetail 테스트 케이스](./web-detail.md)에서, 검색으로 이동한 뒤 결과를 확인하고 선택하는 케이스는 [SearchHome 테스트 케이스](./search-home.md)에서, 웹 항목을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다. 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
+목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 고를 수 있는 정렬과 정렬 선택·반영·유지는 [목록 정렬 스펙](../spec/client/list-sort.md)에, 삭제 안내와 실행 취소는 [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md)의 `안내와 실행 취소`에 위임되어 있으며, 이 문서의 케이스는 WebHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 WebHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 웹 항목을 작성해 추가하는 케이스는 [WebAdd 테스트 케이스](./web-add.md)에서, 선택한 웹 항목의 상세와 웹 페이지 불러오기 케이스는 [WebDetail 테스트 케이스](./web-detail.md)에서, 검색으로 이동한 뒤 결과를 확인하고 선택하는 케이스는 [SearchHome 테스트 케이스](./search-home.md)에서, 웹 항목을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다. 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
 
 추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
 
@@ -78,12 +78,18 @@
 - When: 사용자가 그 자리를 선택한다.
 - Then: WebDetail 화면으로 이동하지 않는다.
 
-### TC-90d8f866-86e9-4286-9a54-885e416c1536: 뒤로가면 `더보기`로 돌아간다
+### TC-90d8f866-86e9-4286-9a54-885e416c1536: 표시 상태와 관계없이 뒤로가면 `더보기`로 돌아간다
 
 - 근거: `feature > 뒤로가기`
-- Given: WebHome 화면이 표시되어 있다.
-- When: 사용자가 뒤로가기를 실행한다.
-- Then: 이전 화면인 `더보기`로 돌아간다.
+- Given: 사용자가 `더보기`의 `웹` 메뉴로 진입해 웹 화면이 테스트 데이터의 표시 상태로 나타나 있다.
+- When: 사용자가 WebHome의 뒤로가기를 실행한다.
+- Then: 웹 화면 전체를 떠나 이전 화면인 `더보기`로 돌아간다.
+- 테스트 데이터:
+
+  | 표시 상태 |
+  | --- |
+  | WebHome이 단독으로 표시됨 |
+  | WebHome과 웹 추가가 함께 표시됨 |
 
 ### TC-f7237009-2c85-440e-ab9c-adccba73977a: 표시할 웹 항목이 없으면 빈 상태 안내를 표시한다
 
@@ -425,12 +431,18 @@
 | 목록에서 웹 항목 삭제 |
 | 삭제의 실행 취소 |
 
-### TC-ca23453a-d461-4d5e-a800-98d0920e3fc3: 로그인하지 않은 상태의 실행 취소는 기기에만 저장된다
+### TC-ca23453a-d461-4d5e-a800-98d0920e3fc3: 로그인하지 않은 상태의 삭제와 실행 취소는 기기에만 저장된다
 
 - 근거: `data > 삭제와 실행 취소의 저장`
 - Given: 로그인하지 않아 게스트 상태의 계정이 확인된다.
-- When: 웹 항목 삭제의 실행 취소를 저장한다.
+- When: 웹 항목에 테스트 데이터의 동작을 저장한다.
 - Then: 게스트 계정 기준으로 기기에 저장되고 서버 동기화는 요청되지 않는다.
+- 테스트 데이터:
+
+  | 동작 |
+  | --- |
+  | 삭제 |
+  | 실행 취소 |
 
 ### TC-8dfae963-9c07-400e-95e1-38a5424425fc: 실행 취소의 저장에 실패하면 실패를 전달하고 동기화를 요청하지 않는다
 

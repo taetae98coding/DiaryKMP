@@ -96,13 +96,11 @@ stateDiagram-v2
 | `RoutineAdd` | [RoutineAdd 화면](./routine-add.md) |
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
 | `SearchHome` | [SearchHome 화면](./search-home.md) |
-| `SettingBrowser` | [SettingBrowser 화면](./setting-browser.md) |
 | `SettingFile` | [SettingFile 화면](./setting-file.md) |
 | `SettingGemini` | [SettingGemini 화면](./setting-gemini.md) |
 | `SettingHoliday` | [SettingHoliday 화면](./setting-holiday.md) |
 | `SettingHome` | [SettingHome 화면](./setting-home.md) |
 | `SettingMap` | [SettingMap 화면](./setting-map.md) |
-| `SettingPlaylist` | [SettingPlaylist 화면](./setting-playlist.md) |
 | `TagAdd` | [TagAdd 화면](./tag-add.md) |
 | `TagDetail` | [TagDetail 화면](./tag-detail.md) |
 | `TagFinishedList` | [TagFinishedList 화면](./tag-finished-list.md) |

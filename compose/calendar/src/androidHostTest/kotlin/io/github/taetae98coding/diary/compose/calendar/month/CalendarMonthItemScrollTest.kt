@@ -97,8 +97,6 @@ class CalendarMonthItemScrollTest {
 
     private fun firstItemText(week: Int): String = itemText(week = week, index = 0)
 
-    private fun lastItemText(week: Int): String = itemText(week = week, index = ITEM_COUNT_PER_WEEK - 1)
-
     private fun weekStart(week: Int): LocalDate = july(day = FIRST_SUNDAY_OF_JULY + week * DAYS_PER_WEEK)
 
     private fun weekEndInclusive(week: Int): LocalDate = july(day = FIRST_SUNDAY_OF_JULY + week * DAYS_PER_WEEK + DAYS_PER_WEEK - 1)

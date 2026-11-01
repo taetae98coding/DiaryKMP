@@ -62,8 +62,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffe
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
-import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadUiState
-import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
@@ -532,12 +530,6 @@ class PlaylistListDetailNavigationTest {
             factory<SyncRefreshViewModel> {
                 mockk(relaxed = true) {
                     every { uiState } returns MutableStateFlow(SyncRefreshUiState())
-                }
-            }
-            factory<PlaylistHomeDownloadViewModel> {
-                mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(PlaylistHomeDownloadUiState())
-                    every { effect } returns emptyFlow()
                 }
             }
             factory<MusicAddViewModel> { screenTestViewModel() }

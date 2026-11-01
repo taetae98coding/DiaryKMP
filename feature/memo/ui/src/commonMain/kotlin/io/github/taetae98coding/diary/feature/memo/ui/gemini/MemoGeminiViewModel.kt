@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
+import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.Job
@@ -49,7 +51,9 @@ internal class MemoGeminiViewModel(
                 step = assistant.step,
                 draft = assistant.draft,
                 appliedFieldSet = assistant.appliedFieldSet,
+                progress = assistant.progress,
                 failure = assistant.failure,
+                failureDescription = assistant.failureDescription,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -75,16 +79,16 @@ internal class MemoGeminiViewModel(
 
     fun cancel() {
         generateJob?.cancel()
-        assistantState.update { value -> value.copy(step = MemoGeminiStep.PROMPT) }
+        assistantState.update { value -> value.copy(step = MemoGeminiStep.PROMPT, progress = MemoDraftProgress.EMPTY) }
     }
 
     fun generate(parameter: FetchMemoDraftUseCase.Parameter) {
         if (assistantState.value.step == MemoGeminiStep.GENERATING) return
 
-        assistantState.update { value -> value.copy(step = MemoGeminiStep.GENERATING, failure = null) }
+        assistantState.update { value -> value.copy(step = MemoGeminiStep.GENERATING, progress = MemoDraftProgress.EMPTY, failure = null, failureDescription = "") }
         generateJob =
             viewModelScope.launch {
-                fetchMemoDraftUseCase(parameter = parameter)
+                fetchMemoDraftUseCase(parameter = parameter.copy(onProgress = ::onGenerateProgress))
                     .onSuccess { draft -> onGenerateSuccess(draft = draft) }
                     .onFailure { throwable -> onGenerateFailure(throwable = throwable) }
             }
@@ -94,31 +98,51 @@ internal class MemoGeminiViewModel(
         assistantState.update { value -> value.copy(appliedFieldSet = value.appliedFieldSet + field) }
     }
 
+    private fun onGenerateProgress(progress: MemoDraftProgress) {
+        assistantState.update { value -> value.copy(progress = progress) }
+    }
+
     private fun onGenerateSuccess(draft: MemoDraft) {
         assistantState.update { value ->
             value.copy(
                 step = MemoGeminiStep.RESULT,
                 draft = draft,
+                progress = MemoDraftProgress.EMPTY,
                 appliedFieldSet = emptySet(),
             )
         }
     }
 
     private fun onGenerateFailure(throwable: Throwable) {
-        val failure =
-            if (throwable is GeminiApiKeyInvalidException) {
-                MemoGeminiFailure.INVALID_API_KEY
-            } else {
-                MemoGeminiFailure.UNKNOWN
-            }
-
-        assistantState.update { value -> value.copy(step = MemoGeminiStep.PROMPT, failure = failure) }
+        assistantState.update { value ->
+            value.copy(
+                step = MemoGeminiStep.PROMPT,
+                progress = MemoDraftProgress.EMPTY,
+                failure = throwable.toMemoGeminiFailure(),
+                failureDescription = (throwable as? GeminiRequestException.Other)?.description.orEmpty(),
+            )
+        }
     }
+
+    private fun Throwable.toMemoGeminiFailure(): MemoGeminiFailure =
+        when (this) {
+            is GeminiApiKeyInvalidException -> MemoGeminiFailure.INVALID_API_KEY
+            is GeminiRequestException.QuotaExceeded -> MemoGeminiFailure.QUOTA_EXCEEDED
+            is GeminiRequestException.ModelNotFound -> MemoGeminiFailure.MODEL_NOT_FOUND
+            is GeminiRequestException.Blocked -> MemoGeminiFailure.BLOCKED
+            is GeminiRequestException.Truncated -> MemoGeminiFailure.TRUNCATED
+            is GeminiRequestException.Timeout -> MemoGeminiFailure.TIMEOUT
+            is GeminiRequestException.Network -> MemoGeminiFailure.NETWORK
+            is GeminiRequestException.Server -> MemoGeminiFailure.SERVER
+            else -> MemoGeminiFailure.UNKNOWN
+        }
 
     private data class MemoGeminiAssistantState(
         val step: MemoGeminiStep = MemoGeminiStep.CLOSED,
         val draft: MemoDraft = MemoDraft.EMPTY,
         val appliedFieldSet: Set<MemoGeminiField> = emptySet(),
+        val progress: MemoDraftProgress = MemoDraftProgress.EMPTY,
         val failure: MemoGeminiFailure? = null,
+        val failureDescription: String = "",
     )
 }

@@ -1,17 +1,37 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.add.placeTestTag
+import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
+import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
+import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
+import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,11 +39,18 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
 class PlaceDetailTagInputTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-7a4dc5e4-4acc-407c-9ca1-d01879fe7018 조회 중에는 태그 입력을 표시하지 않는다`() {
@@ -82,6 +109,91 @@ class PlaceDetailTagInputTest {
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
         composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
         composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+    }
+
+    /**
+     * 지도가 보고 있는 위치와 지점 표시는 화면 밖에서 읽을 수 없으므로, 화면과 같은 입력 상태를 넘겨 배치한 본문에서 태그를 연결하고 해제한 뒤 그 상태로 확인한다.
+     */
+    @Test
+    fun `TC-1f48861e-d312-4334-8d4f-a251df532203 태그를 연결하거나 해제해도 지도가 보고 있는 위치와 지점 표시는 바뀌지 않는다`() {
+        val detail = placeDetail(coordinate = fixtureMonkey.coordinateInFormPrecision())
+        val savedCoordinate = detail.coordinate.toDiaryMapCoordinate()
+        val tag = placeTestTag(title = SELECTABLE_TAG_TITLE)
+        val tagUiState = mutableStateOf(EntityTagInputUiState())
+        val state = setTagLinkScaffold(detail = detail, tag = tag, tagUiState = tagUiState)
+
+        // 입력된 좌표는 입력이 멈춘 뒤에 지점 표시로 옮겨진다.
+        composeRule.mainClock.advanceTimeBy(INPUT_IDLE_DELAY.inWholeMilliseconds * 2)
+        composeRule.runOnIdle {
+            state.mapState.coordinate shouldBe savedCoordinate
+            state.mapState.spot shouldBe savedCoordinate
+        }
+
+        linkTag(title = SELECTABLE_TAG_TITLE)
+
+        composeRule.runOnIdle {
+            tagUiState.value.tagList shouldBe listOf(tag)
+            state.mapState.coordinate shouldBe savedCoordinate
+            state.mapState.spot shouldBe savedCoordinate
+        }
+
+        composeRule.onNode(hasText(SELECTABLE_TAG_TITLE) and isToggleable()).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            tagUiState.value.tagList shouldBe emptyList()
+            state.mapState.coordinate shouldBe savedCoordinate
+            state.mapState.spot shouldBe savedCoordinate
+        }
+    }
+
+    private fun setTagLinkScaffold(
+        detail: PlaceDetail,
+        tag: Tag,
+        tagUiState: MutableState<EntityTagInputUiState>,
+    ): PlaceFormState {
+        lateinit var state: PlaceFormState
+
+        preparePlaceDetailTabViewModels()
+        composeRule.setContent {
+            PlaceDetailScreenTestTheme {
+                state = rememberPlaceDetailFormState(initialDetail = detail)
+                val tagPagingItems = remember { flowOf(PagingData.from(listOf(tag))) }.collectAsLazyPagingItems()
+
+                PlaceDetailScaffold(
+                    state = state,
+                    onEvent = {},
+                    onSearchEvent = {},
+                    onTagPickerEvent = { event ->
+                        when (event) {
+                            is EntityTagPickerEvent.Add -> tagUiState.value = EntityTagInputUiState(tagList = listOf(tag))
+                            is EntityTagPickerEvent.Remove -> tagUiState.value = EntityTagInputUiState()
+                            else -> Unit
+                        }
+                    },
+                    tagPagingItems = tagPagingItems,
+                    uiStateProvider = { content(detail = detail) },
+                    tagUiStateProvider = { tagUiState.value },
+                    tabFloatingActionButton = {},
+                ) {
+                    PlaceDetailScaffoldContent(
+                        onFormEvent = { event ->
+                            handlePlaceFormEvent(
+                                event = event,
+                                state = state,
+                                selectableTagPagingItems = tagPagingItems,
+                                navigateToTagAdd = {},
+                                navigateToTagDetail = {},
+                            )
+                        },
+                        state = state,
+                        uiStateProvider = { content(detail = detail) },
+                        tagUiStateProvider = { tagUiState.value },
+                    )
+                }
+            }
+        }
+        return state
     }
 
     private fun linkTag(title: String) {

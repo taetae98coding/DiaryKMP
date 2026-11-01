@@ -75,6 +75,24 @@ class MoreHomeDestinationReturnTest {
         composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).assertIsDisplayed()
     }
 
+    // 디데이 바로가기로 들어간 화면은 이 모듈의 의존이 아니므로 대역으로 두고, 그 화면의 뒤로가기가 전환 이력에서 자신을 빼는 것은 TC-9441c865-0db9-40eb-901f-445b04bcad44의 테스트가 확인한다.
+    @Test
+    fun `TC-f4dab787-8259-4eb3-8ddc-f89c6fddbf0d 뒤로가기로 돌아간 더보기 화면은 떠나기 전에 보던 자리를 유지한다`() {
+        setMoreNavDisplay()
+        composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(moreHomeMenuList.size)
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithText(DEFAULT_SIGN_IN_LABEL).fetchSemanticsNodes().isEmpty() shouldBe true
+
+        composeRule.runOnIdle { backStack.add(DestinationTestDetailNavKey) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.removeLastOrNull() }
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(DestinationTestTopLevelNavKey, MoreHomeNavKey)
+        composeRule.onAllNodesWithText(DEFAULT_SIGN_IN_LABEL).fetchSemanticsNodes().isEmpty() shouldBe true
+    }
+
     private fun setMoreNavDisplay() {
         val viewModelModule =
             module {
@@ -110,6 +128,7 @@ class MoreHomeDestinationReturnTest {
                             entryProvider =
                                 entryProvider {
                                     entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }
+                                    entry<DestinationTestDetailNavKey> { Text(text = DETAIL_CONTENT) }
                                     moreEntry(backStack = backStack)
                                 },
                         )
@@ -122,6 +141,7 @@ class MoreHomeDestinationReturnTest {
 
     private companion object {
         const val TOP_LEVEL_CONTENT = "TopLevelContent"
+        const val DETAIL_CONTENT = "DetailContent"
         const val DEFAULT_SIGN_IN_LABEL = "Sign in"
     }
 }
@@ -130,4 +150,10 @@ class MoreHomeDestinationReturnTest {
 private data object DestinationTestTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "DestinationTestTopLevel"
+}
+
+// `더보기`에서 이어지는 세부 화면을 대신한다.
+private data object DestinationTestDetailNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "DestinationTestDetail"
 }

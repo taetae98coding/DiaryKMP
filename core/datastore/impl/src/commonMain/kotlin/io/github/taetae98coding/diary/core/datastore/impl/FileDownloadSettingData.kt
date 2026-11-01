@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 internal data class FileDownloadSettingData(
     val directoryUri: String = "",
     val directoryName: String = "",
+    val directoryBookmark: String = "",
 )

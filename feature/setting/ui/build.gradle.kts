@@ -6,10 +6,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.domain.browser)
                 implementation(projects.domain.file)
                 implementation(projects.domain.holiday)
-                implementation(projects.domain.playlist)
                 implementation(projects.domain.setting)
                 implementation(projects.feature.setting.api)
             }
@@ -18,6 +16,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(projects.core.testing)
+                implementation(projects.feature.memo.api)
                 implementation(projects.feature.more.api)
             }
         }

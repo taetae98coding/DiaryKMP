@@ -317,6 +317,7 @@ class MemoAddScreenPlaceTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
+                    navigateToGeminiSetting = {},
                     initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,

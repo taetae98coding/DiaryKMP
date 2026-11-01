@@ -23,23 +23,24 @@ internal class LunarRepositoryImpl(
     private val lunarTransaction: LunarTransaction,
     private val lunarFetchedYearSet: LunarFetchedYearSet,
 ) : LunarRepository {
-    override suspend fun fetch(year: Int): List<LunarDate> {
-        if (lunarFetchedYearSet.isFetched(key = year)) return get(dateRange = year.solarDateRange()).first()
+    override suspend fun fetch(year: Int): List<LunarDate> =
+        lunarFetchedYearSet.fetchOnce(
+            key = year,
+            cached = { get(dateRange = year.solarDateRange()).first() },
+            fetch = {
+                val lunarDateList =
+                    lunarRemoteDataSource
+                        .get(year = year)
+                        .map { remote -> remote.toLocal(solarYear = year) }
 
-        val lunarDateList =
-            lunarRemoteDataSource
-                .get(year = year)
-                .map { remote -> remote.toLocal(solarYear = year) }
+                lunarTransaction.upsert(
+                    solarYear = year,
+                    lunarDateList = lunarDateList,
+                )
 
-        lunarTransaction.upsert(
-            solarYear = year,
-            lunarDateList = lunarDateList,
+                lunarDateList.map { local -> local.toDomain() }
+            },
         )
-
-        lunarFetchedYearSet.add(key = year)
-
-        return lunarDateList.map { local -> local.toDomain() }
-    }
 
     override fun get(dateRange: LocalDateRange): Flow<List<LunarDate>> =
         lunarLocalDataSource

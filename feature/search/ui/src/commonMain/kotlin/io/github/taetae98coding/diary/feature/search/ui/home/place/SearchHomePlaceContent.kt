@@ -1,33 +1,31 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.place
 
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.ViewModelStoreProvider
+import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultContent
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
-import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun SearchHomePlaceContent(
-    queryState: TextFieldState,
-    viewModelStoreProvider: ViewModelStoreProvider,
+    viewModel: SearchHomePlaceViewModel,
+    pagingItems: LazyPagingItems<Place>,
+    listState: LazyListState,
     snackbarHostState: SnackbarHostState,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    SearchHomeResultContent<Place, SearchHomePlaceViewModel>(
-        type = SearchHomeType.PLACE,
-        queryState = queryState,
-        viewModelStoreProvider = viewModelStoreProvider,
-        viewModel = { koinViewModel<SearchHomePlaceViewModel>() },
-    ) { viewModel, state ->
+    SearchHomeResultContent(
+        viewModel = viewModel,
+        pagingItems = pagingItems,
+        listState = listState,
+    ) { state ->
         PlaceListUndoSnackbarEffect(
             onRestore = viewModel::restore,
             effect = viewModel.effect,

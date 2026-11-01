@@ -59,7 +59,7 @@ class MemoPlaceViewModelTest : FunSpec() {
                 val item = place()
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
                 every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase, isListOpened = false)
+                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
 
                 val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
                 viewModel.viewModelScope.cancel()
@@ -418,7 +418,6 @@ class MemoPlaceViewModelTest : FunSpec() {
                 mockk<PagePlaceUseCase>().apply {
                     every { this@apply(parameter = any()) } returns placePagingFlow
                 },
-            isListOpened: Boolean = true,
         ): MemoPlaceViewModel {
             val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
             every { getMemoPlaceUseCase(any()) } returns memoPlaceFlow
@@ -429,10 +428,7 @@ class MemoPlaceViewModelTest : FunSpec() {
                 getMemoPlaceUseCase = getMemoPlaceUseCase,
                 addMemoPlaceUseCase = addMemoPlaceUseCase,
                 removeMemoPlaceUseCase = removeMemoPlaceUseCase,
-            ).apply {
-                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
-                if (isListOpened) updateQuery(query = "")
-            }
+            )
         }
     }
 }

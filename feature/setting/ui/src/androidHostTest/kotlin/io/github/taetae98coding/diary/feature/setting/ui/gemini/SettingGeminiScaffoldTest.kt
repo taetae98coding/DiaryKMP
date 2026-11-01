@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.SettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.rememberSettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.DEFAULT_NAVIGATE_UP_DESCRIPTION
@@ -37,6 +39,7 @@ import kotlin.math.absoluteValue
 
 private const val STORED_API_KEY = "storedApiKey"
 private const val MODEL_ID = "models/gemini-flash"
+private const val MODEL_DISPLAY_NAME = "Gemini Flash"
 private const val REMOVED_MODEL_ID = "models/removed"
 private const val STORED_SYSTEM_PROMPT = "저장해 둔 지시문"
 
@@ -137,13 +140,38 @@ class SettingGeminiScaffoldTest {
             modelUiState =
                 SettingGeminiModelUiState(
                     isLoaded = true,
-                    modelList = listOf(GeminiModel(id = MODEL_ID, displayName = "Gemini Flash", description = "")),
+                    modelList = listOf(GeminiModel(id = MODEL_ID, displayName = MODEL_DISPLAY_NAME, description = "")),
                 ),
+            isModelDialogVisible = true,
         )
 
         val description = composeRule.modelRowDescription()
         description.contains(REMOVED_MODEL_ID) shouldBe true
         description.contains(DEFAULT_MODEL_MISSING_MESSAGE) shouldBe true
+    }
+
+    @Test
+    fun `TC-a115aec1-6731-4230-a136-241ada88ee23 모델 선택을 닫으면 목록에 없는 모델 안내를 남기지 않는다`() {
+        val setting = GeminiSetting.EMPTY.copy(model = REMOVED_MODEL_ID)
+        val state =
+            setScaffold(
+                uiState = SettingGeminiUiState.Content(setting = setting),
+                initialSetting = setting,
+                modelUiState =
+                    SettingGeminiModelUiState(
+                        isLoaded = true,
+                        modelList = listOf(GeminiModel(id = MODEL_ID, displayName = MODEL_DISPLAY_NAME, description = "")),
+                    ),
+                isModelDialogVisible = true,
+            )
+        composeRule.modelRowDescription().contains(DEFAULT_MODEL_MISSING_MESSAGE) shouldBe true
+
+        composeRule.runOnIdle { state.modelDialogState.hide() }
+        composeRule.waitForIdle()
+
+        val description = composeRule.modelRowDescription()
+        description.contains(REMOVED_MODEL_ID) shouldBe true
+        description.contains(DEFAULT_MODEL_MISSING_MESSAGE) shouldBe false
     }
 
     @Test
@@ -155,8 +183,9 @@ class SettingGeminiScaffoldTest {
             modelUiState =
                 SettingGeminiModelUiState(
                     isLoaded = true,
-                    modelList = listOf(GeminiModel(id = MODEL_ID, displayName = "Gemini Flash", description = "")),
+                    modelList = listOf(GeminiModel(id = MODEL_ID, displayName = MODEL_DISPLAY_NAME, description = "")),
                 ),
+            isModelDialogVisible = true,
         )
 
         composeRule.modelRowDescription().contains(DEFAULT_MODEL_MISSING_MESSAGE) shouldBe false
@@ -239,19 +268,28 @@ class SettingGeminiScaffoldTest {
         uiState: SettingGeminiUiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY),
         initialSetting: GeminiSetting = GeminiSetting.EMPTY,
         modelUiState: SettingGeminiModelUiState = SettingGeminiModelUiState(),
+        isModelDialogVisible: Boolean = false,
         onEvent: (SettingGeminiScaffoldEvent) -> Unit = {},
-    ) {
+    ): SettingGeminiFormState {
+        lateinit var formState: SettingGeminiFormState
         composeRule.setContent {
             DiaryTheme {
+                formState = rememberSettingGeminiFormState(initialSetting = initialSetting)
+                if (isModelDialogVisible) {
+                    LaunchedEffect(formState) { formState.modelDialogState.show() }
+                }
+
                 SettingGeminiScaffold(
                     onEvent = onEvent,
                     onModelDialogEvent = {},
-                    state = rememberSettingGeminiFormState(initialSetting = initialSetting),
+                    state = formState,
                     uiStateProvider = { uiState },
                     modelUiStateProvider = { modelUiState },
                 )
             }
         }
+        composeRule.waitForIdle()
+        return formState
     }
 
     public companion object {

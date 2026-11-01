@@ -20,7 +20,13 @@ internal class FileDownloadSettingLocalDataSourceImpl(
             .map { setting ->
                 setting.directoryUri
                     .takeIf { uri -> uri.isNotEmpty() }
-                    ?.let { uri -> FileDownloadDirectoryLocalEntity(uri = uri, name = setting.directoryName) }
+                    ?.let { uri ->
+                        FileDownloadDirectoryLocalEntity(
+                            uri = uri,
+                            name = setting.directoryName,
+                            bookmark = setting.directoryBookmark,
+                        )
+                    }
             }
 
     override suspend fun upsertDirectory(directory: FileDownloadDirectoryLocalEntity?) {
@@ -28,6 +34,7 @@ internal class FileDownloadSettingLocalDataSourceImpl(
             setting.copy(
                 directoryUri = directory?.uri.orEmpty(),
                 directoryName = directory?.name.orEmpty(),
+                directoryBookmark = directory?.bookmark.orEmpty(),
             )
         }
     }

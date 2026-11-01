@@ -11,8 +11,6 @@ internal fun SettingHomeScreen(
     navigateToHoliday: () -> Unit,
     navigateToMap: () -> Unit,
     navigateToGemini: () -> Unit,
-    navigateToBrowser: () -> Unit,
-    navigateToPlaylist: () -> Unit,
     navigateToFile: () -> Unit,
     viewModel: SettingHomeViewModel,
     modifier: Modifier = Modifier,
@@ -31,8 +29,6 @@ internal fun SettingHomeScreen(
                         SettingHomeItem.HOLIDAY -> navigateToHoliday()
                         SettingHomeItem.MAP -> navigateToMap()
                         SettingHomeItem.GEMINI -> navigateToGemini()
-                        SettingHomeItem.BROWSER -> navigateToBrowser()
-                        SettingHomeItem.PLAYLIST -> navigateToPlaylist()
                         SettingHomeItem.FILE -> navigateToFile()
                     }
                 }

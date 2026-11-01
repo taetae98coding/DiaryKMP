@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.library.objc.ObjCRuntime
 import io.github.taetae98coding.diary.library.objc.send
 import io.github.taetae98coding.diary.library.objc.sendBoolean
 import io.github.taetae98coding.diary.library.objc.sendDouble
+import io.github.taetae98coding.diary.library.objc.sendVoid
 import io.github.taetae98coding.diary.library.objc.utf8String
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.doubles.plusOrMinus
@@ -18,7 +19,7 @@ private const val EXPIRES_AT_EPOCH_MILLISECONDS = 1_800_000_000_000L
 // 쿠키 속성이 NSHTTPCookie에 그대로 전달되는지가 검증 대상이라 임의 생성 대신 대표 고정 값을 쓴다.
 class WebKitCookieStoreTest :
     FunSpec({
-        test("이름, 값, 도메인, 경로, 만료 시각을 NSHTTPCookie로 옮긴다") {
+        test("TC-8deae54a-4c48-42e5-ae00-37a42552acb5 이름, 값, 도메인, 경로, 만료 시각을 NSHTTPCookie로 옮긴다") {
             ObjCRuntime.withAutoreleasePool {
                 val cookie =
                     WebKitCookie(
@@ -44,7 +45,7 @@ class WebKitCookieStoreTest :
             }
         }
 
-        test("보안 연결 전용, 스크립트 접근 금지, 사이트 간 전송 정책을 NSHTTPCookie로 옮긴다") {
+        test("TC-8deae54a-4c48-42e5-ae00-37a42552acb5 보안 연결 전용, 스크립트 접근 금지, 사이트 간 전송 정책을 NSHTTPCookie로 옮긴다") {
             ObjCRuntime.withAutoreleasePool {
                 val cases =
                     listOf(
@@ -83,7 +84,46 @@ class WebKitCookieStoreTest :
                 }
             }
         }
+
+        test("TC-908e16b2-fd82-4d9d-83b8-9d6431d795a4 쿠키 목록에서 세션 쿠키만 모든 정보와 함께 읽는다") {
+            ObjCRuntime.withAutoreleasePool {
+                val sessionCookieList =
+                    listOf(
+                        sessionCookie(name = "lax", isSecure = true, isHttpOnly = true, sameSite = WebKitCookieSameSite.LAX),
+                        sessionCookie(name = "strict", isSecure = false, isHttpOnly = false, sameSite = WebKitCookieSameSite.STRICT),
+                        sessionCookie(name = "unspecified", isSecure = true, isHttpOnly = false, sameSite = WebKitCookieSameSite.UNSPECIFIED),
+                    )
+                val persistentCookie =
+                    sessionCookie(name = "persistent", isSecure = false, isHttpOnly = true, sameSite = WebKitCookieSameSite.LAX)
+                        .copy(expiresAtEpochMilliseconds = EXPIRES_AT_EPOCH_MILLISECONDS)
+                val array = ObjCRuntime.objcClass("NSMutableArray").send(ObjCRuntime.selector("array"))
+
+                (sessionCookieList + persistentCookie).forEach { cookie ->
+                    array.sendVoid(ObjCRuntime.selector("addObject:"), cookie.toNsHttpCookie().shouldNotBeNull())
+                }
+
+                array.toSessionCookieList().map { cookie -> cookie.copy(domain = cookie.domain.removePrefix(".")) } shouldBe
+                    sessionCookieList.map { cookie -> cookie.copy(domain = cookie.domain.removePrefix(".")) }
+            }
+        }
     })
+
+private fun sessionCookie(
+    name: String,
+    isSecure: Boolean,
+    isHttpOnly: Boolean,
+    sameSite: WebKitCookieSameSite,
+): WebKitCookie =
+    WebKitCookie(
+        name = name,
+        value = "value-$name",
+        domain = ".example.com",
+        path = "/$name",
+        expiresAtEpochMilliseconds = null,
+        isSecure = isSecure,
+        isHttpOnly = isHttpOnly,
+        sameSite = sameSite,
+    )
 
 // jqwik 엔진은 enum when이 만드는 WhenMappings 합성 클래스를 탐색하다 실패하므로 매핑을 표로 둔다.
 private val expectedSameSitePolicyMap: Map<WebKitCookieSameSite, String?> =

@@ -7,8 +7,6 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
-import io.github.taetae98coding.diary.domain.playlist.link.toMusicDownloadTargetOrNull
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -61,5 +59,3 @@ internal fun testMusic(
         updatedAt = fixtureMonkey.giveMeOne<Instant>(),
         createdAt = fixtureMonkey.giveMeOne<Instant>(),
     )
-
-internal fun Music.downloadTarget(): MusicDownloadTarget = checkNotNull(toMusicDownloadTargetOrNull())

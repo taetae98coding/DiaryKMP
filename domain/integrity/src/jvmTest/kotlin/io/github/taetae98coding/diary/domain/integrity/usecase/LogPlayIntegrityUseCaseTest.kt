@@ -63,7 +63,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc play_integrity 원격 분석 로그 하나에 모든 필드를 한 단계 목록으로 남긴다") {
+                Then("TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc play_integrity 원격 분석 로그 하나에 표의 필드를 한 단계 목록으로 남긴다") {
                     result.shouldBeSuccess()
                     val analyticsLogList = logList.filterIsInstance<AnalyticsEventLog>()
                     analyticsLogList shouldHaveSize 1
@@ -84,40 +84,6 @@ class LogPlayIntegrityUseCaseTest :
                                 "app_licensing_verdict" to JsonPrimitive(value[9]),
                                 "apps_detected" to JsonPrimitive(value[10]),
                                 "play_protect_verdict" to JsonPrimitive(value[11]),
-                            ),
-                        )
-                }
-            }
-        }
-
-        Given("판정 결과의 서로 다른 위치에 같은 이름의 필드가 있다") {
-            val recallValue = fixtureMonkey.giveMeOne<Boolean>()
-            val recallWriteDate = fixtureMonkey.giveMeOne<Int>()
-            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
-            val verdict =
-                verdict(
-                    "appIntegrity" to group("appRecognitionVerdict" to text(appRecognitionVerdict)),
-                    "deviceIntegrity" to
-                        group(
-                            "deviceRecall" to
-                                group(
-                                    "values" to group("flag" to PlayIntegrityVerdictValue.Flag(value = recallValue)),
-                                    "writeDates" to group("flag" to PlayIntegrityVerdictValue.Number(value = recallWriteDate)),
-                                ),
-                        ),
-                )
-            val logList = recordLog()
-
-            When("판정을 확인한다") {
-                useCase(verdict = verdict)(parameter = Unit)
-
-                Then("TC-c3ad60a7-c833-4b99-a0dd-c8f8be604bf9 겹치는 필드만 바로 위 필드 이름을 붙여 구분한다") {
-                    logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
-                        JsonObject(
-                            mapOf(
-                                "app_recognition_verdict" to JsonPrimitive(appRecognitionVerdict),
-                                "values_flag" to JsonPrimitive(recallValue.toString()),
-                                "write_dates_flag" to JsonPrimitive(recallWriteDate),
                             ),
                         )
                 }
@@ -147,10 +113,10 @@ class LogPlayIntegrityUseCaseTest :
             val text = fixtureMonkey.giveMeOne<Long>().toString()
             val verdict =
                 verdict(
-                    "number" to PlayIntegrityVerdictValue.Number(value = number),
-                    "text" to text(text),
-                    "yes" to PlayIntegrityVerdictValue.Flag(value = true),
-                    "no" to PlayIntegrityVerdictValue.Flag(value = false),
+                    "deviceIntegrity" to group("deviceAttributes" to group("sdkVersion" to PlayIntegrityVerdictValue.Number(value = number))),
+                    "requestDetails" to group("timestampMillis" to text(text)),
+                    "accountDetails" to group("appLicensingVerdict" to PlayIntegrityVerdictValue.Flag(value = true)),
+                    "environmentDetails" to group("playProtectVerdict" to PlayIntegrityVerdictValue.Flag(value = false)),
                 )
             val logList = recordLog()
 
@@ -161,10 +127,10 @@ class LogPlayIntegrityUseCaseTest :
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
                         JsonObject(
                             mapOf(
-                                "number" to JsonPrimitive(number),
-                                "text" to JsonPrimitive(text),
-                                "yes" to JsonPrimitive("true"),
-                                "no" to JsonPrimitive("false"),
+                                "sdk_version" to JsonPrimitive(number),
+                                "timestamp_millis" to JsonPrimitive(text),
+                                "app_licensing_verdict" to JsonPrimitive("true"),
+                                "play_protect_verdict" to JsonPrimitive("false"),
                             ),
                         )
                 }
@@ -200,16 +166,21 @@ class LogPlayIntegrityUseCaseTest :
             }
         }
 
-        Given("판정 결과에 알려지지 않은 새 필드가 있다") {
-            val newValue = fixtureMonkey.giveMeOne<String>()
-            val verdict = verdict("environmentDetails" to group("newVerdict" to text(newValue)))
+        Given("판정 결과에 표에 없는 새 필드가 있다") {
+            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
+            val verdict =
+                verdict(
+                    "appIntegrity" to group("appRecognitionVerdict" to text(appRecognitionVerdict)),
+                    "environmentDetails" to group("newVerdict" to text(fixtureMonkey.giveMeOne<String>())),
+                )
             val logList = recordLog()
 
             When("판정을 확인한다") {
                 useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-98a93ae9-5005-44bc-8854-9fa1303ea6de 새 필드도 그대로 남긴다") {
-                    logList.filterIsInstance<AnalyticsEventLog>().single().parameters["new_verdict"] shouldBe JsonPrimitive(newValue)
+                Then("TC-ebb2266a-6afe-40b0-9fb1-0c952d73538b 표에 없는 필드는 담지 않는다") {
+                    logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
+                        JsonObject(mapOf("app_recognition_verdict" to JsonPrimitive(appRecognitionVerdict)))
                 }
             }
         }
@@ -227,7 +198,9 @@ class LogPlayIntegrityUseCaseTest :
             }
         }
 
-        Given("토큰 발급이나 서버 요청이 실패한다") {
+        // 무결성 확인 정보 발급 실패, 서버의 실패 응답, 확인 준비 만료는 모두 저장소가 판정 결과를 가져오지 못하는 것으로 이 계층에 전달된다.
+        // 실패 종류별 전달과 확인 준비를 다시 하는 동작은 AndroidPlayIntegrityTokenProviderTest가 같은 ID로 확인한다.
+        Given("판정 결과를 가져오지 못한다") {
             val repository = mockk<PlayIntegrityRepository>()
             coEvery { repository.fetch() } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val logList = recordLog()
@@ -235,7 +208,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)(parameter = Unit)
 
-                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
+                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 끝난다") {
                     result.shouldBeFailure()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                     logList.filterIsInstance<CrashlyticsLog>().shouldBeEmpty()

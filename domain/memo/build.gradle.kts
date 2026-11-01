@@ -9,6 +9,7 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.setting)
                 implementation(projects.domain.sync)
+                implementation(projects.logger.crashlytics.api)
                 api(libs.androidx.paging.common)
             }
         }

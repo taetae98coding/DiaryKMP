@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.webcookie.api.WebViewVisitedUrlRegistry
 
 private const val MIME_TYPE = "text/html"
 private const val ENCODING = "UTF-8"
@@ -18,8 +19,9 @@ public actual fun DiaryWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // Android WebView는 기본으로 스크립트를 실행하지 않는다.
+                // Android WebView는 기본으로 스크립트를 실행하지 않고 사이트 저장 공간도 쓰지 않는다.
                 settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
             }
         },
         modifier = modifier.testTag(DIARY_WEB_VIEW_TEST_TAG),
@@ -37,11 +39,15 @@ internal actual fun DiaryUrlWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // Android WebView는 기본으로 스크립트를 실행하지 않는다.
+                // Android WebView는 기본으로 스크립트를 실행하지 않고 사이트 저장 공간도 쓰지 않는다.
                 settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
             }
         },
         modifier = modifier.testTag(DIARY_WEB_VIEW_TEST_TAG),
-        update = { webView -> webView.loadUrl(url) },
+        update = { webView ->
+            WebViewVisitedUrlRegistry.record(url = url)
+            webView.loadUrl(url)
+        },
     )
 }

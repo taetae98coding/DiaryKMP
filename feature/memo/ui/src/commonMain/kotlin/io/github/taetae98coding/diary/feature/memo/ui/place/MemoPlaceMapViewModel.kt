@@ -28,12 +28,13 @@ internal class MemoPlaceMapViewModel(
         ) { providerResult, currentLocationState ->
             val provider = providerResult.getOrNull()
 
-            if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
+            if (provider == null) {
                 MemoPlaceMapUiState.Loading
             } else {
                 MemoPlaceMapUiState.Content(
                     provider = provider,
-                    currentCoordinate = currentLocationState.coordinate,
+                    isCurrentLocationFetched = currentLocationState is CurrentLocationState.Finished,
+                    currentCoordinate = (currentLocationState as? CurrentLocationState.Finished)?.coordinate,
                 )
             }
         }.stateIn(

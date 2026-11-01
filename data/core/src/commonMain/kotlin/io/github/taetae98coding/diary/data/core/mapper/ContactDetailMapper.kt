@@ -18,6 +18,7 @@ public fun ContactDetail.toLocal(): ContactDetailLocalEntity =
         birthdayCalendar = birthday?.calendar?.toLocal(),
         birthYear = birthday?.date?.year ?: birthYear,
         hometown = hometown,
+        howWeMet = howWeMet,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toLocal() },
     )
 
@@ -30,6 +31,7 @@ public fun ContactDetailLocalEntity.toDomain(): ContactDetail =
         birthday = birthday?.let { date -> ContactBirthday(date = date, calendar = birthdayCalendar.toDomainOrSolar()) },
         birthYear = birthday?.year ?: birthYear,
         hometown = hometown,
+        howWeMet = howWeMet,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toDomain() },
     )
 

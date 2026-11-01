@@ -116,12 +116,6 @@ verify_jwt = true
 [functions.v1-sync-pull-contact]
 verify_jwt = true
 
-[functions.v2-sync-push-contact]
-verify_jwt = true
-
-[functions.v2-sync-pull-contact]
-verify_jwt = true
-
 [functions.v1-sync-push-music]
 verify_jwt = true
 

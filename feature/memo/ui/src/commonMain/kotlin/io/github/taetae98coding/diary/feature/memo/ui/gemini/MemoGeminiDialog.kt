@@ -38,6 +38,11 @@ internal fun MemoGeminiDialog(
                 uiStateProvider = uiStateProvider,
             )
         },
+        dismissButton = {
+            if (uiStateProvider().step != MemoGeminiStep.RESULT) {
+                MemoGeminiDialogDismissAction(onDismissRequest = onDismissRequest)
+            }
+        },
         modifier =
             modifier.submitShortcut(isEnabledProvider = { uiStateProvider().step == MemoGeminiStep.PROMPT }) {
                 onEvent(MemoGeminiDialogEvent.ClickGenerate(prompt = promptState.text.toString()))
@@ -73,9 +78,14 @@ private fun MemoGeminiDialogPage(
                 modifier = modifier,
                 promptState = promptState,
                 failureProvider = { uiStateProvider().failure },
+                failureDescriptionProvider = { uiStateProvider().failureDescription },
             )
 
-        MemoGeminiStep.GENERATING -> MemoGeminiGeneratingPage(modifier = modifier)
+        MemoGeminiStep.GENERATING ->
+            MemoGeminiGeneratingPage(
+                modifier = modifier,
+                progressProvider = { uiStateProvider().progress },
+            )
 
         MemoGeminiStep.RESULT ->
             MemoGeminiResultPage(
@@ -118,6 +128,19 @@ private fun MemoGeminiDialogAction(
             ) {
                 Text(text = stringResource(Res.string.memo_gemini_close_action))
             }
+    }
+}
+
+@Composable
+private fun MemoGeminiDialogDismissAction(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    TextButton(
+        onClick = onDismissRequest,
+        modifier = modifier,
+    ) {
+        Text(text = stringResource(Res.string.memo_gemini_close_action))
     }
 }
 

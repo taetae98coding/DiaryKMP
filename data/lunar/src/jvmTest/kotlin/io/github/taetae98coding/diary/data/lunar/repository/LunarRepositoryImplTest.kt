@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.data.lunar.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.Runs
@@ -22,7 +23,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
@@ -195,6 +200,83 @@ class LunarRepositoryImplTest :
 
             coVerify(exactly = 1) { remoteDataSource.get(year = year) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = emptyList()) }
+        }
+
+        test("TC-cf5abbb6-1513-47d0-be76-a683874d489e 같은 연도의 동기화가 진행 중이면 새로 원격 조회하지 않고 그 결과를 함께 기다린다") {
+            runTest {
+                val year = solarYear()
+                val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+                val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
+                val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
+                val remoteDataSource = mockk<LunarRemoteDataSource>()
+                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() }
+                val localDataSource = mockk<LunarLocalDataSource>()
+                every { localDataSource.get(dateRange = LocalDate(year, 1, 1)..LocalDate(year, 12, 31)) } returns flowOf(localList)
+                val transaction = mockk<LunarTransaction>()
+                coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
+                val repository = repository(remoteDataSource = remoteDataSource, localDataSource = localDataSource, transaction = transaction)
+
+                val first = async { repository.fetch(year = year) }
+                runCurrent()
+                val second = async { repository.fetch(year = year) }
+                runCurrent()
+
+                second.isCompleted shouldBe false
+
+                response.complete(remoteList)
+                first.await()
+
+                second.await() shouldBe localList.map { local -> local.toDomain() }
+                coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            }
+        }
+
+        test("TC-b0b6885a-a995-4da6-951f-e47afe65be49 진행 중이던 동기화가 실패하면 함께 기다린 요청이 다시 원격 조회한다") {
+            runTest {
+                val year = solarYear()
+                val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+                val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
+                val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
+                val remoteDataSource = mockk<LunarRemoteDataSource>()
+                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() } andThen remoteList
+                val transaction = mockk<LunarTransaction>()
+                coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
+                val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
+
+                val first = async { runCatching { repository.fetch(year = year) } }
+                runCurrent()
+                val second = async { repository.fetch(year = year) }
+                runCurrent()
+
+                response.completeExceptionally(TestException(fixtureMonkey.giveMeOne()))
+
+                first.await().shouldBeFailure<TestException>()
+                second.await() shouldBe localList.map { local -> local.toDomain() }
+                coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            }
+        }
+
+        test("TC-38855674-7dfc-4058-9e5f-d2ea56695b30 다른 연도의 동기화는 진행 중인 동기화를 기다리지 않는다") {
+            runTest {
+                val year = solarYear()
+                val remoteList = listOf(remoteLunarDate(year = year + 1, day = 1))
+                val response = CompletableDeferred<List<LunarDateRemoteEntity>>()
+                val remoteDataSource = mockk<LunarRemoteDataSource>()
+                coEvery { remoteDataSource.get(year = year) } coAnswers { response.await() }
+                coEvery { remoteDataSource.get(year = year + 1) } returns remoteList
+                val transaction = mockk<LunarTransaction>()
+                coEvery { transaction.upsert(solarYear = any(), lunarDateList = any()) } just Runs
+                val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
+
+                val first = async { repository.fetch(year = year) }
+                runCurrent()
+
+                repository.fetch(year = year + 1) shouldBe remoteList.map { remote -> remote.toLocal(solarYear = year + 1).toDomain() }
+                first.isCompleted shouldBe false
+
+                response.complete(emptyList())
+                first.await()
+            }
         }
 
         test("기간별 조회는 로컬 캐시의 음력 날짜를 순서대로 도메인 모델로 제공한다") {

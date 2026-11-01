@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.work.fileupload.manager
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
@@ -11,12 +10,10 @@ import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.work.fileupload.scheduler.FileUploadWorkScheduler
-import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -82,24 +79,6 @@ class FileUploadManagerImplTest :
             }
         }
 
-        Given("파일 화면을 보는지 알린다") {
-            When("화면마다 보기 시작과 멈춤을 차례로 알린다") {
-                Then("보고 있는 화면이 그대로 바뀐다") {
-                    val fixture = ManagerFixture(isUploading = false)
-
-                    fixture.manager.startViewing(screen = FileScreen.HOME)
-                    fixture.viewingHolder.viewingScreen shouldBe FileScreen.HOME
-
-                    fixture.manager.startViewing(screen = FileScreen.ADD)
-                    fixture.manager.stopViewing(screen = FileScreen.HOME)
-                    fixture.viewingHolder.viewingScreen shouldBe FileScreen.ADD
-
-                    fixture.manager.stopViewing(screen = FileScreen.ADD)
-                    fixture.viewingHolder.viewingScreen.shouldBeNull()
-                }
-            }
-        }
-
         Given("올리는 중이거나 다시 올릴 예정인 파일이 있다") {
             When("확인된 계정이 아닌 다른 계정의 올리기를 취소한다") {
                 Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 다른 계정의 올리기도 취소한다") {
@@ -128,12 +107,13 @@ class FileUploadManagerImplTest :
                         val event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())
 
                         fixture.manager.state.first() shouldBe state
-                        FileScreen.entries.forEach { screen ->
-                            fixture.manager.getEvent(screen = screen).test {
-                                fixture.eventHolder.send(screen = screen, event = event)
+                        fixture.manager.event.test {
+                            fixture.manager.succeededEvent.test {
+                                fixture.eventHolder.send(event = event)
 
                                 awaitItem() shouldBe event
                             }
+                            awaitItem() shouldBe event
                         }
                     }
                 }
@@ -158,12 +138,10 @@ private class ManagerFixture(
             coEvery { deleteContinuedUpload(exceptAccountId = any()) } returns Unit
         }
     val eventHolder = FileUploadEventHolder()
-    val viewingHolder = FileScreenViewingHolder()
     val manager =
         FileUploadManagerImpl(
             fileUploadWorkScheduler = scheduler,
             fileRepository = fileRepository,
             fileUploadEventHolder = eventHolder,
-            fileScreenViewingHolder = viewingHolder,
         )
 }

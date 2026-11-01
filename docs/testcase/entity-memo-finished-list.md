@@ -4,7 +4,7 @@
 
 이 문서의 케이스는 ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList 세 화면에 모두 적용한다. `대상 항목`은 기준 스펙의 `상세 대상 항목`, 곧 진입한 상세 화면의 연락처, 장소 또는 웹 항목이다. 화면마다 결과가 다른 케이스만 테스트 데이터에 화면을 둔다.
 
-이 문서에서 `domain > 대상 항목`, `domain > 정렬`, `feature > 빈 상태`, `feature > 추가 미제공`, `feature > 불러오기 실패`, `feature > 새로고침`, `feature > 상세 확인` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. `domain > 실행 경계` 절 중 정렬 선택과 보던 자리는 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `domain > 대상 항목`, `domain > 정렬`, `feature > 빈 상태`, `feature > 추가 미제공`, `feature > 불러오기 실패`, `feature > 새로고침`, `feature > 상세 확인` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. `domain > 실행 경계` 절 중 정렬 선택과 보던 자리는 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `feature > 다시 시작과 삭제` 절의 안내와 실행 취소는 [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md)의 `안내와 실행 취소`에 위임되며, 이 목록의 케이스는 [테스트 케이스 문서 목록](./README.md)의 지정대로 이 문서가 갖는다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
@@ -150,21 +150,21 @@
 
 ### TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6: 메모를 다시 시작하면 목록에서 사라지고 실행 취소를 제공한다
 
-- 근거: `feature > 다시 시작`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: 대상 항목에 연결된 완료 메모가 목록에 표시되어 있고 상태 변경이 성공하도록 설정되어 있다.
 - When: 사용자가 그 메모를 다시 시작한다.
 - Then: 메모가 목록에서 사라지고 다시 시작 안내와 실행 취소 동작이 제공된다.
 
 ### TC-de3ead05-f69f-4c5e-9001-934c11e284b1: 메모를 삭제하면 목록에서 사라지고 실행 취소를 제공한다
 
-- 근거: `feature > 삭제`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: 대상 항목에 연결된 완료·미삭제 메모가 목록에 표시되어 있고 상태 변경이 성공하도록 설정되어 있다.
 - When: 사용자가 그 메모를 삭제한다.
 - Then: 메모가 목록에서 사라지고 삭제 안내와 실행 취소 동작이 제공된다.
 
 ### TC-97bb8371-2b38-487e-b546-3e66dc21dcc8: 상태 변경을 실행 취소하면 메모가 목록에 다시 나타난다
 
-- 근거: `feature > 다시 시작`, `feature > 삭제`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: 대상 항목의 완료 메모가 테스트 데이터의 상태 변경으로 목록에서 사라지고 실행 취소 동작이 표시되어 있다.
 - When: 사용자가 실행 취소를 선택한다.
 - Then: 메모가 테스트 데이터의 실행 취소 결과로 되돌아가 목록의 정렬 기준에 맞는 위치에 다시 나타난다.
@@ -191,7 +191,7 @@
 
 ### TC-2a3cb935-f956-466d-a1ad-c62843bda562: 다시 시작이나 삭제가 저장되지 못하면 메모가 남고 안내를 표시하지 않는다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`, [SwipeToFinishAndDelete 컴포넌트 스펙의 안내와 실행 취소](../spec/client/swipe-to-finish-and-delete.md#안내와-실행-취소)
 - Given: 목록에 완료된 메모가 표시되어 있고, 테스트 데이터의 동작을 저장하면 실패하도록 설정되어 있다.
 - When: 사용자가 그 메모에 테스트 데이터의 동작을 실행한다.
 - Then: 메모의 상태가 바뀌지 않아 목록에 그대로 남고, 동작을 알리는 안내와 실행 취소는 표시되지 않는다.
@@ -225,14 +225,14 @@
 
 ### TC-f49e34ff-45b1-4a1a-b06e-05f92c5b9cb6: 안내가 보이는 동안 이어서 동작하면 마지막 동작의 안내만 남는다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`, [SwipeToFinishAndDelete 컴포넌트 스펙의 안내와 실행 취소](../spec/client/swipe-to-finish-and-delete.md#안내와-실행-취소)
 - Given: 한 메모를 다시 시작해 다시 시작 안내와 실행 취소 동작이 제공되어 있다.
 - When: 안내가 사라지기 전에 사용자가 다른 메모를 삭제하고, 이어서 실행 취소를 선택한다.
 - Then: 다시 시작 안내는 바로 사라지고 삭제 안내만 표시된다. 실행 취소는 삭제한 메모에만 적용되고, 먼저 다시 시작한 메모는 미완료 상태로 남는다.
 
 ### TC-5dcc4207-b802-40d5-9843-b50c0dcd0051: 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`, [SwipeToFinishAndDelete 컴포넌트 스펙의 안내와 실행 취소](../spec/client/swipe-to-finish-and-delete.md#안내와-실행-취소)
 - Given: 메모를 다시 시작해 다시 시작 안내와 실행 취소 동작이 제공되어 있다.
 - When: 사용자가 실행 취소를 선택하지 않고 안내가 저절로 사라질 때까지 기다린다.
 - Then: 다시 시작 안내와 실행 취소 동작이 사라지고, 다시 시작한 메모는 미완료 상태로 남는다.

@@ -2,25 +2,20 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.APPOINTMENT_TITLE
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.BIRTHDAY_TEXT
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.HOLIDAY_NAME
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.NEXT_SUNDAY_TEMPERATURE_TEXT
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.SUNDAY_TEMPERATURE_TEXT
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.TRIP_TITLE
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.WORKSHOP_TITLE
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.birthday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.holiday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.july
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.memo
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.mondayWeather
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.nextSundayWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.sundayWeather
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,159 +29,59 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 메모 제목은 날씨 아이템과 같은 줄에 놓인다`() {
+    fun `TC-99b7b166-3e09-42a1-8f0d-63cdf07f7fdc 날씨 날짜와 겹치지 않는 메모 제목도 날씨보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
         )
 
-        // 같은 줄을 공유하면 메모 제목은 줄 위쪽에 정렬되어 날씨의 온도 영역보다 위에 놓인다.
-        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
     }
 
     @Test
-    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 공휴일 이름은 날씨 아이템과 같은 줄에 놓인다`() {
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather(), mondayWeather()),
-            holidayList = listOf(holiday()),
-        )
-
-        (top(text = HOLIDAY_NAME) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
-    }
-
-    @Test
-    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 메모가 있으면 메모 제목과 공휴일 이름이 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-99b7b166-3e09-42a1-8f0d-63cdf07f7fdc 날씨 날짜와 겹치는 메모 제목은 날씨보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 13), endInclusive = july(day = 14))),
-            holidayList = listOf(holiday()),
         )
 
-        val temperatureBottom = bottom(text = SUNDAY_TEMPERATURE_TEXT)
-        (temperatureBottom <= top(text = TRIP_TITLE)) shouldBe true
-        (temperatureBottom <= top(text = HOLIDAY_NAME)) shouldBe true
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
     }
 
     @Test
-    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 공휴일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-99b7b166-3e09-42a1-8f0d-63cdf07f7fdc 날씨 날짜와 겹치지 않는 공휴일 이름도 날씨보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
-            memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
-            holidayList = listOf(holiday(dateRange = july(day = 12)..july(day = 12))),
-        )
-
-        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
-    }
-
-    @Test
-    @Config(sdk = [36], qualifiers = "w411dp-h1600dp")
-    fun `TC-9f2d5978-242e-4f7d-bc28-a4c1afbf462a 메모끼리 겹치면 날씨와 겹치지 않아도 메모 제목이 날씨 아이템보다 아래 줄에 놓인다`() {
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather()),
-            memoList =
-                listOf(
-                    memo(title = TRIP_TITLE, start = july(day = 15), endInclusive = july(day = 17)),
-                    memo(title = WORKSHOP_TITLE, start = july(day = 16), endInclusive = july(day = 18)),
-                ),
-        )
-
-        // 한 줄에 모이지 않는 주는 날씨 높이에 맞춘 줄과 그렇지 않은 줄이 섞이므로 그룹을 나눈다.
-        val temperatureBottom = bottom(text = SUNDAY_TEMPERATURE_TEXT)
-        (temperatureBottom <= top(text = TRIP_TITLE)) shouldBe true
-        (temperatureBottom <= top(text = WORKSHOP_TITLE)) shouldBe true
-    }
-
-    @Test
-    fun `TC-9f2d5978-242e-4f7d-bc28-a4c1afbf462a 메모와 공휴일이 서로 겹치면 날씨와 겹치지 않아도 아래 줄에 놓인다`() {
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather()),
-            memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 18))),
             holidayList = listOf(holiday()),
         )
 
-        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = HOLIDAY_NAME)) shouldBe true
     }
 
     @Test
-    fun `TC-6ea2a96d-0a9d-46cb-8a26-063e9fbbe4c3 주마다 겹침을 따로 판단해 한 주는 같은 줄을 공유하고 다른 주는 아래 줄에 놓는다`() {
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather(), mondayWeather(), nextSundayWeather()),
-            memoList =
-                listOf(
-                    memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17)),
-                    memo(title = APPOINTMENT_TITLE, start = july(day = 19), endInclusive = july(day = 20)),
-                ),
-        )
-
-        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
-        (bottom(text = NEXT_SUNDAY_TEMPERATURE_TEXT) <= top(text = APPOINTMENT_TITLE)) shouldBe true
-    }
-
-    @Test
-    fun `TC-624af8a0-b403-4d91-b11d-30459c96a059 주 밖으로 벗어난 기간은 겹침 판단에 넣지 않는다`() {
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather(), nextSundayWeather()),
-            memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 20))),
-        )
-
-        // 메모가 걸치는 7월 19일의 날씨는 다음 주에 속하므로 7월 12일이 있는 주의 겹침 판단에 넣지 않는다.
-        (firstTop(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
-    }
-
-    @Test
-    fun `TC-f62e74c9-2494-47f1-8500-b91ce33bbe18 날씨 날짜와 겹치지 않는 생일은 날씨 아이템과 같은 줄에 놓인다`() {
+    fun `TC-99b7b166-3e09-42a1-8f0d-63cdf07f7fdc 날씨 날짜와 겹치지 않는 생일도 날씨보다 아래 줄에 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
             weatherList = listOf(sundayWeather(), mondayWeather()),
             birthdayList = listOf(birthday(date = july(day = 16))),
         )
 
-        (top(text = BIRTHDAY_TEXT) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = BIRTHDAY_TEXT)) shouldBe true
     }
 
     @Test
-    fun `TC-c91cffd3-1f62-46d1-b687-774cdf36d84c 날씨 날짜와 겹치는 생일이 있으면 겹치지 않는 메모 제목도 날씨 아이템보다 아래 줄에 놓인다`() {
+    fun `TC-5b18d05c-3d10-4972-8486-db60c896c193 날씨가 없는 주에서는 메모 제목이 첫 줄부터 놓인다`() {
         composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather(), mondayWeather()),
-            memoList = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))),
-            birthdayList = listOf(birthday(date = july(day = 13))),
+            weatherList = listOf(sundayWeather()),
+            memoList = listOf(memo(title = APPOINTMENT_TITLE, start = july(day = 20), endInclusive = july(day = 21))),
         )
 
-        val temperatureBottom = bottom(text = SUNDAY_TEMPERATURE_TEXT)
-        (temperatureBottom <= top(text = TRIP_TITLE)) shouldBe true
-        (temperatureBottom <= top(text = BIRTHDAY_TEXT)) shouldBe true
-    }
-
-    @Test
-    fun `TC-7d11ff7e-82f0-4a6c-bd39-37379ee43259 표시 대상이 바뀌어 겹침 여부가 달라지면 그 주의 그룹 구성을 다시 정한다`() {
-        val memoListFlow = MutableStateFlow(listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))))
-        composeRule.setCalendarHomeWeatherGroupScreen(
-            weatherList = listOf(sundayWeather(), mondayWeather()),
-            memoListFlow = memoListFlow,
-        )
-        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
-
-        memoListFlow.value = listOf(memo(title = TRIP_TITLE, start = july(day = 13), endInclusive = july(day = 14)))
-        composeRule.waitForIdle()
-
-        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
-
-        memoListFlow.value = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17)))
-        composeRule.waitForIdle()
-
-        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
+        val weatherRowHeight = bottom(text = SUNDAY_TEMPERATURE_TEXT) - bottom(text = "12")
+        val appointmentOffset = top(text = APPOINTMENT_TITLE) - bottom(text = "19")
+        (appointmentOffset < weatherRowHeight) shouldBe true
     }
 
     // 온도는 날씨 아이템 하나로 병합되므로 병합 전 트리에서 온도 글자 자체의 위치를 읽는다.
     private fun top(text: String): Dp = composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().top
 
     private fun bottom(text: String): Dp = composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
-
-    /** 여러 주에 조각으로 나뉜 아이템 중 가장 위쪽 조각의 위쪽 위치를 반환한다. */
-    private fun firstTop(text: String): Dp =
-        composeRule
-            .onAllNodesWithText(text, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .indices
-            .map { index -> composeRule.onAllNodesWithText(text, useUnmergedTree = true)[index].getUnclippedBoundsInRoot().top }
-            .min()
 }

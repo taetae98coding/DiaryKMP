@@ -78,7 +78,6 @@ class WebDetailTagInputTest {
 
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
-        verify(exactly = 0) { pageViewModel.refresh() }
     }
 
     @Test
@@ -254,7 +253,6 @@ class WebDetailTagInputTest {
             every { viewModel.uiState } returns MutableStateFlow(pageUiState)
             justRun { viewModel.load() }
             justRun { viewModel.retry() }
-            justRun { viewModel.refresh() }
 
             return viewModel
         }

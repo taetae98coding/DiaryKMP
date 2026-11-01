@@ -152,10 +152,12 @@ class AddContactUseCaseTest :
                     coVerify(exactly = 2) { accountContactRepository.upsert(account = account, contact = any()) }
                 }
 
-                Then("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 입력한 이름, 설명, 키, 신발 사이즈, 생일, 전화번호를 그대로 저장한다") {
+                Then("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 입력한 이름, 설명, 키, 신발 사이즈, 생일, 고향, 알게 된 경로, 전화번호를 그대로 저장한다") {
                     val expected =
                         detail(
                             height = 175.5.centimeter,
+                            hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
+                            howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}",
                             footSize = 250.millimeter,
                             birthday =
                                 ContactBirthday(
@@ -210,7 +212,7 @@ class AddContactUseCaseTest :
                     contactSlot.captured.detail.phoneNumberList shouldBe phoneNumberList
                 }
 
-                Then("TC-8df70bbc-e460-4a06-916f-a72e1bfd665d 키, 신발 사이즈, 생일은 없는 값으로, 고향은 비어 있는 값으로 저장한다") {
+                Then("TC-8df70bbc-e460-4a06-916f-a72e1bfd665d 키, 신발 사이즈, 생일은 없는 값으로, 고향과 알게 된 경로는 비어 있는 값으로 저장한다") {
                     useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
 
                     contactSlot.captured.detail.height
@@ -222,6 +224,7 @@ class AddContactUseCaseTest :
                     contactSlot.captured.detail.birthYear
                         .shouldBeNull()
                     contactSlot.captured.detail.hometown shouldBe ""
+                    contactSlot.captured.detail.howWeMet shouldBe ""
                 }
 
                 Then("TC-c311e3f7-c458-47be-8b7a-f7372b578093 고향은 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
@@ -229,6 +232,14 @@ class AddContactUseCaseTest :
                         useCase(parameter = AddContactUseCase.Parameter(detail = detail(hometown = hometown))).shouldBeSuccess()
 
                         contactSlot.captured.detail.hometown shouldBe hometown
+                    }
+                }
+
+                Then("TC-bc0696b9-e6f2-425d-9361-725d3973c366 알게 된 경로는 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
+                    listOf("대학 동아리 신입생 환영회", "  ").forEach { howWeMet ->
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(howWeMet = howWeMet))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.howWeMet shouldBe howWeMet
                     }
                 }
 
@@ -441,6 +452,7 @@ class AddContactUseCaseTest :
             birthday: ContactBirthday? = null,
             birthYear: Int? = birthday?.date?.year,
             hometown: String = "",
+            howWeMet: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
             ContactDetail(
@@ -451,6 +463,7 @@ class AddContactUseCaseTest :
                 birthday = birthday,
                 birthYear = birthYear,
                 hometown = hometown,
+                howWeMet = howWeMet,
                 phoneNumberList = phoneNumberList,
             )
     }

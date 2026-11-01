@@ -176,7 +176,7 @@ class WebDetailPageViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
 
-                response.complete(Result.success(webPage()))
+                response.complete(Result.failure(IllegalStateException()))
                 advanceUntilIdle()
                 viewModel.retry()
                 advanceUntilIdle()
@@ -208,7 +208,6 @@ class WebDetailPageViewModelTest : FunSpec() {
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
 
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 0) { fetchWebPageUseCase(parameter = any()) }
@@ -239,9 +238,8 @@ class WebDetailPageViewModelTest : FunSpec() {
                 viewModel.load()
                 advanceUntilIdle()
 
-                // URL 방식으로 되돌린 동안에는 화면이 불러오기를 요청하지 않으므로 수정 성공만 전달된다.
+                // URL 방식으로 되돌려도 화면은 불러오기를 다시 요청하지 않고, 저장된 URL이 바뀐 것만 전달된다.
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
@@ -256,46 +254,28 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-bbf59348-1a5e-45fd-9e10-c40393dd2eb5 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌어도 다시 불러오지 않는다") {
+        test("TC-7c727b40-2b54-4988-9a89-0629343f8fce 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌면 새 값으로 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
-                val webPage = webPage()
+                val reloadedPage = webPage()
+                val changedHeaderList = HEADER_LIST + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage)
+                coEvery {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = URL, headerList = HEADER_LIST))
+                } returns Result.success(webPage())
+                coEvery {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedHeaderList))
+                } returns Result.success(reloadedPage)
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
                 viewModel.load()
                 advanceUntilIdle()
 
-                webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = HEADER_LIST + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())))
+                webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedHeaderList))
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
-                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
-            }
-        }
-
-        test("TC-a713daf3-3ff6-4fc0-abbe-d7c41d92c3e1 다른 경로에서 URL이 바뀐 뒤 제목만 고쳐 수정해도 최신 저장 URL로 한 번 다시 불러온다") {
-            runTest(mainDispatcher) {
-                val id = Uuid.random()
-                val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
-                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
-                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
-                viewModel.load()
-                advanceUntilIdle()
-                webFlow.value = Result.success(web(id = id, url = OTHER_URL))
-                advanceUntilIdle()
-
-                val externallyChanged = web(id = id, url = OTHER_URL)
-                webFlow.value = Result.success(externallyChanged.copy(detail = externallyChanged.detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}")))
-                viewModel.refresh()
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) {
-                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
-                }
                 coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = reloadedPage)
             }
         }
 
@@ -304,9 +284,8 @@ class WebDetailPageViewModelTest : FunSpec() {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
 
-                // URL 방식은 불러오기를 시작하지 않으므로 화면이 유지되고 새로고침이 와도 요청이 나가지 않는다.
+                // URL 방식은 불러오기를 시작하지 않으므로 화면이 유지되어도 요청이 나가지 않는다.
                 advanceUntilIdle()
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 0) { fetchWebPageUseCase(parameter = any()) }
@@ -344,26 +323,33 @@ class WebDetailPageViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
                 }
 
-                val changedHeaderList = HEADER_LIST + WebHeader(name = "Accept", value = "text/html")
+                val addedHeaderName = "header-${fixtureMonkey.giveMeOne<String>()}"
+                val changedHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "value-${fixtureMonkey.giveMeOne<String>()}")
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedHeaderList))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedHeaderList))
                 }
-                coVerify(exactly = 3) { fetchWebPageUseCase(parameter = any()) }
+
+                val changedValueHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "changed-${fixtureMonkey.giveMeOne<String>()}")
+                webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedValueHeaderList))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedValueHeaderList))
+                }
+                coVerify(exactly = 4) { fetchWebPageUseCase(parameter = any()) }
             }
         }
 
-        test("TC-63504c0a-256e-4d9c-a1c6-b84bb7fbe880 수정으로 제목이나 설명만 바뀌면 다시 불러오지 않는다") {
+        test("TC-63504c0a-256e-4d9c-a1c6-b84bb7fbe880 TC-2dca5f1d-a3f1-476a-adc6-da1875c04dbe 수정이나 다른 경로로 제목이나 설명만 바뀌면 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webPage = webPage()
@@ -377,7 +363,6 @@ class WebDetailPageViewModelTest : FunSpec() {
 
                 val changed = web(id = id)
                 webFlow.value = Result.success(changed.copy(detail = changed.detail.copy(title = "changed-title", description = "changed")))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
@@ -406,7 +391,6 @@ class WebDetailPageViewModelTest : FunSpec() {
                 viewModel.uiState.value shouldBe WebDetailPageUiState.Loading
 
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL))
-                viewModel.refresh()
                 advanceUntilIdle()
 
                 viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = secondPage)

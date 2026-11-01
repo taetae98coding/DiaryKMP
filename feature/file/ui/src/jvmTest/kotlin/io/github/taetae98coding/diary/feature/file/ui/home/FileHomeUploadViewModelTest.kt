@@ -5,20 +5,16 @@ package io.github.taetae98coding.diary.feature.file.ui.home
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -66,29 +61,40 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기에 성공하면 올린 파일과 함께 성공을 알린다") {
+        test("TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기에 성공하면 성공을 알린다") {
             runTest(mainDispatcher) {
-                val fileId = fixtureMonkey.giveMeOne<Uuid>()
-                val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
-                val viewModel = viewModel(eventChannel = eventChannel)
+                val succeededChannel = Channel<Result<FileUploadEvent.Succeeded>>(Channel.UNLIMITED)
+                val viewModel = viewModel(succeededChannel = succeededChannel)
 
                 viewModel.effect.test {
-                    eventChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fileId)))
-                    awaitItem() shouldBe FileHomeUploadEffect.UploadSucceeded(id = fileId)
+                    succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
+                    awaitItem() shouldBe FileHomeUploadEffect.UploadSucceeded
                     expectNoEvents()
                 }
             }
         }
 
-        test("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 FileAdd에서 성공한 것으로 알린다") {
+        test("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 화면이 결과를 받지 않는 동안 쌓인 성공은 다시 받기 시작할 때 알린다") {
             runTest(mainDispatcher) {
-                val fileId = fixtureMonkey.giveMeOne<Uuid>()
+                val succeededChannel = Channel<Result<FileUploadEvent.Succeeded>>(Channel.UNLIMITED)
+                val viewModel = viewModel(succeededChannel = succeededChannel)
+
+                succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
+
+                viewModel.effect.test {
+                    awaitItem() shouldBe FileHomeUploadEffect.UploadSucceeded
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("보이는 동안 받는 결과의 성공은 쌓아 둔 성공과 겹치지 않도록 따로 알리지 않는다") {
+            runTest(mainDispatcher) {
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
                 val viewModel = viewModel(eventChannel = eventChannel)
 
                 viewModel.effect.test {
-                    eventChannel.send(Result.success(FileUploadEvent.SucceededOnFileAdd(fileId = fileId)))
-                    awaitItem() shouldBe FileHomeUploadEffect.UploadSucceededOnFileAdd(id = fileId)
+                    eventChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
                     expectNoEvents()
                 }
             }
@@ -159,64 +165,24 @@ class FileHomeUploadViewModelTest : FunSpec() {
                 }
             }
         }
-
-        test("화면을 보기 시작하고 그만 보는 것을 알린다") {
-            runTest(mainDispatcher) {
-                val startUseCase = mockk<StartViewingFileScreenUseCase>()
-                coEvery { startUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
-                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
-                coEvery { stopUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
-                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
-
-                viewModel.startViewing()
-                advanceUntilIdle()
-                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.HOME) }
-                coVerify(exactly = 0) { stopUseCase(parameter = any()) }
-
-                viewModel.stopViewing()
-                advanceUntilIdle()
-                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.HOME) }
-            }
-        }
-
-        test("이미 보고 있거나 보고 있지 않을 때 다시 알리면 UseCase를 다시 실행하지 않는다") {
-            runTest(mainDispatcher) {
-                val startUseCase = mockk<StartViewingFileScreenUseCase>()
-                coEvery { startUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
-                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
-                coEvery { stopUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
-                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
-
-                viewModel.stopViewing()
-                viewModel.startViewing()
-                viewModel.startViewing()
-                advanceUntilIdle()
-                viewModel.stopViewing()
-                viewModel.stopViewing()
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.HOME) }
-                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.HOME) }
-            }
-        }
     }
 
     private fun viewModel(
         stateFlow: MutableStateFlow<Result<FileUploadState>> = MutableStateFlow(Result.success(FileUploadState.Idle)),
         eventChannel: Channel<Result<FileUploadEvent>> = Channel(Channel.UNLIMITED),
-        startUseCase: StartViewingFileScreenUseCase = mockk(relaxed = true),
-        stopUseCase: StopViewingFileScreenUseCase = mockk(relaxed = true),
+        succeededChannel: Channel<Result<FileUploadEvent.Succeeded>> = Channel(Channel.UNLIMITED),
     ): FileHomeUploadViewModel {
         val getStateUseCase = mockk<GetFileUploadStateUseCase>()
         every { getStateUseCase(parameter = Unit) } returns stateFlow
         val getEventUseCase = mockk<GetFileUploadEventUseCase>()
-        every { getEventUseCase(parameter = FileScreen.HOME) } returns eventChannel.receiveAsFlow()
+        every { getEventUseCase(parameter = Unit) } returns eventChannel.receiveAsFlow()
+        val getSucceededEventUseCase = mockk<GetFileUploadSucceededEventUseCase>()
+        every { getSucceededEventUseCase(parameter = Unit) } returns succeededChannel.receiveAsFlow()
 
         return FileHomeUploadViewModel(
-            startViewingFileScreenUseCase = startUseCase,
-            stopViewingFileScreenUseCase = stopUseCase,
             getFileUploadStateUseCase = getStateUseCase,
             getFileUploadEventUseCase = getEventUseCase,
+            getFileUploadSucceededEventUseCase = getSucceededEventUseCase,
         )
     }
 }

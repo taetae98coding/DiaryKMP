@@ -25,24 +25,25 @@ internal class HolidayRepositoryImpl(
     override suspend fun fetch(
         country: HolidayCountry,
         year: Int,
-    ): List<Holiday> {
-        if (holidayFetchedKeySet.isFetched(key = country to year)) return get(countrySet = setOf(country), year = year).first()
+    ): List<Holiday> =
+        holidayFetchedKeySet.fetchOnce(
+            key = country to year,
+            cached = { get(countrySet = setOf(country), year = year).first() },
+            fetch = {
+                val holidayList =
+                    holidayRemoteDataSource
+                        .get(country = country.toRemote(), year = year)
+                        .map { remote -> remote.toLocal(country = country, year = year) }
 
-        val holidayList =
-            holidayRemoteDataSource
-                .get(country = country.toRemote(), year = year)
-                .map { remote -> remote.toLocal(country = country, year = year) }
+                holidayTransaction.upsert(
+                    country = country.toLocal(),
+                    year = year,
+                    holidayList = holidayList,
+                )
 
-        holidayTransaction.upsert(
-            country = country.toLocal(),
-            year = year,
-            holidayList = holidayList,
+                holidayList.map { local -> local.toDomain() }
+            },
         )
-
-        holidayFetchedKeySet.add(key = country to year)
-
-        return holidayList.map { local -> local.toDomain() }
-    }
 
     override fun get(countrySet: Set<HolidayCountry>): Flow<List<Holiday>> =
         holidayLocalDataSource

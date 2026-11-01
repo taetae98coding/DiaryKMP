@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeToDeleteBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
-import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_delete_content_description
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
@@ -19,7 +18,6 @@ internal fun SwipeToDeleteMusicCard(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     music: Music? = null,
-    downloadStateProvider: () -> MusicDownloadState? = { null },
 ) {
     SwipeToDeleteBox(
         deleteContentDescription = stringResource(Res.string.playlist_home_delete_content_description),
@@ -32,7 +30,6 @@ internal fun SwipeToDeleteMusicCard(
             onClick = onClick,
             modifier = Modifier.fillMaxWidth(),
             music = music,
-            downloadStateProvider = downloadStateProvider,
         )
     }
 }

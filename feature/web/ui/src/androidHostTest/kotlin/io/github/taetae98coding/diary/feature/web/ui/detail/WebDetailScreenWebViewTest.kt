@@ -19,8 +19,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
@@ -41,7 +39,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,11 +54,6 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 class WebDetailScreenWebViewTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
-
-    @After
-    fun resetWebSession() {
-        SingletonDiaryWebSession.set(DiaryWebSession())
-    }
 
     @Test
     fun `TC-bf42a2a8-5753-490b-8398-15339b3e2d41 URL 방식에서는 저장된 URL만 넘기고 요청 헤더는 넘기지 않는다`() {

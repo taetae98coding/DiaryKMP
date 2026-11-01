@@ -1,15 +1,14 @@
 package io.github.taetae98coding.diary.compose.web
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasProgressBarRangeInfo
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.mockk.mockk
-import io.mockk.verify
+import io.github.taetae98coding.diary.core.model.web.WebPage
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -31,152 +30,71 @@ class DiaryWebViewTest {
     }
 
     @Test
-    fun `TC-f117a124-06f3-42eb-af49-da9a1bad9df5 로그인 정보를 가져오는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
-        setDiaryWebView(session = DiaryWebSession(isPreparing = true))
+    fun `TC-05590cc5-b758-4119-a847-d5ad0b3dd5ae 로그인 정보를 되돌리는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
+        setUrlWebView(session = DiaryWebSession(isRestoring = true))
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-fcdc5498-e502-467d-a4af-67e4bd7bc361 가져오는 중이 아니면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
-        setDiaryWebView(session = DiaryWebSession())
+    fun `TC-90df42c6-a0d3-4e73-a0d8-b2a10b64ea06 되돌리기가 끝나면 진행 표시가 사라지고 웹 표시 수단이 주소를 연다`() {
+        setUrlWebView(session = DiaryWebSession(isRestoring = true))
+
+        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = false)) }
 
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-fd4b6e27-e955-4a2e-9ab9-c3441881797b 되돌리는 중이 아니면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
+        setUrlWebView(session = DiaryWebSession())
+
+        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-2c7098bf-a237-42c5-bcbb-eb55788d7132 응답 본문 방식은 되돌리기를 기다리지 않고 URL 방식으로 바꾸면 진행 표시를 거친다`() {
+        SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
+        var isUrlMode by mutableStateOf(false)
+        composeRule.setContent {
+            DiaryTheme {
+                if (isUrlMode) {
+                    DiaryWebView(url = URL)
+                } else {
+                    DiaryWebView(page = WebPage(baseUrl = URL, body = "<html></html>"))
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+
+        composeRule.runOnIdle { isUrlMode = true }
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
     fun `앱이 세션을 갱신하기 전에도 웹 표시 수단이 주소를 연다`() {
         composeRule.setContent {
             DiaryTheme {
-                DiaryWebView(
-                    url = URL,
-                    onSessionImportFailed = {},
-                )
+                DiaryWebView(url = URL)
             }
         }
 
         composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
     }
 
-    @Test
-    fun `TC-3a2b7c2b-d44c-4454-a6b0-42b409f82495 TC-46cc26ce-4c78-4aa8-881a-726c5004305b 가져오기가 시작되면 진행 표시로 바뀌고 끝나면 웹 표시 수단이 다시 열린다`() {
-        setDiaryWebView(session = DiaryWebSession())
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isPreparing = true)) }
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
-
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1)) }
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-26869b48-2548-44ea-9c03-6ce75c277fc3 가져오기가 실패로 끝나면 한 번 알리고 웹 표시 수단이 주소를 연다`() {
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        setDiaryWebView(session = DiaryWebSession(isPreparing = true), onSessionImportFailed = onSessionImportFailed)
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1, failureId = 1)) }
-
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-    }
-
-    @Test
-    fun `TC-72308d3d-3936-49f3-80b1-651b641342f4 들어왔을 때 마지막 결과가 실패였으면 한 번 알린다`() {
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        setDiaryWebView(session = DiaryWebSession(failureId = 1), onSessionImportFailed = onSessionImportFailed)
-
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-    }
-
-    @Test
-    fun `마지막 결과가 성공이면 알리지 않는다`() {
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        setDiaryWebView(session = DiaryWebSession(importCount = 2), onSessionImportFailed = onSessionImportFailed)
-
-        composeRule.runOnIdle { verify(exactly = 0) { onSessionImportFailed() } }
-    }
-
-    @Test
-    fun `실패가 반복되면 그때마다 알린다`() {
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        setDiaryWebView(session = DiaryWebSession(failureId = 1), onSessionImportFailed = onSessionImportFailed)
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isPreparing = true)) }
-        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1, failureId = 2)) }
-
-        composeRule.runOnIdle { verify(exactly = 2) { onSessionImportFailed() } }
-    }
-
-    @Test
-    fun `TC-dc502268-12a5-42b9-bbc2-399e4ee17155 화면이 재생성되어도 이미 알린 실패를 다시 알리지 않는다`() {
-        val restorationTester = StateRestorationTester(composeRule)
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        SingletonDiaryWebSession.set(DiaryWebSession(failureId = 1))
-        restorationTester.setContent {
-            DiaryWebViewUnderTest(onSessionImportFailed = onSessionImportFailed)
-        }
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-
-        restorationTester.emulateSavedInstanceStateRestore()
-
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-    }
-
-    @Test
-    fun `웹 표시 영역이 빠졌다가 다시 들어와도 알린 실패 번호를 가진 상태가 같으면 다시 알리지 않는다`() {
-        val isVisible = mutableStateOf(true)
-        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
-
-        SingletonDiaryWebSession.set(DiaryWebSession(failureId = 1))
-        composeRule.setContent {
-            val sessionImportFailureState = rememberDiaryWebSessionImportFailureState()
-
-            DiaryTheme {
-                if (isVisible.value) {
-                    DiaryWebView(
-                        url = URL,
-                        onSessionImportFailed = onSessionImportFailed,
-                        sessionImportFailureState = sessionImportFailureState,
-                    )
-                }
-            }
-        }
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-
-        composeRule.runOnIdle { isVisible.value = false }
-        composeRule.runOnIdle { isVisible.value = true }
-
-        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
-        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
-    }
-
-    private fun setDiaryWebView(
-        session: DiaryWebSession,
-        onSessionImportFailed: () -> Unit = {},
-    ) {
+    private fun setUrlWebView(session: DiaryWebSession) {
         SingletonDiaryWebSession.set(session)
         composeRule.setContent {
-            DiaryWebViewUnderTest(onSessionImportFailed = onSessionImportFailed)
-        }
-    }
-
-    @Composable
-    private fun DiaryWebViewUnderTest(onSessionImportFailed: () -> Unit) {
-        DiaryTheme {
-            DiaryWebView(
-                url = URL,
-                onSessionImportFailed = onSessionImportFailed,
-            )
+            DiaryTheme {
+                DiaryWebView(url = URL)
+            }
         }
     }
 }

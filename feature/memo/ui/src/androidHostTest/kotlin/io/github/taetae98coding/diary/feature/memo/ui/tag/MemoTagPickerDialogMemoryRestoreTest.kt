@@ -41,7 +41,7 @@ class MemoTagPickerDialogMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-774a56d6-fec9-4aa6-97bb-1a0825284ea3 메모리 정리 뒤 복원하면 목록과 검색어가 다시 나타나고 기다리지 않고 그 검색어로 좁힌 목록을 보여 준다`() {
+    fun `TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val tagList = listOf(workTag, exerciseTag)
@@ -68,9 +68,8 @@ class MemoTagPickerDialogMemoryRestoreTest {
         requestedQueryList.size shouldBe 2
         composeRule.dialogNodeWithText(WORK_TAG_QUERY).assertExists()
         awaitDialogTextCount(text = WORK_TAG_TITLE, count = 1)
-        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
-        // 새로 만든 상태 객체는 좁히지 않은 대상 전체를 조회하지 않고 처음부터 복원된 검색어로 조회한다.
-        requestedQueryList.last() shouldBe listOf(WORK_TAG_QUERY)
+        awaitDialogTextCount(text = EXERCISE_TAG_TITLE, count = 0)
+        requestedQueryList.last().last() shouldBe WORK_TAG_QUERY
     }
 
     private fun awaitDialogTextCount(

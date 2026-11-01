@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.home
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -9,14 +10,19 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -153,6 +159,31 @@ class PlaceHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `TC-c58529bf-774f-4c95-b18b-e1bf636ac0db 지도를 옮기지 않았으면 장소 추가와 추가 단축키가 진입 시 시작한 위치를 넘긴다`() {
+        val initialCoordinate = fixtureMonkey.coordinateInFormPrecision()
+        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        setPlaceHomeScaffold(
+            uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.GOOGLE, initialCoordinate = initialCoordinate) },
+            onEvent = { event -> eventList.add(event) },
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
+        performAddShortcut()
+
+        eventList.filterIsInstance<PlaceHomeScaffoldEvent.ClickAdd>() shouldBe List(ADD_ACTION_COUNT) { PlaceHomeScaffoldEvent.ClickAdd(coordinate = initialCoordinate) }
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun setPlaceHomeScaffold(
         uiStateProvider: () -> PlaceHomeUiState = { PlaceHomeUiState.Loading },
         placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
@@ -185,6 +216,9 @@ class PlaceHomeScaffoldTest {
         private const val DEFAULT_SEARCH_DESCRIPTION = "Search"
         private const val PLACE_COUNT = 3
         private const val TOP_LEVEL_ACTION_COUNT = 4
+
+        // 장소 추가 버튼과 추가 단축키
+        private const val ADD_ACTION_COUNT = 2
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

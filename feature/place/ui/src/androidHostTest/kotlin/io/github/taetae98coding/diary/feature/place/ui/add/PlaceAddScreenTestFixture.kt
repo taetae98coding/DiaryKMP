@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
@@ -113,6 +114,7 @@ internal fun ComposeContentTestRule.setPlaceAddScreen(
     navigateToTagDetail: (Uuid) -> Unit = {},
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
     tagViewModel: PlaceAddTagViewModel = addTagScreenTestViewModel(),
+    initialCoordinate: Coordinate? = null,
 ) {
     setContent {
         PlaceAddScreenTestTheme {
@@ -121,7 +123,7 @@ internal fun ComposeContentTestRule.setPlaceAddScreen(
                 navigateToTagAdd = {},
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 navigateUp = navigateUp,
-                initialCoordinate = null,
+                initialCoordinate = initialCoordinate,
                 addViewModel = viewModel,
                 searchViewModel = searchViewModel,
                 navigateToTagDetail = navigateToTagDetail,

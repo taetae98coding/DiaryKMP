@@ -2,11 +2,11 @@
 
 기준 스펙: [TagFinishedList 화면 스펙](../spec/client/tag-finished-list.md)
 
-이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 불러오기 실패`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공`, `feature > 새로고침` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 불러오기 실패`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공`, `feature > 새로고침`, `feature > 다시 시작과 삭제` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
-카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다. 다시 시작·삭제의 안내와 실행 취소 케이스의 `근거`가 가리키는 절은 공통 규칙을 [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소`에 위임한다. 다시 시작, 삭제와 실행 취소가 저장하는 상태와 수정 시각, 저장과 동기화의 케이스는 같은 상태 전이를 쓰는 [TagDetail 테스트 케이스](./tag-detail.md)와 [TagHome 목록 테스트 케이스](./tag-home.md)의 `TC-8ab554b9-88a3-421d-abb5-fee3a7bfb7ec`, `TC-58e4f2eb-61a6-41d7-a0ba-f7eefea23c17`, `TC-9ea1e569-f3f7-4928-a7c8-fe559cecadce`, `TC-0ab32303-204f-4de4-9c12-b160d2df7eb1`, `TC-67304ae1-e235-40c2-9534-61bbae9df2a7`, `TC-e136e48d-b539-475d-a7c7-3c770312f57e`에서 다룬다.
+카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다. 다시 시작·삭제의 안내와 실행 취소 케이스의 `근거`가 가리키는 절은 공통 규칙을 [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md)의 `안내와 실행 취소`에 위임한다. 다시 시작, 삭제와 실행 취소가 저장하는 상태와 수정 시각, 저장과 동기화의 케이스는 같은 상태 전이를 쓰는 [TagDetail 테스트 케이스](./tag-detail.md)와 [TagHome 목록 테스트 케이스](./tag-home.md)의 `TC-8ab554b9-88a3-421d-abb5-fee3a7bfb7ec`, `TC-58e4f2eb-61a6-41d7-a0ba-f7eefea23c17`, `TC-9ea1e569-f3f7-4928-a7c8-fe559cecadce`, `TC-0ab32303-204f-4de4-9c12-b160d2df7eb1`, `TC-67304ae1-e235-40c2-9534-61bbae9df2a7`, `TC-e136e48d-b539-475d-a7c7-3c770312f57e`에서 다룬다.
 
 당겨서 새로고침과 진행 표시는 [새로고침 테스트 케이스](./sync-refresh.md)가 다룬다.
 
@@ -127,7 +127,7 @@
 
 ### TC-4453af30-d54d-4541-af6e-e51ec0858893: 태그 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다
 
-- 근거: `feature > 삭제`
+- 근거: [완료 목록 공통 스펙의 다시 시작과 삭제](../spec/client/finished-list.md#다시-시작과-삭제)
 - Given: TagFinishedList 화면에 완료된 태그가 표시되어 있고 삭제가 성공하도록 설정되어 있다.
 - When: 사용자가 그 태그 카드를 오른쪽에서 왼쪽으로 민다.
 - Then: 그 태그의 삭제가 한 번 요청되고, 삭제되었다는 안내와 실행 취소 동작이 표시된다.
@@ -147,35 +147,35 @@
 
 ### TC-0f8b0950-1a04-494b-b8ce-0cea7804a642: 삭제를 실행 취소하면 그 태그의 삭제가 되돌려진다
 
-- 근거: `feature > 삭제`
+- 근거: [완료 목록 공통 스펙의 다시 시작과 삭제](../spec/client/finished-list.md#다시-시작과-삭제)
 - Given: TagFinishedList 화면에서 태그를 삭제해 안내와 실행 취소 동작이 표시되어 있다.
 - When: 사용자가 실행 취소를 선택한다.
 - Then: 그 태그를 삭제되지 않은 상태로 되돌리는 요청이 한 번 일어난다.
 
 ### TC-3528cf64-c3b2-4c25-9fcc-fb52131d8eb9: 아직 준비되지 않은 자리는 밀어도 다시 시작되거나 삭제되지 않는다
 
-- 근거: `feature > 삭제`
+- 근거: [완료 목록 공통 스펙의 다시 시작과 삭제](../spec/client/finished-list.md#다시-시작과-삭제)
 - Given: TagFinishedList 화면에 아직 준비되지 않은 자리가 표시되어 있다.
 - When: 사용자가 그 자리를 왼쪽에서 오른쪽으로, 오른쪽에서 왼쪽으로 각각 민다.
 - Then: 다시 시작과 삭제가 요청되지 않는다.
 
 ### TC-a0af7051-b09d-4677-b198-ebcbaa778c00: 안내가 보이는 동안 다른 태그를 다시 시작하거나 삭제하면 마지막 동작의 안내만 남는다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: TagFinishedList 화면에서 태그 A를 다시 시작해 안내가 표시되어 있다.
 - When: 안내가 사라지기 전에 태그 B가 삭제되고, 이어서 사용자가 실행 취소를 선택한다.
 - Then: 안내는 삭제 안내 하나만 표시되고, 실행 취소는 태그 B의 삭제에만 적용되며 태그 A의 다시 시작은 되돌려지지 않는다.
 
 ### TC-e67ba555-6b30-4af6-9769-2191035347d1: 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: TagFinishedList 화면에서 태그를 삭제해 안내가 표시되어 있다.
 - When: 사용자가 실행 취소를 선택하지 않고 안내가 저절로 사라질 때까지 기다린다.
 - Then: 안내와 실행 취소 동작이 사라지고, 동작을 되돌리는 요청은 일어나지 않는다.
 
 ### TC-2b1e8967-0388-4a99-b445-74c356369cbe: 다시 시작이나 삭제가 저장되지 못하면 안내를 표시하지 않는다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: 테스트 데이터의 동작의 저장이 실패하도록 설정되어 있다.
 - When: 사용자가 목록에서 그 동작을 실행한다.
 - Then: 안내와 실행 취소 동작이 제공되지 않는다.
@@ -183,7 +183,7 @@
 
 ### TC-e70e4d5a-9f77-42a3-b9b7-bbf71bca9eed: 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다
 
-- 근거: `feature > 안내와 실행 취소`
+- 근거: `feature > 다시 시작과 삭제`
 - Given: TagFinishedList 화면에서 태그를 삭제해 안내와 실행 취소 동작이 표시되어 있다.
 - When: 사용자가 TagFinishedList 화면을 떠났다가 다시 돌아온다.
 - Then: 안내와 실행 취소 동작이 보이지 않고, 삭제를 되돌리는 요청은 일어나지 않는다.

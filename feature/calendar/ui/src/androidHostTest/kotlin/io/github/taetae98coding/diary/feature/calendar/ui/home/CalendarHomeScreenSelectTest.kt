@@ -60,16 +60,22 @@ class CalendarHomeScreenSelectTest {
     }
 
     @Test
-    fun `TC-13cdf97a-1a5d-44ec-af41-1b1fc64a1e70 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+    fun `TC-0cbc05d1-ce77-454f-9e6f-d6b7e65b8c32 기간을 선택하는 도중 시스템이 선택을 중단하면 MemoAdd 화면 이동이 요청되지 않고 선택이 남지 않는다`() {
+        var capturedState: CalendarHomeScaffoldState? = null
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
-        setCalendarHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
+        setCalendarHomeScreen(
+            navigateToMemoAdd = { navigatedDateRangeList += it },
+            onState = { capturedState = it },
+        )
 
         performLongPress(dayCenter(day = 14))
         performMoveTo(dayCenter(day = 17))
         composeRule.onRoot().performTouchInput { cancel() }
         composeRule.waitForIdle()
 
-        navigatedDateRangeList shouldBe listOf(july(day = 14)..july(day = 17))
+        navigatedDateRangeList shouldBe emptyList()
+        capturedState?.calendarSelectState?.dateRange.shouldBeNull()
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
     }
 
     @Test

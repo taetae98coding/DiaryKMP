@@ -5,7 +5,11 @@ import io.github.taetae98coding.diary.library.objc.ObjCFramework
 import io.github.taetae98coding.diary.library.objc.ObjCRuntime
 import io.github.taetae98coding.diary.library.objc.nsString
 import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendBoolean
+import io.github.taetae98coding.diary.library.objc.sendDouble
+import io.github.taetae98coding.diary.library.objc.sendLong
 import io.github.taetae98coding.diary.library.objc.sendVoid
+import io.github.taetae98coding.diary.library.objc.utf8String
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.lang.foreign.MemorySegment
@@ -18,7 +22,7 @@ private const val TRUE_VALUE = "TRUE"
 private const val MILLIS_PER_SECOND = 1_000.0
 
 /**
- * 기본 WKWebViewConfiguration이 쓰는 WKWebsiteDataStore의 쿠키 저장소에 쿠키를 넣는다.
+ * 기본 WKWebViewConfiguration이 쓰는 WKWebsiteDataStore의 쿠키 저장소에서 쿠키를 읽고 넣는다.
  * [WebKitWebViewPanel]이 만드는 웹뷰가 같은 저장소를 쓰므로 여기에 넣은 쿠키가 그 웹뷰의 요청에 실린다.
  */
 public object WebKitCookieStore {
@@ -30,20 +34,21 @@ public object WebKitCookieStore {
         }
     }
 
-    public suspend fun deleteAllCookies() {
+    public suspend fun readSessionCookies(): List<WebKitCookie> =
         suspendCancellableCoroutine { continuation ->
-            ObjCRuntime.performOnMainThread { deleteAllCookiesOnMainThread(continuation = continuation) }
+            ObjCRuntime.performOnMainThread { readSessionCookiesOnMainThread(continuation = continuation) }
         }
-    }
 
-    private fun deleteAllCookiesOnMainThread(continuation: CancellableContinuation<Unit>) {
+    private fun readSessionCookiesOnMainThread(continuation: CancellableContinuation<List<WebKitCookie>>) {
         try {
-            val dataStore = webKitClass("WKWebsiteDataStore").send(ObjCRuntime.selector("defaultDataStore"))
-            val cookieType = ObjCRuntime.objcClass("NSSet").send(ObjCRuntime.selector("setWithObject:"), webKitString("WKWebsiteDataTypeCookies"))
-            val distantPast = ObjCRuntime.objcClass("NSDate").send(ObjCRuntime.selector("distantPast"))
-            val completion = ObjCBlock.create { if (continuation.isActive) continuation.resume(Unit) }
+            val completion =
+                ObjCBlock.createObject { cookieArray ->
+                    val result = runCatching { ObjCRuntime.withAutoreleasePool { cookieArray.toSessionCookieList() } }
 
-            dataStore.sendVoid(ObjCRuntime.selector("removeDataOfTypes:modifiedSince:completionHandler:"), cookieType, distantPast, completion)
+                    if (continuation.isActive) continuation.resumeWith(result)
+                }
+
+            httpCookieStore().sendVoid(ObjCRuntime.selector("getAllCookies:"), completion)
         } catch (throwable: Throwable) {
             if (continuation.isActive) continuation.resumeWithException(throwable)
         }
@@ -54,10 +59,7 @@ public object WebKitCookieStore {
         continuation: CancellableContinuation<Unit>,
     ) {
         try {
-            val store =
-                webKitClass("WKWebsiteDataStore")
-                    .send(ObjCRuntime.selector("defaultDataStore"))
-                    .send(ObjCRuntime.selector("httpCookieStore"))
+            val store = httpCookieStore()
             val nsCookieList = cookieList.mapNotNull { cookie -> cookie.toNsHttpCookie() }
 
             if (nsCookieList.isEmpty()) {
@@ -124,6 +126,44 @@ internal fun WebKitCookie.toNsHttpCookie(): MemorySegment? {
     return cookie.takeIf { segment -> segment.address() != 0L }
 }
 
+private fun httpCookieStore(): MemorySegment =
+    webKitClass("WKWebsiteDataStore")
+        .send(ObjCRuntime.selector("defaultDataStore"))
+        .send(ObjCRuntime.selector("httpCookieStore"))
+
+// 브라우저를 닫을 때까지만 쓰는 세션 쿠키만 고르며, 그 밖의 쿠키는 웹 표시 수단이 기기에 직접 기록한다.
+internal fun MemorySegment.toSessionCookieList(): List<WebKitCookie> {
+    val count = sendLong(ObjCRuntime.selector("count"))
+
+    return (0 until count)
+        .map { index -> send(ObjCRuntime.selector("objectAtIndex:"), index) }
+        .filter { cookie -> cookie.sendBoolean(ObjCRuntime.selector("isSessionOnly")) }
+        .map { cookie -> cookie.toWebKitCookie() }
+}
+
+internal fun MemorySegment.toWebKitCookie(): WebKitCookie =
+    WebKitCookie(
+        name = send(ObjCRuntime.selector("name")).utf8String(),
+        value = send(ObjCRuntime.selector("value")).utf8String(),
+        domain = send(ObjCRuntime.selector("domain")).utf8String(),
+        path = send(ObjCRuntime.selector("path")).utf8String(),
+        expiresAtEpochMilliseconds =
+            send(ObjCRuntime.selector("expiresDate"))
+                .takeIf { date -> date.address() != 0L }
+                ?.let { date -> (date.sendDouble(ObjCRuntime.selector("timeIntervalSince1970")) * MILLIS_PER_SECOND).toLong() },
+        isSecure = sendBoolean(ObjCRuntime.selector("isSecure")),
+        isHttpOnly = sendBoolean(ObjCRuntime.selector("isHTTPOnly")),
+        sameSite = send(ObjCRuntime.selector("sameSitePolicy")).toSameSite(),
+    )
+
+private fun MemorySegment.toSameSite(): WebKitCookieSameSite =
+    when {
+        address() == 0L -> WebKitCookieSameSite.UNSPECIFIED
+        sendBoolean(ObjCRuntime.selector("isEqualToString:"), foundationString("NSHTTPCookieSameSiteLax")) -> WebKitCookieSameSite.LAX
+        sendBoolean(ObjCRuntime.selector("isEqualToString:"), foundationString("NSHTTPCookieSameSiteStrict")) -> WebKitCookieSameSite.STRICT
+        else -> WebKitCookieSameSite.UNSPECIFIED
+    }
+
 private fun MemorySegment.setProperty(
     key: MemorySegment,
     value: MemorySegment,
@@ -132,5 +172,3 @@ private fun MemorySegment.setProperty(
 }
 
 private fun foundationString(name: String): MemorySegment = ObjCFramework.string(frameworkPath = ObjCFramework.FOUNDATION_PATH, name = name)
-
-private fun webKitString(name: String): MemorySegment = ObjCFramework.string(frameworkPath = WEBKIT_PATH, name = name)

@@ -7,7 +7,6 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.core.model.file.FileUri
@@ -22,7 +21,6 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadNotifier
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResult
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultReporter
-import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
@@ -200,7 +198,6 @@ class CoroutineFileUploadWorkSchedulerTest :
                                 emit(Result.success(FileUploadStep.Completed(source = source, file = file)))
                             }
                         coEvery { fixture.fileRepository.removeUploadSource(uri = request.content.uri) } returns Unit
-                        val viewingHolder = FileScreenViewingHolder().apply { start(screen = FileScreen.ADD) }
                         val notifier = mockk<FileUploadNotifier>(relaxed = true)
                         val scheduler =
                             fixture.scheduler(
@@ -210,7 +207,6 @@ class CoroutineFileUploadWorkSchedulerTest :
                                         fileRepository = fixture.fileRepository,
                                         fileUploadResultReporter =
                                             FileUploadResultReporter(
-                                                fileScreenViewingHolder = viewingHolder,
                                                 fileUploadEventHolder = FileUploadEventHolder(),
                                                 fileUploadNotifier = notifier,
                                             ),
@@ -219,7 +215,6 @@ class CoroutineFileUploadWorkSchedulerTest :
 
                         scheduler.upload(request = request)
                         runCurrent()
-                        viewingHolder.stop(screen = FileScreen.ADD)
                         response.complete(Unit)
                         runCurrent()
 

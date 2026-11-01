@@ -3,23 +3,32 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.input.ImeAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,6 +135,29 @@ class DiaryTitleInputTest {
         composeRule.onNode(hasSetTextAction()).assert(hasText(INITIAL_TEXT))
         composeRule.onNodeWithText(KOREAN_LABEL).assertExists()
         composeRule.onAllNodes(hasText(REQUIRED_MARK, substring = true)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-017127f2-99e1-49fa-a911-f3d3c1b3fecf 화면 키보드에서 입력을 마치는 키를 누르면 화면 키보드가 닫히고 초점은 옮겨 가지 않는다`() {
+        val keyboardController = mockk<SoftwareKeyboardController>(relaxed = true)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalSoftwareKeyboardController provides keyboardController) {
+                DiaryTheme {
+                    DiaryTitleInput(state = rememberDiaryTitleInputState(initialText = INITIAL_TEXT))
+                }
+            }
+        }
+        val title = composeRule.onNode(hasSetTextAction())
+        title.performClick()
+        title.assertIsFocused()
+
+        title.performImeAction()
+        composeRule.waitForIdle()
+
+        title.fetchSemanticsNode().config[SemanticsProperties.ImeAction] shouldBe ImeAction.Done
+        verify { keyboardController.hide() }
+        title.assertIsFocused()
+        composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_DESCRIPTION).assertIsNotFocused()
     }
 
     private fun setDiaryTitleInput(

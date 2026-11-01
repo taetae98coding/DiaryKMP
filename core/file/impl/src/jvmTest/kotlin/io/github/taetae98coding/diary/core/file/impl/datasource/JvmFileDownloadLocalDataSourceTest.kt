@@ -6,10 +6,15 @@ import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirect
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyOrder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -117,22 +122,101 @@ class JvmFileDownloadLocalDataSourceTest :
             }
         }
 
-        test("폴더를 고르면 그 경로와 폴더 이름을 기억하고, 폴더가 아니면 실패한다") {
+        test("폴더를 고르면 그 경로, 폴더 이름과 다음 실행에도 접근을 얻는 북마크를 기억하고, 폴더가 아니면 실패한다") {
             runTest {
                 val directory = Files.createTempDirectory("retain").toFile()
                 val file = Files.createTempFile("retain", ".txt").toFile()
-                val dataSource = dataSource()
+                val bookmark = fixtureMonkey.giveMeOne<String>()
+                val directoryBookmark = mockk<DirectoryBookmark>()
+                every { directoryBookmark.create(path = directory.absolutePath) } returns bookmark
+                val dataSource = dataSource(directoryBookmark = directoryBookmark)
 
-                dataSource.retainDirectory(uri = directory.absolutePath) shouldBe FileDownloadDirectory(uri = directory.absolutePath, name = directory.name)
+                dataSource.retainDirectory(uri = directory.absolutePath) shouldBe
+                    FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = bookmark)
                 shouldThrow<IllegalStateException> { dataSource.retainDirectory(uri = file.absolutePath) }
+            }
+        }
+
+        test("북마크를 만들지 못하면 폴더를 기억하지 않고 실패한다") {
+            runTest {
+                val directory = Files.createTempDirectory("retain").toFile()
+                val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                val directoryBookmark = mockk<DirectoryBookmark>()
+                every { directoryBookmark.create(path = any()) } throws exception
+
+                shouldThrow<IllegalStateException> {
+                    dataSource(directoryBookmark = directoryBookmark).retainDirectory(uri = directory.absolutePath)
+                } shouldBe exception
+            }
+        }
+
+        test("TC-fa368167-d81a-4307-a63d-7e49c56ec884 북마크가 있는 폴더에는 접근을 얻은 동안에만 쓰고, 다 쓴 뒤 접근을 돌려준다") {
+            runTest {
+                val directory = Files.createTempDirectory("scoped").toFile()
+                val bookmark = fixtureMonkey.giveMeOne<String>()
+                val access = mockk<AutoCloseable>(relaxUnitFun = true)
+                val directoryBookmark = mockk<DirectoryBookmark>()
+                every { directoryBookmark.startAccessing(bookmark = bookmark) } returns access
+
+                dataSource(directoryBookmark = directoryBookmark).save(
+                    directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = bookmark),
+                    nameCandidate = { "report.pdf" },
+                    write = { sink ->
+                        verify(exactly = 0) { access.close() }
+                        sink.writeBytes(byteArrayOf(1))
+                    },
+                )
+
+                verifyOrder {
+                    directoryBookmark.startAccessing(bookmark = bookmark)
+                    access.close()
+                }
+                directory.resolve("report.pdf").exists() shouldBe true
+            }
+        }
+
+        test("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 북마크로 접근을 얻지 못하면 저장 위치 실패로 끝난다") {
+            runTest {
+                val directory = Files.createTempDirectory("scoped").toFile()
+                val directoryBookmark = mockk<DirectoryBookmark>()
+                every { directoryBookmark.startAccessing(bookmark = any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+
+                shouldThrow<FileDownloadDirectoryUnavailableException> {
+                    dataSource(directoryBookmark = directoryBookmark).save(
+                        directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = fixtureMonkey.nonBlankString()),
+                        nameCandidate = { "report.pdf" },
+                        write = {},
+                    )
+                }
+                directory.listFiles().orEmpty().toList() shouldBe emptyList()
+            }
+        }
+
+        test("북마크 없이 기억한 폴더는 접근을 얻지 않고 경로로 쓴다") {
+            runTest {
+                val directory = Files.createTempDirectory("legacy").toFile()
+                val directoryBookmark = mockk<DirectoryBookmark>()
+
+                dataSource(directoryBookmark = directoryBookmark).save(
+                    directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = ""),
+                    nameCandidate = { "report.pdf" },
+                    write = { sink -> sink.writeBytes(byteArrayOf(1)) },
+                )
+
+                verify(exactly = 0) { directoryBookmark.startAccessing(bookmark = any()) }
+                directory.resolve("report.pdf").exists() shouldBe true
             }
         }
     })
 
-private fun TestScope.dataSource(defaultDirectory: File = Files.createTempDirectory("default").toFile()): JvmFileDownloadLocalDataSource =
+private fun TestScope.dataSource(
+    defaultDirectory: File = Files.createTempDirectory("default").toFile(),
+    directoryBookmark: DirectoryBookmark = mockk(),
+): JvmFileDownloadLocalDataSource =
     JvmFileDownloadLocalDataSource(
         dispatcher = StandardTestDispatcher(testScheduler),
         defaultDirectory = defaultDirectory.absolutePath,
+        directoryBookmark = directoryBookmark,
     )
 
 private fun RawSink.writeBytes(bytes: ByteArray) {

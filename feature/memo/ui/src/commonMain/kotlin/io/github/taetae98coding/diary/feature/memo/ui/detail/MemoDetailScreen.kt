@@ -46,6 +46,7 @@ internal fun MemoDetailScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
+    navigateToGeminiSetting: () -> Unit,
     addRequestKey: Uuid,
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible,
     isStandalone: Boolean,
@@ -79,7 +80,7 @@ internal fun MemoDetailScreen(
     key(shownContent?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = shownContent?.detail ?: MemoDetail.EMPTY)
 
-        MemoDetailTargetEffect(id = shownContent?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
+        MemoDetailTargetEffect(id = shownContent?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo, navigateToGeminiSetting = navigateToGeminiSetting)
 
         MemoDetailScaffold(
             state = scaffoldState,
@@ -143,9 +144,10 @@ private fun MemoDetailTargetEffect(
     geminiViewModel: MemoGeminiViewModel,
     navigateUp: () -> Unit,
     navigateToCopiedMemo: (Uuid) -> Unit,
+    navigateToGeminiSetting: () -> Unit,
 ) {
     MemoDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
-    MemoGeminiSettingRequiredEffect(snackbarHostState = scaffoldState.snackbarHostState, effect = geminiViewModel.effect)
+    MemoGeminiSettingRequiredEffect(navigateToGeminiSetting = navigateToGeminiSetting, effect = geminiViewModel.effect)
 
     if (id != null) {
         MemoCopiedResultEffect(id = id, scaffoldState = scaffoldState)

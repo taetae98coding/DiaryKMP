@@ -12,8 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
@@ -44,41 +42,32 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
-import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.RefreshFileUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
-import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailTestScreen
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Before
@@ -247,49 +236,8 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 목록을 다시 불러오고 돌아왔을 때 처음부터 보인다`() {
-        val fileList = fileList(count = 30)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThen (listOf(uploaded) + fileList).take(PAGE_SIZE)
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
-        val upload = FileUploadMocks()
-        var isFileHomeVisible by mutableStateOf(true)
-        val screen = fileHomeScreen(server = server, upload = upload)
-
-        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
-        scrollListTo(index = PAGE_SIZE - 1)
-        composeRule.runOnIdle { isFileHomeVisible = false }
-        composeRule.waitForIdle()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.SucceededOnFileAdd(fileId = uploaded.id)) }
-        composeRule.runOnIdle { isFileHomeVisible = true }
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 2) { server(0) }
-        composeRule.onNodeWithText(uploaded.name).assertIsDisplayed()
-        assertAbove(upper = uploaded, lower = fileList.first())
-        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-ad53df91-30c2-4c79-ba3d-f0f479def34a FileAdd를 보는 동안 다시 불러오기에 실패하면 돌아왔을 때 이전 목록만 보이고 안내는 없다`() {
-        val file = fixtureMonkey.diaryFile()
-        val server = server()
-        coEvery { server(0) } returns listOf(file) andThenThrows failure()
-        val upload = FileUploadMocks()
-        var isFileHomeVisible by mutableStateOf(true)
-        val screen = fileHomeScreen(server = server, upload = upload)
-
-        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
-        composeRule.runOnIdle { isFileHomeVisible = false }
-        composeRule.waitForIdle()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.SucceededOnFileAdd(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
-        composeRule.runOnIdle { isFileHomeVisible = true }
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 2) { server(0) }
-        composeRule.onNodeWithText(file.name).assertExists()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
+    fun `TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 돌아왔을 때 목록을 다시 불러와 처음부터 보인다`() {
+        assertSucceededWhileHiddenReturnsToTop()
     }
 
     @Test
@@ -333,27 +281,15 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-d245f500-5b99-44e1-ac98-895acf0ae06d FileDetail을 보는 동안 올리기에 성공해도 목록을 다시 불러오지 않는다`() {
-        val fileList = fileList(count = 30)
-        val server = server(pageList = fileList.chunked(PAGE_SIZE))
-        val upload = FileUploadMocks()
-        var isFileHomeVisible by mutableStateOf(true)
-        val screen = fileHomeScreen(server = server, upload = upload)
+    fun `TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileDetail을 보는 동안 올리기에 성공하면 돌아왔을 때 목록을 다시 불러와 처음부터 보인다`() {
+        assertSucceededWhileHiddenReturnsToTop()
+    }
 
-        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
-        startUpload()
-        scrollListTo(index = PAGE_SIZE - 1)
-        composeRule.runOnIdle { isFileHomeVisible = false }
-        composeRule.waitForIdle()
-        // FileDetail은 파일 화면이 아니므로 결과는 이 화면에 전달되지 않고 알림으로 간다.
-        composeRule.runOnIdle { upload.finishWithoutEvent() }
-        composeRule.runOnIdle { isFileHomeVisible = true }
-        composeRule.waitForIdle()
+    @Test
+    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 올리기에 성공하면 이전 목록을 둔 채 진행 중임을 표시한다`() {
+        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
-        coVerify(exactly = 1) { server(0) }
-        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
-        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertDoesNotExist()
+        assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(uploaded), expectedFirst = uploaded)
     }
 
     @Test
@@ -409,42 +345,53 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보일 때 올리기 뒤 다시 불러오기에 실패하면 보던 자리의 이전 목록을 두고 다시 시도와 함께 알린다`() {
-        val fileList = fileList(count = 30)
+    fun `TC-cf9aee73-db43-485e-b452-d2760c2f657b 목록이 보일 때 올리기 뒤 다시 불러오기에 실패하면 이전 목록 대신 본문에 실패 안내와 다시 시도를 표시한다`() {
+        val fileList = fileList(count = 5)
         val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
+        coEvery { server(0) } returns fileList andThenThrows failure()
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
-        scrollListTo(index = PAGE_SIZE - 1)
         startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
         composeRule.waitForIdle()
 
-        coVerify(exactly = 2) { server(0) }
-        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertExists()
-        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.onNodeWithText(RETRY).assertExists()
+        assertBodyLoadFailed(server = server, fileList = fileList)
     }
 
     @Test
-    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보이는 상태에서 당겨서 새로고침하다 실패하면 이전 목록을 두고 다시 시도와 함께 알린다`() {
-        val fileList = fileList(count = 30)
+    fun `TC-cf9aee73-db43-485e-b452-d2760c2f657b 목록이 보이는 상태에서 당겨서 새로고침하다 실패하면 이전 목록 대신 본문에 실패 안내와 다시 시도를 표시한다`() {
+        val fileList = fileList(count = 5)
         val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
+        coEvery { server(0) } returns fileList andThenThrows failure()
 
         setFileHomeScreen(server = server)
-        scrollListTo(index = PAGE_SIZE - 1)
-        scrollListTo(index = 0)
         pull()
 
-        coVerify(exactly = 2) { server(0) }
-        composeRule.onNodeWithText(fileList.first().name).assertExists()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.onNodeWithText(RETRY).assertExists()
+        assertBodyLoadFailed(server = server, fileList = fileList)
+    }
+
+    @Test
+    fun `TC-cf9aee73-db43-485e-b452-d2760c2f657b 다시 불러오기에 실패한 뒤 다시 시도하면 이전 목록 대신 불러오는 중을 표시하고 새 목록을 보여 준다`() {
+        val fileList = fileList(count = 5)
+        val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
+        val response = CompletableDeferred<List<DiaryFile>>()
+        val server = server()
+        coEvery { server(0) } returns fileList andThenThrows failure() coAndThen { response.await() }
+
+        setFileHomeScreen(server = server)
+        pull()
+        composeRule.onNodeWithText(RETRY).performClick()
+        composeRule.waitForIdle()
+
+        bodyProgress().assertExists()
+        fileList.forEach { file -> composeRule.onNodeWithText(file.name).assertDoesNotExist() }
+
+        response.complete(listOf(added) + fileList)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(added.name).assertExists()
+        coVerify(exactly = 3) { server(0) }
     }
 
     @Test
@@ -503,35 +450,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-3d0441c3-f1c5-4e9e-9868-2d5b65062d2c 다시 불러오기 실패 안내의 다시 시도를 선택하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
-        val fileList = fileList(count = 5)
-        val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
-        val response = CompletableDeferred<List<DiaryFile>>()
-        val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure() coAndThen { response.await() }
-        val upload = FileUploadMocks()
-
-        setFileHomeScreen(server = server, upload = upload)
-        startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = added.id)) }
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(RETRY).performClick()
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 3) { server(0) }
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(fileList.first().name).assertExists()
-        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertExists()
-
-        response.complete(listOf(added) + fileList)
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(added.name).assertExists()
-        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 당겨서 새로고침하면 이전 목록을 둔 채 처음부터 다시 불러온다`() {
+    fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 당겨서 새로고침하면 이전 목록을 둔 채 진행 중임을 표시한다`() {
         val fileList = fileList(count = 5)
         val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
         val response = CompletableDeferred<List<DiaryFile>>()
@@ -607,46 +526,40 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 빈 상태에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
+    fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 빈 상태에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
-        assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null, next = Result.success(listOf(uploaded)))
+        assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null)
     }
 
     @Test
-    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 처음 불러오기 실패에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
+    fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 불러오기 실패에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
 
-        assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = failure(), next = Result.success(listOf(uploaded)))
+        assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = failure())
     }
 
     @Test
-    fun `TC-bded6dfc-cc5c-4385-88b1-e01bc7a2e8ba 빈 상태에서 올리기 성공 뒤 다시 불러오기에 실패하면 스낵바 대신 본문에 실패 안내를 표시한다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-
-        assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null, next = Result.failure(failure()))
-    }
-
-    @Test
-    fun `TC-b86219a5-e39f-45d9-975e-18d1698f4c3c 목록을 처음 불러오는 중에 올리기에 성공하면 처음부터 다시 불러온다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val response = CompletableDeferred<List<DiaryFile>>()
+    fun `TC-1a8c9a93-df0e-4773-81ef-ed56e332e3d6 목록을 처음 불러오는 중에 올리기에 성공하면 진행 중인 불러오기를 멈추고 처음부터 다시 불러온다`() {
+        var cancelledCount = 0
         val server = server()
-        coEvery { server(0) } coAnswers { awaitCancellation() } coAndThen { response.await() }
+        coEvery { server(0) } coAnswers {
+            try {
+                awaitCancellation()
+            } finally {
+                cancelledCount++
+            }
+        }
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
         composeRule.waitForIdle()
 
         coVerify(exactly = 2) { server(0) }
+        cancelledCount shouldBe 1
         bodyProgress().assertExists()
-
-        response.complete(listOf(uploaded))
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(uploaded.name).assertExists()
     }
 
     @Test
@@ -1048,61 +961,6 @@ class FileHomeScreenTest {
         composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
     }
 
-    @Test
-    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 앱이 화면 앞에 있고 FileHome을 표시하는 동안만 보고 있다고 알린다`() {
-        val upload = FileUploadMocks()
-        val screen = fileHomeScreen(server = server(pageList = listOf(emptyList())), upload = upload)
-        val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
-        var isShown by mutableStateOf(true)
-
-        composeRule.setContent {
-            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                if (isShown) screen.Content()
-            }
-        }
-        composeRule.waitForIdle()
-        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-        coVerify(exactly = 0) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-
-        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
-        composeRule.waitForIdle()
-        coVerify(exactly = 1) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-
-        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
-        composeRule.waitForIdle()
-        coVerify(exactly = 2) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-
-        composeRule.runOnIdle { isShown = false }
-        composeRule.waitForIdle()
-        coVerify(exactly = 2) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-    }
-
-    @Test
-    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 앱이 화면 앞에 있어도 FileHome에서 연 FileDetail을 보는 동안은 보고 있지 않다고 알린다`() {
-        val upload = FileUploadMocks()
-        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
-        val detailScreen = FileDetailTestScreen()
-        var isDetailShown by mutableStateOf(false)
-
-        composeRule.setContent {
-            val holder = rememberSaveableStateHolder()
-
-            if (isDetailShown) {
-                detailScreen.Content()
-            } else {
-                holder.SaveableStateProvider(key = FILE_HOME_KEY) { screen.Content() }
-            }
-        }
-        composeRule.waitForIdle()
-        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-
-        composeRule.runOnIdle { isDetailShown = true }
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 1) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
-        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = any()) }
-    }
-
     private fun assertUploadSucceededReturnsToTop(
         uploaded: DiaryFile,
         prefix: List<DiaryFile>,
@@ -1125,7 +983,7 @@ class FileHomeScreenTest {
         coVerify(exactly = 2) { server(0) }
         uploadProgress().assertDoesNotExist()
         bodyProgress().assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertExists()
         composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertExists()
 
         response.complete((prefix + fileList).take(PAGE_SIZE))
@@ -1139,7 +997,6 @@ class FileHomeScreenTest {
     private fun assertUploadSucceededFromBlankBody(
         uploaded: DiaryFile,
         firstFailure: Throwable?,
-        next: Result<List<DiaryFile>>,
     ) {
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1155,16 +1012,47 @@ class FileHomeScreenTest {
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
         bodyProgress().assertExists()
-        next.fold(onSuccess = response::complete, onFailure = response::completeExceptionally)
+        response.complete(listOf(uploaded))
         composeRule.waitForIdle()
 
-        if (next.isSuccess) {
-            composeRule.onNodeWithText(uploaded.name).assertExists()
-            composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        } else {
-            composeRule.onAllNodesWithText(LOAD_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
-            composeRule.onAllNodesWithText(RETRY).fetchSemanticsNodes().size shouldBe 1
-        }
+        composeRule.onNodeWithText(uploaded.name).assertExists()
+        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
+    }
+
+    private fun assertBodyLoadFailed(
+        server: suspend (Int) -> List<DiaryFile>,
+        fileList: List<DiaryFile>,
+    ) {
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onAllNodesWithText(LOAD_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
+        composeRule.onNodeWithText(RETRY).assertExists()
+        fileList.forEach { file -> composeRule.onNodeWithText(file.name).assertDoesNotExist() }
+    }
+
+    // FileAdd나 FileDetail이 위에 열리면 FileHome은 화면에서 내려가 결과를 받지 못하고, 돌아왔을 때 쌓여 있던 성공을 받는다.
+    private fun assertSucceededWhileHiddenReturnsToTop() {
+        val fileList = fileList(count = 30)
+        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val server = server()
+        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThen (listOf(uploaded) + fileList).take(PAGE_SIZE)
+        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
+        val upload = FileUploadMocks()
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server, upload = upload)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        startUpload()
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onNodeWithText(uploaded.name).assertIsDisplayed()
+        assertAbove(upper = uploaded, lower = fileList.first())
+        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
     }
 
     private fun assertFinishedWhileAwayIsNotNotified() {
@@ -1229,83 +1117,26 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-083ace49-3cec-4a6d-af2f-b90fa7a59d57 다시 불러오기에 실패한 뒤 당겨서 새로고침으로 다시 시도한다`() {
-        val fileList = fileList(count = 5)
-        val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
+    fun `TC-1a8c9a93-df0e-4773-81ef-ed56e332e3d6 당겨서 다시 불러오는 동안 올리기에 성공하면 진행 중인 불러오기를 멈추고 처음부터 다시 불러온다`() {
+        var cancelledCount = 0
         val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure() andThen listOf(added) + fileList
-
-        setFileHomeScreen(server = server)
-        pull()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.mainClock.advanceTimeBy(SNACKBAR_DISMISS_MILLIS)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        pull()
-
-        coVerify(exactly = 3) { server(0) }
-        assertAbove(upper = added, lower = fileList.first())
-    }
-
-    @Test
-    fun `TC-fd67a697-fc1b-49bb-9cfb-3805164296eb 다시 불러오기에 성공하면 목록 끝에서 다시 이어서 불러온다`() {
-        val fileList = fileList(count = 25)
-        val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure() andThen fileList.take(PAGE_SIZE)
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
-
-        setFileHomeScreen(server = server)
-        pull()
-        composeRule.onNodeWithText(RETRY).performClick()
-        composeRule.waitForIdle()
-        scrollListTo(index = PAGE_SIZE - 1)
-        scrollListTo(index = fileList.lastIndex)
-
-        coVerify(exactly = 3) { server(0) }
-        coVerify(atLeast = 1) { server(1) }
-        composeRule.onNodeWithText(fileList.last().name).assertExists()
-    }
-
-    @Test
-    fun `TC-a81de861-ef29-434d-a558-91b824444920 다시 불러오는 동안 올리기에 성공하면 처음부터 다시 불러와 처음으로 돌아간다`() {
-        val fileList = fileList(count = 30)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val pending = CompletableDeferred<List<DiaryFile>>()
-        val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) coAndThen { pending.await() } andThen listOf(uploaded) + fileList.take(PAGE_SIZE - 1)
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
+        coEvery { server(0) } returns fileList(count = 5) coAndThen {
+            try {
+                awaitCancellation()
+            } finally {
+                cancelledCount++
+            }
+        }
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
         pull()
-        scrollListTo(index = PAGE_SIZE - 1)
-        scrollListTo(index = fileList.lastIndex)
-        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
         composeRule.waitForIdle()
 
         coVerify(exactly = 3) { server(0) }
-        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertDoesNotExist()
-        composeRule.onNodeWithText(uploaded.name).assertIsDisplayed()
-        assertAbove(upper = uploaded, lower = fileList.first())
-    }
-
-    @Test
-    fun `TC-c5d6336e-fae4-4a03-8595-a378ac001646 다시 불러오는 동안 안내의 다시 시도를 선택해도 새로 요청하지 않는다`() {
-        val fileList = fileList(count = 5)
-        val pending = CompletableDeferred<List<DiaryFile>>()
-        val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure() coAndThen { pending.await() }
-
-        setFileHomeScreen(server = server)
-        pull()
-        composeRule.onNodeWithText(RETRY).assertExists()
-        pull()
-        composeRule.onNodeWithText(RETRY).performClick()
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 3) { server(0) }
+        cancelledCount shouldBe 1
     }
 
     @Test
@@ -1332,88 +1163,6 @@ class FileHomeScreenTest {
 
         coVerify(exactly = 1) { secondServer(0) }
         composeRule.onNodeWithText(fileList.first().name).assertIsDisplayed()
-    }
-
-    @Test
-    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 화면이 재생성되면 다시 불러오기 실패 안내가 닫히고 다시 나타나지 않는다`() {
-        val fileList = fileList(count = 1)
-        val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure()
-        val screen = fileHomeScreen(server = server)
-        val tester = StateRestorationTester(composeRule)
-
-        tester.setContent { screen.Content() }
-        composeRule.waitForIdle()
-        pull()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        tester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss)).assertDoesNotExist()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(fileList.first().name).assertExists()
-    }
-
-    @Test
-    fun `TC-8b3a326d-d0ac-4dbb-94d8-b611b54c6df2 다시 불러오기에 실패한 뒤 화면이 재생성되어도 이전 목록이 남는다`() {
-        val fileList = fileList(count = 5)
-        val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure()
-        val screen = fileHomeScreen(server = server)
-        val tester = StateRestorationTester(composeRule)
-
-        tester.setContent { screen.Content() }
-        composeRule.waitForIdle()
-        pull()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        tester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        fileList.forEach { file -> composeRule.onNodeWithText(file.name).assertExists() }
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(RETRY).assertDoesNotExist()
-        coVerify(exactly = 2) { server(0) }
-    }
-
-    @Test
-    fun `TC-b2dd6ad4-a6b2-4f35-a71f-31ff212f0a1e 다시 불러오기에 실패한 뒤 남은 목록의 끝에서도 이어서 불러온다`() {
-        val fileList = fileList(count = 25)
-        val server = server()
-        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
-        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
-
-        setFileHomeScreen(server = server)
-        pull()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        scrollListTo(index = PAGE_SIZE - 1)
-        scrollListTo(index = fileList.lastIndex)
-
-        coVerify(atLeast = 1) { server(1) }
-        composeRule.onNodeWithText(fileList.last().name).assertExists()
-    }
-
-    @Test
-    fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 앱이 백그라운드에 다녀와도 다시 불러오기 실패 안내가 남는다`() {
-        val fileList = fileList(count = 1)
-        val server = server()
-        coEvery { server(0) } returns fileList andThenThrows failure()
-        val screen = fileHomeScreen(server = server)
-        val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
-
-        composeRule.setContent {
-            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                screen.Content()
-            }
-        }
-        composeRule.waitForIdle()
-        pull()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
-        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
-        composeRule.mainClock.advanceTimeByFrame()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
     }
 
     @Test
@@ -1524,17 +1273,14 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-62b45f1e-b35d-40df-bc94-1aa52c84c45d 올리기 성공으로 다시 불러오는 동안 당겨도 새로 요청하지 않는다`() {
-        val fileList = fileList(count = 5)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val pending = CompletableDeferred<List<DiaryFile>>()
+    fun `TC-8d5f4d26-8a00-45ab-abdc-4bc9e109bf42 올리기 성공으로 다시 불러오는 동안 당겨도 불러오기는 한 번만 진행된다`() {
         val server = server()
-        coEvery { server(0) } returns fileList coAndThen { pending.await() }
+        coEvery { server(0) } returns fileList(count = 5) coAndThen { awaitCancellation() }
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
         composeRule.waitForIdle()
         pull()
 
@@ -1558,57 +1304,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기 뒤 다시 불러오기에 실패하면 알리지 않고 계정이 확인되면 이전 목록을 보여 준다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>()
-        val before = fileList(count = 1)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val server = server()
-        coEvery { server(0) } returns before andThenThrows failure()
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
-        val upload = FileUploadMocks()
-
-        setFileHomeScreen(server = server, accountFlow = accountFlow, upload = upload)
-        startUpload()
-        composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
-        composeRule.waitForIdle()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.runOnIdle { accountFlow.value = Result.success(account) }
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(before.first().name).assertExists()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 빈 목록에서 계정 확정 전 올리기 성공 뒤 다시 불러오기에 실패하면 계정 확인 뒤 본문에 실패 안내를 보여 준다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>()
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val server = server()
-        coEvery { server(0) } returns emptyList<DiaryFile>() andThenThrows failure()
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
-        val upload = FileUploadMocks()
-
-        setFileHomeScreen(server = server, accountFlow = accountFlow, upload = upload)
-        composeRule.onNodeWithText(EMPTY_TITLE).assertExists()
-        startUpload()
-        composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
-        composeRule.waitForIdle()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.runOnIdle { accountFlow.value = Result.success(account) }
-        composeRule.waitForIdle()
-
-        coVerify(exactly = 2) { server(0) }
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.onNodeWithText(RETRY).assertExists()
-        composeRule.onNodeWithText(EMPTY_TITLE).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 당겨서 다시 불러오는 중에 화면이 재생성되어도 진행 표시가 보인다`() {
+    fun `TC-00baa3e3-1e9a-4e68-815f-9ca9d93bcc87 당겨서 다시 불러오는 중에 화면이 재생성되면 본문에 불러오는 중을 표시한다`() {
         val fileList = fileList(count = 5)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1622,12 +1318,12 @@ class FileHomeScreenTest {
         tester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithContentDescription(REFRESHING, useUnmergedTree = true).assertExists()
+        bodyProgress().assertExists()
         coVerify(exactly = 2) { server(0) }
     }
 
     @Test
-    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 당겨서 다시 불러오는 중에 화면이 재생성된 뒤 실패하면 재생성된 화면에서 알린다`() {
+    fun `TC-00baa3e3-1e9a-4e68-815f-9ca9d93bcc87 당겨서 다시 불러오는 중에 화면이 재생성된 뒤 실패하면 본문에 실패 안내를 표시한다`() {
         val fileList = fileList(count = 5)
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
@@ -1643,14 +1339,11 @@ class FileHomeScreenTest {
         pending.completeExceptionally(failure())
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertExists()
-        composeRule.onNodeWithText(RETRY).assertExists()
-        fileList.forEach { file -> composeRule.onNodeWithText(file.name).assertExists() }
-        coVerify(exactly = 2) { server(0) }
+        assertBodyLoadFailed(server = server, fileList = fileList)
     }
 
     @Test
-    fun `TC-30f65389-0973-4921-b236-3ce72ee1927f 올리기 성공으로 다시 불러오는 중에 화면이 재생성되어도 새 목록이 나타나면 처음으로 돌아간다`() {
+    fun `TC-00baa3e3-1e9a-4e68-815f-9ca9d93bcc87 올리기 성공으로 다시 불러오는 중에 화면이 재생성되어도 새 목록의 처음부터 보인다`() {
         val fileList = fileList(count = 30)
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val pending = CompletableDeferred<List<DiaryFile>>()
@@ -1726,7 +1419,6 @@ class FileHomeScreenTest {
                     getUpdatedFileUseCase = getUpdatedFileUseCase,
                 ),
             uploadViewModel = uploadViewModel,
-            refreshViewModel = FileHomeRefreshViewModel(refreshFileUseCase = refreshFileUseCase(server = server, paging = paging)),
         )
     }
 
@@ -1813,7 +1505,6 @@ private class FileHomeTestScreen(
     val navigateUp: () -> Unit,
     val fileViewModel: FileHomeViewModel,
     val uploadViewModel: FileHomeUploadViewModel,
-    val refreshViewModel: FileHomeRefreshViewModel,
 ) {
     var navigateToAddCount: Int = 0
         private set
@@ -1830,16 +1521,16 @@ private class FileHomeTestScreen(
                 componentVisibleProvider = { FileHomeScaffoldComponentVisible() },
                 fileViewModel = fileViewModel,
                 uploadViewModel = uploadViewModel,
-                refreshViewModel = refreshViewModel,
             )
         }
     }
 }
 
-// 올리기의 상태와 결과는 mock이 돌려주는 흐름으로, 요청이 받아들여진 뒤의 상태는 요청 stub의 응답으로 제어한다.
+// 올리기의 상태와 결과는 mock이 돌려주는 흐름으로 제어한다. 결과는 그때 받는 화면에만 가고, 성공은 FileHome이 받을 때까지 쌓인다.
 private class FileUploadMocks {
     val state = MutableStateFlow<FileUploadState>(FileUploadState.Idle)
-    private val eventChannel = Channel<FileUploadEvent>(Channel.UNLIMITED)
+    private val eventFlow = MutableSharedFlow<FileUploadEvent>(extraBufferCapacity = 16)
+    private val succeededChannel = Channel<FileUploadEvent.Succeeded>(Channel.UNLIMITED)
 
     private val getFileUploadStateUseCase: GetFileUploadStateUseCase =
         mockk<GetFileUploadStateUseCase>().also { useCase ->
@@ -1848,17 +1539,12 @@ private class FileUploadMocks {
 
     private val getFileUploadEventUseCase: GetFileUploadEventUseCase =
         mockk<GetFileUploadEventUseCase>().also { useCase ->
-            every { useCase(parameter = FileScreen.HOME) } returns eventChannel.receiveAsFlow().map { event -> Result.success(event) }
+            every { useCase(parameter = Unit) } returns eventFlow.map { event -> Result.success(event) }
         }
 
-    val startViewingFileScreenUseCase: StartViewingFileScreenUseCase =
-        mockk<StartViewingFileScreenUseCase>().also { useCase ->
-            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
-        }
-
-    val stopViewingFileScreenUseCase: StopViewingFileScreenUseCase =
-        mockk<StopViewingFileScreenUseCase>().also { useCase ->
-            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
+    private val getFileUploadSucceededEventUseCase: GetFileUploadSucceededEventUseCase =
+        mockk<GetFileUploadSucceededEventUseCase>().also { useCase ->
+            every { useCase(parameter = Unit) } returns succeededChannel.receiveAsFlow().map { event -> Result.success(event) }
         }
 
     fun start() {
@@ -1867,7 +1553,8 @@ private class FileUploadMocks {
 
     fun finish(event: FileUploadEvent) {
         state.value = FileUploadState.Idle
-        eventChannel.trySend(event)
+        eventFlow.tryEmit(event)
+        if (event is FileUploadEvent.Succeeded) succeededChannel.trySend(event)
     }
 
     fun finishWithoutEvent() {
@@ -1876,10 +1563,9 @@ private class FileUploadMocks {
 
     fun viewModel(): FileHomeUploadViewModel =
         FileHomeUploadViewModel(
-            startViewingFileScreenUseCase = startViewingFileScreenUseCase,
-            stopViewingFileScreenUseCase = stopViewingFileScreenUseCase,
             getFileUploadStateUseCase = getFileUploadStateUseCase,
             getFileUploadEventUseCase = getFileUploadEventUseCase,
+            getFileUploadSucceededEventUseCase = getFileUploadSucceededEventUseCase,
         )
 }
 
@@ -1890,38 +1576,14 @@ private fun pageFileUseCase(paging: Flow<Flow<PagingData<DiaryFile>>>): PageFile
     return useCase
 }
 
-// 다시 불러오기의 결과는 stub이 정한다. 첫 페이지를 받으면 그 페이지로 시작하는 목록 흐름으로 바꾸고, 받지 못하면 실패를 돌려준다.
-private fun refreshFileUseCase(
-    server: suspend (Int) -> List<DiaryFile>,
-    paging: MutableStateFlow<Flow<PagingData<DiaryFile>>>,
-): RefreshFileUseCase {
-    val useCase = mockk<RefreshFileUseCase>()
-    coEvery { useCase(parameter = Unit) } coAnswers {
-        try {
-            val firstPage = server(0)
-
-            paging.value = pagerFlow(server = { page -> if (page == 0) firstPage else server(page) }, startsWithLoading = false)
-            Result.success(Unit)
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (throwable: Throwable) {
-            Result.failure(throwable)
-        }
-    }
-    return useCase
-}
-
-private fun pagerFlow(
-    server: suspend (Int) -> List<DiaryFile>,
-    startsWithLoading: Boolean = true,
-): Flow<PagingData<DiaryFile>> {
+private fun pagerFlow(server: suspend (Int) -> List<DiaryFile>): Flow<PagingData<DiaryFile>> {
     val flow =
         Pager(
             config = PagingConfig(pageSize = PAGE_SIZE, initialLoadSize = PAGE_SIZE, enablePlaceholders = false),
             pagingSourceFactory = { pagingSource(server = server) },
         ).flow
 
-    return if (startsWithLoading) flow.onStart { emit(PagingData.empty(sourceLoadStates = LOADING_LOAD_STATES)) } else flow
+    return flow.onStart { emit(PagingData.empty(sourceLoadStates = LOADING_LOAD_STATES)) }
 }
 
 private fun failure(): IllegalStateException = IllegalStateException(fixtureMonkey.giveMeOne<String>())

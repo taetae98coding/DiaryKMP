@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -41,6 +42,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.jetbrains.compose.resources.stringResource
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,6 +59,11 @@ class WebDetailMemoPlaceholderTest {
     val composeRule = createComposeRule()
 
     private val pagingScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @After
     fun tearDown() {

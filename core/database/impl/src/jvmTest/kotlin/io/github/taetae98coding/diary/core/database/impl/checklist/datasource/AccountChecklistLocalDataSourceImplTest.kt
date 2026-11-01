@@ -143,6 +143,24 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
+        test("TC-ab6c3860-96a1-4bb3-8243-2ab958930e75 다른 계정과만 연결된 체크 항목은 진행 정도에 세지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val checklist = checklist(title = "title")
+            checklistTransaction.upsert(
+                accountId = accountId,
+                checklist = checklist,
+                itemList = listOf(item(checklistId = checklist.id, isChecked = true), item(checklistId = checklist.id, isChecked = false)),
+            )
+            itemSyncTransaction.upsert(
+                accountId = otherAccountId,
+                itemList = listOf(item(checklistId = checklist.id, isChecked = true), item(checklistId = checklist.id, isChecked = false)),
+                cursor = 1L,
+            )
+
+            loaded(accountId) shouldBe listOf(summary(checklist, checkedCount = 1, totalCount = 2))
+        }
+
         test("TC-b604e41d-9351-4e5c-a118-0dfd772241f1 진행 정도는 목록 순서에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")

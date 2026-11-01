@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.memo
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -10,10 +11,12 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.feature.search.ui.home.OTHER_QUERY
 import io.github.taetae98coding.diary.feature.search.ui.home.QUERY
+import io.github.taetae98coding.diary.feature.search.ui.home.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.search.ui.home.currentUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.failurePagingDataFlow
 import io.github.taetae98coding.diary.feature.search.ui.home.searchMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.successPagingDataFlowOf
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -31,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -48,6 +52,37 @@ class SearchHomeMemoViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-0b1f20fb-8af3-4b2e-b580-2732e779f48e 이어서 조회하지 못하면 이미 나타난 결과를 그대로 둔다") {
+            runTest(mainDispatcher) {
+                val firstPage = listOf(searchMemo(), searchMemo())
+                val useCase =
+                    mockk<SearchMemoUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchMemoUseCase.Parameter>().query == QUERY) {
+                                appendFailingPagingData(firstPage = firstPage).map { pagingData -> Result.success(pagingData) }
+                            } else {
+                                successPagingDataFlowOf(emptyList())
+                            }
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    val itemList =
+                        flowOf(awaitItem()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                            appendScrollWhile { true }
+                        }
+
+                    itemList shouldBe firstPage
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
         }
 
         test("TC-346988d0-4bef-426f-84c5-0f9054e4072e 질의를 입력하면 그 질의로 조회한 결과를 노출한다") {
@@ -142,120 +177,48 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 처음 보는 유형은 받은 질의를 기다리지 않고 곧바로 반영한다") {
-            runTest(mainDispatcher) {
-                val memoList = listOf(searchMemo(title = "주간 회의록"))
-                val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(OTHER_QUERY to memoList)), isQueryShown = false)
-
-                viewModel.pagingData.test {
-                    viewModel.showQuery(OTHER_QUERY)
-                    runCurrent()
-
-                    currentUiState(viewModel).appliedQuery shouldBe OTHER_QUERY
-                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
-
-                    cancelAndIgnoreRemainingEvents()
-                }
-            }
-        }
-
-        test("TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 받은 질의를 곧바로 반영한다") {
+        test("TC-9ca2b6b2-0572-4388-84c2-b00f983d3a92 메모리 정리 뒤 새로 만든 유형 결과는 복원한 질의를 입력을 멈춘 뒤와 같이 반영한다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
-                val otherMemoList = listOf(searchMemo(title = "주간 회의록"))
-                val viewModel =
-                    viewModel(
-                        searchMemoUseCase(
-                            queryToMemoList =
-                                mapOf(
-                                    QUERY to memoList,
-                                    OTHER_QUERY to otherMemoList,
-                                ),
-                        ),
-                    )
-                viewModel.pagingData.test {
-                    awaitItem()
-                    viewModel.updateQuery(QUERY)
-                    advanceUntilIdle()
-                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
-                    cancelAndIgnoreRemainingEvents()
-                }
-
-                // 유형 결과가 다시 나타나면 결과를 받기 전에 지금 질의를 먼저 알린다.
-                viewModel.showQuery(OTHER_QUERY)
-                viewModel.pagingData.test {
-                    runCurrent()
-
-                    currentUiState(viewModel).appliedQuery shouldBe OTHER_QUERY
-                    flowOf(awaitItem()).asSnapshot() shouldBe otherMemoList
-
-                    cancelAndIgnoreRemainingEvents()
-                }
-            }
-        }
-
-        test("같은 질의의 결과를 보여 준 뒤 떠났던 유형은 다시 나타나면 그 결과를 그대로 받는다") {
-            runTest(mainDispatcher) {
-                val memoList = listOf(searchMemo(title = "여름 여행 계획"))
-                val searchMemoUseCase = searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList))
-                val viewModel = viewModel(searchMemoUseCase)
-                viewModel.pagingData.test {
-                    awaitItem()
-                    viewModel.updateQuery(QUERY)
-                    advanceUntilIdle()
-                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
-                    cancelAndIgnoreRemainingEvents()
-                }
-
-                viewModel.showQuery(QUERY)
-                viewModel.pagingData.test {
-                    runCurrent()
-
-                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
-
-                    cancelAndIgnoreRemainingEvents()
-                }
-            }
-        }
-
-        test("TC-9ea84aad-f762-440e-81c7-030c8a398189 메모리 정리 뒤 새로 만든 유형 결과는 빈 결과를 거치지 않고 알린 질의의 결과부터 보여 준다") {
-            runTest(mainDispatcher) {
-                val memoList = listOf(searchMemo(title = "여름 여행 계획"))
-                val searchMemoUseCase = searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList))
-                val viewModel = viewModel(searchMemoUseCase, isQueryShown = false)
-
-                viewModel.pagingData.test {
-                    runCurrent()
-                    expectNoEvents()
-
-                    viewModel.showQuery(QUERY)
-                    runCurrent()
-
-                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
-                    cancelAndIgnoreRemainingEvents()
-                }
-
-                verify(exactly = 0) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = "", sort = ListSort.TITLE)) }
-            }
-        }
-
-        test("받은 질의를 반영한 뒤 사용자가 고친 질의는 입력을 멈출 때까지 반영하지 않는다") {
-            runTest(mainDispatcher) {
-                val viewModel = viewModel(searchMemoUseCase(queryToMemoList = emptyMap()), isQueryShown = false)
+                val viewModel = viewModel(searchMemoUseCase(queryToMemoList = mapOf(QUERY to memoList)))
                 backgroundScope.launch { viewModel.pagingData.collect {} }
 
                 viewModel.uiState.map { uiState -> uiState.appliedQuery }.distinctUntilChanged().test {
                     awaitItem() shouldBe ""
-                    viewModel.showQuery(QUERY)
-                    runCurrent()
-                    awaitItem() shouldBe QUERY
-
-                    viewModel.updateQuery(OTHER_QUERY)
+                    viewModel.updateQuery(QUERY)
                     runCurrent()
                     expectNoEvents()
 
+                    advanceTimeBy(INPUT_IDLE_DELAY)
+                    runCurrent()
+                    awaitItem() shouldBe QUERY
+                }
+            }
+        }
+
+        test("TC-07661b59-0122-4916-8758-afa28bf8bdbd 메모 결과가 보이는 상태에서 질의를 바꿔 다시 조회하지 못하면 이전 결과를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val itemList = listOf(searchMemo(title = "여름 여행 계획"))
+                val useCase =
+                    mockk<SearchMemoUseCase>().apply {
+                        every { this@apply(any()) } answers {
+                            if (firstArg<SearchMemoUseCase.Parameter>().query == QUERY) successPagingDataFlowOf(itemList) else failurePagingDataFlow()
+                        }
+                    }
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+
+                    viewModel.updateQuery(QUERY)
                     advanceUntilIdle()
-                    awaitItem() shouldBe OTHER_QUERY
+                    flowOf(awaitItem()).asSnapshot() shouldBe itemList
+
+                    viewModel.updateQuery(OTHER_QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
+
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }
@@ -328,18 +291,14 @@ class SearchHomeMemoViewModelTest : FunSpec() {
     public companion object {
         private const val BLANK_QUERY = "   "
 
-        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
-        private fun viewModel(
-            searchMemoUseCase: SearchMemoUseCase,
-            isQueryShown: Boolean = true,
-        ): SearchHomeMemoViewModel =
+        private fun viewModel(searchMemoUseCase: SearchMemoUseCase): SearchHomeMemoViewModel =
             SearchHomeMemoViewModel(
                 searchMemoUseCase = searchMemoUseCase,
                 finishMemoUseCase = mockk(),
                 restartMemoUseCase = mockk(),
                 deleteMemoUseCase = mockk(),
                 restoreMemoUseCase = mockk(),
-            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
+            )
 
         private fun searchMemoUseCase(flow: Flow<Result<PagingData<Memo>>>): SearchMemoUseCase =
             mockk<SearchMemoUseCase>().apply {

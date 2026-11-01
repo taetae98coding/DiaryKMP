@@ -11,8 +11,10 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +26,11 @@ import org.robolectric.annotation.Config
 class WebHomeScaffoldRefreshTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-a0d2d609-161f-429e-9ca9-5316a5689869 목록을 당기면 새로고침을 요청한다`() {

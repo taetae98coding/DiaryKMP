@@ -5,25 +5,41 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
+import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
+import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
+import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -38,7 +54,7 @@ class FetchMemoDraftUseCaseTest :
                     val requestSlot = slot<MemoDraftRequest>()
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {
-                            coEvery { fetch(capture(settingSlot), capture(requestSlot)) } returns MemoDraft.EMPTY
+                            every { stream(capture(settingSlot), capture(requestSlot)) } returns completed(MemoDraft.EMPTY)
                         }
                     val useCase =
                         createUseCase(
@@ -67,7 +83,7 @@ class FetchMemoDraftUseCaseTest :
                     val requestSlot = slot<MemoDraftRequest>()
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {
-                            coEvery { fetch(any(), capture(requestSlot)) } returns MemoDraft.EMPTY
+                            every { stream(any(), capture(requestSlot)) } returns completed(MemoDraft.EMPTY)
                         }
                     val useCase =
                         createUseCase(
@@ -80,6 +96,32 @@ class FetchMemoDraftUseCaseTest :
                     val timeZone = requestSlot.captured.timeZone
                     timeZone shouldBe TimeZone.currentSystemDefault()
                     requestSlot.captured.now shouldBe now.toLocalDateTime(timeZone)
+                }
+            }
+        }
+
+        Given("도우미를 연 뒤 저장된 Gemini 설정이 바뀌었다") {
+            When("메모 초안을 조회하면") {
+                Then("TC-c5df7d5f-6386-4350-8e19-85d16fc93017: 조회하는 시점에 저장된 설정으로 요청한다") {
+                    val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSetting>())
+                    val settingList = mutableListOf<GeminiSetting>()
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            every { stream(capture(settingList), any()) } returns completed(MemoDraft.EMPTY)
+                        }
+                    val useCase =
+                        FetchMemoDraftUseCase(
+                            geminiSettingRepository = mockk { every { get() } returns settingFlow },
+                            memoDraftRepository = memoDraftRepository,
+                            clock = Clock.System,
+                        )
+                    useCase(parameter = emptyParameter()).shouldBeSuccess()
+                    val changedSetting = fixtureMonkey.giveMeOne<GeminiSetting>()
+
+                    settingFlow.value = changedSetting
+                    useCase(parameter = emptyParameter()).shouldBeSuccess()
+
+                    settingList.last() shouldBe changedSetting
                 }
             }
         }
@@ -166,13 +208,37 @@ class FetchMemoDraftUseCaseTest :
             }
         }
 
+        Given("생성 결과가 조각으로 나뉘어 도착한다") {
+            When("메모 초안을 조회하면") {
+                Then("TC-11c3ed9d-2f48-41c6-8682-ddb76b0b5379: 도착한 진행 내용을 차례로 알리고 마지막 결과를 정리해 돌려준다") {
+                    val progressList = listOf(MemoDraftProgress(title = "주간", description = ""), MemoDraftProgress(title = "주간\n회고", description = "설명"))
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            every { stream(any(), any()) } returns
+                                flowOf(
+                                    MemoDraftGeneration.InProgress(progress = progressList[0]),
+                                    MemoDraftGeneration.InProgress(progress = progressList[1]),
+                                    MemoDraftGeneration.Completed(draft = MemoDraft(title = "주간\n회고", description = "설명", dateTime = null)),
+                                )
+                        }
+                    val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
+                    val notified = mutableListOf<MemoDraftProgress>()
+
+                    val actual = useCase(parameter = emptyParameter().copy(onProgress = notified::add)).shouldBeSuccess()
+
+                    notified shouldBe progressList
+                    actual.title shouldBe "주간 회고"
+                }
+            }
+        }
+
         Given("원격 생성이 실패한다") {
             When("메모 초안을 조회하면") {
                 Then("TC-7f71e24a-8875-4480-a89e-23d86fa1c81e: 실패를 그대로 전달한다") {
                     val cause = IllegalStateException("generate failed")
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {
-                            coEvery { fetch(any(), any()) } throws cause
+                            every { stream(any(), any()) } returns failing(cause)
                         }
                     val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
 
@@ -180,7 +246,99 @@ class FetchMemoDraftUseCaseTest :
                 }
             }
         }
+
+        Given("오류 보고 기록 수단이 등록되어 있고 생성이 특정 원인으로 실패하도록 준비되어 있다") {
+            reportFailureCases().forEach { (name, failure, isMidStream) ->
+                When("$name 으로 메모 초안을 조회하면") {
+                    val reportList = recordCrashlyticsLog()
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            every { stream(any(), any()) } returns if (isMidStream) failingAfterProgress(failure) else failing(failure)
+                        }
+                    val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
+
+                    useCase(parameter = emptyParameter())
+
+                    Then("TC-b746e610-5fed-4771-8f4c-92c1cbea6d35 $name 원인을 담은 오류 보고가 한 번 남는다") {
+                        val report = reportList.single()
+
+                        report.throwable shouldBeSameInstanceAs failure
+                        report.message shouldContain "FetchMemoDraftUseCase"
+                    }
+                }
+            }
+        }
+
+        Given("오류 보고 기록 수단이 등록되어 있고 사용자가 적은 내용과 저장된 설정에 값이 있다") {
+            When("생성이 실패하면") {
+                Then("TC-78cd381e-2737-42c3-b920-1a6b404d2d69 오류 보고의 메시지와 실패 원인에 인증 정보와 사용자가 적은 내용을 담지 않는다") {
+                    val reportList = recordCrashlyticsLog()
+                    val setting = GeminiSetting(apiKey = "apiKey-${fixtureMonkey.giveMeOne<Uuid>()}", model = "models/gemini", systemPrompt = "system-${fixtureMonkey.giveMeOne<Uuid>()}")
+                    val parameter =
+                        FetchMemoDraftUseCase.Parameter(
+                            prompt = "prompt-${fixtureMonkey.giveMeOne<Uuid>()}",
+                            title = "title-${fixtureMonkey.giveMeOne<Uuid>()}",
+                            description = "description-${fixtureMonkey.giveMeOne<Uuid>()}",
+                            dateTime = null,
+                        )
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            every { stream(any(), any()) } returns failing(GeminiApiKeyInvalidException(cause = IllegalStateException("generate failed")))
+                        }
+                    val useCase = createUseCase(setting = setting, memoDraftRepository = memoDraftRepository)
+
+                    useCase(parameter = parameter)
+
+                    val report = reportList.single()
+                    val reportedTextList = listOf(report.message) + generateSequence(report.throwable) { throwable -> throwable.cause }.mapNotNull { throwable -> throwable.message }
+                    listOf(setting.apiKey, setting.systemPrompt, parameter.prompt, parameter.title, parameter.description).forEach { secret ->
+                        reportedTextList.forEach { text -> text shouldNotContain secret }
+                    }
+                }
+            }
+        }
+
+        Given("오류 보고 기록 수단이 등록되어 있고 생성 응답이 아직 돌아오지 않는다") {
+            When("생성을 멈추면") {
+                Then("TC-8383d5fb-42f6-4b51-8850-506f37da3f1f 오류 보고가 남지 않는다") {
+                    val reportList = recordCrashlyticsLog()
+                    val memoDraftRepository =
+                        mockk<MemoDraftRepository> {
+                            every { stream(any(), any()) } returns flow { awaitCancellation() }
+                        }
+                    val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
+
+                    runTest {
+                        val job = launch { useCase(parameter = emptyParameter()) }
+                        runCurrent()
+
+                        job.cancelAndJoin()
+                    }
+
+                    reportList.shouldBeEmpty()
+                }
+            }
+        }
     })
+
+private fun reportFailureCases(): List<Triple<String, Throwable, Boolean>> =
+    listOf(
+        Triple("인증 정보가 유효하지 않은 실패", GeminiApiKeyInvalidException(cause = null), false),
+        Triple("구조화된 형태가 아닌 응답", GeminiRequestException.Other(description = "", cause = null), false),
+        Triple("대기 한도 안에 조각이 오지 않음", GeminiRequestException.Timeout(cause = null), false),
+        Triple("통신 오류", GeminiRequestException.Network(cause = null), false),
+        Triple("조각을 받는 도중의 실패", GeminiRequestException.Network(cause = null), true),
+    )
+
+private fun completed(draft: MemoDraft): Flow<MemoDraftGeneration> = flowOf(MemoDraftGeneration.Completed(draft = draft))
+
+private fun failing(cause: Throwable): Flow<MemoDraftGeneration> = flow { throw cause }
+
+private fun failingAfterProgress(cause: Throwable): Flow<MemoDraftGeneration> =
+    flow {
+        emit(MemoDraftGeneration.InProgress(progress = fixtureMonkey.giveMeOne<MemoDraftProgress>()))
+        throw cause
+    }
 
 private fun emptyParameter(): FetchMemoDraftUseCase.Parameter =
     FetchMemoDraftUseCase.Parameter(
@@ -195,7 +353,7 @@ private fun createUseCase(
     draft: MemoDraft = MemoDraft.EMPTY,
     memoDraftRepository: MemoDraftRepository =
         mockk {
-            coEvery { fetch(any(), any()) } returns draft
+            every { stream(any(), any()) } returns completed(draft)
         },
     clock: Clock = Clock.System,
 ): FetchMemoDraftUseCase =

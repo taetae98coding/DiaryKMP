@@ -402,6 +402,26 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(renamedWeb)
         }
 
+        test("TC-152eb8e0-856c-459c-9812-9f80327f79ef 저장된 웹 항목이 삭제되면 연결된 웹 항목 조회와 열려 있는 선택 목록에서 스스로 사라진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val web = web(title = FIRST_WEB_TITLE)
+            val otherWeb = web(title = LAST_WEB_TITLE)
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web, otherWeb))
+
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).test {
+                awaitItem() shouldBe listOf(web, otherWeb)
+
+                awaitSelectableWebInvalidated(accountId = accountId) {
+                    webTransaction.upsert(accountId = accountId, webList = listOf(web.copy(isDeleted = true)), webTagList = emptyList())
+                }
+
+                awaitItem() shouldBe listOf(otherWeb)
+                cancelAndIgnoreRemainingEvents()
+            }
+            loadSelectableWeb(accountId = accountId) shouldBe listOf(otherWeb)
+        }
+
         test("검색어의 대소문자는 판정에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web(title = "AndroidDeveloper")

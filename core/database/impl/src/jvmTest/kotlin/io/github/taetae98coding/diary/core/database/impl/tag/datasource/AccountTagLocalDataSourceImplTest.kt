@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
+import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
@@ -69,7 +70,7 @@ class AccountTagLocalDataSourceImplTest :
                 listOf(alphaTag, bravoTag, charlieTag)
         }
 
-        test("TC-36238c18-3987-4f50-9051-4272285d7c16 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-36238c18-3987-4f50-9051-4272285d7c16 TC-5cc6759b-36d2-4796-8f7e-17088d9e99e9 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -89,7 +90,7 @@ class AccountTagLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(PAGE_SIZE).take(PAGE_SIZE)
         }
 
-        test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 선택 목록 페이지 조회도 계정과 연결되고 완료·삭제되지 않은 태그만 가져온다") {
+        test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb TC-5f57b3f0-f4ef-423a-8da1-3a88b34048cf 선택 목록 페이지 조회도 계정과 연결되고 완료·삭제되지 않은 태그만 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableTag = selectableTag()
@@ -152,7 +153,7 @@ class AccountTagLocalDataSourceImplTest :
             dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
-        test("TC-ecf420f3-f92b-4577-8542-1b176636869a 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
+        test("TC-ecf420f3-f92b-4577-8542-1b176636869a TC-c5dcf9a0-63c2-4ee5-a895-5dc4f6978c42 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -167,6 +168,20 @@ class AccountTagLocalDataSourceImplTest :
             transaction.upsert(accountId = accountId, tagList = tagList + target, tagLinkList = emptyList())
 
             dataSource.page(accountId = accountId, query = "travel", sort = ListSortLocalEntity.DEFAULT).loadPage(loadSize = PAGE_SIZE).data shouldBe listOf(target)
+        }
+
+        test("TC-27d25f56-f19b-42c9-b786-43f19557d404 저장된 태그의 내용이 바뀌면 선택한 태그 조회와 선택 목록 조회에 함께 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = selectableTag()
+            val changedDetail = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+
+            transaction.updateDetail(accountId = accountId, tagId = tag.id, detail = changedDetail, updatedAt = updatedAt)
+
+            val changedTag = tag.copy(detail = changedDetail, updatedAt = updatedAt)
+            dataSource.get(accountId = accountId, tagIdSet = setOf(tag.id)).first() shouldBe listOf(changedTag)
+            dataSource.pagedTagList(accountId = accountId) shouldBe listOf(changedTag)
         }
 
         test("TC-a79a3e06-9752-4c82-8ff3-8e9b880c87ec 태그가 추가되거나 상태가 바뀌면 태그 목록 조회 결과가 갱신된다") {

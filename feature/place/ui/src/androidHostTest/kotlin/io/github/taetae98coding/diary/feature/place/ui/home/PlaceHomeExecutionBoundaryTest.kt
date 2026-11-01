@@ -17,6 +17,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
@@ -46,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -186,49 +186,44 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 되살아난 뒤 새로 확인한 위치에서 지도를 시작하고 옮겨 두었던 위치는 이어지지 않는다`() {
-        val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+    fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 다른 위치를 확인해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
+        assertMovedMapIsRestored(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+    }
+
+    @Test
+    fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
+        val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+
+        assertMovedMapIsRestored(beforeCoordinate = coordinate, afterCoordinate = coordinate)
+    }
+
+    @Test
+    fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 위치를 확인하지 못해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
+        assertMovedMapIsRestored(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = null)
+    }
+
+    private fun assertMovedMapIsRestored(
+        beforeCoordinate: Coordinate?,
+        afterCoordinate: Coordinate?,
+    ) {
         val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val restorationTester = StateRestorationTester(composeRule)
         var uiState by mutableStateOf(loaded(beforeCoordinate))
         lateinit var mapState: DiaryMapState
         restorationTester.setContent { mapState = rememberPlaceHomeMapState(uiState = uiState) }
-        composeRule.runOnIdle { mapState.moveTo(movedCoordinate.toDiaryMapCoordinate()) }
+        composeRule.runOnIdle {
+            mapState.select(DiaryMapProvider.GOOGLE)
+            mapState.moveTo(movedCoordinate.toDiaryMapCoordinate())
+        }
 
-        uiState = PlaceHomeUiState.Loading
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.runOnIdle { uiState = loaded(afterCoordinate) }
         composeRule.waitForIdle()
 
-        composeRule.runOnIdle { mapState.coordinate shouldBe afterCoordinate.toDiaryMapCoordinate() }
-    }
-
-    @Test
-    fun `TC-a4ffcc7f-3860-48e3-b91b-a2a6aa7775bb 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
-        assertMovedCameraIsNotRestored(coordinate = fixtureMonkey.giveMeOne<Coordinate>())
-    }
-
-    @Test
-    fun `TC-a4ffcc7f-3860-48e3-b91b-a2a6aa7775bb 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
-        assertMovedCameraIsNotRestored(coordinate = null)
-    }
-
-    private fun assertMovedCameraIsNotRestored(coordinate: Coordinate?) {
-        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val restorationTester = StateRestorationTester(composeRule)
-        var uiState by mutableStateOf(loaded(coordinate))
-        lateinit var mapState: DiaryMapState
-        restorationTester.setContent { mapState = rememberPlaceHomeMapState(uiState = uiState) }
-        val initialMapCoordinate = composeRule.runOnIdle { mapState.coordinate }
-        composeRule.runOnIdle { mapState.moveTo(movedCoordinate.toDiaryMapCoordinate()) }
-
-        uiState = PlaceHomeUiState.Loading
-        restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.runOnIdle { uiState = loaded(coordinate) }
-        composeRule.waitForIdle()
-
-        composeRule.runOnIdle { mapState.coordinate shouldBe initialMapCoordinate }
+        composeRule.runOnIdle {
+            mapState.provider shouldBe DiaryMapProvider.GOOGLE
+            mapState.coordinate shouldBe movedCoordinate.toDiaryMapCoordinate()
+        }
     }
 
     @Composable
@@ -265,7 +260,7 @@ class PlaceHomeExecutionBoundaryTest {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun loaded(coordinate: Coordinate?): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate, currentLocationFetchId = Uuid.random())
+        private fun loaded(coordinate: Coordinate?): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
 
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

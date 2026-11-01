@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.place.toMapProvider
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 
 @Composable
 internal fun PlaceSearchEffect(
@@ -28,8 +29,12 @@ internal fun PlaceSearchEffect(
     }
 
     LaunchedEffect(state) {
-        var previousProvider: DiaryMapProvider? = null
+        snapshotFlow { state.mapState.provider }
+            .drop(1)
+            .collect { latestOnClear() }
+    }
 
+    LaunchedEffect(state) {
         snapshotFlow {
             val provider = state.mapState.provider
 
@@ -39,24 +44,17 @@ internal fun PlaceSearchEffect(
                 searchBounds = state.searchBounds.takeIf { provider == DiaryMapProvider.GOOGLE },
             )
         }.collectLatest { trigger ->
-            // 효과가 막 시작됐는데 검색어가 이미 있으면 화면이 복원되어 검색어가 다시 나타난 것이다.
-            val isRestored = previousProvider == null
-            val isProviderChanged = previousProvider != null && previousProvider != trigger.provider
-
-            previousProvider = trigger.provider
-
             if (trigger.query.isBlank()) {
                 latestOnClear()
                 return@collectLatest
             }
 
-            if (!isRestored && !isProviderChanged) delay(INPUT_IDLE_DELAY)
+            delay(INPUT_IDLE_DELAY)
 
             latestOnSearch(
                 PlaceSearchRequest(
                     query = trigger.query,
                     provider = trigger.provider.toMapProvider(),
-                    // 목록의 장소로 옮긴 영역은 다시 검색을 일으키지 않을 뿐, 검색할 때는 사용자가 지금 보고 있는 영역을 기준으로 삼는다.
                     bounds =
                         state.mapState.bounds
                             .takeIf { trigger.provider == DiaryMapProvider.GOOGLE }

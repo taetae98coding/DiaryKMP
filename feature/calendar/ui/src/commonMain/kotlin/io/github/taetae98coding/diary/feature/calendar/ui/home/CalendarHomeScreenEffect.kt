@@ -54,8 +54,6 @@ internal fun ScrollItemToTopOnFirstWeatherEffect(
     weatherViewModel: CalendarHomeWeatherViewModel,
     state: CalendarHomeScaffoldState,
 ) {
-    // 처음 관찰한 날씨 목록이 비어 있다가 채워지는 순간에만 맨 위로 이동한다.
-    // 화면이 보이지 않는 동안 도착했거나 한 번 처리한 뒤의 변화는 스크롤을 되돌리지 않는다.
     var isHandled by remember { mutableStateOf(false) }
     val firstWeatherFlow =
         remember(weatherViewModel) {

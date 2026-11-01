@@ -78,7 +78,7 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-7054c9f4-f38c-4556-a173-1716920f6bb8 동기화가 진행 중이면 새 동기화를 시작하지 않지만 표시 대상은 바뀐다") {
+        test("TC-bffb68a6-004c-42a7-8674-37e2d578f84f 동기화가 진행 중이어도 날짜가 바뀌면 바뀐 날짜의 대상 연도를 요청하고 표시 대상도 바뀐다") {
             runTest(mainDispatcher) {
                 val holiday2027 = fixtureMonkey.giveMeOne<Holiday>()
                 val pending = CompletableDeferred<Result<List<Holiday>>>()
@@ -98,23 +98,9 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
                     advanceUntilIdle()
 
                     expectMostRecentItem() shouldBe CalendarTimetableHolidayUiState(holidayList = listOf(holiday2027))
-                    coVerify(exactly = 0) { fetchUseCase(parameter = 2027) }
+                    coVerify(exactly = 1) { fetchUseCase(parameter = 2027) }
                     pending.complete(Result.success(emptyList()))
                 }
-            }
-        }
-
-        test("진행 중이던 동기화가 끝난 뒤 날짜가 바뀌면 다시 동기화한다") {
-            runTest(mainDispatcher) {
-                val fetchUseCase = successfulFetchHolidayUseCase()
-                val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = fetchUseCase, getCalendarHolidayUseCase = emptyGetCalendarHolidayUseCase())
-
-                viewModel.fetch(dateRange = day(year = 2026, month = 7, day = 15))
-                advanceUntilIdle()
-                viewModel.fetch(dateRange = day(year = 2027, month = 7, day = 15))
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) { fetchUseCase(parameter = 2027) }
             }
         }
     }

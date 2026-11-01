@@ -5,9 +5,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScaffold
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScaffoldComponentVisible
-import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserUiState
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffold
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.loadedUiState
@@ -59,24 +56,6 @@ class SettingDetailScaffoldTest {
         }
 
         composeRule.onNodeWithText("Map Settings").assertExists()
-        composeRule.onNodeWithContentDescription(NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
-    }
-
-    @Test
-    fun `브라우저 상세는 뒤로가기 버튼을 숨긴다`() {
-        composeRule.setContent {
-            DiaryTheme {
-                SettingBrowserScaffold(
-                    uiStateProvider = { SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "") },
-                    onEvent = {},
-                    componentVisibleProvider = {
-                        SettingBrowserScaffoldComponentVisible(isNavigateUpButtonVisible = false)
-                    },
-                )
-            }
-        }
-
-        composeRule.onNodeWithText("Browser Settings").assertExists()
         composeRule.onNodeWithContentDescription(NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
     }
 

@@ -139,6 +139,7 @@ class MemoPlaceCardTest {
                 mapUiState =
                     MemoPlaceMapUiState.Content(
                         provider = MapProvider.NAVER,
+                        isCurrentLocationFetched = true,
                         currentCoordinate = null,
                     ),
                 placeUiState = MemoPlaceInputUiState(),

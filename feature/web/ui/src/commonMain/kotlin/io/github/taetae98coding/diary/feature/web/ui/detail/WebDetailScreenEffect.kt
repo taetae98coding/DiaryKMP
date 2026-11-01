@@ -33,7 +33,6 @@ internal fun LoadWebPageEffect(
 @Composable
 internal fun WebDetailScreenEffect(
     formState: WebFormState,
-    pageViewModel: WebDetailPageViewModel,
     navigateUp: () -> Unit,
     effect: Flow<WebDetailEffect> = emptyFlow(),
 ) {
@@ -44,7 +43,6 @@ internal fun WebDetailScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is WebDetailEffect.UpdateSucceeded -> {
-                pageViewModel.refresh()
                 coroutineScope.launch { formState.snackbarHostState.showImmediate(message = updateSucceededMessage) }
             }
 

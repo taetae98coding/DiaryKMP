@@ -1,4 +1,10 @@
 {
+  "enabledPlugins": {
+    "figma@claude-plugins-official": false
+  },
+  "deniedMcpServers": [
+    { "serverName": "figma-dev-mode-mcp-server" }
+  ],
   "hooks": {
     "SessionStart": [
       {

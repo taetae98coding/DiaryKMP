@@ -45,10 +45,12 @@ internal fun FileDownloadDirectoryLocalEntity.toDomain(): FileDownloadDirectory 
     FileDownloadDirectory(
         uri = uri,
         name = name,
+        bookmark = bookmark,
     )
 
 internal fun FileDownloadDirectory.toLocal(): FileDownloadDirectoryLocalEntity =
     FileDownloadDirectoryLocalEntity(
         uri = uri,
         name = name,
+        bookmark = bookmark,
     )

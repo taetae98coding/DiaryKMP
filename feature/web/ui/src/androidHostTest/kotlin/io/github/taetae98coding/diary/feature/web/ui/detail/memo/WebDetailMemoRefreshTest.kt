@@ -19,11 +19,13 @@ import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
 import io.github.taetae98coding.diary.feature.web.ui.refreshableList
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.compose.resources.stringResource
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +37,11 @@ import org.robolectric.annotation.Config
 class WebDetailMemoRefreshTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 목록을 당기면 새로고침을 요청한다`() {

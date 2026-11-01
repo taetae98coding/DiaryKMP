@@ -45,6 +45,7 @@ internal fun ContactAddScreenEffect(
                 state.footSizeState.clearText()
                 state.birthdayState.clear()
                 state.hometownState.clearText()
+                state.howWeMetState.clearText()
                 state.phoneNumberState.clear()
                 state.nameState.requestFocus()
                 coroutineScope.launch { state.snackbarHostState.showImmediate(message = addSucceededMessage) }

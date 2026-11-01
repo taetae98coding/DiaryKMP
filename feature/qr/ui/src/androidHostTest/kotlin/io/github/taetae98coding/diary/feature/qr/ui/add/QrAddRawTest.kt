@@ -149,7 +149,7 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-7cbfcdd1-eb7d-48ce-a78a-32fa0983e7e3 되돌리기를 선택하면 기록한 QR 값과 포맷으로 차례로 돌아간다`() {
+    fun `TC-5231fb92-6399-4ed2-a001-7a5abccdd430 되돌리기를 선택하면 마지막으로 기록한 QR 값과 포맷 한 단계로만 돌아간다`() {
         val detail = qrTestFixtureMonkey.qrDetail()
         setQrAddScreen()
         composeRule.onTitleInput().performTextInput(detail.title)
@@ -169,13 +169,6 @@ class QrAddRawTest {
         formatName() shouldBe WIFI_FORMAT
         composeRule.qrCodeValue() shouldBe "WIFI:T:WPA;S:home;;"
         composeRule.onQrFieldInput(NETWORK_NAME_LABEL).editableText() shouldBe "home"
-
-        onUndo().performClick()
-        composeRule.waitForIdle()
-
-        formatName() shouldBe TEXT_FORMAT
-        composeRule.qrTextInputText() shouldBe HELLO
-        composeRule.qrCodeValue() shouldBe HELLO
         onUndo().assertIsNotEnabled()
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
@@ -360,36 +353,40 @@ class QrAddRawTest {
     }
 
     @Test
-    fun `TC-2036efa1-b253-4d58-8ebe-8bf0bf645b7c 되돌리기 기록은 알아본 포맷과 함께 최근 20개까지만 남는다`() {
+    fun `TC-3ee27dcc-e51a-4d9d-924e-9869331ecb60 다시 통째로 바뀌면 되돌리기 기록을 그 직전의 값과 알아본 포맷으로 바꾼다`() {
         setQrAddScreen()
         composeRule.onQrTextInput().performTextInput("WIFI:S:home;;")
-        val rawList =
-            List(OVERWRITE_COUNT) { index ->
-                if (index % 2 == 0) {
-                    composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = PHONE_FORMAT)
-                    composeRule.onQrFieldInput(PHONE_NUMBER_LABEL).performTextReplacement("$index")
-                    composeRule.waitForIdle()
-                    "tel:$index" to PHONE_FORMAT
-                } else {
-                    composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")
-                    composeRule.onQrFieldInput("URL").performTextReplacement("http://a$index")
-                    composeRule.waitForIdle()
-                    "http://a$index" to "URL"
-                }
-            }
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = PHONE_FORMAT)
+        composeRule.onQrFieldInput(PHONE_NUMBER_LABEL).performTextReplacement("0")
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")
+        composeRule.onQrFieldInput("URL").performTextReplacement("http://a1")
+        composeRule.waitForIdle()
 
-        rawList.dropLast(1).reversed().forEach { (raw, format) ->
-            onUndo().performClick()
-            composeRule.waitForIdle()
+        onUndo().performClick()
+        composeRule.waitForIdle()
 
-            withClue("QR 값=$raw") {
-                composeRule.qrCodeValue() shouldBe raw
-                formatName() shouldBe format
-            }
-        }
-
-        onUndo().assertIsNotEnabled()
+        formatName() shouldBe PHONE_FORMAT
         composeRule.qrCodeValue() shouldBe "tel:0"
+        onUndo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `TC-a6f14f9f-9ba5-401d-b43d-23d908d07e77 빈 QR 값에서 새로 써도 이미 있던 되돌리기 기록은 그대로 남는다`() {
+        setQrAddScreen()
+        composeRule.onQrTextInput().performTextInput(HELLO)
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
+        composeRule.onQrFieldInput(NETWORK_NAME_LABEL).performTextInput("home")
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = TEXT_FORMAT)
+        composeRule.onQrTextInput().performTextReplacement("")
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = PHONE_FORMAT)
+        composeRule.onQrFieldInput(PHONE_NUMBER_LABEL).performTextInput("010")
+        composeRule.waitForIdle()
+
+        onUndo().performClick()
+        composeRule.waitForIdle()
+
+        formatName() shouldBe TEXT_FORMAT
+        composeRule.qrCodeValue() shouldBe HELLO
     }
 
     @Test
@@ -480,7 +477,6 @@ class QrAddRawTest {
     }
 
     private companion object {
-        const val OVERWRITE_COUNT = 21
         const val WIFI_FORMAT = "Wi-Fi"
         const val PHONE_FORMAT = "Phone"
         const val TEXT_FORMAT = "Text"

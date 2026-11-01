@@ -65,7 +65,7 @@ class GooglePkceTest :
                 secondAttempt.authorizationUrl.queryParameter("code_challenge")
         }
 
-        test("인가 요청은 Google 인가 주소에 code 흐름의 앱 식별 값, 복귀 주소, 요청 범위를 담는다") {
+        test("TC-714e8ae0-a8a1-4ff0-bae5-c9d007b2fb78 인가 요청은 Google 인가 주소에 code 흐름의 앱 식별 값, 복귀 주소, 기본 인증 요청 범위를 담는다") {
             val clientId = googleClientId()
             val redirectUri = loopbackRedirectUri()
 

@@ -30,6 +30,7 @@
     <string name="contact_birth_year_input_label">태어난 연도</string>
     <string name="contact_birth_year_from_birthday">생일에서 가져온 연도입니다.</string>
     <string name="contact_hometown_input_label">고향</string>
+    <string name="contact_how_we_met_input_label">알게 된 경로</string>
     <string name="contact_phone_number_input_label">전화번호</string>
     <string name="contact_phone_number_number_input_label">번호</string>
     <string name="contact_phone_number_number_input_content_description">%1$s번째 번호</string>

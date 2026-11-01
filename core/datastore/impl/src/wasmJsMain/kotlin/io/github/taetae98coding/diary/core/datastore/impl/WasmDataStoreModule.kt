@@ -2,14 +2,13 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.WebLocalStorage
-import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
-import io.github.taetae98coding.diary.core.datastore.impl.di.MusicDownloadProxySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -49,27 +48,19 @@ public class WasmDataStoreModule {
         )
 
     @Single
-    @BrowserSettingStorage
-    internal fun providesBrowserSettingStorage(): Storage<BrowserSettingData> =
-        WebLocalStorage(
-            serializer = BrowserSettingSerializer,
-            name = DataStoreModule.BROWSER_SETTING_NAME,
-        )
-
-    @Single
-    @MusicDownloadProxySettingStorage
-    internal fun providesMusicDownloadProxySettingStorage(): Storage<MusicDownloadProxySettingData> =
-        WebLocalStorage(
-            serializer = MusicDownloadProxySettingSerializer,
-            name = DataStoreModule.MUSIC_DOWNLOAD_PROXY_SETTING_NAME,
-        )
-
-    @Single
     @FileDownloadSettingStorage
     internal fun providesFileDownloadSettingStorage(): Storage<FileDownloadSettingData> =
         WebLocalStorage(
             serializer = FileDownloadSettingSerializer,
             name = DataStoreModule.FILE_DOWNLOAD_SETTING_NAME,
+        )
+
+    @Single
+    @WebLoginStorage
+    internal fun providesWebLoginStorage(): Storage<WebLoginData> =
+        WebLocalStorage(
+            serializer = WebLoginSerializer,
+            name = DataStoreModule.WEB_LOGIN_NAME,
         )
 
     @Single

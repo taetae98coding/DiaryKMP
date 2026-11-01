@@ -94,12 +94,13 @@ private fun ChecklistProgress(
         Text(
             text = progressText,
             modifier =
-                Modifier.clearAndSetSemantics {
-                    text = AnnotatedString(progressText)
-                    if (progressContentDescription != null) {
-                        contentDescription = progressContentDescription
-                    }
-                },
+                Modifier
+                    .clearAndSetSemantics {
+                        text = AnnotatedString(progressText)
+                        if (progressContentDescription != null) {
+                            contentDescription = progressContentDescription
+                        }
+                    }.basicMarquee(iterations = Int.MAX_VALUE),
             maxLines = 1,
             color = DiaryTheme.colorScheme.onSurfaceVariant,
             style = DiaryTheme.typography.bodySmall,

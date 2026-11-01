@@ -18,8 +18,6 @@ internal sealed interface WebDetailScaffoldEvent {
 
     data object ClickViewMode : WebDetailScaffoldEvent
 
-    data object SessionImportFailed : WebDetailScaffoldEvent
-
     data class SelectTab(
         val tab: WebDetailTab,
     ) : WebDetailScaffoldEvent

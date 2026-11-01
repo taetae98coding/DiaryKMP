@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,6 +92,11 @@ class WebListDetailPlaceholderTest {
     private val addViewModelList = mutableListOf<WebAddViewModel>()
     private val tagViewModelList = mutableListOf<WebAddTagViewModel>()
     private val backStack = NavBackStack<ScreenNavKey>(MoreNavKey, WebHomeNavKey)
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @After

@@ -12,8 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryDateTimeInputState
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
@@ -23,7 +21,6 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
-import io.github.taetae98coding.diary.domain.qr.content.MAX_QR_UNDO_RECORD_COUNT
 import io.github.taetae98coding.diary.domain.qr.content.QrContent
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.content.QrWifiSecurity
@@ -41,7 +38,7 @@ internal class QrContentFormState(
     wifiSecurityState: MutableState<QrWifiSecurity>,
     isWifiHiddenState: MutableState<Boolean>,
     private val fieldStateMap: Map<QrTextField, QrFieldState>,
-    private val undoRecordList: SnapshotStateList<QrUndoRecord>,
+    undoRecordState: MutableState<QrUndoRecord?>,
     val eventPeriodState: DiaryDateTimeInputState,
     val mapState: DiaryMapState,
     private val clock: Clock,
@@ -53,6 +50,8 @@ internal class QrContentFormState(
 
     var isWifiHidden: Boolean by isWifiHiddenState
 
+    private var undoRecord: QrUndoRecord? by undoRecordState
+
     val raw: String
         get() = rawState.text
 
@@ -63,7 +62,8 @@ internal class QrContentFormState(
         raw.takeIf { value -> value.isEmpty() || value.fitsInQrCode() }.orEmpty()
     }
 
-    val canUndo: Boolean by derivedStateOf { undoRecordList.isNotEmpty() }
+    val canUndo: Boolean
+        get() = undoRecord != null
 
     val spot: DiaryMapCoordinate?
         get() = (contentOf(format = QrFormat.LOCATION) as QrContent.Location).coordinate?.toDiaryMapCoordinate()
@@ -100,7 +100,8 @@ internal class QrContentFormState(
     }
 
     fun undo() {
-        val record = undoRecordList.removeLastOrNull() ?: return
+        val record = undoRecord ?: return
+        undoRecord = null
         rawState.setText(record.raw)
         selectFormat(record.format)
     }
@@ -125,7 +126,7 @@ internal class QrContentFormState(
 
     fun clear() {
         rawState.clearText()
-        undoRecordList.clear()
+        undoRecord = null
         loadFields()
         mapState.selectSpot(null)
     }
@@ -134,8 +135,7 @@ internal class QrContentFormState(
         val raw = raw
         if (raw.isEmpty()) return
 
-        undoRecordList += QrUndoRecord(format = detectQrFormat(raw), raw = raw)
-        while (undoRecordList.size > MAX_QR_UNDO_RECORD_COUNT) undoRecordList.removeAt(0)
+        undoRecord = QrUndoRecord(format = detectQrFormat(raw), raw = raw)
     }
 
     private fun loadFields() {
@@ -293,7 +293,7 @@ internal fun rememberQrContentFormState(
     val wifiSecurityState = rememberSaveable(stateSaver = QrWifiSecuritySaver) { mutableStateOf(initialWifi?.security ?: QrWifiSecurity.WPA) }
     val isWifiHiddenState = rememberSaveable { mutableStateOf(initialWifi?.isHidden ?: false) }
     val fieldStateMap = QrTextField.entries.associateWith { field -> key(field) { rememberQrFieldState(initialText = initialFieldTextMap[field].orEmpty()) } }
-    val undoRecordList = rememberSaveable(saver = QrUndoRecordListSaver) { mutableListOf<QrUndoRecord>().toMutableStateList() }
+    val undoRecordState = rememberSaveable(stateSaver = QrUndoRecordSaver) { mutableStateOf<QrUndoRecord?>(null) }
     val initialEventPeriod =
         remember(initialContent, clock) {
             if (initialContent is QrContent.Event) initialContent.period?.toDiaryDateTimeInputValue() else clock.todayEventPeriod().toDiaryDateTimeInputValue()
@@ -308,13 +308,13 @@ internal fun rememberQrContentFormState(
             }
         }
 
-    return remember(formatState, wifiSecurityState, isWifiHiddenState, fieldStateMap, undoRecordList, eventPeriodState, mapState, clock) {
+    return remember(formatState, wifiSecurityState, isWifiHiddenState, fieldStateMap, undoRecordState, eventPeriodState, mapState, clock) {
         QrContentFormState(
             formatState = formatState,
             wifiSecurityState = wifiSecurityState,
             isWifiHiddenState = isWifiHiddenState,
             fieldStateMap = fieldStateMap,
-            undoRecordList = undoRecordList,
+            undoRecordState = undoRecordState,
             eventPeriodState = eventPeriodState,
             mapState = mapState,
             clock = clock,

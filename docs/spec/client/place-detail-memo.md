@@ -12,7 +12,7 @@
 
 ### 진입
 
-사용자는 PlaceDetail 화면에서 메모 탭을 선택해 상세 대상 장소에 연결된 메모 목록을 확인한다. 탭을 선택하는 방법과 선택한 탭의 유지 기준은 [PlaceDetail 화면 스펙](./place-detail.md)의 `탭 전환`과 `선택한 탭`을 따른다.
+사용자는 PlaceDetail 화면에서 메모 탭을 선택해 상세 대상 장소에 연결된 메모 목록을 확인한다. 탭의 유지 기준은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `탭과 상세 화면`을, 탭의 구성과 선택하는 방법은 [PlaceDetail 화면 스펙](./place-detail.md)의 `탭 전환`과 `선택한 탭`을 따른다.
 
 PlaceHome, 메모의 장소 카드, TagDetail 장소 탭, SearchHome의 장소 결과 어느 경로로 진입한 PlaceDetail 화면에서도 같은 메모 탭을 제공한다.
 

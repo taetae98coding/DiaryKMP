@@ -26,7 +26,7 @@ internal fun SettingGeminiForm(
             onClick = { onEvent(SettingGeminiScaffoldEvent.ClickModel) },
             modifier = Modifier.fillMaxWidth(),
             state = state,
-            isMissingFromLoadedListProvider = { modelUiStateProvider().isModelMissing(model = state.model) },
+            isMissingFromLoadedListProvider = { state.modelDialogState.isVisible && modelUiStateProvider().isModelMissing(model = state.model) },
         )
         SettingGeminiSystemPromptInput(
             modifier =

@@ -93,7 +93,6 @@ private fun LazyListScope.formInputs(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = horizontalPadding),
-            nextFocusProvider = { state.descriptionState.focusTarget },
         )
     }
     item(key = DESCRIPTION_KEY) {

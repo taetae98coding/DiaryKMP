@@ -8,6 +8,12 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.navercorp.fixturemonkey.FixtureMonkey
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
+import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -17,6 +23,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
+
+private const val TITLE_INPUT_INDEX = 0
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -64,6 +74,40 @@ class PlaceAddScreenFocusTest {
 
         composeRule.onAllNodes(hasSetTextAction())[ADDRESS_INDEX].assertIsFocused()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsNotFocused()
+    }
+
+    /**
+     * 지도를 누르는 조작은 지도 제공자의 표시 요소가 받으므로, 그 조작이 부르는 지점 선택을 입력 상태에 직접 실행한다.
+     */
+    @Test
+    fun `TC-498b8539-ed61-4d0c-9aae-9cc6a38315bd 지도에서 위치를 고르면 입력 초점이 보고 있던 입력에 그대로 남는다`() {
+        lateinit var state: PlaceFormState
+        composeRule.setContent {
+            DiaryTheme {
+                state = rememberPlaceAddFormState()
+                PlaceAddScaffold(
+                    state = state,
+                    onEvent = {},
+                    onFormEvent = {},
+                    onSearchEvent = {},
+                    onTagPickerEvent = {},
+                )
+            }
+        }
+
+        listOf(TITLE_INPUT_INDEX to TYPED_TITLE, ADDRESS_INDEX to TYPED_ADDRESS).forEach { (focusedIndex, typedText) ->
+            val coordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+            composeRule.onAllNodes(hasSetTextAction())[focusedIndex].performTextInput(typedText)
+            composeRule.onAllNodes(hasSetTextAction())[focusedIndex].assertIsFocused()
+
+            composeRule.runOnIdle { state.selectSpotOnMap(coordinate) }
+            composeRule.waitForIdle()
+
+            composeRule.runOnIdle { state.spot shouldBe coordinate }
+            composeRule.onAllNodes(hasSetTextAction())[focusedIndex].assertIsFocused()
+            composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assertIsNotFocused()
+            composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assertIsNotFocused()
+        }
     }
 
     private fun setPlaceAddScreen(effect: PlaceAddEffect) {

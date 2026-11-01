@@ -124,6 +124,42 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-f57736f9-32a2-4096-94b6-0ec9de1995c8 다른 경로에서 상세 대상 태그가 삭제되어도 내용을 유지하고 Effect를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val tag = tag().copy(isDeleted = false)
+                val resultFlow = MutableSharedFlow<Result<Tag?>>(replay = 1)
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(any()) } returns resultFlow
+                val viewModel =
+                    viewModel(
+                        id = tag.id,
+                        findTagUseCase = findTagUseCase,
+                    )
+                val content =
+                    TagDetailUiState.Content(
+                        id = tag.id,
+                        detail = tag.detail,
+                        isFinished = tag.isFinished,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe TagDetailUiState.Loading
+
+                        resultFlow.emit(Result.success(tag))
+                        awaitItem() shouldBe content
+
+                        resultFlow.emit(Result.success(tag.copy(isDeleted = true)))
+                        advanceUntilIdle()
+
+                        viewModel.uiState.value shouldBe content
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    expectNoEvents()
+                }
+            }
+        }
+
         test("TC-6fb6a47f-1610-4f3b-b251-6ce0d9cd6d83 조회한 태그의 완료 상태를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val tag = tag().copy(isFinished = false)

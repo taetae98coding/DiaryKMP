@@ -1,17 +1,24 @@
 package io.github.taetae98coding.diary.feature.setting.ui
 
 import androidx.navigation3.runtime.NavBackStack
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.uuid.Uuid
 
 class SettingNavigationTest :
     FunSpec({
@@ -32,12 +39,7 @@ class SettingNavigationTest :
                     SettingMapNavKey to SettingHolidayNavKey,
                     SettingHolidayNavKey to SettingGeminiNavKey,
                     SettingGeminiNavKey to SettingMapNavKey,
-                    SettingGeminiNavKey to SettingBrowserNavKey,
-                    SettingGeminiNavKey to SettingPlaylistNavKey,
-                    SettingBrowserNavKey to SettingHolidayNavKey,
-                    SettingBrowserNavKey to SettingPlaylistNavKey,
-                    SettingPlaylistNavKey to SettingMapNavKey,
-                    SettingPlaylistNavKey to SettingFileNavKey,
+                    SettingGeminiNavKey to SettingFileNavKey,
                     SettingFileNavKey to SettingHolidayNavKey,
                 )
 
@@ -67,8 +69,6 @@ class SettingNavigationTest :
                     SettingHolidayNavKey,
                     SettingMapNavKey,
                     SettingGeminiNavKey,
-                    SettingBrowserNavKey,
-                    SettingPlaylistNavKey,
                     SettingFileNavKey,
                 )
 
@@ -88,15 +88,29 @@ class SettingNavigationTest :
 
             backStack shouldContainExactly listOf(MoreHomeNavKey)
         }
+
+        test("설정 목록에서 이동한 설정 상세는 목록·상세 배치에 참여한다") {
+            settingDetailList.forEach { detail ->
+                settingBackStack(detail).isSettingListDetailPane(detail).shouldBeTrue()
+            }
+        }
+
+        test("TC-cce39916-2629-4082-b4bb-21482205e6e7 메모 화면에서 이동한 SettingGemini는 목록·상세 배치에 참여하지 않는다") {
+            listOf(MemoAddNavKey(), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+                val backStack = NavBackStack(MemoHomeNavKey, memoKey, SettingGeminiNavKey)
+
+                backStack.isSettingListDetailPane(SettingGeminiNavKey).shouldBeFalse()
+            }
+        }
     })
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private val settingDetailList: List<ScreenNavKey> =
     listOf(
         SettingHolidayNavKey,
         SettingMapNavKey,
         SettingGeminiNavKey,
-        SettingBrowserNavKey,
-        SettingPlaylistNavKey,
         SettingFileNavKey,
     )
 

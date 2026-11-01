@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import kotlin.uuid.Uuid
 
 internal sealed interface TagDetailPlaceUiState {
     data object Loading : TagDetailPlaceUiState
@@ -10,6 +9,5 @@ internal sealed interface TagDetailPlaceUiState {
     data class Content(
         val defaultProvider: MapProvider,
         val initialCoordinate: Coordinate?,
-        val currentLocationFetchId: Uuid,
     ) : TagDetailPlaceUiState
 }

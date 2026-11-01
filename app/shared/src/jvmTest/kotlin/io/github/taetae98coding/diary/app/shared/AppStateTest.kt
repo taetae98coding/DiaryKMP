@@ -24,8 +24,9 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -187,14 +188,41 @@ class AppStateTest :
             }
         }
 
-        test("TC-ea755929-3e47-49eb-8fa6-fb8faafdb8e5 단독 화면에서 뒤로가면 설정 목록으로 돌아가고 공통 내비게이션은 계속 숨긴다") {
-            val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + SettingHomeNavKey + SettingBrowserNavKey).toTypedArray())
+        test("TC-8cbf380d-d0b9-456a-a873-f94e35d5deea 단독 화면에서 뒤로가면 설정 목록으로 돌아가고 공통 내비게이션은 계속 숨긴다") {
+            val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + SettingHomeNavKey + SettingMapNavKey).toTypedArray())
             appState.isNavigationVisible.shouldBeFalse()
 
             appState.backStack.removeLast()
 
             appState.backStack.last() shouldBe SettingHomeNavKey
             appState.isNavigationVisible.shouldBeFalse()
+        }
+
+        test("TC-cce39916-2629-4082-b4bb-21482205e6e7 메모 화면에서 이동한 SettingGemini에서는 창 너비와 관계없이 공통 내비게이션을 숨긴다") {
+            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+                listOf(false, true).forEach { isListDetailTwoPane ->
+                    val appState =
+                        createAppState(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Memo.key,
+                            memoKey,
+                            SettingGeminiNavKey,
+                            isListDetailTwoPane = isListDetailTwoPane,
+                        )
+
+                    appState.isNavigationVisible.shouldBeFalse()
+                }
+            }
+        }
+
+        test("TC-860eb13f-d620-4f83-8842-183db8f5d350 메모 화면에서 이동한 SettingGemini에서 뒤로가면 그 메모 화면으로 돌아간다") {
+            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+                val appState = createAppState(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, memoKey, SettingGeminiNavKey)
+
+                appState.backStack.removeLast()
+
+                appState.backStack.toList() shouldBe listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, memoKey)
+            }
         }
 
         test("TC-713b65da-f06b-4d3a-8cd4-4fe3d4ceacb3 주요 목적지 복귀 후 내비게이션 표시") {

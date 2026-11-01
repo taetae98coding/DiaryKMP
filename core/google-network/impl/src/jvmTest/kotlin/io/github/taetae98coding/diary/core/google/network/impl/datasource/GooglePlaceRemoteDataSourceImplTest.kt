@@ -143,13 +143,10 @@ class GooglePlaceRemoteDataSourceImplTest :
                 .orEmpty()
                 .split(",") shouldContainExactlyInAnyOrder
                 listOf(
-                    "places.id",
                     "places.displayName",
                     "places.location",
-                    "places.types",
                     "places.formattedAddress",
                     "places.shortFormattedAddress",
-                    "places.googleMapsUri",
                 )
         }
 
@@ -205,8 +202,8 @@ class GooglePlaceRemoteDataSourceImplTest :
 
         test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val representable = fixtureMonkey.giveMeOne<GooglePlaceRemoteEntity>()
-            val withoutLocationId = "place-${fixtureMonkey.giveMeOne<Int>()}"
-            val withoutLatitudeId = "place-${fixtureMonkey.giveMeOne<Int>()}"
+            val withoutLocationName = "place-${fixtureMonkey.giveMeOne<Int>()}"
+            val withoutLatitudeName = "place-${fixtureMonkey.giveMeOne<Int>()}"
             val content =
                 buildJsonObject {
                     put(
@@ -215,14 +212,12 @@ class GooglePlaceRemoteDataSourceImplTest :
                             add(Json.encodeToJsonElement(representable))
                             add(
                                 buildJsonObject {
-                                    put("id", withoutLocationId)
-                                    put("displayName", buildJsonObject { put("text", withoutLocationId) })
+                                    put("displayName", buildJsonObject { put("text", withoutLocationName) })
                                 },
                             )
                             add(
                                 buildJsonObject {
-                                    put("id", withoutLatitudeId)
-                                    put("displayName", buildJsonObject { put("text", withoutLatitudeId) })
+                                    put("displayName", buildJsonObject { put("text", withoutLatitudeName) })
                                     put("location", buildJsonObject { put("longitude", representable.location.longitude) })
                                 },
                             )
@@ -233,7 +228,7 @@ class GooglePlaceRemoteDataSourceImplTest :
 
             val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
 
-            actual.map { place -> place.id } shouldBe listOf(representable.id, withoutLocationId, withoutLatitudeId)
+            actual.map { place -> place.displayName.text } shouldBe listOf(representable.displayName.text, withoutLocationName, withoutLatitudeName)
             actual[0] shouldBe representable
             actual[1].location.latitude.shouldBeNaN()
             actual[1].location.longitude.shouldBeNaN()
@@ -256,7 +251,6 @@ class GooglePlaceRemoteDataSourceImplTest :
         test("응답에 없는 선택 정보는 빈 값으로 전달한다") {
             val place =
                 GooglePlaceRemoteEntity(
-                    id = fixtureMonkey.giveMeOne<String>(),
                     displayName = fixtureMonkey.giveMeOne<GooglePlaceDisplayNameRemoteEntity>(),
                     location = fixtureMonkey.giveMeOne<GooglePlaceLocationRemoteEntity>(),
                 )
@@ -265,10 +259,8 @@ class GooglePlaceRemoteDataSourceImplTest :
 
             val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null).single()
 
-            actual.types shouldBe emptyList()
             actual.formattedAddress shouldBe ""
             actual.shortFormattedAddress shouldBe ""
-            actual.googleMapsUri shouldBe ""
         }
     }) {
     private companion object {

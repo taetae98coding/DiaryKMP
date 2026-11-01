@@ -12,7 +12,6 @@ import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileNotFoundRemoteException
-import io.github.taetae98coding.diary.data.file.paging.FilePagingSourceHolder
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
@@ -118,7 +117,7 @@ class FileDetailRepositoryImplTest :
                 val snapshot =
                     listRepository.page().asSnapshot {
                         repository.updateDetail(id = file.id, detail = DiaryFileDetail(name = file.name, title = editedTitle, description = file.description))
-                        listRepository.refresh()
+                        refresh()
                     }
 
                 snapshot.single().title shouldBe fromOtherDevice.title
@@ -204,6 +203,5 @@ private fun listRepository(
     FileRepositoryImpl(
         fileLocalDataSource = mockk(),
         fileRemoteDataSource = fileRemoteDataSource,
-        filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = fileUpdateHolder),
         fileUpdateHolder = fileUpdateHolder,
     )

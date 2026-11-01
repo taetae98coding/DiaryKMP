@@ -10,6 +10,8 @@ internal data class ErrorResponseRemoteEntity(
 
 @Serializable
 internal data class ErrorRemoteEntity(
+    @SerialName("message") val message: String = "",
+    @SerialName("status") val status: String = "",
     @SerialName("details") val details: List<ErrorDetailRemoteEntity> = emptyList(),
 )
 

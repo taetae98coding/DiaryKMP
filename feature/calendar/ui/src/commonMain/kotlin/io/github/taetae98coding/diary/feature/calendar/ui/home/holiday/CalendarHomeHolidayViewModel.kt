@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -31,7 +32,7 @@ internal class CalendarHomeHolidayViewModel(
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
 
-    private val isFetching = MutableStateFlow(false)
+    private val fetchingYearSet = MutableStateFlow(emptySet<Int>())
 
     val uiState: StateFlow<CalendarHomeHolidayUiState> =
         combine(
@@ -39,11 +40,11 @@ internal class CalendarHomeHolidayViewModel(
                 .map { yearMonth -> yearMonth?.holidayYearList().orEmpty() }
                 .distinctUntilChanged()
                 .flatMapLatest { yearList -> getHolidayList(yearList = yearList) },
-            isFetching,
-        ) { holidayList, isFetching ->
+            fetchingYearSet,
+        ) { holidayList, fetchingYearSet ->
             CalendarHomeHolidayUiState(
                 holidayList = holidayList,
-                isFetching = isFetching,
+                isFetching = fetchingYearSet.isNotEmpty(),
             )
         }.stateIn(
             scope = viewModelScope,
@@ -54,16 +55,17 @@ internal class CalendarHomeHolidayViewModel(
     fun fetch(yearMonth: YearMonth) {
         this.yearMonth.value = yearMonth
 
-        if (isFetching.value) return
+        val yearList = yearMonth.holidayYearList().filterNot { year -> year in fetchingYearSet.value }
+        if (yearList.isEmpty()) return
 
-        isFetching.value = true
+        fetchingYearSet.update { yearSet -> yearSet + yearList }
         viewModelScope.launch {
-            try {
-                yearMonth.holidayYearList().forEach { year ->
+            yearList.forEach { year ->
+                try {
                     fetchHolidayUseCase(parameter = year)
+                } finally {
+                    fetchingYearSet.update { yearSet -> yearSet - year }
                 }
-            } finally {
-                isFetching.value = false
             }
         }
     }

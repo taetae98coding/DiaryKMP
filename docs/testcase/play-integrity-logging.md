@@ -22,7 +22,7 @@ flowchart TD
 - 근거: `client > domain > 계층 없는 전달`, `client > domain > 원격 분석 로그`
 - Given: Google Play가 무결성 확인 정보를 발급하고, 서버가 테스트 데이터의 항목을 여러 단계로 묶은 판정 결과를 돌려준다.
 - When: 판정을 확인한다.
-- Then: 사건 종류가 `play_integrity`인 원격 분석 로그가 한 번 남고, 로그의 값은 테스트 데이터의 값 이름과 값을 한 단계 목록으로 모두 담는다.
+- Then: 사건 종류가 `play_integrity`인 원격 분석 로그가 한 번 남고, 로그의 값은 테스트 데이터의 값 이름과 값을 한 단계 목록으로 모두 담으며 그 밖의 이름은 담지 않으므로 무결성 확인 정보 자체도 담기지 않는다.
 - 테스트 데이터:
 
 | 판정 결과의 위치 | 로그 값 이름 |
@@ -40,13 +40,6 @@ flowchart TD
 | `accountDetails.appLicensingVerdict` | `app_licensing_verdict` |
 | `environmentDetails.appAccessRiskVerdict.appsDetected` | `apps_detected` |
 | `environmentDetails.playProtectVerdict` | `play_protect_verdict` |
-
-### TC-c3ad60a7-c833-4b99-a0dd-c8f8be604bf9: 같은 이름의 항목은 바로 위 묶음 이름을 붙여 구분한다
-
-- 근거: `client > domain > 계층 없는 전달`
-- Given: 서버가 돌려준 판정 결과의 `deviceIntegrity.deviceRecall.values.flag`와 `deviceIntegrity.deviceRecall.writeDates.flag`처럼 서로 다른 묶음에 같은 이름의 항목이 있다.
-- When: 판정을 확인한다.
-- Then: 로그에 `values_flag`와 `write_dates_flag`가 각자의 값으로 남고, 이름이 겹치지 않는 다른 항목은 가장 안쪽 이름 그대로 남는다.
 
 ### TC-772fd425-f1a4-4fb1-8dde-c660ed352753: 여러 값을 가진 항목은 받은 순서대로 쉼표로 잇는다
 
@@ -85,19 +78,28 @@ flowchart TD
 | 아래 항목이 하나도 없는 묶음 `deviceAttributes` |
 | 값이 없음으로 온 `deviceRecognitionVerdict` |
 
-### TC-98a93ae9-5005-44bc-8854-9fa1303ea6de: 알려지지 않은 새 항목도 그대로 전달한다
+### TC-ebb2266a-6afe-40b0-9fb1-0c952d73538b: 표에 없는 항목은 담지 않는다
 
-- 근거: `server > data > 판정 결과 요청 처리`, `client > domain > 계층 없는 전달`
-- Given: 서버가 돌려준 판정 결과에 이 문서의 표에 없는 항목 `environmentDetails.newVerdict`가 값 `NEW_VALUE`로 담겨 있다.
+- 근거: `client > domain > 계층 없는 전달`
+- Given: 서버가 돌려준 판정 결과에 값이 있는 `appRecognitionVerdict`와 함께, 스펙의 표에 없는 항목 `environmentDetails.newVerdict`가 값 `NEW_VALUE`로 담겨 있다.
 - When: 판정을 확인한다.
-- Then: 로그에 `new_verdict`가 `NEW_VALUE`로 남는다.
+- Then: 로그에 `app_recognition_verdict`는 남고, `new_verdict`를 비롯해 `NEW_VALUE`를 값으로 가진 이름은 남지 않는다.
 
 ### TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48: Android가 아닌 플랫폼에서는 확인하지 않는다
 
 - 근거: `client > domain > 확인하는 기기`
-- Given: 실행 중인 플랫폼이 데스크톱 앱이다.
+- Given: 실행 중인 플랫폼이 테스트 데이터의 플랫폼이다.
 - When: 판정을 확인한다.
-- Then: 서버로 판정 결과 요청이 발생하지 않고, 원격 분석 로그가 남지 않으며, 오류 없이 끝난다.
+- Then: 서버로 판정 결과 요청이 발생하지 않고, 원격 분석 로그가 남지 않으며, 확인하지 않는다는 안내도 표시되지 않고 오류 없이 끝난다.
+- 테스트 데이터:
+
+| 플랫폼 |
+| --- |
+| iOS |
+| 데스크톱 앱 |
+| 웹 |
+
+- 작성하지 않는 이유: 데스크톱 앱에서 서버 요청과 로그가 없고 오류 없이 끝나는지는 자동화한다. iOS와 웹은 그 플랫폼에서 테스트를 실행해야 판정할 수 있는데 현재 유닛 테스트 환경은 데스크톱 앱과 Android 호스트 환경에서만 실행하고, 안내가 표시되지 않는지는 앱 전체 화면을 띄워 확인해야 한다. iOS·웹 실행 환경에서 테스트를 돌리고 앱 전체 화면을 띄워 안내 유무를 볼 수 있게 되면 자동화한다.
 
 ### TC-20072077-72da-437e-bd3a-7874cfc5c4d4: 무결성 확인 정보를 받지 못하면 로그 없이 끝낸다
 
@@ -115,10 +117,17 @@ flowchart TD
 
 ### TC-09a7d8bf-6294-4edf-b420-535dd1cb599f: 앱이 활성 상태가 될 때마다 확인한다
 
-- 근거: `client > domain > 확인 계기`
+- 근거: `client > domain > 확인 계기`, [앱 활성 상태 스펙](../spec/client/app-active-state.md)의 `활성 상태`
 - Given: Android 앱이 실행되어 있고 아직 활성 상태가 된 적이 없다.
 - When: 앱이 활성 상태가 되고, 백그라운드로 갔다가, 다시 활성 상태가 된다.
 - Then: 판정 확인이 활성 상태가 될 때마다 한 번씩, 모두 두 번 일어나고 백그라운드로 갈 때는 일어나지 않는다.
+
+### TC-b3a4543d-af80-4381-911b-d8020936c773: 앱 안에서 화면을 이동하는 것은 계기가 아니다
+
+- 근거: `client > domain > 확인 계기`
+- Given: Android 앱이 활성 상태이고 판정 확인이 한 번 일어났다.
+- When: 앱이 보이는 채로 앱 안의 다른 화면으로 이동한다.
+- Then: 판정 확인이 더 일어나지 않는다.
 
 ### TC-716347f4-e6aa-4442-a8ac-8b1181db6dea: 확인 중 백그라운드로 가도 끝까지 진행해 로그를 남긴다
 
@@ -129,7 +138,7 @@ flowchart TD
 
 ### TC-fb41f96e-50de-45e0-b1d1-e87ea9b47824: 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다
 
-- 근거: `client > domain > 확인 계기`
+- 근거: `client > domain > 확인 계기`, [앱 활성 상태 스펙](../spec/client/app-active-state.md)의 `활성 상태`
 - Given: Android 앱이 활성 상태이고 판정 확인이 한 번 일어났다.
 - When: 앱이 보이는 채로 포커스를 잃었다가 다시 얻는다.
 - Then: 판정 확인이 더 일어나지 않는다.
@@ -256,3 +265,18 @@ flowchart TD
 - When: 서버가 Google에 판정 결과를 요청한다.
 - Then: 서버는 판정 결과 없이 실패를 돌려주고 서버 오류 기록으로 남긴다.
 - 작성하지 않는 이유: 정보를 풀지 여부는 Google 서버가 정하므로 앱이나 저장소의 테스트 환경에서 제어할 수 없다. Google의 판정 응답을 대신하는 서버 함수 테스트 환경이 갖춰지면 자동화한다.
+
+### TC-ee08eda9-5528-4dd2-be20-9cde62be7fcc: 서버는 Google에 연결하지 못하거나 판정 결과를 받지 못하면 판정 결과 없이 실패를 돌려준다
+
+- 근거: `server > data > 판정 결과 요청 처리`
+- Given: 서버에 무결성 확인 정보와 앱 패키지 이름이 모두 있는 요청이 도착하고, Google이 테스트 데이터처럼 응답한다.
+- When: 서버가 Google에 판정 결과를 요청한다.
+- Then: 서버는 다시 시도하지 않고 판정 결과 없이 실패를 돌려주며 서버 오류 기록으로 남긴다.
+- 테스트 데이터:
+
+| Google 응답 |
+| --- |
+| 연결되지 않음 |
+| 판정 결과 없이 응답함 |
+
+- 작성하지 않는 이유: 서버 함수가 Google에 보내는 요청과 그 응답을 제어해야 판정할 수 있고, 서버 함수 실행 환경은 저장소의 자동 검증 절차에 포함되어 있지 않다. Google 응답을 대신할 수 있는 서버 함수 테스트 러너가 검증 절차에 들어오면 자동화한다.

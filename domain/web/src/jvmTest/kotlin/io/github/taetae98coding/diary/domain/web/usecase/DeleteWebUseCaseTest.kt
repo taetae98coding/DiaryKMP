@@ -87,7 +87,7 @@ class DeleteWebUseCaseTest :
                 )
 
             When("웹 항목을 삭제한다") {
-                Then("TC-fc0c7076-0894-4610-802f-ee24fb9612ac 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
+                Then("TC-fc0c7076-0894-4610-802f-ee24fb9612ac TC-ca23453a-d461-4d5e-a800-98d0920e3fc3 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {

@@ -3,8 +3,9 @@
 
 python3 store_build_exists.py play <package> <versionCode>
     PLAY_SERVICE_ACCOUNT_JSON 환경 변수의 서비스 계정으로 Play에 올라간 번들의 versionCode를 조회한다.
-python3 store_build_exists.py asc <appId> <version> <build>
+python3 store_build_exists.py asc <appId> <version> <build> <platform>
     ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 환경 변수의 API 키로 App Store Connect 빌드를 조회한다.
+    platform은 IOS 또는 MAC_OS다. 한 앱의 플랫폼마다 같은 버전과 빌드 번호를 쓰므로 플랫폼으로 나눠 조회한다.
 
 러너에 추가 패키지를 설치하지 않도록 표준 라이브러리와 openssl만 쓴다.
 """
@@ -101,7 +102,7 @@ def play_exists(package: str, version_code: int) -> bool:
     return any(bundle.get("versionCode") == version_code for bundle in bundles)
 
 
-def asc_exists(app_id: str, version: str, build: str) -> bool:
+def asc_exists(app_id: str, version: str, build: str, platform: str) -> bool:
     now = int(time.time())
     token = jwt(
         {"alg": "ES256", "kid": os.environ["ASC_KEY_ID"], "typ": "JWT"},
@@ -114,6 +115,7 @@ def asc_exists(app_id: str, version: str, build: str) -> bool:
             "filter[app]": app_id,
             "filter[version]": build,
             "filter[preReleaseVersion.version]": version,
+            "filter[preReleaseVersion.platform]": platform,
             "limit": "1",
         }
     )
@@ -125,7 +127,7 @@ def main() -> None:
     if store == "play":
         exists = play_exists(args[0], int(args[1]))
     elif store == "asc":
-        exists = asc_exists(args[0], args[1], args[2])
+        exists = asc_exists(args[0], args[1], args[2], args[3])
     else:
         sys.exit(f"알 수 없는 스토어: {store}")
     print("true" if exists else "false")

@@ -4,9 +4,9 @@
 
 이 문서에서 `domain > 배치에 참여하는 화면`, `feature > 추가 진입 수단`, `feature > 함께 사용과 단독 사용`, `feature > 함께 사용할 때의 행동` 절은 [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-표시 비율 조절의 공통 행동과 유지 기준은 [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)에 위임되어 있다. 한 화면만 사용하는 환경에서 파일 목록에서 FileAdd나 FileDetail로 이동하는 케이스는 [FileHome 테스트 케이스](./file-home.md)에서, 상세 영역에서 파일을 올리는 케이스는 [FileAdd 테스트 케이스](./file-add.md)에서, 상세 영역에서 파일 정보를 고치고 내려받는 케이스는 [FileDetail 테스트 케이스](./file-detail.md)에서, 올리기가 끝났을 때 어느 화면을 보고 있는 것으로 판정하는지는 [파일 올리기 알림 테스트 케이스](./file-upload-notification.md)에서 다룬다.
+표시 비율 조절의 공통 행동과 유지 기준은 [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)에 위임되어 있다. 한 화면만 사용하는 환경에서 파일 목록에서 FileAdd나 FileDetail로 이동하는 케이스는 [FileHome 테스트 케이스](./file-home.md)에서, 상세 영역에서 파일을 올리는 케이스는 [FileAdd 테스트 케이스](./file-add.md)에서, 상세 영역에서 파일 정보를 고치고 내려받는 케이스는 [FileDetail 테스트 케이스](./file-detail.md)에서 다룬다.
 
-상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 결과를 FileAdd가 알리는 것은 [FileAdd 테스트 케이스](./file-add.md)의 올리기 결과 케이스가, 두 파일 화면을 함께 표시할 때 FileAdd를 보고 있는 것으로 판정하는 것은 [파일 올리기 알림 테스트 케이스](./file-upload-notification.md)의 TC-21415d63-709f-4d61-9ead-743e437adff3이 다룬다.
+상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 결과를 FileAdd가 알리는 것은 [FileAdd 테스트 케이스](./file-add.md)의 올리기 결과 케이스가 다룬다.
 
 ## feature
 
@@ -158,6 +158,19 @@
 - Given: 사용자 언어가 한국어이고, 파일 목록과 선택한 파일의 FileDetail이 함께 표시된 동안 올리는 중이다.
 - When: 올리기가 그 밖의 이유로 실패한다.
 - Then: 목록 영역에 `파일을 올리지 못했습니다` 안내가 표시되고 상세 영역에는 FileDetail이 그대로 남는다.
+
+### TC-db8c717d-84f3-48fc-a4a7-370eebee0fd4: 상세 영역에 FileAdd가 놓인 동안 끝난 올리기의 결과는 목록에서 알리지 않는다
+
+- 근거: `feature > 올리기 결과를 알리는 화면`
+- Given: 사용자 언어가 한국어이고, 파일 목록과 선택한 파일이 없을 때의 FileAdd가 함께 표시된 동안 올리는 중이다.
+- When: 올리기가 테스트 데이터의 결과로 끝난다.
+- Then: 목록 영역에는 결과를 알리는 안내가 표시되지 않고, 성공이면 목록을 처음부터 다시 요청한다.
+- 테스트 데이터:
+
+| 결과 |
+| --- |
+| 성공 |
+| 그 밖의 이유로 실패 |
 
 ### TC-1bd00936-52b0-4d58-b4d4-f84c9fe30902: 상세 영역의 화면이 계정 변경으로 닫히면 뒤로가기를 실행한 것과 같이 되돌아간다
 

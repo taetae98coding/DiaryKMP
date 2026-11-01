@@ -220,6 +220,20 @@ class AccountQrLocalDataSourceImplTest :
             }
         }
 
+        test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR의 QR 값이 수정되면 같은 자리에서 바뀐 QR 값으로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstQr = qr(title = FIRST_QR_TITLE)
+            val middleQr = qr(title = MIDDLE_QR_TITLE)
+            val lastQr = qr(title = LAST_QR_TITLE)
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            val detail = middleQr.detail.copy(value = "changed-${fixtureMonkey.giveMeOne<String>()}")
+            val updatedAt = instant()
+
+            assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, middleQr.copy(detail = detail, updatedAt = updatedAt), lastQr)) {
+                qrTransaction.updateDetail(accountId = accountId, qrId = middleQr.id, detail = detail, updatedAt = updatedAt)
+            }
+        }
+
         test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val qr = qr().copy(isDeleted = true)

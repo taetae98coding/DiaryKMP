@@ -89,36 +89,14 @@ class FileHomeViewModelTest : FunSpec() {
 
         test("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 사용자 상태에서는 사용자 화면을 제공한다") {
             runTest(mainDispatcher) {
-                listOf(
-                    true to false,
-                    false to true,
-                    false to false,
-                ).forEach { (isSessionValid, isSessionPending) ->
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid, isSessionPending = isSessionPending)
+                listOf(true, false).forEach { isSessionValid ->
+                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
                     val viewModel = viewModel(accountFlow = MutableStateFlow(Result.success(account)))
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe FileHomeUiState.Loading
                         awaitItem() shouldBe FileHomeUiState.User(accountId = account.id)
                     }
-                }
-            }
-        }
-
-        test("계정이 바뀌는 중임을 표시하고 끝나면 해제한다") {
-            runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val viewModel = viewModel(accountFlow = MutableStateFlow(Result.success(account)))
-
-                viewModel.uiState.test {
-                    awaitItem() shouldBe FileHomeUiState.Loading
-                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id)
-
-                    viewModel.startAccountChange()
-                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id, isAccountChanging = true)
-
-                    viewModel.finishAccountChange()
-                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id, isAccountChanging = false)
                 }
             }
         }
