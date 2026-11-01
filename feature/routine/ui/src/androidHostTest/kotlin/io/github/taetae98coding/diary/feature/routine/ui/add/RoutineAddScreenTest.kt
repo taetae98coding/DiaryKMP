@@ -66,7 +66,8 @@ class RoutineAddScreenTest {
         setRoutineAddScreen(navigateUp = { navigateUpCount += 1 })
         composeRule.titleInput().performTextInput(title)
         composeRule.descriptionInput().performTextInput(description)
-        composeRule.waitForIdle()
+        // 설명의 미리보기는 마크다운을 비동기로 그려 waitForIdle 뒤에도 늦게 나타날 수 있으므로, 그려진 뒤의 글을 기준으로 삼는다.
+        composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) { description in composeRule.displayedTextList() }
         val initialTextList = composeRule.displayedTextList()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
@@ -142,5 +143,7 @@ class RoutineAddScreenTest {
 
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add routine"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+
+        private const val WAIT_TIMEOUT_MILLIS = 5_000L
     }
 }
