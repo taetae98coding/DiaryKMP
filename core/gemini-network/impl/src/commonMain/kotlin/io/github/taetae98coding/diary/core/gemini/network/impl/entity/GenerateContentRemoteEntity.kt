@@ -34,5 +34,5 @@ internal data class PartRemoteEntity(
 @Serializable
 internal data class GenerationConfigRemoteEntity(
     @SerialName("responseMimeType") val responseMimeType: String,
-    @SerialName("responseSchema") val responseSchema: JsonObject,
+    @SerialName("responseJsonSchema") val responseJsonSchema: JsonObject,
 )

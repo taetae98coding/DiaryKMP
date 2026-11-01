@@ -33,7 +33,7 @@ internal class GeminiContentRemoteDataSourceImpl(
         model: String,
         systemInstruction: String,
         prompt: String,
-        responseSchema: JsonObject,
+        responseJsonSchema: JsonObject,
     ): JsonObject {
         val response =
             try {
@@ -46,7 +46,7 @@ internal class GeminiContentRemoteDataSourceImpl(
                                 generationConfig =
                                     GenerationConfigRemoteEntity(
                                         responseMimeType = JSON_MIME_TYPE,
-                                        responseSchema = responseSchema,
+                                        responseJsonSchema = responseJsonSchema,
                                     ),
                                 systemInstruction = systemInstruction.takeIf { it.isNotBlank() }?.toContent(),
                             ),

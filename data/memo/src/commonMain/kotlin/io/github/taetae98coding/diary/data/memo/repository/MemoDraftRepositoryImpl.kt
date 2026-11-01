@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiC
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
-import io.github.taetae98coding.diary.data.memo.mapper.memoDraftResponseSchema
+import io.github.taetae98coding.diary.data.memo.mapper.memoDraftResponseJsonSchema
 import io.github.taetae98coding.diary.data.memo.mapper.toMemoDraft
 import io.github.taetae98coding.diary.data.memo.mapper.toPrompt
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
@@ -27,7 +27,7 @@ internal class MemoDraftRepositoryImpl(
                     model = setting.model,
                     systemInstruction = setting.systemPrompt,
                     prompt = request.toPrompt(),
-                    responseSchema = memoDraftResponseSchema,
+                    responseJsonSchema = memoDraftResponseJsonSchema,
                 ).toMemoDraft()
         } catch (exception: GeminiException.InvalidApiKey) {
             throw GeminiApiKeyInvalidException(cause = exception)

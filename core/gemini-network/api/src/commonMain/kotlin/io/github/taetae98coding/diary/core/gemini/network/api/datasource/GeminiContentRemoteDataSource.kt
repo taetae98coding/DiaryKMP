@@ -8,6 +8,6 @@ public interface GeminiContentRemoteDataSource {
         model: String,
         systemInstruction: String,
         prompt: String,
-        responseSchema: JsonObject,
+        responseJsonSchema: JsonObject,
     ): JsonObject
 }

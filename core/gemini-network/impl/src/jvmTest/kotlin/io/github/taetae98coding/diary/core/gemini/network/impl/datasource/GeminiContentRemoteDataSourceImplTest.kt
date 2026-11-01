@@ -76,7 +76,8 @@ class GeminiContentRemoteDataSourceImplTest :
                 .jsonObject
                 .textOf() shouldBe request.prompt
             body["generationConfig"]!!.jsonObject["responseMimeType"]!!.jsonPrimitive.content shouldBe "application/json"
-            body["generationConfig"]!!.jsonObject["responseSchema"] shouldBe SCHEMA
+            body["generationConfig"]!!.jsonObject["responseJsonSchema"] shouldBe SCHEMA
+            body["generationConfig"]!!.jsonObject.containsKey("responseSchema") shouldBe false
         }
 
         test("TC-3a3766f6-143b-423d-a9ad-bc65853f66ef: 지시문을 더하거나 다듬지 않고 받은 그대로 한 조각으로 담는다") {
@@ -234,7 +235,7 @@ class GeminiContentRemoteDataSourceImplTest :
                 model = request.model,
                 systemInstruction = request.systemInstruction,
                 prompt = request.prompt,
-                responseSchema = SCHEMA,
+                responseJsonSchema = SCHEMA,
             )
 
         private infix fun JsonObject.shouldNotContainKey(key: String) {
