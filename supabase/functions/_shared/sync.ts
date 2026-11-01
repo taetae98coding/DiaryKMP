@@ -160,8 +160,9 @@ export const checklistItemPushRequestSchema = z.object({
   ),
 });
 
-// 태어난 연도가 생기기 전 버전의 앱이 보내는 형식이다. 태어난 연도는 서버가 생일에서 정한다.
-export const contactPushRequestSchemaV1 = z.object({
+// 태어난 연도와 알게 된 경로는 이 정보가 생기기 전 버전의 앱이 보내지 않으므로 선택 키로 받는다.
+// 키가 없으면 DB 함수가 저장된 값을 유지하거나 기본값을 쓰고, 키가 있으면 null이어도 그 값으로 저장한다.
+export const contactPushRequestSchema = z.object({
   contactList: z.array(
     z.object({
       id: z.string().uuid(),
@@ -177,40 +178,9 @@ export const contactPushRequestSchemaV1 = z.object({
           footSizeMillimeter: z.number().int().nullable(),
           birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
           birthdayCalendar: z.enum(["solar", "lunar"]).nullable(),
+          birthYear: z.number().int().nullable().optional(),
           hometown: z.string(),
-          phoneNumberList: z.array(
-            z.object({
-              number: z.string(),
-            }),
-          ),
-        })
-        .refine(
-          (detail) => (detail.birthday === null) === (detail.birthdayCalendar === null),
-          { message: "birthday and birthdayCalendar must be set together." },
-        ),
-    }),
-  ),
-});
-
-// 알게 된 경로가 생기기 전 버전의 앱이 보내는 형식이다. 알게 된 경로는 서버에 저장된 값을 유지한다.
-export const contactPushRequestSchemaV2 = z.object({
-  contactList: z.array(
-    z.object({
-      id: z.string().uuid(),
-      isFavorite: z.boolean(),
-      isDeleted: z.boolean(),
-      updatedAt: z.string().datetime({ offset: true }),
-      createdAt: z.string().datetime({ offset: true }),
-      detail: z
-        .object({
-          name: z.string(),
-          description: z.string(),
-          heightCentimeter: z.number().nullable(),
-          footSizeMillimeter: z.number().int().nullable(),
-          birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-          birthdayCalendar: z.enum(["solar", "lunar"]).nullable(),
-          birthYear: z.number().int().nullable(),
-          hometown: z.string(),
+          howWeMet: z.string().optional(),
           phoneNumberList: z.array(
             z.object({
               number: z.string(),
@@ -222,45 +192,10 @@ export const contactPushRequestSchemaV2 = z.object({
           { message: "birthday and birthdayCalendar must be set together." },
         )
         .refine(
-          (detail) => detail.birthday === null || detail.birthYear === Number(detail.birthday.slice(0, 4)),
-          { message: "birthYear must be the year of birthday." },
-        ),
-    }),
-  ),
-});
-
-// 태어난 연도와 알게 된 경로를 담는 현재 앱의 형식이다.
-export const contactPushRequestSchemaV3 = z.object({
-  contactList: z.array(
-    z.object({
-      id: z.string().uuid(),
-      isFavorite: z.boolean(),
-      isDeleted: z.boolean(),
-      updatedAt: z.string().datetime({ offset: true }),
-      createdAt: z.string().datetime({ offset: true }),
-      detail: z
-        .object({
-          name: z.string(),
-          description: z.string(),
-          heightCentimeter: z.number().nullable(),
-          footSizeMillimeter: z.number().int().nullable(),
-          birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-          birthdayCalendar: z.enum(["solar", "lunar"]).nullable(),
-          birthYear: z.number().int().nullable(),
-          hometown: z.string(),
-          howWeMet: z.string(),
-          phoneNumberList: z.array(
-            z.object({
-              number: z.string(),
-            }),
-          ),
-        })
-        .refine(
-          (detail) => (detail.birthday === null) === (detail.birthdayCalendar === null),
-          { message: "birthday and birthdayCalendar must be set together." },
-        )
-        .refine(
-          (detail) => detail.birthday === null || detail.birthYear === Number(detail.birthday.slice(0, 4)),
+          (detail) =>
+            detail.birthYear === undefined ||
+            detail.birthday === null ||
+            detail.birthYear === Number(detail.birthday.slice(0, 4)),
           { message: "birthYear must be the year of birthday." },
         ),
     }),
