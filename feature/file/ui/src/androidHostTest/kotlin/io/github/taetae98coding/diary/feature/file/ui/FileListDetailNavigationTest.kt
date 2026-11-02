@@ -816,7 +816,7 @@ class FileListDetailNavigationTest {
 
     private fun descriptionInput(): SemanticsNodeInteraction = composeRule.onAllNodes(hasSetTextAction())[1]
 
-    private fun testFile(): DiaryFile = fixtureMonkey.nonBlankDiaryFile().copy(name = "file-${fixtureMonkey.giveMeOne<Int>()}.txt")
+    private fun testFile(): DiaryFile = fixtureMonkey.nonBlankDiaryFile().copy(name = "file-${fixtureMonkey.giveMeOne<Uuid>()}.txt")
 
     private fun typedTitle(): String = "title-${fixtureMonkey.giveMeOne<Int>()}"
 
