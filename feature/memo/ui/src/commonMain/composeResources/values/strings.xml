@@ -83,8 +83,8 @@
     <string name="memo_detail_delete_button_content_description">Delete memo</string>
     <string name="memo_detail_update_succeeded_message">Memo updated.</string>
     <string name="memo_detail_copy_succeeded_message">Memo copied.</string>
-    <string name="memo_gemini_button_content_description">Write with AI</string>
-    <string name="memo_gemini_title">Write with AI</string>
+    <string name="memo_gemini_button_content_description">Write with Gemini</string>
+    <string name="memo_gemini_title">Write with Gemini</string>
     <string name="memo_gemini_prompt_label">Prompt</string>
     <string name="memo_gemini_prompt_placeholder">What memo should I write?</string>
     <string name="memo_gemini_generate_action">Generate</string>
