@@ -5,14 +5,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
+import io.github.taetae98coding.diary.compose.core.uri.tryOpenUri
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.rememberSettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelDialogEvent
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_api_key_blank_message
+import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_api_key_issue_open_failed_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -31,6 +34,8 @@ internal fun SettingGeminiScreen(
     val formState = key(loaded != null) { rememberSettingGeminiFormState(initialSetting = loaded?.setting ?: GeminiSetting.EMPTY) }
     val coroutineScope = rememberCoroutineScope()
     val apiKeyBlankMessage = stringResource(Res.string.setting_gemini_api_key_blank_message)
+    val uriHandler = LocalUriHandler.current
+    val apiKeyIssueOpenFailedMessage = stringResource(Res.string.setting_gemini_api_key_issue_open_failed_message)
 
     SettingGeminiScreenEffect(
         state = formState,
@@ -42,6 +47,12 @@ internal fun SettingGeminiScreen(
             when (event) {
                 is SettingGeminiScaffoldEvent.ClickNavigateUp -> {
                     navigateUp()
+                }
+
+                is SettingGeminiScaffoldEvent.ClickApiKeyIssue -> {
+                    if (!uriHandler.tryOpenUri(GEMINI_API_KEY_ISSUE_URL)) {
+                        coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyIssueOpenFailedMessage) }
+                    }
                 }
 
                 is SettingGeminiScaffoldEvent.ClickModel -> {
@@ -71,3 +82,5 @@ internal fun SettingGeminiScreen(
         componentVisibleProvider = componentVisibleProvider,
     )
 }
+
+private const val GEMINI_API_KEY_ISSUE_URL = "https://aistudio.google.com/api-keys"

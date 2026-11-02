@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -88,6 +90,69 @@ class SettingGeminiScreenTest {
 
         navigateUpCount shouldBe 1
         verify(exactly = 0) { settingViewModel.save(any()) }
+    }
+
+    @Test
+    fun `TC-8cc8e318-5d9b-44e0-a482-43c585d5aa99 발급 페이지 열기는 API 키 페이지를 연다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting())), uriHandler = uriHandler)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri(API_KEY_ISSUE_URL) }
+    }
+
+    @Test
+    fun `TC-448801b2-1733-4a23-9602-4385cafbc5a6 발급 페이지를 열어도 입력을 유지한다`() {
+        val editingApiKey = editingApiKey()
+        val editingSystemPrompt = systemPrompt()
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting())), uriHandler = uriHandler)
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(editingApiKey)
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextReplacement(editingSystemPrompt)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].assert(hasText(editingSystemPrompt))
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_API_KEY_DESCRIPTION).performClick()
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].assert(hasText(editingApiKey))
+    }
+
+    @Test
+    fun `TC-ae27a76b-17b8-4a4c-8947-5a8b8826e50b 발급 페이지를 열지 못하면 화면을 유지하고 알린다`() {
+        val editingApiKey = editingApiKey()
+        var navigateUpCount = 0
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(any()) } throws IllegalStateException("no browser")
+            }
+        setScreen(
+            settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting())),
+            navigateUp = { navigateUpCount += 1 },
+            uriHandler = uriHandler,
+        )
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(editingApiKey)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_API_KEY_ISSUE_OPEN_FAILED_MESSAGE).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_API_KEY_DESCRIPTION).performClick()
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].assert(hasText(editingApiKey))
+    }
+
+    @Test
+    fun `TC-6796fe79-fe6f-47b2-b2e3-5c415fab622d 설정을 확인하기 전에도 발급 페이지를 연다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Loading), uriHandler = uriHandler)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri(API_KEY_ISSUE_URL) }
     }
 
     @Test
@@ -657,15 +722,18 @@ class SettingGeminiScreenTest {
         settingViewModel: SettingGeminiViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)),
         modelViewModel: SettingGeminiModelViewModel = modelViewModel(SettingGeminiModelUiState()),
         navigateUp: () -> Unit = {},
+        uriHandler: UriHandler = mockk(relaxed = true),
     ) {
         composeRule.setContent {
-            DiaryTheme {
-                SettingGeminiScreen(
-                    navigateUp = navigateUp,
-                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
-                    settingViewModel = settingViewModel,
-                    modelViewModel = modelViewModel,
-                )
+            CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+                DiaryTheme {
+                    SettingGeminiScreen(
+                        navigateUp = navigateUp,
+                        componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                        settingViewModel = settingViewModel,
+                        modelViewModel = modelViewModel,
+                    )
+                }
             }
         }
     }
@@ -681,6 +749,9 @@ class SettingGeminiScreenTest {
         private const val DEFAULT_SAVE_SUCCEEDED_MESSAGE = "Saved."
         private const val DEFAULT_SAVE_FAILED_MESSAGE = "Couldn't save."
         private const val DEFAULT_FETCH_FAILED_MESSAGE = "Couldn't load models"
+        private const val DEFAULT_API_KEY_ISSUE_DESCRIPTION = "Get API key"
+        private const val DEFAULT_API_KEY_ISSUE_OPEN_FAILED_MESSAGE = "Couldn't open the page."
+        private const val API_KEY_ISSUE_URL = "https://aistudio.google.com/api-keys"
 
         private fun storedApiKey(): String = "storedApiKey${fixtureMonkey.giveMeOne<Uuid>()}"
 

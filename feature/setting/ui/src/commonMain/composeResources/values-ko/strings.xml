@@ -25,6 +25,8 @@
     <string name="setting_navigate_up_button_content_description">뒤로가기</string>
     <string name="setting_home_gemini_item_label">Gemini</string>
     <string name="setting_gemini_title">Gemini 설정</string>
+    <string name="setting_gemini_api_key_issue_button_content_description">API 키 발급</string>
+    <string name="setting_gemini_api_key_issue_open_failed_message">페이지를 열지 못했습니다.</string>
     <string name="setting_gemini_api_key_label">API 키</string>
     <string name="setting_gemini_api_key_show_button_content_description">API 키 표시</string>
     <string name="setting_gemini_api_key_hide_button_content_description">API 키 가리기</string>

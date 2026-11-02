@@ -17,3 +17,4 @@
 - [PlaceDetail 화면 스펙](./place-detail.md): 외부 지도로 열기
 - [WebDetail 화면 스펙](./web-detail.md): 외부로 열기
 - [MusicDetail 화면 스펙](./music-detail.md): 외부로 열기
+- [SettingGemini 화면 스펙](./setting-gemini.md): 인증 정보 발급 페이지 열기

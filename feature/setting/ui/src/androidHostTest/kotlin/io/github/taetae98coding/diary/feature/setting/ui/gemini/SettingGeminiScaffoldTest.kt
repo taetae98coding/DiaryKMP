@@ -87,7 +87,8 @@ class SettingGeminiScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_MODEL_LABEL).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_SYSTEM_PROMPT_LABEL).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
-        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
+        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 2
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
@@ -301,6 +302,7 @@ class SettingGeminiScaffoldTest {
         private const val DEFAULT_MODEL_MISSING_MESSAGE = "This model isn't in the loaded list"
         private const val DEFAULT_SYSTEM_PROMPT_LABEL = "System prompt"
         private const val DEFAULT_SAVE_DESCRIPTION = "Save"
+        private const val DEFAULT_API_KEY_ISSUE_DESCRIPTION = "Get API key"
         private val FILL_TOLERANCE = 48.dp
         private const val LONG_PROMPT_LINE_COUNT = 100
     }
