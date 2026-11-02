@@ -94,7 +94,7 @@ class MemoAddScreenMemoryRestoreTest {
     fun `TC-2903649b-8a21-4f71-b1f3-5667f5786470 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 연락처가 유지되지 않는다`() {
         val contact = testContact(name = CONTACT_NAME)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(contactList = listOf(contact)) }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = contact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
 
@@ -169,9 +169,9 @@ class MemoAddScreenMemoryRestoreTest {
         val otherContact = testContact(name = OTHER_CONTACT_NAME)
         val viewModelsList =
             setRelaunchableMemoAddScreen {
-                screenTestRealViewModel(initialContactId = targetContact.id, contactList = listOf(targetContact, otherContact))
+                screenTestRealViewModel(initialContactId = targetContact.contact.id, contactList = listOf(targetContact, otherContact))
             }
-        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = otherContact.id) }
+        composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = otherContact.contact.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(CONTACT_NAME).assertExists()
         composeRule.onNodeWithText(OTHER_CONTACT_NAME).assertExists()
@@ -182,7 +182,7 @@ class MemoAddScreenMemoryRestoreTest {
         composeRule.onNodeWithText(OTHER_CONTACT_NAME).assertDoesNotExist()
         viewModelsList
             .last()
-            .contactViewModel.selectionUiState.value.contactIdSet shouldBe setOf(targetContact.id)
+            .contactViewModel.selectionUiState.value.contactIdSet shouldBe setOf(targetContact.contact.id)
     }
 
     @Test
@@ -248,7 +248,7 @@ class MemoAddScreenMemoryRestoreTest {
             viewModelsList.last().tagViewModel.selectTag(id = firstTag.id)
             viewModelsList.last().tagViewModel.selectPrimaryTag(id = secondTag.id)
             viewModelsList.last().webViewModel.selectWeb(id = web.id)
-            viewModelsList.last().contactViewModel.selectContact(id = contact.id)
+            viewModelsList.last().contactViewModel.selectContact(id = contact.contact.id)
             viewModelsList.last().placeViewModel.selectPlace(id = place.id)
         }
         composeRule.waitForIdle()

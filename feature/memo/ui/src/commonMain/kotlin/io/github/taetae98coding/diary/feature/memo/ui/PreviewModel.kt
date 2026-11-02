@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui
 
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
@@ -13,25 +14,30 @@ import kotlin.uuid.Uuid
 internal fun previewContact(
     name: String,
     phoneNumber: String,
-): Contact =
-    Contact(
-        id = Uuid.random(),
-        detail =
-            ContactDetail(
-                name = name,
-                description = "",
-                height = null,
-                footSize = null,
-                birthday = null,
-                birthYear = null,
-                hometown = "",
-                howWeMet = "",
-                phoneNumberList = listOf(ContactPhoneNumber(number = phoneNumber)),
+    nameQualifier: String = "",
+): ContactListItem =
+    ContactListItem(
+        contact =
+            Contact(
+                id = Uuid.random(),
+                detail =
+                    ContactDetail(
+                        name = name,
+                        description = "",
+                        height = null,
+                        footSize = null,
+                        birthday = null,
+                        birthYear = null,
+                        hometown = "",
+                        howWeMet = "",
+                        phoneNumberList = listOf(ContactPhoneNumber(number = phoneNumber)),
+                    ),
+                isFavorite = false,
+                isDeleted = false,
+                updatedAt = Instant.DISTANT_PAST,
+                createdAt = Instant.DISTANT_PAST,
             ),
-        isFavorite = false,
-        isDeleted = false,
-        updatedAt = Instant.DISTANT_PAST,
-        createdAt = Instant.DISTANT_PAST,
+        nameQualifier = nameQualifier,
     )
 
 internal fun previewMemoDraftProgress(): MemoDraftProgress =

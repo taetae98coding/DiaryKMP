@@ -28,10 +28,10 @@ internal fun MemoContactFlexBox(
 
     DiaryChipFlexBox(modifier = modifier) {
         uiState.selectedContactList.forEach { contact ->
-            key(contact.id) {
+            key(contact.contact.id) {
                 MemoContactChip(
                     contact = contact,
-                    onClick = { onContactClick(contact.id) },
+                    onClick = { onContactClick(contact.contact.id) },
                     modifier = Modifier.animateBounds(lookaheadScope = this),
                 )
             }

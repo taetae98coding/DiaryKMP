@@ -26,9 +26,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.nameListSortList
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_add_button_content_description
@@ -48,7 +48,7 @@ internal fun ContactHomeScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     filterSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
+    contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.NAME },
     filterUiStateProvider: () -> ContactHomeFilterUiState = { ContactHomeFilterUiState() },

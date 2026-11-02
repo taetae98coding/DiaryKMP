@@ -22,7 +22,7 @@ import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toCoordinate
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -67,7 +67,7 @@ internal fun MemoDetailScaffold(
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
-    contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
+    contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
     geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
@@ -161,7 +161,7 @@ private fun MemoDetailDialogHost(
     tagUiStateProvider: () -> MemoTagInputUiState,
     webPagingItems: LazyPagingItems<Web>,
     webUiStateProvider: () -> MemoWebInputUiState,
-    contactPagingItems: LazyPagingItems<Contact>,
+    contactPagingItems: LazyPagingItems<ContactListItem>,
     contactUiStateProvider: () -> MemoContactInputUiState,
     placePagingItems: LazyPagingItems<Place>,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,

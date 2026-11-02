@@ -13,12 +13,15 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarCont
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -423,8 +426,8 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
 
             dataSource.getLunar(accountId = accountId).first() shouldBe
                 listOf(
-                    LunarContactBirthdayLocalEntity(contactId = firstByNameLunarContact.id, name = "가", birthday = LocalDate(1991, 2, 28)),
-                    LunarContactBirthdayLocalEntity(contactId = lunarContact.id, name = "나", birthday = LocalDate(1990, 7, 8)),
+                    LunarContactBirthdayLocalEntity(contactId = firstByNameLunarContact.id, name = "가", nameQualifier = "", birthday = LocalDate(1991, 2, 28)),
+                    LunarContactBirthdayLocalEntity(contactId = lunarContact.id, name = "나", nameQualifier = "", birthday = LocalDate(1990, 7, 8)),
                 )
         }
 
@@ -454,6 +457,52 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 endInclusive = LocalDate(2026, 1, 3),
             ).map { birthday -> birthday.birthdayDate } shouldBe listOf(LocalDate(2026, 1, 2))
         }
+        test("TC-9dc8ae2c-0b36-4315-84e6-7944047abfde 이름이 같은 연락처의 생일에는 구분 경로를 함께 담는다") {
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            listOf(
+                contact(birthday = null, name = sameName) to howWeMet,
+                contact(birthday = null, name = sameName).copy(isDeleted = true) to "",
+                contact(birthday = null, name = "other-$sameName") to "",
+            ).forEach { (other, expected) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName).withHowWeMet(howWeMet)
+                upsert(accountId, target, other)
+
+                birthdayList(accountId = accountId).single().nameQualifier shouldBe expected
+            }
+        }
+
+        test("TC-f815c90d-c734-4a3b-9a58-0bd82d7953a7 생일 없는 같은 이름의 연락처가 저장되면 다시 조회하지 않아도 구분 경로가 담긴다") {
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName).withHowWeMet(howWeMet)
+            upsert(accountId, target)
+
+            dataSource
+                .get(accountId = accountId, dateRange = RANGE_START..RANGE_END_INCLUSIVE)
+                .map { list -> list.single().nameQualifier }
+                .distinctUntilChanged()
+                .test {
+                    awaitItem() shouldBe ""
+
+                    upsert(accountId, contact(birthday = null, name = sameName))
+                    awaitItem() shouldBe howWeMet
+                }
+        }
+
+        test("음력 생일에도 이름이 같은 연락처의 구분 경로를 함께 담는다") {
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName, birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR).withHowWeMet(howWeMet)
+            val alone = contact(birthday = LocalDate(1990, 7, 8), name = "other-$sameName", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR).withHowWeMet(howWeMet)
+            upsert(accountId, target, alone, contact(birthday = null, name = sameName))
+
+            dataSource.getLunar(accountId = accountId).first().associate { birthday -> birthday.contactId to birthday.nameQualifier } shouldBe
+                mapOf(target.id to howWeMet, alone.id to "")
+        }
     }) {
     private companion object {
         private val RANGE_START: LocalDate = LocalDate(2026, 7, 5)
@@ -461,6 +510,8 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private fun ContactLocalEntity.withHowWeMet(howWeMet: String): ContactLocalEntity = copy(detail = detail.copy(howWeMet = howWeMet))
 
         private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 

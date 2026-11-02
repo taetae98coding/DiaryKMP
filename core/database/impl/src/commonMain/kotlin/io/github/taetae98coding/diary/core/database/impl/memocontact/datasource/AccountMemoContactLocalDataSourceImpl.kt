@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.core.database.impl.memocontact.datasource
 
 import androidx.paging.PagingSource
-import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.datasource.AccountMemoContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +15,7 @@ internal class AccountMemoContactLocalDataSourceImpl(
     override fun getContactList(
         accountId: Uuid,
         memoId: Uuid,
-    ): Flow<List<ContactLocalEntity>> =
+    ): Flow<List<ContactListItemLocalEntity>> =
         database.accountMemoContactDao().getContactList(
             accountId = accountId,
             memoId = memoId,
@@ -24,7 +24,7 @@ internal class AccountMemoContactLocalDataSourceImpl(
     override fun pageSelectableContact(
         accountId: Uuid,
         query: String,
-    ): PagingSource<Int, ContactLocalEntity> =
+    ): PagingSource<Int, ContactListItemLocalEntity> =
         database.accountMemoContactDao().pageSelectableContact(
             accountId = accountId,
             query = query,

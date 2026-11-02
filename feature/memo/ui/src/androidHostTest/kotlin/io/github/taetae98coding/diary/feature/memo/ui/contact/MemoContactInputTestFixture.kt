@@ -25,8 +25,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.testing.contact.contact
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
@@ -65,14 +66,16 @@ internal fun testContact(
     phoneNumber: String? = null,
     isDeleted: Boolean = false,
     isFavorite: Boolean = false,
-): Contact =
+    nameQualifier: String = "",
+): ContactListItem =
     fixtureMonkey
         .contact(numberList = listOfNotNull(phoneNumber), hasMeasure = true, isFavorite = isFavorite, isDeleted = isDeleted)
         .let { contact -> contact.copy(detail = contact.detail.copy(name = name)) }
+        .toListItem(nameQualifier = nameQualifier)
 
 internal fun screenTestContactViewModel(
     uiState: StateFlow<MemoContactInputUiState> = MutableStateFlow(MemoContactInputUiState()),
-    contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(emptyList())),
+    contactPagingDataFlow: Flow<PagingData<ContactListItem>> = MutableStateFlow(contactPagingDataOf(emptyList())),
 ): MemoContactViewModel {
     val viewModel = mockk<MemoContactViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
@@ -101,7 +104,7 @@ internal fun ComposeContentTestRule.setMemoContactInput(
 /**
  * 선택한 연락처를 테스트에서 바꿀 수 있도록 상태를 끌어올려 [MemoContactInput]을 배치하고, 선택을 바꾸는 함수를 돌려준다.
  */
-internal fun ComposeContentTestRule.setMemoContactInputWithSelection(): (List<Contact>) -> Unit {
+internal fun ComposeContentTestRule.setMemoContactInputWithSelection(): (List<ContactListItem>) -> Unit {
     var uiState by mutableStateOf(MemoContactInputUiState())
 
     setContent {
@@ -122,10 +125,10 @@ internal fun ComposeContentTestRule.setMemoContactInputWithSelection(): (List<Co
 }
 
 internal fun ComposeContentTestRule.setMemoContactPickerDialog(
-    contactList: List<Contact> = emptyList(),
+    contactList: List<ContactListItem> = emptyList(),
     uiState: MemoContactInputUiState = MemoContactInputUiState(),
-    contactPagingData: PagingData<Contact> = contactPagingDataOf(contactList),
-    contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingData),
+    contactPagingData: PagingData<ContactListItem> = contactPagingDataOf(contactList),
+    contactPagingDataFlow: Flow<PagingData<ContactListItem>> = MutableStateFlow(contactPagingData),
     query: String = "",
     onDismissRequest: () -> Unit = {},
     onContactSelect: (Uuid) -> Unit = {},
@@ -154,8 +157,8 @@ internal fun ComposeContentTestRule.setMemoContactPickerDialog(
 
 internal fun ComposeContentTestRule.setMemoContactPickerDialogHost(
     dialogState: DialogState = DialogState(isVisible = true),
-    contactList: List<Contact> = emptyList(),
-    contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(contactList)),
+    contactList: List<ContactListItem> = emptyList(),
+    contactPagingDataFlow: Flow<PagingData<ContactListItem>> = MutableStateFlow(contactPagingDataOf(contactList)),
     uiState: MemoContactInputUiState = MemoContactInputUiState(),
     onQueryChange: (String) -> Unit = {},
     onContactSelect: (Uuid) -> Unit = {},

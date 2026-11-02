@@ -301,6 +301,7 @@ private fun birthday(): CalendarContactBirthday =
     CalendarContactBirthday(
         contactId = Uuid.random(),
         name = fixtureMonkey.giveMeOne(),
+        nameQualifier = fixtureMonkey.giveMeOne(),
         date =
             LocalDate(
                 year = 2026,

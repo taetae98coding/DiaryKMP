@@ -12,7 +12,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -77,7 +77,7 @@ class ContactHomeScreenTest {
         setContactHomeScreen(contactList = listOf(contact), navigateToDetail = navigatedIdList::add)
         composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).onFirst().performClick()
 
-        navigatedIdList shouldBe listOf(contact.id)
+        navigatedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -117,7 +117,7 @@ class ContactHomeScreenTest {
     }
 
     private fun setContactHomeScreen(
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
         navigateUp: () -> Unit = {},
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},

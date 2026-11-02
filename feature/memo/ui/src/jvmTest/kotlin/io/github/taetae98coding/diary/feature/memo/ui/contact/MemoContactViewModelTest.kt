@@ -10,6 +10,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
@@ -94,7 +96,7 @@ class MemoContactViewModelTest : FunSpec() {
         test("TC-f477fe87-b4f8-469e-9b25-1198beabe60a 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다") {
             runTest(mainDispatcher) {
                 val contact = contact()
-                val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
+                val memoContactFlow = MutableStateFlow(Result.success(emptyList<ContactListItem>()))
                 val viewModel =
                     viewModel(
                         contactPagingFlow = flowOf(Result.success(PagingData.from(listOf(contact)))),
@@ -140,8 +142,8 @@ class MemoContactViewModelTest : FunSpec() {
                     val savedUiState = expectMostRecentItem()
                     savedUiState shouldBe MemoContactInputUiState(selectedContactList = listOf(connectedContact))
 
-                    viewModel.selectContact(contactId = otherContact.id)
-                    viewModel.unselectContact(contactId = connectedContact.id)
+                    viewModel.selectContact(contactId = otherContact.contact.id)
+                    viewModel.unselectContact(contactId = connectedContact.contact.id)
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -175,7 +177,7 @@ class MemoContactViewModelTest : FunSpec() {
         test("TC-5d35b4ae-d9a7-4db3-b241-061c6ca6ce82 연락처가 복구되면 유지되어 있던 선택이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val contact = contact()
-                val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
+                val memoContactFlow = MutableStateFlow(Result.success(emptyList<ContactListItem>()))
                 val viewModel = viewModel(memoContactFlow = memoContactFlow)
 
                 viewModel.uiState.test {
@@ -394,18 +396,19 @@ class MemoContactViewModelTest : FunSpec() {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun contact(): Contact =
+        private fun contact(): ContactListItem =
             fixtureMonkey
                 .giveMeKotlinBuilder<Contact>()
                 .setExp(Contact::isDeleted, false)
                 .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
                 .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
+                .toListItem(nameQualifier = fixtureMonkey.giveMeOne())
 
         private fun viewModel(
             id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
-            contactPagingFlow: Flow<Result<PagingData<Contact>>> = emptyFlow(),
-            memoContactFlow: Flow<Result<List<Contact>>> = emptyFlow(),
+            contactPagingFlow: Flow<Result<PagingData<ContactListItem>>> = emptyFlow(),
+            memoContactFlow: Flow<Result<List<ContactListItem>>> = emptyFlow(),
             addMemoContactUseCase: AddMemoContactUseCase = mockk(relaxed = true),
             removeMemoContactUseCase: RemoveMemoContactUseCase = mockk(relaxed = true),
             pageMemoSelectableContactUseCase: PageMemoSelectableContactUseCase =

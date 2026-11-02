@@ -6,4 +6,5 @@
     <string name="entity_memo_finished_list_restarted_message">메모를 다시 시작했습니다.</string>
     <string name="entity_memo_finished_list_deleted_message">메모가 삭제되었습니다.</string>
     <string name="entity_memo_finished_list_undo_action">실행 취소</string>
+    <string name="contact_name_with_qualifier">%1$s(%2$s)</string>
 </resources>

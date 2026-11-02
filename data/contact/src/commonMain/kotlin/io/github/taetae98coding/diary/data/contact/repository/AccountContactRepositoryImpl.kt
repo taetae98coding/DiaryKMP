@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.data.contact.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
@@ -28,7 +29,7 @@ internal class AccountContactRepositoryImpl(
         account: Account,
         sort: ListSort,
         filter: ContactFilter,
-    ): Flow<PagingData<Contact>> =
+    ): Flow<PagingData<ContactListItem>> =
         pagingFlow(
             pagingSourceFactory = {
                 accountContactLocalDataSource.page(
@@ -45,7 +46,7 @@ internal class AccountContactRepositoryImpl(
     override fun get(
         account: Account,
         contactIdSet: Set<Uuid>,
-    ): Flow<List<Contact>> =
+    ): Flow<List<ContactListItem>> =
         accountContactLocalDataSource
             .get(
                 accountId = account.id,

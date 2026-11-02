@@ -12,7 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -69,12 +69,12 @@ class ContactCardFavoriteTest {
         setContactHomeList(contactList = listOf(favorite), onEvent = eventList::add)
         composeRule.onNodeWithContentDescription(FAVORITE_CONTENT_DESCRIPTION).performClick()
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = favorite.id))
+        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = favorite.contact.id))
         composeRule.onNodeWithContentDescription(FAVORITE_CONTENT_DESCRIPTION).assertExists()
     }
 
     private fun setContactHomeList(
-        contactList: List<Contact>,
+        contactList: List<ContactListItem>,
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(contactPagingDataOf(contactList))

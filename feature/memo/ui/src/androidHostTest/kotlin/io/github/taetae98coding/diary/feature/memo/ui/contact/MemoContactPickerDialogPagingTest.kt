@@ -54,18 +54,38 @@ class MemoContactPickerDialogPagingTest {
                     pagingSourceFactory = contactList.asPagingSourceFactory(),
                 ).flow,
         )
-        composeRule.waitUntil(timeoutMillis = PAGED_CONTACT_TIMEOUT_MILLIS) { isContactDisplayed(contactList.first().detail.name) }
-        composeRule.contactDialogNodeWithText(contactList.last().detail.name).assertDoesNotExist()
+        composeRule.waitUntil(timeoutMillis = PAGED_CONTACT_TIMEOUT_MILLIS) {
+            isContactDisplayed(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            )
+        }
+        composeRule
+            .contactDialogNodeWithText(
+                contactList
+                    .last()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
 
         // 준비되지 않은 자리가 채워지면 목록의 끝이 다시 밀리므로, 사용자가 끝에 닿을 때까지 이어서 내리는 것처럼 끝으로 다시 이동한다.
         composeRule.waitUntil(timeoutMillis = PAGED_CONTACT_TIMEOUT_MILLIS) {
             composeRule.contactPickerList().performScrollToIndex(contactList.lastIndex)
             composeRule.waitForIdle()
-            isContactDisplayed(contactList.last().detail.name)
+            isContactDisplayed(
+                contactList
+                    .last()
+                    .contact.detail.name,
+            )
         }
 
-        composeRule.contactDialogNodeWithText(contactList.last().detail.name).assertIsDisplayed()
-        composeRule.contactDialogNodeWithText(contactList[contactList.lastIndex - 1].detail.name).assertIsDisplayed()
+        composeRule
+            .contactDialogNodeWithText(
+                contactList
+                    .last()
+                    .contact.detail.name,
+            ).assertIsDisplayed()
+        composeRule.contactDialogNodeWithText(contactList[contactList.lastIndex - 1].contact.detail.name).assertIsDisplayed()
     }
 
     @Test
@@ -80,7 +100,7 @@ class MemoContactPickerDialogPagingTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
         composeRule.waitForIdle()
 
-        selectedIdList shouldBe listOf(contact.id)
+        selectedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test

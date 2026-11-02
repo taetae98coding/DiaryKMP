@@ -171,7 +171,7 @@ class MemoAddScreenTest {
     fun `TC-97d15054-fbd5-4499-8c8b-4a78a6dfb008 ContactDetail 메모 탭에서 진입해도 날짜·시간 입력이 스위치가 꺼진 상태로 표시된다`() {
         val contact = testContact(name = ENTRY_TARGET_TITLE)
 
-        assertDateTimeOffOnEntry(viewModels = screenTestRealViewModel(initialContactId = contact.id, contactList = listOf(contact)))
+        assertDateTimeOffOnEntry(viewModels = screenTestRealViewModel(initialContactId = contact.contact.id, contactList = listOf(contact)))
     }
 
     @Test

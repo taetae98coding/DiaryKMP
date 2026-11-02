@@ -46,7 +46,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -448,7 +448,7 @@ class MemoListDetailPlaceholderTest {
         runOnIdle {
             tagViewModelList.last().selectPrimaryTag(input.tag.id)
             webViewModelList.last().selectWeb(input.web.id)
-            contactViewModelList.last().selectContact(input.contact.id)
+            contactViewModelList.last().selectContact(input.contact.contact.id)
             placeViewModelList.last().selectPlace(input.place.id)
         }
         waitForIdle()
@@ -460,11 +460,11 @@ class MemoListDetailPlaceholderTest {
         val description: String,
         val tag: Tag,
         val web: Web,
-        val contact: Contact,
+        val contact: ContactListItem,
         val place: Place,
     ) {
         val selectedTitleList: List<String>
-            get() = listOf(tag.detail.title, web.detail.title, contact.detail.name, place.detail.title)
+            get() = listOf(tag.detail.title, web.detail.title, contact.contact.detail.name, place.detail.title)
     }
 
     private companion object {

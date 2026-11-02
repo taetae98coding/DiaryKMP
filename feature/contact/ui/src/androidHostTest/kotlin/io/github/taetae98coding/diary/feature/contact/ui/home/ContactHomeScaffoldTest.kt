@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -195,7 +195,7 @@ class ContactHomeScaffoldTest {
     }
 
     private fun setContactHomeScaffold(
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
         componentVisible: ContactHomeScaffoldComponentVisible = ContactHomeScaffoldComponentVisible(),
     ) {

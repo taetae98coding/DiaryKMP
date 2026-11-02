@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +46,7 @@ class ContactCardTest {
     }
 
     private fun setContactCard(
-        contact: Contact?,
+        contact: ContactListItem?,
         onClick: () -> Unit,
     ) {
         composeRule.setContent {

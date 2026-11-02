@@ -9,6 +9,7 @@ internal fun CalendarContactBirthdayLocalEntity.toDomain(): CalendarContactBirth
     CalendarContactBirthday(
         contactId = contactId,
         name = name,
+        nameQualifier = nameQualifier.trim(),
         date = birthdayDate,
     )
 
@@ -16,5 +17,6 @@ internal fun LunarContactBirthdayLocalEntity.toDomain(): LunarContactBirthday =
     LunarContactBirthday(
         contactId = contactId,
         name = name,
+        nameQualifier = nameQualifier.trim(),
         birthday = birthday,
     )

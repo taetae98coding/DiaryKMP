@@ -19,6 +19,7 @@ class CalendarContactBirthdayMapperTest :
                 CalendarContactBirthday(
                     contactId = local.contactId,
                     name = local.name,
+                    nameQualifier = local.nameQualifier.trim(),
                     date = local.birthdayDate,
                 )
         }
@@ -30,8 +31,24 @@ class CalendarContactBirthdayMapperTest :
                 LunarContactBirthday(
                     contactId = local.contactId,
                     name = local.name,
+                    nameQualifier = local.nameQualifier.trim(),
                     birthday = local.birthday,
                 )
+        }
+
+        test("구분 경로는 앞뒤 공백을 빼고 공백뿐이면 비운다") {
+            listOf("" to "", "  " to "", "  회사  " to "회사").forEach { (stored, expected) ->
+                fixtureMonkey
+                    .giveMeOne<CalendarContactBirthdayLocalEntity>()
+                    .copy(nameQualifier = stored)
+                    .toDomain()
+                    .nameQualifier shouldBe expected
+                fixtureMonkey
+                    .giveMeOne<LunarContactBirthdayLocalEntity>()
+                    .copy(nameQualifier = stored)
+                    .toDomain()
+                    .nameQualifier shouldBe expected
+            }
         }
     })
 

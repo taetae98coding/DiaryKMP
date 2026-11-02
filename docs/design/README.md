@@ -26,6 +26,8 @@
 
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
+이름이 같은 연락처를 알게 된 경로와 함께 표시하는 글의 형식은 [연락처 표시 이름](./contact-name.md)이 소유한다. 각 문서는 그 글을 두는 자리만 남긴다.
+
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
 
 태그·연락처·웹·장소 같은 항목 선택 입력이 대화상자로 여는 선택 목록에서 항목 하나의 해부구조, 글자와 간격, 조작, 접근성은 [선택 목록 항목](./picker-row.md)이 소유한다. 각 문서는 그 목록의 항목에 컬러 원형 표시, 보조 줄, 끝 쪽 버튼을 두는지와 그 내용만 남긴다. SettingGemini의 모델 선택처럼 하나만 고르는 라디오 버튼 목록은 이 문서를 따르지 않고 그 화면의 디자인 문서가 항목 표현을 소유한다.
@@ -94,6 +96,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [항목 완료 메모 목록 화면](./entity-memo-finished-list.md)
 - [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md)
 - [Contact 목록·상세 배치](./contact-list-detail.md)
+- [연락처 표시 이름](./contact-name.md)
 - [DDayHome 화면](./dday-home.md)
 - [기기 설정 화면 공통](./device-setting.md)
 - [설명 입력 컴포넌트](./description-input.md)

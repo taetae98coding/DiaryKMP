@@ -9,7 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_ADD_LABEL
@@ -88,7 +88,7 @@ class MemoDetailScreenContactTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { contactViewModel.selectContact(contactId = contact.id) }
+        verify(exactly = 1) { contactViewModel.selectContact(contactId = contact.contact.id) }
         composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
     }
 
@@ -103,7 +103,7 @@ class MemoDetailScreenContactTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { contactViewModel.unselectContact(contactId = contact.id) }
+        verify(exactly = 1) { contactViewModel.unselectContact(contactId = contact.contact.id) }
     }
 
     @Test
@@ -118,7 +118,7 @@ class MemoDetailScreenContactTest {
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        clickedIdList shouldBe listOf(contact.id)
+        clickedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -327,12 +327,12 @@ class MemoDetailScreenContactTest {
     }
 
     private fun memoDetailContactViewModel(
-        contactList: List<Contact>,
-        selectedContactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem>,
+        selectedContactList: List<ContactListItem> = emptyList(),
     ): MemoContactViewModel =
         screenTestContactViewModel(
             uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = selectedContactList)),
-            contactPagingDataFlow = MutableStateFlow<PagingData<Contact>>(contactPagingDataOf(contactList)),
+            contactPagingDataFlow = MutableStateFlow<PagingData<ContactListItem>>(contactPagingDataOf(contactList)),
         )
 
     private companion object {

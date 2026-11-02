@@ -77,7 +77,7 @@ class CalendarHomeScreenTagSelectTest {
         setCalendarHomeScreenWithFilter(
             birthdayList =
                 listOf(
-                    CalendarContactBirthday(contactId = Uuid.random(), name = BIRTHDAY_NAME, date = july(day = 8)),
+                    CalendarContactBirthday(contactId = Uuid.random(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8)),
                 ),
         )
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()

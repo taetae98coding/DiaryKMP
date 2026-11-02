@@ -3,9 +3,9 @@ package io.github.taetae98coding.diary.feature.memo.ui.contact
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 
-internal fun contactPagingDataOf(contactList: List<Contact>): PagingData<Contact> =
+internal fun contactPagingDataOf(contactList: List<ContactListItem>): PagingData<ContactListItem> =
     PagingData.from(
         data = contactList,
         sourceLoadStates =
@@ -16,7 +16,7 @@ internal fun contactPagingDataOf(contactList: List<Contact>): PagingData<Contact
             ),
     )
 
-internal fun refreshingContactPagingData(): PagingData<Contact> =
+internal fun refreshingContactPagingData(): PagingData<ContactListItem> =
     PagingData.from(
         data = emptyList(),
         sourceLoadStates =
@@ -27,7 +27,7 @@ internal fun refreshingContactPagingData(): PagingData<Contact> =
             ),
     )
 
-internal fun refreshFailedContactPagingData(): PagingData<Contact> =
+internal fun refreshFailedContactPagingData(): PagingData<ContactListItem> =
     PagingData.from(
         data = emptyList(),
         sourceLoadStates =
@@ -38,7 +38,7 @@ internal fun refreshFailedContactPagingData(): PagingData<Contact> =
             ),
     )
 
-internal fun appendingContactPagingDataOf(contactList: List<Contact>): PagingData<Contact> =
+internal fun appendingContactPagingDataOf(contactList: List<ContactListItem>): PagingData<ContactListItem> =
     PagingData.from(
         data = contactList,
         sourceLoadStates =
@@ -49,7 +49,7 @@ internal fun appendingContactPagingDataOf(contactList: List<Contact>): PagingDat
             ),
     )
 
-internal fun appendFailedContactPagingDataOf(contactList: List<Contact>): PagingData<Contact> =
+internal fun appendFailedContactPagingDataOf(contactList: List<ContactListItem>): PagingData<ContactListItem> =
     PagingData.from(
         data = contactList,
         sourceLoadStates =

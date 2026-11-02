@@ -9,6 +9,8 @@ public data class LunarContactBirthdayLocalEntity(
     val contactId: Uuid,
     @ColumnInfo(name = "name")
     val name: String,
+    @ColumnInfo(name = "name_qualifier")
+    val nameQualifier: String,
     @ColumnInfo(name = "birthday")
     val birthday: LocalDate,
 )

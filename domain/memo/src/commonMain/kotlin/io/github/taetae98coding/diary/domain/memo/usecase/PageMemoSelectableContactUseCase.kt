@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.flatMapAccount
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
@@ -14,8 +14,8 @@ import org.koin.core.annotation.Factory
 public class PageMemoSelectableContactUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
     private val accountMemoContactRepository: AccountMemoContactRepository,
-) : FlowUseCase<String, PagingData<Contact>>() {
-    override fun execute(parameter: String): Flow<Result<PagingData<Contact>>> =
+) : FlowUseCase<String, PagingData<ContactListItem>>() {
+    override fun execute(parameter: String): Flow<Result<PagingData<ContactListItem>>> =
         getAccountUseCase.flatMapAccount { account ->
             accountMemoContactRepository
                 .pageSelectableContact(

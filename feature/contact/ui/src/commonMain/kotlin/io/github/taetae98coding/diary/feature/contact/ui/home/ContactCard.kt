@@ -22,15 +22,16 @@ import io.github.taetae98coding.diary.compose.core.format.toDisplayText
 import io.github.taetae98coding.diary.compose.core.icon.StarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_birth_year
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_birthday_lunar
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_favorite_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.previewContact
+import io.github.taetae98coding.diary.feature.core.contact.displayName
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 
@@ -40,7 +41,7 @@ internal const val CONTACT_CARD_TEST_TAG: String = "ContactCard"
 internal fun ContactCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contact: Contact? = null,
+    contact: ContactListItem? = null,
 ) {
     Card(
         onClick = onClick,
@@ -55,6 +56,7 @@ internal fun ContactCard(
 
             val phoneNumber =
                 contact
+                    ?.contact
                     ?.detail
                     ?.phoneNumberList
                     ?.firstOrNull()
@@ -69,7 +71,7 @@ internal fun ContactCard(
                 )
             }
 
-            val birthText = contact?.detail?.toBirthText()
+            val birthText = contact?.contact?.detail?.toBirthText()
 
             if (birthText != null) {
                 Text(
@@ -86,7 +88,7 @@ internal fun ContactCard(
 @Composable
 private fun ContactCardNameRow(
     modifier: Modifier = Modifier,
-    contact: Contact? = null,
+    contact: ContactListItem? = null,
 ) {
     Row(
         modifier = modifier,
@@ -94,7 +96,7 @@ private fun ContactCardNameRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // 카드가 자식의 접근성 이름을 하나로 합치므로, 아이콘의 이름이 별도 요소가 아니라 카드 이름 맨 앞에 붙는다.
-        DiaryScaleFadeVisibility(visible = contact?.isFavorite == true) {
+        DiaryScaleFadeVisibility(visible = contact?.contact?.isFavorite == true) {
             StarIcon(
                 modifier = Modifier.size(ContactCardFavoriteDefaults.IconSize),
                 contentDescription = stringResource(Res.string.contact_home_favorite_content_description),
@@ -102,7 +104,7 @@ private fun ContactCardNameRow(
         }
 
         Text(
-            text = contact?.detail?.name ?: LINE_RESERVATION_TEXT,
+            text = contact?.displayName() ?: LINE_RESERVATION_TEXT,
             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
             maxLines = 1,
             style = DiaryTheme.typography.titleMediumEmphasized,
@@ -132,8 +134,8 @@ private fun ContactBirthday.toDisplayText(): String =
 // 빈 문구는 한 줄 높이를 차지하지 않아 자리 표시 카드가 준비된 카드보다 낮아지므로, 보이지 않는 문자로 한 줄을 남긴다.
 private const val LINE_RESERVATION_TEXT: String = "​"
 
-private class ContactCardPreviewParameter : PreviewParameterProvider<Contact?> {
-    override val values: Sequence<Contact?> =
+private class ContactCardPreviewParameter : PreviewParameterProvider<ContactListItem?> {
+    override val values: Sequence<ContactListItem?> =
         sequenceOf(
             previewContact(
                 name = "김철수",
@@ -146,7 +148,7 @@ private class ContactCardPreviewParameter : PreviewParameterProvider<Contact?> {
                 phoneNumberList = emptyList(),
                 birthday = ContactBirthday(date = LocalDate(1990, 3, 4), calendar = ContactBirthdayCalendar.LUNAR),
             ),
-            previewContact(name = "박민수", phoneNumberList = listOf("010-9876-5432")),
+            previewContact(name = "박민수", phoneNumberList = listOf("010-9876-5432"), howWeMet = "회사", nameQualifier = "회사"),
             previewContact(name = "최지우", phoneNumberList = emptyList(), birthYear = 1990),
             null,
         )
@@ -155,7 +157,7 @@ private class ContactCardPreviewParameter : PreviewParameterProvider<Contact?> {
 @ComponentPreview
 @Composable
 private fun ContactCardPreview(
-    @PreviewParameter(ContactCardPreviewParameter::class) contact: Contact?,
+    @PreviewParameter(ContactCardPreviewParameter::class) contact: ContactListItem?,
 ) {
     DiaryTheme {
         ContactCard(

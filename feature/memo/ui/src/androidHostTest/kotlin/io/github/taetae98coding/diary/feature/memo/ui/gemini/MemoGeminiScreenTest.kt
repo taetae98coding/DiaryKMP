@@ -64,7 +64,7 @@ class MemoGeminiScreenTest {
             screenTestRealViewModel(
                 initialPrimaryTagId = tag.id,
                 initialWebId = web.id,
-                initialContactId = contact.id,
+                initialContactId = contact.contact.id,
                 initialPlaceId = place.id,
                 tagList = listOf(tag),
                 webList = listOf(web),
@@ -88,7 +88,7 @@ class MemoGeminiScreenTest {
             viewModels.tagViewModel.selectionUiState.value shouldBe tagSelection
             viewModels.tagViewModel.selectionUiState.value.primaryTagId shouldBe tag.id
             viewModels.webViewModel.selectionUiState.value.webIdSet shouldBe setOf(web.id)
-            viewModels.contactViewModel.selectionUiState.value.contactIdSet shouldBe setOf(contact.id)
+            viewModels.contactViewModel.selectionUiState.value.contactIdSet shouldBe setOf(contact.contact.id)
             viewModels.placeViewModel.selectionUiState.value.placeIdSet shouldBe setOf(place.id)
         }
         verify(exactly = 3) { geminiViewModel.markApplied(any()) }

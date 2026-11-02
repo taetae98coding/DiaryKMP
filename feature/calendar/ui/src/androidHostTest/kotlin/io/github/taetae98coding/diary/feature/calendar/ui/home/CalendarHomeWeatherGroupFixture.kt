@@ -76,6 +76,7 @@ internal object CalendarHomeWeatherGroupFixture {
         CalendarContactBirthday(
             contactId = Uuid.random(),
             name = BIRTHDAY_NAME,
+            nameQualifier = "",
             date = date,
         )
 

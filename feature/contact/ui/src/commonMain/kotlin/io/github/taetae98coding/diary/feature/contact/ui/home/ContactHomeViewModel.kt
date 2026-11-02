@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
@@ -39,7 +39,7 @@ internal class ContactHomeViewModel(
     val filterUiState: StateFlow<ContactHomeFilterUiState>
         field = MutableStateFlow(ContactHomeFilterUiState())
 
-    val contactPagingData: Flow<PagingData<Contact>> =
+    val contactPagingData: Flow<PagingData<ContactListItem>> =
         combine(sortUiState, filterUiState) { sortUiState, filterUiState ->
             PageContactUseCase.Parameter(sort = sortUiState.sort, filter = filterUiState.filter)
         }.flatMapLatest { parameter -> pageContactUseCase(parameter = parameter) }

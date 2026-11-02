@@ -6,6 +6,7 @@ import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Query
 import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
@@ -20,7 +21,20 @@ import kotlin.uuid.Uuid
 internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
     @Query(
         """
-        SELECT contact.*
+        SELECT contact.*,
+            CASE
+                WHEN EXISTS(
+                    SELECT 1
+                    FROM contact AS same_name_contact
+                    INNER JOIN account_contact AS same_name_account_contact
+                        ON same_name_account_contact.contact_id = same_name_contact.id
+                            AND same_name_account_contact.account_id = :accountId
+                    WHERE same_name_contact.name = contact.name
+                        AND same_name_contact.id != contact.id
+                        AND same_name_contact.is_deleted = 0
+                ) THEN contact.how_we_met
+                ELSE ''
+            END AS name_qualifier
         FROM contact
         INNER JOIN account_contact
             ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
@@ -40,11 +54,24 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         hasBirthday: Boolean?,
         hasBirthYear: Boolean?,
         hasPhoneNumber: Boolean?,
-    ): PagingSource<Int, ContactLocalEntity>
+    ): PagingSource<Int, ContactListItemLocalEntity>
 
     @Query(
         """
-        SELECT contact.*
+        SELECT contact.*,
+            CASE
+                WHEN EXISTS(
+                    SELECT 1
+                    FROM contact AS same_name_contact
+                    INNER JOIN account_contact AS same_name_account_contact
+                        ON same_name_account_contact.contact_id = same_name_contact.id
+                            AND same_name_account_contact.account_id = :accountId
+                    WHERE same_name_contact.name = contact.name
+                        AND same_name_contact.id != contact.id
+                        AND same_name_contact.is_deleted = 0
+                ) THEN contact.how_we_met
+                ELSE ''
+            END AS name_qualifier
         FROM contact
         INNER JOIN account_contact
             ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
@@ -55,7 +82,7 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
     fun get(
         accountId: Uuid,
         contactIdSet: Set<Uuid>,
-    ): Flow<List<ContactLocalEntity>>
+    ): Flow<List<ContactListItemLocalEntity>>
 
     @Query(
         """

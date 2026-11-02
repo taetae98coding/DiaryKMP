@@ -9,6 +9,8 @@ public data class CalendarContactBirthdayLocalEntity(
     val contactId: Uuid,
     @ColumnInfo(name = "name")
     val name: String,
+    @ColumnInfo(name = "name_qualifier")
+    val nameQualifier: String,
     @ColumnInfo(name = "birthday_date")
     val birthdayDate: LocalDate,
 )

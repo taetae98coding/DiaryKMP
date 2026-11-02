@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.database.api.memocontact.datasource.AccountMemoContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memocontact.transaction.AccountMemoContactTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
@@ -22,7 +22,7 @@ internal class AccountMemoContactRepositoryImpl(
     override fun getContactList(
         account: Account,
         memoId: Uuid,
-    ): Flow<List<Contact>> =
+    ): Flow<List<ContactListItem>> =
         accountMemoContactLocalDataSource
             .getContactList(
                 accountId = account.id,
@@ -32,7 +32,7 @@ internal class AccountMemoContactRepositoryImpl(
     override fun pageSelectableContact(
         account: Account,
         query: String,
-    ): Flow<PagingData<Contact>> =
+    ): Flow<PagingData<ContactListItem>> =
         pagingFlow(
             pagingSourceFactory = {
                 accountMemoContactLocalDataSource.pageSelectableContact(

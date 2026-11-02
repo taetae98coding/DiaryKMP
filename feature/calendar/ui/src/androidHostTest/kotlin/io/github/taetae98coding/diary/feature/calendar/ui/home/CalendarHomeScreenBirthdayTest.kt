@@ -197,6 +197,18 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.onNodeWithContentDescription(BIRTHDAY_DESCRIPTION).assert(buttonRole)
     }
 
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-a8614352-4035-4d99-a224-82b9f3d23340 동명이인 생일은 알게 된 경로와 함께 표시한다`() {
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 8), nameQualifier = HOW_WE_MET))),
+        )
+
+        composeRule.onNodeWithText("🎂 $NAME($HOW_WE_MET)").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("$NAME($HOW_WE_MET) 생일").assertExists()
+    }
+
     // 기본 화면 높이에서는 한 주에 아이템 한 줄만 보여 나머지 줄이 구성되지 않으므로, 세 줄이 모두 보이는 높이로 연다.
     @Test
     @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
@@ -293,10 +305,12 @@ class CalendarHomeScreenBirthdayTest {
     private fun birthday(
         name: String,
         date: LocalDate,
+        nameQualifier: String = "",
     ): CalendarContactBirthday =
         CalendarContactBirthday(
             contactId = Uuid.random(),
             name = name,
+            nameQualifier = nameQualifier,
             date = date,
         )
 
@@ -318,6 +332,7 @@ class CalendarHomeScreenBirthdayTest {
         private const val NAME = "홍길동"
         private const val SUMMER_NAME = "여름"
         private const val BIRTHDAY_TEXT = "🎂 홍길동"
+        private const val HOW_WE_MET = "친구 소개"
         private const val SUMMER_BIRTHDAY_TEXT = "🎂 여름"
         private const val TRIP_TITLE = "여행"
         private const val CONSTITUTION_DAY_NAME = "제헌절"

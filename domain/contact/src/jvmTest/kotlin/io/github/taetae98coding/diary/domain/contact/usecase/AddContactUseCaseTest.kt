@@ -152,6 +152,22 @@ class AddContactUseCaseTest :
                     coVerify(exactly = 2) { accountContactRepository.upsert(account = account, contact = any()) }
                 }
 
+                Then("TC-c9cdb24c-2482-4dfc-a9c0-a872966eb095 이름만 앞뒤 공백을 지워 기록한다") {
+                    listOf(
+                        "김철수 " to "김철수",
+                        "  김철수" to "김철수",
+                        "김 철수" to "김 철수",
+                    ).forEach { (input, expected) ->
+                        val detail = detail(name = input, description = "  메모  ", howWeMet = "  회사  ")
+
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail)).shouldBeSuccess()
+
+                        contactSlot.captured.detail.name shouldBe expected
+                        contactSlot.captured.detail.description shouldBe "  메모  "
+                        contactSlot.captured.detail.howWeMet shouldBe "  회사  "
+                    }
+                }
+
                 Then("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 입력한 이름, 설명, 키, 신발 사이즈, 생일, 고향, 알게 된 경로, 전화번호를 그대로 저장한다") {
                     val expected =
                         detail(
@@ -445,7 +461,7 @@ class AddContactUseCaseTest :
         }
 
         private fun detail(
-            name: String = "name-${fixtureMonkey.giveMeOne<String>()}",
+            name: String = "name-${fixtureMonkey.giveMeOne<String>()}-name",
             description: String = fixtureMonkey.giveMeOne<String>(),
             height: Length? = null,
             footSize: Length? = null,

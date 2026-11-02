@@ -20,10 +20,10 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
@@ -71,7 +71,7 @@ class ContactHomeFilterTest {
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_BIRTHDAY_LABEL, value = DEFAULT_ALL)).assertIsSelected()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_BIRTH_YEAR_LABEL, value = DEFAULT_ALL)).assertIsSelected()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_PHONE_NUMBER_LABEL, value = DEFAULT_ALL)).assertIsSelected()
-        contactList.forEach { contact -> composeRule.onNodeWithText(contact.detail.name).assertExists() }
+        contactList.forEach { contact -> composeRule.onNodeWithText(contact.contact.detail.name).assertExists() }
     }
 
     @Test
@@ -111,12 +111,12 @@ class ContactHomeFilterTest {
         setContactHomeScreen(contactList = listOf(withPhoneNumber, withoutPhoneNumber))
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_PHONE_NUMBER_LABEL, value = DEFAULT_WITH)).performClick()
-        waitUntilNameDoesNotExist(withoutPhoneNumber.detail.name)
+        waitUntilNameDoesNotExist(withoutPhoneNumber.contact.detail.name)
 
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_PHONE_NUMBER_LABEL, value = DEFAULT_ALL)).performClick()
-        waitUntilNameExists(withoutPhoneNumber.detail.name)
+        waitUntilNameExists(withoutPhoneNumber.contact.detail.name)
 
-        composeRule.onNodeWithText(withPhoneNumber.detail.name).assertExists()
+        composeRule.onNodeWithText(withPhoneNumber.contact.detail.name).assertExists()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_PHONE_NUMBER_LABEL, value = DEFAULT_WITH)).assertIsNotSelected()
     }
 
@@ -195,30 +195,57 @@ class ContactHomeFilterTest {
     fun `TC-fa5369e8-175d-4636-929a-bd601f89604a 필터 축을 바꾸면 목록을 처음부터 다시 본다`() {
         val contactList = positionContactList()
         setContactHomeScreen(contactList = contactList)
-        waitUntilNameExists(contactList.first().detail.name)
+        waitUntilNameExists(
+            contactList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
 
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_BIRTHDAY_LABEL, value = DEFAULT_WITHOUT)).performClick()
-        waitUntilNameExists(contactList.first().detail.name)
+        waitUntilNameExists(
+            contactList
+                .first()
+                .contact.detail.name,
+        )
 
-        composeRule.onNodeWithText(contactList.first().detail.name).assertExists()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertExists()
     }
 
     @Test
     fun `TC-baa17f81-7f27-457b-9c4d-51ad900c1b38 이미 고른 축 상태를 다시 고르면 목록 위치를 되돌리지 않는다`() {
         val contactList = positionContactList()
         setContactHomeScreen(contactList = contactList)
-        waitUntilNameExists(contactList.first().detail.name)
+        waitUntilNameExists(
+            contactList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
 
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_BIRTHDAY_LABEL, value = DEFAULT_ALL)).performClick()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
-        composeRule.onNodeWithText(contactList[POSITION_SCROLL_INDEX].detail.name).assertExists()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
+        composeRule.onNodeWithText(contactList[POSITION_SCROLL_INDEX].contact.detail.name).assertExists()
     }
 
     @Test
@@ -230,14 +257,14 @@ class ContactHomeFilterTest {
         restorationTester.setContent { ContactHomeScreenContent(viewModel = viewModel) }
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_BIRTHDAY_LABEL, value = DEFAULT_WITH)).performClick()
-        waitUntilNameDoesNotExist(withoutBirthday.detail.name)
+        waitUntilNameDoesNotExist(withoutBirthday.contact.detail.name)
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { viewModel.filterUiState.value.filter.birthday shouldBe ContactFilterExistence.EXIST }
-        composeRule.onNodeWithText(withBirthday.detail.name).assertExists()
-        composeRule.onNodeWithText(withoutBirthday.detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(withBirthday.contact.detail.name).assertExists()
+        composeRule.onNodeWithText(withoutBirthday.contact.detail.name).assertDoesNotExist()
     }
 
     @Test
@@ -250,15 +277,15 @@ class ContactHomeFilterTest {
         restorationTester.setContent { ContactHomeScreenContent(viewModel = viewModel) }
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(segmentDescription(label = DEFAULT_PHONE_NUMBER_LABEL, value = DEFAULT_WITHOUT)).performClick()
-        waitUntilNameDoesNotExist(withPhoneNumber.detail.name)
+        waitUntilNameDoesNotExist(withPhoneNumber.contact.detail.name)
 
         // 시스템이 앱을 정리하면 화면 상태를 보관하던 객체도 사라지므로, 되살린 화면에는 새로 만든 객체를 준다.
         viewModel = contactHomeViewModel(contactList = contactList)
         restorationTester.emulateSavedInstanceStateRestore()
-        waitUntilNameExists(withPhoneNumber.detail.name)
+        waitUntilNameExists(withPhoneNumber.contact.detail.name)
 
         composeRule.runOnIdle { viewModel.filterUiState.value shouldBe ContactHomeFilterUiState() }
-        composeRule.onNodeWithText(withoutPhoneNumber.detail.name).assertExists()
+        composeRule.onNodeWithText(withoutPhoneNumber.contact.detail.name).assertExists()
         composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
     }
 
@@ -338,11 +365,15 @@ class ContactHomeFilterTest {
                 restoreContactUseCase = mockk<RestoreContactUseCase>(),
             )
         viewModel.setBirthdayExistence(existence = ContactFilterExistence.NOT_EXIST)
-        val shownList = contactList.filter { contact -> contact.detail.birthday == null }
+        val shownList = contactList.filter { contact -> contact.contact.detail.birthday == null }
         composeRule.setContent { ContactHomeScreenContent(viewModel = viewModel) }
-        waitUntilNameExists(shownList.first().detail.name)
+        waitUntilNameExists(
+            shownList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX / 2)
-        val positionName = shownList[POSITION_SCROLL_INDEX / 2].detail.name
+        val positionName = shownList[POSITION_SCROLL_INDEX / 2].contact.detail.name
         composeRule.onNodeWithText(positionName).assertExists()
 
         val added = testContact(name = "position-999-${displayText()}")
@@ -351,7 +382,12 @@ class ContactHomeFilterTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(positionName).assertExists()
-        composeRule.onNodeWithText(shownList.first().detail.name).assertDoesNotExist()
+        composeRule
+            .onNodeWithText(
+                shownList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
     }
 
     @Test
@@ -371,15 +407,15 @@ class ContactHomeFilterTest {
             )
         viewModel.setBirthdayExistence(existence = ContactFilterExistence.NOT_EXIST)
         composeRule.setContent { ContactHomeScreenContent(viewModel = viewModel) }
-        waitUntilNameExists(shown.detail.name)
+        waitUntilNameExists(shown.contact.detail.name)
 
         val added = testContact(name = displayText(), birthday = birthday())
         val matchingAdded = testContact(name = displayText())
         composeRule.runOnIdle { contactListFlow.value = listOf(shown, added, matchingAdded) }
-        waitUntilNameExists(matchingAdded.detail.name)
+        waitUntilNameExists(matchingAdded.contact.detail.name)
 
-        composeRule.onNodeWithText(added.detail.name).assertDoesNotExist()
-        composeRule.onNodeWithText(shown.detail.name).assertExists()
+        composeRule.onNodeWithText(added.contact.detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(shown.contact.detail.name).assertExists()
     }
 
     private fun assertWithSelected(case: AxisCase) {
@@ -387,11 +423,11 @@ class ContactHomeFilterTest {
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
 
         composeRule.onNodeWithContentDescription(segmentDescription(label = case.label, value = DEFAULT_WITH)).performClick()
-        waitUntilNameDoesNotExist(case.without.detail.name)
+        waitUntilNameDoesNotExist(case.without.contact.detail.name)
 
         composeRule.onNodeWithContentDescription(segmentDescription(label = case.label, value = DEFAULT_WITH)).assertIsSelected()
         composeRule.onNodeWithText(DEFAULT_FILTER_TITLE).assertIsDisplayed()
-        composeRule.onNodeWithText(case.with.detail.name).assertExists()
+        composeRule.onNodeWithText(case.with.contact.detail.name).assertExists()
         viewModel.filterUiState.value.filter shouldBe case.filter(ContactFilterExistence.EXIST)
     }
 
@@ -400,9 +436,9 @@ class ContactHomeFilterTest {
         composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
 
         composeRule.onNodeWithContentDescription(segmentDescription(label = case.label, value = DEFAULT_WITHOUT)).performClick()
-        waitUntilNameDoesNotExist(case.with.detail.name)
+        waitUntilNameDoesNotExist(case.with.contact.detail.name)
 
-        composeRule.onNodeWithText(case.without.detail.name).assertExists()
+        composeRule.onNodeWithText(case.without.contact.detail.name).assertExists()
         viewModel.filterUiState.value.filter shouldBe case.filter(ContactFilterExistence.NOT_EXIST)
     }
 
@@ -420,7 +456,7 @@ class ContactHomeFilterTest {
         }
     }
 
-    private fun setContactHomeScreen(contactList: List<Contact>): ContactHomeViewModel {
+    private fun setContactHomeScreen(contactList: List<ContactListItem>): ContactHomeViewModel {
         val viewModel = contactHomeViewModel(contactList = contactList)
         composeRule.setContent { ContactHomeScreenContent(viewModel = viewModel) }
         composeRule.waitForIdle()
@@ -428,7 +464,7 @@ class ContactHomeFilterTest {
         return viewModel
     }
 
-    private fun contactHomeViewModel(contactList: List<Contact>): ContactHomeViewModel {
+    private fun contactHomeViewModel(contactList: List<ContactListItem>): ContactHomeViewModel {
         val pageContactUseCase = mockk<PageContactUseCase>()
         every { pageContactUseCase(parameter = any()) } answers {
             val filter = firstArg<PageContactUseCase.Parameter>().filter
@@ -473,11 +509,11 @@ class ContactHomeFilterTest {
 
     private data class AxisCase(
         val label: String,
-        val with: Contact,
-        val without: Contact,
+        val with: ContactListItem,
+        val without: ContactListItem,
         val filter: (ContactFilterExistence) -> ContactFilter,
     ) {
-        val contactList: List<Contact> = listOf(with, without)
+        val contactList: List<ContactListItem> = listOf(with, without)
     }
 
     private companion object {
@@ -502,7 +538,7 @@ class ContactHomeFilterTest {
 
         fun birthday(): ContactBirthday = fixtureMonkey.giveMeOne<ContactBirthday>()
 
-        fun axisContactList(): List<Contact> =
+        fun axisContactList(): List<ContactListItem> =
             listOf(
                 testContact(name = displayText(), birthday = birthday()),
                 testContact(name = displayText(), birthYear = fixtureMonkey.giveMeOne<Int>()),
@@ -535,7 +571,7 @@ class ContactHomeFilterTest {
             )
 
         // 첫 연락처와 내려가 본 연락처가 모두 생일이 없는 쪽에 남아, 위치를 되돌리지 않으면 좁힌 뒤에도 첫 연락처가 보이지 않게 한다.
-        fun positionContactList(): List<Contact> =
+        fun positionContactList(): List<ContactListItem> =
             List(POSITION_CONTACT_COUNT) { index ->
                 testContact(
                     name = "position-${index.toString().padStart(length = 3, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}",
@@ -543,10 +579,10 @@ class ContactHomeFilterTest {
                 )
             }
 
-        fun Contact.matches(filter: ContactFilter): Boolean =
-            filter.birthday.matches(hasValue = detail.birthday != null) &&
-                filter.birthYear.matches(hasValue = detail.birthYear != null) &&
-                filter.phoneNumber.matches(hasValue = detail.phoneNumberList.isNotEmpty())
+        fun ContactListItem.matches(filter: ContactFilter): Boolean =
+            filter.birthday.matches(hasValue = contact.detail.birthday != null) &&
+                filter.birthYear.matches(hasValue = contact.detail.birthYear != null) &&
+                filter.phoneNumber.matches(hasValue = contact.detail.phoneNumberList.isNotEmpty())
 
         fun ContactFilterExistence.matches(hasValue: Boolean): Boolean =
             when (this) {

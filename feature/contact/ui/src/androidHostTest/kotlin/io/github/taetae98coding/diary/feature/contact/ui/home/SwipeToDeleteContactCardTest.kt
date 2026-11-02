@@ -12,7 +12,7 @@ import androidx.compose.ui.test.swipeRight
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -54,7 +54,7 @@ class SwipeToDeleteContactCardTest {
 
         deleteCount shouldBe 0
         clickCount shouldBe 0
-        composeRule.onNodeWithText(contact.detail.name).assertIsDisplayed()
+        composeRule.onNodeWithText(contact.contact.detail.name).assertIsDisplayed()
     }
 
     @Test
@@ -70,7 +70,7 @@ class SwipeToDeleteContactCardTest {
     }
 
     private fun setCard(
-        contact: Contact?,
+        contact: ContactListItem?,
         onClick: () -> Unit = {},
         onDelete: () -> Unit = {},
     ) {
@@ -86,5 +86,5 @@ class SwipeToDeleteContactCardTest {
         }
     }
 
-    private fun contact(): Contact = testContact(name = "이름-${fixtureMonkey.giveMeOne<String>()}", isFavorite = fixtureMonkey.giveMeOne<Boolean>())
+    private fun contact(): ContactListItem = testContact(name = "이름-${fixtureMonkey.giveMeOne<String>()}", isFavorite = fixtureMonkey.giveMeOne<Boolean>())
 }

@@ -80,22 +80,35 @@ class ContactHomeSortRestorationTest {
                 )
             }
         }
-        waitUntilNameExists(nameOrderList.first().detail.name)
+        waitUntilNameExists(
+            nameOrderList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
-        waitUntilNameExists(recentOrderList.first().detail.name)
+        waitUntilNameExists(
+            recentOrderList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
-        composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
+        composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
 
         // 시스템이 앱을 정리하면 화면 상태를 보관하던 객체도 사라지므로, 되살린 화면에는 새로 만든 객체를 준다.
         viewModel = contactHomeViewModel(pageContactUseCase = pageContactUseCase)
         restorationTester.emulateSavedInstanceStateRestore()
-        waitUntilNameExists(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name)
+        waitUntilNameExists(nameOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name)
 
         viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.NAME)
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
-        composeRule.onNodeWithText(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(nameOrderList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(nameOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                nameOrderList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
     }
 
     private fun contactHomeViewModel(pageContactUseCase: PageContactUseCase): ContactHomeViewModel =

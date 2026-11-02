@@ -57,6 +57,7 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
@@ -652,7 +653,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
     }
 
-    private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}") }
+    private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}").contact }
 
     private fun scrollToPositionContact(contactList: List<Contact>) {
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
@@ -830,7 +831,7 @@ class ContactListDetailPlaceholderTest {
                 val filterState = MutableStateFlow(ContactHomeFilterUiState())
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
-                        every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
+                        every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList.map { contact -> contact.toListItem() }))
                         every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
                         every { filterUiState } returns filterState
                         every { setBirthdayExistence(existence = any()) } answers {
@@ -911,7 +912,7 @@ class ContactListDetailPlaceholderTest {
 
         fun contactCard(contact: Contact): SemanticsMatcher = hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(contact.detail.name)
 
-        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${fixtureMonkey.giveMeOne<String>()}")
+        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${fixtureMonkey.giveMeOne<String>()}").contact
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(

@@ -12,7 +12,9 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
@@ -376,7 +378,7 @@ class ContactHomeViewModelTest : FunSpec() {
                 restoreContactUseCase = restoreContactUseCase,
             )
 
-        private fun pageContactUseCase(contactListFlow: Flow<Result<List<Contact>>>): PageContactUseCase {
+        private fun pageContactUseCase(contactListFlow: Flow<Result<List<ContactListItem>>>): PageContactUseCase {
             val pageContactUseCase = mockk<PageContactUseCase>()
             every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns
                 contactListFlow.map { result -> result.map { contactList -> PagingData.from(contactList) } }
@@ -384,7 +386,7 @@ class ContactHomeViewModelTest : FunSpec() {
             return pageContactUseCase
         }
 
-        private fun contact(): Contact {
+        private fun contact(): ContactListItem {
             val detail = fixtureMonkey.giveMeKotlinBuilder<ContactDetail>().sample()
 
             return Contact(
@@ -394,7 +396,7 @@ class ContactHomeViewModelTest : FunSpec() {
                 isDeleted = false,
                 updatedAt = fixtureMonkey.giveMeOne<Instant>(),
                 createdAt = fixtureMonkey.giveMeOne<Instant>(),
-            )
+            ).toListItem(nameQualifier = fixtureMonkey.giveMeOne())
         }
     }
 }

@@ -15,7 +15,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
@@ -53,7 +53,7 @@ class ContactHomeDeleteTest {
 
         swipeFirstCardLeft()
 
-        verify(exactly = 1) { environment.viewModel.delete(id = environment.first.id) }
+        verify(exactly = 1) { environment.viewModel.delete(id = environment.first.contact.id) }
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertExists()
     }
@@ -90,7 +90,7 @@ class ContactHomeDeleteTest {
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { environment.viewModel.restore(id = environment.first.id) }
+        verify(exactly = 1) { environment.viewModel.restore(id = environment.first.contact.id) }
     }
 
     @Test
@@ -100,15 +100,15 @@ class ContactHomeDeleteTest {
         swipeFirstCardLeft()
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
 
-        environment.effectChannel.trySend(ContactHomeEffect.Deleted(id = environment.second.id)).getOrThrow()
+        environment.effectChannel.trySend(ContactHomeEffect.Deleted(id = environment.second.contact.id)).getOrThrow()
         composeRule.waitForIdle()
 
         composeRule.onAllNodesWithText(DEFAULT_DELETED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { environment.viewModel.restore(id = environment.second.id) }
-        verify(exactly = 0) { environment.viewModel.restore(id = environment.first.id) }
+        verify(exactly = 1) { environment.viewModel.restore(id = environment.second.contact.id) }
+        verify(exactly = 0) { environment.viewModel.restore(id = environment.first.contact.id) }
     }
 
     @Test
@@ -151,7 +151,7 @@ class ContactHomeDeleteTest {
         swipeFirstCardLeft()
 
         composeRule.onNode(isDialog()).assertDoesNotExist()
-        verify(exactly = 1) { environment.viewModel.delete(id = environment.first.id) }
+        verify(exactly = 1) { environment.viewModel.delete(id = environment.first.contact.id) }
     }
 
     @Test
@@ -213,8 +213,8 @@ class ContactHomeDeleteTest {
     private class Environment(
         val viewModel: ContactHomeViewModel,
         val effectChannel: Channel<ContactHomeEffect>,
-        val first: Contact,
-        val second: Contact,
+        val first: ContactListItem,
+        val second: ContactListItem,
     )
 
     private companion object {

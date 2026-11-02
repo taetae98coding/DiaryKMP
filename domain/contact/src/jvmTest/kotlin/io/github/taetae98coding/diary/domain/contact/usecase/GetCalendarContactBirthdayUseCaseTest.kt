@@ -532,6 +532,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             LunarContactBirthday(
                 contactId = fixtureMonkey.giveMeOne<Uuid>(),
                 name = name,
+                nameQualifier = fixtureMonkey.giveMeOne(),
                 birthday = birthday,
             )
 
@@ -539,6 +540,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             CalendarContactBirthday(
                 contactId = contactId,
                 name = name,
+                nameQualifier = nameQualifier,
                 date = date,
             )
 

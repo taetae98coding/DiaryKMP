@@ -6,5 +6,6 @@ import kotlin.uuid.Uuid
 public data class CalendarContactBirthday(
     val contactId: Uuid,
     val name: String,
+    val nameQualifier: String,
     val date: LocalDate,
 )

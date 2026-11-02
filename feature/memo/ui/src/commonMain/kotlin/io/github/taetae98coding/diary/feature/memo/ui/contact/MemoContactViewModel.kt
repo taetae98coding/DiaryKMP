@@ -5,7 +5,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.contact
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
@@ -34,9 +34,9 @@ internal class MemoContactViewModel(
     private val selectablePaging =
         MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableContactUseCase(parameter = query) }
 
-    val contactPagingData: Flow<PagingData<Contact>> = selectablePaging.pagingData
+    val contactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.pagingData
 
-    val selectableContactPagingData: Flow<PagingData<Contact>> = selectablePaging.selectablePagingData
+    val selectableContactPagingData: Flow<PagingData<ContactListItem>> = selectablePaging.selectablePagingData
 
     val uiState: StateFlow<MemoContactInputUiState> =
         getMemoContactUseCase(parameter = id)

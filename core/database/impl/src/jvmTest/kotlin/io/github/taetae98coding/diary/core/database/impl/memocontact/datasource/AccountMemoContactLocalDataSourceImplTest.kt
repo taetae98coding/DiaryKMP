@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -18,12 +19,16 @@ import io.github.taetae98coding.diary.core.database.impl.contact.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.transaction.AccountMemoContactSyncTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -102,7 +107,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                     ),
                 )
 
-            return (page as PagingSource.LoadResult.Page).data
+            return (page as PagingSource.LoadResult.Page).data.map { item -> item.contact }
         }
 
         test("TC-276c3f6e-95ad-47dc-b86d-b00c056a9355 삭제된 연락처는 연결이 남아 있어도 조회되지 않는다") {
@@ -113,7 +118,11 @@ class AccountMemoContactLocalDataSourceImplTest :
 
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
             loadSelectableContact(accountId = accountId).shouldBeEmpty()
         }
 
@@ -124,7 +133,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(lastContact, firstContact))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstContact, lastContact)
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().first() shouldBe listOf(firstContact, lastContact)
         }
 
         test("TC-3615b0c8-4c70-4d05-9608-96752eba531e 즐겨찾기 여부는 연결된 연락처의 순서를 바꾸지 않는다") {
@@ -134,7 +143,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(lastFavoriteContact, firstContact))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstContact, lastFavoriteContact)
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().first() shouldBe listOf(firstContact, lastFavoriteContact)
         }
 
         test("TC-f54e50c2-7078-4ba8-909d-230c0786d5f3 가리키는 연락처가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
@@ -155,7 +164,11 @@ class AccountMemoContactLocalDataSourceImplTest :
             )
 
             database.memoContactDao().findByMemoIdList(listOf(memo.id)).size shouldBe 1
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
         }
 
         test("TC-f54e50c2-7078-4ba8-909d-230c0786d5f3 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
@@ -171,7 +184,11 @@ class AccountMemoContactLocalDataSourceImplTest :
             )
 
             database.memoContactDao().findByMemoIdList(listOf(missingMemoId)).size shouldBe 1
-            dataSource.getContactList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = missingMemoId)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
         }
 
         test("TC-912afd5f-c6c7-45c5-9193-c1c3099567ee 메모가 내려받아지면 먼저 저장되어 있던 연결의 연락처가 함께 나타난다") {
@@ -184,7 +201,11 @@ class AccountMemoContactLocalDataSourceImplTest :
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id)),
                 cursor = 1L,
             )
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
 
             memoTransaction.upsert(
                 accountId = accountId,
@@ -193,7 +214,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 memoContactList = emptyList(),
             )
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(contact)
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().first() shouldBe listOf(contact)
         }
 
         test("다른 계정의 연락처는 연결이 있어도 조회되지 않는다") {
@@ -202,7 +223,11 @@ class AccountMemoContactLocalDataSourceImplTest :
             val memo = memo()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact()))
 
-            dataSource.getContactList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = otherAccountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
         }
 
         test("TC-6481be89-d529-4a5b-b929-b76c5ca20617 계정과 연결되지 않은 연락처는 메모의 연결된 연락처로 조회되지 않는다") {
@@ -220,7 +245,11 @@ class AccountMemoContactLocalDataSourceImplTest :
             )
 
             database.memoContactDao().findByMemoIdList(listOf(memo.id)).size shouldBe 1
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
         }
 
         test("TC-35df8459-e6e4-408f-843a-158ec8afed78 삭제된 연락처의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
@@ -229,7 +258,11 @@ class AccountMemoContactLocalDataSourceImplTest :
             val contact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .contacts()
+                .first()
+                .shouldBeEmpty()
 
             AccountContactSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
@@ -237,7 +270,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 cursor = 1L,
             )
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(contact)
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().first() shouldBe listOf(contact)
         }
 
         test("TC-0f08e8cd-1ab3-4655-a5d4-5391a502ec87 선택할 수 있는 연락처는 계정과 연결된 삭제되지 않은 연락처다") {
@@ -335,7 +368,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(matchedContact, selectedContact))
 
             loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(matchedContact)
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(selectedContact, matchedContact)
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().first() shouldBe listOf(selectedContact, matchedContact)
         }
 
         test("TC-44b6a6a2-3074-4198-9e3e-672ad114ee5f 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
@@ -349,7 +382,7 @@ class AccountMemoContactLocalDataSourceImplTest :
 
             val firstPage = dataSource.pageSelectableContact(accountId = accountId, query = "").loadPage(loadSize = SMALL_PAGE_SIZE)
 
-            firstPage.data shouldBe expected.take(SMALL_PAGE_SIZE)
+            firstPage.data.map { item -> item.contact } shouldBe expected.take(SMALL_PAGE_SIZE)
             firstPage.nextKey shouldBe SMALL_PAGE_SIZE
 
             val secondPage =
@@ -357,7 +390,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                     .pageSelectableContact(accountId = accountId, query = "")
                     .loadPage(key = firstPage.nextKey, loadSize = SMALL_PAGE_SIZE)
 
-            secondPage.data shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
+            secondPage.data.map { item -> item.contact } shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
         }
 
         test("TC-fb167467-8ef1-4575-bb94-2d086a298a3d 연락처가 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
@@ -380,7 +413,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
             val renamedContact = contact.copy(detail = contact.detail.copy(name = LAST_CONTACT_NAME))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().test {
                 awaitItem() shouldBe listOf(contact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
@@ -401,7 +434,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val phoneNumber = ContactPhoneNumberLocalEntity(number = "phone-${fixtureMonkey.giveMeOne<String>()}")
             val changedContact = contact.copy(detail = contact.detail.copy(phoneNumberList = listOf(phoneNumber)))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().test {
                 awaitItem() shouldBe listOf(contact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
@@ -421,7 +454,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val otherContact = contact(name = LAST_CONTACT_NAME)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact, otherContact))
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).contacts().test {
                 awaitItem() shouldBe listOf(contact, otherContact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
@@ -432,6 +465,52 @@ class AccountMemoContactLocalDataSourceImplTest :
                 cancelAndIgnoreRemainingEvents()
             }
             loadSelectableContact(accountId = accountId) shouldBe listOf(otherContact)
+        }
+
+        test("TC-fa99f387-6862-4bbe-8294-bfce30918222 이름이 같은 연락처의 구분이 바뀌면 연결된 연락처 조회와 선택 목록에 스스로 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val name = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            val changedHowWeMet = "changed-$howWeMet"
+            val contact = contact(name = name).let { value -> value.copy(detail = value.detail.copy(howWeMet = howWeMet)) }
+            val sameNameContact = contact(name = name)
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+
+            suspend fun selectableQualifier(): String =
+                (
+                    dataSource
+                        .pageSelectableContact(accountId = accountId, query = "")
+                        .load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false)) as PagingSource.LoadResult.Page
+                ).data
+                    .single { item -> item.contact.id == contact.id }
+                    .nameQualifier
+
+            dataSource
+                .getContactList(accountId = accountId, memoId = memo.id)
+                .map { list -> list.single().nameQualifier }
+                .distinctUntilChanged()
+                .test {
+                    awaitItem() shouldBe ""
+
+                    awaitSelectableContactInvalidated(accountId = accountId) {
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact))
+                    }
+                    awaitItem() shouldBe howWeMet
+                    selectableQualifier() shouldBe howWeMet
+
+                    awaitSelectableContactInvalidated(accountId = accountId) {
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(detail = contact.detail.copy(howWeMet = changedHowWeMet))))
+                    }
+                    awaitItem() shouldBe changedHowWeMet
+                    selectableQualifier() shouldBe changedHowWeMet
+
+                    awaitSelectableContactInvalidated(accountId = accountId) {
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact.copy(isDeleted = true)))
+                    }
+                    awaitItem() shouldBe ""
+                    selectableQualifier() shouldBe ""
+                }
         }
 
         test("검색어의 대소문자는 판정에 영향을 주지 않는다") {
@@ -495,10 +574,12 @@ class AccountMemoContactLocalDataSourceImplTest :
 
         private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
-        private suspend fun PagingSource<Int, ContactLocalEntity>.loadPage(
+        private fun Flow<List<ContactListItemLocalEntity>>.contacts(): Flow<List<ContactLocalEntity>> = map { list -> list.map { item -> item.contact } }
+
+        private suspend fun PagingSource<Int, ContactListItemLocalEntity>.loadPage(
             key: Int? = null,
             loadSize: Int = PAGE_SIZE,
-        ): PagingSource.LoadResult.Page<Int, ContactLocalEntity> {
+        ): PagingSource.LoadResult.Page<Int, ContactListItemLocalEntity> {
             val params: PagingSource.LoadParams<Int> =
                 if (key == null) {
                     PagingSource.LoadParams.Refresh(key = null, loadSize = loadSize, placeholdersEnabled = false)
@@ -506,7 +587,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                     PagingSource.LoadParams.Append(key = key, loadSize = loadSize, placeholdersEnabled = false)
                 }
 
-            return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, ContactLocalEntity>>()
+            return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, ContactListItemLocalEntity>>()
         }
     }
 }

@@ -961,7 +961,7 @@ class CalendarHomeScreenMoveTest {
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
-            birthdayList = listOf(CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = july(day = 8))),
+            birthdayList = listOf(CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
             navigateToContactDetail = contactDetailList::add,
             navigateToMemoAdd = memoAddList::add,
             onState = { capturedState = it },

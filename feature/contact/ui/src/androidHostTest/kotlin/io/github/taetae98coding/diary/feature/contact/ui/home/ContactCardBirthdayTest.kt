@@ -3,9 +3,9 @@ package io.github.taetae98coding.diary.feature.contact.ui.home
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
@@ -82,21 +82,21 @@ class ContactCardBirthdayTest {
         composeRule.onNodeWithText(LUNAR_CONVERTED_BIRTHDAY_TEXT).assertDoesNotExist()
     }
 
-    private fun birthdayContact(calendar: ContactBirthdayCalendar): Contact =
+    private fun birthdayContact(calendar: ContactBirthdayCalendar): ContactListItem =
         testContact(
             name = CONTACT_NAME,
             phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
             birthday = ContactBirthday(date = BIRTHDAY_DATE, calendar = calendar),
         )
 
-    private fun birthYearContact(): Contact =
+    private fun birthYearContact(): ContactListItem =
         testContact(
             name = CONTACT_NAME,
             phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
             birthYear = BIRTHDAY_DATE.year,
         )
 
-    private fun setContactCard(contact: Contact) {
+    private fun setContactCard(contact: ContactListItem) {
         composeRule.setContent {
             DiaryTheme {
                 ContactCard(

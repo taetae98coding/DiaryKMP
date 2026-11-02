@@ -99,7 +99,7 @@ class CalendarHomeScreenTimetableTest {
     @Test
     fun `TC-7dac7195-3ff7-4635-8620-e0b3f3e55a4e 아이템을 누르면 시간표를 열지 않고 아이템의 선택 결과가 실행된다`() {
         val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE)
-        val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = september(day = 22))
+        val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, nameQualifier = "", date = september(day = 22))
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
         // 날씨는 이름 아이템보다 위 줄을 차지하므로 다른 주에 두어 작은 화면에서도 모든 아이템이 한 번에 보이게 한다.
         val weather =

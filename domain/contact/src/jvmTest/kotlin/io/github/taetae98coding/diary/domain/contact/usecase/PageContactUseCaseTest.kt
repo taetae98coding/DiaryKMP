@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
@@ -27,7 +28,7 @@ class PageContactUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 계정의 연락처가 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactList = List(2) { contact() }
+            val contactList = List(2) { ContactListItem(contact = contact(), nameQualifier = fixtureMonkey.giveMeOne()) }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()

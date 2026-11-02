@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
@@ -22,6 +23,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailCaseWithoutBirthdayCalendar
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -80,13 +82,34 @@ class AccountContactRepositoryImplTest :
 
         test("TC-6d5440d1-b27b-4ea5-b95a-2af5219ae2cb 연락처 목록 페이지 조회는 현재 계정의 로컬 연락처를 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val localContactList = List(2) { localContact() }
+            val localContactList = List(2) { localContact().toListItem(nameQualifier = "qualifier-${fixtureMonkey.giveMeOne<String>()}-qualifier") }
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns pagingSource(localContactList)
             val repository = repository(localDataSource = localDataSource)
 
             repository.page(account = account, sort = ListSort.NAME, filter = ContactFilter()).first().items() shouldBe
                 localContactList.map { local -> local.toDomain() }
+        }
+
+        test("TC-31472722-f6d7-4211-aafd-9806fb6c244c 구분 경로는 앞뒤 공백을 빼고 공백뿐이면 비운다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val expectedByStored = listOf("" to "", "  " to "", "  회사  " to "회사")
+            val localList = expectedByStored.map { (stored, _) -> localContact().toListItem(nameQualifier = stored) }
+            val localDataSource = mockk<AccountContactLocalDataSource>()
+            every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns pagingSource(localList)
+            every { localDataSource.get(accountId = account.id, contactIdSet = localList.map { local -> local.contact.id }.toSet()) } returns flowOf(localList)
+            val repository = repository(localDataSource = localDataSource)
+            val expected = expectedByStored.map { (_, qualifier) -> qualifier }
+
+            repository
+                .page(account = account, sort = ListSort.NAME, filter = ContactFilter())
+                .first()
+                .items()
+                .map { item -> item.nameQualifier } shouldBe expected
+            repository
+                .get(account = account, contactIdSet = localList.map { local -> local.contact.id }.toSet())
+                .first()
+                .map { item -> item.nameQualifier } shouldBe expected
         }
 
         test("TC-d0fa641b-b467-4064-8b76-f5cca4bc6d01 전화번호는 저장한 순서 그대로 함께 조회된다") {
@@ -100,7 +123,7 @@ class AccountContactRepositoryImplTest :
             val stored = contact().let { value -> value.copy(detail = value.detail.copy(phoneNumberList = phoneNumberList)) }
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns
-                pagingSource(listOf(stored.toLocal()))
+                pagingSource(listOf(stored.toLocal().toListItem()))
             val repository = repository(localDataSource = localDataSource)
 
             repository
@@ -108,7 +131,7 @@ class AccountContactRepositoryImplTest :
                 .first()
                 .items()
                 .single()
-                .detail.phoneNumberList shouldBe phoneNumberList
+                .contact.detail.phoneNumberList shouldBe phoneNumberList
         }
 
         test("TC-2b544859-ade8-4e3d-9fa1-8e260fc0a5b2 선택한 정렬을 로컬 조회 조건으로 넘긴다") {
@@ -439,7 +462,7 @@ class AccountContactRepositoryImplTest :
                 accountContactTransaction = transaction,
             )
 
-        private fun pagingSource(contactList: List<ContactLocalEntity>): PagingSource<Int, ContactLocalEntity> =
+        private fun pagingSource(contactList: List<ContactListItemLocalEntity>): PagingSource<Int, ContactListItemLocalEntity> =
             mockk(relaxed = true) {
                 coEvery { load(any()) } returns
                     PagingSource.LoadResult.Page(

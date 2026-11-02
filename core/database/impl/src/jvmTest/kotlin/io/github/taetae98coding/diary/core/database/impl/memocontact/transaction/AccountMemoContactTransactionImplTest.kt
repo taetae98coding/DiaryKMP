@@ -112,7 +112,7 @@ class AccountMemoContactTransactionImplTest :
         suspend fun getContactList(
             accountId: Uuid,
             memoId: Uuid,
-        ): List<ContactLocalEntity> = dataSource.getContactList(accountId = accountId, memoId = memoId).first()
+        ): List<ContactLocalEntity> = dataSource.getContactList(accountId = accountId, memoId = memoId).first().map { item -> item.contact }
 
         suspend fun findPendingContactIdList(accountId: Uuid): List<Uuid> =
             syncDataSource
@@ -355,7 +355,7 @@ class AccountMemoContactTransactionImplTest :
                         .page(accountId = accountId, sort = "name", hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null)
                         .loadAll()
 
-                contactList.map { contact -> contact.id } shouldBe listOf(linkedContact, unlinkedContact).sortedBy { contact -> contact.detail.name }.map { contact -> contact.id }
+                contactList.map { item -> item.contact.id } shouldBe listOf(linkedContact, unlinkedContact).sortedBy { contact -> contact.detail.name }.map { contact -> contact.id }
             }
         }
 

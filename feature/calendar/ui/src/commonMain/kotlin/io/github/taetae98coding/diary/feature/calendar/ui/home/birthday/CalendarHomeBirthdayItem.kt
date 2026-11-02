@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.feature.calendar.ui.Res
 import io.github.taetae98coding.diary.feature.calendar.ui.calendar_home_birthday_content_description
 import io.github.taetae98coding.diary.feature.calendar.ui.calendar_home_birthday_text
+import io.github.taetae98coding.diary.feature.core.contact.contactDisplayName
 import kotlinx.datetime.LocalDateRange
 import org.jetbrains.compose.resources.stringResource
 
@@ -27,10 +28,11 @@ internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
             dateRange = birthday.toDateRange(),
             key = birthday.contactId,
         ) {
-            val name = stringResource(Res.string.calendar_home_birthday_content_description, birthday.name)
+            val displayName = contactDisplayName(name = birthday.name, nameQualifier = birthday.nameQualifier)
+            val name = stringResource(Res.string.calendar_home_birthday_content_description, displayName)
 
             CalendarText(
-                text = stringResource(Res.string.calendar_home_birthday_text, birthday.name),
+                text = stringResource(Res.string.calendar_home_birthday_text, displayName),
                 modifier =
                     Modifier
                         .animateItem()

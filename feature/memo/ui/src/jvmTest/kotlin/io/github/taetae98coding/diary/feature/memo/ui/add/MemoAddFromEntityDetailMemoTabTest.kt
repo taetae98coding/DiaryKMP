@@ -5,9 +5,11 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
@@ -211,9 +213,9 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     private fun contactTests() {
         test("TC-384dc31a-dc4d-43b0-b285-5ec7354181d1 대상 연락처를 연락처 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val other = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = target.id), contactList = listOf(target, other))
+                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val other = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = target.contact.id), contactList = listOf(target, other))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
@@ -225,11 +227,11 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 memoAdd.place.uiState.value.selectedPlaceList
                     .shouldBeEmpty()
 
-                memoAdd.contact.selectContact(id = other.id)
+                memoAdd.contact.selectContact(id = other.contact.id)
                 advanceUntilIdle()
                 memoAdd.contact.uiState.value.selectedContactList shouldContainExactlyInAnyOrder listOf(target, other)
 
-                memoAdd.contact.unselectContact(id = target.id)
+                memoAdd.contact.unselectContact(id = target.contact.id)
                 advanceUntilIdle()
                 memoAdd.contact.uiState.value.selectedContactList shouldBe listOf(other)
             }
@@ -237,8 +239,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-79af9cba-6ea5-46f8-881d-cdae99eb6031 삭제된 대상 연락처는 연락처 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val deletedTarget = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = deletedTarget.id), contactList = listOf(fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)))
+                val deletedTarget = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = deletedTarget.contact.id), contactList = listOf(fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
@@ -249,27 +251,27 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-605f9748-549b-4105-9b20-584023ccf772 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val key = MemoAddNavKey(initialContactId = target.id)
+                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val key = MemoAddNavKey(initialContactId = target.contact.id)
                 val memoAdd = MemoAddSelection(key = key, contactList = listOf(target))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
                 memoAdd.assertOnlyTargetSelected(key = key)
-                memoAdd.contact.selectionUiState.value.contactIdSet shouldBe setOf(target.id)
+                memoAdd.contact.selectionUiState.value.contactIdSet shouldBe setOf(target.contact.id)
             }
         }
 
         test("TC-f4e12382-db96-4fe5-9c0d-a27cc28cc8f6 저장 시점의 연락처 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
-                val contactA = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val contactB = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
-                val finalSelectionList = listOf(setOf(contactA.id), setOf(contactA.id, contactB.id), setOf(contactB.id), emptySet())
+                val contactA = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val contactB = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val finalSelectionList = listOf(setOf(contactA.contact.id), setOf(contactA.contact.id, contactB.contact.id), setOf(contactB.contact.id), emptySet())
 
                 finalSelectionList.forEach { finalSelection ->
-                    val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = contactA.id), contactList = listOf(contactA, contactB))
-                    (finalSelection - contactA.id).forEach { id -> memoAdd.contact.selectContact(id = id) }
-                    if (contactA.id !in finalSelection) memoAdd.contact.unselectContact(id = contactA.id)
+                    val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = contactA.contact.id), contactList = listOf(contactA, contactB))
+                    (finalSelection - contactA.contact.id).forEach { id -> memoAdd.contact.selectContact(id = id) }
+                    if (contactA.contact.id !in finalSelection) memoAdd.contact.unselectContact(id = contactA.contact.id)
 
                     memoAdd.save()
                     advanceUntilIdle()
@@ -287,7 +289,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
         val key: MemoAddNavKey,
         placeList: List<Place> = emptyList(),
         webList: List<Web> = emptyList(),
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
     ) {
         val addMemoUseCase: AddMemoUseCase =
             mockk<AddMemoUseCase>().apply {
@@ -340,7 +342,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                     mockk<GetSelectedContactUseCase>().apply {
                         every { this@apply(parameter = any()) } answers {
                             val idSet = firstArg<Set<Uuid>>()
-                            flowOf(Result.success(contactList.filter { value -> value.id in idSet }))
+                            flowOf(Result.success(contactList.filter { value -> value.contact.id in idSet }))
                         }
                     },
             )

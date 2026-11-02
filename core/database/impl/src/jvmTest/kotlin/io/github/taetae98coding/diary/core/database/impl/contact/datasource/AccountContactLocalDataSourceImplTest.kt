@@ -3,10 +3,12 @@ package io.github.taetae98coding.diary.core.database.impl.contact.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
@@ -16,7 +18,9 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -41,13 +45,13 @@ class AccountContactLocalDataSourceImplTest :
             database.close()
         }
 
-        suspend fun page(
+        suspend fun pageItems(
             accountId: Uuid,
             sort: ListSortLocalEntity,
             hasBirthday: Boolean? = null,
             hasBirthYear: Boolean? = null,
             hasPhoneNumber: Boolean? = null,
-        ): List<ContactLocalEntity> {
+        ): List<ContactListItemLocalEntity> {
             val page =
                 dataSource.page(accountId = accountId, sort = sort, hasBirthday = hasBirthday, hasBirthYear = hasBirthYear, hasPhoneNumber = hasPhoneNumber).load(
                     PagingSource.LoadParams.Refresh(
@@ -59,6 +63,14 @@ class AccountContactLocalDataSourceImplTest :
 
             return (page as PagingSource.LoadResult.Page).data
         }
+
+        suspend fun page(
+            accountId: Uuid,
+            sort: ListSortLocalEntity,
+            hasBirthday: Boolean? = null,
+            hasBirthYear: Boolean? = null,
+            hasPhoneNumber: Boolean? = null,
+        ): List<ContactLocalEntity> = pageItems(accountId = accountId, sort = sort, hasBirthday = hasBirthday, hasBirthYear = hasBirthYear, hasPhoneNumber = hasPhoneNumber).map { item -> item.contact }
 
         test("TC-52472399-3874-4d4b-9299-13fd459db696 즐겨찾기인 연락처가 고른 기준과 무관하게 앞에 놓인다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -166,7 +178,7 @@ class AccountContactLocalDataSourceImplTest :
             dataSource
                 .get(accountId = accountId, contactIdSet = linkedSetOf(last.id, first.id, middle.id))
                 .first()
-                .map { contact -> contact.id } shouldBe listOf(first.id, middle.id, last.id)
+                .map { item -> item.contact.id } shouldBe listOf(first.id, middle.id, last.id)
         }
 
         test("TC-c341b505-225c-4c85-99b8-1dc9512ea71a 각 축은 정해진 기준으로 연락처의 유무를 판정한다") {
@@ -309,6 +321,87 @@ class AccountContactLocalDataSourceImplTest :
                 .single()
                 .detail.howWeMet shouldBe ""
         }
+        test("TC-fde0222b-1e09-44f7-b6da-08dc845efb07 계정의 삭제되지 않은 다른 연락처와 이름이 글자 그대로 같을 때만 구분 경로를 준다") {
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            // 다른 연락처의 이름, 삭제 여부, 다른 계정에만 있는지와 그때 기대하는 구분 경로
+            val cases =
+                listOf(
+                    OtherContactCase(name = sameName) to howWeMet,
+                    OtherContactCase(name = sameName, isDeleted = true) to "",
+                    OtherContactCase(name = "other-$sameName") to "",
+                    OtherContactCase(name = "$sameName ") to "",
+                    OtherContactCase(name = sameName.replaceFirst("-", " -")) to "",
+                    OtherContactCase(name = sameName, isOtherAccount = true) to "",
+                )
+
+            cases.forEach { (case, expected) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val target = contact(name = sameName).withHowWeMet(howWeMet)
+                val other = contact(name = case.name).copy(isDeleted = case.isDeleted)
+                transaction.upsert(accountId = accountId, contactList = listOf(target))
+                transaction.upsert(accountId = if (case.isOtherAccount) fixtureMonkey.giveMeOne<Uuid>() else accountId, contactList = listOf(other))
+
+                pageItems(accountId = accountId, sort = ListSortLocalEntity.NAME)
+                    .single { item -> item.contact.id == target.id }
+                    .nameQualifier shouldBe expected
+                dataSource
+                    .get(accountId = accountId, contactIdSet = setOf(target.id))
+                    .first()
+                    .single()
+                    .nameQualifier shouldBe expected
+            }
+        }
+
+        test("TC-31472722-f6d7-4211-aafd-9806fb6c244c 이름이 같은 연락처의 구분 경로는 저장된 알게 된 경로를 그대로 담는다") {
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMetList = listOf("", "  ", "  how-${fixtureMonkey.nonBlankString()}-met  ")
+
+            howWeMetList.forEach { howWeMet ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val target = contact(name = sameName).withHowWeMet(howWeMet)
+                transaction.upsert(accountId = accountId, contactList = listOf(target, contact(name = sameName)))
+
+                dataSource
+                    .get(accountId = accountId, contactIdSet = setOf(target.id))
+                    .first()
+                    .single()
+                    .nameQualifier shouldBe howWeMet
+            }
+        }
+
+        test("TC-41b81344-7aae-477b-b95c-63d125742fed 이름이 같은 연락처인지가 바뀌면 다시 조회하지 않아도 구분 경로가 바뀐다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val sameName = "name-${fixtureMonkey.nonBlankString()}-name"
+            val howWeMet = "how-${fixtureMonkey.nonBlankString()}-met"
+            val changedHowWeMet = "changed-$howWeMet"
+            val target = contact(name = sameName).withHowWeMet(howWeMet)
+            val other = contact(name = sameName)
+            transaction.upsert(accountId = accountId, contactList = listOf(target))
+
+            dataSource
+                .get(accountId = accountId, contactIdSet = setOf(target.id))
+                .map { list -> list.single().nameQualifier }
+                .distinctUntilChanged()
+                .test {
+                    awaitItem() shouldBe ""
+
+                    transaction.upsert(accountId = accountId, contactList = listOf(other))
+                    awaitItem() shouldBe howWeMet
+
+                    transaction.updateDetail(accountId = accountId, contactId = target.id, detail = target.detail.copy(howWeMet = changedHowWeMet), updatedAt = NEW_INSTANT)
+                    awaitItem() shouldBe changedHowWeMet
+
+                    transaction.updateDeleted(accountId = accountId, contactId = other.id, isDeleted = true, updatedAt = NEW_INSTANT)
+                    awaitItem() shouldBe ""
+
+                    transaction.updateDeleted(accountId = accountId, contactId = other.id, isDeleted = false, updatedAt = NEW_INSTANT)
+                    awaitItem() shouldBe changedHowWeMet
+
+                    transaction.updateDetail(accountId = accountId, contactId = other.id, detail = other.detail.copy(name = "other-$sameName"), updatedAt = NEW_INSTANT)
+                    awaitItem() shouldBe ""
+                }
+        }
     }) {
     public companion object {
         private const val PAGE_SIZE = 20
@@ -352,6 +445,14 @@ class AccountContactLocalDataSourceImplTest :
                 updatedAt = updatedAt,
                 createdAt = OLD_INSTANT,
             )
+
+        private data class OtherContactCase(
+            val name: String,
+            val isDeleted: Boolean = false,
+            val isOtherAccount: Boolean = false,
+        )
+
+        private fun ContactLocalEntity.withHowWeMet(howWeMet: String): ContactLocalEntity = copy(detail = detail.copy(howWeMet = howWeMet))
 
         private fun phoneNumber(): ContactPhoneNumberLocalEntity = ContactPhoneNumberLocalEntity(number = fixtureMonkey.nonBlankString())
 

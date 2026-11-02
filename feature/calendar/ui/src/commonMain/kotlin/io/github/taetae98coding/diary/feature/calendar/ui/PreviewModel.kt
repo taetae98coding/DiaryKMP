@@ -63,10 +63,14 @@ internal fun previewHoliday(name: String = "제헌절"): Holiday =
         dateRange = LocalDate(year = 2026, month = 7, day = 17)..LocalDate(year = 2026, month = 7, day = 17),
     )
 
-internal fun previewCalendarContactBirthday(name: String = "홍길동"): CalendarContactBirthday =
+internal fun previewCalendarContactBirthday(
+    name: String = "홍길동",
+    nameQualifier: String = "",
+): CalendarContactBirthday =
     CalendarContactBirthday(
         contactId = Uuid.random(),
         name = name,
+        nameQualifier = nameQualifier,
         date = LocalDate(year = 2026, month = 7, day = 22),
     )
 

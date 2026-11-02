@@ -199,6 +199,20 @@ class UpdateContactUseCaseTest :
                 }
             }
 
+            When("이름 앞뒤에 공백을 넣어 수정한다") {
+                Then("TC-e17ca81f-e623-4ac7-95c2-23e55248187e 앞뒤 공백을 지운 이름으로 반영한다") {
+                    listOf(
+                        "김철수 " to "김철수",
+                        "  김철수" to "김철수",
+                        "김 철수" to "김 철수",
+                    ).forEach { (input, expected) ->
+                        useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(name = input))).shouldBeSuccess(1)
+
+                        detailSlot.captured.name shouldBe expected
+                    }
+                }
+            }
+
             When("이름을 비운 채 수정한다") {
                 Then("TC-d0baff5e-e6ef-4b37-b9e5-128b36176f79 저장된 기존 이름을 사용하고 나머지는 입력한 대로 반영한다") {
                     listOf("", "   ").forEach { name ->
@@ -437,7 +451,7 @@ class UpdateContactUseCaseTest :
 
         @Suppress("LongParameterList")
         private fun detail(
-            name: String = "name-${fixtureMonkey.giveMeOne<String>()}",
+            name: String = "name-${fixtureMonkey.giveMeOne<String>()}-name",
             description: String = "description-${fixtureMonkey.giveMeOne<String>()}",
             height: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             footSize: io.github.taetae98coding.diary.core.model.measure.Length? = null,

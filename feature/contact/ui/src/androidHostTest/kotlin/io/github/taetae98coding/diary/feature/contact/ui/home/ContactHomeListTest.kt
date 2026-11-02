@@ -14,7 +14,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -119,7 +119,7 @@ class ContactHomeListTest {
         setContactHomeList(contactList = listOf(contact), onEvent = eventList::add)
         composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = contact.id))
+        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = contact.contact.id))
     }
 
     @Test
@@ -140,18 +140,40 @@ class ContactHomeListTest {
             }
         }
         composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
-        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-b5df1db6-b87a-4c52-b6e3-89e8f85763a7 이름이 같은 연락처는 알게 된 경로와 함께 표시한다`() {
+        val friend = testContact(name = CONTACT_NAME, howWeMet = FRIEND_HOW_WE_MET, nameQualifier = FRIEND_HOW_WE_MET)
+        val coworker = testContact(name = CONTACT_NAME, howWeMet = COWORKER_HOW_WE_MET, nameQualifier = COWORKER_HOW_WE_MET)
+
+        setContactHomeList(contactList = listOf(friend, coworker))
+
+        composeRule.onNodeWithText("$CONTACT_NAME($FRIEND_HOW_WE_MET)").assertExists()
+        composeRule.onNodeWithText("$CONTACT_NAME($COWORKER_HOW_WE_MET)").assertExists()
     }
 
     private fun setContactHomeList(
-        contactList: List<Contact> = emptyList(),
-        pagingData: PagingData<Contact> = contactPagingDataOf(contactList),
+        contactList: List<ContactListItem> = emptyList(),
+        pagingData: PagingData<ContactListItem> = contactPagingDataOf(contactList),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -168,6 +190,8 @@ class ContactHomeListTest {
 
     private companion object {
         private const val CONTACT_NAME = "김철수"
+        private const val FRIEND_HOW_WE_MET = "친구 소개"
+        private const val COWORKER_HOW_WE_MET = "회사"
         private const val OTHER_CONTACT_NAME = "이영희"
         private const val CONTACT_PHONE_NUMBER = "010-1111-2222"
         private const val OTHER_PHONE_NUMBER = "02-333-4444"

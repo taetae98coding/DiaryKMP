@@ -7,32 +7,33 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerRow
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.feature.core.contact.displayName
 import io.github.taetae98coding.diary.feature.memo.ui.previewContact
 
 @Composable
 internal fun MemoContactPickerRow(
     onEvent: (MemoContactPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
-    contact: Contact? = null,
+    contact: ContactListItem? = null,
     isSelected: Boolean = false,
 ) {
     DiaryPickerRow(
         isSelected = isSelected,
         onSelectedChange = {
             if (isSelected) {
-                contact?.let { value -> onEvent(MemoContactPickerEvent.Unselect(id = value.id)) }
+                contact?.let { value -> onEvent(MemoContactPickerEvent.Unselect(id = value.contact.id)) }
             } else {
-                contact?.let { value -> onEvent(MemoContactPickerEvent.Select(id = value.id)) }
+                contact?.let { value -> onEvent(MemoContactPickerEvent.Select(id = value.contact.id)) }
             }
         },
-        label = contact?.detail?.name.orEmpty(),
+        label = contact?.displayName().orEmpty(),
         modifier = modifier,
         description =
             if (contact == null) {
                 ""
             } else {
-                contact.detail.phoneNumberList
+                contact.contact.detail.phoneNumberList
                     .firstOrNull()
                     ?.number
             },
