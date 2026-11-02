@@ -94,6 +94,7 @@ Bottom Sheet의 제목과 내용은 `Bottom Sheet 가로 여백`으로 좌우를
 - [장소 검색 다이얼로그](./place-search-dialog.md)
 - [장소 보기 모드](./place-view-mode.md)
 - [PlaylistHome 화면](./playlist-home.md)
+- [Profile 화면](./profile.md)
 - [ProfileImageEdit 화면](./profile-image-edit.md)
 - [QrAdd 화면](./qr-add.md)
 - [QrHome 화면](./qr-home.md)

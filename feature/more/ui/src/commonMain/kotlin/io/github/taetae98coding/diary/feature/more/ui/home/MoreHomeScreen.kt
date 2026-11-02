@@ -19,7 +19,8 @@ internal fun MoreHomeScreen(
     navigateToLogin: () -> Unit,
     navigateToPlace: () -> Unit,
     navigateToPlaylist: () -> Unit,
-    navigateToProfileImageEdit: () -> Unit,
+    navigateToProfile: () -> Unit,
+    navigateToProfileImageViewer: (imageUrl: String) -> Unit,
     navigateToQr: () -> Unit,
     navigateToSearch: () -> Unit,
     navigateToSetting: () -> Unit,
@@ -39,8 +40,12 @@ internal fun MoreHomeScreen(
         signOutUiStateProvider = { signOutUiState },
         onEvent = { event ->
             when (event) {
-                is MoreHomeScaffoldEvent.ClickProfile -> {
-                    navigateToProfileImageEdit()
+                is MoreHomeScaffoldEvent.ClickAccountCard -> {
+                    navigateToProfile()
+                }
+
+                is MoreHomeScaffoldEvent.ClickProfileImage -> {
+                    navigateToProfileImageViewer(event.imageUrl)
                 }
 
                 is MoreHomeScaffoldEvent.ClickSetting -> {

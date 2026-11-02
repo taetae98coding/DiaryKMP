@@ -6,6 +6,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.account.api.ProfileImageEditNavKey
+import io.github.taetae98coding.diary.feature.account.api.ProfileImageViewerNavKey
+import io.github.taetae98coding.diary.feature.account.api.ProfileNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
@@ -28,7 +31,6 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
-import io.github.taetae98coding.diary.feature.more.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
@@ -176,7 +178,9 @@ class ScreenNameTest :
                 PlaceHomeNavKey to "PlaceHome",
                 PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceMemoFinishedList",
                 PlaylistHomeNavKey to "PlaylistHome",
+                ProfileNavKey to "Profile",
                 ProfileImageEditNavKey to "ProfileImageEdit",
+                ProfileImageViewerNavKey(imageUrl = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg") to "ProfileImageViewer",
                 QrAddNavKey to "QrAdd",
                 QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "QrDetail",
                 QrHomeNavKey to "QrHome",

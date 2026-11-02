@@ -18,4 +18,8 @@ internal class AccountSyncTimeRepositoryImpl(
     ) {
         accountSyncTimeLocalDataSource.upsert(accountId = account.id, syncedAt = syncedAt)
     }
+
+    override suspend fun delete(account: Account) {
+        accountSyncTimeLocalDataSource.delete(accountId = account.id)
+    }
 }

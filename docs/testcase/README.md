@@ -34,6 +34,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | 테스트 케이스 | 기준 스펙 |
 | --- | --- |
 | [계정 조회](./account.md) | [계정 조회](../spec/client/account.md) |
+| [계정 탈퇴](./account-deletion.md) | [계정 탈퇴(client)](../spec/client/account-deletion.md), [계정 탈퇴(common)](../spec/common/account-deletion.md), [계정 탈퇴(server)](../spec/server/account-deletion.md) |
 | [앱 로깅](./app-logging.md) | [앱 로깅](../spec/client/app-logging.md) |
 | [앱 안 웹 로그인 유지](./web-login-persistence.md) | [앱 안 웹 로그인 유지](../spec/client/web-login-persistence.md) |
 | [앱 이름](./app-name.md) | [앱 이름](../spec/client/app-name.md) |
@@ -119,7 +120,9 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [PlaylistHome](./playlist-home.md) | [PlaylistHome 화면](../spec/client/playlist-home.md) |
 | [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치](../spec/client/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | [프로필 이미지 변경(client)](../spec/client/profile-image.md), [프로필 이미지 변경(common)](../spec/common/profile-image.md), [프로필 이미지 변경(server)](../spec/server/profile-image.md) |
+| [Profile](./profile.md) | [Profile 화면](../spec/client/profile.md) |
 | [ProfileImageEdit](./profile-image-edit.md) | [ProfileImageEdit 화면](../spec/client/profile-image-edit.md) |
+| [ProfileImageViewer](./profile-image-viewer.md) | [ProfileImageViewer 화면](../spec/client/profile-image-viewer.md) |
 | [QrAdd](./qr-add.md) | [QrAdd 화면](../spec/client/qr-add.md) |
 | [QrDetail](./qr-detail.md) | [QrDetail 화면](../spec/client/qr-detail.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |

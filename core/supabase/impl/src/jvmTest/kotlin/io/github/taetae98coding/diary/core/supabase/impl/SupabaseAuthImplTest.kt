@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.uuid.Uuid
@@ -42,6 +43,21 @@ class SupabaseAuthImplTest :
 
             SupabaseAuthImpl(client).getUserFlow().test {
                 awaitItem()?.profileImage shouldBe "https://example.com/stored.jpg"
+            }
+
+            client.close()
+        }
+
+        test("앱 메타데이터에 모인 연결된 로그인 수단을 사용자 정보에 담는다") {
+            val storedUser =
+                user(profileImage = "https://example.com/stored.jpg")
+                    .copy(appMetadata = JsonObject(mapOf("providers" to JsonArray(listOf(JsonPrimitive("google"), JsonPrimitive("apple"))))))
+            val client = createClient(sessionManager = MemorySessionManager(session(storedUser)))
+
+            client.auth.awaitInitialization()
+
+            SupabaseAuthImpl(client).getUserFlow().test {
+                awaitItem()?.providerSet shouldBe setOf("google", "apple")
             }
 
             client.close()

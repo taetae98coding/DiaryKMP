@@ -9,12 +9,13 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.AppleSignInResult
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -162,7 +163,7 @@ class LoginHomeScreenBoundaryTest {
         val appleCredentialsManager = mockAppleCredentialsManager()
         val platformResult = CompletableDeferred<GoogleCredential>()
         coEvery { googleCredentialsManager.signIn() } coAnswers { platformResult.await() }
-        coEvery { appleCredentialsManager.signIn() } returns screenTestFixtureMonkey.giveMeOne<AppleCredential>()
+        coEvery { appleCredentialsManager.signIn() } returns AppleSignInResult(credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>(), authorization = null)
         every { viewModel.signInWithGoogle(credential) } returns Unit
         composeRule.setLoginHomeScreen(
             viewModel = viewModel,

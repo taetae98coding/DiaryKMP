@@ -33,6 +33,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.account.ui.accountEntry
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistEntry
 import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
@@ -110,6 +111,7 @@ internal fun AppNavigation(
                     fileEntry(backStack = appState.backStack)
                     holidayEntry(backStack = appState.backStack)
                     loginEntry(backStack = appState.backStack)
+                    accountEntry(backStack = appState.backStack)
                     placeEntry(backStack = appState.backStack)
                     playlistEntry(backStack = appState.backStack)
                     qrEntry(backStack = appState.backStack)

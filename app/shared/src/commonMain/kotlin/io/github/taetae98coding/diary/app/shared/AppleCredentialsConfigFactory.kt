@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.app.shared
 
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsConfig
 
 internal fun appleCredentialsConfig(clientId: String): AppleCredentialsConfig =
     AppleCredentialsConfig(

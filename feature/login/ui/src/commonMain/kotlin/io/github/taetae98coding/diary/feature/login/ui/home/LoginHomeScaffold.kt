@@ -17,6 +17,8 @@ import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.PlatformSignInState
+import io.github.taetae98coding.diary.compose.credential.rememberPlatformSignInState
 import io.github.taetae98coding.diary.feature.login.ui.Res
 import io.github.taetae98coding.diary.feature.login.ui.login_home_title
 import io.github.taetae98coding.diary.feature.login.ui.login_navigate_up_button_content_description
@@ -27,7 +29,7 @@ internal fun LoginHomeScaffold(
     onEvent: (LoginHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> LoginHomeUiState = { LoginHomeUiState() },
-    platformSignInState: LoginPlatformSignInState = rememberLoginPlatformSignInState(),
+    platformSignInState: PlatformSignInState = rememberPlatformSignInState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(

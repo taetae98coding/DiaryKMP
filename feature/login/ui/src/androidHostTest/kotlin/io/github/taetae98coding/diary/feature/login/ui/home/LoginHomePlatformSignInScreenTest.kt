@@ -11,13 +11,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.AppleSignInResult
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -53,7 +54,7 @@ class LoginHomePlatformSignInScreenTest {
 
     @Test
     fun `TC-786d7f2a-ae85-4403-b473-23cf0d90648c Apple 흐름이 진행되는 동안 진행 표시를 보이고 취소되면 버튼을 다시 보인다`() {
-        val platformResult = CompletableDeferred<AppleCredential>()
+        val platformResult = CompletableDeferred<AppleSignInResult>()
         val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } coAnswers { platformResult.await() }
 
@@ -110,7 +111,7 @@ class LoginHomePlatformSignInScreenTest {
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
         val appleCredentialsManager = mockAppleCredentialsManager(isSignInEndDetectable = false)
         coEvery { googleCredentialsManager.signIn() } coAnswers { CompletableDeferred<GoogleCredential>().await() }
-        coEvery { appleCredentialsManager.signIn() } coAnswers { CompletableDeferred<AppleCredential>().await() }
+        coEvery { appleCredentialsManager.signIn() } coAnswers { CompletableDeferred<AppleSignInResult>().await() }
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
             googleCredentialsManager = googleCredentialsManager,

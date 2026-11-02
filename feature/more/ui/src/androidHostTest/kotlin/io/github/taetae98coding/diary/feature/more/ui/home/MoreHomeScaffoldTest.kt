@@ -2,22 +2,32 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -128,21 +138,32 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `한국어 환경에서 프로필 이미지 편집 동작 접근성 이름을 제공한다`() {
-        setMoreHomeScaffold(accountUiStateProvider = { userAccountUiState() })
+    fun `한국어 환경에서 계정 카드와 프로필 이미지의 누름 동작 접근성 이름을 제공한다`() {
+        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL) })
 
-        profileClickLabel(profileImageDescription = "프로필 이미지") shouldBe "프로필 이미지 편집"
+        clickLabel(composeRule.onNodeWithText(USER_EMAIL)) shouldBe "프로필 열기"
+        clickLabel(composeRule.onNodeWithContentDescription("프로필 이미지")) shouldBe "프로필 이미지 크게 보기"
     }
 
     @Test
-    fun `기본 환경에서 프로필 이미지 편집 동작 접근성 이름을 제공한다`() {
-        setMoreHomeScaffold(accountUiStateProvider = { userAccountUiState() })
+    fun `기본 환경에서 계정 카드와 프로필 이미지의 누름 동작 접근성 이름을 제공한다`() {
+        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL) })
 
-        profileClickLabel(profileImageDescription = DEFAULT_PROFILE_IMAGE_DESCRIPTION) shouldBe DEFAULT_PROFILE_IMAGE_EDIT_LABEL
+        clickLabel(composeRule.onNodeWithText(USER_EMAIL)) shouldBe DEFAULT_ACCOUNT_CARD_CLICK_LABEL
+        clickLabel(composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION)) shouldBe DEFAULT_PROFILE_IMAGE_VIEW_LABEL
     }
 
     @Test
-    fun `확인 중과 게스트 상태에서는 프로필을 누를 수 없다`() {
+    fun `프로필 이미지가 없는 사용자 상태에서는 프로필 이미지에 누름 동작을 두지 않는다`() {
+        setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL) })
+
+        composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION, useUnmergedTree = true).assert(!hasClickAction())
+    }
+
+    @Test
+    fun `확인 중과 게스트 상태에서는 계정 카드와 프로필을 누를 수 없다`() {
         val accountUiState = mutableStateOf<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         setMoreHomeScaffold(accountUiStateProvider = { accountUiState.value })
 
@@ -150,15 +171,11 @@ class MoreHomeScaffoldTest {
             composeRule.runOnIdle { accountUiState.value = uiState }
 
             composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).assert(!hasClickAction())
+            composeRule.onNode(hasAnyDescendant(hasContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION)) and hasClickAction()).assertDoesNotExist()
         }
     }
 
-    private fun profileClickLabel(profileImageDescription: String): String? =
-        composeRule
-            .onNodeWithContentDescription(profileImageDescription)
-            .fetchSemanticsNode()
-            .config[SemanticsActions.OnClick]
-            .label
+    private fun clickLabel(node: SemanticsNodeInteraction): String? = node.fetchSemanticsNode().config[SemanticsActions.OnClick].label
 
     private fun inReadingOrder(labels: List<String>): List<String> =
         labels
@@ -189,7 +206,8 @@ class MoreHomeScaffoldTest {
         private const val DEFAULT_SIGN_IN_LABEL = "Sign in"
         private const val DEFAULT_SIGN_OUT_LABEL = "Sign out"
         private const val DEFAULT_PROFILE_IMAGE_DESCRIPTION = "Profile image"
-        private const val DEFAULT_PROFILE_IMAGE_EDIT_LABEL = "Edit profile photo"
+        private const val DEFAULT_ACCOUNT_CARD_CLICK_LABEL = "Open profile"
+        private const val DEFAULT_PROFILE_IMAGE_VIEW_LABEL = "View profile photo"
         private const val USER_EMAIL = "diary@example.com"
         private val NON_USER_ACCOUNT_UI_STATES =
             listOf(

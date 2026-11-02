@@ -58,6 +58,20 @@ class AccountSyncTimeLocalDataSourceImplTest :
 
             dataSource.read(accountId = otherAccountId) shouldBe otherSyncedAt
         }
+
+        test("TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 한 계정의 기록을 지우면 그 계정만 지워지고 다른 계정은 남는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherSyncedAt = fixtureMonkey.giveMeOne<Instant>()
+            val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
+
+            dataSource.upsert(accountId = accountId, syncedAt = fixtureMonkey.giveMeOne())
+            dataSource.upsert(accountId = otherAccountId, syncedAt = otherSyncedAt)
+            dataSource.delete(accountId = accountId)
+
+            dataSource.read(accountId = accountId).shouldBeNull()
+            dataSource.read(accountId = otherAccountId) shouldBe otherSyncedAt
+        }
     }) {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =

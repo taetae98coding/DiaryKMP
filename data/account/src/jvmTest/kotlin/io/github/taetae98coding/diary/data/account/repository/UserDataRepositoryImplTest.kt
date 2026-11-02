@@ -51,13 +51,13 @@ class UserDataRepositoryImplTest :
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val email = fixtureMonkey.giveMeOne<String>()
                 val profileImage = if (profileImageCase == "프로필 이미지가 있음") fixtureMonkey.giveMeOne<String>() else null
-                val supabaseUser = SupabaseUser(id = id, email = email, profileImage = profileImage)
+                val supabaseUser = SupabaseUser(id = id, email = email, profileImage = profileImage, providerSet = emptySet())
                 val supabaseAuth = mockk<SupabaseAuth>()
                 every { supabaseAuth.getUserFlow() } returns flowOf(supabaseUser)
                 val repository = repository(supabaseAuth = supabaseAuth)
 
                 repository.get().test {
-                    awaitItem() shouldBe UserData(id = id, email = email, profileImage = profileImage)
+                    awaitItem() shouldBe UserData(id = id, email = email, profileImage = profileImage, loginProviderSet = emptySet())
                     awaitComplete()
                 }
             }
@@ -112,6 +112,7 @@ class UserDataRepositoryImplTest :
                     id = fixtureMonkey.giveMeOne<Uuid>(),
                     email = fixtureMonkey.giveMeOne<String>(),
                     profileImage = "previous-${fixtureMonkey.giveMeOne<String>()}",
+                    providerSet = emptySet(),
                 )
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)
@@ -152,7 +153,7 @@ class UserDataRepositoryImplTest :
         }
 
         test("TC-df22a338-0c73-4499-bd21-019626020708 반영 자체는 사용자 정보를 다시 확인하지 않고, 다시 확인한 뒤 새 주소가 나타난다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
+            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
             val newUser = previousUser.copy(profileImage = "new-${previousUser.profileImage}")
             val userFlow = MutableStateFlow(previousUser)
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -205,7 +206,7 @@ class UserDataRepositoryImplTest :
         }
 
         test("TC-cf52b49b-0abb-4be5-9993-df80f5a89d42 사용자 정보 다시 확인에 성공하면 저장된 사용자 정보가 받은 정보로 바뀐다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
+            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
             val retrievedUser =
                 previousUser.copy(
                     email = "retrieved-" + fixtureMonkey.giveMeOne<String>(),
@@ -218,23 +219,23 @@ class UserDataRepositoryImplTest :
             val repository = repository(supabaseAuth = supabaseAuth)
 
             repository.get().test {
-                awaitItem() shouldBe UserData(id = previousUser.id, email = previousUser.email, profileImage = previousUser.profileImage)
+                awaitItem() shouldBe UserData(id = previousUser.id, email = previousUser.email, profileImage = previousUser.profileImage, loginProviderSet = emptySet())
 
                 repository.refresh()
 
-                awaitItem() shouldBe UserData(id = retrievedUser.id, email = retrievedUser.email, profileImage = retrievedUser.profileImage)
+                awaitItem() shouldBe UserData(id = retrievedUser.id, email = retrievedUser.email, profileImage = retrievedUser.profileImage, loginProviderSet = emptySet())
             }
         }
 
         test("TC-c3f5a153-0abf-4ed1-b7aa-eb278192b989 사용자 정보 다시 확인에 실패하면 저장된 사용자 정보가 바뀌지 않는다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
+            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)
             coEvery { supabaseAuth.retrieveUserForCurrentSession() } throws IllegalStateException("retrieve failed")
             val repository = repository(supabaseAuth = supabaseAuth)
 
             repository.get().test {
-                awaitItem() shouldBe UserData(id = previousUser.id, email = previousUser.email, profileImage = previousUser.profileImage)
+                awaitItem() shouldBe UserData(id = previousUser.id, email = previousUser.email, profileImage = previousUser.profileImage, loginProviderSet = emptySet())
 
                 shouldThrowAny { repository.refresh() }
 
@@ -257,7 +258,7 @@ class UserDataRepositoryImplTest :
 
         private fun supabaseAuth(): SupabaseAuth =
             mockk<SupabaseAuth>().also { auth ->
-                every { auth.getUserFlow() } returns flowOf(fixtureMonkey.giveMeOne<SupabaseUser>())
+                every { auth.getUserFlow() } returns flowOf(fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet()))
             }
 
         private fun fileLocalDataSource(

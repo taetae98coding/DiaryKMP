@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
+import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
@@ -15,7 +16,9 @@ class SignOutUseCaseTest :
         Given("사용자가 Diary 계정으로 로그인해 있다") {
             val sessionRepository = mockk<SessionRepository>()
             coEvery { sessionRepository.delete() } just Runs
-            val useCase = SignOutUseCase(sessionRepository = sessionRepository)
+            val loginProviderRepository = mockk<LoginProviderRepository>()
+            coEvery { loginProviderRepository.unset() } just Runs
+            val useCase = SignOutUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)
 
             When("Diary에서 로그아웃한다") {
                 val result = useCase(parameter = Unit)
@@ -25,6 +28,10 @@ class SignOutUseCaseTest :
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { sessionRepository.delete() }
                     confirmVerified(sessionRepository)
+                }
+
+                Then("TC-649f316c-b797-4ee8-bcde-3ef39857c274 로그인 수단 기록을 지운다") {
+                    coVerify(exactly = 1) { loginProviderRepository.unset() }
                 }
             }
         }

@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingDataSt
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderDataStore
+import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeDataStore
@@ -81,6 +83,15 @@ public class DataStoreModule {
         dispatcher: CoroutineDispatcher,
     ): DataStore<WebLoginData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = WebLoginSerializer)
 
+    @Single
+    @LoginProviderDataStore
+    internal fun providesLoginProviderDataStore(
+        @LoginProviderStorage
+        storage: Storage<LoginProviderData>,
+        @DiarySettingDispatcher
+        dispatcher: CoroutineDispatcher,
+    ): DataStore<LoginProviderData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = LoginProviderSerializer)
+
     internal companion object {
         const val MAP_SETTING_NAME: String = "map-setting.json"
         const val HOLIDAY_SETTING_NAME: String = "holiday-setting.json"
@@ -88,6 +99,7 @@ public class DataStoreModule {
         const val SYNC_TIME_NAME: String = "sync-time.json"
         const val FILE_DOWNLOAD_SETTING_NAME: String = "file-download-setting.json"
         const val WEB_LOGIN_NAME: String = "web-login.json"
+        const val LOGIN_PROVIDER_NAME: String = "login-provider.json"
     }
 }
 

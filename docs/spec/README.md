@@ -92,7 +92,9 @@
 | Play Integrity 판정 기록 | [client](./client/play-integrity-logging.md) | [common](./common/play-integrity-logging.md) | [server](./server/play-integrity-logging.md) | — |
 | Playlist 목록·상세 배치 | [client](./client/playlist-list-detail.md) | — | — | [Playlist 목록·상세 배치 디자인](../design/playlist-list-detail.md) |
 | PlaylistHome 화면 | [client](./client/playlist-home.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
+| Profile 화면 | [client](./client/profile.md) | — | — | [Profile 디자인](../design/profile.md) |
 | ProfileImageEdit 화면 | [client](./client/profile-image-edit.md) | — | — | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
+| ProfileImageViewer 화면 | [client](./client/profile-image-viewer.md) | — | — | [ProfileImageViewer 디자인](../design/profile-image-viewer.md) |
 | QrAdd 화면 | [client](./client/qr-add.md) | — | — | [QrAdd 디자인](../design/qr-add.md) |
 | QrDetail 화면 | [client](./client/qr-detail.md) | — | — | [QrDetail 디자인](../design/qr-detail.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
@@ -129,6 +131,7 @@
 | WebHome 화면 | [client](./client/web-home.md) | — | — | [WebHome 디자인](../design/web-home.md) |
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
+| 계정 탈퇴 | [client](./client/account-deletion.md) | [common](./common/account-deletion.md) | [server](./server/account-deletion.md) | [Profile 디자인](../design/profile.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |

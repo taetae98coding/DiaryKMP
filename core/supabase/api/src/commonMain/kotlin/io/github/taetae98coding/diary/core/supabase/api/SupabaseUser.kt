@@ -6,4 +6,5 @@ public data class SupabaseUser(
     val id: Uuid,
     val email: String,
     val profileImage: String?,
+    val providerSet: Set<String>,
 )

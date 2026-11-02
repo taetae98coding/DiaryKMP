@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
+import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
@@ -11,8 +12,10 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 
 class SignInWithAppleUseCaseTest :
@@ -21,7 +24,7 @@ class SignInWithAppleUseCaseTest :
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } returns Unit
-            val useCase = SignInWithAppleUseCase(sessionRepository = repository)
+            val useCase = SignInWithAppleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             When("해당 credential로 로그인을 요청한다") {
                 val result = useCase(parameter = credential)
@@ -42,7 +45,7 @@ class SignInWithAppleUseCaseTest :
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } throws AppleUseCaseTestException()
-            val useCase = SignInWithAppleUseCase(sessionRepository = repository)
+            val useCase = SignInWithAppleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             When("해당 credential로 로그인을 요청한다") {
                 val result = useCase(parameter = credential)
@@ -58,7 +61,7 @@ class SignInWithAppleUseCaseTest :
             val failure = AppleUseCaseTestException()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } throws failure
-            val useCase = SignInWithAppleUseCase(sessionRepository = repository)
+            val useCase = SignInWithAppleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             val reportList = recordCrashlyticsLog()
 
@@ -78,7 +81,7 @@ class SignInWithAppleUseCaseTest :
             val credential = fixtureMonkey.giveMeOne<AppleCredential>()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } returns Unit
-            val useCase = SignInWithAppleUseCase(sessionRepository = repository)
+            val useCase = SignInWithAppleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             val reportList = recordCrashlyticsLog()
 
@@ -98,3 +101,8 @@ class SignInWithAppleUseCaseTest :
 }
 
 private class AppleUseCaseTestException : RuntimeException("sign in failure")
+
+private fun loginProviderRepository(): LoginProviderRepository =
+    mockk<LoginProviderRepository> {
+        coEvery { set(provider = any()) } just Runs
+    }

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -15,11 +16,14 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
@@ -28,6 +32,7 @@ import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccou
 import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -41,6 +46,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
+import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -246,17 +255,69 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-791312fa-b99b-4f25-9888-e188f27dd356 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
+    fun `TC-27b18470-b859-4412-b67b-32d8f569c86d 사용자 상태에서 계정 카드를 선택하면 Profile 화면으로 이동한다`() {
         var navigateCount = 0
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
-            navigateToProfileImageEdit = { navigateCount += 1 },
+            navigateToProfile = { navigateCount += 1 },
+        )
+
+        composeRule.onNodeWithText(USER_EMAIL).performClick()
+        composeRule.waitForIdle()
+
+        navigateCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-830e30bd-bdbc-43af-a683-b07d1eb59b20 프로필 이미지를 선택하면 그 이미지로 ProfileImageViewer 화면으로 이동한다`() {
+        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        val viewerImageList = mutableListOf<String>()
+        var navigateToProfileCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL)),
+            navigateToProfile = { navigateToProfileCount += 1 },
+            navigateToProfileImageViewer = { imageUrl -> viewerImageList += imageUrl },
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        navigateCount shouldBe 1
+        viewerImageList shouldBe listOf(profileImage)
+        navigateToProfileCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-b69722ff-6c23-4bac-a89d-bd9d201bd239 프로필 이미지가 없으면 그 자리를 눌러도 이동하지 않는다`() {
+        var navigateToProfileCount = 0
+        var navigateToViewerCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            navigateToProfile = { navigateToProfileCount += 1 },
+            navigateToProfileImageViewer = { navigateToViewerCount += 1 },
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION, useUnmergedTree = true).performTouchInput { click() }
+        composeRule.waitForIdle()
+
+        navigateToProfileCount shouldBe 0
+        navigateToViewerCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-6b23c279-8c2a-4712-b9e1-dab40e5a1036 계정 카드 안의 로그아웃을 선택하면 Profile 화면으로 이동하지 않는다`() {
+        var navigateToProfileCount = 0
+        val signOutViewModel = screenTestSignOutViewModel()
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = signOutViewModel,
+            navigateToProfile = { navigateToProfileCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { signOutViewModel.signOut() }
+        navigateToProfileCount shouldBe 0
     }
 
     @Test
@@ -294,14 +355,32 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-6c3b0b45-4d87-4fb8-bfa8-d5e5a1998f2c 확인 중과 게스트 상태에서는 프로필을 선택해도 ProfileImageEdit 화면으로 이동하지 않는다`() {
+    fun `TC-1d2b6f96-96ac-4d4f-a35c-fd2db9c2bcd1 계정 카드 안의 로그인을 선택하면 Profile 화면으로 이동하지 않는다`() {
+        var navigateToLoginCount = 0
+        var navigateToProfileCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest),
+            navigateToLogin = { navigateToLoginCount += 1 },
+            navigateToProfile = { navigateToProfileCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        navigateToLoginCount shouldBe 1
+        navigateToProfileCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-9dc35298-e4ce-41a8-ba1b-6f989f7df20a 확인 중과 게스트 상태에서는 계정 카드와 프로필 이미지를 눌러도 이동하지 않는다`() {
         var navigateCount = 0
         val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         val viewModel = mockk<MoreHomeAccountViewModel>()
         every { viewModel.uiState } returns accountUiState
         setMoreHomeScreen(
             viewModel = viewModel,
-            navigateToProfileImageEdit = { navigateCount += 1 },
+            navigateToProfile = { navigateCount += 1 },
+            navigateToProfileImageViewer = { navigateCount += 1 },
         )
 
         NON_USER_ACCOUNT_UI_STATES.forEach { uiState ->
@@ -422,7 +501,8 @@ class MoreHomeScreenTest {
                     navigateToLogin = {},
                     navigateToPlace = {},
                     navigateToPlaylist = {},
-                    navigateToProfileImageEdit = {},
+                    navigateToProfile = {},
+                    navigateToProfileImageViewer = {},
                     navigateToQr = {},
                     navigateToSearch = {},
                     navigateToSetting = {},
@@ -476,7 +556,8 @@ class MoreHomeScreenTest {
                         navigateToLogin = {},
                         navigateToPlace = {},
                         navigateToPlaylist = {},
-                        navigateToProfileImageEdit = {},
+                        navigateToProfile = {},
+                        navigateToProfileImageViewer = {},
                         navigateToQr = {},
                         navigateToSearch = {},
                         navigateToSetting = {},
@@ -513,7 +594,8 @@ class MoreHomeScreenTest {
         navigateToLogin: () -> Unit = {},
         navigateToPlace: () -> Unit = {},
         navigateToPlaylist: () -> Unit = {},
-        navigateToProfileImageEdit: () -> Unit = {},
+        navigateToProfile: () -> Unit = {},
+        navigateToProfileImageViewer: (String) -> Unit = {},
         navigateToQr: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
         navigateToSetting: () -> Unit = {},
@@ -531,7 +613,8 @@ class MoreHomeScreenTest {
                         navigateToLogin = navigateToLogin,
                         navigateToPlace = navigateToPlace,
                         navigateToPlaylist = navigateToPlaylist,
-                        navigateToProfileImageEdit = navigateToProfileImageEdit,
+                        navigateToProfile = navigateToProfile,
+                        navigateToProfileImageViewer = navigateToProfileImageViewer,
                         navigateToQr = navigateToQr,
                         navigateToSearch = navigateToSearch,
                         navigateToSetting = navigateToSetting,

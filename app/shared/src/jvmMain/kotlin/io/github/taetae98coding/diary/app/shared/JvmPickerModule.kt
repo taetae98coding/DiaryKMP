@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.app.shared
 
+import io.github.taetae98coding.diary.feature.account.ui.photo.PhotoPickerDispatcher
 import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerDispatcher
-import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPickerDispatcher
 import io.github.taetae98coding.diary.feature.setting.ui.file.picker.DirectoryPickerDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

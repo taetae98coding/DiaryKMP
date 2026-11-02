@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">Profile</string>
+    <string name="profile_navigate_up_button_content_description">Navigate up</string>
+    <string name="profile_change_profile_image">Change profile photo</string>
+    <string name="profile_delete_account">Delete account</string>
+    <string name="profile_delete_confirm_title">Delete account?</string>
+    <string name="profile_delete_confirm_message">Your account and all data stored on the server will be deleted. This can't be undone. Data for this account on this device, including changes not yet sent to the server, will also be deleted.</string>
+    <string name="profile_delete_confirm_button">Delete</string>
+    <string name="profile_delete_cancel_button">Cancel</string>
+    <string name="profile_delete_progress_content_description">Deleting account</string>
+    <string name="profile_delete_failed_message">Couldn't delete your account. Please try again.</string>
+    <string name="profile_image_edit_title">Edit profile photo</string>
+    <string name="profile_image_edit_navigate_up_button_content_description">Navigate up</string>
+    <string name="profile_image_edit_photo_content_description">Photo being edited</string>
+    <string name="profile_image_edit_choose_photo_button">Choose photo</string>
+    <string name="profile_image_edit_empty_message">Choose a photo to get started.</string>
+    <string name="profile_image_edit_apply_button_content_description">Done</string>
+    <string name="profile_image_edit_unreadable_message">Couldn't open the photo.</string>
+    <string name="profile_image_edit_failed_message">Couldn't update the profile photo.</string>
+    <string name="profile_image_viewer_title">Profile photo</string>
+    <string name="profile_image_viewer_navigate_up_button_content_description">Navigate up</string>
+    <string name="profile_image_viewer_failed_message">Couldn't load the image.</string>
+    <string name="profile_image_content_description">Profile image</string>
+</resources>

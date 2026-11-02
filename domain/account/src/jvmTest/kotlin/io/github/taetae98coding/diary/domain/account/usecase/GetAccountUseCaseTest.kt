@@ -49,7 +49,7 @@ class GetAccountUseCaseTest :
             Given("이메일과 $profileImageCase 상태의 사용자 정보가 저장되어 있다") {
                 val email = fixtureMonkey.giveMeOne<String>()
                 val profileImage = if (profileImageCase == "프로필 이미지가 있음") fixtureMonkey.giveMeOne<String>() else null
-                val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = email, profileImage = profileImage)
+                val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = email, profileImage = profileImage, loginProviderSet = emptySet())
                 val sessionRepository = mockk<SessionRepository>()
                 every { sessionRepository.get() } returns flowOf(Session.Authenticated)
                 val userDataRepository = mockk<UserDataRepository>()
@@ -74,7 +74,7 @@ class GetAccountUseCaseTest :
             Session.NotAuthenticated to false,
         ).forEach { (session, isSessionValid) ->
             Given("사용자 정보가 저장되어 있고 로그인 세션이 $session 이다") {
-                val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+                val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>(), loginProviderSet = emptySet())
                 val sessionRepository = mockk<SessionRepository>()
                 every { sessionRepository.get() } returns flowOf(session)
                 val userDataRepository = mockk<UserDataRepository>()
@@ -110,7 +110,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("저장된 사용자 정보만 첫 값을 확인하고 로그인 세션은 아직 확인되지 않았다") {
-            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>(), loginProviderSet = emptySet())
             val sessionRepository = mockk<SessionRepository>()
             every { sessionRepository.get() } returns MutableSharedFlow<Session>()
             val userDataRepository = mockk<UserDataRepository>()
@@ -127,7 +127,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("저장된 사용자 정보가 없어 계정이 게스트로 확정되어 있다") {
-            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>(), loginProviderSet = emptySet())
             val sessionFlow = MutableStateFlow<Session>(Session.Authenticated)
             val userDataFlow = MutableStateFlow<UserData?>(null)
             val sessionRepository = mockk<SessionRepository>()
@@ -148,7 +148,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("사용자 정보가 저장되어 계정이 사용자로 확정되어 있다") {
-            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>(), loginProviderSet = emptySet())
             val sessionFlow = MutableStateFlow<Session>(Session.Authenticated)
             val userDataFlow = MutableStateFlow<UserData?>(userData)
             val sessionRepository = mockk<SessionRepository>()
@@ -169,7 +169,7 @@ class GetAccountUseCaseTest :
         }
 
         Given("사용자 정보가 저장되어 있고 로그인 세션이 인증되지 않아 세션 갱신되지 않은 사용자로 확정되어 있다") {
-            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+            val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>(), loginProviderSet = emptySet())
             val sessionFlow = MutableStateFlow<Session>(Session.NotAuthenticated)
             val userDataFlow = MutableStateFlow<UserData?>(userData)
             val sessionRepository = mockk<SessionRepository>()

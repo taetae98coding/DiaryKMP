@@ -10,4 +10,6 @@ public interface AccountSyncTimeRepository {
         account: Account,
         syncedAt: Instant,
     )
+
+    public suspend fun delete(account: Account)
 }

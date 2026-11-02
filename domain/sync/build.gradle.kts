@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.account)
+                implementation(projects.logger.crashlytics.api)
             }
         }
     }

@@ -5,10 +5,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.AppleSignInResult
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -84,7 +85,7 @@ class LoginHomeScreenTest {
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         val appleCredentialsManager = mockAppleCredentialsManager()
-        coEvery { appleCredentialsManager.signIn() } returns credential
+        coEvery { appleCredentialsManager.signIn() } returns AppleSignInResult(credential = credential, authorization = null)
         every { viewModel.signInWithApple(credential) } returns Unit
         composeRule.setLoginHomeScreen(
             viewModel = viewModel,
@@ -171,7 +172,7 @@ class LoginHomeScreenTest {
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val appleCredentialsManager = mockAppleCredentialsManager()
-        coEvery { appleCredentialsManager.signIn() } returns credential
+        coEvery { appleCredentialsManager.signIn() } returns AppleSignInResult(credential = credential, authorization = null)
         every { viewModel.signInWithApple(credential) } answers {
             effect.trySend(LoginHomeEffect.SignInSucceeded).getOrThrow()
         }

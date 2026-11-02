@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatc
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
@@ -69,6 +70,15 @@ public class NonWasmDataStoreModule {
             pathResolver = pathResolver,
             serializer = WebLoginSerializer,
             name = DataStoreModule.WEB_LOGIN_NAME,
+        )
+
+    @Single
+    @LoginProviderStorage
+    internal fun providesLoginProviderStorage(pathResolver: SettingPathResolver): Storage<LoginProviderData> =
+        createSettingStorage(
+            pathResolver = pathResolver,
+            serializer = LoginProviderSerializer,
+            name = DataStoreModule.LOGIN_PROVIDER_NAME,
         )
 
     @Single

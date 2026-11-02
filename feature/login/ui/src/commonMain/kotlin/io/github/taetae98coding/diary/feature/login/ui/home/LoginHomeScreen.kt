@@ -8,13 +8,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.PlatformSignInState
+import io.github.taetae98coding.diary.compose.credential.rememberPlatformSignInState
 import io.github.taetae98coding.diary.feature.login.ui.Res
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.feature.login.ui.login_sign_in_failed_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -28,7 +30,7 @@ internal fun LoginHomeScreen(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val platformSignInState = rememberLoginPlatformSignInState()
+    val platformSignInState = rememberPlatformSignInState()
     val snackbarHostState = remember { SnackbarHostState() }
     val signInFailedMessage = stringResource(Res.string.login_sign_in_failed_message)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,7 +81,7 @@ internal fun LoginHomeScreen(
 }
 
 private suspend fun requestGoogleSignIn(
-    platformSignInState: LoginPlatformSignInState,
+    platformSignInState: PlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: GoogleCredentialsManager,
     snackbarHostState: SnackbarHostState,
@@ -100,7 +102,7 @@ private suspend fun requestGoogleSignIn(
 }
 
 private suspend fun requestAppleSignIn(
-    platformSignInState: LoginPlatformSignInState,
+    platformSignInState: PlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: AppleCredentialsManager,
     snackbarHostState: SnackbarHostState,
@@ -111,7 +113,7 @@ private suspend fun requestAppleSignIn(
     try {
         val credential =
             platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
-                credentialsManager.signIn()
+                credentialsManager.signIn().credential
             } ?: return
         viewModel.signInWithApple(credential = credential)
     } catch (_: AppleCredentialsUserCancelException) {

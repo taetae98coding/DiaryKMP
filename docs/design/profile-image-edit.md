@@ -4,7 +4,7 @@
 
 ## 화면 구조
 
-ProfileImageEdit 화면은 MoreHome에서 이어지는 세부 화면이며, [TopLevelNavigation 디자인](./top-level-navigation.md)의 공통 내비게이션은 표시하지 않는다.
+ProfileImageEdit 화면은 Profile 화면에서 이어지는 세부 화면이며, [TopLevelNavigation 디자인](./top-level-navigation.md)의 공통 내비게이션은 표시하지 않는다.
 
 화면 상단에는 제목과 뒤로가기 버튼이 있는 상단 바를 둔다. 상단 바에는 다른 동작 버튼을 두지 않는다.
 

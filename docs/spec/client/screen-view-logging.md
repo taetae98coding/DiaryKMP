@@ -88,7 +88,9 @@ stateDiagram-v2
 | `PlaceHome` | [PlaceHome 화면](./place-home.md) |
 | `PlaceMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 | `PlaylistHome` | [PlaylistHome 화면](./playlist-home.md) |
+| `Profile` | [Profile 화면](./profile.md) |
 | `ProfileImageEdit` | [ProfileImageEdit 화면](./profile-image-edit.md) |
+| `ProfileImageViewer` | [ProfileImageViewer 화면](./profile-image-viewer.md) |
 | `QrAdd` | [QrAdd 화면](./qr-add.md) |
 | `QrDetail` | [QrDetail 화면](./qr-detail.md) |
 | `QrHome` | [QrHome 화면](./qr-home.md) |

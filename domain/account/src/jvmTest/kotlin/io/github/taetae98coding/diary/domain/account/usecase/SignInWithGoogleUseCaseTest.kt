@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.account.usecase
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
+import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
@@ -10,8 +11,10 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 
 class SignInWithGoogleUseCaseTest :
@@ -21,7 +24,7 @@ class SignInWithGoogleUseCaseTest :
                 val credential = case.generateCredential()
                 val repository = mockk<SessionRepository>()
                 coEvery { repository.create(credential) } returns Unit
-                val useCase = SignInWithGoogleUseCase(sessionRepository = repository)
+                val useCase = SignInWithGoogleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
                 When("해당 credential로 로그인을 요청한다") {
                     val result = useCase(parameter = credential)
@@ -44,7 +47,7 @@ class SignInWithGoogleUseCaseTest :
             val failure = GoogleUseCaseTestException(fixtureMonkey.giveMeOne())
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } throws failure
-            val useCase = SignInWithGoogleUseCase(sessionRepository = repository)
+            val useCase = SignInWithGoogleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             val reportList = recordCrashlyticsLog()
 
@@ -64,7 +67,7 @@ class SignInWithGoogleUseCaseTest :
             val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } returns Unit
-            val useCase = SignInWithGoogleUseCase(sessionRepository = repository)
+            val useCase = SignInWithGoogleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
 
             val reportList = recordCrashlyticsLog()
 
@@ -97,3 +100,8 @@ private data class CredentialCase(
 private class GoogleUseCaseTestException(
     message: String,
 ) : RuntimeException(message)
+
+private fun loginProviderRepository(): LoginProviderRepository =
+    mockk<LoginProviderRepository> {
+        coEvery { set(provider = any()) } just Runs
+    }

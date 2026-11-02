@@ -7,11 +7,11 @@ import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsManager
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.coVerify
