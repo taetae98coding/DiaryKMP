@@ -122,3 +122,10 @@ tasks.matching { it.name == "prepareAppResources" }.configureEach {
 tasks.withType<JavaExec>().matching { it.name == "hotRunJvm" }.configureEach {
     jvmArgs(runJvmArgs)
 }
+
+// $APPDIR는 패키징된 앱의 실행기만 앱 경로로 바꾸므로, Gradle로 실행할 때는 이 경로를 빼서 드라이버가 jar 안의 라이브러리를 쓰게 한다.
+tasks.withType<JavaExec>().matching { it.name == "run" }.configureEach {
+    doFirst {
+        jvmArgs = jvmArgs.orEmpty().filterNot { arg -> arg.startsWith("-Dandroidx.sqlite.driver.bundled.path=") }
+    }
+}
