@@ -15,6 +15,9 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.PlatformDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
@@ -160,6 +163,7 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     navigateToWebDetail: (Uuid) -> Unit = {},
     navigateToPlaceAdd: (Coordinate?) -> Unit = {},
     navigateToPlaceDetail: (Uuid) -> Unit = {},
+    mapContentOverride: DiaryMapContentOverride = PlatformDiaryMapContentOverride,
 ) {
     prepareTagDetailTabViewModels(
         linkUiState = linkUiState,
@@ -171,7 +175,7 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     )
 
     setContent {
-        TagDetailScreenTestHost(resultEventBus = resultEventBus) {
+        TagDetailScreenTestHost(resultEventBus = resultEventBus, mapContentOverride = mapContentOverride) {
             val currentId = detailIdState.value
 
             TagDetailScreen(
@@ -224,6 +228,7 @@ internal fun prepareTagDetailTabViewModels(
 @Composable
 internal fun TagDetailScreenTestHost(
     resultEventBus: ResultEventBus = ResultEventBus(),
+    mapContentOverride: DiaryMapContentOverride = PlatformDiaryMapContentOverride,
     content: @Composable () -> Unit,
 ) {
     // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
@@ -238,6 +243,7 @@ internal fun TagDetailScreenTestHost(
     CompositionLocalProvider(
         LocalViewModelStoreOwner provides viewModelStoreOwner,
         LocalResultEventBus provides resultEventBus,
+        LocalDiaryMapContentOverride provides mapContentOverride,
     ) {
         KoinApplication(configuration = koinConfiguration { modules(tagDetailTabViewModelModule) }) {
             DiaryTheme(content = content)

@@ -60,6 +60,8 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 
 mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK mock으로 제어하고, 자동화를 위한 별도 Fake 구현은 작성하거나 유지하지 않는다.
 
+예외로, [compose.md](../../rules/compose.md)의 `플랫폼별 표현은 Override로 바꿔 끼운다`가 정한 `XxxOverride`는 `@Composable` 멤버를 MockK로 흉내 낼 수 없으므로 테스트가 직접 구현해 `LocalXxxOverride`에 넣는다. 구현은 Scope를 기록하고 테스트가 관찰할 노드를 그리는 데서 그치며 판정 규칙을 담지 않는다. 한 파일에서만 쓰면 그 파일에 `private`으로 두고, 같은 모듈의 여러 파일이 쓰면 그 모듈 테스트 소스셋에 하나만 둔다.
+
 반환값, 연속 응답, 예외, 호출 기록, 변경 가능한 상태가 필요하면 MockK의 stub, answer, verify와 mock이 반환하는 테스트 데이터 또는 상태 스트림을 쓴다.
 
 플랫폼이나 라이브러리가 `TestLifecycleOwner`, `TestDispatcher`처럼 상태를 제어하는 공식 테스트 유틸리티를 제공하면 직접 구현하거나 MockK로 흉내 내지 않고 그 유틸리티를 먼저 쓴다.

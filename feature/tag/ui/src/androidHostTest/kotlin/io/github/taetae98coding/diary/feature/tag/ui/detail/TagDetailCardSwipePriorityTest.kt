@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasTestTag
@@ -10,13 +14,22 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.DEFAULT_SHOW_MAP_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceListUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceUiState
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
@@ -85,6 +98,33 @@ class TagDetailCardSwipePriorityTest {
     }
 
     @Test
+    fun `TC-5c5b0403-8a85-454d-b486-04ff8a8c2c23 지도 모드의 장소 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 장소가 삭제된다`() {
+        val place = tagPlace(title = PLACE_TITLE)
+        setScreenOnPlaceMapMode(place = place)
+
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(PLACE_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { requireNotNull(placeViewModelRef).delete(id = place.id) }
+        composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsNotSelected()
+    }
+
+    @Test
+    fun `TC-0ad9ffe8-1686-4386-9d4d-397acbd57d8c 지도 모드의 장소 카드 위에서 오른쪽으로 밀면 탭은 바뀌지 않고 아무 상태 변경도 요청하지 않는다`() {
+        setScreenOnPlaceMapMode(place = tagPlace(title = PLACE_TITLE))
+
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(PLACE_TITLE)).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        val placeViewModel = requireNotNull(placeViewModelRef)
+        verify(exactly = 0) { placeViewModel.delete(id = any()) }
+        verify(exactly = 0) { placeViewModel.restore(id = any()) }
+        composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsNotSelected()
+    }
+
+    @Test
     fun `TC-4b6e96cb-7922-4df1-9aae-26be9eaebaa6 카드 밖 여백에서 왼쪽으로 밀면 옆 탭으로 전환된다`() {
         setScreen(tabDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -122,6 +162,22 @@ class TagDetailCardSwipePriorityTest {
         }
     }
 
+    private fun setScreenOnPlaceMapMode(place: Place) {
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+            placePagingData = tagEntityPagingData(itemList = listOf(place)),
+            mapContentOverride = mapContent,
+        )
+        composeRule.runOnIdle {
+            placeMapUiStateFlow.value = TagDetailPlaceUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+            placeListUiStateFlow.value = TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))
+        }
+        composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(MAP_TEST_TAG).assertIsDisplayed()
+    }
+
     private companion object {
         const val MEMO_TITLE = "TagDetailSwipePriorityMemo"
         const val WEB_TITLE = "TagDetailSwipePriorityWeb"
@@ -129,5 +185,15 @@ class TagDetailCardSwipePriorityTest {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val EMPTY_AREA_Y_FRACTION = 0.6f
         const val EDGE_PADDING = 8f
+        const val MAP_TEST_TAG = "TagDetailSwipePriorityMap"
+
+        // 지도 모드의 장소 목록을 띄우기 위해 지도 제공자 대신 빈 지도를 그린다.
+        val mapContent =
+            object : DiaryMapContentOverride {
+                @Composable
+                override fun DiaryMapContentOverrideScope.MapContent() {
+                    Box(modifier = modifier.testTag(MAP_TEST_TAG))
+                }
+            }
     }
 }

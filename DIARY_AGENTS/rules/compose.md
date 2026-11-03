@@ -505,7 +505,8 @@ internal fun PlaceHomeScreen(permissionManager: PermissionManager) {
 
 1. 검증할 규칙을 담은 부분을 의도가 드러나는 이름의 컴포저블이나 함수로 분리하고 그것을 직접 테스트한다. 기다림, 재실행 판정, 조건 분기처럼 표현이 아닌 규칙은 Effect 컴포저블로 분리한다.
 2. 분리한 조각을 `internal`로 두어 같은 모듈의 테스트가 직접 구성하게 한다. 파라미터를 늘리지 않는다.
-3. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다.
+3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override로 그려지는지 확인하고 테스트에서 그 CompositionLocal에 대체 구현을 넣는다. Override는 운영에서 플랫폼별 구현을 바꿔 끼우는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
+4. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다. 테스트만을 위해 새 Override를 만들지 않는다.
 
 ⚠️ 비권장 예시:
 
@@ -516,6 +517,17 @@ internal fun PlaceSearchDialog(
     // 운영 호출자는 하나뿐이고 항상 기본값을 쓴다. 테스트에서 지도를 빈 Box로 바꾸려고 연 슬롯이다.
     map: @Composable () -> Unit = { PlaceSearchMap(state = state) },
 )
+```
+
+✅ 권장 예시:
+
+```kotlin
+// 지도는 운영에서 플랫폼 구현을 바꿔 끼우는 LocalDiaryMapContentOverride로 그려지므로, 테스트는 파라미터를 열지 않고 그 경계에 대체 구현을 넣는다.
+composeRule.setContent {
+    CompositionLocalProvider(LocalDiaryMapContentOverride provides testMap) {
+        PlaceSearchDialog(state = state)
+    }
+}
 ```
 
 ## 플랫폼별 표현은 Override로 바꿔 끼운다

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -14,13 +16,17 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrContentFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrLocationMap
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrTextField
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.WriteQrFieldsEffect
@@ -142,6 +148,21 @@ class QrAddLocationTest {
             state().mapState.spot shouldBe selected
             state().qrValue shouldBe qrValueBefore
         }
+    }
+
+    @Test
+    fun `TC-3e4f65ab-633f-42cc-8136-3b666e5cfbf4 지도가 알려온 위치가 바뀌어도 고른 좌표는 바뀌지 않는다`() {
+        val selected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        val viewed = DiaryMapCoordinate(latitude = -33.868820, longitude = 151.209296)
+
+        assertSelectedCoordinateKept(selected = selected) { map -> map.reportCamera(coordinate = viewed, zoom = REPORTED_ZOOM) }
+    }
+
+    @Test
+    fun `TC-3e4f65ab-633f-42cc-8136-3b666e5cfbf4 지도가 알려온 확대 수준만 바뀌어도 고른 좌표는 바뀌지 않는다`() {
+        val selected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+
+        assertSelectedCoordinateKept(selected = selected) { map -> map.reportCamera(coordinate = selected, zoom = REPORTED_ZOOM) }
     }
 
     @Test
@@ -347,6 +368,48 @@ class QrAddLocationTest {
         }
     }
 
+    private fun assertSelectedCoordinateKept(
+        selected: DiaryMapCoordinate,
+        changeMap: (DiaryMapContentOverrideScope) -> Unit,
+    ) {
+        var state: QrContentFormState? = null
+        var map: DiaryMapContentOverrideScope? = null
+        val mapContent =
+            object : DiaryMapContentOverride {
+                @Composable
+                override fun DiaryMapContentOverrideScope.MapContent() {
+                    map = this
+                }
+            }
+        composeRule.setContent {
+            val contentState = rememberQrContentFormState(defaultProvider = MapProvider.NAVER)
+            state = contentState
+            ReflectQrCoordinateEffect(state = contentState)
+            WriteQrFieldsEffect(state = contentState)
+
+            DiaryTheme {
+                CompositionLocalProvider(LocalDiaryMapContentOverride provides mapContent) {
+                    if (contentState.format == QrFormat.LOCATION) QrLocationMap(state = contentState)
+                }
+            }
+        }
+        composeRule.write { checkNotNull(state).selectFormat(QrFormat.LOCATION) }
+        composeRule.write { checkNotNull(map).onSpotClick?.invoke(selected) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+        val qrValueBefore = composeRule.runOnIdle { checkNotNull(state).qrValue }
+
+        composeRule.write { changeMap(checkNotNull(map)) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.runOnIdle {
+            val current = checkNotNull(state)
+            current.fieldState(QrTextField.LATITUDE).text shouldBe selected.latitude.toPlaceCoordinateText()
+            current.fieldState(QrTextField.LONGITUDE).text shouldBe selected.longitude.toPlaceCoordinateText()
+            current.mapState.spot shouldBe selected
+            current.qrValue shouldBe qrValueBefore
+        }
+    }
+
     private fun setLocationState(defaultProvider: MapProvider = MapProvider.NAVER): () -> QrContentFormState {
         val state = setContentState(defaultProvider = defaultProvider)
         composeRule.write { state().selectFormat(QrFormat.LOCATION) }
@@ -366,6 +429,7 @@ class QrAddLocationTest {
 
     private companion object {
         const val REFLECT_DELAY_MILLIS = 200L
+        const val REPORTED_ZOOM = 9.0
         const val MAP_CONTENT_DESCRIPTION = "QR location map"
         const val ADD_DESCRIPTION = "Add QR code"
         const val LOADING_TEXT = "Loading"
