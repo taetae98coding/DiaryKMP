@@ -24,6 +24,10 @@
 
 모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
 
+iOS에서 시스템 표현으로 그리는 공통 컴포넌트의 목록은 [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)가 소유한다. 각 컴포넌트의 iOS 표현은 그 컴포넌트를 소유하는 문서가 정하고, 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3로 그린다.
+
+화면 본문 위에 떠 있는 공통 동작 버튼과 메뉴 버튼이 플랫폼마다 그려지는 표현은 [떠 있는 동작 버튼](./floating-action-button.md)이 소유한다. 각 화면 문서는 그 화면에 두는 버튼과 자리, 조건과 접근성 이름만 남긴다.
+
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
 이름이 같은 연락처를 알게 된 경로와 함께 표시하는 글의 형식은 [연락처 표시 이름](./contact-name.md)이 소유한다. 각 문서는 그 글을 두는 자리만 남긴다.
@@ -106,6 +110,8 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [공통 여백과 간격](./dimens.md)
 - [공통 스타일](./styles.md)
 - [필터 Bottom Sheet](./filter-bottom-sheet.md)
+- [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)
+- [떠 있는 동작 버튼](./floating-action-button.md)
 - [FileAdd 화면](./file-add.md)
 - [FileDetail 화면](./file-detail.md)
 - [FileHome 화면](./file-home.md)

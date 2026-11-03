@@ -518,6 +518,36 @@ internal fun PlaceSearchDialog(
 )
 ```
 
+## 플랫폼별 표현은 Override로 바꿔 끼운다
+
+**플랫폼마다 다른 표현으로 그리는 공통 컴포넌트와 플랫폼 표시 요소를 그리는 컴포넌트는 Material3의 Component Override API와 같은 모양으로 둔다.** `expect`/`actual`이나 전역 레지스트리로 갈라 두면 첫 composition 전에 세팅되었는지에 기대게 되고, 테스트와 Preview에서 바꿔 끼울 수 없다.
+
+- `commonMain`에 `XxxOverride` 인터페이스(`@Composable fun XxxOverrideScope.Xxx()`)와 `XxxOverrideScope`(`internal constructor`), 기본 구현 `object`, `staticCompositionLocalOf`로 만든 `LocalXxxOverride`를 같은 패키지에 둔다. 기본 구현은 Android·데스크톱·웹의 표현(`MaterialXxxOverride`)이나 실제 플랫폼 구현(`PlatformXxxOverride`)이다.
+- 공개 컴포저블은 받은 파라미터로 Scope를 만들어 `with(LocalXxxOverride.current) { scope.Xxx() }`로 그리고, 그 밖의 일은 하지 않는다.
+- iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
+- Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
+- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니며 `expect`/`actual`을 쓴다.
+- 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록(떠 있는 동작 버튼, 상단 바의 뒤로가기 버튼·동작 버튼·검색 입력)에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
+
+✅ 권장 예시:
+
+```kotlin
+public interface DiaryFloatingActionButtonOverride {
+    @Composable
+    public fun DiaryFloatingActionButtonOverrideScope.FloatingActionButton()
+}
+
+public val LocalDiaryFloatingActionButtonOverride: ProvidableCompositionLocal<DiaryFloatingActionButtonOverride> =
+    staticCompositionLocalOf { MaterialDiaryFloatingActionButtonOverride }
+
+@Composable
+internal fun DiaryFloatingActionButton(onClick: () -> Unit, /* ... */ modifier: Modifier = Modifier) {
+    val scope = DiaryFloatingActionButtonOverrideScope(onClick = onClick, /* ... */ modifier = modifier)
+
+    with(LocalDiaryFloatingActionButtonOverride.current) { scope.FloatingActionButton() }
+}
+```
+
 ## Recomposition Loop (Cyclic Phase Dependency) 금지
 
 `onSizeChanged`로 기록한 크기를 형제의 크기나 배치에 쓰지 않고 custom `Layout`으로 한 measure pass 안에서 해결한다. ([recomposition loop](https://developer.android.com/develop/ui/compose/phases#recomp-loop))

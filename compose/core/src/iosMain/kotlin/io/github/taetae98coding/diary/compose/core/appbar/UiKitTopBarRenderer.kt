@@ -13,10 +13,6 @@ public interface UiKitTopBarRenderer {
     )
 }
 
-public object UiKitTopBarRendererRegistry {
-    public var renderer: UiKitTopBarRenderer? = null
-}
-
 public class UiKitTopBarState internal constructor(
     public val search: UiKitTopBarSearch?,
     public val navigateUp: UiKitTopBarButton?,

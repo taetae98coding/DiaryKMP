@@ -6,13 +6,24 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-public expect fun DiaryTopBar(
+public fun DiaryTopBar(
     title: @Composable DiaryTopBarTitleScope.() -> Unit,
     modifier: Modifier = Modifier,
     isTitleCentered: Boolean = false,
     navigationIcon: @Composable DiaryTopBarNavigationIconScope.() -> Unit = {},
     actions: @Composable DiaryTopBarActionScope.() -> Unit = {},
-)
+) {
+    val scope =
+        DiaryTopBarOverrideScope(
+            title = title,
+            modifier = modifier,
+            isTitleCentered = isTitleCentered,
+            navigationIcon = navigationIcon,
+            actions = actions,
+        )
+
+    with(LocalDiaryTopBarOverride.current) { scope.TopBar() }
+}
 
 @ComponentPreview
 @Composable
