@@ -25,11 +25,11 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
+import io.github.taetae98coding.diary.feature.calendar.ui.common.weather.CALENDAR_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CALENDAR_HOME_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -141,7 +141,7 @@ class CalendarHomeScreenWeatherTest {
             ) / 2
         val iconAreaCenter =
             composeRule
-                .onNodeWithTag(CALENDAR_HOME_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true)
+                .onNodeWithTag(CALENDAR_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true)
                 .fetchSemanticsNode()
                 .boundsInRoot
                 .center
@@ -206,7 +206,7 @@ class CalendarHomeScreenWeatherTest {
         composeRule.onNodeWithContentDescription(descriptionList.last(), useUnmergedTree = true).assertIsNotDisplayed()
 
         repeat(HORIZONTAL_SWIPE_COUNT) {
-            composeRule.onNodeWithTag(CALENDAR_HOME_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true).performTouchInput { swipeLeft() }
+            composeRule.onNodeWithTag(CALENDAR_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true).performTouchInput { swipeLeft() }
         }
         composeRule.waitForIdle()
 

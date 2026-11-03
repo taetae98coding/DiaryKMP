@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.feature.calendar.ui.common.CalendarItemDefaults
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
@@ -90,7 +91,7 @@ class CalendarHomeScreenColorTest {
                 ),
         ) {
             holidayColor = CalendarDefaults.colors().sundayAndHolidayColor
-            nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+            nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
         }
 
         holidayColor shouldNotBe nonHolidayNameColor

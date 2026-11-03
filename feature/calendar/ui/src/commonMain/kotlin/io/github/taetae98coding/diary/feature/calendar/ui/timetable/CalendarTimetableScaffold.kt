@@ -23,9 +23,9 @@ import io.github.taetae98coding.diary.compose.timetable.Timetable
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.CalendarSearchOpener
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
+import io.github.taetae98coding.diary.feature.calendar.ui.common.CalendarItemDefaults
+import io.github.taetae98coding.diary.feature.calendar.ui.common.search.CalendarSearchOpener
+import io.github.taetae98coding.diary.feature.calendar.ui.common.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarTimedMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
@@ -102,8 +102,8 @@ private fun CalendarTimetableContent(
     birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
 ) {
     val calendarColors = CalendarDefaults.colors()
-    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
-    val birthdayColor = CalendarHomeDefaults.birthdayColor()
+    val nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
+    val birthdayColor = CalendarItemDefaults.birthdayColor()
 
     Timetable(
         modifier = modifier,

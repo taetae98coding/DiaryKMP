@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.calendar.ui.home.search
+package io.github.taetae98coding.diary.feature.calendar.ui.common.search
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

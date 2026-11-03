@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
+package io.github.taetae98coding.diary.feature.calendar.ui.common.weather
 
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import kotlin.math.abs

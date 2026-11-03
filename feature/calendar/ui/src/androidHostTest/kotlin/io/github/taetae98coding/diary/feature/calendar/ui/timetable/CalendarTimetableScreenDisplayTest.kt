@@ -48,7 +48,7 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
+import io.github.taetae98coding.diary.feature.calendar.ui.common.CalendarItemDefaults
 import io.github.taetae98coding.diary.feature.calendar.ui.home.mapState
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -213,7 +213,7 @@ class CalendarTimetableScreenDisplayTest {
                 ),
         ) {
             holidayColor = CalendarDefaults.colors().sundayAndHolidayColor
-            nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+            nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
         }
 
         scrollToAllDay()

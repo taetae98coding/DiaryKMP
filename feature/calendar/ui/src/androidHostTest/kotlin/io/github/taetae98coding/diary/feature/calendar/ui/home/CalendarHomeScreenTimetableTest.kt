@@ -24,10 +24,10 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.calendar.ui.common.search.holidaySearchUri
+import io.github.taetae98coding.diary.feature.calendar.ui.common.search.weatherSearchUri
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.holidaySearchUri
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.weatherSearchUri
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe

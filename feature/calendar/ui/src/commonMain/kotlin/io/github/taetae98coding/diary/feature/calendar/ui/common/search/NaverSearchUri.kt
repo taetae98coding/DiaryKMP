@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.calendar.ui.home.search
+package io.github.taetae98coding.diary.feature.calendar.ui.common.search
 
 import io.github.taetae98coding.diary.library.kotlin.text.encodeUriComponent
 

@@ -13,10 +13,10 @@ import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
-import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarBirthdayText
-import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
-import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
-import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarWeatherItem
+import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.CalendarBirthdayText
+import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.common.memo.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.common.weather.CalendarWeatherItem
 
 internal fun TimetableScope.calendarTimetableItems(
     memoProvider: () -> List<CalendarMemo>,

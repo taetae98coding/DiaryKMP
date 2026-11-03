@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
+package io.github.taetae98coding.diary.feature.calendar.ui.common.weather
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

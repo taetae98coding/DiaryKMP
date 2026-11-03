@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
+package io.github.taetae98coding.diary.feature.calendar.ui.common.weather
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
@@ -24,25 +23,7 @@ import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
 
-internal const val CALENDAR_HOME_WEATHER_ICONS_TEST_TAG = "CalendarHomeWeatherIcons"
-
-internal fun CalendarWeekOfMonthGridGroupScope.weatherItem(
-    onWeatherClick: () -> Unit,
-    weatherProvider: () -> List<CalendarWeather>,
-) {
-    weatherProvider().forEach { weather ->
-        item(
-            dateRange = weather.date..weather.date,
-            key = weather.date,
-        ) {
-            CalendarWeatherItem(
-                weather = weather,
-                onClick = onWeatherClick,
-                modifier = Modifier.animateItem(),
-            )
-        }
-    }
-}
+internal const val CALENDAR_WEATHER_ICONS_TEST_TAG = "CalendarWeatherIcons"
 
 @Composable
 internal fun CalendarWeatherItem(
@@ -61,7 +42,7 @@ internal fun CalendarWeatherItem(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .testTag(CALENDAR_HOME_WEATHER_ICONS_TEST_TAG)
+                    .testTag(CALENDAR_WEATHER_ICONS_TEST_TAG)
                     .horizontalScroll(state = rememberScrollState()),
             horizontalArrangement =
                 Arrangement.spacedBy(

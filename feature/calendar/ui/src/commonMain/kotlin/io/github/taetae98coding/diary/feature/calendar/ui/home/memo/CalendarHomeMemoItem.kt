@@ -14,8 +14,9 @@ import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveStat
 import io.github.taetae98coding.diary.compose.calendar.move.calendarMoveItem
 import io.github.taetae98coding.diary.compose.core.theme.dimmed
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
+import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.common.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldEvent
-import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 
 internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
     moveState: CalendarItemMoveState,

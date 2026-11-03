@@ -38,10 +38,10 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
-import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.common.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty

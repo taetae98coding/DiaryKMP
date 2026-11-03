@@ -13,11 +13,12 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.feature.calendar.ui.common.CalendarItemDefaults
+import io.github.taetae98coding.diary.feature.calendar.ui.common.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMoveGhost
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarContactBirthday
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
@@ -36,8 +37,8 @@ internal fun CalendarHomeContent(
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
 ) {
     val calendarColors = CalendarDefaults.colors()
-    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
-    val birthdayColor = CalendarHomeDefaults.birthdayColor()
+    val nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
+    val birthdayColor = CalendarItemDefaults.birthdayColor()
     val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     DiaryPullToRefreshBox(
