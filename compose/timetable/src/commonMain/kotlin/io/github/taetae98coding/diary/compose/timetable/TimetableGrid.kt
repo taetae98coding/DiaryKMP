@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +19,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -47,12 +49,151 @@ internal fun TimetableGrid(
     onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
     timeItemList: List<TimetableTimeItem> = emptyList(),
+    allDayItemList: List<TimetablePlacedAllDayItem> = emptyList(),
 ) {
-    val scrollState = rememberTimetableScrollState(page = page, state = state)
+    val scrollState = remember(state) { ScrollState(initial = 0) }
+    val scrollAnchor = remember(state) { TimetableScrollAnchor() }
+    val density = LocalDensity.current
+    val initialOffset = with(density) { (TimetableDefaults.HourHeight * INITIAL_SCROLL_HOUR).roundToPx() }
+
+    SaveScrollOffsetEffect(page = page, state = state, scrollState = scrollState, scrollAnchor = scrollAnchor)
+    Layout(
+        content = {
+            if (allDayItemList.isNotEmpty()) {
+                TimetableScrollAllDay(dateRange = dateRange, state = state, onEvent = onEvent, itemList = allDayItemList)
+                HorizontalDivider()
+            }
+            TimetableHourRow(
+                dateRange = dateRange,
+                state = state,
+                onEvent = onEvent,
+                nowProvider = nowProvider,
+                timeItemList = timeItemList,
+                visibleTopProvider = { (scrollState.value - scrollAnchor.gridTop).toFloat() },
+                visibleHeightProvider = { scrollState.viewportSize },
+            )
+        },
+        modifier = modifier.verticalScroll(scrollState),
+    ) { measurables, constraints ->
+        val childConstraints = constraints.copy(minHeight = 0)
+        val placeableList = measurables.map { it.measure(childConstraints) }
+        val hourRowPlaceable = placeableList.last()
+        val allDayPlaceableList = placeableList.dropLast(1)
+        val gridTop = allDayPlaceableList.sumOf { it.height }
+
+        // 측정이 스크롤 위치를 관찰하면 스크롤할 때마다 다시 측정되므로 관찰 없이 맞춘다.
+        Snapshot.withoutReadObservation {
+            scrollAnchor.update(gridTop = gridTop, scrollState = scrollState, initialOffset = { state.verticalScrollOffset ?: initialOffset })
+        }
+
+        layout(width = constraints.maxWidth, height = gridTop + hourRowPlaceable.height) {
+            var y = 0
+
+            allDayPlaceableList.forEach { placeable ->
+                placeable.place(x = 0, y = y)
+                y += placeable.height
+            }
+            hourRowPlaceable.place(x = 0, y = gridTop)
+        }
+    }
+}
+
+// 종일 영역의 높이는 페이지마다, 그리고 아이템이 준비되면서 달라진다. 0시 위치를 기준으로 스크롤을 맞춰야
+// 넘기거나 종일 아이템이 나타나도 보던 시각이 그대로 보인다.
+private class TimetableScrollAnchor {
+    var gridTop: Int = UNMEASURED
+        private set
+
+    fun update(
+        gridTop: Int,
+        scrollState: ScrollState,
+        initialOffset: () -> Int,
+    ) {
+        if (gridTop == this.gridTop) return
+
+        val target =
+            if (this.gridTop == UNMEASURED) {
+                initialOffset().let { offset -> if (offset < 0) 0 else offset + gridTop }
+            } else {
+                val offset = scrollState.value - this.gridTop
+
+                if (offset < 0) scrollState.value else offset + gridTop
+            }
+
+        this.gridTop = gridTop
+        // 배치 단계에서 스크롤 위치를 읽기 전에 같은 측정 안에서 맞춰야 첫 프레임부터 맞는 위치에 보인다.
+        scrollState.dispatchRawDelta((target - scrollState.value).toFloat())
+    }
+
+    private companion object {
+        const val UNMEASURED = -1
+    }
+}
+
+@Composable
+private fun TimetableScrollAllDay(
+    dateRange: LocalDateRange,
+    state: TimetableState,
+    onEvent: ((TimetableEvent) -> Unit)?,
+    itemList: List<TimetablePlacedAllDayItem>,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+
+    TimetableAllDay(
+        dateRange = dateRange,
+        modifier =
+            modifier.thenIfNotNull(onEvent) { onEvent ->
+                timetableSelectDrag(
+                    state = state.selectState,
+                    resolver = { position, size, anchor ->
+                        dateRange.dateSelectionAt(
+                            position = position,
+                            size = size,
+                            startInset = with(density) { TimetableDefaults.TimeColumnWidth.toPx() },
+                            anchor = anchor,
+                        )
+                    },
+                    onEvent = onEvent,
+                )
+            },
+        selectState = state.selectState,
+        itemList = itemList,
+    )
+}
+
+@Composable
+private fun SaveScrollOffsetEffect(
+    page: Int,
+    state: TimetableState,
+    scrollState: ScrollState,
+    scrollAnchor: TimetableScrollAnchor,
+) {
+    LaunchedEffect(state, scrollState, scrollAnchor, page) {
+        snapshotFlow { scrollState.value }
+            .collect { value ->
+                if (state.pagerState.currentPage == page && scrollAnchor.gridTop >= 0) {
+                    state.verticalScrollOffset = value - scrollAnchor.gridTop
+                }
+            }
+    }
+}
+
+@Composable
+private fun TimetableHourRow(
+    dateRange: LocalDateRange,
+    state: TimetableState,
+    onEvent: ((TimetableEvent) -> Unit)?,
+    nowProvider: () -> LocalDateTime?,
+    timeItemList: List<TimetableTimeItem>,
+    visibleTopProvider: () -> Float,
+    visibleHeightProvider: () -> Int,
+    modifier: Modifier = Modifier,
+) {
     val lineColor = DiaryTheme.colorScheme.outlineVariant
     val dayHeight = TimetableDefaults.HourHeight * HOURS_PER_DAY
 
-    Row(modifier = modifier.verticalScroll(scrollState)) {
+    Row(modifier = modifier) {
         TimetableTimeColumn(
             modifier =
                 Modifier
@@ -80,11 +221,13 @@ internal fun TimetableGrid(
                         timetableSelectDrag(
                             state = state.selectState,
                             resolver = { position, size, anchor ->
+                                val visibleTop = visibleTopProvider()
+
                                 dateRange.timeSelectionAt(
                                     position = position,
                                     size = size,
-                                    visibleTop = scrollState.value.toFloat(),
-                                    visibleBottom = (scrollState.value + scrollState.viewportSize - 1).toFloat(),
+                                    visibleTop = visibleTop,
+                                    visibleBottom = visibleTop + visibleHeightProvider() - 1,
                                     anchor = anchor,
                                 )
                             },
@@ -106,33 +249,6 @@ internal fun TimetableGrid(
             }
         }
     }
-}
-
-@Composable
-private fun rememberTimetableScrollState(
-    page: Int,
-    state: TimetableState,
-): ScrollState {
-    val density = LocalDensity.current
-    val scrollState =
-        remember(state) {
-            ScrollState(
-                initial =
-                    state.verticalScrollOffset
-                        ?: with(density) { (TimetableDefaults.HourHeight * INITIAL_SCROLL_HOUR).roundToPx() },
-            )
-        }
-
-    LaunchedEffect(state, scrollState, page) {
-        snapshotFlow { scrollState.value }
-            .collect { value ->
-                if (state.pagerState.currentPage == page) {
-                    state.verticalScrollOffset = value
-                }
-            }
-    }
-
-    return scrollState
 }
 
 @Composable

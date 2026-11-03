@@ -41,6 +41,8 @@ import io.github.taetae98coding.diary.feature.calendar.ui.timetable.CalendarTime
 import io.github.taetae98coding.diary.feature.calendar.ui.timetable.CalendarTimetableScreen
 import io.github.taetae98coding.diary.feature.calendar.ui.timetable.CalendarTimetableViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.timetable.rememberCalendarTimetableScaffoldState
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.timetableBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.timetableWeatherViewModel
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -246,9 +248,12 @@ class CalendarNavigationReturnTest {
                                     navigateUp = { backStack.removeLastOrNull() },
                                     navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
                                     navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
+                                    navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id)) },
                                     state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
                                     memoViewModel = timetableViewModel,
                                     holidayViewModel = timetableHolidayViewModel,
+                                    weatherViewModel = timetableWeatherViewModel(),
+                                    birthdayViewModel = timetableBirthdayViewModel(),
                                 )
                             }
                             entry<MemoDetailNavKey> { Text(text = MEMO_DETAIL_CONTENT) }

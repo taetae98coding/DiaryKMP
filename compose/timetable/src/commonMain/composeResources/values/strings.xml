@@ -1,4 +1,5 @@
 <resources>
+    <string name="timetable_all_day">All day</string>
     <string name="timetable_hour_am">%1$d AM</string>
     <string name="timetable_hour_pm">%1$d PM</string>
     <string-array name="timetable_day_of_week_titles">

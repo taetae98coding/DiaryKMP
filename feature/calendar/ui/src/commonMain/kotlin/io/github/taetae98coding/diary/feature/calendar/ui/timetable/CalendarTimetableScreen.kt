@@ -13,13 +13,18 @@ internal fun CalendarTimetableScreen(
     navigateUp: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     navigateToMemoAdd: (MemoDateTime) -> Unit,
+    navigateToContactDetail: (Uuid) -> Unit,
     state: CalendarTimetableScaffoldState,
     memoViewModel: CalendarTimetableViewModel,
     holidayViewModel: CalendarTimetableHolidayViewModel,
+    weatherViewModel: CalendarTimetableWeatherViewModel,
+    birthdayViewModel: CalendarTimetableBirthdayViewModel,
     modifier: Modifier = Modifier,
 ) {
     val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
     val holidayUiState by holidayViewModel.uiState.collectAsStateWithLifecycle()
+    val weatherUiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val birthdayUiState by birthdayViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateNowEffect(state = state)
     SelectMemoEffect(
@@ -30,11 +35,17 @@ internal fun CalendarTimetableScreen(
         state = state,
         holidayViewModel = holidayViewModel,
     )
+    FetchWeatherEffect(weatherViewModel = weatherViewModel)
+    FetchBirthdayEffect(
+        state = state,
+        birthdayViewModel = birthdayViewModel,
+    )
     CalendarTimetableScaffold(
         onEvent = { event ->
             when (event) {
                 is CalendarTimetableScaffoldEvent.ClickNavigateUp -> navigateUp()
                 is CalendarTimetableScaffoldEvent.ClickMemo -> navigateToMemoDetail(event.id)
+                is CalendarTimetableScaffoldEvent.ClickContactBirthday -> navigateToContactDetail(event.contactId)
             }
         },
         onTimetableEvent = { event ->
@@ -47,5 +58,7 @@ internal fun CalendarTimetableScreen(
         state = state,
         memoUiStateProvider = { memoUiState },
         holidayUiStateProvider = { holidayUiState },
+        weatherUiStateProvider = { weatherUiState },
+        birthdayUiStateProvider = { birthdayUiState },
     )
 }

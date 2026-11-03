@@ -8,20 +8,28 @@ import androidx.compose.ui.semantics.Role
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.compose.timetable.TimetableScope
+import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarBirthdayText
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarWeatherItem
 
 internal fun TimetableScope.calendarTimetableItems(
     memoProvider: () -> List<CalendarMemo>,
+    birthdayProvider: () -> List<CalendarContactBirthday>,
     holidayProvider: () -> List<Holiday>,
+    birthdayColor: Color,
     holidayNameColor: Color,
     nonHolidayNameColor: Color,
     onEvent: (CalendarTimetableScaffoldEvent) -> Unit,
     onHolidayClick: (Holiday) -> Unit,
 ) {
     memoItems(memoProvider = memoProvider, onEvent = onEvent)
+    birthdayItems(birthdayProvider = birthdayProvider, birthdayColor = birthdayColor, onEvent = onEvent)
     holidayItems(
         holidayProvider = holidayProvider,
         holidayNameColor = holidayNameColor,
@@ -69,6 +77,25 @@ private fun TimetableScope.memoItems(
     }
 }
 
+private fun TimetableScope.birthdayItems(
+    birthdayProvider: () -> List<CalendarContactBirthday>,
+    birthdayColor: Color,
+    onEvent: (CalendarTimetableScaffoldEvent) -> Unit,
+) {
+    birthdayProvider().forEach { birthday ->
+        allDayItem(
+            dateRange = birthday.toDateRange(),
+            key = birthday.contactId,
+        ) {
+            CalendarBirthdayText(
+                birthday = birthday,
+                color = birthdayColor,
+                onClick = { onEvent(CalendarTimetableScaffoldEvent.ClickContactBirthday(contactId = birthday.contactId)) },
+            )
+        }
+    }
+}
+
 private fun TimetableScope.holidayItems(
     holidayProvider: () -> List<Holiday>,
     holidayNameColor: Color,
@@ -87,6 +114,20 @@ private fun TimetableScope.holidayItems(
                         .clip(CalendarDefaults.itemShape)
                         .clickable(role = Role.Button) { onHolidayClick(holiday) },
                 color = if (holiday.isHoliday) holidayNameColor else nonHolidayNameColor,
+            )
+        }
+    }
+}
+
+internal fun TimetableScope.calendarTimetableWeatherItems(
+    weatherProvider: () -> List<CalendarWeather>,
+    onWeatherClick: () -> Unit,
+) {
+    weatherProvider().forEach { weather ->
+        dateInfo(date = weather.date) {
+            CalendarWeatherItem(
+                weather = weather,
+                onClick = onWeatherClick,
             )
         }
     }

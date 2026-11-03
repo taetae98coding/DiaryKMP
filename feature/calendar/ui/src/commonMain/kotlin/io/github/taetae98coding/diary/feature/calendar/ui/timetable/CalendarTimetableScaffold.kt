@@ -21,11 +21,14 @@ import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.Timetable
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
+import io.github.taetae98coding.diary.feature.calendar.ui.home.search.CalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarTimedMemo
+import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.previewHoliday
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -38,10 +41,10 @@ internal fun CalendarTimetableScaffold(
     state: CalendarTimetableScaffoldState = rememberCalendarTimetableScaffoldState(),
     memoUiStateProvider: () -> CalendarTimetableMemoUiState = { CalendarTimetableMemoUiState() },
     holidayUiStateProvider: () -> CalendarTimetableHolidayUiState = { CalendarTimetableHolidayUiState() },
+    weatherUiStateProvider: () -> CalendarTimetableWeatherUiState = { CalendarTimetableWeatherUiState() },
+    birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val calendarColors = CalendarDefaults.colors()
-    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
     val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     Scaffold(
@@ -69,31 +72,66 @@ internal fun CalendarTimetableScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
     ) { paddingValues ->
-        Timetable(
+        CalendarTimetableContent(
+            onEvent = onEvent,
+            onTimetableEvent = onTimetableEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-            state = state.timetableState,
-            onEvent = onTimetableEvent,
-            nowProvider = { state.now },
-            holidayProvider = {
-                holidayUiStateProvider()
-                    .holidayList
-                    .filter { it.isHoliday }
-                    .map { it.dateRange }
-            },
-            colors = calendarColors,
-        ) {
-            calendarTimetableItems(
-                memoProvider = { memoUiStateProvider().memoList },
-                holidayProvider = { holidayUiStateProvider().holidayList },
-                holidayNameColor = calendarColors.sundayAndHolidayColor,
-                nonHolidayNameColor = nonHolidayNameColor,
-                onEvent = onEvent,
-                onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
-            )
-        }
+            state = state,
+            searchOpener = searchOpener,
+            memoUiStateProvider = memoUiStateProvider,
+            holidayUiStateProvider = holidayUiStateProvider,
+            weatherUiStateProvider = weatherUiStateProvider,
+            birthdayUiStateProvider = birthdayUiStateProvider,
+        )
+    }
+}
+
+@Composable
+private fun CalendarTimetableContent(
+    onEvent: (CalendarTimetableScaffoldEvent) -> Unit,
+    onTimetableEvent: (TimetableEvent) -> Unit,
+    searchOpener: CalendarSearchOpener,
+    modifier: Modifier = Modifier,
+    state: CalendarTimetableScaffoldState = rememberCalendarTimetableScaffoldState(),
+    memoUiStateProvider: () -> CalendarTimetableMemoUiState = { CalendarTimetableMemoUiState() },
+    holidayUiStateProvider: () -> CalendarTimetableHolidayUiState = { CalendarTimetableHolidayUiState() },
+    weatherUiStateProvider: () -> CalendarTimetableWeatherUiState = { CalendarTimetableWeatherUiState() },
+    birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
+) {
+    val calendarColors = CalendarDefaults.colors()
+    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+    val birthdayColor = CalendarHomeDefaults.birthdayColor()
+
+    Timetable(
+        modifier = modifier,
+        state = state.timetableState,
+        onEvent = onTimetableEvent,
+        nowProvider = { state.now },
+        holidayProvider = {
+            holidayUiStateProvider()
+                .holidayList
+                .filter { it.isHoliday }
+                .map { it.dateRange }
+        },
+        colors = calendarColors,
+    ) {
+        calendarTimetableItems(
+            memoProvider = { memoUiStateProvider().memoList },
+            birthdayProvider = { birthdayUiStateProvider().birthdayList },
+            holidayProvider = { holidayUiStateProvider().holidayList },
+            birthdayColor = birthdayColor,
+            holidayNameColor = calendarColors.sundayAndHolidayColor,
+            nonHolidayNameColor = nonHolidayNameColor,
+            onEvent = onEvent,
+            onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
+        )
+        calendarTimetableWeatherItems(
+            weatherProvider = { weatherUiStateProvider().weatherReport.weatherList },
+            onWeatherClick = { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
+        )
     }
 }
 
@@ -112,6 +150,7 @@ private fun CalendarTimetableScaffoldPreview(
 ) {
     val memoUiState = remember { CalendarTimetableMemoUiState(memoList = listOf(previewCalendarMemo(), previewCalendarTimedMemo())) }
     val holidayUiState = remember { CalendarTimetableHolidayUiState(holidayList = listOf(previewHoliday())) }
+    val weatherUiState = remember { CalendarTimetableWeatherUiState(weatherReport = CalendarWeatherReport(weatherList = listOf(previewCalendarWeather()))) }
 
     DiaryTheme {
         CalendarTimetableScaffold(
@@ -120,6 +159,7 @@ private fun CalendarTimetableScaffoldPreview(
             state = rememberCalendarTimetableScaffoldState(type = type, initialDate = LocalDate(year = 2026, month = 7, day = 19)),
             memoUiStateProvider = { memoUiState },
             holidayUiStateProvider = { holidayUiState },
+            weatherUiStateProvider = { weatherUiState },
         )
     }
 }

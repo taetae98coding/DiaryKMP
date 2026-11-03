@@ -19,6 +19,7 @@ public class TimetableState internal constructor(
 ) {
     internal val pagerState: PagerState = PagerState(currentPage = initialPage) { Int.MAX_VALUE }
 
+    // 스크롤 영역 맨 위가 0시 위치에서 얼마나 떨어져 있는지. 음수면 종일 영역 안을 보고 있다.
     internal var verticalScrollOffset: Int? = initialVerticalScrollOffset
 
     internal val selectState: TimetableSelectState = TimetableSelectState()
@@ -48,7 +49,7 @@ public class TimetableState internal constructor(
     }
 
     internal companion object {
-        private const val NO_SCROLL_OFFSET = -1
+        private const val NO_SCROLL_OFFSET = Int.MIN_VALUE
 
         val Saver =
             listSaver<TimetableState, Any>(

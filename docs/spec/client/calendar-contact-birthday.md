@@ -2,7 +2,7 @@
 
 이 문서는 캘린더에 표시할 연락처 생일을 정하는 기준을 다룬다. 어떤 연락처의 생일이 캘린더에 나타나는지, 어떤 날짜를 차지하는지, 어떤 값을 함께 전달하는지를 정한다.
 
-생일을 캘린더의 어느 자리에 어떤 모양으로 배치하는지는 [Calendar 컴포넌트 디자인](../../design/calendar.md)과 [CalendarWeekOfMonth 컴포넌트 디자인](../../design/calendar-week-of-month.md)의 아이템 배치를 따르며, 생일을 캘린더에 실제로 배치하는 화면 구성은 [CalendarHome 디자인](../../design/calendar-home.md)에서 다룬다. 이 문서에는 직접 수행하는 사용자 조작이 없어 `feature` 영역을 두지 않는다.
+생일을 캘린더의 어느 자리에 어떤 모양으로 배치하는지는 [Calendar 컴포넌트 디자인](../../design/calendar.md)과 [CalendarWeekOfMonth 컴포넌트 디자인](../../design/calendar-week-of-month.md)의 아이템 배치를 따르며, 생일을 캘린더에 실제로 배치하는 화면 구성은 [CalendarHome 디자인](../../design/calendar-home.md)과 [CalendarTimetable 디자인](../../design/calendar-timetable.md)에서 다룬다. 이 문서에는 직접 수행하는 사용자 조작이 없어 `feature` 영역을 두지 않는다.
 
 생일이 갖는 정보와 달력 구분의 규칙은 [ContactAdd 화면 스펙](./contact-add.md)의 `생일`을, 연락처를 서버와 맞추는 규칙은 [데이터 동기화 스펙](../common/data-sync.md)을 따른다. 음력 생일을 양력 날짜에 놓을 때 쓰는 음력 자료의 동기화와 조회 규칙은 [음력 자료 동기화 스펙](./lunar-fetch.md)을 따른다.
 

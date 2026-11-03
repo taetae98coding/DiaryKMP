@@ -16,7 +16,7 @@
 
 사용자는 ContactHome 화면의 연락처 목록에서 연락처를 선택해 그 연락처의 ContactDetail 화면으로 이동한다. 목록과 상세를 함께 사용할 수 있는 환경에서는 이동하지 않고 목록과 함께 표시된 상세 영역에서 같은 내용을 사용하며, 그 기준은 [Contact 목록·상세 배치 스펙](./contact-list-detail.md)을 따른다.
 
-사용자는 캘린더 홈 화면에 표시된 생일을 선택해서도 그 연락처의 ContactDetail 화면으로 이동한다. 이 경로로 진입한 화면은 연락처 목록과 함께 표시하지 않으며, 진입 흐름은 [CalendarHome 스펙](./calendar-home.md)의 `생일 선택`을 따른다.
+사용자는 캘린더 홈 화면이나 시간표에 표시된 생일을 선택해서도 그 연락처의 ContactDetail 화면으로 이동한다. 이 경로로 진입한 화면은 연락처 목록과 함께 표시하지 않으며, 진입 흐름은 [CalendarHome 스펙](./calendar-home.md)과 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `생일 선택`을 따른다.
 
 MemoAdd 화면과 MemoDetail 화면의 연락처 입력에 표시된 연락처를 눌러서도 그 연락처의 ContactDetail 화면으로 이동한다. 이 경로로 진입한 화면도 연락처 목록과 함께 표시하지 않으며, 진입 흐름은 [메모 연락처 입력 컴포넌트 스펙](./memo-contact-input.md)의 `연락처 상세 이동`을 따른다.
 

@@ -5,11 +5,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -37,11 +40,18 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
+import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
+import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.mapState
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -49,10 +59,12 @@ import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime
@@ -178,7 +190,7 @@ class CalendarTimetableScreenTest {
         )
 
         composeRule.onNodeWithText(MEETING_TITLE).performClick()
-        composeRule.onNodeWithText(VACATION_TITLE).performClick()
+        composeRule.onNodeWithText(VACATION_TITLE).performScrollTo().performClick()
 
         navigatedIdList shouldBe listOf(meeting.id, vacation.id)
     }
@@ -266,7 +278,12 @@ class CalendarTimetableScreenTest {
             memoList = listOf(vacation),
             navigateToMemoDetail = { navigatedIdList += it },
         )
-        val bounds = composeRule.onNodeWithText(VACATION_TITLE).fetchSemanticsNode().boundsInRoot
+        val bounds =
+            composeRule
+                .onNodeWithText(VACATION_TITLE)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot
         val firstDayX =
             composeRule
                 .onNodeWithText("21")
@@ -405,7 +422,7 @@ class CalendarTimetableScreenTest {
         holidayListFlow.value = listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 25)..september(day = 25)))
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(CHUSEOK).assertIsDisplayed()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -418,7 +435,7 @@ class CalendarTimetableScreenTest {
             uriHandler = uriHandler,
         )
 
-        composeRule.onNodeWithText(CHUSEOK).performClick()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().performClick()
 
         verify(exactly = 1) { uriHandler.openUri("https://search.naver.com/search.naver?query=%EC%B6%94%EC%84%9D") }
         composeRule.onNodeWithText("25").assertIsDisplayed()
@@ -435,7 +452,7 @@ class CalendarTimetableScreenTest {
             uriHandler = uriHandler,
         )
 
-        composeRule.onNodeWithText(CHUSEOK).performClick()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().performClick()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText("25").assertIsDisplayed()
@@ -443,7 +460,7 @@ class CalendarTimetableScreenTest {
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
         composeRule.onAllNodes(isPopup()).assertCountEquals(0)
         composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
-        composeRule.onNodeWithText("Couldn't open the search results.").assertIsDisplayed()
+        composeRule.onNodeWithText(SEARCH_OPEN_FAILED_MESSAGE).assertIsDisplayed()
     }
 
     @Test
@@ -531,6 +548,340 @@ class CalendarTimetableScreenTest {
         composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), useUnmergedTree = true).assertCountEquals(0)
     }
 
+    @Test
+    fun `TC-4b857f00-b3a8-449c-940e-3afa61e12d7a 날짜별 날씨가 해당 날짜와 함께 표시된다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.WEEK,
+            date = september(day = 20),
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather()))),
+        )
+
+        listOf(CURRENT_TEMPERATURE_TEXT to 23, MIN_MAX_TEMPERATURE_TEXT to 24).forEach { (text, day) ->
+            val textX =
+                composeRule
+                    .onNodeWithText(text)
+                    .assertIsDisplayed()
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center.x
+            val dayX =
+                composeRule
+                    .onNodeWithText(day.toString())
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center.x
+
+            abs(textX - dayX) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+        }
+        composeRule.onNodeWithContentDescription(CLEAR_SKY, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithContentDescription(FEW_CLOUDS, useUnmergedTree = true).assertExists()
+        composeRule.onAllNodesWithContentDescription(CLEAR_SKY, useUnmergedTree = true).assertCountEquals(1)
+        composeRule.onAllNodesWithContentDescription(FEW_CLOUDS, useUnmergedTree = true).assertCountEquals(1)
+    }
+
+    @Test
+    fun `TC-b6db93e7-1cfd-4b3d-b96f-f0f073768b0b 날씨가 준비되면 별도 조작 없이 표시된다`() {
+        val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), weatherReportFlow = weatherReportFlow)
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertDoesNotExist()
+
+        composeRule.runOnIdle { weatherReportFlow.value = CalendarWeatherReport(weatherList = listOf(todayWeather())) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(CLEAR_SKY, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun `TC-5936fd22-9be9-41ae-8e1d-b3b6886cadd6 다른 날짜로 이동하면 이동한 날짜의 날씨를 보여 준다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather()))),
+        )
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText(MIN_MAX_TEMPERATURE_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-1f83f6a3-a49a-41f4-957e-6a0ad7886b28 날씨를 선택하면 지역명으로 검색하고 시간표가 유지된다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather()), locationName = SEONGNAM)),
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri("https://search.naver.com/search.naver?query=%EC%84%B1%EB%82%A8%EC%8B%9C%20%EB%82%A0%EC%94%A8") }
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-e19d9798-5498-46f7-bcaa-46c0aafab5c8 지역명이 없으면 날씨만으로 검색한다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather()))),
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri("https://search.naver.com/search.naver?query=%EB%82%A0%EC%94%A8") }
+    }
+
+    @Test
+    fun `TC-0dd8ce50-ed06-4131-b2bf-9695c4148b36 날씨 검색을 열지 못하면 시간표를 유지하고 알린다`() {
+        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(fixtureMonkey.nonBlankString()) }
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather()), locationName = SEONGNAM)),
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(SEARCH_OPEN_FAILED_MESSAGE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-2c2c2d8c-35b6-4d4e-88f0-421db4021fa5 날씨를 길게 누르면 그 날짜로 MemoAdd 이동을 요청한다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        val requestList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            navigateToMemoAdd = { requestList += it },
+            weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather()), locationName = SEONGNAM)),
+            uriHandler = uriHandler,
+        )
+        val position =
+            composeRule
+                .onNodeWithText(CURRENT_TEMPERATURE_TEXT)
+                .fetchSemanticsNode()
+                .boundsInRoot.center
+
+        composeRule.onRoot().performTouchInput {
+            down(position)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveBy(Offset.Zero)
+            up()
+        }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { uriHandler.openUri(any()) }
+        requestList shouldBe listOf(MemoDateTime.AllDay(dateRange = september(day = 23)..september(day = 23)))
+    }
+
+    @Test
+    fun `TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날씨 동기화가 실패해도 메모와 공휴일을 표시한다`() {
+        assertShownWithoutWeather(weatherViewModel = calendarTimetableWeatherViewModel(fetchResult = weatherFailure()))
+    }
+
+    @Test
+    fun `TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날씨 조회가 실패해도 메모와 공휴일을 표시한다`() {
+        assertShownWithoutWeather(
+            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(weatherFailure()))),
+        )
+    }
+
+    private fun weatherFailure(): Result<Nothing> = Result.failure(IllegalStateException(fixtureMonkey.nonBlankString()))
+
+    private fun assertShownWithoutWeather(weatherViewModel: CalendarTimetableWeatherViewModel) {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            memoList = listOf(memo(title = MEETING_TITLE, dateTime = timed(day = 23, startHour = 10, endHour = 11))),
+            holidayListFlow = MutableStateFlow(listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 23)..september(day = 23)))),
+            weatherViewModel = weatherViewModel,
+        )
+
+        composeRule.onNodeWithText(MEETING_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertDoesNotExist()
+        composeRule.onNodeWithText(SEARCH_OPEN_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-e6a3d4de-9fd0-4aab-9e4b-abda7222dd52 날짜를 옮겨도 날짜별 날씨를 다시 조회하지 않는다`() {
+        val getUseCase = getCurrentCalendarWeatherUseCase(flow = flowOf(Result.success(CalendarWeatherReport(weatherList = listOf(todayWeather(), tomorrowWeather())))))
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherViewModel = calendarTimetableWeatherViewModel(getCurrentCalendarWeatherUseCase = getUseCase),
+        )
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText(MIN_MAX_TEMPERATURE_TEXT).assertIsDisplayed()
+        verify(exactly = 1) { getUseCase(parameter = Unit) }
+    }
+
+    @Test
+    fun `TC-f6cbfda7-2501-4711-8bed-10ccd513f97a 생일이 그 날짜의 종일 영역에 표시된다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.WEEK,
+            date = september(day = 20),
+            birthdayListFlow = MutableStateFlow(listOf(birthday(day = 24))),
+        )
+
+        val bounds =
+            composeRule
+                .onNodeWithText(BIRTHDAY_TEXT)
+                .performScrollTo()
+                .assertIsDisplayed()
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val allDayBounds = composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).fetchSemanticsNode().boundsInRoot
+        val dayX =
+            composeRule
+                .onNodeWithText("24")
+                .fetchSemanticsNode()
+                .boundsInRoot.center.x
+
+        composeRule.onNodeWithContentDescription(BIRTHDAY_CONTENT_DESCRIPTION).assertExists()
+        (bounds.top >= allDayBounds.top && bounds.bottom <= allDayBounds.bottom) shouldBe true
+        abs(bounds.center.x - dayX) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+    }
+
+    @Test
+    fun `TC-4d0c816f-b319-4d75-9d10-fbb52214e832 생일이 준비되면 별도 조작 없이 표시된다`() {
+        val birthdayListFlow = MutableStateFlow<List<CalendarContactBirthday>>(emptyList())
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 24), birthdayListFlow = birthdayListFlow)
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
+
+        composeRule.runOnIdle { birthdayListFlow.value = listOf(birthday(day = 24)) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-fd73be8f-c05b-498c-a7e9-154116cdbc9a 생일을 선택하면 ContactDetail 이동을 요청한다`() {
+        val birthday = birthday(day = 24)
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        val contactIdList = mutableListOf<Uuid>()
+        val memoAddList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            birthdayListFlow = MutableStateFlow(listOf(birthday)),
+            navigateToContactDetail = { contactIdList += it },
+            navigateToMemoAdd = { memoAddList += it },
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        contactIdList shouldBe listOf(birthday.contactId)
+        memoAddList shouldBe emptyList()
+        verify(exactly = 0) { uriHandler.openUri(any()) }
+    }
+
+    @Test
+    fun `TC-61c3c9ea-c99d-4122-9be9-6c88069a3b61 생일을 길게 누르면 그 날짜로 MemoAdd 이동을 요청한다`() {
+        val contactIdList = mutableListOf<Uuid>()
+        val memoAddList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            birthdayListFlow = MutableStateFlow(listOf(birthday(day = 24))),
+            navigateToContactDetail = { contactIdList += it },
+            navigateToMemoAdd = { memoAddList += it },
+        )
+        val position =
+            composeRule
+                .onNodeWithText(BIRTHDAY_TEXT)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot.center
+
+        composeRule.onRoot().performTouchInput {
+            down(position)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveBy(Offset.Zero)
+            up()
+        }
+        composeRule.waitForIdle()
+
+        contactIdList shouldBe emptyList()
+        memoAddList shouldBe listOf(MemoDateTime.AllDay(dateRange = september(day = 24)..september(day = 24)))
+    }
+
+    @Test
+    fun `TC-2c7d150a-f579-4c23-bb3c-4dfa4b949c07 다른 날짜로 이동하면 이동한 날짜의 생일을 보여 준다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            birthdayListFlow = MutableStateFlow(listOf(birthday(day = 23), birthday(day = 24, name = OTHER_BIRTHDAY_NAME))),
+        )
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText(OTHER_BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-9c8e653c-ad81-480b-99a2-dac567c94496 생일 조회에 실패해도 메모와 공휴일을 표시한다`() {
+        val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+        every { getUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.nonBlankString())))
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            memoList = listOf(memo(title = MEETING_TITLE, dateTime = timed(day = 24, startHour = 10, endHour = 11))),
+            holidayListFlow = MutableStateFlow(listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 24)))),
+            birthdayViewModel =
+                CalendarTimetableBirthdayViewModel(
+                    fetchLunarUseCase = mockk<FetchLunarUseCase>().also { useCase -> coEvery { useCase(parameter = any()) } returns Result.success(emptyList()) },
+                    getCalendarContactBirthdayUseCase = getUseCase,
+                ),
+        )
+
+        composeRule.onNodeWithText(MEETING_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
+        composeRule.onNodeWithText(SEARCH_OPEN_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
+    private fun birthday(
+        day: Int,
+        name: String = BIRTHDAY_NAME,
+    ): CalendarContactBirthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = name, nameQualifier = "", date = september(day = day))
+
+    private fun todayWeather(): CalendarWeather =
+        calendarWeather(
+            date = september(day = 23),
+            temperature = CalendarWeatherTemperature.Current(value = 24.3),
+            descriptionList = listOf(CLEAR_SKY),
+        )
+
+    private fun tomorrowWeather(): CalendarWeather =
+        calendarWeather(
+            date = september(day = 24),
+            temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
+            descriptionList = listOf(FEW_CLOUDS),
+        )
+
     private fun setTimetableScreen(
         type: CalendarTimetableNavKey.Type,
         date: LocalDate,
@@ -539,7 +890,12 @@ class CalendarTimetableScreenTest {
         navigateUp: () -> Unit = {},
         navigateToMemoDetail: (Uuid) -> Unit = {},
         navigateToMemoAdd: (MemoDateTime) -> Unit = {},
+        navigateToContactDetail: (Uuid) -> Unit = {},
+        birthdayListFlow: MutableStateFlow<List<CalendarContactBirthday>> = MutableStateFlow(emptyList()),
+        birthdayViewModel: CalendarTimetableBirthdayViewModel = timetableBirthdayViewModel(birthdayListFlow = birthdayListFlow),
         holidayListFlow: MutableStateFlow<List<Holiday>> = MutableStateFlow(emptyList()),
+        weatherReportFlow: MutableStateFlow<CalendarWeatherReport> = MutableStateFlow(CalendarWeatherReport()),
+        weatherViewModel: CalendarTimetableWeatherViewModel = timetableWeatherViewModel(weatherReportFlow = weatherReportFlow),
         uriHandler: UriHandler? = null,
         restorationTester: StateRestorationTester? = null,
         onState: (CalendarTimetableScaffoldState) -> Unit = {},
@@ -562,9 +918,12 @@ class CalendarTimetableScreenTest {
                         navigateUp = navigateUp,
                         navigateToMemoDetail = navigateToMemoDetail,
                         navigateToMemoAdd = navigateToMemoAdd,
+                        navigateToContactDetail = navigateToContactDetail,
                         state = state,
                         memoViewModel = viewModel,
                         holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
+                        weatherViewModel = weatherViewModel,
+                        birthdayViewModel = birthdayViewModel,
                     )
                 }
             }
@@ -634,6 +993,17 @@ private const val CHUSEOK = "추석"
 private const val ANNIVERSARY = "기념일"
 private const val LONG_PRESS_MARGIN_MILLIS = 100L
 private const val TEN_AM_LABEL = "10 AM"
+private const val SEARCH_OPEN_FAILED_MESSAGE = "Couldn't open the search results."
+private const val BIRTHDAY_NAME = "홍길동"
+private const val BIRTHDAY_TEXT = "🎂 홍길동"
+private const val BIRTHDAY_CONTENT_DESCRIPTION = "홍길동's birthday"
+private const val OTHER_BIRTHDAY_NAME = "김철수"
+private const val OTHER_BIRTHDAY_TEXT = "🎂 김철수"
+private const val SEONGNAM = "성남시"
+private const val CLEAR_SKY = "clear sky"
+private const val FEW_CLOUDS = "few clouds"
+private const val CURRENT_TEMPERATURE_TEXT = "24.3°"
+private const val MIN_MAX_TEMPERATURE_TEXT = "17.8°/28.2°"
 
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 

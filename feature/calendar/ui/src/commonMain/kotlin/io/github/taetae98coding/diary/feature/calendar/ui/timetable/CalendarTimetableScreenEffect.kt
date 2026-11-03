@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
@@ -43,6 +44,24 @@ internal fun FetchHolidayEffect(
     LaunchedEffect(state, holidayViewModel) {
         snapshotFlow { state.timetableState.currentDateRange }
             .collect { dateRange -> holidayViewModel.fetch(dateRange = dateRange) }
+    }
+}
+
+@Composable
+internal fun FetchBirthdayEffect(
+    state: CalendarTimetableScaffoldState,
+    birthdayViewModel: CalendarTimetableBirthdayViewModel,
+) {
+    LaunchedEffect(state, birthdayViewModel) {
+        snapshotFlow { state.timetableState.currentDateRange }
+            .collect { dateRange -> birthdayViewModel.fetch(dateRange = dateRange) }
+    }
+}
+
+@Composable
+internal fun FetchWeatherEffect(weatherViewModel: CalendarTimetableWeatherViewModel) {
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        weatherViewModel.fetch()
     }
 }
 

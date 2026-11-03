@@ -91,9 +91,12 @@ private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: N
             navigateUp = { backStack.removeLastOrNull() },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
             navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
+            navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
             memoViewModel = koinViewModel(),
             holidayViewModel = koinViewModel(),
+            weatherViewModel = koinViewModel(),
+            birthdayViewModel = koinViewModel(),
         )
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -24,6 +25,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -34,10 +36,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_NOW_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.timetable.rememberTimetableState
+import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -47,6 +52,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefau
 import io.github.taetae98coding.diary.feature.calendar.ui.home.mapState
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -69,6 +75,7 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
@@ -79,6 +86,8 @@ class CalendarTimetableScreenDisplayTest {
     val composeRule = createComposeRule()
 
     private var holidayFetchCount = 0
+    private var weatherFetchCount = 0
+    private val birthdayFetchDateRangeList = mutableListOf<LocalDateRange>()
     private val holidayFetchDateRangeList = mutableListOf<LocalDateRange>()
 
     @Before
@@ -207,6 +216,8 @@ class CalendarTimetableScreenDisplayTest {
             nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
         }
 
+        scrollToAllDay()
+
         holidayColor shouldNotBe nonHolidayNameColor
         itemContainsColor(text = CHUSEOK, color = holidayColor) shouldBe true
         itemContainsColor(text = ANNIVERSARY, color = nonHolidayNameColor) shouldBe true
@@ -236,6 +247,7 @@ class CalendarTimetableScreenDisplayTest {
             memoList = listOf(memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 24)..september(day = 24)))),
             holidayList = listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 24))),
         )
+        scrollToAllDay()
 
         boundsOf(text = VACATION_TITLE).top shouldBeLessThan boundsOf(text = CHUSEOK).top
     }
@@ -318,12 +330,130 @@ class CalendarTimetableScreenDisplayTest {
         composeRule.runOnIdle { holidayFetchDateRangeList.toList() } shouldBe listOf(september(day = 23)..september(day = 23))
     }
 
+    @Test
+    fun `TC-515ac5d8-9130-45d2-be01-b7bb30eea8da 시간표에 들어오면 현재 위치의 날씨를 동기화한다`() {
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
+
+        composeRule.runOnIdle { weatherFetchCount } shouldBe 1
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-25a02d5d-9a0e-4dbc-8eab-27ac15d68b7c 넘기면 동기화하지 않는다`() {
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
+        val fetchCountBeforeSwipe = composeRule.runOnIdle { weatherFetchCount }
+
+        composeRule.onRoot().performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.runOnIdle { weatherFetchCount } shouldBe fetchCountBeforeSwipe
+    }
+
+    @Test
+    fun `TC-25a02d5d-9a0e-4dbc-8eab-27ac15d68b7c 다른 앱에 다녀오면 날씨를 다시 동기화한다`() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), lifecycleOwner = lifecycleOwner)
+        val fetchCountBeforeLeave = composeRule.runOnIdle { weatherFetchCount }
+
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP) }
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START) }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { weatherFetchCount } shouldBe fetchCountBeforeLeave + 1
+    }
+
+    @Test
+    fun `TC-25a02d5d-9a0e-4dbc-8eab-27ac15d68b7c 다른 화면에서 돌아오면 날씨를 다시 동기화한다`() {
+        val isShown = mutableStateOf(true)
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), isShown = isShown)
+        val fetchCountBeforeLeave = composeRule.runOnIdle { weatherFetchCount }
+
+        composeRule.runOnIdle { isShown.value = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown.value = true }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { weatherFetchCount } shouldBe fetchCountBeforeLeave + 1
+    }
+
+    @Test
+    fun `TC-fb62b5b0-2dc7-4216-a01e-294064e930a1 같은 날짜의 메모, 생일, 공휴일 이름은 그 순서로 놓인다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            memoList = listOf(memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 24)..september(day = 24)))),
+            holidayList = listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 24))),
+            birthdayList = listOf(birthday(name = BIRTHDAY_NAME, day = 24)),
+        )
+        scrollToAllDay()
+
+        listOf(boundsOf(text = VACATION_TITLE).top, boundsOf(text = BIRTHDAY_TEXT).top, boundsOf(text = CHUSEOK).top).shouldBeStrictlyIncreasing()
+    }
+
+    @Test
+    fun `TC-abe1bc82-dbfd-4b51-9d47-e1ab9362cc19 들어오면 표시 날짜로 음력 자료 동기화를 요청한다`() {
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
+
+        composeRule.runOnIdle { birthdayFetchDateRangeList.toList() } shouldBe listOf(september(day = 23)..september(day = 23))
+    }
+
+    @Test
+    fun `TC-abe1bc82-dbfd-4b51-9d47-e1ab9362cc19 다음 날로 넘기면 옮긴 날짜로 음력 자료 동기화를 요청한다`() {
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = LocalDate(year = 2026, month = 12, day = 31))
+        composeRule.runOnIdle { birthdayFetchDateRangeList.clear() }
+
+        composeRule.onRoot().performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        val newYearDay = LocalDate(year = 2027, month = 1, day = 1)
+        composeRule.runOnIdle { birthdayFetchDateRangeList.toList() } shouldBe listOf(newYearDay..newYearDay)
+    }
+
+    @Test
+    fun `TC-abe1bc82-dbfd-4b51-9d47-e1ab9362cc19 다른 화면에서 돌아오면 음력 자료를 다시 동기화한다`() {
+        val isShown = mutableStateOf(true)
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), isShown = isShown)
+
+        composeRule.runOnIdle { isShown.value = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { birthdayFetchDateRangeList.clear() }
+        composeRule.runOnIdle { isShown.value = true }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { birthdayFetchDateRangeList.toList() } shouldBe listOf(september(day = 23)..september(day = 23))
+    }
+
+    @Test
+    fun `TC-abe1bc82-dbfd-4b51-9d47-e1ab9362cc19 다른 앱에 다녀오면 음력 자료를 다시 동기화하지 않는다`() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), lifecycleOwner = lifecycleOwner)
+        composeRule.runOnIdle { birthdayFetchDateRangeList.clear() }
+
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP) }
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START) }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { birthdayFetchDateRangeList.toList() } shouldBe emptyList()
+    }
+
+    private fun birthday(
+        name: String,
+        day: Int,
+    ): CalendarContactBirthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = name, nameQualifier = "", date = september(day = day))
+
+    private fun scrollToAllDay() {
+        composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).performScrollTo()
+        composeRule.waitForIdle()
+    }
+
     private fun setTimetableScreen(
         type: CalendarTimetableNavKey.Type,
         date: LocalDate? = null,
         clock: Clock = Clock.System,
         memoList: List<CalendarMemo> = emptyList(),
         holidayList: List<Holiday> = emptyList(),
+        birthdayList: List<CalendarContactBirthday> = emptyList(),
         restorationTester: StateRestorationTester? = null,
         launchCount: MutableState<Int>? = null,
         lifecycleOwner: LifecycleOwner? = null,
@@ -344,6 +474,12 @@ class CalendarTimetableScreenDisplayTest {
                 every { viewModel.uiState } returns
                     MutableStateFlow(holidayList).mapState { list -> CalendarTimetableHolidayUiState(holidayList = list) }
             }
+        val weatherViewModel = timetableWeatherViewModel(onFetch = { weatherFetchCount += 1 })
+        val birthdayViewModel =
+            timetableBirthdayViewModel(
+                birthdayListFlow = MutableStateFlow(birthdayList),
+                onFetch = { dateRange -> birthdayFetchDateRangeList += dateRange },
+            )
         val setContent: (@Composable () -> Unit) -> Unit =
             restorationTester?.let { tester -> { content -> tester.setContent(content) } } ?: composeRule::setContent
 
@@ -370,9 +506,12 @@ class CalendarTimetableScreenDisplayTest {
                                 navigateUp = {},
                                 navigateToMemoDetail = {},
                                 navigateToMemoAdd = {},
+                                navigateToContactDetail = {},
                                 state = state,
                                 memoViewModel = memoViewModel,
                                 holidayViewModel = holidayViewModel,
+                                weatherViewModel = weatherViewModel,
+                                birthdayViewModel = birthdayViewModel,
                             )
                         }
                     }
@@ -508,5 +647,7 @@ class CalendarTimetableScreenDisplayTest {
         const val MEETING_TITLE = "Meeting"
         const val TRIP_TITLE = "Trip"
         const val VACATION_TITLE = "Vacation"
+        const val BIRTHDAY_NAME = "홍길동"
+        const val BIRTHDAY_TEXT = "🎂 홍길동"
     }
 }

@@ -1,6 +1,6 @@
 # 현재 날씨 동기화 스펙
 
-이 문서는 현재 위치의 현재 날씨와 예보를 동기화하고, 캘린더에 날짜별로 전달할 날씨 정보와 현재 위치의 지역명을 만드는 규칙을 다룬다. 사용자에게 직접 노출되는 화면이나 사용자 행동은 없으므로 `feature` 영역은 생략하며, 캘린더 날짜 칸의 구체적인 표현은 [CalendarHome 디자인](../../design/calendar-home.md)에서 별도로 다룬다. 위치 권한을 사용자에게 요청하는 흐름은 [위치 권한 요청 스펙](./location-permission.md)에서 다룬다. 지역명을 검색어로 사용하는 흐름은 [CalendarHome 스펙](./calendar-home.md)의 날씨 선택에서 다룬다.
+이 문서는 현재 위치의 현재 날씨와 예보를 동기화하고, 캘린더에 날짜별로 전달할 날씨 정보와 현재 위치의 지역명을 만드는 규칙을 다룬다. 사용자에게 직접 노출되는 화면이나 사용자 행동은 없으므로 `feature` 영역은 생략하며, 캘린더 날짜 칸의 구체적인 표현은 [CalendarHome 디자인](../../design/calendar-home.md)에서 별도로 다룬다. 위치 권한을 사용자에게 요청하는 흐름은 [위치 권한 요청 스펙](./location-permission.md)에서 다룬다. 지역명을 검색어로 사용하는 흐름은 [CalendarHome 스펙](./calendar-home.md)과 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 날씨 선택에서 다룬다.
 
 ## domain
 

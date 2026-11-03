@@ -8,4 +8,8 @@ internal sealed interface CalendarTimetableScaffoldEvent {
     data class ClickMemo(
         val id: Uuid,
     ) : CalendarTimetableScaffoldEvent
+
+    data class ClickContactBirthday(
+        val contactId: Uuid,
+    ) : CalendarTimetableScaffoldEvent
 }

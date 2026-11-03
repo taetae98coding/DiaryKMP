@@ -1,13 +1,6 @@
 package io.github.taetae98coding.diary.compose.timetable
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,13 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.daysUntil
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 public const val TIMETABLE_ALL_DAY_TEST_TAG: String = "TimetableAllDay"
@@ -32,64 +25,68 @@ public const val TIMETABLE_ALL_DAY_TEST_TAG: String = "TimetableAllDay"
 internal fun TimetableAllDay(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
-    type: TimetableType = TimetableType.WEEK,
     selectState: TimetableSelectState = rememberTimetableSelectState(),
     itemList: List<TimetablePlacedAllDayItem> = emptyList(),
 ) {
     val spacing = DiaryTheme.dimens.calendarItemSpacing
-    val startInset = if (type == TimetableType.WEEK) TimetableDefaults.TimeColumnWidth else 0.dp
 
-    Row(
+    Layout(
+        content = {
+            itemList.forEach { placed ->
+                key(placed.item.key) { placed.item.content() }
+            }
+            Text(
+                text = stringResource(Res.string.timetable_all_day),
+                color = DiaryTheme.colorScheme.onSurfaceVariant,
+                style = DiaryTheme.typography.labelSmall,
+                maxLines = 1,
+            )
+        },
         modifier =
             modifier
                 .testTag(TIMETABLE_ALL_DAY_TEST_TAG)
                 .timetableDateSelectBackground(
                     dateRange = dateRange,
-                    startInset = startInset,
+                    startInset = TimetableDefaults.TimeColumnWidth,
                     state = selectState,
                     color = CalendarDefaults.selectBackgroundColor(),
                 ),
-    ) {
-        Spacer(modifier = Modifier.width(TimetableDefaults.TimeColumnWidth))
-        Layout(
-            content = {
-                itemList.forEach { placed ->
-                    key(placed.item.key) { placed.item.content() }
-                }
-            },
-            modifier =
-                Modifier
-                    .weight(1F)
-                    .heightIn(max = TimetableDefaults.AllDayMaxHeight)
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = spacing),
-        ) { measurables, constraints ->
-            val spacingPx = spacing.roundToPx()
-            val horizontalBoundList = itemList.horizontalBoundList(dateRange = dateRange, width = constraints.maxWidth, spacing = spacingPx)
-            val placeableList =
-                itemList.indices.map { index ->
-                    val (left, right) = horizontalBoundList[index]
+    ) { measurables, constraints ->
+        val spacingPx = spacing.roundToPx()
+        val startInset = TimetableDefaults.TimeColumnWidth.roundToPx()
+        val endPadding = TimetableDefaults.TimeLabelEndPadding.roundToPx()
+        val width = constraints.maxWidth
+        val dayAreaWidth = (width - startInset).coerceAtLeast(0)
+        val horizontalBoundList = itemList.horizontalBoundList(dateRange = dateRange, width = dayAreaWidth, spacing = spacingPx)
+        val placeableList =
+            itemList.indices.map { index ->
+                val (left, right) = horizontalBoundList[index]
 
-                    measurables[index].measure(Constraints.fixedWidth((right - left).coerceAtLeast(0)))
-                }
-            val rowCount = (itemList.maxOfOrNull { it.row } ?: -1) + 1
-            val rowHeightList =
-                List(rowCount) { row ->
-                    itemList.indices
-                        .filter { index -> itemList[index].row == row }
-                        .maxOf { index -> placeableList[index].height }
-                }
-            val rowTopList = rowHeightList.runningFold(0) { top, height -> top + height + spacingPx }
-            val height = (rowTopList.lastOrNull() ?: 0) - if (rowCount > 0) spacingPx else 0
-
-            layout(width = constraints.maxWidth, height = height.coerceAtLeast(0)) {
-                itemList.forEachIndexed { index, placed ->
-                    placeableList[index].place(
-                        x = horizontalBoundList[index].first,
-                        y = rowTopList[placed.row],
-                    )
-                }
+                measurables[index].measure(Constraints.fixedWidth((right - left).coerceAtLeast(0)))
             }
+        val labelPlaceable = measurables[itemList.size].measure(Constraints(maxWidth = (startInset - endPadding).coerceAtLeast(0)))
+        val rowCount = (itemList.maxOfOrNull { it.row } ?: -1) + 1
+        val rowHeightList =
+            List(rowCount) { row ->
+                itemList.indices
+                    .filter { index -> itemList[index].row == row }
+                    .maxOf { index -> placeableList[index].height }
+            }
+        val rowTopList = rowHeightList.runningFold(spacingPx) { top, height -> top + height + spacingPx }
+        val height = rowTopList.last()
+        val labelCenterY = spacingPx + (rowHeightList.firstOrNull() ?: 0) / 2
+
+        layout(width = width, height = height) {
+            itemList.forEachIndexed { index, placed ->
+                placeableList[index].place(
+                    x = startInset + horizontalBoundList[index].first,
+                    y = rowTopList[placed.row],
+                )
+            }
+            labelPlaceable.place(
+                x = startInset - endPadding - labelPlaceable.width,
+                y = labelCenterY - labelPlaceable.height / 2,
+            )
         }
     }
 }

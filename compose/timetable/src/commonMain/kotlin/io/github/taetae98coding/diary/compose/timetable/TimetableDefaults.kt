@@ -8,7 +8,8 @@ internal object TimetableDefaults {
     val TimeColumnWidth: Dp = 56.dp
     val TimeLabelEndPadding: Dp = 8.dp
     val PrimaryDateContainerSize: Dp = 32.dp
-    val AllDayMaxHeight: Dp = 72.dp
+    val DateInfoTopSpacing: Dp = 4.dp
+    val DateInfoBottomPadding: Dp = 4.dp
     val TimeItemHorizontalSpacing: Dp = 2.dp
     val TimeItemVerticalSpacing: Dp = 1.dp
     val NowLineThickness: Dp = 2.dp
