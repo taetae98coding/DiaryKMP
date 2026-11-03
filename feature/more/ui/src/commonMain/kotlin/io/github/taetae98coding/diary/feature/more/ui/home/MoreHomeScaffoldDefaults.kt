@@ -4,5 +4,5 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 internal object MoreHomeScaffoldDefaults {
-    val MenuMinSize: Dp = 80.dp
+    val MenuMinSize: Dp = 72.dp
 }
