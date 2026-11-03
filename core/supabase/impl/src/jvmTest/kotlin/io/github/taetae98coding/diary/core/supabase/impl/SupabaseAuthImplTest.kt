@@ -7,13 +7,18 @@ import io.github.jan.supabase.auth.MemorySessionManager
 import io.github.jan.supabase.auth.SessionManager
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.minimalConfig
+import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.createSupabaseClient
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
+import kotlinx.io.IOException
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -74,16 +79,37 @@ class SupabaseAuthImplTest :
 
             client.close()
         }
+
+        test("TC-fcce04af-8204-49c6-8248-420b10fad20c 연결이 끊겨도 서버 요청 없이 세션을 지운다") {
+            val engine = MockEngine { throw IOException("연결 실패") }
+            val sessionManager = MemorySessionManager()
+            val client = createClient(sessionManager = sessionManager, engine = engine)
+
+            client.auth.awaitInitialization()
+            client.auth.importSession(session(user(profileImage = "https://example.com/stored.jpg")), autoRefresh = false)
+
+            SupabaseAuthImpl(client).signOut()
+
+            engine.requestHistory.shouldBeEmpty()
+            sessionManager.loadSessionOrNull().shouldBeNull()
+            client.auth.sessionStatus.value
+                .shouldBeInstanceOf<SessionStatus.NotAuthenticated>()
+
+            client.close()
+        }
     }) {
     companion object {
         // 저장소에 쓰기 전에 상태를 먼저 알리는 순서를 테스트에서 그대로 만들기 위해, 자동 저장을 끄고
         // 저장소의 세션과 알림의 세션을 서로 다르게 둔다.
-        private fun createClient(sessionManager: SessionManager): SupabaseClient =
+        private fun createClient(
+            sessionManager: SessionManager,
+            engine: MockEngine = MockEngine { respondOk() },
+        ): SupabaseClient =
             createSupabaseClient(
                 supabaseUrl = "https://example.supabase.co",
                 supabaseKey = "test-key",
             ) {
-                httpEngine = MockEngine { respondOk() }
+                httpEngine = engine
                 install(Auth) {
                     minimalConfig()
                     this.sessionManager = sessionManager
