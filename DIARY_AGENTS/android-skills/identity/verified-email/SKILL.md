@@ -8,7 +8,7 @@ description: Provides a complete workflow for implementing verified email retrie
 license: Complete terms in LICENSE.txt
 metadata:
   author: Google LLC
-  last-updated: '2026-09-04'
+  last-updated: '2026-10-28'
   keywords:
   - implementation
   - Android
@@ -120,7 +120,7 @@ actions:
 ## Overview
 
 This guide describes how to implement verified email retrieval using the
-[Digital Credentials Verifier API](references/android/identity/digital-credentials/credential-verifier.md) through an [OpenID for Verifiable
+[Digital Credentials Verifier API](https://developer.android.com/identity/digital-credentials/credential-verifier) through an [OpenID for Verifiable
 Presentations (OpenID4VP)](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html) request.
 
 ## Add dependencies
@@ -236,26 +236,28 @@ a `GetCredentialRequest`, and call `getCredential()`.
 
 Present the user with the request, using the Credential Manager built-in UI.
 
-    try {
-        // Requesting Digital Credential from user...
-        val result = credentialManager.getCredential(activity, request)
+    coroutineScope {
+        try {
+            // Requesting Digital Credential from user...
+            val result = credentialManager.getCredential(activity, request)
 
-        when (val credential = result.credential) {
-            is DigitalCredential -> {
-                val responseJsonString = credential.credentialJson
+            when (val credential = result.credential) {
+                is DigitalCredential -> {
+                    val responseJsonString = credential.credentialJson
 
-                // Successfully received digital credential response.
+                    // Successfully received digital credential response.
 
-                // Next, parse this response and send it to your server.
-                // ...
+                    // Next, parse this response and send it to your server.
+                    // ...
+                }
+
+                else -> {
+                    // handle Unexpected State() - Up to the developer
+                }
             }
-
-            else -> {
-                // handle Unexpected State() - Up to the developer
-            }
+        } catch (e: Exception) {
+            // handle exceptions - Up to the developer
         }
-    } catch (e: Exception) {
-        // handle exceptions - Up to the developer
     }
 
 > [!NOTE]
@@ -342,7 +344,7 @@ additional metadata as well along with verified email:
      */
 
 > [!IMPORTANT]
-> **Important:** We highly recommend that after receiving the verified email, you trigger Credential Manager's [passkey creation](https://developer.android.com/identity/credential-manager/passkeys/create-passkeys).
+> **Important:** We highly recommend that after receiving the verified email, you trigger Credential Manager's [passkey creation](references/android/identity/passkeys/create-passkeys.md).
 
 ## Server-side validation for account creation
 

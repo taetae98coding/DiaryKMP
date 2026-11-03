@@ -11,9 +11,56 @@ week of developer time. Learn more at our **[business
 site](http://play.google.com/console/about/programs/EngageSDK)**.
 
 This guide contains instructions for developer partners to deliver reading
-content (eBooks, Audiobooks, Comics/Manga) to Engage content surfaces.
+content (eBooks, Audiobooks, Comics/Manga, Blogs, News and Magazines) to Engage
+content surfaces.
+
+## Category support and surfaces
+
+Engage SDK surface eligibility is based on your app's content category. Use the
+following table to determine your eligibility for specific surfaces:
+
+| Status | Content category or use case | Supported surfaces |
+|---|---|---|
+| **Supported** (Eligible on all surfaces) | - eBooks - Comics \& Manga - Audiobooks - UGC long-form reading services - Blogs | - Collections - Entertainment Space - Play Store Apps tab - Play Store You tab (Personalized recommendations \& continuation only) - Play Store store listing page |
+| **Partially supported** (Eligible on some surfaces) | - News \& Magazines\* | - Collections - Entertainment Space |
+| **Not supported** | - eBook or PDF reader - Book reviews - Encyclopedia / Dictionary - Translator - Religious text |   |
+
+### News apps
+
+News apps provide diverse content, each subject to unique eligibility rules.
+Because Engage SDK content on the Play Store aligns with Play Premium Growth
+Tools, news articles and video clips from news apps are ineligible for the Play
+Store, though they are eligible for Collections and Entertainment Space.
+Conversely, non-traditional news content, like podcasts and recipes, may be
+eligible for the Play Store:
+
+| Entity type | Eligible for Collections | Eligible for Entertainment Space | Eligible for Play Store |
+|---|---|---|---|
+| News article | *Yes (Read tab)* | *Yes (Read tab)* | No |
+| Video clip | *Yes (Watch tab)* | *Yes (Watch tab)* | No |
+| Podcast | *Yes (Listen tab)* | *Yes (Listen tab)* | *Yes* |
+| Recipe | *Yes (Food tab)* | No | *Yes* |
+
+> [!NOTE]
+> **Note:** Play Store eligibility aligns with the supported categories for [Play Premium Growth Tools](https://play.google.com/console/about/guides/premium-growth-tools/). If your news app has additional forms of content not listed in the preceding table, contact [`engage-developers@google.com`](mailto:engage-developers@google.com) to clarify its eligibility for the Play Store.
+
+
+## Android skills
+
+[View on GitHub](https://github.com/android/skills/tree/main/play/engage-sdk-integration)
+
+### Integrate Engage SDK
+
+Use the Engage SDK [Android skill](https://developer.android.com/tools/agents/android-skills) to integrate, debug, and resolve implementation issues. To install the skill from the [Android CLI](https://developer.android.com/tools/agents/android-cli), run:
+
+    android skills add engage-sdk-integration
+
+<br />
 
 ## Integration detail
+
+This section details the steps, data models, and terminology required to
+integrate with the Engage SDK for reading content.
 
 ### Terminology
 
@@ -81,7 +128,8 @@ the following entities for the Read category:
 2. `AudiobookEntity`
 3. `BookSeriesEntity`
 
-The charts below outline available attributes and requirements for each type.
+The following charts outline available attributes and requirements for each
+type.
 
 #### `EbookEntity`
 
@@ -157,7 +205,7 @@ Potter* book series, which has 7 books).
 
 #### Image specifications
 
-Required specifications for image assets are listed below:
+The following table lists the required specifications for image assets:
 
 | Aspect ratio | Supported cluster(s) | Minimum pixels | Recommended pixels |
 |---|---|---|---|
@@ -306,24 +354,17 @@ required for `ServiceAvailabilityRequest` from the following table.
 ###### Conditional Service Availability Feature
 
 Some integrated apps request a special configuration that enables and disables
-the Engage service intermittently in order to reduce their serving cost. This
-intermittent content ingestion strategy, although possible, negatively affects
-the user and the product -- stale content will not be presented and some surfaces
-will not be served at all.
+the Engage service intermittently to reduce serving costs. However, this
+intermittent content ingestion strategy negatively affects the user experience:
+stale content won't be presented, and some surfaces won't be served.
 
 Starting with v1.6.0, the Engage SDK allows checking availability for specific
-cluster types. This provides more flexibility so that if the intermittent
-content strategy was adopted by a given application, some cluster types can
-follow that intermittent strategy while other cluster types are always enabled
-(i.e. continuation clusters).
+cluster types. If your app uses intermittent ingestion:
 
-If the Engage service should not be 'continuously' enabled on all supported
-devices for whatever reason, and is configured for intermittent ingestion for
-any set of devices, all continuation cluster publications (e.g. Continue
-Reading) will be still enabled by default
-configuration, and the rest of the cluster types will be enabled and disabled
-intermittently. If intermittent ingestion applies to you but this default
-configuration is not suitable for your needs, please contact
+- **Continuation clusters** (such as Continue Reading) remain enabled by default across all supported devices.
+- **Other cluster types** (such as Recommendations) are enabled and disabled intermittently.
+
+If this default configuration isn't suitable for your needs, contact
 engage-developers@google.com.
 
 ##### For SDK versions prior to v1.6.0 (Deprecated)
@@ -610,7 +651,7 @@ with the status code **NOT_PUBLISHED_REQUIRES_SIGN_IN**
             .setStatusCode(AppEngagePublishStatusCode.NOT_PUBLISHED_REQUIRES_SIGN_IN)
             .build());
 
-#### `deleteRecommendationClusters`
+#### `deleteRecommendationsClusters`
 
 This API is used to delete the content of Recommendation Clusters.
 
@@ -619,11 +660,11 @@ This API is used to delete the content of Recommendation Clusters.
 
 ### Kotlin
 
-    client.deleteRecommendationClusters()
+    client.deleteRecommendationsClusters()
 
 ### Java
 
-    client.deleteRecommendationClusters();
+    client.deleteRecommendationsClusters();
 
 When the service receives the request, it removes the existing data from the
 Recommendation Clusters. In case of an error, the entire request is rejected
