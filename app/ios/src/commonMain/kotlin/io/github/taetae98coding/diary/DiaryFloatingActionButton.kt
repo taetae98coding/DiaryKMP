@@ -39,7 +39,6 @@ public class DiaryFloatingActionButtonState internal constructor(
     public val contentDescription: String get() = state.contentDescription
     public val isInProgress: Boolean get() = state.isInProgress
     public val containerColor: UIColor get() = state.containerColor
-    public val contentColor: UIColor get() = state.contentColor
     public val size: Double get() = state.size
     public val menuItems: List<DiaryFloatingActionButtonMenuItem> get() = state.menuItems.map(::DiaryFloatingActionButtonMenuItem)
 

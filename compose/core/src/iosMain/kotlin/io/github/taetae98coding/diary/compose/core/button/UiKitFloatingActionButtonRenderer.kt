@@ -18,7 +18,6 @@ public class UiKitFloatingActionButtonState internal constructor(
     public val contentDescription: String,
     public val isInProgress: Boolean,
     public val containerColor: UIColor,
-    public val contentColor: UIColor,
     public val size: Double,
     public val menuItems: List<UiKitFloatingActionButtonMenuItem>,
     private val onClick: () -> Unit,

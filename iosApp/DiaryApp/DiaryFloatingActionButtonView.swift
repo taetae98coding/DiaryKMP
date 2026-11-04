@@ -116,18 +116,15 @@ private struct DiaryFloatingActionButtonContent: View {
     }
 
     private var label: some View {
-        let contentColor = Color(uiColor: state.contentColor)
         let size = CGFloat(state.size)
 
         return ZStack {
             if state.isInProgress {
                 ProgressView()
-                    .tint(contentColor)
                     .transition(.opacity)
             } else if let image = state.image {
                 Image(uiImage: image)
                     .renderingMode(.template)
-                    .foregroundStyle(contentColor)
                     .id(ObjectIdentifier(image))
                     .transition(.opacity)
             }

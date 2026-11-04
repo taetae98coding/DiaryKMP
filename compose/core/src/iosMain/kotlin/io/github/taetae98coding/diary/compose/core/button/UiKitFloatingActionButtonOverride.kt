@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.compose.core.button
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -14,7 +15,6 @@ import androidx.compose.ui.viewinterop.UIKitViewController
 import io.github.taetae98coding.diary.compose.core.appbar.LocalDiaryTopBarAlpha
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
 import io.github.taetae98coding.diary.compose.core.graphics.toUIColor
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import platform.UIKit.UIImage
 
 public class UiKitFloatingActionButtonOverride(
@@ -75,8 +75,7 @@ private fun UiKitFloatingActionButton(
     val currentIsInProgressProvider by rememberUpdatedState(isInProgressProvider)
     val currentOnClick by rememberUpdatedState(onClick)
     val currentMenuItems by rememberUpdatedState(menuItems)
-    val containerColor by rememberUpdatedState(DiaryTheme.colorScheme.primary.toUIColor())
-    val contentColor by rememberUpdatedState(DiaryTheme.colorScheme.onPrimary.toUIColor())
+    val containerColor by rememberUpdatedState(FloatingActionButtonDefaults.containerColor.toUIColor())
     val alphaProvider = LocalDiaryTopBarAlpha.current
 
     UIKitViewController(
@@ -92,7 +91,6 @@ private fun UiKitFloatingActionButton(
                         contentDescription = currentContentDescription,
                         isInProgress = currentIsInProgressProvider(),
                         containerColor = containerColor,
-                        contentColor = contentColor,
                         size = DiaryFloatingActionButtonDefaults.IosSize.value.toDouble(),
                         menuItems = currentMenuItems,
                         onClick = { currentOnClick() },
