@@ -373,6 +373,22 @@ private fun SignInEffect(
 }
 ```
 
+## 생명주기는 호출자가 소유한다
+
+**`Lifecycle`·`LifecycleOwner`·`lifecycleScope`는 Composable 안에서 `LocalLifecycleOwner.current`로 읽는다. 일반 class, ViewModel, state 홀더는 이들을 생성자로 받지 않는다.** 어느 생명주기를 따를지는 호스트(Activity, `ComposeUIViewController`, `NavDisplay`의 entry)가 CompositionLocal로 정하고, 테스트는 `CompositionLocalProvider(LocalLifecycleOwner provides TestLifecycleOwner(...))`로 바꿔 끼운다. 생명주기 외의 작업을 어디서 시작하는지는 [main-safety.md](main-safety.md)의 `그 밖의 작업은 suspend로 내보내고 호출자가 scope를 정한다`가 소유한다.
+
+관찰 수단은 계기에 따라 고른다.
+
+| 계기 | 수단 |
+| --- | --- |
+| ViewModel의 UI state | `collectAsStateWithLifecycle` |
+| ViewModel의 one-shot Effect·트리거 Flow | `CollectEffect` (`UI Effect 수집`) |
+| Flow가 아닌 반복(타이머 등)을 활성 상태에서만 | `repeatOnLifecycle` |
+| 화면 진입·이탈 자체 | `LifecycleEventEffect`, key가 필요하면 `LifecycleStartEffect`·`LifecycleResumeEffect` |
+| 플랫폼 View의 생명주기 전달(지도 등) | `DisposableEffect(lifecycle, view)` 안에서 `LifecycleEventObserver`를 붙이고 `onDispose`에서 뗀다 |
+
+CameraX의 `bindToLifecycle(owner, ...)`처럼 플랫폼 API가 `LifecycleOwner`를 요구하면 Composable이 읽은 값을 private 함수의 인자로 넘기기만 한다. 그 함수가 owner를 저장하거나 observer를 스스로 붙이지 않는다.
+
 ## Preview
 
 **UI를 그리는 컴포저블에는 Preview를 하나 이상 둔다.**
