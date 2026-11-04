@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.Calendar
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
@@ -23,6 +24,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarH
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarContactBirthday
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun CalendarHomeContent(
@@ -39,6 +41,7 @@ internal fun CalendarHomeContent(
     val calendarColors = CalendarDefaults.colors()
     val nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
     val birthdayColor = CalendarItemDefaults.birthdayColor()
+    val coroutineScope = rememberCoroutineScope()
     val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     DiaryPullToRefreshBox(
@@ -73,8 +76,8 @@ internal fun CalendarHomeContent(
                         memoProvider = { memoUiStateProvider().memoList },
                         birthdayProvider = { birthdayUiStateProvider().birthdayList },
                         birthdayColor = birthdayColor,
-                        onWeatherClick = { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
-                        onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
+                        onWeatherClick = { coroutineScope.launch { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) } },
+                        onHolidayClick = { holiday -> coroutineScope.launch { searchOpener.openHolidaySearch(name = holiday.name) } },
                         onEvent = onEvent,
                     )
                 }

@@ -31,6 +31,7 @@ internal fun QrAddScreen(
     val state = rememberQrAddFormState(defaultProvider = uiState.defaultProvider)
     val scanStarter = rememberQrScanStarter(permissionManager = permissionManager)
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
+    val showPermissionDenied: () -> Unit = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } }
 
     DiaryTitleInputFocusEffect(state = state.titleState)
     QrAddScreenEffect(
@@ -55,10 +56,7 @@ internal fun QrAddScreen(
                 }
 
                 is QrAddScaffoldEvent.ClickScan -> {
-                    scanStarter.startIfIdle(
-                        onGranted = navigateToScan,
-                        onDenied = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } },
-                    )
+                    coroutineScope.launch { scanStarter.startIfIdle(onGranted = navigateToScan, onDenied = showPermissionDenied) }
                 }
 
                 is QrAddScaffoldEvent.ClickAdd -> {

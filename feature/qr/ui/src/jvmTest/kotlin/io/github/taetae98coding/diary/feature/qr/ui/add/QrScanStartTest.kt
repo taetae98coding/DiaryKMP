@@ -8,6 +8,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 
 class QrScanStartTest :
     FunSpec({
@@ -44,5 +48,60 @@ class QrScanStartTest :
 
             grantedCount shouldBe 0
             deniedCount shouldBe 1
+        }
+
+        test("권한 요청에 응답하기 전에 다시 시작하면 새 요청을 시작하지 않는다") {
+            runTest {
+                val response = CompletableDeferred<PermissionResult>()
+                val permissionManager = mockk<PermissionManager>()
+                coEvery { permissionManager.request(Permission.CAMERA) } coAnswers { response.await() }
+                val starter = QrScanStarter(permissionManager = permissionManager)
+                var grantedCount = 0
+
+                launch { starter.startIfIdle(onGranted = { grantedCount += 1 }, onDenied = {}) }
+                runCurrent()
+                launch { starter.startIfIdle(onGranted = { grantedCount += 1 }, onDenied = {}) }
+                runCurrent()
+                response.complete(PermissionResult.GRANTED)
+                runCurrent()
+
+                coVerify(exactly = 1) { permissionManager.request(Permission.CAMERA) }
+                grantedCount shouldBe 1
+            }
+        }
+
+        test("권한 요청이 끝난 뒤에는 다시 시작한다") {
+            runTest {
+                val permissionManager = mockk<PermissionManager>()
+                coEvery { permissionManager.request(Permission.CAMERA) } returns PermissionResult.DENIED
+                val starter = QrScanStarter(permissionManager = permissionManager)
+                var deniedCount = 0
+
+                starter.startIfIdle(onGranted = {}, onDenied = { deniedCount += 1 })
+                starter.startIfIdle(onGranted = {}, onDenied = { deniedCount += 1 })
+
+                coVerify(exactly = 2) { permissionManager.request(Permission.CAMERA) }
+                deniedCount shouldBe 2
+            }
+        }
+
+        test("권한 요청이 취소되면 다시 시작할 수 있다") {
+            runTest {
+                val response = CompletableDeferred<PermissionResult>()
+                val permissionManager = mockk<PermissionManager>()
+                coEvery { permissionManager.request(Permission.CAMERA) } coAnswers { response.await() }
+                val starter = QrScanStarter(permissionManager = permissionManager)
+                var grantedCount = 0
+
+                val job = launch { starter.startIfIdle(onGranted = { grantedCount += 1 }, onDenied = {}) }
+                runCurrent()
+                job.cancel()
+                runCurrent()
+                coEvery { permissionManager.request(Permission.CAMERA) } returns PermissionResult.GRANTED
+                starter.startIfIdle(onGranted = { grantedCount += 1 }, onDenied = {})
+
+                coVerify(exactly = 2) { permissionManager.request(Permission.CAMERA) }
+                grantedCount shouldBe 1
+            }
         }
     })

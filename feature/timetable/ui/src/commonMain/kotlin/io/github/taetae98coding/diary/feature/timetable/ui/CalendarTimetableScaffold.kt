@@ -97,6 +97,7 @@ private fun CalendarTimetableContent(
     weatherUiStateProvider: () -> CalendarTimetableWeatherUiState = { CalendarTimetableWeatherUiState() },
     birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val calendarColors = CalendarDefaults.colors()
     val nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
     val birthdayColor = CalendarItemDefaults.birthdayColor()
@@ -122,11 +123,11 @@ private fun CalendarTimetableContent(
             holidayNameColor = calendarColors.sundayAndHolidayColor,
             nonHolidayNameColor = nonHolidayNameColor,
             onEvent = onEvent,
-            onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
+            onHolidayClick = { holiday -> coroutineScope.launch { searchOpener.openHolidaySearch(name = holiday.name) } },
         )
         calendarTimetableWeatherItems(
             weatherProvider = { weatherUiStateProvider().weatherReport.weatherList },
-            onWeatherClick = { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
+            onWeatherClick = { coroutineScope.launch { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) } },
         )
     }
 }

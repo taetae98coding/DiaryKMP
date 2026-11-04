@@ -54,6 +54,7 @@ internal fun QrDetailScreen(
         val action by remember(state, actionController) {
             derivedStateOf { actionController.actionOf(qrValue = state.contentState.qrValue) }
         }
+        val showPermissionDenied: () -> Unit = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } }
 
         ReflectQrCoordinateEffect(state = state.contentState)
         QrScannedResultEffect(
@@ -77,10 +78,7 @@ internal fun QrDetailScreen(
                     }
 
                     is QrDetailScaffoldEvent.ClickScan -> {
-                        scanStarter.startIfIdle(
-                            onGranted = navigateToScan,
-                            onDenied = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } },
-                        )
+                        coroutineScope.launch { scanStarter.startIfIdle(onGranted = navigateToScan, onDenied = showPermissionDenied) }
                     }
 
                     is QrDetailScaffoldEvent.ClickDelete -> {

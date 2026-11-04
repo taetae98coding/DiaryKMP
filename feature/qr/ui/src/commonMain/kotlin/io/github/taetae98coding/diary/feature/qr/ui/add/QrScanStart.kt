@@ -1,14 +1,11 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.core.permission.PermissionResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 internal suspend fun startQrScan(
     permissionManager: PermissionManager,
@@ -21,32 +18,30 @@ internal suspend fun startQrScan(
     }
 }
 
+@Stable
 internal class QrScanStarter(
-    private val coroutineScope: CoroutineScope,
     private val permissionManager: PermissionManager,
 ) {
-    private var job: Job? = null
+    private var isStarting = false
 
-    fun startIfIdle(
+    suspend fun startIfIdle(
         onGranted: () -> Unit,
         onDenied: () -> Unit,
     ) {
-        if (job?.isActive == true) return
+        if (isStarting) return
 
-        job =
-            coroutineScope.launch {
-                startQrScan(
-                    permissionManager = permissionManager,
-                    onGranted = onGranted,
-                    onDenied = onDenied,
-                )
-            }
+        isStarting = true
+        try {
+            startQrScan(
+                permissionManager = permissionManager,
+                onGranted = onGranted,
+                onDenied = onDenied,
+            )
+        } finally {
+            isStarting = false
+        }
     }
 }
 
 @Composable
-internal fun rememberQrScanStarter(permissionManager: PermissionManager): QrScanStarter {
-    val coroutineScope = rememberCoroutineScope()
-
-    return remember(coroutineScope, permissionManager) { QrScanStarter(coroutineScope = coroutineScope, permissionManager = permissionManager) }
-}
+internal fun rememberQrScanStarter(permissionManager: PermissionManager): QrScanStarter = remember(permissionManager) { QrScanStarter(permissionManager = permissionManager) }
