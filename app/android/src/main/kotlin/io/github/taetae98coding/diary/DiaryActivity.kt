@@ -8,8 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import io.github.taetae98coding.diary.app.shared.App
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
+import org.koin.android.ext.android.inject
 
 internal class DiaryActivity : ComponentActivity() {
+    private val appDeepLink: AppDeepLink by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -33,7 +36,7 @@ internal class DiaryActivity : ComponentActivity() {
         val deepLink = intent.dataString ?: intent.getStringExtra(ScreenDeepLink.NOTIFICATION_DATA_KEY).orEmpty()
 
         if (deepLink.isNotEmpty()) {
-            AppDeepLink.open(deepLink = deepLink)
+            appDeepLink.open(deepLink = deepLink)
         }
     }
 }

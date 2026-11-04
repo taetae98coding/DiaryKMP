@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.firebase.performance)
     implementation(libs.google.material)
+    implementation(libs.koin.android)
 }
 
 dependencyGuard {

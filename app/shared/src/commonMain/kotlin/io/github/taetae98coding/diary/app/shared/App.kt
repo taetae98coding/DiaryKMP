@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -27,6 +28,7 @@ public fun App(modifier: Modifier = Modifier) {
     val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
     val fileUploadViewModel = koinViewModel<AppFileUploadViewModel>()
     val webLoginViewModel = koinViewModel<AppWebLoginViewModel>()
+    val appDeepLink = koinInject<AppDeepLink>()
     val appState = rememberAppState()
 
     DiaryImageLoaderEffect()
@@ -59,7 +61,7 @@ public fun App(modifier: Modifier = Modifier) {
         appState = appState,
     )
     OpenDeepLinkEffect(
-        deepLink = AppDeepLink.deepLink,
+        deepLink = appDeepLink.deepLink,
         appState = appState,
     )
 
