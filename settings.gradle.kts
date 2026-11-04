@@ -48,6 +48,7 @@ enableFeaturePreview("NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS")
 enableFeaturePreview("ENHANCED_GRAPH_ORDERING")
 
 include(":app:android")
+include(":app:baselineprofile")
 include(":app:ios")
 include(":app:jvm")
 include(":app:wasm")
