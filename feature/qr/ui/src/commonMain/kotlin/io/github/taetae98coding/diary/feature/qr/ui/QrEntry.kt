@@ -29,7 +29,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
     qrHomeEntry(backStack = backStack)
     qrAddEntry(backStack = backStack)
     qrDetailEntry(backStack = backStack)

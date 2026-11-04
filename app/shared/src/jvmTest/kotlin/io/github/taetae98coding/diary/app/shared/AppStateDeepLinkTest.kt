@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
+import io.github.taetae98coding.diary.app.shared.navigation.openDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey

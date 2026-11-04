@@ -25,7 +25,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeScree
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.playlistEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.playlistEntry(backStack: NavBackStack<ScreenNavKey>) {
     playlistHomeEntry(backStack = backStack)
     musicAddEntry(backStack = backStack)
     musicDetailEntry(backStack = backStack)

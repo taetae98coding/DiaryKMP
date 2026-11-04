@@ -25,7 +25,7 @@ import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeScr
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.checklistEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.checklistEntry(backStack: NavBackStack<ScreenNavKey>) {
     checklistHomeEntry(backStack = backStack)
     checklistAddEntry(backStack = backStack)
     checklistDetailEntry(backStack = backStack)

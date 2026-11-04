@@ -18,24 +18,24 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
-import io.github.taetae98coding.diary.app.shared.navigation.appDeepLinkNavigationList
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.core.navigation.open
+import io.github.taetae98coding.diary.core.navigation.ScreenNavigator
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
+import kotlinx.coroutines.flow.Flow
 
 @Stable
 internal class AppState(
-    val backStack: NavBackStack<ScreenNavKey>,
+    override val backStack: NavBackStack<ScreenNavKey>,
     val scaffoldState: NavigationSuiteScaffoldState,
     val reselectEvent: TopLevelReselectEvent,
     private val paneScaffoldDirectiveProvider: () -> PaneScaffoldDirective,
-) {
+) : ScreenNavigator {
     val paneScaffoldDirective: PaneScaffoldDirective
         get() = paneScaffoldDirectiveProvider()
 
@@ -60,18 +60,18 @@ internal class AppState(
             return
         }
 
-        val navKeyList =
-            listOf(TopLevelNavigation.DEFAULT, topLevelNavigation)
-                .distinct()
-                .map(TopLevelNavigation::key)
-
         backStack.clear()
-        backStack.addAll(navKeyList)
+        backStack.addAll(topLevelBackStackOf(topLevelNavigation.key))
     }
 
-    fun openDeepLink(deepLink: String) {
-        appDeepLinkNavigationList.open(deepLink = deepLink, backStack = backStack)
-    }
+    override fun reselectEventOf(topLevelKey: ScreenNavKey): Flow<Unit> = reselectEvent.flowOf(topLevelNavigationOf(topLevelKey))
+
+    override fun topLevelBackStackOf(topLevelKey: ScreenNavKey): List<ScreenNavKey> =
+        listOf(TopLevelNavigation.DEFAULT, topLevelNavigationOf(topLevelKey))
+            .distinct()
+            .map(TopLevelNavigation::key)
+
+    private fun topLevelNavigationOf(topLevelKey: ScreenNavKey): TopLevelNavigation = TopLevelNavigation.entries.first { it.key == topLevelKey }
 
     private fun isTopLevelVisible(): Boolean {
         val currentKey = currentContentKey()

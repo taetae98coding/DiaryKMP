@@ -13,7 +13,7 @@ import io.github.taetae98coding.diary.feature.account.ui.profileimage.ProfileIma
 import io.github.taetae98coding.diary.feature.account.ui.viewer.ProfileImageViewerScreen
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.accountEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.accountEntry(backStack: NavBackStack<ScreenNavKey>) {
     profileEntry(backStack = backStack)
     profileImageEditEntry(backStack = backStack)
     profileImageViewerEntry(backStack = backStack)

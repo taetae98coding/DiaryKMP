@@ -31,7 +31,7 @@ class OpenDeepLinkEffectTest {
         appDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME)
         composeRule.setContent {
             appState = rememberAppState()
-            OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, appState = appState)
+            OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
         }
 
         composeRule.runOnIdle {
@@ -52,7 +52,7 @@ class OpenDeepLinkEffectTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 appState = rememberAppState()
-                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, appState = appState)
+                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
             }
         }
         composeRule.runOnIdle {
@@ -81,7 +81,7 @@ class OpenDeepLinkEffectTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 appState = rememberAppState()
-                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, appState = appState)
+                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
             }
         }
         composeRule.runOnIdle {

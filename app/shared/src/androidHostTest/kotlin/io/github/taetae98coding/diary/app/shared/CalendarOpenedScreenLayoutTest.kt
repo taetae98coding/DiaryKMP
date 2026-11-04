@@ -11,26 +11,21 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
-import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
-import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.timetable.ui.timetableEntry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -123,14 +118,7 @@ class CalendarOpenedScreenLayoutTest {
     private fun setAppNavDisplay(backStack: NavBackStack<ScreenNavKey>) {
         composeRule.setContent {
             val appEntryProvider =
-                remember {
-                    entryProvider<ScreenNavKey> {
-                        calendarEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                        timetableEntry(backStack = backStack)
-                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                        contactEntry(backStack = backStack)
-                    }
-                }
+                remember { appEntryProvider(backStack = backStack) }
 
             DiaryTheme {
                 NavDisplay(

@@ -21,7 +21,7 @@ import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.calendarEntry(
+internal fun EntryProviderScope<ScreenNavKey>.calendarEntry(
     backStack: NavBackStack<ScreenNavKey>,
     homeReselectEvent: Flow<Unit>,
 ) {

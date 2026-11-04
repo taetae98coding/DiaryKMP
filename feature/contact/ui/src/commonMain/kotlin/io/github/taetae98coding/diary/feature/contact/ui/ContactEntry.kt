@@ -34,7 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack<ScreenNavKey>) {
     contactHomeEntry(backStack = backStack)
     contactAddEntry(backStack = backStack)
     contactDetailEntry(backStack = backStack)

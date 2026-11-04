@@ -14,7 +14,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -33,26 +32,9 @@ import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlacehol
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
+import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.account.ui.accountEntry
-import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
-import io.github.taetae98coding.diary.feature.checklist.ui.checklistEntry
-import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
-import io.github.taetae98coding.diary.feature.dday.ui.dDayEntry
-import io.github.taetae98coding.diary.feature.file.ui.fileEntry
-import io.github.taetae98coding.diary.feature.holiday.ui.holidayEntry
-import io.github.taetae98coding.diary.feature.login.ui.loginEntry
-import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
-import io.github.taetae98coding.diary.feature.more.ui.moreEntry
-import io.github.taetae98coding.diary.feature.place.ui.placeEntry
-import io.github.taetae98coding.diary.feature.playlist.ui.playlistEntry
-import io.github.taetae98coding.diary.feature.qr.ui.qrEntry
-import io.github.taetae98coding.diary.feature.routine.ui.routineEntry
-import io.github.taetae98coding.diary.feature.search.ui.searchEntry
-import io.github.taetae98coding.diary.feature.setting.ui.settingEntry
-import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
-import io.github.taetae98coding.diary.feature.timetable.ui.timetableEntry
-import io.github.taetae98coding.diary.feature.web.ui.webEntry
+import org.koin.compose.getKoin
 
 @Composable
 internal fun AppNavigation(
@@ -64,6 +46,8 @@ internal fun AppNavigation(
     // 같은 이유로 placeholder의 저장 상태와 ViewModel이 목록 entry의 수명을 따르도록 placeholder 전용 저장소를 제공하고, 목록 entry가 빠질 때 decorator가 비운다.
     // FIXME placeholder를 decorate하지 않는 것은 navigation3의 제약이라 라이브러리에서 고쳐져야 한다. 등록된 이슈는 아직 없다.
     val resultEventBus = rememberResultEventBus()
+    val koin = getKoin()
+    val entryInstallerList = remember(koin) { koin.getAll<ScreenEntryInstaller>() }
     val placeholderStateHolder = rememberListDetailPlaceholderStateHolder()
 
     CompositionLocalProvider(
@@ -87,44 +71,12 @@ internal fun AppNavigation(
             transitionSpec = { DiaryFadeContentTransform },
             popTransitionSpec = { DiaryFadeContentTransform },
             predictivePopTransitionSpec = { DiaryFadeContentTransform },
-            entryProvider = entryProvider { appEntries(appState = appState) },
+            entryProvider =
+                entryProvider {
+                    entryInstallerList.forEach { installer -> with(installer) { install(navigator = appState) } }
+                },
         )
     }
-}
-
-private fun EntryProviderScope<ScreenNavKey>.appEntries(appState: AppState) {
-    memoEntry(
-        backStack = appState.backStack,
-        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Memo),
-    )
-    tagEntry(
-        backStack = appState.backStack,
-        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Tag),
-    )
-    calendarEntry(
-        backStack = appState.backStack,
-        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Calendar),
-    )
-    routineEntry(
-        backStack = appState.backStack,
-        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Routine),
-    )
-    moreEntry(backStack = appState.backStack)
-
-    checklistEntry(backStack = appState.backStack)
-    contactEntry(backStack = appState.backStack)
-    dDayEntry(backStack = appState.backStack)
-    fileEntry(backStack = appState.backStack)
-    holidayEntry(backStack = appState.backStack)
-    loginEntry(backStack = appState.backStack)
-    accountEntry(backStack = appState.backStack)
-    placeEntry(backStack = appState.backStack)
-    playlistEntry(backStack = appState.backStack)
-    qrEntry(backStack = appState.backStack)
-    searchEntry(backStack = appState.backStack)
-    settingEntry(backStack = appState.backStack)
-    timetableEntry(backStack = appState.backStack)
-    webEntry(backStack = appState.backStack)
 }
 
 @Composable

@@ -50,7 +50,7 @@ import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.memoEntry(
+internal fun EntryProviderScope<ScreenNavKey>.memoEntry(
     backStack: NavBackStack<ScreenNavKey>,
     homeReselectEvent: Flow<Unit>,
 ) {

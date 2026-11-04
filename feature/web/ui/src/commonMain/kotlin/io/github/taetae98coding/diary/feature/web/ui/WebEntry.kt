@@ -37,7 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<ScreenNavKey>) {
     webHomeEntry(backStack = backStack)
     webAddEntry(backStack = backStack)
     webDetailEntry(backStack = backStack)

@@ -28,7 +28,7 @@ import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldC
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
     settingHomeEntry(backStack = backStack)
     settingHolidayEntry(backStack = backStack)
     settingMapEntry(backStack = backStack)

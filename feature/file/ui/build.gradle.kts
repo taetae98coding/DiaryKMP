@@ -9,6 +9,7 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.file)
                 implementation(projects.feature.file.api)
+                implementation(projects.feature.more.api)
             }
         }
 

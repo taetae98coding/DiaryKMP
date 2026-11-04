@@ -21,7 +21,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.moreEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.moreEntry(backStack: NavBackStack<ScreenNavKey>) {
     moreHomeEntry(backStack = backStack)
 }
 

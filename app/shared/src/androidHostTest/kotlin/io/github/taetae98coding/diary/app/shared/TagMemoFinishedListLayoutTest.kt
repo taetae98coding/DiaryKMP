@@ -11,23 +11,20 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -142,12 +139,7 @@ class TagMemoFinishedListLayoutTest {
     private fun setAppNavDisplay(backStack: NavBackStack<ScreenNavKey>) {
         composeRule.setContent {
             val appEntryProvider =
-                remember {
-                    entryProvider<ScreenNavKey> {
-                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                    }
-                }
+                remember { appEntryProvider(backStack = backStack) }
 
             DiaryTheme {
                 NavDisplay(

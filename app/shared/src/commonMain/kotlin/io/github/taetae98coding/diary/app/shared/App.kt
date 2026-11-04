@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.app.shared
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
@@ -15,8 +16,10 @@ import io.github.taetae98coding.diary.app.shared.web.SaveWebLoginEffect
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
+import io.github.taetae98coding.diary.core.navigation.DeepLinkNavigation
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -29,6 +32,8 @@ public fun App(modifier: Modifier = Modifier) {
     val fileUploadViewModel = koinViewModel<AppFileUploadViewModel>()
     val webLoginViewModel = koinViewModel<AppWebLoginViewModel>()
     val appDeepLink = koinInject<AppDeepLink>()
+    val koin = getKoin()
+    val deepLinkNavigationList = remember(koin) { koin.getAll<DeepLinkNavigation>() }
     val appState = rememberAppState()
 
     DiaryImageLoaderEffect()
@@ -62,7 +67,8 @@ public fun App(modifier: Modifier = Modifier) {
     )
     OpenDeepLinkEffect(
         deepLink = appDeepLink.deepLink,
-        appState = appState,
+        deepLinkNavigationList = deepLinkNavigationList,
+        navigator = appState,
     )
 
     AppContent(

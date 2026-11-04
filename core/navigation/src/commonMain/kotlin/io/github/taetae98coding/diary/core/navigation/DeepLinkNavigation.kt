@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.core.navigation
 
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.deeplink.DeepLinkMatcher
 import androidx.navigation3.runtime.deeplink.DeepLinkRequest
 
@@ -8,15 +7,15 @@ public fun interface DeepLinkNavigation {
     /** 주소가 맞으면 백스택을 바꾸고 true, 아니면 아무것도 하지 않고 false. */
     public fun open(
         request: DeepLinkRequest,
-        backStack: NavBackStack<ScreenNavKey>,
+        navigator: ScreenNavigator,
     ): Boolean
 }
 
-public fun <T : Any, R : DeepLinkMatcher.MatchResult<T>> DeepLinkMatcher<T, R>.toDeepLinkNavigation(open: NavBackStack<ScreenNavKey>.(R) -> Unit): DeepLinkNavigation =
-    DeepLinkNavigation { request, backStack ->
+public fun <T : Any, R : DeepLinkMatcher.MatchResult<T>> DeepLinkMatcher<T, R>.toDeepLinkNavigation(open: ScreenNavigator.(R) -> Unit): DeepLinkNavigation =
+    DeepLinkNavigation { request, navigator ->
         val result = matchOrNull(request) ?: return@DeepLinkNavigation false
 
-        backStack.open(result)
+        navigator.open(result)
         true
     }
 
@@ -30,9 +29,9 @@ public fun <T : Any, R : DeepLinkMatcher.MatchResult<T>> DeepLinkMatcher<T, R>.m
 
 public fun List<DeepLinkNavigation>.open(
     deepLink: String,
-    backStack: NavBackStack<ScreenNavKey>,
+    navigator: ScreenNavigator,
 ): Boolean {
     val request = DeepLinkRequest(deepLink)
 
-    return any { navigation -> navigation.open(request, backStack) }
+    return any { navigation -> navigation.open(request, navigator) }
 }

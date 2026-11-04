@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.timetableEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.timetableEntry(backStack: NavBackStack<ScreenNavKey>) {
     calendarTimetableEntry(backStack = backStack)
 }
 

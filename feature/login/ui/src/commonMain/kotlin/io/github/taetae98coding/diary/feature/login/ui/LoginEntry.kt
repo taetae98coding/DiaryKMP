@@ -9,7 +9,7 @@ import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.login.ui.home.LoginHomeScreen
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.loginEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.loginEntry(backStack: NavBackStack<ScreenNavKey>) {
     loginHomeEntry(backStack = backStack)
 }
 

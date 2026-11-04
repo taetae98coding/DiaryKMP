@@ -23,22 +23,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.app.shared.rememberAppState
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.analytics.api.ScreenViewLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
@@ -50,7 +48,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -313,12 +310,7 @@ class ScreenViewEffectTest {
             appState = rememberAppState()
             val backStack = appState.backStack
             val appEntryProvider =
-                remember(backStack) {
-                    entryProvider<ScreenNavKey>(fallback = { key -> NavEntry(key = key) {} }) {
-                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                    }
-                }
+                remember(backStack) { appEntryProvider(backStack = backStack) }
 
             DiaryTheme {
                 NavDisplay(
