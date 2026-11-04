@@ -36,8 +36,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -47,16 +45,19 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -74,8 +75,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.math.abs
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -441,7 +440,7 @@ class CalendarTimetableScreenTest {
 
     @Test
     fun `TC-2302faa8-0e50-44f8-8bcb-d637e6159ecc 브라우저를 열지 못하면 시간표를 유지하고 검색 결과를 열지 못했다고 알린다`() {
-        val errorMessage = fixtureMonkey.nonBlankString()
+        val errorMessage = Arb.nonBlankString().next()
         val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(errorMessage) }
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
@@ -639,7 +638,7 @@ class CalendarTimetableScreenTest {
 
     @Test
     fun `TC-0dd8ce50-ed06-4131-b2bf-9695c4148b36 날씨 검색을 열지 못하면 시간표를 유지하고 알린다`() {
-        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(fixtureMonkey.nonBlankString()) }
+        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(Arb.nonBlankString().next()) }
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 23),
@@ -696,7 +695,7 @@ class CalendarTimetableScreenTest {
         )
     }
 
-    private fun weatherFailure(): Result<Nothing> = Result.failure(IllegalStateException(fixtureMonkey.nonBlankString()))
+    private fun weatherFailure(): Result<Nothing> = Result.failure(IllegalStateException(Arb.nonBlankString().next()))
 
     private fun assertShownWithoutWeather(weatherViewModel: CalendarTimetableWeatherViewModel) {
         setTimetableScreen(
@@ -841,7 +840,7 @@ class CalendarTimetableScreenTest {
     @Test
     fun `TC-9c8e653c-ad81-480b-99a2-dac567c94496 생일 조회에 실패해도 메모와 공휴일을 표시한다`() {
         val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
-        every { getUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.nonBlankString())))
+        every { getUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(Arb.nonBlankString().next())))
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 24),
@@ -864,21 +863,23 @@ class CalendarTimetableScreenTest {
     private fun birthday(
         day: Int,
         name: String = BIRTHDAY_NAME,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = name, nameQualifier = "", date = september(day = day))
+    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = "", date = september(day = day))
 
     private fun todayWeather(): CalendarWeather =
-        fixtureMonkey.calendarWeather(
-            date = september(day = 23),
-            temperature = CalendarWeatherTemperature.Current(value = 24.3),
-            descriptionList = listOf(CLEAR_SKY),
-        )
+        Arb
+            .calendarWeather(
+                date = september(day = 23),
+                temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                descriptionList = listOf(CLEAR_SKY),
+            ).next()
 
     private fun tomorrowWeather(): CalendarWeather =
-        fixtureMonkey.calendarWeather(
-            date = september(day = 24),
-            temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
-            descriptionList = listOf(FEW_CLOUDS),
-        )
+        Arb
+            .calendarWeather(
+                date = september(day = 24),
+                temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
+                descriptionList = listOf(FEW_CLOUDS),
+            ).next()
 
     private fun setTimetableScreen(
         type: CalendarTimetableNavKey.Type,
@@ -1021,10 +1022,10 @@ private fun timed(
 private fun memo(
     title: String,
     dateTime: MemoDateTime,
-): CalendarMemo = fixtureMonkey.calendarMemo(dateTime = dateTime, title = title)
+): CalendarMemo = Arb.calendarMemo(dateTime = dateTime, title = title).next()
 
 private fun holiday(
     name: String,
     isHoliday: Boolean,
     dateRange: LocalDateRange,
-): Holiday = fixtureMonkey.giveMeOne<Holiday>().copy(name = name, isHoliday = isHoliday, dateRange = dateRange)
+): Holiday = Arb.holiday().next().copy(name = name, isHoliday = isHoliday, dateRange = dateRange)

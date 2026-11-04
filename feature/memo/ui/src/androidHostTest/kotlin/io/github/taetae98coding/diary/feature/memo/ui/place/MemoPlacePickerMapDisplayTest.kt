@@ -10,19 +10,19 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.ProvideTestDiaryMap
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_DIARY_MAP_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.TestDiaryMap
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +63,7 @@ class MemoPlacePickerMapDisplayTest {
 
     @Test
     fun `TC-6f7e7eb7-7b0f-4556-9d47-24e0d4fe9605 지도 보기지만 카드의 지도를 표시할 수 없어 목록 보기의 내용을 보여 주면 카드의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val cardCoordinate = Arb.coordinate().next()
         val eventList = mutableListOf<MemoPlacePickerEvent>()
         setRestoredMapViewDialog(
             mapStateProvider = { null },
@@ -102,9 +102,5 @@ class MemoPlacePickerMapDisplayTest {
                 }
             }
         }
-    }
-
-    private companion object {
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

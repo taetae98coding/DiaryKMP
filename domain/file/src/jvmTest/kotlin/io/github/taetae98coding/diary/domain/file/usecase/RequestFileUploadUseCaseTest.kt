@@ -1,26 +1,24 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class RequestFileUploadUseCaseTest :
     BehaviorSpec({
@@ -31,8 +29,8 @@ class RequestFileUploadUseCaseTest :
                         " 회의록 " to "첫 줄\n둘째 줄",
                         "회의록" to "",
                     ).forEach { (title, description) ->
-                        val account = fixtureMonkey.giveMeOne<Account.User>()
-                        val uri = fixtureMonkey.fileUri()
+                        val account = Arb.accountUser().next()
+                        val uri = Arb.fileUri().next()
                         val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
                         val useCase = RequestFileUploadUseCase(getAccountUseCase = getAccountUseCase(result = Result.success(account)), fileUploadManager = fileUploadManager)
 
@@ -57,7 +55,7 @@ class RequestFileUploadUseCaseTest :
                         val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
                         val useCase = useCase(fileUploadManager = fileUploadManager)
 
-                        val result = useCase(parameter = RequestFileUploadUseCase.Parameter(uri = fixtureMonkey.fileUri(), title = title, description = fixtureMonkey.giveMeOne<String>()))
+                        val result = useCase(parameter = RequestFileUploadUseCase.Parameter(uri = Arb.fileUri().next(), title = title, description = Arb.string().next()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<FileTitleBlankException>()
                         coVerify(exactly = 0) { fileUploadManager.requestUpload(content = any(), accountId = any()) }
@@ -93,12 +91,12 @@ class RequestFileUploadUseCaseTest :
                 Then("TC-a1099bb4-240a-42f7-9476-8fc329821611 올리기를 맡기지 않고 실패로 끝난다") {
                     listOf<Result<Account>>(
                         Result.success(Account.Guest),
-                        Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                        Result.failure(IllegalStateException(Arb.string().next())),
                     ).forEach { accountResult ->
                         val fileUploadManager = mockk<FileUploadManager>(relaxUnitFun = true)
                         val useCase = RequestFileUploadUseCase(getAccountUseCase = getAccountUseCase(result = accountResult), fileUploadManager = fileUploadManager)
 
-                        val result = useCase(parameter = RequestFileUploadUseCase.Parameter(uri = fixtureMonkey.fileUri(), title = "회의록", description = ""))
+                        val result = useCase(parameter = RequestFileUploadUseCase.Parameter(uri = Arb.fileUri().next(), title = "회의록", description = ""))
 
                         result.shouldBeFailure()
                         coVerify(exactly = 0) { fileUploadManager.requestUpload(content = any(), accountId = any()) }
@@ -110,7 +108,7 @@ class RequestFileUploadUseCaseTest :
     public companion object {
         private fun useCase(fileUploadManager: FileUploadManager): RequestFileUploadUseCase =
             RequestFileUploadUseCase(
-                getAccountUseCase = getAccountUseCase(result = Result.success(fixtureMonkey.giveMeOne<Account.User>())),
+                getAccountUseCase = getAccountUseCase(result = Result.success(Arb.accountUser().next())),
                 fileUploadManager = fileUploadManager,
             )
 

@@ -4,14 +4,15 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -35,9 +36,6 @@ import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class CalendarHomeBirthdayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -129,7 +127,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns
-                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
@@ -242,7 +240,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val birthdayList = listOf(birthday())
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
-                coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val useCase =
                     getCalendarContactBirthdayUseCase(
                         LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30) to Result.success(birthdayList),
@@ -300,12 +298,12 @@ private fun getCalendarContactBirthdayUseCase(vararg resultByDateRange: Pair<Loc
 private fun birthday(): CalendarContactBirthday =
     CalendarContactBirthday(
         contactId = Uuid.random(),
-        name = fixtureMonkey.giveMeOne(),
-        nameQualifier = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
+        nameQualifier = Arb.string().next(),
         date =
             LocalDate(
                 year = 2026,
                 month = Month.JULY,
-                day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+                day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
             ),
     )

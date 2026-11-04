@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
@@ -10,18 +8,22 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -37,7 +39,7 @@ import kotlin.uuid.Uuid
 class UpdateContactUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 연락처가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = contact()
             val detailSlot = slot<ContactDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -126,7 +128,7 @@ class UpdateContactUseCaseTest :
                 }
 
                 Then("TC-94176a78-3cde-40e5-a765-31ebb560be13 입력한 고향을 그대로 반영한다") {
-                    val hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}"
+                    val hometown = "hometown-${Arb.string().next()}"
 
                     useCase(
                         parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(hometown = hometown)),
@@ -136,7 +138,7 @@ class UpdateContactUseCaseTest :
                 }
 
                 Then("TC-94176a78-3cde-40e5-a765-31ebb560be13 입력한 알게 된 경로를 그대로 반영한다") {
-                    val howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+                    val howWeMet = "how-we-met-${Arb.string().next()}"
 
                     useCase(
                         parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(howWeMet = howWeMet)),
@@ -216,7 +218,7 @@ class UpdateContactUseCaseTest :
             When("이름을 비운 채 수정한다") {
                 Then("TC-d0baff5e-e6ef-4b37-b9e5-128b36176f79 저장된 기존 이름을 사용하고 나머지는 입력한 대로 반영한다") {
                     listOf("", "   ").forEach { name ->
-                        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+                        val description = "description-${Arb.string().next()}"
                         val phoneNumber = ContactPhoneNumber(number = "010-0000-0000")
 
                         useCase(
@@ -237,7 +239,7 @@ class UpdateContactUseCaseTest :
 
         listOf("", "   ").forEach { blankNumber ->
             Given("번호가 `$blankNumber` 인 전화번호 항목이 섞여 있다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val account = Arb.accountUser().next()
                 val stored = contact()
                 val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
                 val requestSyncUseCase = requestSyncUseCase()
@@ -336,7 +338,7 @@ class UpdateContactUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
@@ -362,8 +364,8 @@ class UpdateContactUseCaseTest :
         }
 
         Given("수정 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val stored = contact()
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery {
@@ -390,9 +392,6 @@ class UpdateContactUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun useCase(
             getAccountUseCase: GetAccountUseCase,
             requestSyncUseCase: RequestSyncUseCase,
@@ -437,12 +436,12 @@ class UpdateContactUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun contact(): Contact =
             Contact(
                 id = Uuid.random(),
-                detail = detail(name = "stored-${fixtureMonkey.giveMeOne<String>()}"),
+                detail = detail(name = "stored-${Arb.string().next()}"),
                 isFavorite = false,
                 isDeleted = false,
                 updatedAt = instant(),
@@ -451,8 +450,8 @@ class UpdateContactUseCaseTest :
 
         @Suppress("LongParameterList")
         private fun detail(
-            name: String = "name-${fixtureMonkey.giveMeOne<String>()}-name",
-            description: String = "description-${fixtureMonkey.giveMeOne<String>()}",
+            name: String = "name-${Arb.string().next()}-name",
+            description: String = "description-${Arb.string().next()}",
             height: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             footSize: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             birthday: ContactBirthday? = null,

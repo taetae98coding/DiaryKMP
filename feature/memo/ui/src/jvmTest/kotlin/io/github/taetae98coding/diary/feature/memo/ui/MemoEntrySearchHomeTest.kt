@@ -6,27 +6,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class MemoEntrySearchHomeTest :
     FunSpec({
         test("TC-e058120f-c1a6-4f58-8697-8d728357a1be SearchHome에서 연 메모 상세는 목록·상세 배치에 참여하지 않는다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStackList =
                 listOf(
                     listOf(MoreHomeStandInNavKey, SearchHomeNavKey(initialType = SearchHomeType.MEMO), detailKey),

@@ -5,9 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
@@ -16,13 +13,20 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.core.testing.playlist.music
+import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
 import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -41,7 +45,7 @@ import kotlin.uuid.Uuid
 class AccountMusicRepositoryImplTest :
     FunSpec({
         test("TC-ac78be66-5451-4c54-931a-4eea0f82ea47 곡을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val music = music()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -56,9 +60,9 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-9ff7cfb6-4805-4bd7-b69a-f1f1539d8486 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val music = music()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
             coEvery { transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal())) } throws throwable
@@ -70,7 +74,7 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 곡 목록 페이지 조회는 현재 계정의 로컬 곡을 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localMusicList = List(2) { localMusic() }
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -81,7 +85,7 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 TC-4fe4f273-cd64-44e6-abba-86f8a48527c6 대상 곡 조회는 현재 계정 기준으로 로컬 저장소만 사용한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localMusic = localMusic()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -92,7 +96,7 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 조회되는 로컬 곡이 없으면 없음을 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -103,9 +107,9 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-393c5421-cb22-450f-b102-c98a17e85378 수정은 현재 계정 식별자와 로컬 모델로 변환해 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val musicId = Uuid.random()
-            val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+            val detail = Arb.musicDetail().next()
             val updatedAt = instant()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -118,7 +122,7 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-ada1aa84-9a6e-4ccb-b510-03a7a59bdf13 삭제는 삭제 여부와 수정 시각만 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val updatedAt = instant()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
@@ -134,8 +138,8 @@ class AccountMusicRepositoryImplTest :
         }
 
         test("TC-f54d0402-0b9e-4aa6-973f-29ef980b4e07 로컬 수정이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
             coEvery {
@@ -147,14 +151,14 @@ class AccountMusicRepositoryImplTest :
                 repository.updateDetail(
                     account = account,
                     musicId = Uuid.random(),
-                    detail = fixtureMonkey.giveMeOne<MusicDetail>(),
+                    detail = Arb.musicDetail().next(),
                     updatedAt = instant(),
                 )
             } shouldBeSameInstanceAs throwable
         }
 
         test("선택한 정렬을 로컬 정렬로 변환해 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localMusicList = List(2) { localMusic() }
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
@@ -168,24 +172,25 @@ class AccountMusicRepositoryImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun music(): Music =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Music>()
-                .setExp(Music::updatedAt, instant())
-                .setExp(Music::createdAt, instant())
-                .sample()
+            Arb
+                .music()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun localMusic(): MusicLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MusicLocalEntity>()
-                .setExp(MusicLocalEntity::updatedAt, instant())
-                .setExp(MusicLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .musicLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun pagingSource(musicList: List<MusicLocalEntity>): PagingSource<Int, MusicLocalEntity> =
             mockk(relaxed = true) {

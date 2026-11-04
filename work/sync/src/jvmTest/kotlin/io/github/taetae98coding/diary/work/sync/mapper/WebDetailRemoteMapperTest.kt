@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebDetailRemoteEntity
 import io.github.taetae98coding.diary.core.testing.web.localWebDetail
 import io.github.taetae98coding.diary.core.testing.web.remoteWebDetail
 import io.github.taetae98coding.diary.core.testing.web.webHeaderNameCaseList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class WebDetailRemoteMapperTest :
     FunSpec({
         test("local to remote") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val local = fixtureMonkey.localWebDetail(headerNameList = headerNameList)
+                val local = Arb.localWebDetail(headerNameList = headerNameList).next()
 
                 local.toRemote() shouldBe
                     WebDetailRemoteEntity(
@@ -31,7 +28,7 @@ class WebDetailRemoteMapperTest :
 
         test("remote to local") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val remote = fixtureMonkey.remoteWebDetail(headerNameList = headerNameList)
+                val remote = Arb.remoteWebDetail(headerNameList = headerNameList).next()
 
                 remote.toLocal() shouldBe
                     WebDetailLocalEntity(
@@ -45,7 +42,7 @@ class WebDetailRemoteMapperTest :
 
         test("local to remote to local") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val local = fixtureMonkey.localWebDetail(headerNameList = headerNameList)
+                val local = Arb.localWebDetail(headerNameList = headerNameList).next()
 
                 local.toRemote().toLocal() shouldBe local
             }

@@ -12,6 +12,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(projects.core.ipNetwork.api)

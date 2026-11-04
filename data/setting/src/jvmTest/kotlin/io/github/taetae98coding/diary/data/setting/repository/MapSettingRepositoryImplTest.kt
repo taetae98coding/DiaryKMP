@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MapSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.MapProviderLocalEntity
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -99,7 +99,7 @@ class MapSettingRepositoryImplTest :
         }
 
         test("TC-fd3e26b1-4b1f-48f2-9418-145b3eaf0e85 저장된 값이 알 수 없는 지도이면 네이버 지도를 제공한다") {
-            val unknownValue = "unknown-map-${fixtureMonkey.giveMeOne<Int>()}"
+            val unknownValue = "unknown-map-${Arb.int().next()}"
             val repository =
                 MapSettingRepositoryImpl(
                     mapSettingLocalDataSource =
@@ -127,8 +127,6 @@ class MapSettingRepositoryImplTest :
             }
         }
     })
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private fun mockMapSettingLocalDataSource(providerFlow: MutableStateFlow<MapProviderLocalEntity?>): MapSettingLocalDataSource =
     mockk {

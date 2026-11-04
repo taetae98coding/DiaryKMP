@@ -17,13 +17,15 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
 import androidx.navigation3.runtime.result.ResultEventBus
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.just
@@ -104,7 +106,7 @@ class QrAddScreenTest {
             registry = respondingRegistry(isGranted = false),
             navigateToScan = { navigateToScanCount += 1 },
         )
-        val detail = qrTestFixtureMonkey.qrDetail(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
+        val detail = Arb.qrDetail(description = "description-${Arb.string().next()}").next()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
         composeRule.onQrTextInput().performTextInput(detail.value)
@@ -264,7 +266,7 @@ class QrAddScreenTest {
 
     @Test
     fun `스캔 결과로 값을 바꾸면 입력 커서를 값의 끝에 둔다`() {
-        val value = qrTestFixtureMonkey.qrDetail().value
+        val value = Arb.qrDetail().next().value
         val resultEventBus = ResultEventBus()
         setQrAddScreen(
             registry = respondingRegistry(isGranted = true),

@@ -18,7 +18,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -41,9 +40,10 @@ import io.github.taetae98coding.diary.feature.place.ui.boundsAround
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -74,7 +74,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-e58f9381-fbd8-4b33-8c2e-d1740d611245 지도 핀을 누르면 그 장소의 상세 이동을 한 번 요청하고 지도 위치와 확대 수준은 그대로다`() {
-        val center = fixtureMonkey.coordinateInFormPrecision()
+        val center = Arb.coordinateInFormPrecision().next()
         val selected = placeAt(center.shifted(latitude = SPAN / 4))
         val other = placeAt(center.shifted(latitude = -SPAN / 4))
         val environment = setPlaceHomeScreen(placeList = listOf(selected, other))
@@ -93,7 +93,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-6543ccdc-af73-4b8b-84b2-dc6209abe57f 지도 모드의 목록에서 삭제한 장소는 카드와 핀에서 함께 사라진다`() {
-        val center = fixtureMonkey.coordinateInFormPrecision()
+        val center = Arb.coordinateInFormPrecision().next()
         val deleted = placeAt(center.shifted(latitude = SPAN / 4))
         val remained = placeAt(center.shifted(latitude = -SPAN / 4))
         val environment = setPlaceHomeScreen(placeList = listOf(deleted, remained))
@@ -110,7 +110,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-57a1bc64-5002-4bd9-9d16-8335f806a412 지도 모드의 목록에서 장소를 누르면 지도 모드 그대로 그 장소로 지도를 옮기도록 지정한다`() {
-        val center = fixtureMonkey.coordinateInFormPrecision()
+        val center = Arb.coordinateInFormPrecision().next()
         val edge = placeAt(center.shifted(latitude = SPAN * EDGE_RATIO))
         val environment = setPlaceHomeScreen(placeList = listOf(edge))
         environment.reportCamera(center)
@@ -128,7 +128,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-57a1bc64-5002-4bd9-9d16-8335f806a412 옮겨진 지도가 알려 온 영역으로 갱신된 목록과 핀에 누른 장소가 남는다`() {
-        val center = fixtureMonkey.coordinateInFormPrecision()
+        val center = Arb.coordinateInFormPrecision().next()
         val edge = placeAt(center.shifted(latitude = SPAN * EDGE_RATIO))
         val environment = setPlaceHomeScreen(placeList = listOf(edge))
         environment.reportCamera(center)
@@ -174,7 +174,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-440f4a4b-22f1-4197-a0bf-150a899fdd74 잠시 바꿔 본 지도 제공자는 장소 추가로 넘기지 않는다`() {
-        val initialCoordinate = fixtureMonkey.coordinateInFormPrecision()
+        val initialCoordinate = Arb.coordinateInFormPrecision().next()
         val environment = setPlaceHomeScreen(defaultProvider = MapProvider.NAVER, initialCoordinate = initialCoordinate)
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
@@ -191,9 +191,9 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-b5d53633-e3f9-46ab-9f5d-85137c3aca96 지도를 옮기고 제공자를 바꾼 뒤 목록 모드에서 고른 장소는 식별자만 상세로 넘긴다`() {
-        val place = placeAt(fixtureMonkey.coordinateInFormPrecision())
+        val place = placeAt(Arb.coordinateInFormPrecision().next())
         val environment = setPlaceHomeScreen(defaultProvider = MapProvider.NAVER, placeList = listOf(place))
-        environment.reportCamera(fixtureMonkey.coordinateInFormPrecision())
+        environment.reportCamera(Arb.coordinateInFormPrecision().next())
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
         composeRule.waitForIdle()
 
@@ -209,7 +209,7 @@ class PlaceHomeMapContentTest {
 
     @Test
     fun `TC-a7bb2c96-a33b-4a95-9440-8dfb068f462b 목록 모드에 다녀와도 옮긴 지도 위치와 확대 수준, 고른 제공자를 유지한다`() {
-        val moved = fixtureMonkey.coordinateInFormPrecision()
+        val moved = Arb.coordinateInFormPrecision().next()
         val environment = setPlaceHomeScreen(defaultProvider = MapProvider.NAVER)
         environment.reportCamera(moved)
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
@@ -228,7 +228,7 @@ class PlaceHomeMapContentTest {
 
     private fun setPlaceHomeScreen(
         defaultProvider: MapProvider = MapProvider.NAVER,
-        initialCoordinate: Coordinate = fixtureMonkey.coordinateInFormPrecision(),
+        initialCoordinate: Coordinate = Arb.coordinateInFormPrecision().next(),
         placeList: List<Place> = emptyList(),
         activityResultRegistry: ActivityResultRegistry = spyk<ActivityResultRegistry>(),
     ): Environment {
@@ -327,9 +327,6 @@ class PlaceHomeMapContentTest {
         const val WESTERN_LONGITUDE = -58.3816
 
         const val ADD_ACTION_COUNT = 2
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun placeAt(coordinate: Coordinate): Place {
             val place = viewModeTestPlace()

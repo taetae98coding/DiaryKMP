@@ -4,12 +4,12 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.SliderState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.compose.ui.color.toHexString
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 
 class ColorPickerStateTest : FunSpec() {
     init {
@@ -32,9 +32,6 @@ class ColorPickerStateTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun colorPickerState(initialColor: Color): ColorPickerState {
             val argb = initialColor.toArgb()
 
@@ -46,6 +43,6 @@ class ColorPickerStateTest : FunSpec() {
             )
         }
 
-        private fun randomColor(): Color = Color(color = 0xFF000000.toInt() or (fixtureMonkey.giveMeOne<Int>() and 0xFFFFFF))
+        private fun randomColor(): Color = Color(color = 0xFF000000.toInt() or (Arb.int().next() and 0xFFFFFF))
     }
 }

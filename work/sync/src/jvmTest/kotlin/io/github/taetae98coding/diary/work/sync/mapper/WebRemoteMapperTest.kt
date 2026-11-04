@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebRemoteEntity
 import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
 import io.github.taetae98coding.diary.core.testing.web.localWeb
 import io.github.taetae98coding.diary.core.testing.web.remoteWeb
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class WebRemoteMapperTest :
     FunSpec({
         test("local to remote") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localWeb(isDeleted = isDeleted)
+                val local = Arb.localWeb(isDeleted = isDeleted).next()
 
                 local.toRemote() shouldBe
                     WebRemoteEntity(
@@ -32,7 +29,7 @@ class WebRemoteMapperTest :
 
         test("remote to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val remote = fixtureMonkey.remoteWeb(isDeleted = isDeleted)
+                val remote = Arb.remoteWeb(isDeleted = isDeleted).next()
 
                 remote.toLocal() shouldBe
                     WebLocalEntity(
@@ -47,7 +44,7 @@ class WebRemoteMapperTest :
 
         test("local to remote to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localWeb(isDeleted = isDeleted)
+                val local = Arb.localWeb(isDeleted = isDeleted).next()
 
                 local.toRemote().toLocal() shouldBe local
             }

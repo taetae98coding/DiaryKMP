@@ -3,9 +3,6 @@
 package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -14,9 +11,22 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.place.place
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -30,60 +40,65 @@ import kotlin.uuid.Uuid
 internal const val QUERY: String = "여행"
 internal const val OTHER_QUERY: String = "회의"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun <T : Any> successPagingDataFlowOf(itemList: List<T>): Flow<Result<PagingData<T>>> = flowOf(Result.success(PagingData.from(itemList)))
 
 internal fun <T : Any> failurePagingDataFlow(): Flow<Result<PagingData<T>>> = flowOf(Result.failure(IllegalStateException()))
 
-internal fun searchMemo(): Memo = searchMemo(title = fixtureMonkey.giveMeOne())
+internal fun searchMemo(): Memo = searchMemo(title = Arb.nonBlankString().next())
 
 internal fun searchMemo(title: String): Memo =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Memo>()
-        .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
-        .setExp(Memo::isDeleted, false)
-        .setExp(Memo::updatedAt, instant())
-        .setExp(Memo::createdAt, instant())
-        .sample()
+    Arb
+        .memo()
+        .next()
+        .copy(
+            detail = Arb.memoDetail().next().copy(title = title, dateTime = null),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
-internal fun searchTag(): Tag = searchTag(title = fixtureMonkey.giveMeOne())
+internal fun searchTag(): Tag = searchTag(title = Arb.nonBlankString().next())
 
 internal fun searchTag(title: String): Tag =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Tag>()
-        .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(title = title))
-        .setExp(Tag::isDeleted, false)
-        .setExp(Tag::updatedAt, instant())
-        .setExp(Tag::createdAt, instant())
-        .sample()
+    Arb
+        .tag()
+        .next()
+        .copy(
+            detail = Arb.tagDetail().next().copy(title = title),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
-internal fun searchPlace(): Place = searchPlace(title = fixtureMonkey.giveMeOne())
+internal fun searchPlace(): Place = searchPlace(title = Arb.nonBlankString().next())
 
 internal fun searchPlace(title: String): Place =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Place>()
-        .setExp(Place::detail, fixtureMonkey.giveMeOne<PlaceDetail>().copy(title = title))
-        .setExp(Place::isDeleted, false)
-        .setExp(Place::updatedAt, instant())
-        .setExp(Place::createdAt, instant())
-        .sample()
+    Arb
+        .place()
+        .next()
+        .copy(
+            detail = Arb.placeDetail().next().copy(title = title),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
-internal fun searchWeb(): Web = searchWeb(title = fixtureMonkey.giveMeOne())
+internal fun searchWeb(): Web = searchWeb(title = Arb.nonBlankString().next())
 
 internal fun searchWeb(title: String): Web =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Web>()
-        .setExp(Web::detail, fixtureMonkey.giveMeOne<WebDetail>().copy(title = title, headerList = emptyList()))
-        .setExp(Web::isDeleted, false)
-        .setExp(Web::updatedAt, instant())
-        .setExp(Web::createdAt, instant())
-        .sample()
+    Arb
+        .web()
+        .next()
+        .copy(
+            detail = Arb.webDetail().next().copy(title = title, headerList = emptyList()),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
-private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
-internal fun searchId(): Uuid = fixtureMonkey.giveMeOne()
+internal fun searchId(): Uuid = Arb.kotlinUuid().next()
 
 // uiState는 구독하는 동안에만 갱신되므로, 잠시 구독해 지금 값을 읽는다.
 internal fun TestScope.currentUiState(viewModel: SearchHomeResultViewModel<*>): SearchHomeResultUiState {

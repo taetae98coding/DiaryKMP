@@ -9,13 +9,13 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.Tasks
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.location.api.Location
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -81,8 +81,8 @@ class AndroidLocationProviderTest {
 
     @Test
     fun `TC-f308155a-8d66-4bfb-8e80-ed4a9b992600 디바이스가 최근에 확인해 둔 위치가 있으면 새로 확인하지 않는다`() {
-        val recentLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
-        val freshLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
+        val recentLocation = androidLocation(latitude = latitude(), longitude = longitude())
+        val freshLocation = androidLocation(latitude = latitude(), longitude = longitude())
         every { client.lastLocation } returns Tasks.forResult(recentLocation)
         every { client.getCurrentLocation(any<Int>(), any<CancellationToken>()) } returns Tasks.forResult(freshLocation)
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
@@ -95,7 +95,7 @@ class AndroidLocationProviderTest {
 
     @Test
     fun `최근에 확인해 둔 위치가 없으면 새로 확인한 위치를 쓴다`() {
-        val freshLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
+        val freshLocation = androidLocation(latitude = latitude(), longitude = longitude())
         every { client.lastLocation } returns Tasks.forResult<android.location.Location>(null)
         every { client.getCurrentLocation(any<Int>(), any<CancellationToken>()) } returns Tasks.forResult(freshLocation)
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
@@ -108,7 +108,7 @@ class AndroidLocationProviderTest {
     @Test
     fun `TC-5e76c876-a97e-4206-b886-54b705300fec 디바이스 위치를 새로 확인할 때 정밀한 정확도를 요구하지 않는다`() {
         val priority = slot<Int>()
-        val freshLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
+        val freshLocation = androidLocation(latitude = latitude(), longitude = longitude())
         every { client.lastLocation } returns Tasks.forResult<android.location.Location>(null)
         every { client.getCurrentLocation(capture(priority), any<CancellationToken>()) } returns Tasks.forResult(freshLocation)
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
@@ -123,11 +123,9 @@ class AndroidLocationProviderTest {
         private const val MAX_LATITUDE = 90
         private const val MAX_LONGITUDE = 180
 
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+        private fun latitude(): Double = Arb.int().next() % MAX_LATITUDE + Arb.int().next() % 1_000 / 1_000.0
 
-        private fun FixtureMonkey.latitude(): Double = giveMeOne<Int>() % MAX_LATITUDE + giveMeOne<Int>() % 1_000 / 1_000.0
-
-        private fun FixtureMonkey.longitude(): Double = giveMeOne<Int>() % MAX_LONGITUDE + giveMeOne<Int>() % 1_000 / 1_000.0
+        private fun longitude(): Double = Arb.int().next() % MAX_LONGITUDE + Arb.int().next() % 1_000 / 1_000.0
 
         private fun androidLocation(
             latitude: Double,

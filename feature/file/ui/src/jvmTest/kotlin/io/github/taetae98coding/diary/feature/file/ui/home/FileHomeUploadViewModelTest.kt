@@ -3,18 +3,19 @@
 package io.github.taetae98coding.diary.feature.file.ui.home
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceededEventUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +29,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileHomeUploadViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -47,7 +45,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
 
         test("TC-36571a73-b36c-45e1-bde6-3929ed3f2b6e 화면에 들어오기 전에 시작한 올리기가 끝나지 않았으면 진행 중 상태다") {
             runTest(mainDispatcher) {
-                val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())))
+                val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = Arb.int().next())))
                 val viewModel = viewModel(stateFlow = stateFlow)
 
                 viewModel.uiState.test {
@@ -67,7 +65,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
                 val viewModel = viewModel(succeededChannel = succeededChannel)
 
                 viewModel.effect.test {
-                    succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
+                    succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())))
                     awaitItem() shouldBe FileHomeUploadEffect.UploadSucceeded
                     expectNoEvents()
                 }
@@ -79,7 +77,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
                 val succeededChannel = Channel<Result<FileUploadEvent.Succeeded>>(Channel.UNLIMITED)
                 val viewModel = viewModel(succeededChannel = succeededChannel)
 
-                succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
+                succeededChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())))
 
                 viewModel.effect.test {
                     awaitItem() shouldBe FileHomeUploadEffect.UploadSucceeded
@@ -94,7 +92,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
                 val viewModel = viewModel(eventChannel = eventChannel)
 
                 viewModel.effect.test {
-                    eventChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())))
+                    eventChannel.send(Result.success(FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())))
                     expectNoEvents()
                 }
             }
@@ -149,7 +147,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
 
         test("TC-9707e7f6-f68f-4a28-8701-f2759b92ad40 올리는 중에는 파일 추가를 요청해도 FileAdd로 이동하지 않는다") {
             runTest(mainDispatcher) {
-                val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())))
+                val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = Arb.int().next())))
                 val viewModel = viewModel(stateFlow = stateFlow)
 
                 viewModel.uiState.test {

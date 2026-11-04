@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.compose.core
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarOverride
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarOverrideScope
@@ -19,16 +18,15 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonMenuOverride
 import io.github.taetae98coding.diary.compose.core.button.LocalDiaryFloatingActionButtonOverride
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -59,7 +57,7 @@ class DiaryComponentOverrideTest {
 
     @Test
     fun `떠 있는 버튼은 이름과 진행 상태와 누름을 Override에 그대로 넘긴다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         var clickCount = 0
         var scope: DiaryFloatingActionButtonOverrideScope? = null
         val override =
@@ -86,7 +84,7 @@ class DiaryComponentOverrideTest {
 
     @Test
     fun `떠 있는 메뉴 버튼은 항목을 순서대로 Override에 넘긴다`() {
-        val texts = List(3) { fixtureMonkey.nonBlankString() }
+        val texts = List(3) { Arb.nonBlankString().next() }
         val clicked = mutableListOf<Int>()
         var scope: DiaryFloatingActionButtonMenuOverrideScope? = null
         val override =

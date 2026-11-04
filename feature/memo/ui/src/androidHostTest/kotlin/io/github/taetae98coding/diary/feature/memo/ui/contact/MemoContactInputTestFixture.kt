@@ -21,14 +21,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -59,8 +59,6 @@ internal const val KOREAN_CONTACT_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "다
 
 internal const val MEMO_CONTACT_INPUT_TAG: String = "MemoContactInput"
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 internal fun testContact(
     name: String,
     phoneNumber: String? = null,
@@ -68,8 +66,9 @@ internal fun testContact(
     isFavorite: Boolean = false,
     nameQualifier: String = "",
 ): ContactListItem =
-    fixtureMonkey
+    Arb
         .contact(numberList = listOfNotNull(phoneNumber), hasMeasure = true, isFavorite = isFavorite, isDeleted = isDeleted)
+        .next()
         .let { contact -> contact.copy(detail = contact.detail.copy(name = name)) }
         .toListItem(nameQualifier = nameQualifier)
 

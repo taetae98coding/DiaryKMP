@@ -21,8 +21,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -32,8 +30,10 @@ import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
@@ -41,8 +41,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 이어진 화면을 닫을 때 목적지 화면의 보던 자리가 남는지는 AppState가 전환 이력을 바꾸는 방식과 entry별 저장 상태가 함께 정한다.
 // 실제 AppState의 다시 선택과 앱이 쓰는 저장 상태 decorator를 그대로 두고, 목적지와 열어 둔 화면의 본문만 대역으로 바꿔 검증한다.
@@ -54,7 +52,7 @@ class TopLevelReselectOpenedScreenTest {
 
     @Test
     fun `TC-da0880d8-c8a2-464e-9647-2892a77fcc97 메모 화면을 덮는 세부 화면을 닫고 목록의 보던 자리를 유지한다`() {
-        assertReselectKeepsListPosition(openedScreen = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+        assertReselectKeepsListPosition(openedScreen = MemoDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     @Test
@@ -66,7 +64,7 @@ class TopLevelReselectOpenedScreenTest {
     @Config(qualifiers = "w1280dp-h800dp")
     fun `TC-da0880d8-c8a2-464e-9647-2892a77fcc97 목록과 함께 표시하도록 연 메모 상세를 닫고 목록의 보던 자리를 유지한다`() {
         assertReselectKeepsListPosition(
-            openedScreen = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            openedScreen = MemoDetailNavKey(id = Arb.kotlinUuid().next()),
             isListDetail = true,
         )
     }

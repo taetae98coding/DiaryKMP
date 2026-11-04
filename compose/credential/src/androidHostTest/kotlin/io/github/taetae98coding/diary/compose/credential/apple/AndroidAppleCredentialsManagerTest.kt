@@ -3,12 +3,13 @@ package io.github.taetae98coding.diary.compose.credential.apple
 import android.net.Uri
 import androidx.browser.auth.AuthTabIntent
 import androidx.core.net.toUri
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.credential.AuthorizationResponseParameter
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
@@ -18,9 +19,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -48,7 +46,7 @@ class AndroidAppleCredentialsManagerTest {
         runTest {
             val launchedUrlList = mutableListOf<String>()
             val manager = manager(launchedUrlList::add)
-            val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
+            val idToken = "id-token-${Arb.string().next()}"
 
             val signIn = async(start = CoroutineStart.UNDISPATCHED) { manager.signIn() }
             resultReceiver.deliver(resultCode = AuthTabIntent.RESULT_OK, resultUri = redirectUri(launchedUrlList.single(), idToken))
@@ -108,7 +106,7 @@ class AndroidAppleCredentialsManagerTest {
         runTest {
             val launchedUrlList = mutableListOf<String>()
             val manager = manager(launchedUrlList::add)
-            val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
+            val idToken = "id-token-${Arb.string().next()}"
 
             val first = async(start = CoroutineStart.UNDISPATCHED) { runCatching { manager.signIn() } }
             val second = async(start = CoroutineStart.UNDISPATCHED) { manager.signIn() }
@@ -121,16 +119,16 @@ class AndroidAppleCredentialsManagerTest {
 
     private fun manager(launchAuthTab: (String) -> Unit): AndroidAppleCredentialsManager =
         AndroidAppleCredentialsManager(
-            requestFactory = AppleWebSignInRequestFactory(config = fixtureMonkey.androidAppleCredentialsConfig()),
+            requestFactory = AppleWebSignInRequestFactory(config = androidAppleCredentialsConfig()),
             redirectScheme = redirectScheme,
             resultReceiver = resultReceiver,
             launchAuthTab = launchAuthTab,
         )
 
-    private fun FixtureMonkey.androidAppleCredentialsConfig(): AppleCredentialsConfig =
+    private fun androidAppleCredentialsConfig(): AppleCredentialsConfig =
         AppleCredentialsConfig(
-            clientId = "io.github.taetae98coding.diary.dev.web-${giveMeOne<String>()}",
-            callbackUrl = "https://${giveMeOne<Long>().toULong()}.supabase.co/functions/v1/v1-session-apple-callback",
+            clientId = "io.github.taetae98coding.diary.dev.web-${Arb.string().next()}",
+            callbackUrl = "https://${Arb.long().next().toULong()}.supabase.co/functions/v1/v1-session-apple-callback",
         )
 
     private fun redirectUri(

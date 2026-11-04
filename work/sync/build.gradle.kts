@@ -16,6 +16,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidMain {
             dependencies {
                 implementation(libs.androidx.work.runtime)
@@ -32,7 +38,6 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(projects.logger.crashlytics.api)
-                implementation(projects.core.testing)
                 implementation(libs.kotlinx.serialization.json)
             }
         }

@@ -17,12 +17,13 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coVerify
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Before
@@ -132,7 +133,7 @@ class FileDetailScreenRetentionTest {
 
     @Test
     fun `TC-01b1ffb1-c07e-4123-a10e-208093cf0131 시스템이 앱을 정리한 뒤 복원하면 다시 불러오고 입력은 복원한다`() {
-        val file = fileDetailFixtureMonkey.nonBlankDiaryFile().copy(title = DOCUMENTED_OLD_TITLE)
+        val file = Arb.nonBlankDiaryFile().next().copy(title = DOCUMENTED_OLD_TITLE)
         // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
         var screen by mutableStateOf(FileDetailTestScreen(mocks = FileDetailMocks(file = file)))
         val tester = StateRestorationTester(composeRule)
@@ -158,7 +159,7 @@ class FileDetailScreenRetentionTest {
         val newTitle = prefixedValue(prefix = TITLE_PREFIX)
         val newDescription = prefixedValue(prefix = DESCRIPTION_PREFIX)
         val newName = prefixedValue(prefix = NAME_PREFIX)
-        val file = fileDetailFixtureMonkey.nonBlankDiaryFile()
+        val file = Arb.nonBlankDiaryFile().next()
         var screen by mutableStateOf(FileDetailTestScreen(mocks = FileDetailMocks(file = file)))
 
         composeRule.setContent { key(screen) { screen.Content() } }
@@ -176,7 +177,7 @@ class FileDetailScreenRetentionTest {
         (screen === reentered) shouldBe true
     }
 
-    private fun prefixedValue(prefix: String): String = prefix + fileDetailFixtureMonkey.nonBlankString()
+    private fun prefixedValue(prefix: String): String = prefix + Arb.nonBlankString().next()
 
     private fun fillForm(
         title: String,

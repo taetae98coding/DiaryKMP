@@ -13,9 +13,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -26,6 +23,8 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
@@ -36,8 +35,10 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.CalendarHo
 import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -55,9 +56,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -96,11 +94,12 @@ class CalendarHomeScreenTagSelectTest {
                 CalendarWeatherReport(
                     weatherList =
                         listOf(
-                            fixtureMonkey.calendarWeather(
-                                date = july(day = 15),
-                                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                                descriptionList = listOf(SUNNY_DESCRIPTION),
-                            ),
+                            Arb
+                                .calendarWeather(
+                                    date = july(day = 15),
+                                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                                    descriptionList = listOf(SUNNY_DESCRIPTION),
+                                ).next(),
                         ),
                 ),
         )
@@ -209,14 +208,16 @@ class CalendarHomeScreenTagSelectTest {
     }
 
     private fun tag(title: String): Tag =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Tag>()
-            .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-            .setExp(Tag::isFinished, false)
-            .setExp(Tag::isDeleted, false)
-            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .tag()
+            .next()
+            .copy(
+                detail = Arb.tagDetail().next().copy(emoji = "", title = title),
+                isFinished = false,
+                isDeleted = false,
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 

@@ -4,8 +4,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
@@ -14,9 +12,11 @@ import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -32,8 +32,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 /**
  * 지도 제공자의 실제 표시 요소는 만들 수 없으므로 PlaceAdd 화면이 쓰는 입력 상태와 좌표 반영, 추가 결과 처리를 직접 구성한다.
  * 지도 누르기는 화면이 지도 누르기를 받았을 때 하는 일로 대신하고, 결과는 화면이 지도 기능에 지정한 지점과 지도 위치로 확인한다.
@@ -46,9 +44,9 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가하고 성공 피드백을 제공한다`() {
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val selectedCoordinate = mapCoordinateInFormPrecision()
         val addPlaceUseCase = mockk<AddPlaceUseCase>()
-        coEvery { addPlaceUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+        coEvery { addPlaceUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
         every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
         val viewModel =
@@ -83,8 +81,8 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-b1914d6d-b257-4801-9035-cb3128cda3ac 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val selectedCoordinate = mapCoordinateInFormPrecision()
+        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
 
@@ -95,7 +93,7 @@ class PlaceAddFormEffectTest {
         }
         composeRule.runOnIdle { state().mapState.spot shouldBe selectedCoordinate }
 
-        composeRule.runOnIdle { effectChannel.trySend(PlaceAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { effectChannel.trySend(PlaceAddEffect.AddSucceeded(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         composeRule.runOnIdle {
@@ -106,7 +104,7 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-ed89a26e-ed06-4f4e-a500-1d976a9956fb 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val selectedCoordinate = mapCoordinateInFormPrecision()
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
 
@@ -127,8 +125,8 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-fe1090cf-43f0-43bd-8b14-41edb172d785 지도가 다른 위치를 보게 되어도 입력한 좌표는 바뀌지 않는다`() {
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val selectedCoordinate = mapCoordinateInFormPrecision()
+        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
         val state = setPlaceAddForm(effect = emptyFlow())
 
         composeRule.write { state().selectSpotOnMap(selectedCoordinate) }
@@ -152,7 +150,7 @@ class PlaceAddFormEffectTest {
                 state =
                     rememberPlaceAddFormState(
                         defaultProvider = MapProvider.NAVER,
-                        initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision(),
+                        initialCoordinate = mapCoordinateInFormPrecision(),
                     )
                 ReflectCoordinateEffect(state = state)
                 PlaceAddScreenEffect(addedResultRequestKey = null, effect = effect, scaffoldState = state)

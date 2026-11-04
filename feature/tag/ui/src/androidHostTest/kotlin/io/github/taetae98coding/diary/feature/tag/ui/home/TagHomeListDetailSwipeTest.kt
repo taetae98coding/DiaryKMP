@@ -18,7 +18,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
@@ -35,8 +34,9 @@ import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.navigateToTagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagHomeListPaneMetadata
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -91,8 +91,8 @@ class TagHomeListDetailSwipeTest {
     }
 
     private fun setListDetail(): Environment {
-        val opened = fixtureMonkey.tag(title = OPENED_TITLE, isFinished = false)
-        val other = fixtureMonkey.tag(title = OTHER_TITLE, isFinished = false)
+        val opened = Arb.tag(title = OPENED_TITLE, isFinished = false).next()
+        val other = Arb.tag(title = OTHER_TITLE, isFinished = false).next()
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = opened.id))
         val effectChannel = Channel<TagListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagHomeViewModel>()
@@ -162,7 +162,6 @@ class TagHomeListDetailSwipeTest {
         const val OPENED_TITLE = "TagHomeListDetailSwipeTestOpened"
         const val OTHER_TITLE = "TagHomeListDetailSwipeTestOther"
         const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun detailContent(opened: Tag): String = detailContent(id = opened.id.toString())
 

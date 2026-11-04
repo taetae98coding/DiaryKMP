@@ -1,16 +1,19 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.calendarfilter.datasource.AccountCalendarFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -23,13 +26,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class AccountCalendarFilterRepositoryImplTest :
     FunSpec({
         test("선택 태그 조회는 로컬 태그를 도메인 모델로 변환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localTagList = listOf(tag(), tag())
             val localDataSource = mockk<AccountCalendarFilterLocalDataSource>()
             every { localDataSource.getTagList(accountId = account.id) } returns flowOf(localTagList)
@@ -41,8 +41,8 @@ class AccountCalendarFilterRepositoryImplTest :
         }
 
         test("선택 태그 조회 중 발생한 에러는 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val failure = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountCalendarFilterLocalDataSource>()
             every { localDataSource.getTagList(accountId = account.id) } returns flow { throw failure }
             val repository = AccountCalendarFilterRepositoryImpl(accountCalendarFilterLocalDataSource = localDataSource)
@@ -53,8 +53,8 @@ class AccountCalendarFilterRepositoryImplTest :
         }
 
         test("태그 선택은 현재 계정의 선택으로 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val tagId = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountCalendarFilterLocalDataSource>()
             coEvery { localDataSource.upsert(accountId = account.id, tagId = tagId) } just Runs
             val repository = AccountCalendarFilterRepositoryImpl(accountCalendarFilterLocalDataSource = localDataSource)
@@ -65,8 +65,8 @@ class AccountCalendarFilterRepositoryImplTest :
         }
 
         test("태그 선택 해제는 현재 계정의 선택에서 제거한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val tagId = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountCalendarFilterLocalDataSource>()
             coEvery { localDataSource.delete(accountId = account.id, tagId = tagId) } just Runs
             val repository = AccountCalendarFilterRepositoryImpl(accountCalendarFilterLocalDataSource = localDataSource)
@@ -77,7 +77,7 @@ class AccountCalendarFilterRepositoryImplTest :
         }
 
         test("태그 선택 전체 해제는 현재 계정의 필터 선택을 모두 제거한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountCalendarFilterLocalDataSource>()
             coEvery { localDataSource.deleteAll(accountId = account.id) } just Runs
             val repository = AccountCalendarFilterRepositoryImpl(accountCalendarFilterLocalDataSource = localDataSource)
@@ -89,10 +89,12 @@ class AccountCalendarFilterRepositoryImplTest :
     }) {
     public companion object {
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

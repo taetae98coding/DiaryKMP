@@ -5,18 +5,20 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountContactMemoLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -29,14 +31,11 @@ import kotlinx.coroutines.launch
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class AccountContactMemoRepositoryImplTest :
     FunSpec({
         test("TC-32411d04-27aa-4911-bd6d-5339b9846d2f 연락처별 메모 페이지는 현재 계정과 연락처의 로컬 페이지를 도메인 모델로 변환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val localMemoList = listOf(memo(), memo())
             val localDataSource = mockk<AccountContactMemoLocalDataSource>()
             every { localDataSource.page(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.RECENTLY_UPDATED) } returns
@@ -50,8 +49,8 @@ class AccountContactMemoRepositoryImplTest :
         }
 
         test("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 연락처별 완료 메모 페이지는 현재 계정과 연락처의 로컬 완료 페이지를 도메인 모델로 변환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val localMemoList = listOf(memo(), memo())
             val localDataSource = mockk<AccountContactMemoLocalDataSource>()
             every { localDataSource.pageFinished(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.DEFAULT) } returns
@@ -66,11 +65,13 @@ class AccountContactMemoRepositoryImplTest :
     })
 
 private fun memo(): MemoLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memoLocalEntity()
+        .next()
+        .copy(
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun mockMemoPagingSource(memoList: List<MemoLocalEntity>): PagingSource<Int, MemoLocalEntity> =
     mockk(relaxed = true) {

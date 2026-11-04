@@ -7,8 +7,6 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
@@ -23,10 +21,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListEffect
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -48,9 +48,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class WebMemoFinishedListViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -66,8 +63,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 항목별 완료 메모 paging에 주입된 Web ID를 전달한다") {
             runTest(mainDispatcher) {
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
-                val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
+                val webId = Arb.kotlinUuid().next()
+                val memo = Arb.memo(title = Arb.nonBlankString().next()).next()
                 val pageUseCase = mockk<PageFinishedWebMemoUseCase>()
                 every { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns
                     flowOf(Result.success(PagingData.from(listOf(memo))))
@@ -84,8 +81,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-0fe6f585-5b4f-4239-b7fe-1107d3fc26ef 조회한 Web의 저장 이름을 상단 바 제목으로 노출한다") {
             runTest(mainDispatcher) {
-                val name = fixtureMonkey.nonBlankString()
-                val target = fixtureMonkey.web(title = name, isDeleted = false)
+                val name = Arb.nonBlankString().next()
+                val target = Arb.web(title = name, isDeleted = false).next()
                 val findUseCase = mockk<FindWebUseCase>()
                 every { findUseCase(parameter = target.id) } returns flowOf(Result.success(target))
                 val viewModel = viewModel(webId = target.id, findUseCase = findUseCase)
@@ -105,7 +102,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
                 Result.failure(IllegalStateException()),
             ).forEach { result ->
                 runTest(mainDispatcher) {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
                     val findUseCase = mockk<FindWebUseCase>()
                     every { findUseCase(parameter = webId) } returns flowOf(result)
                     val viewModel = viewModel(webId = webId, findUseCase = findUseCase)
@@ -122,8 +119,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-7cb4d67b-a6e8-474a-a12c-457476e3212b Web의 저장 이름이 바뀌면 상단 바 이름을 갱신한다") {
             runTest(mainDispatcher) {
-                val name = fixtureMonkey.nonBlankString()
-                val target = fixtureMonkey.web(title = name, isDeleted = false)
+                val name = Arb.nonBlankString().next()
+                val target = Arb.web(title = name, isDeleted = false).next()
                 val targetFlow = MutableStateFlow<Result<Web?>>(Result.success(target))
                 val findUseCase = mockk<FindWebUseCase>()
                 every { findUseCase(parameter = target.id) } returns targetFlow
@@ -134,7 +131,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     awaitItem().title shouldBe name
 
-                    val updatedName = name + fixtureMonkey.nonBlankString()
+                    val updatedName = name + Arb.nonBlankString().next()
 
                     targetFlow.value = Result.success(target.let { it.copy(detail = it.detail.copy(title = updatedName)) })
                     advanceUntilIdle()
@@ -146,8 +143,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("Web의 상태 변화는 화면 상태에 영향을 주지 않는다") {
             listOf(
-                fixtureMonkey.web(title = fixtureMonkey.nonBlankString(), isDeleted = true),
-                fixtureMonkey.web(title = fixtureMonkey.nonBlankString(), isDeleted = false),
+                Arb.web(title = Arb.nonBlankString().next(), isDeleted = true).next(),
+                Arb.web(title = Arb.nonBlankString().next(), isDeleted = false).next(),
             ).forEach { target ->
                 runTest(mainDispatcher) {
                     val findUseCase = mockk<FindWebUseCase>()
@@ -166,7 +163,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val webId = Arb.kotlinUuid().next()
                 val pageUseCase = mockk<PageFinishedWebMemoUseCase>()
                 every { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns
                     flowOf(Result.failure<PagingData<Memo>>(IllegalStateException()))
@@ -186,8 +183,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
-                val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
+                val webId = Arb.kotlinUuid().next()
+                val memo = Arb.memo(title = Arb.nonBlankString().next()).next()
                 val pageUseCase = mockk<PageFinishedWebMemoUseCase>()
                 every { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns
                     appendFailingPagingData(firstPage = listOf(memo)).map { pagingData -> Result.success(pagingData) }
@@ -204,8 +201,8 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 항목별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
-                val memo = fixtureMonkey.memo(title = fixtureMonkey.nonBlankString())
+                val webId = Arb.kotlinUuid().next()
+                val memo = Arb.memo(title = Arb.nonBlankString().next()).next()
                 val pageUseCase = mockk<PageFinishedWebMemoUseCase>()
                 val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
                 every { pageUseCase(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns resultFlow
@@ -228,7 +225,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -247,7 +244,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-2a3cb935-f956-466d-a1ad-c62843bda562 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -263,7 +260,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -281,7 +278,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-de3ead05-f69f-4c5e-9001-934c11e284b1 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -300,7 +297,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-2a3cb935-f956-466d-a1ad-c62843bda562 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -316,7 +313,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-97bb8371-2b38-487e-b546-3e66dc21dcc8 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -334,7 +331,7 @@ class WebMemoFinishedListViewModelTest : FunSpec() {
     }
 
     private fun viewModel(
-        webId: Uuid = fixtureMonkey.giveMeOne(),
+        webId: Uuid = Arb.kotlinUuid().next(),
         pageUseCase: PageFinishedWebMemoUseCase =
             mockk {
                 every { this@mockk(parameter = PageFinishedWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns emptyFlow()

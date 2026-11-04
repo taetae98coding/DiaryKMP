@@ -3,12 +3,11 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
+import io.github.taetae98coding.diary.core.testing.holiday.holidaySetting
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetHolidayCountrySettingUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetSettingHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectAllHolidayUseCase
@@ -17,9 +16,12 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayCountr
 import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayVisibilityUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.UnselectAllHolidayUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -40,9 +42,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class SettingHolidayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -60,9 +59,9 @@ class SettingHolidayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val holidaySettingList =
                     listOf(
-                        fixtureMonkey.holidaySetting(index = 0, isVisible = true),
-                        fixtureMonkey.holidaySetting(index = 1, isVisible = false),
-                        fixtureMonkey.holidaySetting(index = 2, isVisible = true),
+                        holidaySetting(index = 0, isVisible = true),
+                        holidaySetting(index = 1, isVisible = false),
+                        holidaySetting(index = 2, isVisible = true),
                     )
                 val viewModel =
                     settingHolidayViewModel(
@@ -84,8 +83,8 @@ class SettingHolidayViewModelTest : FunSpec() {
         test("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 공휴일을 선택하면 그 이름의 전환을 한 번 요청하고 저장된 결과가 반영되면 목표 상태로 바뀐다") {
             listOf(true, false).forEach { isVisible ->
                 runTest(mainDispatcher) {
-                    val target = fixtureMonkey.holidaySetting(index = 0, isVisible = isVisible)
-                    val other = fixtureMonkey.holidaySetting(index = 1)
+                    val target = holidaySetting(index = 0, isVisible = isVisible)
+                    val other = holidaySetting(index = 1)
                     val holidaySettingFlow = MutableStateFlow(Result.success(listOf(target, other)))
                     val toggleHolidayVisibilityUseCase = mockk<ToggleHolidayVisibilityUseCase>()
                     coEvery { toggleHolidayVisibilityUseCase(parameter = target.name) } coAnswers {
@@ -120,7 +119,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-e13f36f5-758e-483b-86a5-ab234a2c2a53 전체 선택을 실행하고 저장된 결과가 반영되면 모든 항목이 선택 상태가 된다") {
             runTest(mainDispatcher) {
-                val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0, isVisible = true), fixtureMonkey.holidaySetting(index = 1, isVisible = false))
+                val holidaySettingList = listOf(holidaySetting(index = 0, isVisible = true), holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val selectAllHolidayUseCase = mockk<SelectAllHolidayUseCase>()
                 coEvery { selectAllHolidayUseCase(parameter = Unit) } coAnswers {
@@ -150,7 +149,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-c1bd92b8-0b4d-4d34-ac8f-6df87c943300 전체 해제를 실행하고 저장된 결과가 반영되면 모든 항목이 선택 해제 상태가 된다") {
             runTest(mainDispatcher) {
-                val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0, isVisible = true), fixtureMonkey.holidaySetting(index = 1, isVisible = false))
+                val holidaySettingList = listOf(holidaySetting(index = 0, isVisible = true), holidaySetting(index = 1, isVisible = false))
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val unselectAllHolidayUseCase = mockk<UnselectAllHolidayUseCase>()
                 coEvery { unselectAllHolidayUseCase(parameter = Unit) } coAnswers {
@@ -182,8 +181,8 @@ class SettingHolidayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val holidaySettingList =
                     listOf(
-                        fixtureMonkey.holidaySetting(index = 0, isHoliday = true, isVisible = false),
-                        fixtureMonkey.holidaySetting(index = 1, isHoliday = false, isVisible = true),
+                        holidaySetting(index = 0, isHoliday = true, isVisible = false),
+                        holidaySetting(index = 1, isHoliday = false, isVisible = true),
                     )
                 val holidaySettingFlow = MutableStateFlow(Result.success(holidaySettingList))
                 val selectDaysOffHolidayUseCase = mockk<SelectDaysOffHolidayUseCase>()
@@ -214,9 +213,9 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-c549c6d4-53dc-4417-bc0b-8fdd8ec854b3 원본 목록과 선택 상태가 바뀌면 최신 상태를 제공한다") {
             runTest(mainDispatcher) {
-                val first = fixtureMonkey.holidaySetting(index = 0, isVisible = true)
+                val first = holidaySetting(index = 0, isVisible = true)
                 val initialList = listOf(first)
-                val second = fixtureMonkey.holidaySetting(index = 1, isVisible = true)
+                val second = holidaySetting(index = 1, isVisible = true)
                 val expandedList = listOf(first, second)
                 val visibilityUpdatedList = listOf(first.copy(isVisible = false), second)
                 val holidaySettingFlow = MutableStateFlow(Result.success(initialList))
@@ -246,8 +245,8 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("목록에 없는 key도 해석하지 않고 전용 UseCase에 전달한다") {
             runTest(mainDispatcher) {
-                val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0))
-                val unknownKey = "unknown-${fixtureMonkey.giveMeOne<String>()}"
+                val holidaySettingList = listOf(holidaySetting(index = 0))
+                val unknownKey = "unknown-${Arb.string().next()}"
                 val toggleHolidayVisibilityUseCase = mockk<ToggleHolidayVisibilityUseCase>()
                 coEvery {
                     toggleHolidayVisibilityUseCase(parameter = unknownKey)
@@ -333,7 +332,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
 
-                    viewModel.toggleHoliday(name = fixtureMonkey.giveMeOne())
+                    viewModel.toggleHoliday(name = Arb.string().next())
                     advanceUntilIdle()
 
                     cancelAndIgnoreRemainingEvents()
@@ -347,7 +346,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("국가 설정과 공휴일 목록이 모두 확인되어야 목록 상태를 제공한다") {
             runTest(mainDispatcher) {
-                val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0))
+                val holidaySettingList = listOf(holidaySetting(index = 0))
                 val countrySettingFlow = MutableStateFlow<Result<HolidayCountrySetting>>(Result.failure(IllegalStateException()))
                 val viewModel =
                     settingHolidayViewModel(
@@ -374,7 +373,7 @@ class SettingHolidayViewModelTest : FunSpec() {
             val caseList =
                 listOf(
                     Result.failure<HolidayCountrySetting>(IllegalStateException("read error")) to
-                        Result.success(listOf(fixtureMonkey.holidaySetting(index = 0))),
+                        Result.success(listOf(holidaySetting(index = 0))),
                     Result.success(DEFAULT_COUNTRY_SETTING) to Result.failure<List<HolidaySetting>>(IllegalStateException("read error")),
                 )
 
@@ -425,7 +424,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                         getSettingHolidayUseCase = getSettingHolidayUseCase(emptyFlow()),
                         toggleHolidayVisibilityUseCase = toggleHolidayVisibilityUseCase,
                     )
-                val name = fixtureMonkey.giveMeOne<String>()
+                val name = Arb.string().next()
 
                 viewModel.toggleHoliday(name = name)
                 viewModel.toggleHoliday(name = name)
@@ -437,8 +436,8 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-73b4649e-03ff-4c72-acf8-ce05ab1ae48d 국가 설정이 바뀌면 바뀐 설정과 목록을 제공한다") {
             runTest(mainDispatcher) {
-                val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
-                val bothList = koreaList + fixtureMonkey.holidaySetting(index = 1)
+                val koreaList = listOf(holidaySetting(index = 0))
+                val bothList = koreaList + holidaySetting(index = 1)
                 val koreaSetting = HolidayCountrySetting(selectedOptionSet = setOf(HolidayCountryOption.KOREA), deviceCountry = null)
                 val bothSetting = koreaSetting.copy(selectedOptionSet = setOf(HolidayCountryOption.KOREA, HolidayCountryOption.UNITED_STATES))
                 val countrySettingFlow = MutableStateFlow(Result.success(koreaSetting))
@@ -464,8 +463,8 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-2fa1eea2-8ede-4799-b2e7-3a256656639b 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 이전 지역 기준을 그대로 보여 준다") {
             runTest(mainDispatcher) {
-                val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
-                val unitedStatesList = listOf(fixtureMonkey.holidaySetting(index = 1))
+                val koreaList = listOf(holidaySetting(index = 0))
+                val unitedStatesList = listOf(holidaySetting(index = 1))
                 var deviceCountry = HolidayCountry.KOREA
                 val viewModel =
                     settingHolidayViewModel(
@@ -494,8 +493,8 @@ class SettingHolidayViewModelTest : FunSpec() {
 
         test("TC-b5eb4725-954e-40a1-9757-74836d837235 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역으로 다시 표시한다") {
             runTest(mainDispatcher) {
-                val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
-                val unitedStatesList = listOf(fixtureMonkey.holidaySetting(index = 1))
+                val koreaList = listOf(holidaySetting(index = 0))
+                val unitedStatesList = listOf(holidaySetting(index = 1))
                 var deviceCountry = HolidayCountry.KOREA
                 val viewModel =
                     settingHolidayViewModel(
@@ -573,13 +572,13 @@ private fun settingHolidayViewModel(
         selectDaysOffHolidayUseCase = selectDaysOffHolidayUseCase,
     )
 
-private fun FixtureMonkey.holidaySetting(
+private fun holidaySetting(
     index: Int,
-    isHoliday: Boolean = giveMeOne(),
-    isVisible: Boolean = giveMeOne(),
+    isHoliday: Boolean = Arb.boolean().next(),
+    isVisible: Boolean = Arb.boolean().next(),
 ): HolidaySetting =
-    giveMeOne<HolidaySetting>().copy(
-        name = "$index-${giveMeOne<String>()}",
+    Arb.holidaySetting().next().copy(
+        name = "$index-${Arb.string().next()}",
         isHoliday = isHoliday,
         isVisible = isVisible,
     )

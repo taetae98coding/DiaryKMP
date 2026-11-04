@@ -1,22 +1,20 @@
 package io.github.taetae98coding.diary.work.fileupload.state
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileUploadEventHolderTest : FunSpec() {
     init {
         test("두 화면이 함께 결과를 받는 동안 끝난 결과는 두 화면 모두에 한 번씩 전달한다") {
             listOf(
-                FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>()),
+                FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next()),
                 FileUploadEvent.TooLarge,
                 FileUploadEvent.Failed,
             ).forEach { event ->

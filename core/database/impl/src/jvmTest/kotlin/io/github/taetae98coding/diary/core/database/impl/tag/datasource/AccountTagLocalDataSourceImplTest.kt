@@ -3,19 +3,21 @@ package io.github.taetae98coding.diary.core.database.impl.tag.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -41,7 +43,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d 태그 목록은 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val bravoTag =
                 selectableTag()
                     .withTitle("Bravo")
@@ -71,7 +73,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-36238c18-3987-4f50-9051-4272285d7c16 TC-5cc6759b-36d2-4796-8f7e-17088d9e99e9 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tagList =
                 List(TAG_COUNT) { index ->
                     selectableTag().withTitle("Tag-${index.toString().padStart(length = 3, padChar = '0')}")
@@ -91,8 +93,8 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb TC-5f57b3f0-f4ef-423a-8da1-3a88b34048cf 선택 목록 페이지 조회도 계정과 연결되고 완료·삭제되지 않은 태그만 가져온다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val selectableTag = selectableTag()
             val finishedTag = tag().copy(isFinished = true, isDeleted = false)
             val deletedTag = tag().copy(isFinished = false, isDeleted = true)
@@ -105,7 +107,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택한 식별자의 선택할 수 있는 태그만 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectedLastTag = selectableTag().withTitle("Zebra")
             val selectedFirstTag = selectableTag().withTitle("Alpha")
             val unselectedTag = selectableTag().withTitle("Bravo")
@@ -125,7 +127,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-15e61e6f-8dc1-47f3-96fe-04dcdfd33502 선택한 식별자가 없으면 빈 목록을 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
 
             transaction.upsert(accountId = accountId, tagList = listOf(selectableTag()), tagLinkList = emptyList())
 
@@ -133,7 +135,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-5eaf66e6-583e-4d17-9bdc-e1a9fd38bf34 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val titleTag = selectableTag().withDetail(emoji = "", title = "Travel", description = "")
             val emojiTag = selectableTag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
             val descriptionTag = selectableTag().withDetail(emoji = "", title = "BetaTag", description = "여행 기록")
@@ -154,7 +156,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-ecf420f3-f92b-4577-8542-1b176636869a TC-c5dcf9a0-63c2-4ee5-a895-5dc4f6978c42 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tagList =
                 List(TAG_COUNT) { index ->
                     selectableTag().withDetail(
@@ -171,9 +173,9 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-27d25f56-f19b-42c9-b786-43f19557d404 저장된 태그의 내용이 바뀌면 선택한 태그 조회와 선택 목록 조회에 함께 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = selectableTag()
-            val changedDetail = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val changedDetail = Arb.tagDetailLocalEntity().next()
             val updatedAt = instant()
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
 
@@ -185,7 +187,7 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         test("TC-a79a3e06-9752-4c82-8ff3-8e9b880c87ec 태그가 추가되거나 상태가 바뀌면 태그 목록 조회 결과가 갱신된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = selectableTag()
 
             dataSource.pagedTagList(accountId = accountId).shouldBeEmpty()
@@ -200,9 +202,6 @@ class AccountTagLocalDataSourceImplTest :
     public companion object {
         private const val TAG_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private suspend fun AccountTagLocalDataSourceImpl.pagedTagList(accountId: Uuid): List<TagLocalEntity> = page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data
 
@@ -221,11 +220,13 @@ class AccountTagLocalDataSourceImplTest :
         }
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun selectableTag(): TagLocalEntity = tag().copy(isFinished = false, isDeleted = false)
 
@@ -237,6 +238,6 @@ class AccountTagLocalDataSourceImplTest :
             description: String,
         ): TagLocalEntity = copy(detail = detail.copy(emoji = emoji, title = title, description = description))
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

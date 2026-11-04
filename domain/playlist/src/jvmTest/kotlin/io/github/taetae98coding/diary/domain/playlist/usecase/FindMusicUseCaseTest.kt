@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -23,7 +25,7 @@ class FindMusicUseCaseTest :
     BehaviorSpec({
         listOf(false, true).forEach { isDeleted ->
             Given("로그인한 계정과 삭제 여부가 $isDeleted 인 곡이 저장되어 있다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val account = Arb.accountUser().next()
                 val music = music(isDeleted = isDeleted)
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -44,7 +46,7 @@ class FindMusicUseCaseTest :
         }
 
         Given("현재 계정과 연결되지 않은 식별자가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -64,7 +66,7 @@ class FindMusicUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
@@ -85,17 +87,16 @@ class FindMusicUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun music(isDeleted: Boolean): Music =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Music>()
-                .setExp(Music::isDeleted, isDeleted)
-                .setExp(Music::updatedAt, instant())
-                .setExp(Music::createdAt, instant())
-                .sample()
+            Arb
+                .music()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

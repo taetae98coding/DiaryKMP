@@ -5,8 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.checklist.datasource.AccountChecklistLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistSummaryLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.transaction.AccountChecklistTransaction
@@ -15,17 +13,22 @@ import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.Che
 import io.github.taetae98coding.diary.core.database.api.checklistitem.transaction.AccountChecklistItemTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
 import io.github.taetae98coding.diary.data.checklist.mapper.toDomain
 import io.github.taetae98coding.diary.data.checklist.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -44,9 +47,9 @@ import kotlin.uuid.Uuid
 class ChecklistRepositoryImplTest :
     FunSpec({
         test("TC-e0a4bfe4-2f96-43c3-82ba-b5596d4c80c5 TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 체크리스트와 체크 항목을 현재 계정 식별자와 로컬 모델로 바꿔 함께 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val checklist = fixtureMonkey.checklist(isDeleted = false)
-            val itemList = List(2) { fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id) }
+            val account = Arb.accountUser().next()
+            val checklist = Arb.checklist(isDeleted = false).next()
+            val itemList = List(2) { Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next() }
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any()) } just Runs
             val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
@@ -59,25 +62,25 @@ class ChecklistRepositoryImplTest :
         }
 
         test("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 수정의 기기 저장이 실패하면 실패를 그대로 전달한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), checklistId = any(), detail = any(), updatedAt = any()) } throws throwable
             val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
 
             shouldThrow<IllegalStateException> {
                 repository.updateDetail(
-                    account = fixtureMonkey.giveMeOne<Account.User>(),
-                    checklistId = fixtureMonkey.giveMeOne<Uuid>(),
-                    detail = fixtureMonkey.checklistDetail(),
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                    account = Arb.accountUser().next(),
+                    checklistId = Arb.kotlinUuid().next(),
+                    detail = Arb.checklistDetail().next(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
 
         test("TC-3b75e95e-f535-4154-bfeb-5e95f65cdea4 체크리스트 하나를 삭제 여부와 관계없이 도메인 모델로 바꿔 전달하고, 없으면 없음을 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val checklist = fixtureMonkey.checklist(isDeleted = true)
-            val missingId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val checklist = Arb.checklist(isDeleted = true).next()
+            val missingId = Arb.kotlinUuid().next()
             val dataSource = mockk<AccountChecklistLocalDataSource>()
             every { dataSource.find(accountId = account.id, checklistId = checklist.id) } returns flowOf(checklist.toLocal())
             every { dataSource.find(accountId = account.id, checklistId = missingId) } returns flowOf(null)
@@ -88,9 +91,9 @@ class ChecklistRepositoryImplTest :
         }
 
         test("TC-289d5d96-f27f-49bf-8b57-dbc8e44c77e6 체크 항목 목록을 고른 정렬의 로컬 정렬로 조회해 도메인 모델로 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val checklistId = fixtureMonkey.giveMeOne<Uuid>()
-            val itemList = List(2) { fixtureMonkey.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId) }
+            val account = Arb.accountUser().next()
+            val checklistId = Arb.kotlinUuid().next()
+            val itemList = List(2) { Arb.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next() }
             val dataSource = mockk<AccountChecklistItemLocalDataSource>()
             every {
                 dataSource.get(accountId = account.id, checklistId = checklistId, sort = ChecklistItemSortLocalEntity.UNCHECKED_FIRST)
@@ -102,9 +105,9 @@ class ChecklistRepositoryImplTest :
         }
 
         test("체크 항목 변경을 현재 계정 식별자로 기기 저장에 넘기고 바뀐 개수를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val item = Arb.checklistItem(isChecked = false, isDeleted = false).next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountChecklistItemTransaction>()
             coEvery { transaction.upsert(accountId = account.id, item = item.toLocal()) } returns 1
             coEvery { transaction.updateChecked(accountId = account.id, itemId = item.id, isChecked = true, updatedAt = updatedAt) } returns 1
@@ -121,25 +124,25 @@ class ChecklistRepositoryImplTest :
             repository.updateAllChecked(account = account, checklistId = item.checklistId, isChecked = false, updatedAt = updatedAt) shouldBe 2
         }
         test("TC-22a04f2e-eeb4-482f-b03a-23437e354955 체크리스트 추가의 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any()) } throws throwable
             val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
 
             shouldThrow<IllegalStateException> {
                 repository.upsert(
-                    account = fixtureMonkey.giveMeOne<Account.User>(),
-                    checklist = fixtureMonkey.checklist(isDeleted = false),
-                    itemList = listOf(fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)),
+                    account = Arb.accountUser().next(),
+                    checklist = Arb.checklist(isDeleted = false).next(),
+                    itemList = listOf(Arb.checklistItem(isChecked = false, isDeleted = false).next()),
                 )
             } shouldBeSameInstanceAs throwable
         }
 
         test("TC-ffcb4f61-636d-4088-9c8d-3f376f926bbf 체크리스트 목록 페이지 조회는 현재 계정의 로컬 체크리스트를 진행 정도와 함께 도메인 모델로 바꿔 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localList =
                 List(2) { index ->
-                    ChecklistSummaryLocalEntity(checklist = fixtureMonkey.checklist(isDeleted = false).toLocal(), checkedCount = index, totalCount = 2)
+                    ChecklistSummaryLocalEntity(checklist = Arb.checklist(isDeleted = false).next().toLocal(), checkedCount = index, totalCount = 2)
                 }
             val dataSource = mockk<AccountChecklistLocalDataSource>()
             every { dataSource.page(accountId = account.id) } returns pagingSource(localList)
@@ -149,10 +152,10 @@ class ChecklistRepositoryImplTest :
         }
 
         test("TC-409178d7-4cde-4230-a644-9c60981ea503 수정 요청은 제목, 설명과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val checklistId = fixtureMonkey.giveMeOne<Uuid>()
-            val detail = fixtureMonkey.checklistDetail()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val checklistId = Arb.kotlinUuid().next()
+            val detail = Arb.checklistDetail().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountChecklistTransaction>()
             coEvery {
                 transaction.updateDetail(accountId = account.id, checklistId = checklistId, detail = detail.toLocal(), updatedAt = updatedAt)
@@ -164,9 +167,9 @@ class ChecklistRepositoryImplTest :
 
         listOf(true, false).forEach { isDeleted ->
             test("TC-bc9ac9d1-bc92-4acc-a8ef-eee1dbedb8cc 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
-                val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+                val account = Arb.accountUser().next()
+                val checklistId = Arb.kotlinUuid().next()
+                val updatedAt = Arb.secondPrecisionInstant().next()
                 val transaction = mockk<AccountChecklistTransaction>()
                 coEvery {
                     transaction.updateDeleted(accountId = account.id, checklistId = checklistId, isDeleted = isDeleted, updatedAt = updatedAt)
@@ -178,7 +181,7 @@ class ChecklistRepositoryImplTest :
         }
 
         test("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 체크 항목 변경의 기기 저장이 실패하면 실패를 그대로 전달한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountChecklistItemTransaction>()
             coEvery { transaction.updateAllChecked(accountId = any(), checklistId = any(), isChecked = any(), updatedAt = any()) } throws throwable
             val repository =
@@ -186,17 +189,15 @@ class ChecklistRepositoryImplTest :
 
             shouldThrow<IllegalStateException> {
                 repository.updateAllChecked(
-                    account = fixtureMonkey.giveMeOne<Account.User>(),
-                    checklistId = fixtureMonkey.giveMeOne<Uuid>(),
+                    account = Arb.accountUser().next(),
+                    checklistId = Arb.kotlinUuid().next(),
                     isChecked = false,
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun pagingSource(localList: List<ChecklistSummaryLocalEntity>): PagingSource<Int, ChecklistSummaryLocalEntity> =
             mockk(relaxed = true) {
                 coEvery { load(any()) } returns

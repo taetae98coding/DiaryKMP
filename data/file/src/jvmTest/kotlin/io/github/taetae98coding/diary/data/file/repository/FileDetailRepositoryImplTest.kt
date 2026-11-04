@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.data.file.repository
 
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
@@ -12,13 +10,20 @@ import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileNotFoundRemoteException
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
+import io.github.taetae98coding.diary.core.testing.file.diaryFileDetail
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -28,14 +33,11 @@ import kotlinx.io.RawSink
 import kotlin.uuid.Uuid
 import io.github.taetae98coding.diary.domain.file.exception.FileDownloadDirectoryUnavailableException as DomainFileDownloadDirectoryUnavailableException
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FileDetailRepositoryImplTest :
     FunSpec({
         test("TC-2209b4c9-9d1b-41ca-a863-6c755564b60c 파일 정보를 식별자로 한 번 요청하고 받은 정보를 쓰며, 실패하면 다시 요청하지 않는다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val remoteFile = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val id = Arb.kotlinUuid().next()
+            val remoteFile = Arb.fileRemoteEntity().next()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.read(id = id) } returns remoteFile
             val repository = repository(fileRemoteDataSource = fileRemoteDataSource)
@@ -60,9 +62,9 @@ class FileDetailRepositoryImplTest :
         }
 
         test("TC-cd6be59f-06d7-4587-ab0a-6668ae6dd1f4 정보 고치기는 식별자와 세 값을 함께 보내고, 실패해도 다시 요청하지 않는다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val detail = fixtureMonkey.giveMeOne<DiaryFileDetail>()
-            val remoteFile = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val id = Arb.kotlinUuid().next()
+            val detail = Arb.diaryFileDetail().next()
+            val remoteFile = Arb.fileRemoteEntity().next()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.update(id = id, name = detail.name, title = detail.title, description = detail.description) } returns remoteFile
 
@@ -76,10 +78,10 @@ class FileDetailRepositoryImplTest :
 
         test("TC-a0caa690-b9a5-4d42-b816-abe69de1e0a4 TC-7062b208-3784-4e82-b622-75fc8ac830db 고친 정보는 목록을 다시 요청하지 않고 같은 파일에만 덧씌워진다") {
             runTest {
-                val fileA = fixtureMonkey.giveMeOne<FileRemoteEntity>()
-                val fileB = fixtureMonkey.giveMeOne<FileRemoteEntity>()
-                val newTitle = fixtureMonkey.nonBlankString()
-                val newName = fixtureMonkey.nonBlankString()
+                val fileA = Arb.fileRemoteEntity().next()
+                val fileB = Arb.fileRemoteEntity().next()
+                val newTitle = Arb.nonBlankString().next()
+                val newName = Arb.nonBlankString().next()
                 val updatedA = fileA.copy(title = newTitle, name = newName)
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns listOf(fileA, fileB)
@@ -104,9 +106,9 @@ class FileDetailRepositoryImplTest :
 
         test("TC-44fcf1ca-d962-4253-9a4a-e633d0d1588c 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값을 쓴다") {
             runTest {
-                val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
-                val editedTitle = fixtureMonkey.nonBlankString()
-                val fromOtherDevice = file.copy(title = editedTitle + fixtureMonkey.nonBlankString())
+                val file = Arb.fileRemoteEntity().next()
+                val editedTitle = Arb.nonBlankString().next()
+                val fromOtherDevice = file.copy(title = editedTitle + Arb.nonBlankString().next())
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns listOf(file) andThen listOf(fromOtherDevice)
                 coEvery { fileRemoteDataSource.update(id = file.id, name = any(), title = any(), description = any()) } returns file.copy(title = editedTitle)
@@ -127,7 +129,7 @@ class FileDetailRepositoryImplTest :
 
         test("고치기 전에 시작한 불러오기가 그 파일을 받아 와도 고친 정보를 걷지 않는다") {
             val holder = FileUpdateHolder()
-            val file = fixtureMonkey.giveMeOne<io.github.taetae98coding.diary.core.model.file.DiaryFile>()
+            val file = Arb.diaryFile().next()
             val loadStartVersion = holder.currentVersion()
 
             holder.put(file = file)
@@ -137,9 +139,9 @@ class FileDetailRepositoryImplTest :
         }
 
         test("TC-c8dace87-717c-4c9c-a6af-7c9edef184b1 내려받기는 고른 위치와 이름 후보를 저장 위치에 넘기고, 받는 내용은 그 파일의 식별자로 요청해 쓴다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
-            val result = FileDownloadResult.Saved(name = fixtureMonkey.giveMeOne<String>())
+            val id = Arb.kotlinUuid().next()
+            val directory = Arb.fileDownloadDirectory().next()
+            val result = FileDownloadResult.Saved(name = Arb.string().next())
             val sink = mockk<RawSink>()
             val nameCandidate: (Int) -> String = { index -> "name-$index" }
             val fileRemoteDataSource = mockk<FileRemoteDataSource>(relaxUnitFun = true)
@@ -162,7 +164,7 @@ class FileDetailRepositoryImplTest :
             val repository = repository(fileRemoteDataSource = fileRemoteDataSource, fileDownloadLocalDataSource = fileDownloadLocalDataSource)
 
             shouldThrow<DomainFileDownloadDirectoryUnavailableException> {
-                repository.download(id = fixtureMonkey.giveMeOne<Uuid>(), directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>(), nameCandidate = { "" })
+                repository.download(id = Arb.kotlinUuid().next(), directory = Arb.fileDownloadDirectory().next(), nameCandidate = { "" })
             }
             coVerify(exactly = 0) { fileRemoteDataSource.download(id = any(), sink = any()) }
         }
@@ -179,7 +181,7 @@ class FileDetailRepositoryImplTest :
                 }
                 val repository = repository(fileRemoteDataSource = fileRemoteDataSource, fileDownloadLocalDataSource = fileDownloadLocalDataSource)
 
-                shouldThrow<Exception> { repository.download(id = fixtureMonkey.giveMeOne<Uuid>(), directory = null, nameCandidate = { "" }) }::class shouldBe exception::class
+                shouldThrow<Exception> { repository.download(id = Arb.kotlinUuid().next(), directory = null, nameCandidate = { "" }) }::class shouldBe exception::class
                 coVerify(exactly = 1) { fileRemoteDataSource.download(id = any(), sink = any()) }
             }
         }

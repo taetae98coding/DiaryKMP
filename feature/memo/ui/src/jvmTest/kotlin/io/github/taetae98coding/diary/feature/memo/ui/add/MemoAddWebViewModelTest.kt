@@ -6,18 +6,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -71,7 +72,7 @@ class MemoAddWebViewModelTest : FunSpec() {
 
         test("TC-a3b2c5f7-4665-46a0-af16-1126dc013c17 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { web() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageMemoSelectableWebUseCase>()
@@ -399,16 +400,15 @@ class MemoAddWebViewModelTest : FunSpec() {
     private companion object {
         private const val SEARCH_QUERY = "Wiki"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): Web =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Web>()
-                .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .web()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
             initialWebId: Uuid? = null,

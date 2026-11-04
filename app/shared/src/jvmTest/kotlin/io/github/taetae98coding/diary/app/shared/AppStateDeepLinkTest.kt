@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.app.shared
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.openDeepLink
@@ -16,24 +14,23 @@ import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AppStateDeepLinkTest :
     FunSpec({
         test("TC-5b734721-c6fe-4d3d-a2bc-e744c156e188 알림을 선택하면 더보기 위에 FileHome 화면을 열고 뒤로가면 더보기가 보인다") {
             listOf(
                 listOf(TopLevelNavigation.Calendar.key),
-                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(Arb.kotlinUuid().next())),
                 listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key),
                 listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, QrHomeNavKey),
             ).forEach { backStack ->
@@ -78,7 +75,7 @@ class AppStateDeepLinkTest :
         }
 
         test("TC-323336ff-c39e-4d3b-b447-ba5497a00ee9 FileHome에서 연 FileDetail을 보고 있으면 알림을 선택했을 때 FileDetail을 닫고 FileHome을 연다") {
-            val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, FileDetailNavKey(id = Arb.kotlinUuid().next()))
 
             appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
 
@@ -88,7 +85,7 @@ class AppStateDeepLinkTest :
         }
 
         test("TC-0d02a609-d833-4ec1-9cd1-e33ddbee22e7 목록과 함께 표시한 FileDetail 위에서 연 FileAdd를 보고 있으면 알림을 선택해도 배치를 유지한다") {
-            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, detail, FileAddNavKey)
             val appState = createAppState(*initialBackStack.toTypedArray())
 
@@ -109,7 +106,7 @@ class AppStateDeepLinkTest :
         }
 
         test("TC-fc7083f5-9f79-49b4-940a-0a580d483704 목록과 함께 상세 영역에 FileDetail이 놓여 있으면 알림을 선택했을 때 FileDetail을 닫고 선택 전 상태로 FileHome을 연다") {
-            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, detail, directive = TWO_PANE_DIRECTIVE)
 
             appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
@@ -134,7 +131,7 @@ class AppStateDeepLinkTest :
             listOf(
                 listOf(TopLevelNavigation.Calendar.key),
                 listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key),
-                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(Arb.kotlinUuid().next())),
                 listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey),
             ).forEach { initialBackStack ->
                 val appState = createAppState(*initialBackStack.toTypedArray())
@@ -156,7 +153,7 @@ class AppStateDeepLinkTest :
                 listOf(
                     TopLevelNavigation.Calendar.key,
                     TopLevelNavigation.Memo.key,
-                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = LocalDate(2026, 11, 3), id = fixtureMonkey.giveMeOne<Uuid>()),
+                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = LocalDate(2026, 11, 3), id = Arb.kotlinUuid().next()),
                 ),
             ).forEach { initialBackStack ->
                 val appState = createAppState(*initialBackStack.toTypedArray())
@@ -175,7 +172,7 @@ class AppStateDeepLinkTest :
 
         test("TC-5e6de620-f0f7-45b4-b09f-5e691e72e39d 시간표 위에 다른 화면이 있으면 그 위에 시간표를 새로 연다") {
             val timetable = CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = NOTIFICATION_DATE)
-            val memoDetail = MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())
+            val memoDetail = MemoDetailNavKey(Arb.kotlinUuid().next())
             val appState = createAppState(TopLevelNavigation.Calendar.key, timetable, memoDetail)
 
             appState.openDeepLink(deepLink = NOTIFICATION_TIMETABLE)
@@ -213,8 +210,8 @@ class AppStateDeepLinkTest :
                 listOf(TopLevelNavigation.DEFAULT.key),
             ).forEach { initialBackStack ->
                 listOf(
-                    "diary://${fixtureMonkey.giveMeOne<Uuid>()}",
-                    "diary://timetable?type=day&date=${fixtureMonkey.giveMeOne<Uuid>()}",
+                    "diary://${Arb.kotlinUuid().next()}",
+                    "diary://timetable?type=day&date=${Arb.kotlinUuid().next()}",
                 ).forEach { deepLink ->
                     val appState = createAppState(*initialBackStack.toTypedArray())
 

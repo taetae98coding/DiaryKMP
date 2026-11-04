@@ -7,8 +7,6 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -26,16 +24,16 @@ import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class MemoEntryTest :
     FunSpec({
@@ -60,7 +58,7 @@ class MemoEntryTest :
         }
 
         test("TC-ec5cc549-0d17-49af-9e6d-ac3998c3ce92 목록에서 메모를 선택하면 그 메모의 상세가 상세 영역에 놓인다") {
-            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectedId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey)
 
             backStack.navigateToMemoDetail(selectedId)
@@ -70,7 +68,7 @@ class MemoEntryTest :
         }
 
         test("TC-54d0f158-e2b8-4e17-aa11-965d5435bd36 상세 영역에 메모 상세가 놓인 동안 목록에서 추가를 실행하면 메모 추가가 상세 영역에 놓인다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, detailKey)
 
             backStack.navigateToMemoAddFromHome()
@@ -95,7 +93,7 @@ class MemoEntryTest :
         }
 
         test("TC-50bf2616-fbd6-494b-aa25-ab3ae5cd84d7 필터를 열어도 목록의 메모 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val backStackCases =
                 listOf(
@@ -118,7 +116,7 @@ class MemoEntryTest :
                 "메모 목록이나 완료된 메모 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다",
         ) {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
-            val tagDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val tagDetailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val tagDetailAddKey = MemoAddNavKey(primaryTagId = tagDetailKey.id)
             val calendarAddKey =
                 MemoAddNavKey(
@@ -230,11 +228,11 @@ class MemoEntryTest :
         }
 
         test("TC-dd8970a8-0084-4755-9ece-aade2474e3d2 TC-4aad5acb-d137-4580-90d6-73ba27ba770c 완료된 메모 목록에서 고른 메모의 상세는 그 목록의 상세 pane에 놓인다") {
-            val previousDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val previousDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(previousDetailKey))
 
             homeDetailCases.forEach { homeDetailList ->
-                val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+                val selectedId = Arb.kotlinUuid().next()
                 val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, *homeDetailList.toTypedArray(), MemoFinishedListNavKey)
 
                 backStack.navigateToMemoDetail(selectedId)
@@ -246,13 +244,13 @@ class MemoEntryTest :
         }
 
         test("TC-cfd4bb51-93d4-41cf-881b-af6f01ec14ae 다른 메모를 고르면 앞 메모 상세를 쌓지 않고 교체한다") {
-            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectedId = Arb.kotlinUuid().next()
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     OtherTopLevelNavKey,
                     MemoHomeNavKey,
                     MemoFinishedListNavKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStack.navigateToMemoDetail(selectedId)
@@ -262,8 +260,8 @@ class MemoEntryTest :
         }
 
         test("TC-95e17dbf-5c89-4501-aaee-fd14f21e11ef MemoFinishedList에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next())
             val sceneKeyCases =
                 buildList {
                     add(listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey) to MemoHomeNavKey)

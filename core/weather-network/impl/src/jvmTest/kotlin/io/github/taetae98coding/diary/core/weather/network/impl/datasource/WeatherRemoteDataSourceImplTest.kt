@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.core.weather.network.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.locationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
@@ -11,11 +13,13 @@ import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTe
 import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.weather.network.impl.createWeatherHttpClient
 import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClient
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.numericDouble
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -27,7 +31,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
-import net.jqwik.api.Arbitraries
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
@@ -77,7 +80,7 @@ class WeatherRemoteDataSourceImplTest :
         }
 
         test("TC-44a2b660-16be-47d0-a74b-35c8d6910701: 성공 응답의 현재 날씨를 그대로 전달한다") {
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
             val engine = createEngine(currentWeatherContent = Json.encodeToString(currentWeather))
             val dataSource = createDataSource(engine)
 
@@ -103,8 +106,8 @@ class WeatherRemoteDataSourceImplTest :
 
         test("TC-1d6fddee-fdd6-4b3d-a2cb-e89fbcd086e6: 성공 응답의 예보 항목을 시각 순서대로 그대로 전달한다") {
             val forecast =
-                fixtureMonkey.giveMeOne<ForecastRemoteEntity>().let { entity ->
-                    entity.copy(list = List(5) { fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>() })
+                Arb.forecastRemoteEntity().next().let { entity ->
+                    entity.copy(list = List(5) { Arb.forecastWeatherRemoteEntity().next() })
                 }
             val engine = createEngine(forecastContent = Json.encodeToString(forecast))
             val dataSource = createDataSource(engine)
@@ -163,7 +166,7 @@ class WeatherRemoteDataSourceImplTest :
         }
 
         test("성공 응답의 지역 목록을 그대로 전달한다") {
-            val locationNameList = List(2) { fixtureMonkey.giveMeOne<LocationNameRemoteEntity>() }
+            val locationNameList = List(2) { Arb.locationNameRemoteEntity().next() }
             val engine = createEngine(locationNameContent = Json.encodeToString(locationNameList))
             val dataSource = createDataSource(engine)
 
@@ -212,13 +215,10 @@ class WeatherRemoteDataSourceImplTest :
         // 2100-01-01T00:00:00Z
         private const val MAX_EPOCH_SECONDS = 4_102_444_800L
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun createEngine(
-            currentWeatherContent: String = Json.encodeToString(fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()),
-            forecastContent: String = Json.encodeToString(fixtureMonkey.giveMeOne<ForecastRemoteEntity>()),
-            locationNameContent: String = Json.encodeToString(listOf(fixtureMonkey.giveMeOne<LocationNameRemoteEntity>())),
+            currentWeatherContent: String = Json.encodeToString(Arb.currentWeatherRemoteEntity().next()),
+            forecastContent: String = Json.encodeToString(Arb.forecastRemoteEntity().next()),
+            locationNameContent: String = Json.encodeToString(listOf(Arb.locationNameRemoteEntity().next())),
         ): MockEngine =
             MockEngine { request ->
                 val path = request.url.encodedPath
@@ -245,16 +245,8 @@ class WeatherRemoteDataSourceImplTest :
                 )
             }.koin.get()
 
-        private fun randomLatitude(): Double =
-            Arbitraries
-                .doubles()
-                .between(-90.0, 90.0)
-                .sample()
+        private fun randomLatitude(): Double = Arb.numericDouble(min = -90.0, max = 90.0).next()
 
-        private fun randomLongitude(): Double =
-            Arbitraries
-                .doubles()
-                .between(-180.0, 180.0)
-                .sample()
+        private fun randomLongitude(): Double = Arb.numericDouble(min = -180.0, max = 180.0).next()
     }
 }

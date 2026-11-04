@@ -6,15 +6,16 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,31 +127,30 @@ class PlaceCardTest {
     private companion object {
         private const val CENTER_TOLERANCE = 0.5f
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
+        // 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
+        private fun title(): String = "제목-${Arb.string().next()}"
 
-        // FixtureMonkey는 빈 문자열도 생성하므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
-        private fun title(): String = "제목-${fixtureMonkey.giveMeOne<String>()}"
-
-        private fun address(): String = "주소-${fixtureMonkey.giveMeOne<String>()}"
+        private fun address(): String = "주소-${Arb.string().next()}"
 
         private fun place(
             title: String,
             address: String,
         ): Place {
             val detail =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<PlaceDetail>()
-                    .setExp(PlaceDetail::title, title)
-                    .setExp(PlaceDetail::address, address)
-                    .sample()
+                Arb
+                    .placeDetail()
+                    .next()
+                    .copy(
+                        title = title,
+                        address = address,
+                    )
 
             return Place(
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
         }
     }

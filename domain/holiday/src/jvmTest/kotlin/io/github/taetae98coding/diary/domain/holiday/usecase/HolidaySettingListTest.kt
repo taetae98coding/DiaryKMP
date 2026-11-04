@@ -1,16 +1,14 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidaySettingListTest :
     BehaviorSpec({
@@ -109,7 +107,7 @@ class HolidaySettingListTest :
 
 private fun holiday(
     name: String,
-    isHoliday: Boolean = fixtureMonkey.giveMeOne(),
+    isHoliday: Boolean = Arb.boolean().next(),
     start: LocalDate = randomDate(),
 ): Holiday =
     Holiday(
@@ -120,7 +118,7 @@ private fun holiday(
 
 private fun randomDate(): LocalDate =
     LocalDate(
-        year = 2000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 100u).toInt(),
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

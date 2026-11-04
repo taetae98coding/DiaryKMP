@@ -9,8 +9,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -24,7 +22,9 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarH
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -39,9 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -63,7 +60,7 @@ class CalendarHomeScreenWeatherFetchTest {
     fun `TC-aac88cdb-1fb7-4741-9e2f-6a0b96e28565 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } returns
-            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            Result.failure(IllegalStateException(Arb.string().next()))
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
         coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
         val getCurrentCalendarWeatherUseCase = mockk<GetCurrentCalendarWeatherUseCase>()

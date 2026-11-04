@@ -1,16 +1,17 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -22,9 +23,6 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidayVisibilityActionUseCaseTest :
     BehaviorSpec({
@@ -320,7 +318,7 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("토글할 설정 공휴일 목록을 조회할 수 없다") {
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val getSettingHolidayUseCase = getSettingHolidayUseCase(result = Result.failure(failure))
             val repository = mockk<HolidaySettingRepository>(relaxed = true)
             val toggleUseCase =
@@ -345,7 +343,7 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("일괄 선택할 공휴일 목록을 조회할 수 없다") {
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val holidayRepository =
                 mockk<HolidayRepository>().also { repository ->
                     every { repository.get(countrySet = KOREA_COUNTRY_SET) } returns flow { throw failure }
@@ -379,7 +377,7 @@ class HolidayVisibilityActionUseCaseTest :
         Given("선택 상태를 저장할 수 없다") {
             val selected = holidaySetting(name = uniqueName(label = "selected"), isVisible = true)
             val deselected = holidaySetting(name = uniqueName(label = "deselected"), isVisible = false)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val repository = mockk<HolidaySettingRepository>()
             coEvery { repository.addHiddenKey(key = any()) } throws failure
             coEvery { repository.removeHiddenKey(key = any()) } throws failure
@@ -459,7 +457,7 @@ private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =
 
 private fun holiday(
     name: String,
-    isHoliday: Boolean = fixtureMonkey.giveMeOne(),
+    isHoliday: Boolean = Arb.boolean().next(),
 ): Holiday {
     val date = LocalDate(year = 2026, month = 1, day = 1)
 
@@ -472,8 +470,8 @@ private fun holiday(
 
 private fun holidaySetting(
     name: String = uniqueName(label = "holiday"),
-    isHoliday: Boolean = fixtureMonkey.giveMeOne(),
-    isVisible: Boolean = fixtureMonkey.giveMeOne(),
+    isHoliday: Boolean = Arb.boolean().next(),
+    isVisible: Boolean = Arb.boolean().next(),
 ): HolidaySetting =
     HolidaySetting(
         name = name,
@@ -481,4 +479,4 @@ private fun holidaySetting(
         isVisible = isVisible,
     )
 
-private fun uniqueName(label: String): String = "${fixtureMonkey.giveMeOne<String>()}-$label"
+private fun uniqueName(label: String): String = "${Arb.string().next()}-$label"

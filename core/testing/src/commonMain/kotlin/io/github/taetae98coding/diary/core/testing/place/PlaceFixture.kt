@@ -1,44 +1,40 @@
 package io.github.taetae98coding.diary.core.testing.place
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.network.api.place.entity.PlaceRemoteEntity
-import kotlin.uuid.Uuid
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.string
 
-public fun FixtureMonkey.place(isDeleted: Boolean): Place =
-    giveMeKotlinBuilder<Place>()
-        .setExp(Place::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.place(isDeleted: Boolean): Arb<Place> = Arb.place().map { place -> place.copy(isDeleted = isDeleted) }
 
-public fun FixtureMonkey.place(
+public fun Arb.Companion.place(
     title: String,
     isDeleted: Boolean,
-): Place =
-    Place(
-        id = giveMeOne<Uuid>(),
-        detail =
-            PlaceDetail(
-                title = title,
-                description = giveMeOne<String>(),
-                color = giveMeOne<Long>(),
-                coordinate = coordinateInFormPrecision(),
-                address = giveMeOne<String>(),
-            ),
-        isDeleted = isDeleted,
-        updatedAt = giveMeOne(),
-        createdAt = giveMeOne(),
-    )
+): Arb<Place> =
+    arbitrary {
+        Place(
+            id = Arb.kotlinUuid().bind(),
+            detail =
+                PlaceDetail(
+                    title = title,
+                    description = Arb.string().bind(),
+                    color = Arb.long().bind(),
+                    coordinate = Arb.coordinateInFormPrecision().bind(),
+                    address = Arb.string().bind(),
+                ),
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().bind(),
+            createdAt = Arb.secondPrecisionInstant().bind(),
+        )
+    }
 
-public fun FixtureMonkey.localPlace(isDeleted: Boolean): PlaceLocalEntity =
-    giveMeKotlinBuilder<PlaceLocalEntity>()
-        .setExp(PlaceLocalEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.localPlace(isDeleted: Boolean): Arb<PlaceLocalEntity> = Arb.placeLocalEntity().map { place -> place.copy(isDeleted = isDeleted) }
 
-public fun FixtureMonkey.remotePlace(isDeleted: Boolean): PlaceRemoteEntity =
-    giveMeKotlinBuilder<PlaceRemoteEntity>()
-        .setExp(PlaceRemoteEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.remotePlace(isDeleted: Boolean): Arb<PlaceRemoteEntity> = Arb.placeRemoteEntity().map { place -> place.copy(isDeleted = isDeleted) }

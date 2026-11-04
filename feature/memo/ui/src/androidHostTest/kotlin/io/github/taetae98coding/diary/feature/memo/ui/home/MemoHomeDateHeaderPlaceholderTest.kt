@@ -10,7 +10,6 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.core.model.memo.Memo
@@ -23,9 +22,10 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -39,8 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 첫 조회는 앞쪽 메모만 돌려주고 뒤쪽은 아직 준비되지 않은 자리로 남긴다.
 // 이어지는 조회는 끝나지 않게 두어, 준비되지 않은 메모가 로딩 상태로 계속 표시되게 한다.
@@ -59,7 +57,7 @@ class MemoHomeDateHeaderPlaceholderTest {
     fun `TC-44b31ce2-1c9c-40ca-a88d-8653bd80868c 아직 준비되지 않은 메모에는 날짜 헤더가 표시되지 않는다`() {
         val loadedMemoList =
             List(LOADED_MEMO_COUNT) { index ->
-                fixtureMonkey.memo(title = "LoadedMemo$index", dateTime = MemoDateTime.AllDay(dateRange = LOADED_DATE..LOADED_DATE))
+                Arb.memo(title = "LoadedMemo$index", dateTime = MemoDateTime.AllDay(dateRange = LOADED_DATE..LOADED_DATE)).next()
             }
         setMemoHomeScreen(loadedMemoList = loadedMemoList)
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {

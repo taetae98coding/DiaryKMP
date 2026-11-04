@@ -11,8 +11,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -24,8 +22,10 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -37,9 +37,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -54,8 +51,8 @@ class WebHomeSortRestorationTest {
 
     @Test
     fun `TC-44fefef4-aef9-4729-b618-72635e672b10 화면이 재생성되어도 고른 정렬을 유지한다`() {
-        val first = testWeb(title = "A-${fixtureMonkey.giveMeOne<String>()}")
-        val second = testWeb(title = "B-${fixtureMonkey.giveMeOne<String>()}")
+        val first = testWeb(title = "A-${Arb.string().next()}")
+        val second = testWeb(title = "B-${Arb.string().next()}")
         val pageWebUseCase = mockk<PageWebUseCase>()
         every { pageWebUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(webPagingDataOf(listOf(first, second))))
         every { pageWebUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns

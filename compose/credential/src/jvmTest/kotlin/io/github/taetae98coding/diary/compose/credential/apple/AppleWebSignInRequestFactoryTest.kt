@@ -1,24 +1,22 @@
 package io.github.taetae98coding.diary.compose.credential.apple
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.credential.CredentialsNonce
 import io.github.taetae98coding.diary.compose.credential.queryParameter
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 class AppleWebSignInRequestFactoryTest :
     FunSpec({
         test("TC-d0a6a2b3-9ae1-4ea7-9318-976bb99e0020 로그인 요청은 서버 콜백 주소, 이번 시도의 nonce, 복귀 주소를 담는다") {
-            val config = fixtureMonkey.appleCredentialsConfig()
-            val returnUri = "http://127.0.0.1:${fixtureMonkey.giveMeOne<Int>().toUInt()}/callback"
-            val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
+            val config = appleCredentialsConfig()
+            val returnUri = "http://127.0.0.1:${Arb.int().next().toUInt()}/callback"
+            val idToken = "id-token-${Arb.string().next()}"
 
             val request = AppleWebSignInRequestFactory(config = config).create(returnUri = returnUri)
             val credential = request.toResult(AppleWebSignInResponse(idToken = idToken, code = null, state = request.state, error = null)).credential
@@ -35,12 +33,12 @@ class AppleWebSignInRequestFactoryTest :
         }
 
         test("TC-8863804f-e996-4934-9845-5dbb496a9704 새 로그인 시도는 새로운 nonce와 상태 값을 사용한다") {
-            val factory = AppleWebSignInRequestFactory(config = fixtureMonkey.appleCredentialsConfig())
-            val returnUri = "io.github.taetae98coding.diary://apple-sign-in-${fixtureMonkey.giveMeOne<String>()}"
+            val factory = AppleWebSignInRequestFactory(config = appleCredentialsConfig())
+            val returnUri = "io.github.taetae98coding.diary://apple-sign-in-${Arb.string().next()}"
 
             val first = factory.create(returnUri = returnUri)
             val second = factory.create(returnUri = returnUri)
-            val idToken = "id-token-${fixtureMonkey.giveMeOne<String>()}"
+            val idToken = "id-token-${Arb.string().next()}"
             val firstNonce = first.toResult(AppleWebSignInResponse(idToken = idToken, code = null, state = first.state, error = null)).credential.nonce
             val secondNonce = second.toResult(AppleWebSignInResponse(idToken = idToken, code = null, state = second.state, error = null)).credential.nonce
 

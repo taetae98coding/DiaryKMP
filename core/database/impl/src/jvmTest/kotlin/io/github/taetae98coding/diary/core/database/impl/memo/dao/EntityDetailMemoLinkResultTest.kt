@@ -4,8 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -23,16 +21,16 @@ import io.github.taetae98coding.diary.core.testing.contact.localContact
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.place.localPlace
 import io.github.taetae98coding.diary.core.testing.web.localWeb
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class EntityDetailMemoLinkResultTest :
     FunSpec({
@@ -111,14 +109,14 @@ class EntityDetailMemoLinkResultTest :
         ): List<Uuid> = database.accountContactMemoDao().page(accountId = accountId, contactId = contactId, sort = ListSortLocalEntity.DEFAULT.queryValue).pagedIds()
 
         test("TC-4b6e31e6-fadd-47fe-984d-407ffbf38b3b 새 메모는 저장 시점의 장소 선택으로 연결되고 장소 A의 메모 탭은 그 연결을 따른다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeA = fixtureMonkey.localPlace(isDeleted = false)
-            val placeB = fixtureMonkey.localPlace(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val placeA = Arb.localPlace(isDeleted = false).next()
+            val placeB = Arb.localPlace(isDeleted = false).next()
             insertPlace(accountId = accountId, place = placeA)
             insertPlace(accountId = accountId, place = placeB)
 
             selectionCaseList(a = placeA.id, b = placeB.id).forEach { selectionCase ->
-                val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+                val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
                 transaction.upsert(
                     accountId = accountId,
                     memoList = listOf(memo),
@@ -140,14 +138,14 @@ class EntityDetailMemoLinkResultTest :
         }
 
         test("TC-cea9cb67-7465-4846-bcac-12652d0c07d0 새 메모는 저장 시점의 웹 항목 선택으로 연결되고 웹 항목 A의 메모 탭은 그 연결을 따른다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val webA = fixtureMonkey.localWeb(isDeleted = false)
-            val webB = fixtureMonkey.localWeb(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val webA = Arb.localWeb(isDeleted = false).next()
+            val webB = Arb.localWeb(isDeleted = false).next()
             insertWeb(accountId = accountId, web = webA)
             insertWeb(accountId = accountId, web = webB)
 
             selectionCaseList(a = webA.id, b = webB.id).forEach { selectionCase ->
-                val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+                val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
                 transaction.upsert(
                     accountId = accountId,
                     memoList = listOf(memo),
@@ -169,14 +167,14 @@ class EntityDetailMemoLinkResultTest :
         }
 
         test("TC-f4e12382-db96-4fe5-9c0d-a27cc28cc8f6 새 메모는 저장 시점의 연락처 선택으로 연결되고 연락처 A의 메모 탭은 그 연결을 따른다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val contactA = fixtureMonkey.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = false)
-            val contactB = fixtureMonkey.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val contactA = Arb.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = Arb.boolean().next(), isDeleted = false).next()
+            val contactB = Arb.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = Arb.boolean().next(), isDeleted = false).next()
             insertContact(accountId = accountId, contact = contactA)
             insertContact(accountId = accountId, contact = contactB)
 
             selectionCaseList(a = contactA.id, b = contactB.id).forEach { selectionCase ->
-                val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+                val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
                 transaction.upsert(
                     accountId = accountId,
                     memoList = listOf(memo),
@@ -198,13 +196,13 @@ class EntityDetailMemoLinkResultTest :
         }
 
         test("TC-919b52a3-0aa3-463b-9687-dc1fb941faed 상세 대상이 다른 연락처로 바뀌면 목록은 새 연락처의 메모로 바뀐다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val firstContact = fixtureMonkey.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = false)
-            val secondContact = fixtureMonkey.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val firstContact = Arb.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = Arb.boolean().next(), isDeleted = false).next()
+            val secondContact = Arb.localContact(numberList = emptyList(), hasMeasure = false, isFavorite = Arb.boolean().next(), isDeleted = false).next()
             insertContact(accountId = accountId, contact = firstContact)
             insertContact(accountId = accountId, contact = secondContact)
-            val firstMemo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
-            val secondMemo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+            val firstMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            val secondMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
             transaction.upsert(
                 accountId = accountId,
                 memoList = listOf(firstMemo, secondMemo),

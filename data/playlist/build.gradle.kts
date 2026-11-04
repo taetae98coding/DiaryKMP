@@ -12,5 +12,11 @@ kotlin {
                 implementation(projects.domain.playlist)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

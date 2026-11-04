@@ -5,18 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -41,8 +41,8 @@ class TagDetailPlaceTargetHostTest {
 
     @Test
     fun `TC-615383bc-ac38-46f9-a7c1-0b71e54933ed 상세 대상이 다른 태그로 바뀌어도 지도 모드와 옮겨 둔 지도 위치를 유지한다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
-        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>().toDiaryMapCoordinate()
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val movedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         var id by mutableStateOf(Uuid.random())
         setHost(idProvider = { id }, mapViewModel = mapViewModel(fetch))
         composeRule.runOnIdle { placeState.toggleViewMode() }
@@ -65,8 +65,8 @@ class TagDetailPlaceTargetHostTest {
 
     @Test
     fun `TC-09c12caf-5293-4592-81c4-0782ccd394ad 다른 탭에 다녀와도 지도 위치, 확대 수준과 지도 제공자가 남는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
-        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>().toDiaryMapCoordinate()
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val movedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         var isPlaceTabSelected by mutableStateOf(true)
         val id = Uuid.random()
         val mapViewModel = mapViewModel(fetch)
@@ -108,7 +108,7 @@ class TagDetailPlaceTargetHostTest {
 
     @Test
     fun `상세 대상이 그대로면 대상마다 기억하는 상태도 그대로 유지한다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val id = Uuid.random()
         var recomposeTrigger by mutableStateOf(0)
         setHost(idProvider = { recomposeTrigger.let { id } }, mapViewModel = mapViewModel(fetch))
@@ -140,9 +140,6 @@ class TagDetailPlaceTargetHostTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
             coEvery { useCase(parameter = Unit) } returns Result.success(coordinate)

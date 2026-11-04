@@ -6,18 +6,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -72,7 +73,15 @@ class MemoAddPlaceViewModelTest : FunSpec() {
         test("TC-65b06f4e-afc1-49bb-8e71-b7d9992aaa08 선택한 장소의 제목, 컬러, 위치가 바뀌면 장소 카드에 바로 반영된다") {
             runTest(mainDispatcher) {
                 val place = place()
-                val changedPlace = place.copy(detail = fixtureMonkey.giveMeOne<Place>().detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}"))
+                val changedPlace =
+                    place.copy(
+                        detail =
+                            Arb
+                                .place()
+                                .next()
+                                .detail
+                                .copy(title = "changed-${Arb.string().next()}"),
+                    )
                 val savedPlaceListFlow = MutableStateFlow(Result.success(listOf(place)))
                 val viewModel = viewModel(savedPlaceListFlow = savedPlaceListFlow)
 
@@ -96,7 +105,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
         test("TC-338aec84-a9b2-42ce-9cb2-eadfa29397c0 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { place() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PagePlaceUseCase>()
@@ -416,16 +425,16 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
     private companion object {
         private const val SEARCH_QUERY = "Riverside"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun place(): Place =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Place>()
-                .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .place()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
             initialPlaceId: Uuid? = null,

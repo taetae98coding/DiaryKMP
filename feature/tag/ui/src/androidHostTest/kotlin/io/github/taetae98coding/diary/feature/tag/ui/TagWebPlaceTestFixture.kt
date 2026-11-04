@@ -3,40 +3,40 @@ package io.github.taetae98coding.diary.feature.tag.ui
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.place
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
+import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 
-private val webPlaceFixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun tagWeb(title: String): Web =
-    webPlaceFixtureMonkey
-        .giveMeKotlinBuilder<Web>()
-        .setExp(
-            Web::detail,
-            webPlaceFixtureMonkey.giveMeOne<WebDetail>().copy(title = title, headerList = emptyList()),
-        ).setExp(Web::isDeleted, false)
-        .setExp(Web::updatedAt, instant())
-        .setExp(Web::createdAt, instant())
-        .sample()
+    Arb
+        .web()
+        .next()
+        .copy(
+            detail = Arb.webDetail().next().copy(title = title, headerList = emptyList()),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun tagPlace(title: String): Place =
-    webPlaceFixtureMonkey
-        .giveMeKotlinBuilder<Place>()
-        .setExp(
-            Place::detail,
-            webPlaceFixtureMonkey.giveMeOne<PlaceDetail>().copy(title = title),
-        ).setExp(Place::isDeleted, false)
-        .setExp(Place::updatedAt, instant())
-        .setExp(Place::createdAt, instant())
-        .sample()
+    Arb
+        .place()
+        .next()
+        .copy(
+            detail = Arb.placeDetail().next().copy(title = title),
+            isDeleted = false,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun <T : Any> tagEntityPagingData(
     itemList: List<T>,
@@ -64,4 +64,4 @@ internal fun <T : Any> tagEntityLoadingPagingData(): PagingData<T> =
             ),
     )
 
-private fun instant(): Instant = webPlaceFixtureMonkey.giveMeOne<Instant>()
+private fun instant(): Instant = Arb.secondPrecisionInstant().next()

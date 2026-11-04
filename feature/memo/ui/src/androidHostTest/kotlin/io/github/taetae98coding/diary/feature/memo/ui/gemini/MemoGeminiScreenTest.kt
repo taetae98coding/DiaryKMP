@@ -18,8 +18,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
@@ -36,8 +34,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
@@ -56,10 +57,10 @@ class MemoGeminiScreenTest {
 
     @Test
     fun `TC-26885e8c-431a-4b1a-a6b5-1dd7f4dbd92e 반영은 태그, 대표 태그, 웹, 장소, 연락처 선택을 바꾸지 않는다`() {
-        val tag = testTag(title = "태그 ${fixtureMonkey.giveMeOne<String>()}")
-        val web = testWeb(title = "웹 ${fixtureMonkey.giveMeOne<String>()}")
-        val contact = testContact(name = "연락처 ${fixtureMonkey.giveMeOne<String>()}")
-        val place = testPlace(title = "장소 ${fixtureMonkey.giveMeOne<String>()}")
+        val tag = testTag(title = "태그 ${Arb.string().next()}")
+        val web = testWeb(title = "웹 ${Arb.string().next()}")
+        val contact = testContact(name = "연락처 ${Arb.string().next()}")
+        val place = testPlace(title = "장소 ${Arb.string().next()}")
         val viewModels =
             screenTestRealViewModel(
                 initialPrimaryTagId = tag.id,
@@ -391,14 +392,12 @@ class MemoGeminiScreenTest {
 
     private fun createDraft(): MemoDraft =
         MemoDraft(
-            title = "제목 ${fixtureMonkey.giveMeOne<String>()}",
-            description = "설명 ${fixtureMonkey.giveMeOne<String>()}",
+            title = "제목 ${Arb.string().next()}",
+            description = "설명 ${Arb.string().next()}",
             dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 9, 21)..LocalDate(2026, 9, 22)),
         )
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private const val PROMPT_LABEL = "Prompt"
         private const val TITLE_LABEL = "Title"
         private const val APPLY_TITLE_DESCRIPTION = "Apply $TITLE_LABEL"
@@ -410,8 +409,8 @@ class MemoGeminiScreenTest {
         private val promptInput = hasSetTextAction() and hasAnyAncestor(isDialog())
         private val memoInput = hasSetTextAction() and !hasAnyAncestor(isDialog())
 
-        private fun memoText(): String = "메모 ${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun memoText(): String = "메모 ${Arb.kotlinUuid().next()}"
 
-        private fun promptText(): String = "프롬프트 ${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun promptText(): String = "프롬프트 ${Arb.kotlinUuid().next()}"
     }
 }

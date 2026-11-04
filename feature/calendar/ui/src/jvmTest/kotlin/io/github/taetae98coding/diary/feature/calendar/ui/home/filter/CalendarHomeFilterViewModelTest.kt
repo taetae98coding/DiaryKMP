@@ -5,20 +5,23 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.filter
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectCalendarFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -110,7 +113,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         test("태그 선택을 선택 UseCase에 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
                 coEvery { selectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val viewModel =
@@ -129,7 +132,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         test("태그 선택 해제를 선택 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
                 coEvery { unselectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val viewModel =
@@ -205,15 +208,15 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         test("TC-730b233f-1ecf-4d36-913e-3eb491287950 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val selectedTag = tag(title = fixtureMonkey.giveMeOne())
-                val unselectedTag = tag(title = fixtureMonkey.giveMeOne())
+                val selectedTag = tag(title = Arb.string().next())
+                val unselectedTag = tag(title = Arb.string().next())
                 val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(selectedTag)))
                 val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
                 coEvery { selectCalendarFilterTagUseCase(parameter = unselectedTag.id) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
                 coEvery { unselectCalendarFilterTagUseCase(parameter = selectedTag.id) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         getCalendarFilterUseCase = filterUseCase(flow = selectedTagListFlow),
@@ -239,8 +242,8 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         test("TC-a35e1483-802b-4acd-97a6-4f079a17b36b TagAdd 화면에서 태그를 추가해도 추가한 태그는 필터에 선택되지 않는다") {
             runTest(mainDispatcher) {
-                val selectedTag = tag(title = fixtureMonkey.giveMeOne())
-                val addedTag = tag(title = fixtureMonkey.giveMeOne())
+                val selectedTag = tag(title = Arb.string().next())
+                val addedTag = tag(title = Arb.string().next())
                 val tagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(selectedTag)))
                 val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
                 val viewModel =
@@ -287,7 +290,7 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
         test("같은 태그의 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
                 coEvery { selectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
@@ -325,9 +328,6 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
     }
 
     companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageTagUseCase: PageTagUseCase = pageTagUseCase(flow = emptyFlow()),
             getCalendarFilterUseCase: GetCalendarFilterUseCase = filterUseCase(flow = emptyFlow()),
@@ -359,13 +359,15 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
         }
 
         private fun tag(title: String): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(title = title))
-                .setExp(Tag::isFinished, false)
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    detail = Arb.tagDetail().next().copy(title = title),
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

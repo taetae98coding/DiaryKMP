@@ -3,16 +3,16 @@ package io.github.taetae98coding.diary.feature.account.ui.profileimage
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 private const val TOLERANCE = 0.0001F
 private val FrameSize = Size(width = 300F, height = 300F)
@@ -91,7 +91,7 @@ class ProfileImageEditStateTest :
 
         test("TC-ae7330e6-2b67-4116-9a78-6f58a737250f 사진을 고르면 불러오는 상태가 되고 읽으면 처음 상태의 영역이 잡힌다") {
             val state = ProfileImageEditState()
-            val uri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}")
+            val uri = FileUri("content://photo/${Arb.string().next()}")
 
             state.changePhoto(uri = uri)
 
@@ -131,7 +131,7 @@ class ProfileImageEditStateTest :
         }
 
         test("사진을 읽지 못하면 반영할 영역이 없다") {
-            val state = ProfileImageEditState(initialUri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}"))
+            val state = ProfileImageEditState(initialUri = FileUri("content://photo/${Arb.string().next()}"))
 
             state.onPhotoUnreadable()
 
@@ -140,7 +140,7 @@ class ProfileImageEditStateTest :
         }
 
         test("사진을 읽기 전에는 조작이 상태를 바꾸지 않는다") {
-            val state = ProfileImageEditState(initialUri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}"))
+            val state = ProfileImageEditState(initialUri = FileUri("content://photo/${Arb.string().next()}"))
 
             state.transform(pan = Offset(x = 50F, y = 50F), zoomChange = 2F, centroid = FrameSize.center(), frameSize = FrameSize)
             state.zoomBy(factor = 2F, focal = FrameSize.center(), frameSize = FrameSize)
@@ -175,14 +175,11 @@ class ProfileImageEditStateTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun readyState(
             width: Int,
             height: Int,
         ): ProfileImageEditState =
-            ProfileImageEditState(initialUri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}")).apply {
+            ProfileImageEditState(initialUri = FileUri("content://photo/${Arb.string().next()}")).apply {
                 onPhotoLoaded(width = width, height = height)
             }
 

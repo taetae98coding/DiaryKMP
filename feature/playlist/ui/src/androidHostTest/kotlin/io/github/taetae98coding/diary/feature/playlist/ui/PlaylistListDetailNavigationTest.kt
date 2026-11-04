@@ -37,8 +37,6 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -67,8 +65,10 @@ import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewM
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
 import io.github.taetae98coding.diary.feature.playlist.ui.home.testMusic
 import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -253,7 +253,7 @@ class PlaylistListDetailNavigationTest {
     fun `TC-c41335b9-dce4-40f5-8581-5930af99d5e3 곡 상세 위에서 연 곡 추가가 놓인 동안 다른 곡을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
         val first = testMusic(title = "a-${listedMusicTitle()}")
         val second = testMusic(title = "b-${listedMusicTitle()}")
-        val typedTitle = "typed-title-${fixtureMonkey.giveMeOne<Int>()}"
+        val typedTitle = "typed-title-${Arb.int().next()}"
         setPlaylistNavDisplay(musicList = listOf(first, second))
         openAddOnDetail(music = first)
         composeRule.titleInput().performTextInput(typedTitle)
@@ -401,8 +401,8 @@ class PlaylistListDetailNavigationTest {
     }
 
     private fun ComposeContentTestRule.fillPlaceholder() {
-        titleInput().performTextInput("placeholder-title-${fixtureMonkey.giveMeOne<Int>()}")
-        artistInput().performTextInput("placeholder-artist-${fixtureMonkey.giveMeOne<Int>()}")
+        titleInput().performTextInput("placeholder-title-${Arb.int().next()}")
+        artistInput().performTextInput("placeholder-artist-${Arb.int().next()}")
         linkInput().performTextInput(TYPED_LINK)
         waitForIdle()
     }
@@ -421,14 +421,14 @@ class PlaylistListDetailNavigationTest {
         composeRule.waitForIdle()
     }
 
-    private fun listedMusicTitle(): String = "list-${fixtureMonkey.giveMeOne<Int>()}"
+    private fun listedMusicTitle(): String = "list-${Arb.int().next()}"
 
     private fun setPlaylistNavDisplay(music: Music) {
         setPlaylistNavDisplay(musicList = listOf(music))
     }
 
     private fun setPlaylistNavDisplay(musicList: List<Music>) {
-        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${fixtureMonkey.giveMeOne<Int>()}")
+        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${Arb.int().next()}")
         composeRule.setContent {
             PlaylistNavigationTestHost(module = module) {
                 val holder = rememberListDetailPlaceholderStateHolder()
@@ -461,7 +461,7 @@ class PlaylistListDetailNavigationTest {
         restorationTester: StateRestorationTester,
         onBackStack: (NavBackStack<ScreenNavKey>) -> Unit,
     ) {
-        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${fixtureMonkey.giveMeOne<Int>()}")
+        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${Arb.int().next()}")
         restorationTester.setContent {
             PlaylistNavigationTestHost(module = module) {
                 val restorableBackStack =
@@ -551,7 +551,6 @@ class PlaylistListDetailNavigationTest {
         const val DEFAULT_DELETE_MUSIC_DESCRIPTION = "Delete music"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
         val playlistSavedStateConfiguration: SavedStateConfiguration =
             SavedStateConfiguration {
                 serializersModule =

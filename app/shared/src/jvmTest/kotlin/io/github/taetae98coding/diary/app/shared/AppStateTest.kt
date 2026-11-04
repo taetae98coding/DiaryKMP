@@ -4,8 +4,6 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.openDeepLink
@@ -36,12 +34,14 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 import kotlin.uuid.Uuid
 
@@ -143,7 +143,7 @@ class AppStateTest :
                 createAppState(
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
-                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(Arb.kotlinUuid().next()),
                 )
 
             appState.navigateTo(TopLevelNavigation.Memo)
@@ -200,7 +200,7 @@ class AppStateTest :
         }
 
         test("TC-cce39916-2629-4082-b4bb-21482205e6e7 메모 화면에서 이동한 SettingGemini에서는 창 너비와 관계없이 공통 내비게이션을 숨긴다") {
-            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+            listOf(MemoAddNavKey(), MemoDetailNavKey(Arb.kotlinUuid().next())).forEach { memoKey ->
                 listOf(false, true).forEach { isListDetailTwoPane ->
                     val appState =
                         createAppState(
@@ -217,7 +217,7 @@ class AppStateTest :
         }
 
         test("TC-860eb13f-d620-4f83-8842-183db8f5d350 메모 화면에서 이동한 SettingGemini에서 뒤로가면 그 메모 화면으로 돌아간다") {
-            listOf(MemoAddNavKey(), MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { memoKey ->
+            listOf(MemoAddNavKey(), MemoDetailNavKey(Arb.kotlinUuid().next())).forEach { memoKey ->
                 val appState = createAppState(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, memoKey, SettingGeminiNavKey)
 
                 appState.backStack.removeLast()
@@ -260,7 +260,7 @@ class AppStateTest :
                 createAppState(
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
-                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(Arb.kotlinUuid().next()),
                     MemoHomeFilterNavKey,
                     isListDetailTwoPane = true,
                 )
@@ -284,7 +284,7 @@ class AppStateTest :
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
                     MemoAddNavKey(),
-                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(Arb.kotlinUuid().next()),
                     isListDetailTwoPane = true,
                 )
 
@@ -350,7 +350,7 @@ class AppStateTest :
         }
 
         test("TC-c2b989d3-b265-474a-80ce-a38516116249 넓은 화면에서 완료된 메모 목록과 상세를 함께 표시해도 내비게이션 숨김") {
-            listOf(null, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { detailKey ->
+            listOf(null, MemoDetailNavKey(Arb.kotlinUuid().next())).forEach { detailKey ->
                 val backStack = expectedBackStack(TopLevelNavigation.Memo) + listOfNotNull(MemoFinishedListNavKey, detailKey)
                 val appState = createAppState(*backStack.toTypedArray(), isListDetailTwoPane = true)
 
@@ -360,7 +360,7 @@ class AppStateTest :
         }
 
         test("TC-865708c2-d7af-4adb-b589-574e4e5338e7 넓은 화면에서 완료된 태그 목록과 상세를 함께 표시해도 내비게이션 숨김") {
-            listOf(null, TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).forEach { detailKey ->
+            listOf(null, TagDetailNavKey(Arb.kotlinUuid().next())).forEach { detailKey ->
                 val backStack = expectedBackStack(TopLevelNavigation.Tag) + listOfNotNull(TagFinishedListNavKey, detailKey)
                 val appState = createAppState(*backStack.toTypedArray(), isListDetailTwoPane = true)
 
@@ -391,8 +391,8 @@ class AppStateTest :
                 topLevelNavigation = TopLevelNavigation.Memo,
                 detailList =
                     listOf(
-                        listOf(MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
-                        listOf(MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), MemoAddNavKey()),
+                        listOf(MemoDetailNavKey(Arb.kotlinUuid().next())),
+                        listOf(MemoDetailNavKey(Arb.kotlinUuid().next()), MemoAddNavKey()),
                     ),
             ).forEach { case ->
                 assertListDetailResetAfterLeaving(case)
@@ -404,9 +404,9 @@ class AppStateTest :
                 topLevelNavigation = TopLevelNavigation.Tag,
                 detailList =
                     listOf(
-                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
-                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
-                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), TagAddNavKey()),
+                        listOf(TagDetailNavKey(Arb.kotlinUuid().next())),
+                        listOf(TagDetailNavKey(Arb.kotlinUuid().next()), TagDetailNavKey(Arb.kotlinUuid().next())),
+                        listOf(TagDetailNavKey(Arb.kotlinUuid().next()), TagAddNavKey()),
                     ),
             ).forEach { case ->
                 assertListDetailResetAfterLeaving(case)
@@ -416,15 +416,15 @@ class AppStateTest :
         test("TC-95e41aa3-afd6-416b-aaa0-1f545b00bf82 파일 올리기 알림으로 FileHome이 열린 뒤 메모로 돌아오면 완료된 메모 목록과 상세가 남지 않는다") {
             val backStack =
                 expectedBackStack(TopLevelNavigation.Memo) +
-                    listOf(MemoFinishedListNavKey, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()))
+                    listOf(MemoFinishedListNavKey, MemoDetailNavKey(Arb.kotlinUuid().next()))
 
             assertFinishedListResetAfterFileHomeDeepLink(topLevelNavigation = TopLevelNavigation.Memo, backStack = backStack)
         }
 
         test("TC-744d883c-9baf-45e6-9ab5-c1b5b33a4dfa 파일 올리기 알림으로 FileHome이 열린 뒤 태그로 돌아오면 완료된 태그 목록과 상세가 남지 않는다") {
             listOf(
-                listOf(TagFinishedListNavKey, TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
-                listOf(TagFinishedListNavKey, TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                listOf(TagFinishedListNavKey, TagDetailNavKey(Arb.kotlinUuid().next())),
+                listOf(TagFinishedListNavKey, TagDetailNavKey(Arb.kotlinUuid().next()), TagDetailNavKey(Arb.kotlinUuid().next())),
             ).forEach { finishedList ->
                 assertFinishedListResetAfterFileHomeDeepLink(
                     topLevelNavigation = TopLevelNavigation.Tag,
@@ -446,8 +446,6 @@ class AppStateTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun openedScreenCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
@@ -456,7 +454,7 @@ class AppStateTest :
                         listOf(
                             TopLevelNavigation.DEFAULT.key,
                             TopLevelNavigation.Memo.key,
-                            MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                            MemoDetailNavKey(Arb.kotlinUuid().next()),
                         ),
                 ),
                 DetailDestinationCase(
@@ -525,7 +523,7 @@ class AppStateTest :
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Calendar,
-                    backStack = listOf(TopLevelNavigation.Calendar.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                    backStack = listOf(TopLevelNavigation.Calendar.key, MemoDetailNavKey(Arb.kotlinUuid().next())),
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Calendar,
@@ -547,17 +545,17 @@ class AppStateTest :
                         listOf(
                             TopLevelNavigation.DEFAULT.key,
                             TopLevelNavigation.Memo.key,
-                            MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
-                            TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                            MemoDetailNavKey(Arb.kotlinUuid().next()),
+                            TagDetailNavKey(Arb.kotlinUuid().next()),
                         ),
                 ),
             )
 
         private fun tagMemoFinishedListDetailCases(): List<DetailDestinationCase> =
-            fixtureMonkey.giveMeOne<Uuid>().let { tagId ->
+            Arb.kotlinUuid().next().let { tagId ->
                 listOf(
                     null,
-                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(Arb.kotlinUuid().next()),
                 ).map { detailKey ->
                     DetailDestinationCase(
                         topLevelNavigation = TopLevelNavigation.Tag,
@@ -574,9 +572,9 @@ class AppStateTest :
             }
 
         private fun entityMemoFinishedListDetailCases(): List<DetailDestinationCase> {
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val contactId = Arb.kotlinUuid().next()
+            val placeId = Arb.kotlinUuid().next()
+            val webId = Arb.kotlinUuid().next()
             val entityBackStackList =
                 listOf(
                     listOf(ContactHomeNavKey, ContactDetailNavKey(contactId), ContactMemoFinishedListNavKey(contactId = contactId)),
@@ -585,7 +583,7 @@ class AppStateTest :
                 )
 
             return entityBackStackList.flatMap { entityBackStack ->
-                listOf(null, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).map { detailKey ->
+                listOf(null, MemoDetailNavKey(Arb.kotlinUuid().next())).map { detailKey ->
                     DetailDestinationCase(
                         topLevelNavigation = TopLevelNavigation.More,
                         backStack =
@@ -603,7 +601,7 @@ class AppStateTest :
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
-                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(Arb.kotlinUuid().next())),
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Tag,
@@ -611,19 +609,19 @@ class AppStateTest :
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Tag,
-                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(Arb.kotlinUuid().next())),
                 ),
             )
 
         private fun leftDestinationCases(): List<DetailDestinationCase> =
             listOf(
-                TopLevelNavigation.Memo to MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Memo to MemoDetailNavKey(Arb.kotlinUuid().next()),
                 TopLevelNavigation.Memo to MemoAddNavKey(),
                 TopLevelNavigation.Memo to MemoHomeFilterNavKey,
-                TopLevelNavigation.Tag to TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Tag to TagDetailNavKey(Arb.kotlinUuid().next()),
                 TopLevelNavigation.Tag to TagAddNavKey(),
                 TopLevelNavigation.Tag to TagHomeFilterNavKey,
-                TopLevelNavigation.Calendar to MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Calendar to MemoDetailNavKey(Arb.kotlinUuid().next()),
                 TopLevelNavigation.Calendar to CalendarHomeFilterNavKey,
                 TopLevelNavigation.Routine to RoutineAddNavKey,
                 TopLevelNavigation.More to LoginHomeNavKey,

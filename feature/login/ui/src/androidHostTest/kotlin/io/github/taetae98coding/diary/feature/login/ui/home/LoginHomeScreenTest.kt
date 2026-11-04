@@ -4,13 +4,16 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -58,7 +61,7 @@ class LoginHomeScreenTest {
 
     @Test
     fun `TC-cc06c3c7-3563-432b-85f4-1e2ebef86ed5 Google 로그인 흐름 시작`() {
-        val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+        val credential = Arb.googleCredentialIdToken().next()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         val appleCredentialsManager = mockAppleCredentialsManager()
@@ -81,7 +84,7 @@ class LoginHomeScreenTest {
 
     @Test
     fun `TC-cc06c3c7-3563-432b-85f4-1e2ebef86ed5 Apple 로그인 흐름 시작`() {
-        val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
+        val credential = Arb.appleCredential().next()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         val appleCredentialsManager = mockAppleCredentialsManager()
@@ -143,7 +146,7 @@ class LoginHomeScreenTest {
     @Test
     fun `TC-8bb48c53-91c9-48a5-b1c5-2de1255812e1 Google 로그인 성공 시 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
-        val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+        val credential = Arb.googleCredentialIdToken().next()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val googleCredentialsManager = mockGoogleCredentialsManager()
@@ -168,7 +171,7 @@ class LoginHomeScreenTest {
     @Test
     fun `TC-8bb48c53-91c9-48a5-b1c5-2de1255812e1 Apple 로그인 성공 시 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
-        val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
+        val credential = Arb.appleCredential().next()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
         val appleCredentialsManager = mockAppleCredentialsManager()

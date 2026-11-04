@@ -12,18 +12,19 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -128,8 +129,8 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     fun `TC-58e5a5e8-9846-44a9-8deb-2f40012fc713 지도 보기에서 바꾼 제공자와 위치는 카드의 지도에 반영하지 않는다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.GOOGLE, initialCoordinate = cardCoordinate)
         lateinit var pickerMapState: DiaryMapState
 
@@ -150,9 +151,9 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     fun `TC-1ea4c491-ca05-4c15-b790-76ab76c61f82 기본 지도가 바뀌어 카드의 지도가 다시 시작하면 지도 보기의 지도도 새 기본 지도로 다시 시작한다`() {
-        val firstCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val movedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val restartedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val firstCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val movedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val restartedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         var cardMapState by mutableStateOf(DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = firstCoordinate))
         lateinit var pickerMapState: DiaryMapState
 
@@ -187,7 +188,7 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     fun `TC-dcc67ec4-f921-4d3c-b8be-4de7ac04f7ee 목록 보기에서 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
-        val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val coordinate = Arb.coordinate().next()
         val eventList = mutableListOf<MemoPlacePickerEvent>()
         setDialog(
             mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER),
@@ -203,7 +204,7 @@ class MemoPlacePickerMapViewTest {
 
     @Test
     fun `TC-d8e45de3-c185-4bf4-bfea-ada296d40606 화면이 재생성되거나 복원되어도 지도 보기와 그 지도 상태가 유지된다`() {
-        val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val coordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: MemoPlacePickerState
@@ -248,7 +249,7 @@ class MemoPlacePickerMapViewTest {
     }
 
     private fun assertPickerMapStartsFromCardMap(provider: DiaryMapProvider) {
-        val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val coordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val cardMapState = DiaryMapState(initialProvider = provider, initialCoordinate = coordinate)
         lateinit var pickerMapState: DiaryMapState
 
@@ -346,7 +347,5 @@ class MemoPlacePickerMapViewTest {
         const val DEFAULT_MAP_EMPTY_DESCRIPTION = "Move the map to look elsewhere."
         const val KOREAN_MAP_EMPTY_TITLE = "이 지역에 장소가 없습니다"
         const val KOREAN_MAP_EMPTY_DESCRIPTION = "지도를 옮겨 다른 곳을 찾아보세요"
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

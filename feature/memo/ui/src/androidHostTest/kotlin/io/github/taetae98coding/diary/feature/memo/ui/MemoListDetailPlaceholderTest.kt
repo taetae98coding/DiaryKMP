@@ -39,8 +39,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -84,11 +82,14 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -173,8 +174,8 @@ class MemoListDetailPlaceholderTest {
         val storedMemoList = MutableStateFlow(emptyList<Memo>())
         coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } answers {
             val parameter = firstArg<AddMemoUseCase.Parameter>()
-            storedMemoList.update { memoList -> memoList + fixtureMonkey.memo(title = parameter.detail.title) }
-            Result.success(fixtureMonkey.giveMeOne<Uuid>())
+            storedMemoList.update { memoList -> memoList + Arb.memo(title = parameter.detail.title).next() }
+            Result.success(Arb.kotlinUuid().next())
         }
         val memoHomeViewModel = memoHomeViewModel(storedMemoList = storedMemoList)
         setMemoNavDisplay(input = input) {
@@ -207,12 +208,12 @@ class MemoListDetailPlaceholderTest {
 
     @Test
     fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
-        assertPlaceholderRetained(route = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+        assertPlaceholderRetained(route = MemoDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     @Test
     fun `TC-046042d2-660e-48bf-85ee-b849286daaa4 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
-        assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()))
+        assertPlaceholderRetained(route = TagAddNavKey(requestKey = Arb.kotlinUuid().next()))
     }
 
     @Test
@@ -223,7 +224,7 @@ class MemoListDetailPlaceholderTest {
     @Test
     fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
         val input = placeholderInput()
-        val detail = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detail = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         setMemoNavDisplay(input = input)
         composeRule.runOnIdle {
             backStack.add(MemoAddNavKey())
@@ -245,7 +246,7 @@ class MemoListDetailPlaceholderTest {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
 
@@ -301,7 +302,7 @@ class MemoListDetailPlaceholderTest {
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
 
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
@@ -475,7 +476,6 @@ class MemoListDetailPlaceholderTest {
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
         const val ADDED_MEMO_TITLE = "AddedMemoTitle"
         const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
         fun relaxedPlaceMapViewModel(): MemoPlaceMapViewModel = mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
@@ -490,12 +490,12 @@ class MemoListDetailPlaceholderTest {
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
-                title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                tag = testTag(title = "tag-${fixtureMonkey.giveMeOne<String>()}"),
-                web = testWeb(title = "web-${fixtureMonkey.giveMeOne<String>()}"),
-                contact = testContact(name = "contact-${fixtureMonkey.giveMeOne<String>()}"),
-                place = testPlace(title = "place-${fixtureMonkey.giveMeOne<String>()}"),
+                title = "title-${Arb.string().next()}",
+                description = "description-${Arb.string().next()}",
+                tag = testTag(title = "tag-${Arb.string().next()}"),
+                web = testWeb(title = "web-${Arb.string().next()}"),
+                contact = testContact(name = "contact-${Arb.string().next()}"),
+                place = testPlace(title = "place-${Arb.string().next()}"),
             )
 
         fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)

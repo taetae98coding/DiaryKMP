@@ -1,9 +1,6 @@
 package io.github.taetae98coding.diary.domain.weather.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -14,15 +11,15 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class RefreshCurrentWeatherUseCaseTest :
     BehaviorSpec({
@@ -43,7 +40,7 @@ class RefreshCurrentWeatherUseCaseTest :
         }
 
         Given("현재 위치의 날씨 동기화가 실패하도록 준비되어 있다") {
-            val failure = RefreshCurrentWeatherTestException(fixtureMonkey.giveMeOne())
+            val failure = RefreshCurrentWeatherTestException(Arb.string().next())
             val repository = mockk<WeatherRepository>()
             coEvery { repository.refresh() } throws failure
             val useCase = RefreshCurrentWeatherUseCase(weatherRepository = repository)
@@ -58,7 +55,7 @@ class RefreshCurrentWeatherUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 현재 날씨 동기화가 특정 원인으로 실패하도록 준비되어 있다") {
-            val failure = RefreshCurrentWeatherTestException(fixtureMonkey.giveMeOne())
+            val failure = RefreshCurrentWeatherTestException(Arb.string().next())
             val repository = mockk<WeatherRepository>()
             coEvery { repository.refresh() } throws failure
             val useCase = RefreshCurrentWeatherUseCase(weatherRepository = repository)

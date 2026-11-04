@@ -3,25 +3,22 @@ package io.github.taetae98coding.diary.data.file.paging
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 
 private const val PAGE_SIZE = 20
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 private val pagingConfig: PagingConfig =
     PagingConfig(pageSize = PAGE_SIZE, initialLoadSize = PAGE_SIZE, enablePlaceholders = false)
@@ -94,7 +91,7 @@ class FilePagingSourceTest :
         }
     }) {
     public companion object {
-        private fun remoteFile(): FileRemoteEntity = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+        private fun remoteFile(): FileRemoteEntity = Arb.fileRemoteEntity().next()
 
         private fun FileRemoteEntity.cursor(): FileCursorRemoteEntity = FileCursorRemoteEntity(createdAt = createdAt, id = id)
     }

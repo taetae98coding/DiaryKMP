@@ -1,17 +1,20 @@
 package io.github.taetae98coding.diary.domain.tag.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -25,8 +28,8 @@ import kotlin.uuid.Uuid
 class DeleteTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -47,7 +50,7 @@ class DeleteTagUseCaseTest :
 
             When("태그를 삭제한다") {
                 Then("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 TC-8ab554b9-88a3-421d-abb5-fee3a7bfb7ec 현재 계정의 태그를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val tagId = Arb.kotlinUuid().next()
 
                     val result = useCase(parameter = tagId)
 
@@ -60,7 +63,7 @@ class DeleteTagUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -76,7 +79,7 @@ class DeleteTagUseCaseTest :
 
             When("태그 삭제를 실행한다") {
                 Then("계정 조회 실패를 전달하고 태그 상태를 변경하지 않는다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    val result = useCase(parameter = Arb.kotlinUuid().next())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
                     coVerify(exactly = 0) {
@@ -88,7 +91,7 @@ class DeleteTagUseCaseTest :
         }
 
         Given("태그 삭제와 동기화 요청이 성공하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -98,7 +101,7 @@ class DeleteTagUseCaseTest :
                 accountTagRepository.updateDeleted(account = account, tagId = any(), isDeleted = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 DeleteTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -109,7 +112,7 @@ class DeleteTagUseCaseTest :
 
             When("태그를 삭제한다") {
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 태그 갱신 후 동기화를 한 번 요청한다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    val result = useCase(parameter = Arb.kotlinUuid().next())
 
                     result.shouldBeSuccess(1)
                     coVerifyOrder {
@@ -120,9 +123,4 @@ class DeleteTagUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

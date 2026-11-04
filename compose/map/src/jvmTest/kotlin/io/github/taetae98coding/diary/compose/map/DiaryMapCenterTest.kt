@@ -1,13 +1,11 @@
 package io.github.taetae98coding.diary.compose.map
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 
 class DiaryMapCenterTest : FunSpec() {
     init {
@@ -93,12 +91,12 @@ class DiaryMapCenterTest : FunSpec() {
 
         private fun randomCoordinate(): DiaryMapCoordinate =
             DiaryMapCoordinate(
-                latitude = LATITUDE_MIN + fixtureMonkey.giveMeOne<Int>().mod(LATITUDE_RANGE),
-                longitude = LONGITUDE_MIN + fixtureMonkey.giveMeOne<Int>().mod(LONGITUDE_RANGE),
+                latitude = LATITUDE_MIN + Arb.int().next().mod(LATITUDE_RANGE),
+                longitude = LONGITUDE_MIN + Arb.int().next().mod(LONGITUDE_RANGE),
             )
 
-        private fun randomSpan(): Double = (fixtureMonkey.giveMeOne<Int>().mod(SPAN_STEPS) + 1) * SPAN_UNIT
+        private fun randomSpan(): Double = (Arb.int().next().mod(SPAN_STEPS) + 1) * SPAN_UNIT
 
-        private fun randomZoom(): Double = ZOOM_MIN + fixtureMonkey.giveMeOne<Int>().mod(ZOOM_RANGE)
+        private fun randomZoom(): Double = ZOOM_MIN + Arb.int().next().mod(ZOOM_RANGE)
     }
 }

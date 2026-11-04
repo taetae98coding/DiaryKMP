@@ -16,8 +16,6 @@ import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
@@ -27,9 +25,11 @@ import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_title
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -47,9 +47,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class PlaceDetailMemoPlaceholderTest {
@@ -66,7 +63,7 @@ class PlaceDetailMemoPlaceholderTest {
     @Test
     fun `TC-a6b21a94-34a6-4648-b8b0-afe3caba21ab 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
-        val loadedMemoTitle = "PlaceMemoLoaded${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+        val loadedMemoTitle = "PlaceMemoLoaded${Arb.string().next().filter(Char::isLetterOrDigit)}"
         val memo = placeMemo(title = loadedMemoTitle)
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = MemoListItem.Content(memo = memo))
 

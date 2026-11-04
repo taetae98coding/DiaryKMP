@@ -6,24 +6,24 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class PlaceMemoFinishedListNavigationTest :
     FunSpec({
         test("TC-5f1f1653-fb84-43b8-a141-9c607a7509cb PlaceMemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
             val finishedListKey = PlaceMemoFinishedListNavKey(placeId = placeId)
             val backStack = listOf(PlaceHomeNavKey, PlaceDetailNavKey(id = placeId), finishedListKey)
 
@@ -31,12 +31,12 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 TC-5ecf6737-24b8-40d6-a688-4586275ef513 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 PlaceDetail로 돌아간다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
             val detailCases =
                 listOf(
                     emptyList(),
-                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next()), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -49,11 +49,11 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("TC-596310d4-4fae-4202-8fe4-836b51aaded6 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
             val openCases =
                 listOf(
-                    listOf(fixtureMonkey.giveMeOne<Uuid>()),
-                    listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>()),
+                    listOf(Arb.kotlinUuid().next()),
+                    listOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next()),
                 )
 
             openCases.forEach { memoIdList ->
@@ -69,8 +69,8 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("TC-a1f401a9-7510-4695-9b53-528000c3ef8f 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
+            val memoId = Arb.kotlinUuid().next()
             val backStack = finishedListBackStack(placeId = placeId, finishedDetailKeyList = emptyList())
 
             backStack.navigateToMemoDetail(memoId)
@@ -80,12 +80,12 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("TC-3f4ed8d9-89a8-4af4-8fd3-b085c6961e97 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
-            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
+            val selectedId = Arb.kotlinUuid().next()
             val backStack =
                 finishedListBackStack(
                     placeId = placeId,
-                    finishedDetailKeyList = listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    finishedDetailKeyList = listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             backStack.navigateToMemoDetail(selectedId)
@@ -95,11 +95,11 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("TC-4be4919a-3bf7-40a7-966e-bb19deac0d00 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = Arb.kotlinUuid().next()
             val openCases =
                 listOf(
-                    listOf(fixtureMonkey.giveMeOne<Uuid>()),
-                    listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>()),
+                    listOf(Arb.kotlinUuid().next()),
+                    listOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next()),
                 )
 
             openCases.forEach { memoIdList ->
@@ -114,7 +114,7 @@ class PlaceMemoFinishedListNavigationTest :
         }
 
         test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val backStack = NavBackStack<ScreenNavKey>(PlaceHomeNavKey, PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            val backStack = NavBackStack<ScreenNavKey>(PlaceHomeNavKey, PlaceDetailNavKey(id = Arb.kotlinUuid().next()))
             val expected = backStack.toList()
 
             backStack.navigateUpFromPlaceMemoFinishedList()
@@ -136,8 +136,6 @@ class PlaceMemoFinishedListNavigationTest :
         }
     }
 }
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private fun finishedListBackStack(
     placeId: Uuid,

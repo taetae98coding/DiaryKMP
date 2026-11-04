@@ -19,8 +19,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
@@ -30,6 +28,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
@@ -55,13 +54,14 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendPlaceAddedResult
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,7 +93,7 @@ class MemoAddScreenPlaceMapTest {
 
         composeRule.runOnIdle {
             val cardMap = cardMap()
-            cardMap.onSpotClick?.invoke(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+            cardMap.onSpotClick?.invoke(Arb.coordinate().next().toDiaryMapCoordinate())
         }
 
         composeRule.runOnIdle { cardMap().state.spot.shouldBeNull() }
@@ -153,7 +153,7 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-9abc5d57-6f0f-4359-9e90-c0c44ca76380 장소를 선택하거나 해제해도 지도가 보고 있는 위치와 확대 수준이 바뀌지 않는다`() {
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)))
         val initialState = composeRule.runOnIdle { cardMap().state }
         composeRule.runOnIdle { cardMap().reportCamera(coordinate = reportedCoordinate, zoom = TEST_ZOOM) }
@@ -177,7 +177,7 @@ class MemoAddScreenPlaceMapTest {
     fun `TC-c1675e90-9734-4d23-95ab-19d56294c722 지도 핀을 누르면 그 장소의 상세로 이동하고 지도와 선택은 그대로다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val detailIdList = mutableListOf<Uuid>()
         setMemoAddScreen(placeList = listOf(homePlace, officePlace), navigateToPlaceDetail = detailIdList::add)
         composeRule.selectPlaces(HOME_PLACE_TITLE, OFFICE_PLACE_TITLE)
@@ -200,7 +200,7 @@ class MemoAddScreenPlaceMapTest {
     @Test
     fun `TC-eb15cb67-d877-49f5-ae9a-deaa368576bf 장소 상세에서 돌아와도 선택과 지도 상태가 유지된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         var isShown by mutableStateOf(true)
         setMemoAddScreen(
             placeList = listOf(homePlace),
@@ -230,7 +230,7 @@ class MemoAddScreenPlaceMapTest {
     fun `TC-a62214d2-abbf-4897-83b5-7d6b0ef91589 검색어는 지도 핀과 지도가 보고 있는 위치와 확대 수준을 바꾸지 않는다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val officePlace = testPlace(title = OFFICE_PLACE_TITLE)
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         setMemoAddScreen(placeList = listOf(homePlace, officePlace))
         composeRule.openPlacePicker()
         composeRule.awaitDialogNode(OFFICE_PLACE_TITLE)
@@ -275,8 +275,8 @@ class MemoAddScreenPlaceMapTest {
     @Test
     fun `TC-586e80db-a779-454c-a6cf-409873b5f84f 돌아온 뒤 다시 장소 추가로 이동하면 그때 보고 있던 위치를 새로 넘긴다`() {
         val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
-        val firstCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val movedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val firstCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val movedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val coordinateList = mutableListOf<Coordinate?>()
         val resultEventBus = ResultEventBus()
         setMemoAddScreen(placeList = listOf(addedPlace), navigateToPlaceAdd = coordinateList::add, resultEventBus = resultEventBus)
@@ -297,8 +297,8 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-ca9a2c3d-6156-4d6f-9fa2-17b71a953a42 지도 보기에서 장소 추가로 이동하면 지도 보기의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val coordinateList = mutableListOf<Coordinate?>()
         setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)), navigateToPlaceAdd = coordinateList::add)
         composeRule.runOnIdle { cardMap().reportCamera(coordinate = cardCoordinate, zoom = TEST_ZOOM) }
@@ -314,8 +314,8 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-6f7e7eb7-7b0f-4556-9d47-24e0d4fe9605 지도 보기에서 지도를 옮긴 뒤 목록 보기로 돌아와 이동하면 카드의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val coordinateList = mutableListOf<Coordinate?>()
         setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)), navigateToPlaceAdd = coordinateList::add)
         composeRule.runOnIdle { cardMap().reportCamera(coordinate = cardCoordinate, zoom = TEST_ZOOM) }
@@ -443,7 +443,7 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-d223d43e-a506-4214-8b18-6b75fcb23907 목록 보기에 다녀와도 지도 보기의 지도는 보던 위치와 제공자를 이어서 보여 준다`() {
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)))
         composeRule.openPlacePicker()
         composeRule.showMapView()
@@ -463,7 +463,7 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-28ac4c7d-eebe-44f8-8ea1-b2fb84661c8d 지도 보기의 지도는 카드의 위치에서 초기 확대 수준으로 시작한다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)))
         val initialZoom = composeRule.runOnIdle { cardMap().zoom.shouldNotBeNull() }
         val cardZoom = initialZoom - ZOOM_DIFFERENCE
@@ -481,7 +481,7 @@ class MemoAddScreenPlaceMapTest {
 
     @Test
     fun `TC-2eedbcd6-775d-48b4-a131-9a376c7a0e74 장소 추가로 이동할 때 보고 있던 지도 제공자는 넘기지 않는다`() {
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val coordinateList = mutableListOf<Coordinate?>()
         setMemoAddScreen(placeList = emptyList(), navigateToPlaceAdd = coordinateList::add)
         composeRule.onNodeWithText(GOOGLE_PROVIDER_NAME).performSemanticsAction(SemanticsActions.OnClick)
@@ -513,7 +513,7 @@ class MemoAddScreenPlaceMapTest {
         val viewModels = screenTestRealViewModel().copy(placeViewModel = placeViewModel(placeStore = placeStore, initialPlaceId = initialPlaceId))
         val placeMapViewModel =
             screenTestPlaceMapViewModel(
-                uiState = MutableStateFlow(MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>())),
+                uiState = MutableStateFlow(MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = Arb.coordinate().next())),
             )
         val placePickerMapViewModel = placePickerMapViewModel(placeStore = placeStore)
 
@@ -659,8 +659,6 @@ class MemoAddScreenPlaceMapTest {
         val OUTSIDE_COORDINATE = Coordinate(latitude = 35.1, longitude = 129.0)
         val VISIBLE_BOUNDS = DiaryMapBounds(south = 37.0, north = 38.0, west = 126.0, east = 127.0)
         val OUTSIDE_BOUNDS = DiaryMapBounds(south = 35.0, north = 36.0, west = 128.5, east = 129.5)
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun DiaryMapCoordinate.toTestCoordinate(): Coordinate = Coordinate(latitude = latitude, longitude = longitude)
 

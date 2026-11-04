@@ -16,8 +16,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -39,8 +37,10 @@ import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -59,9 +59,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -98,7 +95,7 @@ class PlaceHomeRefreshTest {
         val requestSyncUseCase = mockk<RequestSyncUseCase>()
         coEvery { requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED) } coAnswers {
             syncGate.await()
-            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            Result.failure(IllegalStateException(Arb.string().next()))
         }
         val syncViewModel = mockk<SyncRefreshViewModel>(relaxed = true)
         every { syncViewModel.uiState } returns syncUiState
@@ -114,7 +111,7 @@ class PlaceHomeRefreshTest {
         // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
         every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
         val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-        coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
         every { getPlaceListUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
         val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()

@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.core.database.impl.sync.datasource
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
@@ -21,19 +19,19 @@ import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLo
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import java.io.File
 import kotlin.uuid.Uuid
 
 private typealias PendingWriter = suspend (DiaryDatabase, Uuid, Boolean) -> Unit
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
-private fun uuid(): Uuid = fixtureMonkey.giveMeOne<Uuid>()
+private fun uuid(): Uuid = Arb.kotlinUuid().next()
 
 private val pendingWriterMap: Map<String, PendingWriter> =
     mapOf(

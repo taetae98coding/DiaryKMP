@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -18,20 +15,26 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountWebMemoPagingDaoTest :
     FunSpec({
@@ -167,8 +170,8 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-66b72124-a4fa-4386-8639-baa8bf378edc TC-81d6f3e8-9ba5-485c-afa7-1dcda825d27c 현재 계정의 대상 웹 항목와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val target = web()
             val other = web()
             val activeMemo = memo(isFinished = false, isDeleted = false)
@@ -193,7 +196,7 @@ class AccountWebMemoPagingDaoTest :
                     database.accountWebDao().updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
                 },
                 "내용 수정" to { accountId, web ->
-                    val changed = fixtureMonkey.giveMeOne<WebDetailLocalEntity>()
+                    val changed = Arb.webDetailLocalEntity().next()
                     database.accountWebDao().updateDetail(
                         accountId = accountId,
                         webId = web.id,
@@ -208,7 +211,7 @@ class AccountWebMemoPagingDaoTest :
                     database.webTagDao().upsert(
                         WebTagLocalEntity(
                             webId = web.id,
-                            tagId = fixtureMonkey.giveMeOne<Uuid>(),
+                            tagId = Arb.kotlinUuid().next(),
                             isDeleted = false,
                             updatedAt = instant(),
                             createdAt = instant(),
@@ -216,7 +219,7 @@ class AccountWebMemoPagingDaoTest :
                     )
                 },
             ).values.forEach { change ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val target = web()
                 val targetMemo = memo()
                 insertWebMemo(accountId, target, targetMemo)
@@ -229,7 +232,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-94d79ed3-bd01-4b7f-9807-9e3d79dbe389 웹 항목별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
@@ -332,7 +335,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de TC-a8fffe42-221e-43ea-a1c2-1850248ad879 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val targetMemo = memo()
             insertWebMemo(accountId, target, targetMemo)
@@ -349,7 +352,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de TC-a8fffe42-221e-43ea-a1c2-1850248ad879 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val targetMemo = memo()
             insertWebMemo(accountId, target, targetMemo)
@@ -366,7 +369,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val targetMemo = memo()
             val relation = memoWeb(memoId = targetMemo.id, webId = target.id)
@@ -380,7 +383,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val targetMemo = memo()
             val relation = memoWeb(memoId = targetMemo.id, webId = target.id, isDeleted = true)
@@ -394,7 +397,7 @@ class AccountWebMemoPagingDaoTest :
         }
 
         test("TC-ccf8971b-ef51-412b-b72a-6cedc53ca6de 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = web()
             val movingMemo =
                 memo(
@@ -442,54 +445,61 @@ class AccountWebMemoPagingDaoTest :
     }) {
     public companion object {
         private fun memo(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            detail: MemoDetailLocalEntity = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+            detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
             updatedAt: Instant = instant(),
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::id, id)
-                .setExp(MemoLocalEntity::detail, detail)
-                .setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, updatedAt)
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    id = id,
+                    detail = detail,
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = updatedAt,
+                    createdAt = instant(),
+                )
 
         private fun web(isDeleted: Boolean = false): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::isDeleted, isDeleted)
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun memoWeb(
             memoId: Uuid,
             webId: Uuid,
             isDeleted: Boolean = false,
         ): MemoWebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoWebLocalEntity>()
-                .setExp(MemoWebLocalEntity::memoId, memoId)
-                .setExp(MemoWebLocalEntity::webId, webId)
-                .setExp(MemoWebLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoWebLocalEntity::updatedAt, instant())
-                .setExp(MemoWebLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoWebLocalEntity()
+                .next()
+                .copy(
+                    memoId = memoId,
+                    webId = webId,
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,
             start: LocalDateTime?,
             endInclusive: LocalDateTime?,
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
         ): MemoDetailLocalEntity =
-            fixtureMonkey
-                .giveMeOne<MemoDetailLocalEntity>()
+            Arb
+                .memoDetailLocalEntity()
+                .next()
                 .copy(
                     title = title,
                     isAllDay = isAllDay,

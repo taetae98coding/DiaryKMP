@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,9 +20,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 // 2026년 2월 1일은 일요일이므로 2월 7일과 14일은 토요일, 2월 8일과 15일은 일요일이다.
 class GetGoldenHolidayUseCaseTest :
@@ -452,7 +449,7 @@ private fun holiday(
     isHoliday: Boolean = true,
 ): Holiday =
     Holiday(
-        name = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
         isHoliday = isHoliday,
         dateRange = LocalDateRange(start = start, endInclusive = endInclusive),
     )

@@ -1,13 +1,15 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.uuid.Uuid
@@ -16,7 +18,7 @@ class SyncWorkMemoPrimaryTagTest :
     FunSpec({
         listOf(
             "대표 태그가 없는" to null,
-            "대표 태그가 있는" to fixtureMonkey.giveMeOne<Uuid>(),
+            "대표 태그가 있는" to Arb.kotlinUuid().next(),
         ).forEach { (label, primaryTagId) ->
             test("TC-c5626833-a022-4c4c-8eec-cee8f1eeba89 $label 메모를 업로드하면 그 대표 태그가 요청에 담긴다") {
                 val memoList = listOf(memo().copy(primaryTagId = primaryTagId))
@@ -33,8 +35,8 @@ class SyncWorkMemoPrimaryTagTest :
         }
 
         test("TC-46154ead-6e6e-4374-82d6-e9947ebefaae 대표 태그는 메모 종류의 요청과 내려받기 위치로만 오간다") {
-            val pendingMemo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
-            val pulledMemo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+            val pendingMemo = memo().copy(primaryTagId = Arb.kotlinUuid().next())
+            val pulledMemo = memo().copy(primaryTagId = Arb.kotlinUuid().next())
             val context = context(memoList = listOf(pendingMemo))
             coEvery { context.memoRemoteDataSource.pull(0L) } returns
                 listOf(MemoPullRemoteEntity(memo = pulledMemo.toRemote(), usn = 1L))

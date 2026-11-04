@@ -3,17 +3,19 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.page
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -258,7 +260,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val reloadedPage = webPage()
-                val changedHeaderList = HEADER_LIST + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())
+                val changedHeaderList = HEADER_LIST + WebHeader(name = "header-${Arb.string().next()}", value = Arb.string().next())
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery {
@@ -329,8 +331,8 @@ class WebDetailPageViewModelTest : FunSpec() {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
                 }
 
-                val addedHeaderName = "header-${fixtureMonkey.giveMeOne<String>()}"
-                val changedHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "value-${fixtureMonkey.giveMeOne<String>()}")
+                val addedHeaderName = "header-${Arb.string().next()}"
+                val changedHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "value-${Arb.string().next()}")
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedHeaderList))
                 advanceUntilIdle()
 
@@ -338,7 +340,7 @@ class WebDetailPageViewModelTest : FunSpec() {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedHeaderList))
                 }
 
-                val changedValueHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "changed-${fixtureMonkey.giveMeOne<String>()}")
+                val changedValueHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "changed-${Arb.string().next()}")
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedValueHeaderList))
                 advanceUntilIdle()
 
@@ -433,9 +435,6 @@ class WebDetailPageViewModelTest : FunSpec() {
                 WebHeader(name = "X-Diary", value = "second"),
             )
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             fetchWebPageUseCase: FetchWebPageUseCase,
             id: Uuid = Uuid.random(),
@@ -460,16 +459,16 @@ class WebDetailPageViewModelTest : FunSpec() {
                 id = id,
                 detail =
                     WebDetail(
-                        title = "제목-${fixtureMonkey.giveMeOne<String>()}",
-                        description = fixtureMonkey.giveMeOne<String>(),
+                        title = "제목-${Arb.string().next()}",
+                        description = Arb.string().next(),
                         url = url,
                         headerList = headerList,
                     ),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
-        private fun webPage(): WebPage = fixtureMonkey.giveMeOne<WebPage>()
+        private fun webPage(): WebPage = Arb.webPage().next()
     }
 }

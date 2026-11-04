@@ -17,8 +17,6 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -37,7 +35,9 @@ import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailF
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
 import io.github.taetae98coding.diary.library.compose.ui.color.toColorLong
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -135,12 +135,9 @@ internal const val SAVED_LONGITUDE_TEXT = "126.978000"
 private const val SAVED_COLOR = 0xFF3A7BD5
 internal const val SAVED_ADDRESS = "Saved Address"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun placeDetail(
-    title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-    description: String = "description-${fixtureMonkey.giveMeOne<String>()}",
+    title: String = "title-${Arb.string().next()}",
+    description: String = "description-${Arb.string().next()}",
     // 컬러 입력이 다루는 값과 같은 표현을 쓰기 위해 앱이 저장하는 방식으로 만든다.
     color: Long = Color(SAVED_COLOR).toColorLong(),
     coordinate: Coordinate = Coordinate(latitude = SAVED_LATITUDE, longitude = SAVED_LONGITUDE),

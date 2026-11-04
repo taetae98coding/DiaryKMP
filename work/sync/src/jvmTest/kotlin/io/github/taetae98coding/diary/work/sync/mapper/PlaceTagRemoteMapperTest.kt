@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.placetag.entity.PlaceTagRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.placetag.placeTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.placetag.placeTagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 
 class PlaceTagRemoteMapperTest :
@@ -59,21 +60,22 @@ class PlaceTagRemoteMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun localPlaceTag(isDeleted: Boolean): PlaceTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<PlaceTagLocalEntity>()
-        .setExp(PlaceTagLocalEntity::isDeleted, isDeleted)
-        .setExp(PlaceTagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(PlaceTagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .placeTagLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun remotePlaceTag(isDeleted: Boolean): PlaceTagRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<PlaceTagRemoteEntity>()
-        .setExp(PlaceTagRemoteEntity::isDeleted, isDeleted)
-        .setExp(PlaceTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(PlaceTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .placeTagRemoteEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )

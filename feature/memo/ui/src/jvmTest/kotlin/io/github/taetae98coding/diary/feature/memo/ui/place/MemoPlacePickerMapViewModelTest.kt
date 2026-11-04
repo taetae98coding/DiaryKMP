@@ -3,16 +3,16 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -57,7 +57,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("보이는 영역과 제목 오름차순 기준으로 조회한 장소를 그대로 나타낸다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val placeList = placeList()
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 every { getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)) } returns flowOf(Result.success(placeList))
@@ -93,8 +93,8 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("TC-dfacfc42-3762-45d4-b82d-68ddb02a5a02 보이는 영역이 바뀌면 바뀐 영역의 장소로 목록을 바꾼다") {
             runTest(mainDispatcher) {
-                val firstBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
-                val secondBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val firstBounds = Arb.coordinateBounds().next()
+                val secondBounds = Arb.coordinateBounds().next()
                 val firstPlaceList = placeList()
                 val secondPlaceList = placeList()
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
@@ -116,7 +116,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("TC-a92c7f17-a3e6-4745-a158-a6381750c73b 저장된 장소가 바뀌면 지도 보기의 목록에 바로 반영한다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val firstPlaceList = placeList()
                 val changedPlaceList = placeList()
                 val placeListFlow = MutableStateFlow(Result.success(firstPlaceList))
@@ -140,8 +140,8 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("TC-d62b34b3-3b23-41f9-ab0d-cd14bb5fe383 보이는 영역 안의 장소가 많아도 한 번에 모두 나타낸다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
-                val placeList = List(size = MANY_PLACE_COUNT) { fixtureMonkey.place(isDeleted = false) }
+                val bounds = Arb.coordinateBounds().next()
+                val placeList = List(size = MANY_PLACE_COUNT) { Arb.place(isDeleted = false).next() }
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 every { getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)) } returns flowOf(Result.success(placeList))
                 val viewModel = MemoPlacePickerMapViewModel(getPlaceListUseCase = getPlaceListUseCase)
@@ -159,7 +159,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("TC-9ee14ee5-46f8-4eb4-b7ec-5289934194dc 지도 보기의 목록을 불러오지 못하면 장소 없음과 같게 다룬다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 every { getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)) } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = MemoPlacePickerMapViewModel(getPlaceListUseCase = getPlaceListUseCase)
@@ -176,7 +176,7 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
 
         test("TC-9ee14ee5-46f8-4eb4-b7ec-5289934194dc 장소가 나타나 있던 중 다시 불러오지 못하면 보이던 장소 대신 장소 없음과 같게 다룬다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val placeList = placeList()
                 val placeListFlow = MutableStateFlow(Result.success(placeList))
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
@@ -196,12 +196,10 @@ class MemoPlacePickerMapViewModelTest : FunSpec() {
         }
     }
 
-    private fun placeList(): List<Place> = List(size = PLACE_COUNT) { fixtureMonkey.place(isDeleted = false) }
+    private fun placeList(): List<Place> = List(size = PLACE_COUNT) { Arb.place(isDeleted = false).next() }
 
     private companion object {
         const val PLACE_COUNT = 3
         const val MANY_PLACE_COUNT = 200
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

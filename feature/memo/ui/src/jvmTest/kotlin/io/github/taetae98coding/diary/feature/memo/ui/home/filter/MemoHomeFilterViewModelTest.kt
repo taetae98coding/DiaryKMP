@@ -5,13 +5,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.home.filter
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectMemoFilterTagUseCase
@@ -21,10 +20,13 @@ import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoTagExistenceFil
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -203,7 +205,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
         test("태그 선택을 선택 UseCase에 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val selectMemoFilterTagUseCase = mockk<SelectMemoFilterTagUseCase>()
                 coEvery { selectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val viewModel =
@@ -222,7 +224,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
         test("태그 선택 해제를 선택 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val unselectMemoFilterTagUseCase = mockk<UnselectMemoFilterTagUseCase>()
                 coEvery { unselectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val viewModel =
@@ -300,7 +302,7 @@ class MemoHomeFilterViewModelTest : FunSpec() {
 
         test("같은 필터 변경이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val selectMemoFilterTagUseCase = mockk<SelectMemoFilterTagUseCase>()
                 coEvery { selectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
                 val unselectMemoFilterTagUseCase = mockk<UnselectMemoFilterTagUseCase>()
@@ -344,9 +346,6 @@ class MemoHomeFilterViewModelTest : FunSpec() {
     }
 
     companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageTagUseCase: PageTagUseCase = pageTagUseCase(flow = emptyFlow()),
             getMemoFilterUseCase: GetMemoFilterUseCase = filterUseCase(flow = emptyFlow()),
@@ -393,13 +392,15 @@ class MemoHomeFilterViewModelTest : FunSpec() {
         }
 
         private fun tag(title: String): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(title = title))
-                .setExp(Tag::isFinished, false)
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    detail = Arb.tagDetail().next().copy(title = title),
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

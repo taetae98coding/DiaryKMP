@@ -13,8 +13,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -28,16 +26,16 @@ import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 완료된 태그 목록과 태그 상세가 어떻게 놓이는지는 기능들이 앱에 등록한 배치 정보가 정한다.
 // 실제 배치 정보와 선택 전 상세를 그대로 쓰고, 화면 본문만 이름이 보이는 대역으로 바꿔 창 크기별로 검증한다.
@@ -62,7 +60,7 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-d40a0f5e-925a-48c7-8997-4adfd0fc9b84 넓은 창에서 태그를 선택하면 목록을 유지한 채 상세 영역에 그 태그의 상세가 놓인다`() {
-        val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -77,8 +75,8 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-8175338b-308e-40e9-8d8f-c50793db9466 넓은 창에서 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 목록과 함께 상세 영역에 놓인다`() {
-        val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-        val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+        val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -87,7 +85,7 @@ class TagFinishedListLayoutTest {
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(detailContentOf(linkedKey)).assertIsDisplayed()
 
-        composeRule.runOnIdle { backStack.add(TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(TagAddNavKey(requestKey = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(ADD_CONTENT).assertIsDisplayed()
@@ -96,7 +94,7 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w400dp-h800dp")
     fun `TC-f2c0b78a-b7c0-4294-b799-ab758a5ac0ce 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
-        val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -112,7 +110,7 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-d5e3c2e4-5f87-4e71-813b-d01eb612c6d3 넓은 창에서 목록에서 고른 태그 상세에서 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
-        val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+        val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, TagDetailNavKey(id = Arb.kotlinUuid().next()))
         setAppNavDisplay(backStack = backStack)
 
         pressBack()
@@ -125,8 +123,8 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-d5e3c2e4-5f87-4e71-813b-d01eb612c6d3 넓은 창에서 연결한 태그의 상세에서 뒤로가면 목록을 유지하고 목록에서 고른 태그 상세로 돌아간다`() {
-        val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-        val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+        val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, linkedKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -141,14 +139,14 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 TC-dd898457-7fbf-406f-96eb-0c8b52a870dc 넓은 창 태그 상세가 탭으로 연 화면은 목록 없이 놓이고 돌아오면 그 상세가 놓인다`() {
-        val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
         val openedKeyList: List<ScreenNavKey> =
             listOf(
-                MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 MemoAddNavKey(primaryTagId = listSelectedKey.id),
-                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                WebDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
                 TagMemoFinishedListNavKey(tagId = listSelectedKey.id),
             )
         setAppNavDisplay(backStack = backStack)
@@ -171,7 +169,7 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-6887f2d0-17fd-4046-99ad-aaac6d1ba535 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 태그 목록 전체를 떠나 TagHome 목록으로 돌아간다`() {
-        val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack(TagHomeNavKey, homeDetailKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -185,15 +183,15 @@ class TagFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-62fc4ea3-f7fa-45c9-9f11-d138d4563e88 넓은 창에서 완료된 태그 목록에 다녀와도 태그 목록 배치의 상세가 그대로다`() {
-        val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-        val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+        val linkedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, homeDetailKey, linkedKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(detailContentOf(linkedKey)).assertIsDisplayed()
 
         composeRule.runOnIdle {
             backStack.add(TagFinishedListNavKey)
-            backStack.add(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            backStack.add(TagDetailNavKey(id = Arb.kotlinUuid().next()))
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()

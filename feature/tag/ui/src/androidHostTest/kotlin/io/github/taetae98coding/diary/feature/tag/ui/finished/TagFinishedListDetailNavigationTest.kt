@@ -24,9 +24,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -36,6 +33,8 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -53,8 +52,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -128,7 +130,7 @@ class TagFinishedListDetailNavigationTest {
     @Test
     fun `TC-07e3d6d4-b18c-427a-8af8-3b78499f499b 연결한 태그의 상세에서 삭제하면 목록에서 고른 태그 상세로 돌아간다`() {
         val tagList = tagList()
-        val linkedId = fixtureMonkey.giveMeOne<Uuid>()
+        val linkedId = Arb.kotlinUuid().next()
         setTagNavDisplay(tagList = tagList)
         selectTag(tagList[0])
         composeRule.runOnIdle { backStack.add(TagDetailNavKey(id = linkedId)) }
@@ -254,7 +256,6 @@ class TagFinishedListDetailNavigationTest {
         const val TAG_COUNT = 3
         const val TOP_LEVEL_CONTENT = "TopLevelContent"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a tag"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun listTitle(index: Int): String = "TagFinishedListDetailTitle$index"
 
@@ -264,12 +265,14 @@ class TagFinishedListDetailNavigationTest {
 
         fun tagList(): List<Tag> =
             List(TAG_COUNT) { index ->
-                fixtureMonkey
-                    .giveMeKotlinBuilder<Tag>()
-                    .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = listTitle(index = index)))
-                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                    .sample()
+                Arb
+                    .tag()
+                    .next()
+                    .copy(
+                        detail = Arb.tagDetail().next().copy(emoji = "", title = listTitle(index = index)),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
+                    )
             }
     }
 }

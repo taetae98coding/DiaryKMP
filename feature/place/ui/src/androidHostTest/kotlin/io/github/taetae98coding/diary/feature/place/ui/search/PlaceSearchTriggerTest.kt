@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecisi
 import io.github.taetae98coding.diary.feature.place.ui.boundsAround
 import io.github.taetae98coding.diary.feature.place.ui.reportCamera
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -333,7 +335,7 @@ class PlaceSearchTriggerTest {
         mapState.reportCamera(center = coordinate, bounds = boundsAround(center = coordinate, span = BOUNDS_SPAN))
     }
 
-    private fun randomCoordinate(): DiaryMapCoordinate = fixtureMonkey.coordinateInFormPrecision().toDiaryMapCoordinate()
+    private fun randomCoordinate(): DiaryMapCoordinate = Arb.coordinateInFormPrecision().next().toDiaryMapCoordinate()
 
     private companion object {
         private const val QUERY_PREFIX = "query"

@@ -44,7 +44,7 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 
 ## 소스셋과 도구
 
-테스트는 다음 두 소스셋에만 작성한다. `commonTest`는 쓰지 않는다.
+테스트는 다음 두 소스셋에만 작성한다. `commonTest`에는 테스트를 두지 않고, `테스트 데이터`의 생성 규칙만 둔다.
 
 | 소스셋 | 대상 | 프레임워크 |
 | --- | --- | --- |
@@ -68,29 +68,41 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 ## 테스트 데이터
 
-테스트 데이터는 FixtureMonkey로 항상 임의 생성하고, 검증은 생성된 인스턴스의 필드 값을 참조한다.
+테스트 데이터는 Kotest property의 `Arb`로 항상 임의 생성하고, 검증은 생성된 인스턴스의 필드 값을 참조한다. 값 하나는 `Arb.memo().next()`처럼 꺼내고, 특정 필드만 정해야 하면 `Arb.memo().next().copy(isFinished = false)`처럼 만들어진 인스턴스를 `copy`로 바꾼다.
 
-`FixtureMonkey` 인스턴스는 `:library:fixture-monkey`의 `diaryFixtureMonkey()`로 만든다. 이 모듈은 모든 테스트 소스셋에 자동으로 주입되므로 의존성을 따로 선언하지 않는다. 빌더에 무언가를 더 이어 붙여야 하면 `diaryFixtureMonkeyBuilder()`를 쓴다.
+생성 규칙은 리플렉션 없이 생성자를 직접 호출하는 `Arb.Companion` 확장 함수로 둔다. 이후 `commonTest`로 옮길 테스트가 iOS와 wasmJs에서도 같은 규칙을 쓰게 하기 위해서다. Kotest의 `Arb.bind<T>()`처럼 리플렉션으로 생성자를 채우는 API는 JVM에서만 동작하므로 쓰지 않는다. 예외로 화면 키 클래스처럼 대상 클래스를 런타임에야 알 수 있는 JVM 테스트만 `Arb.bind(arbs, kClass)`를 쓴다.
 
-`FixtureMonkey.builder()`를 테스트 파일에서 직접 호출하지 않는다. 특정 타입의 생성 규칙이 필요하면 그 파일이 아니라 `:library:fixture-monkey`의 구성에 더해 저장소 전체가 같은 규칙을 쓴다. 파일마다 구성을 두면 같은 타입을 새 테스트가 다시 만들지 못하는 함정이 반복된다. 그 구성이 이미 다루는 타입은 다음과 같다.
+생성 규칙은 다음 두 모듈이 소유하고 테스트 파일에서 같은 타입의 규칙을 다시 만들지 않는다. 파일마다 규칙을 두면 같은 타입을 새 테스트가 다시 만들지 못하는 함정이 반복된다.
 
-| 타입 | 왜 구성이 필요한가 | 고정할 때 |
+| 모듈 | 두는 것 | 주입 |
 | --- | --- | --- |
-| `Instant` | FixtureMonkey가 만들면 표현 범위를 넘겨 약 7%가 실패하고, 성공해도 20만 년 전 같은 값이 나온다. 구성이 1970~2100년의 초 정밀도 값을 만든다 | `setExp`로 고정한 값이 그대로 유지된다 |
-| `Uuid` | FixtureMonkey가 만들면 0 근처의 Long으로 채워 서로 다른 식별자를 기대한 두 값이 자주 같아진다. 구성이 `Uuid.random()`으로 만든다 | `setExp`로 고정한 값이 그대로 유지된다 |
-| `LocalDateRange` | `Iterable`을 구현해 FixtureMonkey가 컨테이너로 오인하고 생성자 인자를 채우지 못한다 | `setExp`가 덮어써지므로 만들어진 인스턴스를 `copy`로 바꾼다 |
+| `:library:fixture` | 라이브러리 타입의 규칙과 Kotest 기본 규칙을 대신하는 규칙. `kotest-property`를 함께 노출한다 | `KotestPrimitivePlugin`이 모든 모듈의 `commonTest`에 주입한다 |
+| `:core:testing` | `:core:model`과 `:core:*:api`의 모델·엔티티 규칙(`Arb.memo()`, `Arb.tagLocalEntity()` 등)과 고정 값 헬퍼 | 쓰는 모듈이 테스트 소스셋에 의존성을 직접 선언한다 |
 
-`Instant`는 초 정밀도로 만든다. 저장소는 에포크 밀리초로, 일부 원격 계약은 에포크 초로 다루므로 그보다 정밀한 값은 왕복하면 달라진다. 시각을 직접 만들어 넣을 때도 이 정밀도를 지킨다.
+`:library:fixture`가 Kotest 기본 규칙 대신 쓰게 하는 타입은 다음과 같다.
 
-생성한 문자열은 약 2.6%가 빈 문자열이다. 비어 있지 않아야 판정이 성립하면 `:library:fixture-monkey`의 `nonBlankString()`을 쓰고, 빈 문자열 자체가 목적이면 직접 지정한다.
+| 타입 | 규칙 | 이유 |
+| --- | --- | --- |
+| `Instant` | `Arb.secondPrecisionInstant()` | 저장소는 에포크 밀리초로, 일부 원격 계약은 에포크 초로 다루므로 그보다 정밀한 값은 왕복하면 달라진다. 1970~2100년의 초 정밀도 값을 만든다. 시각을 직접 만들어 넣을 때도 이 정밀도를 지킨다 |
+| `Uuid` | `Arb.kotlinUuid()` | Kotest의 `Arb.uuid()`는 `java.util.UUID`를 만든다 |
+| `LocalDate`, `LocalTime`, `LocalDateTime` | `Arb.kotlinxLocalDate()` 등 | Kotest의 `Arb.localDate()` 등은 `java.time` 타입을 만든다 |
+| `LocalDateRange` | `Arb.localDateRange()` | 시작일이 종료일보다 뒤가 아닌 30일 이내의 기간을 만든다 |
+| `ByteArray` | `Arb.randomByteArray()` | Kotest의 `Arb.byteArray()`는 길이와 내용 규칙을 따로 받는다 |
+| `Double`, `Float` | Kotest의 `Arb.numericDouble()`, `Arb.numericFloat()` | `Arb.double()`과 `Arb.float()`는 `next()`로 꺼내도 NaN과 무한대를 내므로 직렬화나 비교가 깨진다 |
 
-엔티티와 모델의 고정 값을 만드는 헬퍼(`localTag(isFinished, isDeleted)`, `contactDetailCaseList()` 등)는 테스트 파일마다 다시 쓰지 않고 `:core:testing`에 `FixtureMonkey` 확장 함수로 둔다. 두 모듈 이상의 테스트가 같은 엔티티를 만들면 그 헬퍼는 이 모듈로 옮긴다. `:core:testing`은 `core:database:api`, `core:network:api`, `core:model`에 의존하므로 `:library:*`가 아니라 `:core:*`에 있고, 쓰는 모듈의 `jvmTest`가 의존성을 직접 선언한다.
+모델이 담는 목록·집합·맵은 `MAX_COLLECTION_SIZE`(3)개까지 만든다. 크기 자체를 검증하는 테스트는 목록을 직접 만든다.
 
-`FixtureMonkey` 인스턴스는 파일 최상위에 한 번 만들어 공유하고, fixture는 최상위 프로퍼티가 아니라 각 테스트 본문 안에서 생성한다. 테스트마다 다른 값이 생성되어 테스트 간 상관관계가 없고, 실패한 테스트에 쓰인 값을 그 테스트 안에서 바로 확인할 수 있다. `FixtureMonkey` 프로퍼티는 명시적 타입을 선언해야 한다(타입 추론에 checkerframework 어노테이션이 섞여 컴파일 에러가 발생한다).
+`Arb.string()`은 약 1%가 빈 문자열이다. 비어 있지 않아야 판정이 성립하면 `Arb.nonBlankString()`을 쓰고, 빈 문자열 자체가 목적이면 직접 지정한다.
+
+`:core:testing`의 규칙은 `<타입 이름의 lowerCamel>()`로 이름 짓고, 도메인 패키지(`core.testing.memo` 등)에 계층별 파일(`MemoModelArb.kt`, `MemoLocalEntityArb.kt`, `MemoRemoteEntityArb.kt`)로 둔다. enum은 `Arb.enum<T>()`, object는 `Arb.constant(T)`를 그대로 쓰고 별도 규칙을 두지 않는다. sealed 타입은 하위 타입 규칙을 `Arb.choice`로 묶는다. 생성자가 private인 타입은 공개된 생성 경로로 만든다(`Arb.length()`).
+
+엔티티와 모델의 일부 필드를 고정한 규칙(`Arb.localTag(isFinished, isDeleted)` 등)은 `Arb`를 돌려주는 `Arb.Companion` 확장 함수로, 여러 조건을 나열하는 목록(`contactDetailCaseList()` 등)은 일반 함수로 `:core:testing`에 둔다. 무작위 기본값이 필요한 파라미터는 `title: String? = null`로 받아 `arbitrary` 안에서 `title ?: ...`로 채워, 같은 `Arb`에서 꺼낸 값마다 새로 만들어지게 한다. 두 모듈 이상의 테스트가 같은 타입을 만들면 그 규칙은 `:core:testing`으로 옮긴다. `:core:testing`이 의존할 수 없는 타입(feature·compose·domain·impl 모듈의 타입)은 그 타입을 쓰는 모듈의 `commonTest`에 `internal`로 둔다. 다만 그 모듈에 `jvmTest` 테스트가 없으면 `commonTest`의 소스만으로도 `jvmTest`가 테스트를 찾지 못해 실패하므로, 쓰는 소스셋(`androidHostTest`)에 둔다. `androidMain`에만 있는 타입도 `androidHostTest`에 둔다.
+
+fixture는 최상위 프로퍼티가 아니라 각 테스트 본문 안에서 생성한다. 테스트마다 다른 값이 생성되어 테스트 간 상관관계가 없고, 실패한 테스트에 쓰인 값을 그 테스트 안에서 바로 확인할 수 있다.
 
 빈 값 확인처럼 특정 값 자체가 검증 대상인 경우에만 고정 값을 쓴다. 예를 들어 언어별 UI 문구 검증은 실제 리소스 문자열을 고정 값으로 쓴다.
 
-Compose UI 테스트에서 화면에 입력하거나 표시해 글자로 노드를 찾는 사용자 데이터(제목, 설명, 항목 내용, URL 등)는 예외로, 읽기 쉬운 고정 문자열 상수를 써도 된다. 임의 문자열은 길이와 공백, 줄바꿈에 따라 표시와 노드 탐색이 흔들리고, 실패한 화면에서 어떤 값을 찾던 중인지 알아보기 어렵다. 이 예외는 화면에 보이는 글에만 적용하며, 식별자·시각처럼 화면에서 글자로 찾지 않는 값과 jvmTest의 데이터는 그대로 FixtureMonkey로 만든다.
+Compose UI 테스트에서 화면에 입력하거나 표시해 글자로 노드를 찾는 사용자 데이터(제목, 설명, 항목 내용, URL 등)는 예외로, 읽기 쉬운 고정 문자열 상수를 써도 된다. 임의 문자열은 길이와 공백, 줄바꿈에 따라 표시와 노드 탐색이 흔들리고, 실패한 화면에서 어떤 값을 찾던 중인지 알아보기 어렵다. 이 예외는 화면에 보이는 글에만 적용하며, 식별자·시각처럼 화면에서 글자로 찾지 않는 값과 jvmTest의 데이터는 그대로 `Arb`로 만든다.
 
 ## Compose UI 테스트
 

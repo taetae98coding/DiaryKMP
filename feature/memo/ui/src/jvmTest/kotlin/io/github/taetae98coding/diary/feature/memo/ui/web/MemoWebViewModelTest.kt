@@ -6,18 +6,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoWebUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -260,8 +261,8 @@ class MemoWebViewModelTest : FunSpec() {
 
         test("TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa 웹 항목을 선택하면 그 메모와 웹 항목의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val webId = Arb.kotlinUuid().next()
                 val addMemoWebUseCase = mockk<AddMemoWebUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoWebUseCase = addMemoWebUseCase)
 
@@ -274,8 +275,8 @@ class MemoWebViewModelTest : FunSpec() {
 
         test("TC-e6e37bb6-3f75-4339-bd54-49d403f22e5c 웹 선택을 해제하면 그 메모와 웹 항목의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val webId = Arb.kotlinUuid().next()
                 val removeMemoWebUseCase = mockk<RemoveMemoWebUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, removeMemoWebUseCase = removeMemoWebUseCase)
 
@@ -288,9 +289,9 @@ class MemoWebViewModelTest : FunSpec() {
 
         test("TC-f8a97bb6-579b-4af3-ade8-a8165bf343e5 앞선 웹 연결 변경이 처리 중이어도 뒤이은 웹 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstWebId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondWebId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val firstWebId = Arb.kotlinUuid().next()
+                val secondWebId = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Unit>>()
                 val addMemoWebUseCase = mockk<AddMemoWebUseCase>()
                 coEvery { addMemoWebUseCase(any()) } coAnswers { completion.await() }
@@ -370,8 +371,8 @@ class MemoWebViewModelTest : FunSpec() {
 
         test("같은 Web 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val webId = Arb.kotlinUuid().next()
                 val addMemoWebUseCase = mockk<AddMemoWebUseCase>(relaxed = true)
                 val removeMemoWebUseCase = mockk<RemoveMemoWebUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoWebUseCase = addMemoWebUseCase, removeMemoWebUseCase = removeMemoWebUseCase)
@@ -391,19 +392,18 @@ class MemoWebViewModelTest : FunSpec() {
     public companion object {
         private const val SEARCH_QUERY = "Wiki"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): Web =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Web>()
-                .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .web()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             webPagingFlow: Flow<Result<PagingData<Web>>> = emptyFlow(),
             memoWebFlow: Flow<Result<List<Web>>> = emptyFlow(),
             addMemoWebUseCase: AddMemoWebUseCase = mockk(relaxed = true),

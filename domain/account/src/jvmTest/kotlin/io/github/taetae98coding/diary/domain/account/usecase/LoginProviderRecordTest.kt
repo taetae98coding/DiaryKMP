@@ -1,22 +1,20 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
+import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class LoginProviderRecordTest :
     BehaviorSpec({
@@ -29,7 +27,7 @@ class LoginProviderRecordTest :
 
             When("Google 로그인을 완료한다") {
                 SignInWithGoogleUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)(
-                    parameter = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>(),
+                    parameter = Arb.googleCredentialIdToken().next(),
                 )
 
                 Then("TC-649f316c-b797-4ee8-bcde-3ef39857c274 Google 로그인을 기록한다") {
@@ -39,7 +37,7 @@ class LoginProviderRecordTest :
 
             When("Apple 로그인을 완료한다") {
                 SignInWithAppleUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)(
-                    parameter = fixtureMonkey.giveMeOne<AppleCredential>(),
+                    parameter = Arb.appleCredential().next(),
                 )
 
                 Then("TC-649f316c-b797-4ee8-bcde-3ef39857c274 Apple 로그인을 기록한다") {
@@ -56,7 +54,7 @@ class LoginProviderRecordTest :
 
             When("Apple 로그인을 시도한다") {
                 SignInWithAppleUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)(
-                    parameter = fixtureMonkey.giveMeOne<AppleCredential>(),
+                    parameter = Arb.appleCredential().next(),
                 )
 
                 Then("TC-afe16b84-85ac-4d0d-89a1-4b11cfeed28a 로그인 수단을 기록하지 않는다") {

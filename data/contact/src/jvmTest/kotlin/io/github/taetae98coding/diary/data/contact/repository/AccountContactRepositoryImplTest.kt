@@ -5,8 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
@@ -22,16 +20,22 @@ import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailCaseWithoutBirthdayCalendar
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -51,7 +55,7 @@ import kotlin.uuid.Uuid
 class AccountContactRepositoryImplTest :
     FunSpec({
         test("TC-7e927777-fb91-4305-91d6-2edf09cea62d 연락처를 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val contact = contact()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) } just Runs
@@ -63,7 +67,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-2395f8c2-2d07-437e-883f-9baa369e0049 전화번호는 배치한 순서 그대로 로컬 모델로 변환된다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val phoneNumberList =
                 listOf(
                     ContactPhoneNumber(number = "010-1234-5678"),
@@ -81,8 +85,8 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-6d5440d1-b27b-4ea5-b95a-2af5219ae2cb 연락처 목록 페이지 조회는 현재 계정의 로컬 연락처를 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val localContactList = List(2) { localContact().toListItem(nameQualifier = "qualifier-${fixtureMonkey.giveMeOne<String>()}-qualifier") }
+            val account = Arb.accountUser().next()
+            val localContactList = List(2) { localContact().toListItem(nameQualifier = "qualifier-${Arb.string().next()}-qualifier") }
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns pagingSource(localContactList)
             val repository = repository(localDataSource = localDataSource)
@@ -92,7 +96,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-31472722-f6d7-4211-aafd-9806fb6c244c 구분 경로는 앞뒤 공백을 빼고 공백뿐이면 비운다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val expectedByStored = listOf("" to "", "  " to "", "  회사  " to "회사")
             val localList = expectedByStored.map { (stored, _) -> localContact().toListItem(nameQualifier = stored) }
             val localDataSource = mockk<AccountContactLocalDataSource>()
@@ -113,7 +117,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-d0fa641b-b467-4064-8b76-f5cca4bc6d01 전화번호는 저장한 순서 그대로 함께 조회된다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val phoneNumberList =
                 listOf(
                     ContactPhoneNumber(number = "010-1234-5678"),
@@ -135,7 +139,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-2b544859-ade8-4e3d-9fa1-8e260fc0a5b2 선택한 정렬을 로컬 조회 조건으로 넘긴다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
             val repository = repository(localDataSource = localDataSource)
@@ -148,7 +152,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("각 정렬은 같은 로컬 조회 조건으로 전달된다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
             val repository = repository(localDataSource = localDataSource)
@@ -161,7 +165,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-b1b5fded-b545-4d4c-ad99-259ee2f08e9e 유무 필터의 각 축을 로컬 조회 조건으로 넘긴다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
             val repository = repository(localDataSource = localDataSource)
@@ -195,7 +199,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-3fcc976b-4672-46ba-916e-8fbff0c3ad10 대상 연락처 조회는 로컬 저장소만 사용한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val local = localContact()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             val transaction = mockk<AccountContactTransaction>()
@@ -208,10 +212,10 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-1c371ce2-5734-4028-b428-301bc197ab5a 전화번호를 모두 지운 수정을 반영하면 전화번호가 하나도 남지 않는다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val detail = ContactDetail.EMPTY.copy(name = "name-${fixtureMonkey.giveMeOne<String>()}", phoneNumberList = emptyList())
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
+            val detail = ContactDetail.EMPTY.copy(name = "name-${Arb.string().next()}", phoneNumberList = emptyList())
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), contactId = any(), detail = any(), updatedAt = any()) } returns 1
             val repository = repository(transaction = transaction)
@@ -229,7 +233,7 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-250658dc-32f8-47a3-8410-3e244df01331 대상 연락처 조회는 로컬 연락처를 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val local = localContact()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.find(accountId = account.id, contactId = local.id) } returns flowOf(local)
@@ -239,8 +243,8 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-1bb425bf-d53e-490c-ae76-aa9186a9f0de 달력 구분 없이 날짜만 저장된 생일은 양력 생일로 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val case = fixtureMonkey.contactDetailCaseWithoutBirthdayCalendar()
+            val account = Arb.accountUser().next()
+            val case = contactDetailCaseWithoutBirthdayCalendar()
             val local = localContact().copy(detail = case.local)
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.find(accountId = account.id, contactId = local.id) } returns flowOf(local)
@@ -257,9 +261,9 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-25a7d438-e5bf-4d56-9541-59bf526b010e 생일과 다른 태어난 연도가 저장되어 있으면 생일의 연도로 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = localContact()
-            val birthday = fixtureMonkey.giveMeOne<LocalDate>()
+            val birthday = Arb.kotlinxLocalDate().next()
             val local =
                 stored.copy(
                     detail = stored.detail.copy(birthday = birthday, birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR, birthYear = birthday.year + 1),
@@ -279,8 +283,8 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-229c2151-ee96-48d8-b3fc-ba0dd5bf1723 조회되는 로컬 연락처가 없으면 없음을 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.find(accountId = account.id, contactId = contactId) } returns flowOf(null)
             val repository = repository(localDataSource = localDataSource)
@@ -289,14 +293,14 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-6ec3f675-b8e4-4edc-8e7f-9af3c7691cfa 수정은 계정 식별자와 로컬 모델로 변환해 트랜잭션에 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val detail =
                 ContactDetail.EMPTY.copy(
-                    name = "name-${fixtureMonkey.giveMeOne<String>()}",
+                    name = "name-${Arb.string().next()}",
                     phoneNumberList = listOf(ContactPhoneNumber(number = "010-1234-5678"), ContactPhoneNumber(number = "02-1-2")),
                 )
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery {
                 transaction.updateDetail(accountId = account.id, contactId = contactId, detail = detail.toLocal(), updatedAt = updatedAt)
@@ -311,8 +315,8 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-92a80131-b9a8-457a-93e9-5aef7d57aea0 대상 식별자와 계정을 만족하지 않으면 수정이 아무것도 바꾸지 않는다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), contactId = any(), detail = any(), updatedAt = any()) } returns 0
             val repository = repository(transaction = transaction)
@@ -321,14 +325,14 @@ class AccountContactRepositoryImplTest :
                 account = account,
                 contactId = contactId,
                 detail = ContactDetail.EMPTY,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
         }
 
         test("TC-21d1c705-308e-4ddc-bb00-1dcffba5d805 즐겨찾기 변경은 계정 식별자와 즐겨찾기 여부를 트랜잭션에 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountContactTransaction>()
             listOf(true, false).forEach { isFavorite ->
                 coEvery {
@@ -345,22 +349,22 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-11b8fded-b993-4a0c-8334-0da88e444e17 대상 식별자와 계정을 만족하지 않으면 즐겨찾기 변경이 아무것도 바꾸지 않는다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateFavorite(accountId = any(), contactId = any(), isFavorite = any(), updatedAt = any()) } returns 0
             val repository = repository(transaction = transaction)
 
             repository.updateFavorite(
                 account = account,
-                contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                contactId = Arb.kotlinUuid().next(),
                 isFavorite = true,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
         }
 
         test("TC-e5d727a2-80a2-4f39-bc0f-a1295f84684d 즐겨찾기 변경의 로컬 저장이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateFavorite(accountId = any(), contactId = any(), isFavorite = any(), updatedAt = any()) } throws throwable
             val repository = repository(transaction = transaction)
@@ -368,17 +372,17 @@ class AccountContactRepositoryImplTest :
             shouldThrow<IllegalStateException> {
                 repository.updateFavorite(
                     account = account,
-                    contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                    contactId = Arb.kotlinUuid().next(),
                     isFavorite = true,
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBe throwable
         }
 
         test("TC-9aaa0ba4-69e2-4de4-a225-3e64e1f24b30 삭제는 계정 식별자와 삭제 여부를 트랜잭션에 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery {
                 transaction.updateDeleted(accountId = account.id, contactId = contactId, isDeleted = true, updatedAt = updatedAt)
@@ -393,34 +397,34 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-7ff50880-b5cd-4f40-bde3-44fe777b0439 대상 식별자와 계정을 만족하지 않으면 삭제가 아무것도 바꾸지 않는다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateDeleted(accountId = any(), contactId = any(), isDeleted = any(), updatedAt = any()) } returns 0
             val repository = repository(transaction = transaction)
 
             repository.updateDeleted(
                 account = account,
-                contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                contactId = Arb.kotlinUuid().next(),
                 isDeleted = true,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
         }
 
         test("TC-1baea3d4-f655-46b8-8d62-64d922ba1d95 수정과 삭제의 로컬 저장이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), contactId = any(), detail = any(), updatedAt = any()) } throws throwable
             coEvery {
                 transaction.updateDeleted(accountId = any(), contactId = any(), isDeleted = any(), updatedAt = any())
             } throws throwable
             val repository = repository(transaction = transaction)
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             shouldThrow<IllegalStateException> {
                 repository.updateDetail(
                     account = account,
-                    contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                    contactId = Arb.kotlinUuid().next(),
                     detail = ContactDetail.EMPTY,
                     updatedAt = updatedAt,
                 )
@@ -429,7 +433,7 @@ class AccountContactRepositoryImplTest :
             shouldThrow<IllegalStateException> {
                 repository.updateDeleted(
                     account = account,
-                    contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                    contactId = Arb.kotlinUuid().next(),
                     isDeleted = true,
                     updatedAt = updatedAt,
                 )
@@ -437,9 +441,9 @@ class AccountContactRepositoryImplTest :
         }
 
         test("TC-05a1f42a-bfb1-4a3d-b30b-7594415bdedf 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val contact = contact()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) } throws throwable
             val repository = repository(transaction = transaction)
@@ -450,9 +454,6 @@ class AccountContactRepositoryImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun repository(
             localDataSource: AccountContactLocalDataSource = mockk(),
             transaction: AccountContactTransaction = mockk(),
@@ -493,12 +494,12 @@ class AccountContactRepositoryImplTest :
 
         private fun contact(): Contact =
             Contact(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
-                detail = ContactDetail.EMPTY.copy(name = "name-${fixtureMonkey.giveMeOne<String>()}"),
+                id = Arb.kotlinUuid().next(),
+                detail = ContactDetail.EMPTY.copy(name = "name-${Arb.string().next()}"),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

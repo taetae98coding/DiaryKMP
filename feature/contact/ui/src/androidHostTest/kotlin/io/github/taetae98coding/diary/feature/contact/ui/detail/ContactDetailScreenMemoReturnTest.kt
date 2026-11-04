@@ -14,16 +14,17 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.NavBackStack
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.navigateToContactDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -100,7 +101,7 @@ class ContactDetailScreenMemoReturnTest {
 
     @Test
     fun `TC-d1672a7e-7824-469d-bfb3-4efaa25c310e ContactHome의 연락처 목록에서 선택한 연락처의 상세 화면으로 이동한다`() {
-        val id = fixtureMonkey.giveMeOne<Uuid>()
+        val id = Arb.kotlinUuid().next()
         val backStack = NavBackStack<ScreenNavKey>(ContactHomeNavKey)
 
         backStack.navigateToContactDetail(id)
@@ -161,8 +162,6 @@ class ContactDetailScreenMemoReturnTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val DEFAULT_TODAY_HEADER = "Today"
 
@@ -171,7 +170,7 @@ class ContactDetailScreenMemoReturnTest {
         const val NEW_TIME_ZONE = "Etc/GMT+12"
         const val ENGLISH_DATE_PATTERN = "MMM d, yyyy"
 
-        fun memoTitle(prefix: String): String = "ContactMemo$prefix${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+        fun memoTitle(prefix: String): String = "ContactMemo$prefix${Arb.string().next().filter(Char::isLetterOrDigit)}"
 
         fun content(): ContactDetailUiState.Content = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail())
     }

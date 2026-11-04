@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class TagDetailMapperTest :
     FunSpec({
         test("domain to local") {
-            val domain = fixtureMonkey.giveMeOne<TagDetail>()
+            val domain = Arb.tagDetail().next()
 
             domain.toLocal() shouldBe
                 TagDetailLocalEntity(
@@ -23,7 +24,7 @@ class TagDetailMapperTest :
         }
 
         test("local to domain") {
-            val local = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val local = Arb.tagDetailLocalEntity().next()
 
             local.toDomain() shouldBe
                 TagDetail(
@@ -35,11 +36,8 @@ class TagDetailMapperTest :
         }
 
         test("domain to local to domain") {
-            val domain = fixtureMonkey.giveMeOne<TagDetail>()
+            val domain = Arb.tagDetail().next()
 
             domain.toLocal().toDomain() shouldBe domain
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

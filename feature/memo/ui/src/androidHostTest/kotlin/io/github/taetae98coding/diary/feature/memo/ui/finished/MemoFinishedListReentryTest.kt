@@ -24,7 +24,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -45,8 +44,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -194,12 +194,11 @@ class MemoFinishedListReentryTest {
         const val SORT_SHEET_TITLE = "Sort"
         const val DEFAULT_SORT = "Default"
         const val TITLE_SORT = "Title"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun memoTitle(index: Int): String = "MemoFinishedListReentryTitle${index.toString().padStart(length = 2, padChar = '0')}"
 
         fun finishedMemo(title: String): Memo =
-            fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null).let { memo ->
+            Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next().let { memo ->
                 memo.copy(detail = memo.detail.copy(title = title, dateTime = null))
             }
 

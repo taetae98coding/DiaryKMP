@@ -3,20 +3,25 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.memo
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.localDateRange
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -42,9 +47,6 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class CalendarHomeMemoViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -136,7 +138,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarMemoUseCase>()
                 every { useCase(parameter = any()) } returns
-                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
                 viewModel.select(YearMonth(year = 2026, month = Month.JULY))
@@ -254,8 +256,8 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                 coEvery { moveMemoUseCase(parameter = any()) } coAnswers { completion.await() }
                 val viewModel = memoViewModel(moveMemoUseCase = moveMemoUseCase)
                 val id = Uuid.random()
-                val dateTime = fixtureMonkey.giveMeOne<MemoDateTime.AllDay>()
-                val dateRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+                val dateTime = Arb.memoDateTimeAllDay().next()
+                val dateRange = Arb.localDateRange().next()
 
                 viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
                 viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
@@ -312,11 +314,13 @@ private fun calendarFilterUseCase(flow: Flow<Result<List<Tag>>>): GetCalendarFil
 }
 
 private fun tag(): Tag =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Tag>()
-        .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .tag()
+        .next()
+        .copy(
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun getCalendarMemoUseCase(vararg resultByDateRange: Pair<LocalDateRange, Result<List<CalendarMemo>>>): GetCalendarMemoUseCase {
     val results = resultByDateRange.toMap()
@@ -333,13 +337,13 @@ private fun memo(): CalendarMemo {
         LocalDate(
             year = 2026,
             month = Month.JULY,
-            day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+            day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
         )
 
     return CalendarMemo(
         id = Uuid.random(),
-        title = fixtureMonkey.giveMeOne(),
-        color = fixtureMonkey.giveMeOne(),
+        title = Arb.string().next(),
+        color = Arb.long().next(),
         dateTime = MemoDateTime.AllDay(dateRange = start..start),
     )
 }

@@ -5,17 +5,18 @@ package io.github.taetae98coding.diary.feature.qr.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -51,7 +52,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-a23d9fc3-5fbd-410d-bbb8-ca350cd6d564 조회한 QR 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val qrList = listOf(fixtureMonkey.qr(isDeleted = false), fixtureMonkey.qr(isDeleted = false))
+                val qrList = listOf(Arb.qr(isDeleted = false).next(), Arb.qr(isDeleted = false).next())
                 val viewModel = viewModel(pageQrUseCase = pageQrUseCase(qrListFlow = flowOf(Result.success(qrList))))
 
                 flowOf(viewModel.qrPagingData.first()).asSnapshot() shouldBe qrList
@@ -68,8 +69,8 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-842f8033-f6f5-4e25-8796-037bc9d42038 QR을 추가하면 별도 조작 없이 그 QR이 든 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val existing = fixtureMonkey.qr(isDeleted = false)
-                val added = fixtureMonkey.qr(isDeleted = false)
+                val existing = Arb.qr(isDeleted = false).next()
+                val added = Arb.qr(isDeleted = false).next()
                 val qrListFlow = MutableStateFlow(Result.success(listOf(existing)))
                 val viewModel = viewModel(pageQrUseCase = pageQrUseCase(qrListFlow = qrListFlow))
 
@@ -86,7 +87,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-98ca827f-e67d-4286-8dc7-e65c9b344bf1 삭제에 성공하면 그 QR의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
                 coEvery { deleteQrUseCase(parameter = id) } returns Result.success(1)
                 val viewModel = viewModel(deleteQrUseCase = deleteQrUseCase)
@@ -103,9 +104,9 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-ee3ae8bd-28fe-494d-b0fe-b6277052247c 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
-                coEvery { deleteQrUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteQrUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(deleteQrUseCase = deleteQrUseCase)
 
                 viewModel.effect.test {
@@ -119,7 +120,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("같은 QR의 삭제를 진행하는 중에 다시 삭제하면 삭제를 한 번만 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val gate = CompletableDeferred<Unit>()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
                 coEvery { deleteQrUseCase(parameter = id) } coAnswers {
@@ -139,7 +140,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("같은 QR의 실행 취소를 진행하는 중에 다시 실행 취소하면 한 번만 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val gate = CompletableDeferred<Unit>()
                 val restoreQrUseCase = mockk<RestoreQrUseCase>()
                 coEvery { restoreQrUseCase(parameter = id) } coAnswers {
@@ -159,7 +160,7 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-2a786ab0-837b-4471-88ca-2d748702f590 실행 취소하면 그 QR의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreQrUseCase = mockk<RestoreQrUseCase>()
                 coEvery { restoreQrUseCase(parameter = id) } returns Result.success(1)
                 val viewModel = viewModel(restoreQrUseCase = restoreQrUseCase)
@@ -173,9 +174,9 @@ class QrHomeViewModelTest : FunSpec() {
 
         test("TC-bf0b6d18-be2d-4885-b6aa-c9710edb5286 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreQrUseCase = mockk<RestoreQrUseCase>()
-                coEvery { restoreQrUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restoreQrUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(restoreQrUseCase = restoreQrUseCase)
 
                 viewModel.effect.test {
@@ -190,9 +191,6 @@ class QrHomeViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageQrUseCase: PageQrUseCase = pageQrUseCase(qrListFlow = flowOf(Result.success(emptyList()))),
             deleteQrUseCase: DeleteQrUseCase = mockk(),

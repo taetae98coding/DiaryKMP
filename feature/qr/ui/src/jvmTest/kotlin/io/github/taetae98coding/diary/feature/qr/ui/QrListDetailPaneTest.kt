@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.qr.ui
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.isQrAddOnDetailPane
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrListDetailPaneTest :
     FunSpec({
@@ -32,8 +30,8 @@ class QrListDetailPaneTest :
         test("TC-7af608de-8aa2-4b0e-815c-d734a5d9ff3c QR 상세로 이동했으면 상세 영역에 QR 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherScreenNavKey, QrHomeNavKey, QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey, QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(OtherScreenNavKey, QrHomeNavKey, QrDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey, QrDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             backStackCases.forEach { backStack ->

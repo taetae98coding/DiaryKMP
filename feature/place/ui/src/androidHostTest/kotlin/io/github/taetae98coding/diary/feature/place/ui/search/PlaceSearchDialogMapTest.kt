@@ -2,13 +2,14 @@ package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,8 +35,8 @@ class PlaceSearchDialogMapTest {
 
     @Test
     fun `TC-e7d5cae9-d613-485f-b984-a5c76ff02c23 다이얼로그에서 바꾼 제공자와 옮긴 위치는 배치한 화면의 지도에 반영하지 않는다`() {
-        val hostCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val dialogCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val hostCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val dialogCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val hostMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = hostCoordinate)
         lateinit var dialogState: PlaceSearchDialogState
 
@@ -56,7 +57,7 @@ class PlaceSearchDialogMapTest {
 
     @Test
     fun `TC-bb3127fa-69c3-4d47-9f2a-b0d88e5d7fe6 화면이 재생성되어도 다이얼로그 지도의 제공자와 위치를 유지한다`() {
-        val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val coordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: PlaceSearchDialogState
 
@@ -77,7 +78,7 @@ class PlaceSearchDialogMapTest {
     }
 
     private fun assertDialogMapStartsFromHostMap(provider: DiaryMapProvider) {
-        val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val coordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val hostMapState = DiaryMapState(initialProvider = provider, initialCoordinate = coordinate)
         lateinit var dialogState: PlaceSearchDialogState
 
@@ -89,9 +90,5 @@ class PlaceSearchDialogMapTest {
             dialogState.mapState.provider shouldBe provider
             dialogState.mapState.coordinate shouldBe coordinate
         }
-    }
-
-    private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

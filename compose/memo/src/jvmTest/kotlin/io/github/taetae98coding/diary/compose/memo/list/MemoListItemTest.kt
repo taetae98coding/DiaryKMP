@@ -2,23 +2,21 @@ package io.github.taetae98coding.diary.compose.memo.list
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class MemoListItemTest :
     FunSpec({
@@ -96,12 +94,14 @@ private suspend fun memoListItemList(
 ): List<MemoListItem> = flowOf(PagingData.from(memoList).toMemoListItem(sort = sort)).asSnapshot()
 
 private fun memo(dateTime: MemoDateTime?): Memo =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Memo>()
-        .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime))
-        .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memo()
+        .next()
+        .copy(
+            detail = Arb.memoDetail().next().copy(dateTime = dateTime),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun allDay(day: Int): MemoDateTime.AllDay = MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = day)..LocalDate(year = 2026, month = 7, day = day))
 

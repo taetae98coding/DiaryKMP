@@ -1,21 +1,23 @@
 package io.github.taetae98coding.diary.compose.map.web
 
 import androidx.compose.ui.graphics.Color
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.diaryMapCamera
+import io.github.taetae98coding.diary.compose.map.diaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
 import io.github.taetae98coding.diary.compose.map.naver.createNaverMapHtml
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class MapMessageTest :
@@ -234,7 +236,7 @@ class MapMessageTest :
         }
 
         test("지도가 알려온 위치 소식을 같은 값의 카메라로 읽는다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = null)
+            val camera = Arb.diaryMapCamera().next().copy(bounds = null)
             val message =
                 """{"type": "camera", "latitude": ${camera.latitude}, "longitude": ${camera.longitude}, "zoom": ${camera.zoom}}"""
 
@@ -260,15 +262,12 @@ class MapMessageTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun pin(id: Uuid): DiaryMapPin =
             DiaryMapPin(
                 id = id,
-                coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
-                color = Color(fixtureMonkey.giveMeOne<Int>()),
-                label = "label-${fixtureMonkey.giveMeOne<Int>()}",
+                coordinate = Arb.diaryMapCoordinate().next(),
+                color = Color(Arb.int().next()),
+                label = "label-${Arb.int().next()}",
             )
     }
 }

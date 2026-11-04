@@ -19,18 +19,16 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -76,7 +74,7 @@ class SwipeToDeleteBoxTest {
 
     @Test
     fun `TC-d974ae3b-adb5-48a4-967b-f81026f98216 삭제 전용 카드가 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
-        val firstKey = fixtureMonkey.giveMeOne<Long>()
+        val firstKey = Arb.long().next()
         var key by mutableStateOf(firstKey)
         var deleteCount = 0
         composeRule.setContent {
@@ -99,7 +97,7 @@ class SwipeToDeleteBoxTest {
 
     @Test
     fun `TC-be3c1894-baa4-4a84-98ac-952daf9746b7 실행 취소로 다시 나타난 삭제 전용 카드는 스와이프 전 모양으로 표시되고 삭제를 다시 실행하지 않는다`() {
-        val key = fixtureMonkey.giveMeOne<Long>()
+        val key = Arb.long().next()
         var isShown by mutableStateOf(true)
         var deleteCount = 0
         composeRule.setContent {

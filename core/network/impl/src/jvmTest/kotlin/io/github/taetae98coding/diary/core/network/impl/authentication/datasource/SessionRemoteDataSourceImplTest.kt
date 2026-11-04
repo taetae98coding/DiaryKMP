@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.core.network.impl.authentication.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.authentication.entity.GoogleAuthorizationCodeRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.authentication.sessionRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -27,17 +28,14 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class SessionRemoteDataSourceImplTest :
     FunSpec({
         test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 JVM authorization code 인증 정보를 서버에 전달한다") {
-            val authorizationCode = fixtureMonkey.giveMeOne<String>()
-            val clientId = fixtureMonkey.giveMeOne<String>()
-            val redirectUri = fixtureMonkey.giveMeOne<String>()
-            val codeVerifier = fixtureMonkey.giveMeOne<String>()
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+            val authorizationCode = Arb.string().next()
+            val clientId = Arb.string().next()
+            val redirectUri = Arb.string().next()
+            val codeVerifier = Arb.string().next()
+            val response = Arb.sessionRemoteEntity().next()
             val requestSlot = slot<GoogleAuthorizationCodeRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
@@ -71,9 +69,9 @@ class SessionRemoteDataSourceImplTest :
         test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 코드 확인 값이 없는 authorization code 요청은 codeVerifier 필드를 생략한다") {
             val request =
                 GoogleAuthorizationCodeRequestRemoteEntity(
-                    authorizationCode = fixtureMonkey.giveMeOne<String>(),
-                    clientId = fixtureMonkey.giveMeOne<String>(),
-                    redirectUri = fixtureMonkey.giveMeOne<String>(),
+                    authorizationCode = Arb.string().next(),
+                    clientId = Arb.string().next(),
+                    redirectUri = Arb.string().next(),
                 )
 
             val actual = Json.parseToJsonElement(Json.encodeToString(request)).jsonObject

@@ -3,13 +3,13 @@
 package io.github.taetae98coding.diary.feature.file.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +21,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileDetailAccountViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -40,8 +37,8 @@ class FileDetailAccountViewModelTest : FunSpec() {
 
         test("TC-97c06e67-2ee1-4376-8ad9-61e5b2b76adc 처음 확인한 사용자에서 테스트 데이터의 계정으로 바뀌면 계정이 바뀐 상태다") {
             runTest(mainDispatcher) {
-                listOf<Account>(Account.Guest, fixtureMonkey.giveMeOne<Account.User>()).forEach { changed ->
-                    val owner = fixtureMonkey.giveMeOne<Account.User>()
+                listOf<Account>(Account.Guest, Arb.accountUser().next()).forEach { changed ->
+                    val owner = Arb.accountUser().next()
                     val accountFlow = MutableStateFlow<Result<Account>>(Result.success(owner))
                     val viewModel = viewModel(accountFlow = accountFlow)
 
@@ -59,7 +56,7 @@ class FileDetailAccountViewModelTest : FunSpec() {
 
         test("TC-dd6a353f-2bc5-4709-a362-218ee5cdfd32 계정을 확인하지 못하거나 같은 사용자의 세션 상태만 바뀌면 계정이 바뀐 것으로 보지 않는다") {
             runTest(mainDispatcher) {
-                val owner = fixtureMonkey.giveMeOne<Account.User>()
+                val owner = Arb.accountUser().next()
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(owner))
                 val viewModel = viewModel(accountFlow = accountFlow)
 

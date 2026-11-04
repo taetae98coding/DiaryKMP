@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.runtime.saveable.SaverScope
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.DateTimeUnit
@@ -491,8 +492,8 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             val (start, endInclusive) = anyPeriod()
             val state =
                 DiaryDateTimeInputState(
-                    hasDateTime = fixtureMonkey.giveMeOne<Boolean>(),
-                    isAllDay = fixtureMonkey.giveMeOne<Boolean>(),
+                    hasDateTime = Arb.boolean().next(),
+                    isAllDay = Arb.boolean().next(),
                     start = start,
                     endInclusive = endInclusive,
                 )
@@ -538,25 +539,29 @@ class DiaryDateTimeInputStateTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun midnight(): LocalTime = LocalTime(hour = 0, minute = 0)
 
-        private fun anyDate(): LocalDate = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Int>().mod(40_000).toLong())
+        private fun anyDate(): LocalDate =
+            LocalDate.fromEpochDays(
+                Arb
+                    .int()
+                    .next()
+                    .mod(40_000)
+                    .toLong(),
+            )
 
         private fun anyTime(): LocalTime =
             LocalTime(
-                hour = fixtureMonkey.giveMeOne<Int>().mod(24),
-                minute = fixtureMonkey.giveMeOne<Int>().mod(59) + 1,
+                hour = Arb.int().next().mod(24),
+                minute = Arb.int().next().mod(59) + 1,
             )
 
         private fun anyOrderedTimePair(): Pair<LocalTime, LocalTime> {
-            val earlier = LocalTime(hour = fixtureMonkey.giveMeOne<Int>().mod(23), minute = fixtureMonkey.giveMeOne<Int>().mod(60))
+            val earlier = LocalTime(hour = Arb.int().next().mod(23), minute = Arb.int().next().mod(60))
             val later =
                 LocalTime(
-                    hour = earlier.hour + 1 + fixtureMonkey.giveMeOne<Int>().mod(23 - earlier.hour),
-                    minute = fixtureMonkey.giveMeOne<Int>().mod(60),
+                    hour = earlier.hour + 1 + Arb.int().next().mod(23 - earlier.hour),
+                    minute = Arb.int().next().mod(60),
                 )
 
             return earlier to later
@@ -564,7 +569,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
 
         private fun anyPeriod(): Pair<LocalDateTime, LocalDateTime> {
             val first = LocalDateTime(date = anyDate(), time = anyTime())
-            val second = LocalDateTime(date = first.date.plus(fixtureMonkey.giveMeOne<Int>().mod(30) + 1, DateTimeUnit.DAY), time = anyTime())
+            val second = LocalDateTime(date = first.date.plus(Arb.int().next().mod(30) + 1, DateTimeUnit.DAY), time = anyTime())
 
             return first to second
         }

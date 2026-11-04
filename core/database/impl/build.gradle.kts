@@ -14,11 +14,16 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.androidx.room3.testing)
-                implementation(projects.core.testing)
             }
         }
 

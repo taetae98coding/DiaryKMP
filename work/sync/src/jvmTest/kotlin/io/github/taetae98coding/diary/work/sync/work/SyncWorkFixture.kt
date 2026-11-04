@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.checklist.datasource.AccountChecklistSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.transaction.AccountChecklistSyncTransaction
@@ -86,20 +83,38 @@ import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteD
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.remoteChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.remoteChecklistItem
+import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.placetag.placeTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.core.testing.qr.remoteQr
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.core.testing.webtag.webTagLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -112,9 +127,6 @@ import kotlin.uuid.Uuid
 internal const val PULL_DELAY: Long = 1_000
 
 internal const val PUSH_DELAY: Long = 1_000
-
-internal val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal data class TestContext(
     val accountId: Uuid,
@@ -295,25 +307,29 @@ internal data class TestContext(
 }
 
 internal fun sessionValidUser(accountId: Uuid): Account.User =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Account.User>()
-        .setExp(Account.User::id, accountId)
-        .setExp(Account.User::isSessionValid, true)
-        .sample()
+    Arb
+        .accountUser()
+        .next()
+        .copy(
+            id = accountId,
+            isSessionValid = true,
+        )
 
 internal fun sessionInvalidUser(accountId: Uuid): Account.User =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Account.User>()
-        .setExp(Account.User::id, accountId)
-        .setExp(Account.User::isSessionValid, false)
-        .sample()
+    Arb
+        .accountUser()
+        .next()
+        .copy(
+            id = accountId,
+            isSessionValid = false,
+        )
 
 internal class TestException(
     message: String,
 ) : RuntimeException(message)
 
 internal fun context(
-    accountId: Uuid = fixtureMonkey.giveMeOne(),
+    accountId: Uuid = Arb.kotlinUuid().next(),
     accountFlow: Flow<Result<Account>> = flowOf(Result.success(sessionValidUser(accountId = accountId))),
     tagList: List<TagLocalEntity> = emptyList(),
     placeList: List<PlaceLocalEntity> = emptyList(),
@@ -363,7 +379,7 @@ private fun mockedTestContext(
     accountId: Uuid,
     accountFlow: Flow<Result<Account>>,
 ): TestContext {
-    val syncedAt = fixtureMonkey.giveMeOne<Instant>()
+    val syncedAt = Arb.secondPrecisionInstant().next()
     val clock = mockk<Clock>()
     every { clock.now() } returns syncedAt
 
@@ -466,20 +482,24 @@ private fun TestContext.stubPending(
 internal fun tags(size: Int): List<TagLocalEntity> = List(size) { tag() }
 
 internal fun tag(): TagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<TagLocalEntity>()
-        .setExp(TagLocalEntity::updatedAt, instant())
-        .setExp(TagLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .tagLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun memos(size: Int): List<MemoLocalEntity> = List(size) { memo() }
 
 internal fun memo(): MemoLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::updatedAt, instant())
-        .setExp(MemoLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .memoLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 private fun TestContext.stubTransactions() {
     coEvery { accountTagSyncTransaction.clearPending(any(), any()) } returns Unit
@@ -554,29 +574,35 @@ private fun TestContext.stubRemoteDataSources() {
 internal fun places(size: Int): List<PlaceLocalEntity> = List(size) { place() }
 
 internal fun place(): PlaceLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<PlaceLocalEntity>()
-        .setExp(PlaceLocalEntity::updatedAt, instant())
-        .setExp(PlaceLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .placeLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun webs(size: Int): List<WebLocalEntity> = List(size) { web() }
 
 internal fun web(): WebLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<WebLocalEntity>()
-        .setExp(WebLocalEntity::updatedAt, instant())
-        .setExp(WebLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .webLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun contacts(size: Int): List<ContactLocalEntity> = List(size) { contact() }
 
 internal fun contact(): ContactLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<ContactLocalEntity>()
-        .setExp(ContactLocalEntity::updatedAt, instant())
-        .setExp(ContactLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .contactLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun contactPulls(usnList: List<Long>): List<ContactPullRemoteEntity> =
     usnList.map { usn ->
@@ -586,21 +612,25 @@ internal fun contactPulls(usnList: List<Long>): List<ContactPullRemoteEntity> =
 internal fun memoPlaces(size: Int): List<MemoPlaceLocalEntity> = List(size) { memoPlace() }
 
 internal fun memoPlace(): MemoPlaceLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoPlaceLocalEntity>()
-        .setExp(MemoPlaceLocalEntity::updatedAt, instant())
-        .setExp(MemoPlaceLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .memoPlaceLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun memoWebs(size: Int): List<MemoWebLocalEntity> = List(size) { memoWeb() }
 
-internal fun memoWeb(isDeleted: Boolean = fixtureMonkey.giveMeOne<Boolean>()): MemoWebLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoWebLocalEntity>()
-        .setExp(MemoWebLocalEntity::isDeleted, isDeleted)
-        .setExp(MemoWebLocalEntity::updatedAt, instant())
-        .setExp(MemoWebLocalEntity::createdAt, instant())
-        .sample()
+internal fun memoWeb(isDeleted: Boolean = Arb.boolean().next()): MemoWebLocalEntity =
+    Arb
+        .memoWebLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun memoWebPulls(usnList: List<Long>): List<MemoWebPullRemoteEntity> =
     usnList.map { usn ->
@@ -609,13 +639,15 @@ internal fun memoWebPulls(usnList: List<Long>): List<MemoWebPullRemoteEntity> =
 
 internal fun memoContacts(size: Int): List<MemoContactLocalEntity> = List(size) { memoContact() }
 
-internal fun memoContact(isDeleted: Boolean = fixtureMonkey.giveMeOne<Boolean>()): MemoContactLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoContactLocalEntity>()
-        .setExp(MemoContactLocalEntity::isDeleted, isDeleted)
-        .setExp(MemoContactLocalEntity::updatedAt, instant())
-        .setExp(MemoContactLocalEntity::createdAt, instant())
-        .sample()
+internal fun memoContact(isDeleted: Boolean = Arb.boolean().next()): MemoContactLocalEntity =
+    Arb
+        .memoContactLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun memoContactPulls(usnList: List<Long>): List<MemoContactPullRemoteEntity> =
     usnList.map { usn ->
@@ -625,20 +657,24 @@ internal fun memoContactPulls(usnList: List<Long>): List<MemoContactPullRemoteEn
 internal fun memoTags(size: Int): List<MemoTagLocalEntity> = List(size) { memoTag() }
 
 internal fun memoTag(): MemoTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoTagLocalEntity>()
-        .setExp(MemoTagLocalEntity::updatedAt, instant())
-        .setExp(MemoTagLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .memoTagLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun tagLinks(size: Int): List<TagLinkLocalEntity> = List(size) { tagLink() }
 
 internal fun tagLink(): TagLinkLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<TagLinkLocalEntity>()
-        .setExp(TagLinkLocalEntity::updatedAt, instant())
-        .setExp(TagLinkLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .tagLinkLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun tagLinkPulls(usnList: List<Long>): List<TagLinkPullRemoteEntity> =
     usnList.map { usn ->
@@ -691,16 +727,18 @@ internal fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     return reportList
 }
 
-private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
 internal fun webTags(size: Int): List<WebTagLocalEntity> = List(size) { webTag() }
 
 internal fun webTag(): WebTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<WebTagLocalEntity>()
-        .setExp(WebTagLocalEntity::updatedAt, instant())
-        .setExp(WebTagLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .webTagLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun webTagPulls(usnList: List<Long>): List<WebTagPullRemoteEntity> =
     usnList.map { usn ->
@@ -710,11 +748,13 @@ internal fun webTagPulls(usnList: List<Long>): List<WebTagPullRemoteEntity> =
 internal fun placeTags(size: Int): List<PlaceTagLocalEntity> = List(size) { placeTag() }
 
 internal fun placeTag(): PlaceTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<PlaceTagLocalEntity>()
-        .setExp(PlaceTagLocalEntity::updatedAt, instant())
-        .setExp(PlaceTagLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .placeTagLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun placeTagPulls(usnList: List<Long>): List<PlaceTagPullRemoteEntity> =
     usnList.map { usn ->
@@ -724,44 +764,47 @@ internal fun placeTagPulls(usnList: List<Long>): List<PlaceTagPullRemoteEntity> 
 internal fun musics(size: Int): List<MusicLocalEntity> = List(size) { music() }
 
 internal fun music(): MusicLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MusicLocalEntity>()
-        .setExp(MusicLocalEntity::updatedAt, instant())
-        .setExp(MusicLocalEntity::createdAt, instant())
-        .sample()
+    Arb
+        .musicLocalEntity()
+        .next()
+        .copy(
+            updatedAt = instant(),
+            createdAt = instant(),
+        )
 
 internal fun musicPulls(usnList: List<Long>): List<MusicPullRemoteEntity> =
     usnList.map { usn ->
         MusicPullRemoteEntity(music = music().toRemote(), usn = usn)
     }
 
-internal fun qrs(size: Int): List<QrLocalEntity> = List(size) { fixtureMonkey.localQr(isDeleted = fixtureMonkey.giveMeOne<Boolean>()) }
+internal fun qrs(size: Int): List<QrLocalEntity> = List(size) { Arb.localQr(isDeleted = Arb.boolean().next()).next() }
 
 internal fun qrPulls(usnList: List<Long>): List<QrPullRemoteEntity> =
     usnList.map { usn ->
-        QrPullRemoteEntity(qr = fixtureMonkey.remoteQr(isDeleted = fixtureMonkey.giveMeOne<Boolean>()), usn = usn)
+        QrPullRemoteEntity(qr = Arb.remoteQr(isDeleted = Arb.boolean().next()).next(), usn = usn)
     }
 
-internal fun checklists(size: Int): List<ChecklistLocalEntity> = List(size) { fixtureMonkey.localChecklist(isDeleted = fixtureMonkey.giveMeOne<Boolean>()) }
+internal fun checklists(size: Int): List<ChecklistLocalEntity> = List(size) { Arb.localChecklist(isDeleted = Arb.boolean().next()).next() }
 
 internal fun checklistPulls(usnList: List<Long>): List<ChecklistPullRemoteEntity> =
     usnList.map { usn ->
-        ChecklistPullRemoteEntity(checklist = fixtureMonkey.remoteChecklist(isDeleted = fixtureMonkey.giveMeOne<Boolean>()), usn = usn)
+        ChecklistPullRemoteEntity(checklist = Arb.remoteChecklist(isDeleted = Arb.boolean().next()).next(), usn = usn)
     }
 
 internal fun checklistItems(size: Int): List<ChecklistItemLocalEntity> =
     List(size) {
-        fixtureMonkey.localChecklistItem(isChecked = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = fixtureMonkey.giveMeOne<Boolean>())
+        Arb.localChecklistItem(isChecked = Arb.boolean().next(), isDeleted = Arb.boolean().next()).next()
     }
 
 internal fun checklistItemPulls(usnList: List<Long>): List<ChecklistItemPullRemoteEntity> =
     usnList.map { usn ->
         ChecklistItemPullRemoteEntity(
             checklistItem =
-                fixtureMonkey.remoteChecklistItem(
-                    isChecked = fixtureMonkey.giveMeOne<Boolean>(),
-                    isDeleted = fixtureMonkey.giveMeOne<Boolean>(),
-                ),
+                Arb
+                    .remoteChecklistItem(
+                        isChecked = Arb.boolean().next(),
+                        isDeleted = Arb.boolean().next(),
+                    ).next(),
             usn = usn,
         )
     }

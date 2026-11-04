@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -27,13 +27,10 @@ private const val SUBSTITUTE_HOLIDAY_NAME = "대체공휴일"
 private const val LIBERATION_DAY_NAME = "광복절"
 private const val NATIONAL_FOUNDATION_DAY_NAME = "개천절"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class GetCalendarHolidayUseCaseTest :
     BehaviorSpec({
         Given("TC-a7ffbff2-87bb-450a-b08d-0ec3cd03753c 노출 설정을 한 번도 고르지 않았다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true)
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME, isHoliday = false)
             val useCase =
@@ -71,7 +68,7 @@ class GetCalendarHolidayUseCaseTest :
         }
 
         Given("TC-b6020ac2-ca51-49ef-a009-894019f9ec3c 이름이 다른 두 공휴일 중 하나만 숨김으로 골랐다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val independenceMovementDay = holiday(name = INDEPENDENCE_MOVEMENT_DAY_NAME)
             val substituteDay = holiday(name = SUBSTITUTE_INDEPENDENCE_MOVEMENT_DAY_NAME)
             val useCase =
@@ -219,7 +216,7 @@ private fun july(
 
 private fun randomDate(): LocalDate =
     LocalDate(
-        year = 2000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 100u).toInt(),
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

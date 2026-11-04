@@ -3,8 +3,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
@@ -14,12 +12,16 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.form.mapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.placeAddFormState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -77,14 +79,14 @@ class PlaceAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(AddPlaceUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
                 coVerify(exactly = 0) { useCase(AddPlaceUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
             }
         }
 
         test("TC-f3fccf17-885e-4620-9f20-482189daef9e 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.success(id)
                 val viewModel = viewModel(addPlaceUseCase = useCase)
@@ -145,14 +147,14 @@ class PlaceAddViewModelTest : FunSpec() {
 
         test("TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+                val id = Arb.kotlinUuid().next()
+                val selectedCoordinate = mapCoordinateInFormPrecision()
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.success(id)
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
-                val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
-                state.titleState.setText("title-${fixtureMonkey.giveMeOne<String>()}")
+                val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+                state.titleState.setText("title-${Arb.string().next()}")
 
                 state.selectSpotOnMap(selectedCoordinate)
                 viewModel.effect.test {
@@ -187,7 +189,7 @@ class PlaceAddViewModelTest : FunSpec() {
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
@@ -244,7 +246,7 @@ class PlaceAddViewModelTest : FunSpec() {
                 val secondDetail = detail()
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(AddPlaceUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } throws CancellationException()
-                coEvery { useCase(AddPlaceUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(AddPlaceUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
 
@@ -279,7 +281,7 @@ class PlaceAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(AddPlaceUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
                 coVerify(exactly = 0) { useCase(AddPlaceUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
             }
         }
@@ -287,10 +289,10 @@ class PlaceAddViewModelTest : FunSpec() {
         test("TC-c35fbef8-5a2e-464a-a06f-e750fa20dc90 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = detail()
-                val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
+                val tagIdSet = setOf(Arb.kotlinUuid().next())
                 val parameter = AddPlaceUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)
                 val useCase = mockk<AddPlaceUseCase>()
-                coEvery { useCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { useCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
 
@@ -316,9 +318,6 @@ class PlaceAddViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         // uiState는 구독자가 있을 때만 갱신되므로 검증 동안 수집을 유지한다.
         private fun TestScope.collectUiState(viewModel: PlaceAddViewModel) {
             backgroundScope.launch { viewModel.uiState.collect() }
@@ -340,11 +339,11 @@ class PlaceAddViewModelTest : FunSpec() {
             }
 
         private fun detail(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            description: String = fixtureMonkey.giveMeOne<String>(),
-            color: Long = fixtureMonkey.giveMeOne<Long>(),
+            title: String = "title-${Arb.string().next()}",
+            description: String = Arb.string().next(),
+            color: Long = Arb.long().next(),
             coordinate: Coordinate = Coordinate(latitude = 37.5, longitude = 127.0),
-            address: String = "address-${fixtureMonkey.giveMeOne<String>()}",
+            address: String = "address-${Arb.string().next()}",
         ): PlaceDetail =
             PlaceDetail(
                 title = title,

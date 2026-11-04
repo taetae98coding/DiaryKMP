@@ -1,13 +1,15 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.CorruptionException
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.MapProviderLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import okio.Buffer
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -56,10 +58,9 @@ class SettingSerializerTest :
         }
 
         test("Gemini 설정은 이전 버전이 저장한 항목 이름 그대로 읽고 쓴다") {
-            val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-            val apiKey = "key${fixtureMonkey.giveMeOne<Int>()}"
-            val model = "model${fixtureMonkey.giveMeOne<Int>()}"
-            val systemPrompt = "prompt${fixtureMonkey.giveMeOne<Int>()}"
+            val apiKey = "key${Arb.int().next()}"
+            val model = "model${Arb.int().next()}"
+            val systemPrompt = "prompt${Arb.int().next()}"
             val storedText = """{"apiKey":"$apiKey","model":"$model","systemPrompt":"$systemPrompt"}"""
 
             GeminiSettingSerializer.readText(storedText) shouldBe GeminiSettingData(apiKey = apiKey, model = model, systemPrompt = systemPrompt)
@@ -90,14 +91,13 @@ class SettingSerializerTest :
         }
 
         test("계정별 마지막 동기화 시각을 왕복 변환한다") {
-            val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
             val settings =
                 listOf(
                     SyncTimeData(),
-                    SyncTimeData(syncedAtMap = mapOf(fixtureMonkey.giveMeOne<Uuid>() to fixtureMonkey.giveMeOne<Instant>())),
+                    SyncTimeData(syncedAtMap = mapOf(Arb.kotlinUuid().next() to Arb.secondPrecisionInstant().next())),
                     SyncTimeData(
                         syncedAtMap =
-                            List(3) { fixtureMonkey.giveMeOne<Uuid>() to fixtureMonkey.giveMeOne<Instant>() }.toMap(),
+                            List(3) { Arb.kotlinUuid().next() to Arb.secondPrecisionInstant().next() }.toMap(),
                     ),
                 )
 

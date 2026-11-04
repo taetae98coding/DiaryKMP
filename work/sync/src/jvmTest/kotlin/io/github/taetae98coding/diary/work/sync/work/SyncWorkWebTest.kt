@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebRemoteEntity
@@ -11,6 +10,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -64,7 +66,7 @@ class SyncWorkWebTest :
                     placeList = places(size = 201),
                     webList = webs(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val webRequests = mutableListOf<List<WebRemoteEntity>>()
             val tagRequests = mutableListOf<Int>()
             val placeRequests = mutableListOf<Int>()
@@ -88,7 +90,7 @@ class SyncWorkWebTest :
 
         test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그가 실패해도 웹 항목은 끝까지 업로드한다") {
             val context = context(tagList = tags(size = 201), webList = webs(size = 201))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<Int>()
             val webRequests = mutableListOf<List<WebRemoteEntity>>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
@@ -119,7 +121,7 @@ class SyncWorkWebTest :
                         webList = webs(size = 1),
                         memoList = memos(size = 1),
                     )
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 if (failed == "태그") {
                     coEvery { context.tagRemoteDataSource.push(any()) } throws failure
                 } else {
@@ -178,7 +180,7 @@ class SyncWorkWebTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b 웹 항목 내려받기가 실패해도 태그는 빈 응답까지 내려받는다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val firstPullList = tagPulls(usnList = listOf(2L))
             val secondPullList = tagPulls(usnList = listOf(5L))
             coEvery { context.webRemoteDataSource.pull(any()) } throws failure
@@ -195,7 +197,7 @@ class SyncWorkWebTest :
 
         test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 웹 항목 내려받기가 실패하면 동기화가 실패한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.webRemoteDataSource.pull(any()) } throws failure
 
             val actual =
@@ -232,8 +234,8 @@ class SyncWorkWebTest :
         test("TC-a228458a-3525-434f-9d8c-743f78654ba9 웹 항목 업로드에는 요청 헤더 목록 전체가 순서대로 담긴다") {
             val headerList =
                 listOf(
-                    WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
-                    WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
+                    WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}"),
+                    WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}"),
                     WebHeaderLocalEntity(name = "X-Region", value = ""),
                 )
             val web = web().let { web -> web.copy(detail = web.detail.copy(headerList = headerList)) }

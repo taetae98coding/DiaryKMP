@@ -21,7 +21,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.ResultEventBus
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
@@ -33,17 +32,19 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.editableText
 import io.github.taetae98coding.diary.feature.qr.ui.add.isTabSelected
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -91,7 +92,7 @@ class QrDetailActionTest {
 
         caseList.forEach { (value, name) ->
             withClue(value) {
-                fake.reload(detail = qrTestFixtureMonkey.qrDetail(value = value))
+                fake.reload(detail = Arb.qrDetail(value = value).next())
 
                 listOf(INFO_TAB_INDEX, QR_TAB_INDEX).forEach { tabIndex ->
                     composeRule.selectTab(tabIndex)
@@ -109,7 +110,7 @@ class QrDetailActionTest {
 
         listOf(HELLO, "WIFI:T:WEP;S:home;P:12345;;").forEach { value ->
             withClue(value) {
-                fake.reload(detail = qrTestFixtureMonkey.qrDetail(value = value))
+                fake.reload(detail = Arb.qrDetail(value = value).next())
 
                 composeRule.actionButtonNameList() shouldBe emptyList()
                 composeRule.actionNameList() shouldContainAll listOf(UNDO, SCAN, DELETE)
@@ -119,7 +120,7 @@ class QrDetailActionTest {
 
     @Test
     fun `TC-738c3946-6994-4045-a33f-07b836d9c799 QR 값을 고치면 반영하지 않아도 QR 실행 버튼이 바로 바뀐다`() {
-        val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
+        val fake = setScreen(detail = Arb.qrDetail(value = HELLO).next())
         val caseList = listOf(EXAMPLE_URL to listOf(OPEN_URL), "tel:010" to listOf(CALL), "memo" to emptyList())
 
         caseList.forEach { (value, nameList) ->
@@ -141,7 +142,7 @@ class QrDetailActionTest {
 
         caseList.forEach { (value, name, assertIntent) ->
             withClue(value) {
-                fake.reload(detail = qrTestFixtureMonkey.qrDetail(value = value))
+                fake.reload(detail = Arb.qrDetail(value = value).next())
 
                 composeRule.onNode(actionButton(name)).performClick()
                 composeRule.waitForIdle()
@@ -156,7 +157,7 @@ class QrDetailActionTest {
     @Test
     fun `TC-eb92e9a9-4c62-4721-a118-a4fc49fc9432 앱 밖에 넘기지 못하면 화면에 머무르고 실행 실패를 알린다`() {
         shadowApplication().checkActivities(true)
-        val detail = qrTestFixtureMonkey.qrDetail(value = HELLO)
+        val detail = Arb.qrDetail(value = HELLO).next()
         var navigateUpCount = 0
         setScreen(detail = detail, navigateUp = { navigateUpCount++ })
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
@@ -182,7 +183,7 @@ class QrDetailActionTest {
 
     @Test
     fun `TC-4d13cccf-c95e-416e-a95b-10ec459309ba 기기가 받지 않는 Wi-Fi 비밀번호면 실행 실패를 알린다`() {
-        setScreen(detail = qrTestFixtureMonkey.qrDetail(value = "WIFI:T:WPA;S:home;P:비밀번호12345;;"))
+        setScreen(detail = Arb.qrDetail(value = "WIFI:T:WPA;S:home;P:비밀번호12345;;").next())
 
         composeRule.onNode(actionButton(JOIN_WIFI)).performClick()
         composeRule.waitForIdle()
@@ -193,7 +194,7 @@ class QrDetailActionTest {
 
     @Test
     fun `TC-783a079d-91b3-4e7b-a710-9d178982ed2d QR 실행은 입력과 저장된 QR을 바꾸지 않는다`() {
-        val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
+        val fake = setScreen(detail = Arb.qrDetail(value = HELLO).next())
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
         composeRule.onQrFieldInput(URL_LABEL).performTextReplacement(EXAMPLE_URL)
         composeRule.waitForIdle()
@@ -218,7 +219,7 @@ class QrDetailActionTest {
     @Test
     fun `TC-0612ab5b-49a4-4139-a108-c973a1a2cfe7 QR 실행 실패 안내는 화면이 재생성되면 다시 표시하지 않는다`() {
         shadowApplication().checkActivities(true)
-        val fake = FakeViewModel(detail = qrTestFixtureMonkey.qrDetail(value = EXAMPLE_URL))
+        val fake = FakeViewModel(detail = Arb.qrDetail(value = EXAMPLE_URL).next())
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { ScreenContent(viewModel = fake.viewModel) }
         composeRule.onNode(actionButton(OPEN_URL)).performClick()
@@ -233,7 +234,7 @@ class QrDetailActionTest {
 
     @Test
     fun `TC-bb36484b-5854-4b63-a357-340177a91c25 수정이나 삭제를 처리하는 동안에도 QR 실행을 선택할 수 있다`() {
-        val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = EXAMPLE_URL))
+        val fake = setScreen(detail = Arb.qrDetail(value = EXAMPLE_URL).next())
         val progressList: List<(QrDetailUiState.Content) -> QrDetailUiState.Content> =
             listOf({ content -> content.copy(isUpdateInProgress = true) }, { content -> content.copy(isDeleteInProgress = true) })
 
@@ -251,7 +252,7 @@ class QrDetailActionTest {
 
     @Test
     fun `조회 중에는 QR 실행 버튼을 두지 않는다`() {
-        val fake = FakeViewModel(detail = qrTestFixtureMonkey.qrDetail(value = EXAMPLE_URL))
+        val fake = FakeViewModel(detail = Arb.qrDetail(value = EXAMPLE_URL).next())
         fake.uiState.value = QrDetailUiState.Loading
         composeRule.setContent { ScreenContent(viewModel = fake.viewModel) }
         composeRule.waitForIdle()
@@ -264,7 +265,7 @@ class QrDetailActionTest {
     private fun SemanticsNodeInteractionsProvider.selectedFormat(): String = onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList)).editableText()
 
     private fun setScreen(
-        detail: QrDetail = qrTestFixtureMonkey.qrDetail(),
+        detail: QrDetail = Arb.qrDetail().next(),
         navigateUp: () -> Unit = {},
     ): FakeViewModel {
         val fake = FakeViewModel(detail = detail)
@@ -276,7 +277,7 @@ class QrDetailActionTest {
 
     // 다른 QR을 조회한 것처럼 식별자를 바꿔 입력을 저장된 내용으로 다시 채운다.
     private fun FakeViewModel.reload(detail: QrDetail) {
-        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = qrTestFixtureMonkey.giveMeOne<Uuid>(), detail = detail) }
+        composeRule.runOnIdle { uiState.value = QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail) }
         composeRule.waitForIdle()
     }
 
@@ -300,7 +301,7 @@ class QrDetailActionTest {
     private class FakeViewModel(
         detail: QrDetail,
     ) {
-        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = qrTestFixtureMonkey.giveMeOne<Uuid>(), detail = detail))
+        val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail))
         val effect = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel: QrDetailViewModel =
             mockk<QrDetailViewModel>(relaxed = true).apply {

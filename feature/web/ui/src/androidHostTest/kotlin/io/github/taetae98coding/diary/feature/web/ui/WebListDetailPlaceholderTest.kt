@@ -29,8 +29,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -60,9 +58,11 @@ import io.github.taetae98coding.diary.feature.web.ui.add.inputCount
 import io.github.taetae98coding.diary.feature.web.ui.add.titleInput
 import io.github.taetae98coding.diary.feature.web.ui.add.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -291,7 +291,6 @@ class WebListDetailPlaceholderTest {
         const val WEB_HOME_CONTENT = "WebHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val WEB_ADD_CONTENT = "WebAddContent"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
         fun relaxedAddViewModel(): WebAddViewModel =
@@ -302,9 +301,9 @@ class WebListDetailPlaceholderTest {
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
-                title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                tag = webTestTag(title = "tag-${fixtureMonkey.giveMeOne<String>()}"),
+                title = "title-${Arb.string().next()}",
+                description = "description-${Arb.string().next()}",
+                tag = webTestTag(title = "tag-${Arb.string().next()}"),
             )
     }
 }

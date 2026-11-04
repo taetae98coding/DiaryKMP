@@ -5,14 +5,16 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -24,9 +26,6 @@ internal const val DEFAULT_SEARCH_DESCRIPTION = "Search"
 internal const val DEFAULT_MAP_PROVIDER_DESCRIPTION = "Map provider"
 internal const val KOREAN_LIST_VIEW_MODE_DESCRIPTION = "목록으로 보기"
 internal const val KOREAN_MAP_VIEW_MODE_DESCRIPTION = "지도로 보기"
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @Composable
 internal fun ViewModeTestPlaceHomeScaffold(
@@ -63,19 +62,21 @@ internal fun placePagingDataFlowOf(placeList: List<Place>): MutableStateFlow<Pag
 internal fun List<PlaceHomeScaffoldEvent>.withoutMoveMap(): List<PlaceHomeScaffoldEvent> = filterNot { event -> event is PlaceHomeScaffoldEvent.MoveMap }
 
 internal fun viewModeTestPlace(): Place {
-    val id = fixtureMonkey.giveMeOne<Uuid>()
+    val id = Arb.kotlinUuid().next()
     val detail =
-        fixtureMonkey
-            .giveMeKotlinBuilder<PlaceDetail>()
-            .setExp(PlaceDetail::title, "제목-$id-${fixtureMonkey.giveMeOne<String>()}")
-            .sample()
+        Arb
+            .placeDetail()
+            .next()
+            .copy(
+                title = "제목-$id-${Arb.string().next()}",
+            )
 
     return Place(
         id = id,
         detail = detail,
         isDeleted = false,
-        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }
 

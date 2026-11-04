@@ -4,9 +4,6 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
@@ -15,11 +12,17 @@ import io.github.taetae98coding.diary.core.database.impl.tag.datasource.AccountT
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkSyncLocalDataSourceImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -83,7 +86,7 @@ class AccountTagTransactionImplTest :
             }
 
         test("TC-a9ca601b-2e0a-4754-a20f-47aabd8a2397 새 태그와 계정 연결, 고른 태그로 향하는 연결을 모두 기기에 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstToTag = tag().copy(isDeleted = false)
             val secondToTag = tag().copy(isDeleted = false)
             val newTag = tag()
@@ -101,11 +104,11 @@ class AccountTagTransactionImplTest :
         }
 
         test("TC-a660dc59-56d9-4824-99f4-aa8a8d9bb043 연결을 저장하지 못하면 새 태그와 계정 연결, 연결 중 어느 것도 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val toTag = tag()
             val newTag = tag()
             insertWithSyncState(accountId, toTag, isDirty = false)
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val failingDatabase = spyk(database)
             every { failingDatabase.accountTagLinkDao() } throws throwable
             val failingTransaction = AccountTagTransactionImpl(database = failingDatabase)
@@ -126,7 +129,7 @@ class AccountTagTransactionImplTest :
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val updatedAt = instant()
 
@@ -137,7 +140,7 @@ class AccountTagTransactionImplTest :
             transaction.updateDetail(
                 accountId = accountId,
                 tagId = tag.id,
-                detail = fixtureMonkey.giveMeOne<TagDetailLocalEntity>(),
+                detail = Arb.tagDetailLocalEntity().next(),
                 updatedAt = updatedAt,
             )
             assertPending(accountId = accountId, tagId = tag.id)
@@ -160,7 +163,7 @@ class AccountTagTransactionImplTest :
         }
 
         test("TC-fc0efa55-9c70-44bb-ae31-8eeaec53668f 새 태그를 기기에 저장하면 태그와 함께 만든 연결도 업로드 대기로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val toTag = tag()
             val newTag = tag()
             val link = TagLinkLocalEntity(fromTagId = newTag.id, toTagId = toTag.id, isDeleted = false, updatedAt = instant(), createdAt = instant())
@@ -175,9 +178,9 @@ class AccountTagTransactionImplTest :
         }
 
         test("TC-8da41335-53f4-4825-a1cd-5fcda367cda2 같은 태그를 반복 변경해도 업로드 대상은 한 건이다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
-            val changedTag = tag.copy(detail = fixtureMonkey.giveMeOne())
+            val changedTag = tag.copy(detail = Arb.tagDetailLocalEntity().next())
 
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             transaction.upsert(accountId = accountId, tagList = listOf(changedTag), tagLinkList = emptyList())
@@ -186,21 +189,20 @@ class AccountTagTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun link(
             fromTagId: Uuid,
             toTagId: Uuid,
         ): TagLinkLocalEntity = TagLinkLocalEntity(fromTagId = fromTagId, toTagId = toTagId, isDeleted = false, updatedAt = instant(), createdAt = instant())
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

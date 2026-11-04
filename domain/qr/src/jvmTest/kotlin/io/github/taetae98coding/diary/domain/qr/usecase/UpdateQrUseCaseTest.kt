@@ -1,10 +1,9 @@
 package io.github.taetae98coding.diary.domain.qr.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -12,13 +11,17 @@ import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,9 +33,9 @@ import kotlin.time.Instant
 class UpdateQrUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 연결된 QR이 저장되어 있고 현재 시각이 고정되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val stored = fixtureMonkey.qr(isDeleted = false)
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val stored = Arb.qr(isDeleted = false).next()
+            val now = Arb.secondPrecisionInstant().next()
             val accountQrRepository = accountQrRepository(account = account, stored = stored)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
@@ -45,9 +48,9 @@ class UpdateQrUseCaseTest :
 
             When("테스트 데이터의 입력으로 수정한다") {
                 Then("TC-92975a11-7beb-4f64-bd53-24a2718ccf23 입력한 내용으로 수정하고 수정 시각을 기록한다") {
-                    val description = fixtureMonkey.giveMeOne<String>()
-                    val value = fixtureMonkey.nonBlankString()
-                    val title = " " + fixtureMonkey.nonBlankString() + " "
+                    val description = Arb.string().next()
+                    val value = Arb.nonBlankString().next()
+                    val title = " " + Arb.nonBlankString().next() + " "
                     val caseList =
                         listOf(
                             QrDetail(title = title, description = "", value = value) to QrDetail(title = title, description = "", value = value),
@@ -69,14 +72,14 @@ class UpdateQrUseCaseTest :
         }
 
         Given("동기화를 요청할 수 있는 현재 계정과 QR이 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val stored = fixtureMonkey.qr(isDeleted = false)
+            val account = Arb.accountUser().next()
+            val stored = Arb.qr(isDeleted = false).next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository(account = account, stored = stored), requestSyncUseCase = requestSyncUseCase)
 
             When("QR을 수정한다") {
                 Then("TC-9f38037d-9012-41e2-a0d8-2e520c4c214c 기기에 저장한 뒤 동기화를 한 번 요청한다") {
-                    useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = fixtureMonkey.qrDetail())).shouldBeSuccess(1)
+                    useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = Arb.qrDetail().next())).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
@@ -84,15 +87,15 @@ class UpdateQrUseCaseTest :
         }
 
         Given("수정할 QR이 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val stored = fixtureMonkey.qr(isDeleted = false)
+            val account = Arb.accountUser().next()
+            val stored = Arb.qr(isDeleted = false).next()
             val accountQrRepository = accountQrRepository(account = account, stored = stored)
             val requestSyncUseCase = requestSyncUseCase()
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository, requestSyncUseCase = requestSyncUseCase)
 
             When("빈 QR 값으로 수정한다") {
                 Then("TC-0b9278c4-ade3-487e-8eff-073b74d09ad8 QR 내용 미입력으로 판정하고 어떤 내용도 수정하지 않는다") {
-                    listOf(fixtureMonkey.qrDetail(value = ""), fixtureMonkey.qrDetail(title = "", value = "")).forEach { detail ->
+                    listOf(Arb.qrDetail(value = "").next(), Arb.qrDetail(title = "", value = "").next()).forEach { detail ->
                         useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = detail))
                             .shouldBeFailure()
                             .shouldBeInstanceOf<QrValueEmptyException>()
@@ -105,14 +108,14 @@ class UpdateQrUseCaseTest :
         }
 
         Given("게스트 계정과 연결된 QR이 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.Guest>()
-            val stored = fixtureMonkey.qr(isDeleted = false)
+            val account = Arb.constant(Account.Guest).next()
+            val stored = Arb.qr(isDeleted = false).next()
             val accountQrRepository = accountQrRepository(account = account, stored = stored)
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository)
 
             When("QR을 수정한다") {
                 Then("TC-448de895-ec55-4a6f-8a8a-e4ca87b5d5f0 게스트 계정 기준으로 기기에 반영한다") {
-                    val detail = fixtureMonkey.qrDetail()
+                    val detail = Arb.qrDetail().next()
 
                     useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
 
@@ -122,8 +125,8 @@ class UpdateQrUseCaseTest :
         }
 
         Given("수정 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.updateDetail(account = any(), qrId = any(), detail = any(), updatedAt = any()) } throws throwable
             val requestSyncUseCase = requestSyncUseCase()
@@ -131,7 +134,7 @@ class UpdateQrUseCaseTest :
 
             When("QR을 수정한다") {
                 Then("TC-62a4c7b9-793e-4460-bcaf-c67f820f1b5f 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
-                    useCase(parameter = UpdateQrUseCase.Parameter(id = fixtureMonkey.qr(isDeleted = false).id, detail = fixtureMonkey.qrDetail()))
+                    useCase(parameter = UpdateQrUseCase.Parameter(id = Arb.qr(isDeleted = false).next().id, detail = Arb.qrDetail().next()))
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -141,21 +144,19 @@ class UpdateQrUseCaseTest :
         }
 
         Given("현재 계정과 연결된 QR이 없도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val accountQrRepository = mockk<AccountQrRepository>()
             coEvery { accountQrRepository.updateDetail(account = account, qrId = any(), detail = any(), updatedAt = any()) } returns 0
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository)
 
             When("QR을 수정한다") {
                 Then("TC-bf951041-bfba-43bc-8ba4-54622a935849 바뀐 QR이 없음을 전달한다") {
-                    useCase(parameter = UpdateQrUseCase.Parameter(id = fixtureMonkey.qr(isDeleted = false).id, detail = fixtureMonkey.qrDetail())).shouldBeSuccess(0)
+                    useCase(parameter = UpdateQrUseCase.Parameter(id = Arb.qr(isDeleted = false).next().id, detail = Arb.qrDetail().next())).shouldBeSuccess(0)
                 }
             }
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun accountQrRepository(
             account: Account,
             stored: Qr,
@@ -171,7 +172,7 @@ class UpdateQrUseCaseTest :
             account: Account,
             accountQrRepository: AccountQrRepository,
             requestSyncUseCase: RequestSyncUseCase = requestSyncUseCase(),
-            now: Instant = fixtureMonkey.giveMeOne<Instant>(),
+            now: Instant = Arb.secondPrecisionInstant().next(),
         ): UpdateQrUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))

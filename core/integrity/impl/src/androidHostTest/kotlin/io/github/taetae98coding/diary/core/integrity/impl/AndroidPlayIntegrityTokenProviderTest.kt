@@ -13,13 +13,13 @@ import com.google.android.play.core.integrity.StandardIntegrityManager.StandardI
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityToken
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -35,8 +35,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class AndroidPlayIntegrityTokenProviderTest {
@@ -45,7 +43,7 @@ class AndroidPlayIntegrityTokenProviderTest {
     @Before
     fun setUp() {
         val firebaseOptions = mockk<FirebaseOptions>()
-        every { firebaseOptions.gcmSenderId } returns fixtureMonkey.giveMeOne<Long>().toString()
+        every { firebaseOptions.gcmSenderId } returns Arb.long().next().toString()
         val firebaseApp = mockk<FirebaseApp>()
         every { firebaseApp.options } returns firebaseOptions
 
@@ -61,7 +59,7 @@ class AndroidPlayIntegrityTokenProviderTest {
 
     @Test
     fun `TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 준비가 무효가 되면 그 확인은 실패하고 다음 확인에서 다시 준비한 뒤 무결성 확인 정보를 요청한다`() {
-        val token = fixtureMonkey.nonBlankString()
+        val token = Arb.nonBlankString().next()
         val invalidProvider = tokenProvider(Tasks.forException(integrityException(StandardIntegrityErrorCode.INTEGRITY_TOKEN_PROVIDER_INVALID)))
         val preparedAgainProvider = tokenProvider(Tasks.forResult(integrityToken(token)))
         every { integrityManager.prepareIntegrityToken(any<PrepareIntegrityTokenRequest>()) } returnsMany
@@ -79,7 +77,7 @@ class AndroidPlayIntegrityTokenProviderTest {
 
     @Test
     fun `준비가 무효라는 실패가 아니면 준비한 제공자를 버리지 않고 다음 확인에 다시 쓴다`() {
-        val token = fixtureMonkey.nonBlankString()
+        val token = Arb.nonBlankString().next()
         val preparedProvider = mockk<StandardIntegrityTokenProvider>()
         every { preparedProvider.request(any<StandardIntegrityTokenRequest>()) } returnsMany
             listOf(
@@ -97,7 +95,7 @@ class AndroidPlayIntegrityTokenProviderTest {
         verify(exactly = 1) { integrityManager.prepareIntegrityToken(any<PrepareIntegrityTokenRequest>()) }
     }
 
-    private fun getToken(playIntegrityTokenProvider: AndroidPlayIntegrityTokenProvider): PlayIntegrityToken = runBlocking { withTimeout(TIMEOUT_MILLIS) { playIntegrityTokenProvider.getToken(requestHash = fixtureMonkey.nonBlankString()) } }
+    private fun getToken(playIntegrityTokenProvider: AndroidPlayIntegrityTokenProvider): PlayIntegrityToken = runBlocking { withTimeout(TIMEOUT_MILLIS) { playIntegrityTokenProvider.getToken(requestHash = Arb.nonBlankString().next()) } }
 
     private companion object {
         private const val TIMEOUT_MILLIS = 5_000L

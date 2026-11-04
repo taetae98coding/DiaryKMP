@@ -1,18 +1,22 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +30,8 @@ import kotlin.uuid.Uuid
 class MemoPlaceUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = accountUseCase(account = account)
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
@@ -36,8 +40,8 @@ class MemoPlaceUseCaseTest :
 
             When("장소를 추가한다") {
                 Then("TC-bdec85c6-709a-4216-8247-2ea676daa250 메모와 그 장소의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val placeId = Arb.kotlinUuid().next()
                     val useCase =
                         AddMemoPlaceUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -74,8 +78,8 @@ class MemoPlaceUseCaseTest :
                         useCase(
                             parameter =
                                 AddMemoPlaceUseCase.Parameter(
-                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    memoId = Arb.kotlinUuid().next(),
+                                    placeId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -99,8 +103,8 @@ class MemoPlaceUseCaseTest :
                         useCase(
                             parameter =
                                 RemoveMemoPlaceUseCase.Parameter(
-                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    memoId = Arb.kotlinUuid().next(),
+                                    placeId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -109,8 +113,8 @@ class MemoPlaceUseCaseTest :
                 }
 
                 Then("TC-6932da48-91cb-4798-9859-bf2028ca81b6 메모와 그 장소의 연결을 해제 상태와 해제 시점으로 저장한다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val placeId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveMemoPlaceUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -136,9 +140,9 @@ class MemoPlaceUseCaseTest :
         }
 
         Given("동기화 요청이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = accountUseCase(account = account)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.failure(throwable)
@@ -148,8 +152,8 @@ class MemoPlaceUseCaseTest :
 
             When("장소를 추가한다") {
                 Then("TC-5e0d2ef1-acca-4006-b31b-88f0cf1b0304 저장한 장소 연결을 되돌리지 않는다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val placeId = Arb.kotlinUuid().next()
                     val useCase =
                         AddMemoPlaceUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -172,8 +176,8 @@ class MemoPlaceUseCaseTest :
 
             When("장소를 해제한다") {
                 Then("TC-5e0d2ef1-acca-4006-b31b-88f0cf1b0304 저장한 장소 연결 해제를 되돌리지 않는다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val placeId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveMemoPlaceUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -196,7 +200,7 @@ class MemoPlaceUseCaseTest :
         }
 
         Given("저장이 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>()
             coEvery {
                 accountMemoPlaceRepository.upsert(
@@ -223,8 +227,8 @@ class MemoPlaceUseCaseTest :
                         useCase(
                             parameter =
                                 AddMemoPlaceUseCase.Parameter(
-                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    memoId = Arb.kotlinUuid().next(),
+                                    placeId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -235,9 +239,9 @@ class MemoPlaceUseCaseTest :
         }
 
         Given("로그인한 계정과 메모에 연결된 장소가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeList = List(2) { fixtureMonkey.giveMeOne<Place>() }
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
+            val placeList = List(2) { Arb.place().next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>()
@@ -256,7 +260,7 @@ class MemoPlaceUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>(relaxed = true)
@@ -268,7 +272,7 @@ class MemoPlaceUseCaseTest :
 
             When("메모의 장소를 조회한다") {
                 Then("실패를 그대로 전달한다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -277,10 +281,7 @@ class MemoPlaceUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun accountUseCase(account: Account = fixtureMonkey.giveMeOne<Account.User>()): GetAccountUseCase {
+        private fun accountUseCase(account: Account = Arb.accountUser().next()): GetAccountUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 

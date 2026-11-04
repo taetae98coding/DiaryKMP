@@ -50,7 +50,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onTitleInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrCodeValue
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
@@ -63,6 +62,8 @@ import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -131,8 +132,8 @@ class QrNavDisplayTest {
 
     @Test
     fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QrScan 화면에서 텍스트 QR을 읽어 돌아오면 QR 탭과 텍스트 포맷으로 읽은 값을 보여 주고 제목과 설명은 그대로 둔다`() {
-        val scannedValue = qrTestFixtureMonkey.qrDetail().value
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val scannedValue = Arb.qrDetail().next().value
+        val detail = Arb.qrDetail().next()
         setQrNavDisplay()
         openQrScanWithValue(value = detail.value, title = detail.title, description = detail.description)
 
@@ -149,9 +150,9 @@ class QrNavDisplayTest {
 
     @Test
     fun `TC-39760b0f-24f6-411f-b977-dcb1265c1a75 QR을 읽으면 읽은 값을 넘기고 이전 화면으로 돌아간다`() {
-        val scannedValue = qrTestFixtureMonkey.qrDetail().value
+        val scannedValue = Arb.qrDetail().next().value
         setQrNavDisplay()
-        openQrScanWithValue(value = qrTestFixtureMonkey.qrDetail().value)
+        openQrScanWithValue(value = Arb.qrDetail().next().value)
 
         composeRule.runOnIdle { backStack.navigateUpWithQrScannedValue(resultEventBus = resultEventBus, value = scannedValue) }
         composeRule.waitForIdle()
@@ -166,7 +167,7 @@ class QrNavDisplayTest {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
         composeRule.onQrTextInput().performTextInput(detail.value)

@@ -1,13 +1,20 @@
 package io.github.taetae98coding.diary.feature.qr.ui.detail.action
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.domain.qr.content.qrActionOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionAddContact
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionAddEvent
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionCall
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionJoinWifi
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionOpenUrl
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionSendEmail
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionSendSms
+import io.github.taetae98coding.diary.feature.qr.ui.qrActionShowLocation
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -39,20 +46,20 @@ class JvmQrActionLauncherTest :
         test("TC-49054cf5-02d9-450a-a016-b891a6c7120c 데스크톱 앱은 Wi-Fi 연결을 실행 동작으로 제공하지 않는다") {
             val launcher = JvmQrActionLauncher(dispatcher = UnconfinedTestDispatcher())
 
-            launcher.isSupported(action = fixtureMonkey.giveMeOne<QrAction.JoinWifi>()) shouldBe false
+            launcher.isSupported(action = Arb.qrActionJoinWifi().next()) shouldBe false
         }
 
         test("데스크톱 앱은 Wi-Fi 연결 외의 실행 동작을 모두 제공한다") {
             val launcher = JvmQrActionLauncher(dispatcher = UnconfinedTestDispatcher())
 
             listOf(
-                fixtureMonkey.giveMeOne<QrAction.OpenUrl>(),
-                fixtureMonkey.giveMeOne<QrAction.Call>(),
-                fixtureMonkey.giveMeOne<QrAction.SendEmail>(),
-                fixtureMonkey.giveMeOne<QrAction.SendSms>(),
-                fixtureMonkey.giveMeOne<QrAction.ShowLocation>(),
-                fixtureMonkey.giveMeOne<QrAction.AddContact>(),
-                fixtureMonkey.giveMeOne<QrAction.AddEvent>(),
+                Arb.qrActionOpenUrl().next(),
+                Arb.qrActionCall().next(),
+                Arb.qrActionSendEmail().next(),
+                Arb.qrActionSendSms().next(),
+                Arb.qrActionShowLocation().next(),
+                Arb.qrActionAddContact().next(),
+                Arb.qrActionAddEvent().next(),
             ).forEach { action ->
                 launcher.isSupported(action = action) shouldBe true
             }
@@ -130,14 +137,12 @@ class JvmQrActionLauncherTest :
         test("Wi-Fi 연결은 넘기지 않고 넘기지 못한 것으로 본다") {
             val launcher = JvmQrActionLauncher(dispatcher = UnconfinedTestDispatcher())
 
-            launcher.launch(action = fixtureMonkey.giveMeOne<QrAction.JoinWifi>()) shouldBe false
+            launcher.launch(action = Arb.qrActionJoinWifi().next()) shouldBe false
 
             verify(exactly = 0) { Desktop.getDesktop() }
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun actionOf(qrValue: String): QrAction = checkNotNull(qrActionOf(raw = qrValue, timeZone = TimeZone.UTC))
     }
 }

@@ -9,16 +9,17 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.testing.asPagingSourceFactory
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.github.taetae98coding.diary.feature.place.ui.refreshableList
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -27,8 +28,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 기기에 저장된 장소를 한 번에 PAGE_SIZE씩 나누어 불러오는 목록을 실제 페이지 조회로 구성한다.
 // 첫 조회는 앞쪽 한 페이지만 불러오고 나머지 자리는 아직 준비되지 않은 자리로 둔다.
@@ -101,15 +100,17 @@ class PlaceHomePagingTest {
 
         private fun place(title: String): Place =
             Place(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
+                id = Arb.kotlinUuid().next(),
                 detail =
-                    fixtureMonkey
-                        .giveMeKotlinBuilder<PlaceDetail>()
-                        .setExp(PlaceDetail::title, title)
-                        .sample(),
+                    Arb
+                        .placeDetail()
+                        .next()
+                        .copy(
+                            title = title,
+                        ),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

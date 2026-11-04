@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.data.file.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.FileDownloadSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.FileDownloadDirectoryLocalEntity
 import io.github.taetae98coding.diary.core.file.api.datasource.FileDownloadLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadSetting
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
+import io.github.taetae98coding.diary.data.file.fileDownloadDirectoryLocalEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -20,13 +22,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FileDownloadSettingRepositoryImplTest :
     FunSpec({
         test("TC-76624134-bce5-4b1e-83e1-e02281c9ffed 저장한 폴더가 없으면 고른 폴더가 없는 설정을, 있으면 그 폴더를 읽는다") {
-            val local = fixtureMonkey.giveMeOne<FileDownloadDirectoryLocalEntity>()
+            val local = Arb.fileDownloadDirectoryLocalEntity().next()
 
             listOf(
                 null to FileDownloadSetting(directory = null),
@@ -43,9 +42,9 @@ class FileDownloadSettingRepositoryImplTest :
         }
 
         test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 시스템의 허락을 받은 표현으로 저장하고, 앞서 고른 다른 폴더의 허락은 돌려준다") {
-            val uri = fixtureMonkey.giveMeOne<String>()
-            val previous = fixtureMonkey.giveMeOne<FileDownloadDirectoryLocalEntity>()
-            val retained = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
+            val uri = Arb.string().next()
+            val previous = Arb.fileDownloadDirectoryLocalEntity().next()
+            val retained = Arb.fileDownloadDirectory().next()
             val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
             every { settingDataSource.getDirectory() } returns flowOf(previous)
             val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
@@ -67,13 +66,13 @@ class FileDownloadSettingRepositoryImplTest :
             coEvery { downloadDataSource.retainDirectory(uri = any()) } throws SecurityException("denied")
 
             shouldThrow<SecurityException> {
-                FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).setDirectory(uri = fixtureMonkey.giveMeOne<String>())
+                FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).setDirectory(uri = Arb.string().next())
             }
             coVerify(exactly = 0) { settingDataSource.upsertDirectory(directory = any()) }
         }
 
         test("TC-89660e14-4b3d-4a19-bb56-7b5f27a5b744 TC-cef9e1ad-cca8-4668-b96c-e2124fbc09d7 되돌리면 설정을 먼저 지우고 그 폴더의 허락을 돌려준다") {
-            val stored = fixtureMonkey.giveMeOne<FileDownloadDirectoryLocalEntity>()
+            val stored = Arb.fileDownloadDirectoryLocalEntity().next()
             val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
             every { settingDataSource.getDirectory() } returns flowOf(stored)
             val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
@@ -87,7 +86,7 @@ class FileDownloadSettingRepositoryImplTest :
         }
 
         test("TC-802762da-b246-444b-8ab9-e9e5e39f3e4f 되돌려도 폴더와 그 안의 파일을 지우지 않고 허락만 돌려준다") {
-            val stored = fixtureMonkey.giveMeOne<FileDownloadDirectoryLocalEntity>()
+            val stored = Arb.fileDownloadDirectoryLocalEntity().next()
             val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
             every { settingDataSource.getDirectory() } returns flowOf(stored)
             val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
@@ -100,7 +99,7 @@ class FileDownloadSettingRepositoryImplTest :
 
         test("TC-3a05cdca-74ef-4bb0-8d41-247f33ec83d2 되돌리기 저장에 실패하면 허락을 돌려주지 않는다") {
             val settingDataSource = mockk<FileDownloadSettingLocalDataSource>()
-            every { settingDataSource.getDirectory() } returns flowOf(fixtureMonkey.giveMeOne<FileDownloadDirectoryLocalEntity>())
+            every { settingDataSource.getDirectory() } returns flowOf(Arb.fileDownloadDirectoryLocalEntity().next())
             coEvery { settingDataSource.upsertDirectory(directory = null) } throws IllegalStateException("save")
             val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
 

@@ -10,11 +10,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,8 +22,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -101,7 +99,7 @@ class MemoPlaceCardColorTest {
     private fun Place.withColor(color: Long): Place = copy(detail = detail.copy(color = color))
 
     private fun opaqueColor(except: Long? = null): Long =
-        generateSequence { fixtureMonkey.giveMeOne<Int>().toLong() and RGB_MASK or OPAQUE_ALPHA }
+        generateSequence { Arb.int().next().toLong() and RGB_MASK or OPAQUE_ALPHA }
             .first { color -> color != except }
 
     private companion object {

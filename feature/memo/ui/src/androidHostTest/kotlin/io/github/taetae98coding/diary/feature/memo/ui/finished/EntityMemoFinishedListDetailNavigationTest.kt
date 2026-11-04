@@ -26,8 +26,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -76,8 +74,10 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -121,31 +121,31 @@ class EntityMemoFinishedListDetailNavigationTest {
 
     @Test
     fun `TC-170510aa-f75c-496d-a57a-c3732a48e734 ContactMemoFinishedList 상세 영역에서 메모를 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
 
         assertDeleteReturnsToPlaceholder(listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId)))
     }
 
     @Test
     fun `TC-170510aa-f75c-496d-a57a-c3732a48e734 PlaceMemoFinishedList 상세 영역에서 메모를 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
-        val placeId = fixtureMonkey.giveMeOne<Uuid>()
+        val placeId = Arb.kotlinUuid().next()
 
         assertDeleteReturnsToPlaceholder(listOf(PlaceDetailNavKey(id = placeId), PlaceMemoFinishedListNavKey(placeId = placeId)))
     }
 
     @Test
     fun `TC-170510aa-f75c-496d-a57a-c3732a48e734 WebMemoFinishedList 상세 영역에서 메모를 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
-        val webId = fixtureMonkey.giveMeOne<Uuid>()
+        val webId = Arb.kotlinUuid().next()
 
         assertDeleteReturnsToPlaceholder(listOf(WebDetailNavKey(id = webId), WebMemoFinishedListNavKey(webId = webId)))
     }
 
     @Test
     fun `TC-170510aa-f75c-496d-a57a-c3732a48e734 목록에서 다른 메모를 고른 뒤 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
         val listBackStack = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId))
         val memoList = memoList()
-        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = fixtureMonkey.giveMeOne<Uuid>())
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
         selectMemo(memoList[0])
         selectMemo(memoList[1])
 
@@ -156,10 +156,10 @@ class EntityMemoFinishedListDetailNavigationTest {
 
     @Test
     fun `TC-170510aa-f75c-496d-a57a-c3732a48e734 복사한 메모 상세에서 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
         val listBackStack = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId))
         val memoList = memoList()
-        val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+        val copiedId = Arb.kotlinUuid().next()
         val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = copiedId)
         selectMemo(memoList[0])
         composeRule.onNode(actionButton(DEFAULT_COPY_BUTTON_DESCRIPTION)).performClick()
@@ -173,7 +173,7 @@ class EntityMemoFinishedListDetailNavigationTest {
 
     private fun assertDeleteReturnsToPlaceholder(listBackStack: List<ScreenNavKey>) {
         val memoList = memoList()
-        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = fixtureMonkey.giveMeOne<Uuid>())
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
         selectMemo(memoList[0])
 
         deleteOnDetail()
@@ -335,7 +335,6 @@ class EntityMemoFinishedListDetailNavigationTest {
         const val ENTITY_DETAIL_CONTENT = "EntityDetailContent"
         const val EMPTY_TITLE = "EntityMemoFinishedListEmpty"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a memo"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun listTitle(index: Int): String = "EntityMemoFinishedListDetailTitle$index"
 
@@ -345,7 +344,7 @@ class EntityMemoFinishedListDetailNavigationTest {
 
         fun memoList(): List<Memo> =
             List(MEMO_COUNT) { index ->
-                fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null).let { memo ->
+                Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next().let { memo ->
                     memo.copy(detail = memo.detail.copy(title = listTitle(index = index), dateTime = null))
                 }
             }

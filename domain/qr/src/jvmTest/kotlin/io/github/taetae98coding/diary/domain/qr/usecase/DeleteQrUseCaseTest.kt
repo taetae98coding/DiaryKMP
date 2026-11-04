@@ -1,18 +1,22 @@
 package io.github.taetae98coding.diary.domain.qr.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +30,8 @@ import kotlin.uuid.Uuid
 class DeleteQrUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 삭제되지 않은 QR이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -41,7 +45,7 @@ class DeleteQrUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -70,8 +74,8 @@ class DeleteQrUseCaseTest :
         }
 
         Given("QR을 삭제할 수 있는 현재 계정이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
@@ -97,7 +101,7 @@ class DeleteQrUseCaseTest :
         }
 
         Given("현재 계정과 연결된 QR이 없도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
@@ -114,14 +118,14 @@ class DeleteQrUseCaseTest :
 
             When("QR을 삭제한다") {
                 Then("바뀐 QR이 없음을 전달한다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>()).shouldBeSuccess(0)
+                    useCase(parameter = Arb.kotlinUuid().next()).shouldBeSuccess(0)
                 }
             }
         }
 
         Given("게스트 계정이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.Guest>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.constant(Account.Guest).next()
+            val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
@@ -148,7 +152,7 @@ class DeleteQrUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountQrRepository = mockk<AccountQrRepository>(relaxed = true)
@@ -162,7 +166,7 @@ class DeleteQrUseCaseTest :
 
             When("QR을 삭제한다") {
                 Then("성공으로 다뤄지지 않고 QR의 삭제 여부를 바꾸지 않는다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -174,8 +178,8 @@ class DeleteQrUseCaseTest :
         }
 
         Given("삭제 여부 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountQrRepository = mockk<AccountQrRepository>()
@@ -193,7 +197,7 @@ class DeleteQrUseCaseTest :
 
             When("QR을 삭제한다") {
                 Then("TC-62a4c7b9-793e-4460-bcaf-c67f820f1b5f 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -203,9 +207,6 @@ class DeleteQrUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun requestSyncUseCase(): RequestSyncUseCase {
             val useCase = mockk<RequestSyncUseCase>()
             coEvery { useCase(parameter = any()) } returns Result.success(Unit)

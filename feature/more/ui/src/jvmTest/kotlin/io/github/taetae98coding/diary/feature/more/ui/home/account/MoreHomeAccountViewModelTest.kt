@@ -3,13 +3,15 @@
 package io.github.taetae98coding.diary.feature.more.ui.home.account
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -53,14 +55,14 @@ class MoreHomeAccountViewModelTest : FunSpec() {
 
         test("TC-11459454-f5e9-472e-91b9-f8438bdae9dd 로그인한 사용자 정보가 있으면 사용자 상태로 표시한다") {
             runTest(mainDispatcher) {
-                val email = fixtureMonkey.giveMeOne<String>()
-                val profileImage = fixtureMonkey.giveMeOne<String>()
+                val email = Arb.string().next()
+                val profileImage = Arb.string().next()
                 val account =
                     Account.User(
-                        id = fixtureMonkey.giveMeOne<Uuid>(),
+                        id = Arb.kotlinUuid().next(),
                         profileImage = profileImage,
                         email = email,
-                        isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                        isSessionValid = Arb.boolean().next(),
                     )
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns flowOf(Result.success<Account>(account))
@@ -98,7 +100,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
         test("TC-bbe25547-96a8-45ad-8cf2-ea4b3523a159 계정 상태나 표시 정보가 바뀌면 별도 조작 없이 바뀐 내용을 표시한다") {
             runTest(mainDispatcher) {
                 val user = user()
-                val changedUser = user.copy(email = "changed-" + fixtureMonkey.giveMeOne<String>(), profileImage = "changed-" + fixtureMonkey.giveMeOne<String>())
+                val changedUser = user.copy(email = "changed-" + Arb.string().next(), profileImage = "changed-" + Arb.string().next())
                 val userUiState = MoreHomeAccountUiState.User(profileImage = user.profileImage, email = user.email)
                 val changedUserUiState = MoreHomeAccountUiState.User(profileImage = changedUser.profileImage, email = changedUser.email)
                 val caseList =
@@ -128,9 +130,6 @@ class MoreHomeAccountViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private data class AccountChangeCase(
             val before: Account,
             val beforeUiState: MoreHomeAccountUiState,
@@ -140,10 +139,10 @@ class MoreHomeAccountViewModelTest : FunSpec() {
 
         private fun user(): Account.User =
             Account.User(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
-                profileImage = fixtureMonkey.giveMeOne<String>(),
-                email = fixtureMonkey.giveMeOne<String>(),
-                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                id = Arb.kotlinUuid().next(),
+                profileImage = Arb.string().next(),
+                email = Arb.string().next(),
+                isSessionValid = Arb.boolean().next(),
             )
     }
 }

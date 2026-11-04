@@ -3,13 +3,13 @@
 package io.github.taetae98coding.diary.feature.file.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -23,9 +23,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileAddAccountViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -42,13 +39,13 @@ class FileAddAccountViewModelTest : FunSpec() {
 
         test("TC-ce898c39-e03d-472d-9099-57ac371ab343 게스트가 되면 게스트 상태가 되고 다른 사용자나 확정하지 않은 상태는 게스트가 아니다") {
             runTest(mainDispatcher) {
-                val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+                val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe FileAddAccountUiState(isGuest = false)
 
-                    accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>())
+                    accountFlow.value = Result.success(Arb.accountUser().next())
                     accountFlow.value = Result.failure(IllegalStateException("account"))
                     runCurrent()
                     expectNoEvents()

@@ -6,12 +6,11 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
@@ -19,10 +18,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -73,7 +74,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-1ef63eda-de50-40a0-a6a6-11efc71536e3 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -92,7 +93,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-8f4f06f0-df07-4f84-9662-aa2798fcd547 메모 다시 시작이 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val memo = Arb.memo().next()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -118,7 +119,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-f8006e64-5c55-4081-b0bb-e2d694e00988 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -136,7 +137,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-72adc9f7-a269-41ef-a86c-ba35e313d143 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -155,7 +156,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-8f4f06f0-df07-4f84-9662-aa2798fcd547 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val memo = Arb.memo().next()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
@@ -181,7 +182,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-bd7a3c2d-71e3-477c-91c1-30055be2259b 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -222,8 +223,9 @@ class MemoFinishedListViewModelTest : FunSpec() {
         test("TC-d798dbeb-65ec-4aec-ad4f-17fe699c5c1e 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val memo =
-                    fixtureMonkey
-                        .giveMeOne<Memo>()
+                    Arb
+                        .memo()
+                        .next()
                         .let { value ->
                             value.copy(
                                 detail = value.detail.copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
@@ -262,7 +264,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 추가 조회에 실패해도 이미 표시된 메모를 유지한다") {
             runTest(mainDispatcher) {
-                val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
+                val memoList = listOf(Arb.memo().next(), Arb.memo().next())
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     appendFailingPagingData(firstPage = memoList).map { pagingData -> Result.success(pagingData) }
@@ -279,7 +281,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-579c3c20-20ad-41ac-bc8f-fa2c9586b25e 다시 조회에 실패하면 이전 메모를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val memo = Arb.memo().next()
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns
                     flowOf(
@@ -299,9 +301,6 @@ class MemoFinishedListViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageFinishedMemoUseCase: PageFinishedMemoUseCase = finishedMemoUseCase(),
             restartMemoUseCase: RestartMemoUseCase = mockk(),

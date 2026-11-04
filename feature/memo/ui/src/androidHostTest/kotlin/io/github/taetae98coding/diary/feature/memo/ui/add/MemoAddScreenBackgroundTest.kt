@@ -11,8 +11,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.Lifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -20,7 +18,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePicke
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,9 +36,9 @@ class MemoAddScreenBackgroundTest {
 
     @Test
     fun `TC-95f21cb7-8d6c-43b7-b2d2-cde33534f8d0 다른 앱에 다녀와도 입력 내용과 선택이 그대로다`() {
-        val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
-        val tagTitle = "BackgroundTag${fixtureMonkey.giveMeOne<Int>()}"
+        val title = "title-${Arb.string().next()}"
+        val description = "description-${Arb.string().next()}"
+        val tagTitle = "BackgroundTag${Arb.int().next()}"
         val tag = testTag(title = tagTitle)
         val viewModels = screenTestRealViewModel(initialPrimaryTagId = tag.id, tagList = listOf(tag))
         composeRule.setContent {
@@ -59,10 +60,6 @@ class MemoAddScreenBackgroundTest {
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo()
         composeRule.onNodeWithText(tagTitle).assertExists()
         composeRule.onNode(hasPrimaryTagState()).assertExists()
-    }
-
-    private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }
 

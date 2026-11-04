@@ -12,6 +12,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidHostTest {
             dependencies {
                 implementation(projects.logger.core)

@@ -10,7 +10,6 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
@@ -24,6 +23,8 @@ import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -146,4 +147,4 @@ internal fun ComposeContentTestRule.setPlaceAddScaffoldState(): PlaceFormState {
     return state
 }
 
-internal fun FixtureMonkey.mapCoordinateInFormPrecision(): DiaryMapCoordinate = coordinateInFormPrecision().toDiaryMapCoordinate()
+internal fun mapCoordinateInFormPrecision(): DiaryMapCoordinate = Arb.coordinateInFormPrecision().next().toDiaryMapCoordinate()

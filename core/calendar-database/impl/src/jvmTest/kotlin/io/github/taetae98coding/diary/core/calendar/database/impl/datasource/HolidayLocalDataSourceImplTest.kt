@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.core.calendar.database.impl.datasource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
@@ -12,16 +10,16 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabaseModule
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.HolidayTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import java.io.File
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidayLocalDataSourceImplTest :
     FunSpec({
@@ -185,7 +183,7 @@ class HolidayLocalDataSourceImplTest :
         }
 
         test("TC-6f84d6b0-2bcf-4b9a-b5be-cebe4455f2a4 시작일·종료일·이름이 같으면 국가 순으로 반환한다") {
-            val name: String = fixtureMonkey.giveMeOne()
+            val name: String = Arb.string().next()
             val korea = holiday(country = KOREA, name = name)
             val unitedStates = holiday(country = UNITED_STATES, name = name)
             transaction.upsert(country = UNITED_STATES, year = YEAR, holidayList = listOf(unitedStates))
@@ -195,7 +193,7 @@ class HolidayLocalDataSourceImplTest :
         }
 
         test("TC-d24196af-c7b4-4a13-bbbf-7961f5363942 전체 조회에서 이름이 같으면 한국, 미국 순으로 반환한다") {
-            val name: String = fixtureMonkey.giveMeOne()
+            val name: String = Arb.string().next()
             val unitedStates = holiday(country = UNITED_STATES, year = YEAR, name = name, start = LocalDate(2026, 1, 1))
             val korea = holiday(country = KOREA, year = OTHER_YEAR, name = name, start = LocalDate(2027, 12, 31))
             transaction.upsert(country = UNITED_STATES, year = YEAR, holidayList = listOf(unitedStates))
@@ -241,8 +239,8 @@ class HolidayLocalDataSourceImplTest :
         private fun holiday(
             country: HolidayCountryLocalEntity = KOREA,
             year: Int = YEAR,
-            name: String = fixtureMonkey.giveMeOne(),
-            isHoliday: Boolean = fixtureMonkey.giveMeOne(),
+            name: String = Arb.string().next(),
+            isHoliday: Boolean = Arb.boolean().next(),
             start: LocalDate = LocalDate(2026, 1, 1),
             endInclusive: LocalDate = start,
         ): HolidayLocalEntity =

@@ -3,14 +3,15 @@ package io.github.taetae98coding.diary.compose.memo
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import org.junit.Rule
@@ -19,9 +20,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 private val ALL_DAY_SINGLE =
     MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = 19)..LocalDate(year = 2026, month = 7, day = 19))
@@ -113,18 +111,14 @@ class MemoCardDateTimeTest {
         expected: String,
     ) {
         val memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(
-                    Memo::detail,
-                    fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime),
-                ).setExp(
-                    Memo::updatedAt,
-                    fixtureMonkey.giveMeOne<Instant>(),
-                ).setExp(
-                    Memo::createdAt,
-                    fixtureMonkey.giveMeOne<Instant>(),
-                ).sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(dateTime = dateTime),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         composeRule.setContent {
             DiaryTheme {

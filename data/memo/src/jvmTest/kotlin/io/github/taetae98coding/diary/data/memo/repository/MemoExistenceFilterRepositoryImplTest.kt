@@ -1,16 +1,16 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memofilter.datasource.MemoExistenceFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.data.memo.mapper.toDomain
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,9 +20,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class MemoExistenceFilterRepositoryImplTest :
     FunSpec({
@@ -49,7 +46,7 @@ class MemoExistenceFilterRepositoryImplTest :
         }
 
         test("유무 필터 조회 중 발생한 에러는 그대로 전파한다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<MemoExistenceFilterLocalDataSource>()
             every { localDataSource.find() } returns flow { throw failure }
             val repository = MemoExistenceFilterRepositoryImpl(memoExistenceFilterLocalDataSource = localDataSource)

@@ -11,15 +11,17 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
@@ -30,9 +32,6 @@ import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -42,21 +41,17 @@ class MemoCardTest {
 
     @Test
     fun `메모 카드의 제목 왼쪽 원형 표시에 저장된 컬러를 사용한다`() {
-        val colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt()
-        val detail = fixtureMonkey.giveMeOne<MemoDetail>()
+        val colorArgb = Arb.int().next() or 0xFF000000.toInt()
+        val detail = Arb.memoDetail().next()
         val memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(
-                    Memo::detail,
-                    detail.copy(title = "Title${detail.title}", color = colorArgb.toLong()),
-                ).setExp(
-                    Memo::updatedAt,
-                    fixtureMonkey.giveMeOne<Instant>(),
-                ).setExp(
-                    Memo::createdAt,
-                    fixtureMonkey.giveMeOne<Instant>(),
-                ).sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = detail.copy(title = "Title${detail.title}", color = colorArgb.toLong()),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         setMemoCard(memo)
 
@@ -179,18 +174,14 @@ class MemoCardTest {
     }
 
     private fun memo(dateTime: MemoDateTime?): Memo =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Memo>()
-            .setExp(
-                Memo::detail,
-                fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime),
-            ).setExp(
-                Memo::updatedAt,
-                fixtureMonkey.giveMeOne<Instant>(),
-            ).setExp(
-                Memo::createdAt,
-                fixtureMonkey.giveMeOne<Instant>(),
-            ).sample()
+        Arb
+            .memo()
+            .next()
+            .copy(
+                detail = Arb.memoDetail().next().copy(dateTime = dateTime),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private fun setMemoCard(
         memo: Memo?,

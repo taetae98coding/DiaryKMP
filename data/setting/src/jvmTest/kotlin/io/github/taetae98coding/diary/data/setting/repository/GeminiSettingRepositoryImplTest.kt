@@ -1,24 +1,21 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GeminiSettingRepositoryImplTest :
     FunSpec({
@@ -31,8 +28,8 @@ class GeminiSettingRepositoryImplTest :
         test("TC-3d6eb062-128b-48e9-a5ce-d3001c91768f 저장한 설정을 이후 조회에서 제공한다") {
             val settingList =
                 listOf(
-                    fixtureMonkey.giveMeOne<GeminiSetting>(),
-                    fixtureMonkey.giveMeOne<GeminiSetting>().copy(systemPrompt = "첫 줄\n둘째 줄"),
+                    Arb.geminiSetting().next(),
+                    Arb.geminiSetting().next().copy(systemPrompt = "첫 줄\n둘째 줄"),
                     GeminiSetting.EMPTY,
                 )
 
@@ -46,9 +43,9 @@ class GeminiSettingRepositoryImplTest :
         }
 
         test("TC-bb1a3db7-1466-4cab-b757-8379305a300d 다시 저장하면 마지막에 저장한 설정을 제공한다") {
-            val first = fixtureMonkey.giveMeOne<GeminiSetting>()
-            val second = fixtureMonkey.giveMeOne<GeminiSetting>()
-            val last = fixtureMonkey.giveMeOne<GeminiSetting>()
+            val first = Arb.geminiSetting().next()
+            val second = Arb.geminiSetting().next()
+            val last = Arb.geminiSetting().next()
             val repository = createRepository(MutableStateFlow(first.toLocalEntity()))
 
             repository.upsert(setting = second)
@@ -58,7 +55,7 @@ class GeminiSettingRepositoryImplTest :
         }
 
         test("TC-68e6b43d-cff0-4841-be45-250fdb68e765 값 하나만 바꿔 저장해도 세 값이 함께 기록된다") {
-            val stored = fixtureMonkey.giveMeOne<GeminiSetting>()
+            val stored = Arb.geminiSetting().next()
             val repository = createRepository(MutableStateFlow(stored.toLocalEntity()))
             val changed = stored.copy(systemPrompt = stored.systemPrompt + "-changed")
 
@@ -71,8 +68,8 @@ class GeminiSettingRepositoryImplTest :
         }
 
         test("TC-7ae2c54b-c988-48f8-a942-e3f518e3def7 조회 중에 설정이 바뀌면 이어서 새 값을 제공한다") {
-            val stored = fixtureMonkey.giveMeOne<GeminiSetting>()
-            val next = fixtureMonkey.giveMeOne<GeminiSetting>()
+            val stored = Arb.geminiSetting().next()
+            val next = Arb.geminiSetting().next()
             val repository = createRepository(MutableStateFlow(stored.toLocalEntity()))
 
             repository.get().test {
@@ -100,7 +97,7 @@ class GeminiSettingRepositoryImplTest :
         }
 
         test("보관된 설정이 비워지면 비어 있는 설정을 제공한다") {
-            val stored = fixtureMonkey.giveMeOne<GeminiSetting>()
+            val stored = Arb.geminiSetting().next()
             val settingFlow = MutableStateFlow(stored.toLocalEntity())
             val repository = createRepository(settingFlow)
 

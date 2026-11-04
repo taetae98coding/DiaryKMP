@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.logger.crashlytics.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.mockk
@@ -24,8 +25,8 @@ class CrashlyticsDiaryLoggerDelegateTest :
             When("오류 정보와 메시지를 지정한 오류 보고 로그를 공통 창구에 전달한다") {
                 Then("TC-014db60d-c53a-4112-b488-8eccd6671edc 어디에도 오류 보고가 남지 않고 전달은 오류 없이 완료된다") {
                     // 빈 문자열이 생성되면 검증이 무의미해지므로 접두사로 비어 있지 않음을 보장한다.
-                    val message = "message${fixtureMonkey.giveMeOne<Int>()}"
-                    val errorMessage = "error${fixtureMonkey.giveMeOne<Int>()}"
+                    val message = "message${Arb.int().next()}"
+                    val errorMessage = "error${Arb.int().next()}"
 
                     val output =
                         captureOutput {
@@ -48,7 +49,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
             When("오류 보고 로그를 공통 창구에 전달한다") {
                 Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 오류 보고 기록 수단이 그 로그를 남긴다") {
                     clearMocks(record)
-                    val log = CrashlyticsLog(message = fixtureMonkey.giveMeOne<String>(), throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    val log = CrashlyticsLog(message = Arb.string().next(), throwable = IllegalStateException(Arb.string().next()))
 
                     DiaryLogger.log(log = log)
 
@@ -62,7 +63,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
                     clearMocks(record)
 
                     shouldNotThrowAny {
-                        DiaryLogger.log(log = OtherLog(value = fixtureMonkey.giveMeOne<Int>()))
+                        DiaryLogger.log(log = OtherLog(value = Arb.int().next()))
                     }
 
                     verify(exactly = 0) { record(any()) }
@@ -74,9 +75,6 @@ class CrashlyticsDiaryLoggerDelegateTest :
         private data class OtherLog(
             val value: Int,
         ) : DiaryLog
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun captureOutput(block: () -> Unit): String {
             val originalOut = System.out

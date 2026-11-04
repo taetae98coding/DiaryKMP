@@ -14,8 +14,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
@@ -27,9 +25,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,8 +48,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -264,7 +262,7 @@ class CalendarHomeScreenColorTest {
         endInclusive: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = fixtureMonkey.giveMeOne<Uuid>(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = color,
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
@@ -276,7 +274,7 @@ class CalendarHomeScreenColorTest {
         date: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = fixtureMonkey.giveMeOne<Uuid>(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = color,
             dateTime = singleDayDateTime(date = date),

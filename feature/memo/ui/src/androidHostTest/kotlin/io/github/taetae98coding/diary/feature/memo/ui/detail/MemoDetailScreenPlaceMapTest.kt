@@ -4,12 +4,12 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.ProvideTestDiaryMap
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.TestDiaryMap
@@ -27,8 +27,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewM
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -59,7 +60,7 @@ class MemoDetailScreenPlaceMapTest {
         val placeUiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(homePlace)))
         setMemoDetailScreen(uiState = uiState, placeUiState = placeUiState)
         composeRule.onNodeWithText(GOOGLE_PROVIDER_NAME).performSemanticsAction(SemanticsActions.OnClick)
-        composeRule.runOnIdle { map.scopes.single().reportCamera(coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(), zoom = TEST_ZOOM) }
+        composeRule.runOnIdle { map.scopes.single().reportCamera(coordinate = Arb.coordinate().next().toDiaryMapCoordinate(), zoom = TEST_ZOOM) }
 
         placeUiState.value = MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(officePlace))
         uiState.value = memoDetailUiState(id = SECOND_MEMO_ID, detail = memoDetail(MEMO_TITLE))
@@ -81,7 +82,7 @@ class MemoDetailScreenPlaceMapTest {
     ) {
         val placeMapViewModel =
             screenTestPlaceMapViewModel(
-                uiState = MutableStateFlow(MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>())),
+                uiState = MutableStateFlow(MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = Arb.coordinate().next())),
             )
 
         composeRule.setContent {
@@ -120,7 +121,5 @@ class MemoDetailScreenPlaceMapTest {
     private companion object {
         const val TEST_ZOOM = 12.0
         val SECOND_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000031")
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

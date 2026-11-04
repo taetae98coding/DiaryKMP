@@ -6,20 +6,21 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -73,7 +74,7 @@ class MemoAddContactViewModelTest : FunSpec() {
 
         test("TC-f6951ae2-267d-4a58-8689-c2562dd77d1f 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { contact() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageMemoSelectableContactUseCase>()
@@ -401,17 +402,15 @@ class MemoAddContactViewModelTest : FunSpec() {
     private companion object {
         private const val SEARCH_QUERY = "Kim"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun contact(): ContactListItem =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Contact>()
-                .setExp(Contact::isDeleted, false)
-                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
-                .toListItem(nameQualifier = fixtureMonkey.giveMeOne())
+            Arb
+                .contact()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                ).toListItem(nameQualifier = Arb.string().next())
 
         private fun viewModel(
             initialContactId: Uuid? = null,

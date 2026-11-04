@@ -1,12 +1,14 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoDetailRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDateTime
 
 class MemoDetailRemoteMapperTest :
@@ -46,16 +48,14 @@ class MemoDetailRemoteMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun localCases(): List<MemoDetailLocalEntity> {
     val local =
-        fixtureMonkey
-            .giveMeOne<MemoDetailLocalEntity>()
+        Arb
+            .memoDetailLocalEntity()
+            .next()
             .copy(
-                start = fixtureMonkey.giveMeOne<LocalDateTime>(),
-                endInclusive = fixtureMonkey.giveMeOne<LocalDateTime>(),
+                start = Arb.kotlinxLocalDateTime().next(),
+                endInclusive = Arb.kotlinxLocalDateTime().next(),
             )
 
     return listOf(
@@ -67,11 +67,12 @@ private fun localCases(): List<MemoDetailLocalEntity> {
 
 private fun remoteCases(): List<MemoDetailRemoteEntity> {
     val remote =
-        fixtureMonkey
-            .giveMeOne<MemoDetailRemoteEntity>()
+        Arb
+            .memoDetailRemoteEntity()
+            .next()
             .copy(
-                start = fixtureMonkey.giveMeOne<LocalDateTime>(),
-                endInclusive = fixtureMonkey.giveMeOne<LocalDateTime>(),
+                start = Arb.kotlinxLocalDateTime().next(),
+                endInclusive = Arb.kotlinxLocalDateTime().next(),
             )
 
     return listOf(

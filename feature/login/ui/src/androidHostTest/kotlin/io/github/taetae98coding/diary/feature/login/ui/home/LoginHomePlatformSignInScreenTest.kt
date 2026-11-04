@@ -9,7 +9,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
@@ -19,7 +18,10 @@ import io.github.taetae98coding.diary.compose.credential.google.GoogleCredential
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -80,7 +82,7 @@ class LoginHomePlatformSignInScreenTest {
 
     @Test
     fun `TC-6244d246-78da-4803-9a83-38d4785949d9 다시 선택한 뒤 이전 흐름이 돌려준 인증 결과는 받지 않는다`() {
-        val staleCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+        val staleCredential = Arb.googleCredentialIdToken().next()
         assertPreviousFlowResultIgnored { previous -> previous.complete(staleCredential) }
     }
 
@@ -96,7 +98,7 @@ class LoginHomePlatformSignInScreenTest {
 
     @Test
     fun `TC-1950bb16-007e-49e7-8799-945c0c0f8f8a 흐름 중 뒤로가기를 실행하면 흐름의 결과를 받지 않는다`() {
-        val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+        val credential = Arb.googleCredentialIdToken().next()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         val platformResult = CompletableDeferred<GoogleCredential>()
@@ -158,7 +160,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     private fun assertPreviousFlowResultIgnored(completePrevious: (CompletableDeferred<GoogleCredential>) -> Unit) {
-        val newCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+        val newCredential = Arb.googleCredentialIdToken().next()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         val platformResultList = List(size = 2) { CompletableDeferred<GoogleCredential>() }

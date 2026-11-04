@@ -1,16 +1,16 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,8 +28,6 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class CalendarTimetableBirthdayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -70,7 +68,7 @@ class CalendarTimetableBirthdayViewModelTest : FunSpec() {
 
         test("조회한 생일을 그대로 제공한다") {
             runTest(mainDispatcher) {
-                val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = fixtureMonkey.nonBlankString(), nameQualifier = "", date = day(day = 24))
+                val birthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = Arb.nonBlankString().next(), nameQualifier = "", date = day(day = 24))
                 val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { getUseCase(parameter = any()) } returns flowOf(Result.success(listOf(birthday)))
                 val viewModel = birthdayViewModel(getCalendarContactBirthdayUseCase = getUseCase)
@@ -87,7 +85,7 @@ class CalendarTimetableBirthdayViewModelTest : FunSpec() {
         test("TC-9c8e653c-ad81-480b-99a2-dac567c94496 생일 조회에 실패하면 생일 없이 제공한다") {
             runTest(mainDispatcher) {
                 val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
-                every { getUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.nonBlankString())))
+                every { getUseCase(parameter = any()) } returns flowOf(Result.failure(IllegalStateException(Arb.nonBlankString().next())))
                 val viewModel = birthdayViewModel(getCalendarContactBirthdayUseCase = getUseCase)
 
                 viewModel.uiState.test {

@@ -6,19 +6,17 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistEntryTest :
     FunSpec({
@@ -41,14 +39,14 @@ class ChecklistEntryTest :
         }
 
         test("TC-3943e3e4-b520-4a11-ad55-8b92ef622f9a 체크리스트 목록에서 이어 진입한 체크리스트 상세는 목록·상세 배치의 상세 pane이다") {
-            val key = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val key = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey, key)
 
             metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
         }
 
         test("체크리스트 목록에서 진입하지 않은 체크리스트 상세는 목록·상세 배치에 참여하지 않는다") {
-            val key = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val key = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(ChecklistHomeNavKey, OtherNavKey, key)
 
             metadataOf(backStack = backStack, key = key).shouldBeEmpty()

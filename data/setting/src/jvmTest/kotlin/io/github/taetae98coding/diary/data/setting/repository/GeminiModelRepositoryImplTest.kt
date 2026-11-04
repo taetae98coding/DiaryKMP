@@ -1,28 +1,25 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.api.entity.GeminiModelRemoteEntity
+import io.github.taetae98coding.diary.data.setting.geminiModelRemoteEntity
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.take
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GeminiModelRepositoryImplTest :
     FunSpec({
         test("받아 온 모델을 순서 그대로 전달한다") {
             val apiKey = "testApiKey"
-            val remoteList = fixtureMonkey.giveMe<GeminiModelRemoteEntity>(3)
+            val remoteList = Arb.geminiModelRemoteEntity().take(3).toList()
             val remoteDataSource =
                 mockk<GeminiModelRemoteDataSource> {
                     coEvery { getAvailableModel(apiKey) } returns remoteList

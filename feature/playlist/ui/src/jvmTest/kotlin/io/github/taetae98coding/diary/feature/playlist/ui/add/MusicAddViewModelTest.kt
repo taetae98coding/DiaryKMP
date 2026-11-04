@@ -3,20 +3,23 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
+import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
+import io.github.taetae98coding.diary.core.testing.playlist.youtubeVideo
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
 import io.github.taetae98coding.diary.domain.playlist.usecase.AddMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FetchYoutubeVideoUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -50,8 +53,8 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("TC-ec339b8e-d5e1-41a0-9f64-bb21cdb4675a 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val firstDetail = fixtureMonkey.giveMeOne<MusicDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val firstDetail = Arb.musicDetail().next()
+                val secondDetail = Arb.musicDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
@@ -69,7 +72,7 @@ class MusicAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(firstDetail) }
                 coVerify(exactly = 0) { useCase(secondDetail) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.add(secondDetail)
@@ -81,9 +84,9 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("TC-4e3078a1-33db-496b-acbe-4605d36cde4f 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val detail = Arb.musicDetail().next()
                 val useCase = mockk<AddMusicUseCase>()
-                coEvery { useCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(any()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.effect.test {
@@ -105,7 +108,7 @@ class MusicAddViewModelTest : FunSpec() {
         ).forEach { (throwable, expected) ->
             test("TC-054310e3-a1cf-42f4-8119-3c37ef3f751e 성립하지 않는 입력으로 추가하면 ${expected::class.simpleName} Effect를 보내고 진행 상태를 해제한다") {
                 runTest(mainDispatcher) {
-                    val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+                    val detail = Arb.musicDetail().next()
                     val useCase = mockk<AddMusicUseCase>()
                     coEvery { useCase(any()) } returns Result.failure(throwable)
                     val viewModel = viewModel(addMusicUseCase = useCase)
@@ -126,7 +129,7 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("TC-5b5aa3a7-7e8a-4654-b8cd-51779e37bbc2 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val detail = MusicDetail(title = "title-${fixtureMonkey.giveMeOne<String>()}", artist = "artist-${fixtureMonkey.giveMeOne<String>()}", link = YOUTUBE_LINK)
+                val detail = MusicDetail(title = "title-${Arb.string().next()}", artist = "artist-${Arb.string().next()}", link = YOUTUBE_LINK)
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(addMusicUseCase = useCase)
@@ -151,7 +154,7 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("TC-d238d5f0-3c05-415c-9fe4-b902861ca981 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val detail = Arb.musicDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
@@ -163,7 +166,7 @@ class MusicAddViewModelTest : FunSpec() {
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
@@ -173,12 +176,12 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val firstDetail = fixtureMonkey.giveMeOne<MusicDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val firstDetail = Arb.musicDetail().next()
+                val secondDetail = Arb.musicDetail().next()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(firstDetail) } throws CancellationException()
                 coEvery { useCase(secondDetail) } returns
-                    Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                    Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.add(firstDetail)
@@ -197,7 +200,7 @@ class MusicAddViewModelTest : FunSpec() {
 
         test("TC-a4483895-1bff-43b1-98af-3787cc0ca408 불러오기에 성공하면 영상 제목과 채널 이름을 담은 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
+                val video = Arb.youtubeVideo().next()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { useCase(YOUTUBE_LINK) } returns Result.success(video)
                 val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
@@ -273,7 +276,7 @@ class MusicAddViewModelTest : FunSpec() {
                 viewModel.uiState.value.isLinkFetchInProgress
                     .shouldBeTrue()
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                completion.complete(Result.success(Arb.youtubeVideo().next()))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isLinkFetchInProgress
@@ -296,7 +299,7 @@ class MusicAddViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { useCase(YOUTUBE_LINK) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                completion.complete(Result.success(Arb.youtubeVideo().next()))
                 advanceUntilIdle()
 
                 viewModel.fetchLink(YOUTUBE_LINK)
@@ -312,7 +315,7 @@ class MusicAddViewModelTest : FunSpec() {
                 val fetchUseCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { fetchUseCase(any()) } coAnswers { fetchCompletion.await() }
                 val addUseCase = mockk<AddMusicUseCase>()
-                coEvery { addUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { addUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel =
                     viewModel(
                         addMusicUseCase = addUseCase,
@@ -323,12 +326,12 @@ class MusicAddViewModelTest : FunSpec() {
                     viewModel.fetchLink(YOUTUBE_LINK)
                     runCurrent()
 
-                    viewModel.add(fixtureMonkey.giveMeOne<MusicDetail>())
+                    viewModel.add(Arb.musicDetail().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MusicAddEffect.AddSucceeded
 
-                    fetchCompletion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                    fetchCompletion.complete(Result.success(Arb.youtubeVideo().next()))
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -338,9 +341,6 @@ class MusicAddViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             addMusicUseCase: AddMusicUseCase = mockk(relaxed = true),
             fetchYoutubeVideoUseCase: FetchYoutubeVideoUseCase = mockk(relaxed = true),

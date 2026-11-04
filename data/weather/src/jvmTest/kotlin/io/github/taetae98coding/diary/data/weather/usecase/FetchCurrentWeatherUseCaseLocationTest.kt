@@ -1,17 +1,21 @@
 package io.github.taetae98coding.diary.data.weather.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
+import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
+import io.github.taetae98coding.diary.core.testing.location.location
+import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -22,14 +26,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchCurrentWeatherUseCaseLocationTest :
     BehaviorSpec({
         Given("디바이스 위치와 공인 IP 기준 위치가 서로 다른 위도와 경도로 확인된다") {
-            val deviceLocation = fixtureMonkey.giveMeOne<Location>()
-            val ipRemoteDataSource = ipRemoteDataSource(location = fixtureMonkey.giveMeOne())
+            val deviceLocation = Arb.location().next()
+            val ipRemoteDataSource = ipRemoteDataSource(location = Arb.ipRemoteEntity().next())
             val weatherRemoteDataSource = weatherRemoteDataSource()
             val useCase =
                 useCase(
@@ -55,7 +56,7 @@ class FetchCurrentWeatherUseCaseLocationTest :
         }
 
         Given("디바이스에서 위치를 확인하지 못하고 공인 IP 기준 위치는 확인된다") {
-            val ipLocation = fixtureMonkey.giveMeOne<IpRemoteEntity>()
+            val ipLocation = Arb.ipRemoteEntity().next()
             val weatherRemoteDataSource = weatherRemoteDataSource()
             val useCase =
                 useCase(
@@ -88,7 +89,7 @@ private fun useCase(
     val locationProvider = mockk<LocationProvider>()
     coEvery { locationProvider.getCurrentLocation() } returns deviceLocation
     val clock = mockk<Clock>()
-    every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+    every { clock.now() } returns Arb.secondPrecisionInstant().next()
 
     return koinApplication<WeatherDataTestKoinApplication> {
         modules(
@@ -111,6 +112,6 @@ private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
         coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
-        coEvery { dataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.getCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
+        coEvery { dataSource.getForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
     }

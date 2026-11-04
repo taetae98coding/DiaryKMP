@@ -6,14 +6,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.file.upload.R
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,8 +23,6 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko")
@@ -44,7 +43,7 @@ class AndroidFileUploadNotifierTest {
             null to (0 to true),
             40 to (40 to false),
         ).forEach { (percent, expected) ->
-            val name = "보고서-${fixtureMonkey.giveMeOne<Int>()}.pdf"
+            val name = "보고서-${Arb.int().next()}.pdf"
 
             val notification = notifier.createForegroundInfo(name = name, percent = percent).notification
 
@@ -61,10 +60,10 @@ class AndroidFileUploadNotifierTest {
 
     @Test
     fun `TC-f27003e1-5af1-458e-8752-01093aba51f6 결과마다 정한 제목과 본문의 결과 알림을 보낸다`() {
-        val name = "보고서-${fixtureMonkey.giveMeOne<Int>()}.pdf"
+        val name = "보고서-${Arb.int().next()}.pdf"
 
         mapOf(
-            FileUploadResult.Succeeded(name = name, fileId = fixtureMonkey.giveMeOne<Uuid>()) to (SUCCEEDED_TITLE to name),
+            FileUploadResult.Succeeded(name = name, fileId = Arb.kotlinUuid().next()) to (SUCCEEDED_TITLE to name),
             FileUploadResult.TooLarge to (FAILED_TITLE to "50MB 이하 파일만 올릴 수 있습니다."),
             FileUploadResult.Failed(name = name) to (FAILED_TITLE to name),
         ).forEach { (result, expected) ->
@@ -79,10 +78,10 @@ class AndroidFileUploadNotifierTest {
 
     @Test
     fun `TC-bb99870b-2ef0-4cab-be21-3d4fc2a8f0ce 앞선 결과 알림이 남아 있을 때 다른 결과를 알리면 새 결과 하나만 남는다`() {
-        val name = "memo-${fixtureMonkey.giveMeOne<Int>()}.txt"
+        val name = "memo-${Arb.int().next()}.txt"
 
         notifier.notifyResult(result = FileUploadResult.Failed(name = fileName()))
-        notifier.notifyResult(result = FileUploadResult.Succeeded(name = name, fileId = fixtureMonkey.giveMeOne<Uuid>()))
+        notifier.notifyResult(result = FileUploadResult.Succeeded(name = name, fileId = Arb.kotlinUuid().next()))
 
         val posted = shadowOf(notificationManager()).allNotifications
         posted.size shouldBe 1
@@ -176,4 +175,4 @@ class AndroidFileUploadNotifierTest {
     }
 }
 
-private fun fileName(): String = "file-${fixtureMonkey.giveMeOne<Int>()}.txt"
+private fun fileName(): String = "file-${Arb.int().next()}.txt"

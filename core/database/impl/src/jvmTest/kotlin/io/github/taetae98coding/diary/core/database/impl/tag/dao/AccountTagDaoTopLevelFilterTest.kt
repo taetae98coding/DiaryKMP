@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.tag.dao
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -14,12 +11,18 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
@@ -91,7 +94,7 @@ class AccountTagDaoTopLevelFilterTest :
                 .pagedTagIdList()
 
         test("TC-321a76c1-8636-4002-8189-9ae57cc584b2 TC-b41116c2-09b1-4d5d-8353-de691a6ed597 향해 오는 연결이 없는 태그만 최상위 태그로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val isolatedTag = tag(title = "alpha")
             val toOnlyTag = tag(title = "bravo")
             val fromOnlyTag = tag(title = "charlie")
@@ -104,7 +107,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("저장되지 않은 태그에서 온 연결은 향해 오는 연결로 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -114,7 +117,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-17e2318b-3b0f-4997-aa2c-2e87714b8dcf 여러 단계로 이어지는 연결의 중간 태그는 최상위 태그가 아니다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag(title = "alpha")
             val middleTag = tag(title = "bravo")
             val leafTag = tag(title = "charlie")
@@ -126,7 +129,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-5ce6767d-2335-4ed7-89c3-ae0767df7417 모든 태그가 순환에 속하면 최상위 태그가 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "alpha")
             val secondTag = tag(title = "bravo")
             val thirdTag = tag(title = "charlie")
@@ -139,7 +142,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-5bba61ce-d9e1-4426-baaf-0eb1cb017616 최상위 태그로 좁혀도 완료되거나 삭제된 태그는 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val activeTag = tag(title = "alpha")
             val finishedTag = tag(title = "bravo").copy(isFinished = true)
             val deletedTag = tag(title = "charlie").copy(isDeleted = true)
@@ -149,7 +152,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-d99924f1-d849-49dc-81a2-f75fbf93edaa 최상위 태그도 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val charlieTag = tag(title = "charlie")
             val alphaTag = tag(title = "alpha")
             val bravoTag = tag(title = "bravo")
@@ -161,7 +164,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-48e9d359-c512-44f7-b05c-bde5269455d9 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -190,7 +193,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-e3064fa3-62ac-4af6-8e20-6dc87bcb0f36 해제한 연결은 향해 오는 연결로 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -202,7 +205,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-7b5b43cb-6795-4605-adc2-7defb5d21740 출발 태그의 상태에 따라 향해 오는 연결을 세는 기준이 달라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -219,7 +222,7 @@ class AccountTagDaoTopLevelFilterTest :
             AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(fromTag),
-                cursor = fixtureMonkey.giveMeOne<Long>(),
+                cursor = Arb.long().next(),
             )
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
 
@@ -231,8 +234,8 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-8ce1096e-0041-4ec1-86ea-d67f9f468e96 계정과 연결되지 않은 출발 태그의 연결은 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val toTag = tag(title = "alpha")
             val otherAccountTag = tag(title = "bravo")
             insertTag(accountId, toTag)
@@ -243,16 +246,16 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-f9af899e-be35-4360-8dc2-3e592855d951 기기에 없는 태그에서 오는 연결은 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val toTag = tag(title = "alpha")
             insertTag(accountId, toTag)
-            link(accountId = accountId, fromTagId = fixtureMonkey.giveMeOne<Uuid>(), toTagId = toTag.id)
+            link(accountId = accountId, fromTagId = Arb.kotlinUuid().next(), toTagId = toTag.id)
 
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
         }
 
         test("TC-bc6352ed-7bcb-4f79-bab0-4f2a496268f3 필터 선택을 켜 두어도 검색, 메모·태그 연결·웹 항목·장소의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -268,7 +271,7 @@ class AccountTagDaoTopLevelFilterTest :
                 .pagedTagIdList() shouldBe listOf(toTag.id)
             database
                 .accountMemoTagDao()
-                .pageSelectableTag(accountId = accountId, memoId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pageSelectableTag(accountId = accountId, memoId = Arb.kotlinUuid().next(), query = "")
                 .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountTagLinkDao()
@@ -276,11 +279,11 @@ class AccountTagDaoTopLevelFilterTest :
                 .pagedTagIdList() shouldBe listOf(toTag.id)
             database
                 .accountWebTagDao()
-                .pageSelectableTag(accountId = accountId, webId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pageSelectableTag(accountId = accountId, webId = Arb.kotlinUuid().next(), query = "")
                 .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountPlaceTagDao()
-                .pageSelectableTag(accountId = accountId, placeId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pageSelectableTag(accountId = accountId, placeId = Arb.kotlinUuid().next(), query = "")
                 .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountTagDao()
@@ -290,7 +293,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("TC-063bad17-d264-4953-9120-99bebeac8c6f 최상위 태그 필터를 켜 두어도 완료된 태그 목록은 좁혀지지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha").copy(isFinished = true)
             val toTag = tag(title = "bravo").copy(isFinished = true)
             insertTag(accountId, fromTag, toTag)
@@ -306,8 +309,8 @@ class AccountTagDaoTopLevelFilterTest :
         }
 
         test("다른 계정의 연결은 최상위 태그 판정에 쓰지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
             insertTag(accountId, fromTag, toTag)
@@ -321,25 +324,24 @@ class AccountTagDaoTopLevelFilterTest :
     public companion object {
         private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private suspend fun PagingSource<Int, TagLocalEntity>.pagedTagIdList(): List<Uuid> =
             load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
                 .data
                 .map { tag -> tag.id }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun tag(title: String): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>().copy(title = title))
-                .setExp(TagLocalEntity::isFinished, false)
-                .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    detail = Arb.tagDetailLocalEntity().next().copy(title = title),
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
     }
 }

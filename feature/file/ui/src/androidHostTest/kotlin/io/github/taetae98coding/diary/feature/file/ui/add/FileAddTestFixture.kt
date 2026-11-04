@@ -7,14 +7,13 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
@@ -23,16 +22,14 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseC
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
 import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-
-internal val fileAddFixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal const val FILE_ADD_TITLE = "파일 추가"
 internal const val UPLOAD_BUTTON_DESCRIPTION = "파일 올리기"
@@ -54,7 +51,7 @@ private const val DESCRIPTION_INPUT_INDEX = 1
 // 올리기의 상태와 결과는 mock이 돌려주는 흐름으로, 요청이 받아들여진 뒤의 상태는 요청 stub의 응답으로 제어한다.
 internal class FileAddMocks {
     val state = MutableStateFlow<FileUploadState>(FileUploadState.Idle)
-    val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fileAddFixtureMonkey.giveMeOne<Account.User>()))
+    val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
     private val eventFlow = MutableSharedFlow<FileUploadEvent>(extraBufferCapacity = 16)
     private val sourceMap = mutableMapOf<FileUri, Result<FileUploadSource>>()
     val requestList = mutableListOf<RequestFileUploadUseCase.Parameter>()

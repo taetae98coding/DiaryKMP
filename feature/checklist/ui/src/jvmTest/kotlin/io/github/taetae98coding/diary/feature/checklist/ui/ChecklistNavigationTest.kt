@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.checklist.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistNavigationTest :
     FunSpec({
@@ -21,8 +19,8 @@ class ChecklistNavigationTest :
                 listOf(
                     emptyList(),
                     listOf(ChecklistAddNavKey),
-                    listOf(ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ChecklistAddNavKey),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -35,8 +33,8 @@ class ChecklistNavigationTest :
         }
 
         test("TC-014ccf10-5678-4853-8d88-56bb988f6334 체크리스트 상세가 놓여 있으면 새 체크리스트의 상세로 교체한다") {
-            val first = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-            val second = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val first = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
+            val second = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = checklistBackStack(detailKeyList = listOf(first))
 
             backStack.navigateToChecklistDetail(id = second.id)
@@ -48,11 +46,11 @@ class ChecklistNavigationTest :
             val detailCases =
                 listOf(
                     listOf(ChecklistAddNavKey),
-                    listOf(ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ChecklistAddNavKey),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
-                val selected = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val selected = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
                 val backStack = checklistBackStack(detailKeyList = detailKeyList)
 
                 backStack.navigateToChecklistDetail(id = selected.id)
@@ -62,7 +60,7 @@ class ChecklistNavigationTest :
         }
 
         test("상세 영역에 체크리스트 상세가 없으면 목록에서 선택한 체크리스트 상세를 이어서 놓는다") {
-            val detail = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = checklistBackStack(detailKeyList = emptyList())
 
             backStack.navigateToChecklistDetail(id = detail.id)

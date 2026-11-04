@@ -29,19 +29,21 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistTitleBlankException
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
 import io.github.taetae98coding.diary.feature.checklist.ui.actionNameList
-import io.github.taetae98coding.diary.feature.checklist.ui.checklistTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.checklist.ui.editableText
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.checklist.ui.visibleTextList
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -202,7 +204,7 @@ class ChecklistAddScreenTest {
     @Config(qualifiers = "ko")
     fun `TC-bc713440-0005-43de-9923-2097f1f33358 추가에 성공하면 화면에 머문 채 입력과 넣어 둔 항목을 비우고 성공 피드백을 제공한다`() {
         val useCase = mockk<AddChecklistUseCase>()
-        coEvery { useCase(parameter = any()) } returns Result.success(checklistTestFixtureMonkey.giveMeOne<Uuid>())
+        coEvery { useCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
         var navigateUpCount = 0
         setScreen(viewModel = ChecklistAddViewModel(addChecklistUseCase = useCase), navigateUp = { navigateUpCount += 1 })
         fillInput()
@@ -242,7 +244,7 @@ class ChecklistAddScreenTest {
         val useCase = mockk<AddChecklistUseCase>()
         coEvery { useCase(parameter = any()) } coAnswers {
             gate.await()
-            Result.success(checklistTestFixtureMonkey.giveMeOne<Uuid>())
+            Result.success(Arb.kotlinUuid().next())
         }
         setScreen(viewModel = ChecklistAddViewModel(addChecklistUseCase = useCase))
         titleInput().performTextInput(TRIP)
@@ -258,7 +260,7 @@ class ChecklistAddScreenTest {
     @Test
     fun `TC-fb408e72-941f-425f-91a2-d88d18702f7f 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
         val useCase = mockk<AddChecklistUseCase>()
-        coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(checklistTestFixtureMonkey.giveMeOne<String>()))
+        coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         setScreen(viewModel = ChecklistAddViewModel(addChecklistUseCase = useCase))
         fillInput()
 

@@ -8,12 +8,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import com.google.firebase.messaging.RemoteMessage
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,8 +23,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -42,9 +41,9 @@ class FcmMessagingServiceTest {
     fun `TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3 알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
         // 빈 문자열이면 본문이 없는 알림이 되어 다른 경로를 타므로 접두사로 비어 있지 않음을 보장한다.
         val title = title()
-        val body = "- ${fixtureMonkey.giveMeOne<String>()}\n- ${fixtureMonkey.giveMeOne<String>()}"
-        val channelId = "channel${fixtureMonkey.giveMeOne<Int>()}"
-        val tag = "tag${fixtureMonkey.giveMeOne<Int>()}"
+        val body = "- ${Arb.string().next()}\n- ${Arb.string().next()}"
+        val channelId = "channel${Arb.int().next()}"
+        val tag = "tag${Arb.int().next()}"
 
         service.onMessageReceived(remoteMessage(title = title, body = body, channelId = channelId, tag = tag))
 
@@ -108,7 +107,7 @@ class FcmMessagingServiceTest {
             },
         )
 
-    private fun title(): String = "title${fixtureMonkey.giveMeOne<String>()}"
+    private fun title(): String = "title${Arb.string().next()}"
 
     // 라이브러리 모듈의 테스트 매니페스트에는 런처 진입점이 없으므로, 앱이 가진 런처 진입점을 테스트 환경에 만들어 준다.
     private fun addLauncherActivity() {

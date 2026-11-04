@@ -4,17 +4,21 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.spyk
@@ -62,7 +66,7 @@ class AccountPlaceTransactionImplTest :
             }
 
         test("TC-71726817-3873-40c5-8081-8856b2290f1c 장소와 현재 계정의 연결을 함께 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
 
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
@@ -79,7 +83,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             val pending = listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
 
@@ -100,18 +104,18 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-064634f6-5b7f-472c-86b4-753a09051180 TC-5a548f34-e80b-480e-a5d6-4d14e63aea09 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val now = instant()
             val place =
                 place().copy(
                     detail =
                         PlaceDetailLocalEntity(
-                            title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                            description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                            color = fixtureMonkey.giveMeOne<Long>(),
+                            title = "title-${Arb.string().next()}",
+                            description = "description-${Arb.string().next()}",
+                            color = Arb.long().next(),
                             latitude = 37.5,
                             longitude = 127.0,
-                            address = "address-${fixtureMonkey.giveMeOne<String>()}",
+                            address = "address-${Arb.string().next()}",
                         ),
                     isDeleted = false,
                     updatedAt = now,
@@ -124,7 +128,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("같은 식별자의 장소를 다시 저장하면 덮어쓴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val changedPlace = place.copy(detail = placeDetail())
 
@@ -143,7 +147,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("서로 다른 식별자의 장소는 각각 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val placeList = List(3) { place() }.sortedBy { place -> place.id.toString() }
 
             placeList.forEach { place ->
@@ -154,7 +158,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-cef7c2d0-5c96-4770-98e7-0b394dce8b7c 수정은 제목, 설명, 컬러, 좌표와 수정 시각만 바꾼다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             val newDetail = placeDetail()
             val updatedAt = instant()
@@ -187,7 +191,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-dbdf8a25-1a6d-46a1-82d9-12a47a841bb1 삭제 상태가 된 장소를 수정해도 삭제 상태로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = true)
             val newDetail = placeDetail()
             val updatedAt = instant()
@@ -213,7 +217,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-76611214-e640-4cba-a148-fcff540c273f 삭제는 삭제 여부와 수정 시각만 바꾼다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             val updatedAt = instant()
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
@@ -237,8 +241,8 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-31a0031d-a93b-4967-83b6-3c4c11abcdad 삭제는 저장된 주소를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val address = "address-${fixtureMonkey.giveMeOne<String>()}"
+            val accountId = Arb.kotlinUuid().next()
+            val address = "address-${Arb.string().next()}"
             val place = place().copy(isDeleted = false)
             val storedPlace = place.copy(detail = place.detail.copy(address = address))
             transaction.upsert(accountId = accountId, placeList = listOf(storedPlace), placeTagList = emptyList())
@@ -254,7 +258,7 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제해도 장소와 계정 연결을 저장소에서 제거하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
@@ -277,8 +281,8 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("다른 계정의 장소는 수정하거나 삭제하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
@@ -303,21 +307,21 @@ class AccountPlaceTransactionImplTest :
         }
 
         test("저장되지 않은 식별자를 수정하거나 삭제하면 아무것도 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
             val updateCount =
                 transaction.updateDetail(
                     accountId = accountId,
-                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                    placeId = Arb.kotlinUuid().next(),
                     detail = placeDetail(),
                     updatedAt = instant(),
                 )
             val deleteCount =
                 transaction.updateDeleted(
                     accountId = accountId,
-                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                    placeId = Arb.kotlinUuid().next(),
                     isDeleted = true,
                     updatedAt = instant(),
                 )
@@ -349,12 +353,12 @@ class AccountPlaceTransactionImplTest :
                 )
 
             actionList.forEach { action ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val place = place().copy(isDeleted = false)
                 transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
                 val beforePlaceList = findPlaceList()
                 val beforeAccountPlaceList = findAccountPlaceList()
-                val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                val throwable = IllegalStateException(Arb.string().next())
                 val failingDao = spyk(database.accountPlaceDao())
                 coEvery { failingDao.markPending(accountId = any(), placeId = any()) } throws throwable
                 val failingDatabase = spyk(database)
@@ -371,25 +375,26 @@ class AccountPlaceTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun place(): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::detail, placeDetail())
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    detail = placeDetail(),
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun placeDetail(): PlaceDetailLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceDetailLocalEntity>()
-                .setExp(PlaceDetailLocalEntity::latitude, fixtureMonkey.giveMeOne<Long>() % 90 + 0.5)
-                .setExp(PlaceDetailLocalEntity::longitude, fixtureMonkey.giveMeOne<Long>() % 180 + 0.5)
-                .sample()
+            Arb
+                .placeDetailLocalEntity()
+                .next()
+                .copy(
+                    latitude = Arb.long().next() % 90 + 0.5,
+                    longitude = Arb.long().next() % 180 + 0.5,
+                )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

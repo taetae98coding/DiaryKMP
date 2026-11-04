@@ -1,18 +1,19 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class PlaceDetailMapperTest :
     FunSpec({
         test("domain to local") {
-            val domain = fixtureMonkey.giveMeOne<PlaceDetail>()
+            val domain = Arb.placeDetail().next()
 
             domain.toLocal() shouldBe
                 PlaceDetailLocalEntity(
@@ -26,7 +27,7 @@ class PlaceDetailMapperTest :
         }
 
         test("local to domain") {
-            val local = fixtureMonkey.giveMeOne<PlaceDetailLocalEntity>()
+            val local = Arb.placeDetailLocalEntity().next()
 
             local.toDomain() shouldBe
                 PlaceDetail(
@@ -43,17 +44,14 @@ class PlaceDetailMapperTest :
         }
 
         test("domain to local to domain") {
-            val domain = fixtureMonkey.giveMeOne<PlaceDetail>()
+            val domain = Arb.placeDetail().next()
 
             domain.toLocal().toDomain() shouldBe domain
         }
 
         test("local to domain to local") {
-            val local = fixtureMonkey.giveMeOne<PlaceDetailLocalEntity>()
+            val local = Arb.placeDetailLocalEntity().next()
 
             local.toDomain().toLocal() shouldBe local
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

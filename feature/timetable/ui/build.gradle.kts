@@ -21,17 +21,16 @@ kotlin {
             }
         }
 
-        androidHostTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
-                implementation(projects.feature.calendar.api)
-                implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
         }
 
-        jvmTest {
+        androidHostTest {
             dependencies {
-                implementation(projects.core.testing)
+                implementation(projects.feature.calendar.api)
+                implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
         }
     }

@@ -1,22 +1,19 @@
 package io.github.taetae98coding.diary.compose.credential.google
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.coroutines.cancellation.CancellationException
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GoogleAuthorizationCodeTest :
     FunSpec({
         test("TC-53bacbe8-7629-4e72-9f61-53a1e7468bdb 인가 코드가 있으면 인증 결과의 인가 코드가 된다") {
-            val code = fixtureMonkey.nonBlankString()
+            val code = Arb.nonBlankString().next()
 
             googleAuthorizationCodeOrThrow(code = code, error = "") shouldBe code
         }

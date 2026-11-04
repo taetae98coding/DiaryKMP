@@ -3,16 +3,16 @@
 package io.github.taetae98coding.diary.feature.account.ui.profileimage
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.domain.account.usecase.ChangeProfileImageUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -135,10 +135,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun fileUri(): FileUri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}")
+        private fun fileUri(): FileUri = FileUri("content://photo/${Arb.string().next()}")
 
         private fun cropRegion(): ImageCropRegion = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
     }

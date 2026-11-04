@@ -4,21 +4,24 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.testing.qr.localQr
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.qr.qrDetailLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -80,8 +83,8 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-58922c74-a4b9-435e-8f72-35840001e716 TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 삭제되지 않은 계정의 QR만 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
             val deletedQr = qr().copy(isDeleted = true)
@@ -93,7 +96,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 설명과 QR 값은 정렬 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE, description = LAST_QR_TITLE, value = LAST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE, description = FIRST_QR_TITLE, value = FIRST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
@@ -102,7 +105,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-f3bfbe99-77ba-4923-97da-2d7929d95dbf 수정 시각은 정렬 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val lastQr = qr(title = LAST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
@@ -111,16 +114,16 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-58922c74-a4b9-435e-8f72-35840001e716 다른 계정의 QR만 저장되어 있으면 빈 목록으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(qr()))
 
             pagedQrs(accountId).shouldBeEmpty()
         }
 
         test("TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val qrList = List(3) { index -> qr(title = "$index-${fixtureMonkey.giveMeOne<String>()}") }
+            val accountId = Arb.kotlinUuid().next()
+            val qrList = List(3) { index -> qr(title = "$index-${Arb.string().next()}") }
             qrTransaction.upsert(accountId = accountId, qrList = qrList)
 
             val pagingSource = dataSource.page(accountId = accountId)
@@ -138,9 +141,9 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 저장된 QR의 변화가 페이지 조회에 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val qr = qr()
-            val renamedQr = qr.copy(detail = qr.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
+            val renamedQr = qr.copy(detail = qr.detail.copy(title = "renamed-${Arb.string().next()}"))
 
             pagedQrs(accountId).shouldBeEmpty()
             assertPageInvalidated(accountId = accountId, expected = listOf(qr)) {
@@ -155,7 +158,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 노출 기준을 만족하는 QR을 추가하면 제목 순서에 맞는 자리에 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
@@ -167,7 +170,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR이 삭제 상태로 바뀌면 목록에서 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
@@ -179,7 +182,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 서버에서 내려받은 QR은 노출 기준과 정렬 기준에 따라 목록에 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
@@ -192,7 +195,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 실행 취소한 QR은 제목 오름차순에 맞는 자리로 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
@@ -207,7 +210,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
@@ -221,12 +224,12 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-8e1ef43a-8018-433d-8b17-64e019d8c784 목록에 있는 QR의 QR 값이 수정되면 같은 자리에서 바뀐 QR 값으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
-            val detail = middleQr.detail.copy(value = "changed-${fixtureMonkey.giveMeOne<String>()}")
+            val detail = middleQr.detail.copy(value = "changed-${Arb.string().next()}")
             val updatedAt = instant()
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, middleQr.copy(detail = detail, updatedAt = updatedAt), lastQr)) {
@@ -235,7 +238,7 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val qr = qr().copy(isDeleted = true)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
 
@@ -243,18 +246,18 @@ class AccountQrLocalDataSourceImplTest :
         }
 
         test("현재 계정과 연결되지 않은 QR은 찾지 못한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val qr = qr()
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
 
-            dataSource.find(accountId = fixtureMonkey.giveMeOne<Uuid>(), qrId = qr.id).first().shouldBeNull()
+            dataSource.find(accountId = Arb.kotlinUuid().next(), qrId = qr.id).first().shouldBeNull()
         }
 
         test("TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 찾은 QR은 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val qr = qr()
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
-            val detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>()
+            val detail = Arb.qrDetailLocalEntity().next()
             val updatedAt = instant()
 
             dataSource.find(accountId = accountId, qrId = qr.id).test {
@@ -272,18 +275,16 @@ class AccountQrLocalDataSourceImplTest :
         private const val LAST_QR_TITLE = "ZebraQr"
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun qr(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            description: String = fixtureMonkey.giveMeOne<String>(),
-            value: String = "value-${fixtureMonkey.giveMeOne<String>()}",
+            title: String = "title-${Arb.string().next()}",
+            description: String = Arb.string().next(),
+            value: String = "value-${Arb.string().next()}",
         ): QrLocalEntity =
-            fixtureMonkey
+            Arb
                 .localQr(isDeleted = false)
+                .next()
                 .copy(detail = QrDetailLocalEntity(title = title, description = description, value = value))
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

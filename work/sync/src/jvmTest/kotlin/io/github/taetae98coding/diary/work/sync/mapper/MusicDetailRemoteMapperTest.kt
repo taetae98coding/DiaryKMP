@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.music.entity.MusicDetailRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.music.musicDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.music.musicDetailRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class MusicDetailRemoteMapperTest :
     FunSpec({
         test("local to remote") {
-            val local = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>()
+            val local = Arb.musicDetailLocalEntity().next()
 
             local.toRemote() shouldBe
                 MusicDetailRemoteEntity(
@@ -23,7 +24,7 @@ class MusicDetailRemoteMapperTest :
         }
 
         test("remote to local") {
-            val remote = fixtureMonkey.giveMeOne<MusicDetailRemoteEntity>()
+            val remote = Arb.musicDetailRemoteEntity().next()
 
             remote.toLocal() shouldBe
                 MusicDetailLocalEntity(
@@ -35,11 +36,8 @@ class MusicDetailRemoteMapperTest :
         }
 
         test("local to remote to local") {
-            val local = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>()
+            val local = Arb.musicDetailLocalEntity().next()
 
             local.toRemote().toLocal() shouldBe local
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

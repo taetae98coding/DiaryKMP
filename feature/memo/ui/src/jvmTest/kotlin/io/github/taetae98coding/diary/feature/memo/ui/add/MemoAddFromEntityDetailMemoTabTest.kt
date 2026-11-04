@@ -2,14 +2,14 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
@@ -22,12 +22,16 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -68,8 +72,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     private fun placeTests() {
         test("TC-6f59b96e-2d9e-4fa9-bd81-5feb25bd6bf1 대상 장소를 장소 카드에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.place(isDeleted = false)
-                val other = fixtureMonkey.place(isDeleted = false)
+                val target = Arb.place(isDeleted = false).next()
+                val other = Arb.place(isDeleted = false).next()
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialPlaceId = target.id), placeList = listOf(target, other))
                 memoAdd.collect(this)
                 advanceUntilIdle()
@@ -94,9 +98,9 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-606725ba-03de-4e63-9ef2-d6c0299ecc9d 삭제된 대상 장소는 장소 카드에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val deletedTarget = fixtureMonkey.place(isDeleted = false)
+                val deletedTarget = Arb.place(isDeleted = false).next()
                 // 삭제된 장소는 선택한 장소로 조회되지 않는다.
-                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialPlaceId = deletedTarget.id), placeList = listOf(fixtureMonkey.place(isDeleted = false)))
+                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialPlaceId = deletedTarget.id), placeList = listOf(Arb.place(isDeleted = false).next()))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
@@ -107,7 +111,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-ba1aa217-e2f4-482d-9cba-f4e9d21e82ac 대상 장소 하나만 선택하고 태그·웹·연락처·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.place(isDeleted = false)
+                val target = Arb.place(isDeleted = false).next()
                 val key = MemoAddNavKey(initialPlaceId = target.id)
                 val memoAdd = MemoAddSelection(key = key, placeList = listOf(target))
                 memoAdd.collect(this)
@@ -120,8 +124,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-4b6e31e6-fadd-47fe-984d-407ffbf38b3b 저장 시점의 장소 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
-                val placeA = fixtureMonkey.place(isDeleted = false)
-                val placeB = fixtureMonkey.place(isDeleted = false)
+                val placeA = Arb.place(isDeleted = false).next()
+                val placeB = Arb.place(isDeleted = false).next()
                 val finalSelectionList = listOf(setOf(placeA.id), setOf(placeA.id, placeB.id), setOf(placeB.id), emptySet())
 
                 finalSelectionList.forEach { finalSelection ->
@@ -141,8 +145,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     private fun webTests() {
         test("TC-fd8a0c6a-7734-4dd3-9442-17b0ae73d9cd 대상 웹 항목을 웹 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.web(isDeleted = false)
-                val other = fixtureMonkey.web(isDeleted = false)
+                val target = Arb.web(isDeleted = false).next()
+                val other = Arb.web(isDeleted = false).next()
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = target.id), webList = listOf(target, other))
                 memoAdd.collect(this)
                 advanceUntilIdle()
@@ -167,8 +171,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-e7c246db-17a7-421a-804a-493958da34b5 삭제된 대상 웹 항목은 웹 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val deletedTarget = fixtureMonkey.web(isDeleted = false)
-                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = deletedTarget.id), webList = listOf(fixtureMonkey.web(isDeleted = false)))
+                val deletedTarget = Arb.web(isDeleted = false).next()
+                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = deletedTarget.id), webList = listOf(Arb.web(isDeleted = false).next()))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
@@ -179,7 +183,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-c39950e3-402c-4129-83de-ca5badd8848a 대상 웹 항목 하나만 선택하고 태그·연락처·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.web(isDeleted = false)
+                val target = Arb.web(isDeleted = false).next()
                 val key = MemoAddNavKey(initialWebId = target.id)
                 val memoAdd = MemoAddSelection(key = key, webList = listOf(target))
                 memoAdd.collect(this)
@@ -192,8 +196,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-cea9cb67-7465-4846-bcac-12652d0c07d0 저장 시점의 웹 항목 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
-                val webA = fixtureMonkey.web(isDeleted = false)
-                val webB = fixtureMonkey.web(isDeleted = false)
+                val webA = Arb.web(isDeleted = false).next()
+                val webB = Arb.web(isDeleted = false).next()
                 val finalSelectionList = listOf(setOf(webA.id), setOf(webA.id, webB.id), setOf(webB.id), emptySet())
 
                 finalSelectionList.forEach { finalSelection ->
@@ -213,8 +217,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     private fun contactTests() {
         test("TC-384dc31a-dc4d-43b0-b285-5ec7354181d1 대상 연락처를 연락처 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
-                val other = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val target = Arb.activeContactListItem().next()
+                val other = Arb.activeContactListItem().next()
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = target.contact.id), contactList = listOf(target, other))
                 memoAdd.collect(this)
                 advanceUntilIdle()
@@ -239,8 +243,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-79af9cba-6ea5-46f8-881d-cdae99eb6031 삭제된 대상 연락처는 연락처 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val deletedTarget = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
-                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = deletedTarget.contact.id), contactList = listOf(fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()))
+                val deletedTarget = Arb.activeContactListItem().next()
+                val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = deletedTarget.contact.id), contactList = listOf(Arb.activeContactListItem().next()))
                 memoAdd.collect(this)
                 advanceUntilIdle()
 
@@ -251,7 +255,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-605f9748-549b-4105-9b20-584023ccf772 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
-                val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val target = Arb.activeContactListItem().next()
                 val key = MemoAddNavKey(initialContactId = target.contact.id)
                 val memoAdd = MemoAddSelection(key = key, contactList = listOf(target))
                 memoAdd.collect(this)
@@ -264,8 +268,8 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
 
         test("TC-f4e12382-db96-4fe5-9c0d-a27cc28cc8f6 저장 시점의 연락처 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
-                val contactA = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
-                val contactB = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false).toListItem()
+                val contactA = Arb.activeContactListItem().next()
+                val contactB = Arb.activeContactListItem().next()
                 val finalSelectionList = listOf(setOf(contactA.contact.id), setOf(contactA.contact.id, contactB.contact.id), setOf(contactB.contact.id), emptySet())
 
                 finalSelectionList.forEach { finalSelection ->
@@ -293,7 +297,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     ) {
         val addMemoUseCase: AddMemoUseCase =
             mockk<AddMemoUseCase>().apply {
-                coEvery { this@apply(any<AddMemoUseCase.Parameter>()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { this@apply(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
             }
 
         val add: MemoAddViewModel = MemoAddViewModel(addMemoUseCase = addMemoUseCase)
@@ -358,7 +362,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
         // MemoAdd 화면의 저장은 각 선택 입력이 보관한 선택을 모아 한 번에 요청한다.
         fun save() {
             add.add(
-                detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                detail = Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}"),
                 tagSelection = tag.selectionUiState.value,
                 webIdSet = web.selectionUiState.value.webIdSet,
                 contactIdSet = contact.selectionUiState.value.contactIdSet,
@@ -377,9 +381,6 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             listOf(place.selectionUiState.value.placeIdSet, web.selectionUiState.value.webIdSet, contact.selectionUiState.value.contactIdSet).sumOf { idSet -> idSet.size } shouldBe 1
         }
     }
-
-    private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
 }
+
+private fun Arb.Companion.activeContactListItem(): Arb<ContactListItem> = Arb.contact().map { contact -> contact.copy(isDeleted = false).toListItem() }

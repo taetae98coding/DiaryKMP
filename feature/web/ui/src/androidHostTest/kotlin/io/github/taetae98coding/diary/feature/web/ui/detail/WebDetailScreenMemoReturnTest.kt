@@ -13,14 +13,14 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -156,8 +156,6 @@ class WebDetailScreenMemoReturnTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val DEFAULT_TODAY_HEADER = "Today"
 
@@ -166,6 +164,6 @@ class WebDetailScreenMemoReturnTest {
         const val NEW_TIME_ZONE = "Etc/GMT+12"
         const val ENGLISH_DATE_PATTERN = "MMM d, yyyy"
 
-        fun memoTitle(prefix: String): String = "WebMemo$prefix${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+        fun memoTitle(prefix: String): String = "WebMemo$prefix${Arb.string().next().filter(Char::isLetterOrDigit)}"
     }
 }

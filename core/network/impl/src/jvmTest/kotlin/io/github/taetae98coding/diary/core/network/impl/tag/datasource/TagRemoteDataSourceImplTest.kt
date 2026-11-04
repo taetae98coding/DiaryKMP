@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.core.network.impl.tag.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
@@ -10,10 +7,15 @@ import io.github.taetae98coding.diary.core.network.impl.sync.entity.PullRequestR
 import io.github.taetae98coding.diary.core.network.impl.tag.entity.TagPullResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.tag.entity.TagPushRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -35,9 +37,6 @@ import kotlinx.serialization.json.Json
 import kotlin.time.Instant
 
 private const val MAX_TEST_EPOCH_MILLISECONDS: Long = 4_102_444_800_000
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class TagRemoteDataSourceImplTest :
     FunSpec({
@@ -71,12 +70,12 @@ class TagRemoteDataSourceImplTest :
         }
 
         test("TC-c368908b-b191-4ceb-9b5d-e82025cf6da8 태그의 최신 전체 상태와 서버 변경 순번을 응답한다") {
-            val usn = fixtureMonkey.giveMeOne<Long>()
+            val usn = Arb.long().next()
             val tagPullList =
                 listOf(
                     TagPullRemoteEntity(
                         tag = tag(),
-                        usn = fixtureMonkey.giveMeOne<Long>(),
+                        usn = Arb.long().next(),
                     ),
                 )
             val requestSlot = slot<PullRequestRemoteEntity>()
@@ -104,7 +103,7 @@ class TagRemoteDataSourceImplTest :
         }
 
         test("태그 pull 함수가 실패하면 오류를 그대로 전달한다") {
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
                 supabaseFunction(
@@ -117,21 +116,23 @@ class TagRemoteDataSourceImplTest :
             val dataSource = TagRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
 
             shouldThrow<TestException> {
-                dataSource.pull(usn = fixtureMonkey.giveMeOne<Long>())
+                dataSource.pull(usn = Arb.long().next())
             }
         }
     }) {
     public companion object {
         private fun tag(): TagRemoteEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagRemoteEntity>()
-                .setExp(TagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagRemoteEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun instant(): Instant =
             Instant.fromEpochMilliseconds(
-                fixtureMonkey.giveMeOne<Long>() % MAX_TEST_EPOCH_MILLISECONDS,
+                Arb.long().next() % MAX_TEST_EPOCH_MILLISECONDS,
             )
 
         private suspend fun httpResponse(

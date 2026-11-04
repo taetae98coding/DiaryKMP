@@ -26,8 +26,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
@@ -40,9 +38,11 @@ import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_ME
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SEARCH_HOME_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SEARCH_HOME_TAG_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SEARCH_HOME_WEB_LIST_TEST_TAG
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
@@ -50,8 +50,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -304,7 +302,7 @@ class SearchHomeScreenTest {
     @Test
     fun `TC-5ba18e02-61f0-43c9-9907-aab1af80dc42 질의를 고쳤다가 반영되기 전에 원래 검색어로 되돌리면 보던 자리를 유지한다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
-        val extraText = "추가-${fixtureMonkey.giveMeOne<String>()}"
+        val extraText = "추가-${Arb.string().next()}"
 
         composeRule.setSearchHomeScreen(memoList = memoList)
         inputQuery()
@@ -360,7 +358,7 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
 
-        composeRule.onNode(hasSetTextAction()).performTextInput("추가-${fixtureMonkey.giveMeOne<String>()}")
+        composeRule.onNode(hasSetTextAction()).performTextInput("추가-${Arb.string().next()}")
         composeRule.waitForIdle()
         composeRule.onNode(hasSetTextAction()).performTextReplacement(QUERY)
         composeRule.waitForIdle()

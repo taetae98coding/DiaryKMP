@@ -6,23 +6,27 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.place.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -61,7 +65,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-964e27af-7d54-4aa9-8b49-6b1108fc3f7c 보이는 영역이 알려지면 그 영역의 장소 목록을 제공한다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val placeList = placeList(PLACE_COUNT)
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 every { getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)) } returns flowOf(Result.success(placeList))
@@ -82,8 +86,8 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-61830c52-0b85-49ba-bb11-531bd3262895 보이는 영역이 바뀌면 바뀐 영역의 장소 목록으로 갱신한다") {
             runTest(mainDispatcher) {
-                val beforeBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
-                val afterBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val beforeBounds = Arb.coordinateBounds().next()
+                val afterBounds = Arb.coordinateBounds().next()
                 val beforePlaceList = placeList(PLACE_COUNT)
                 val afterPlaceList = placeList(PLACE_COUNT)
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
@@ -111,7 +115,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                 viewModel.placeListFlow().test {
                     awaitItem() shouldBe emptyList()
 
-                    viewModel.updateVisibleBounds(fixtureMonkey.giveMeOne<CoordinateBounds>())
+                    viewModel.updateVisibleBounds(Arb.coordinateBounds().next())
 
                     advanceUntilIdle()
                     expectNoEvents()
@@ -137,7 +141,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-539d7bfe-bc54-4f17-a7f2-9811a78abdd9 조회 결과가 바뀌면 장소 목록을 갱신한다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val beforePlaceList = placeList(PLACE_COUNT)
                 val addedPlace = place()
                 val placeListFlow = MutableStateFlow(Result.success(beforePlaceList))
@@ -165,7 +169,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                 viewModel.placeListUiState.test {
                     awaitItem().isEmpty shouldBe false
 
-                    viewModel.updateVisibleBounds(fixtureMonkey.giveMeOne<CoordinateBounds>())
+                    viewModel.updateVisibleBounds(Arb.coordinateBounds().next())
 
                     val uiState = awaitItem()
                     uiState.placeList.shouldBeEmpty()
@@ -176,7 +180,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-0a79258f-5fd4-4075-a970-23465689b975 새로고침으로 기기에 저장된 장소가 보이는 영역 안에 있으면 목록에 나타난다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val shownPlaceList = placeList(PLACE_COUNT)
                 val receivedPlace = place()
                 val placeListFlow = MutableStateFlow(Result.success(shownPlaceList))
@@ -202,8 +206,8 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-fadd65fd-b49e-4f02-9d8a-1d8f4122be2f 보이는 영역이 바뀌면 앞선 조회를 기다리지 않고 새 영역의 목록으로 갱신한다") {
             runTest(mainDispatcher) {
-                val beforeBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
-                val afterBounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val beforeBounds = Arb.coordinateBounds().next()
+                val afterBounds = Arb.coordinateBounds().next()
                 val beforePlaceList = placeList(PLACE_COUNT)
                 val afterPlaceList = placeList(PLACE_COUNT)
                 val beforePlaceListFlow = MutableStateFlow(Result.success(beforePlaceList))
@@ -231,7 +235,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("보이는 영역이 없어지면 빈 목록으로 되돌린다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val placeList = placeList(PLACE_COUNT)
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
                 every { getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE)) } returns flowOf(Result.success(placeList))
@@ -259,7 +263,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                         placePagingFlow = flowOf(Result.success(PagingData.from(placeList))),
                     )
 
-                viewModel.updateVisibleBounds(fixtureMonkey.giveMeOne<CoordinateBounds>())
+                viewModel.updateVisibleBounds(Arb.coordinateBounds().next())
 
                 flowOf(viewModel.placePagingData.first()).asSnapshot() shouldBe placeList
             }
@@ -275,7 +279,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-bab09598-8421-4424-b1f4-2a18af1b800e 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
                 coEvery { deletePlaceUseCase(parameter = id) } returns Result.success(1)
                 val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
@@ -292,9 +296,9 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-78e6f0b4-f324-41a5-9c0f-8d979f8661d4 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
-                coEvery { deletePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deletePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
 
                 viewModel.effect.test {
@@ -308,7 +312,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-a9ca11c9-6511-4639-8078-b7ed9e907faf 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
                 coEvery { restorePlaceUseCase(parameter = id) } returns Result.success(1)
                 val viewModel = viewModel(restorePlaceUseCase = restorePlaceUseCase)
@@ -322,7 +326,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("같은 장소의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
                 coEvery { deletePlaceUseCase(parameter = id) } returns Result.success(1)
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
@@ -342,9 +346,9 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-71fd8e18-3a06-4d57-aade-0cd5052a8bf8 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
-                coEvery { restorePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restorePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(restorePlaceUseCase = restorePlaceUseCase)
 
                 viewModel.effect.test {
@@ -359,7 +363,7 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
 
         test("TC-ce63dac9-0f58-4869-a592-14a66d69ad15 정렬을 바꾸면 두 보기 모드의 목록에 함께 적용된다") {
             runTest(mainDispatcher) {
-                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val bounds = Arb.coordinateBounds().next()
                 val titlePlaceList = placeList(PLACE_COUNT)
                 val recentlyUpdatedPlaceList = placeList(PLACE_COUNT)
                 val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
@@ -442,15 +446,12 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
     private companion object {
         private const val PLACE_COUNT = 3
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
-                detail = fixtureMonkey.giveMeOne<PlaceDetail>(),
+                detail = Arb.placeDetail().next(),
                 isDeleted = false,
                 updatedAt = instant(),
                 createdAt = instant(),

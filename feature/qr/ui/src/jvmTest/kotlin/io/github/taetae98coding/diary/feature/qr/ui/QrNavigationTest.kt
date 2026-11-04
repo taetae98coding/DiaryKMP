@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.qr.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrNavigationTest :
     FunSpec({
@@ -21,8 +19,8 @@ class QrNavigationTest :
                 listOf(
                     emptyList(),
                     listOf(QrAddNavKey),
-                    listOf(QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), QrAddNavKey),
+                    listOf(QrDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(QrDetailNavKey(id = Arb.kotlinUuid().next()), QrAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -35,8 +33,8 @@ class QrNavigationTest :
         }
 
         test("TC-f9e861c8-4958-4974-8fe7-3e57a52a5998 QR 상세가 놓여 있으면 새 QR의 상세로 교체한다") {
-            val first = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-            val second = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val first = QrDetailNavKey(id = Arb.kotlinUuid().next())
+            val second = QrDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = qrBackStack(detailKeyList = listOf(first))
 
             backStack.navigateToQrDetail(id = second.id)
@@ -48,11 +46,11 @@ class QrNavigationTest :
             val detailCases =
                 listOf(
                     listOf(QrAddNavKey),
-                    listOf(QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), QrAddNavKey),
+                    listOf(QrDetailNavKey(id = Arb.kotlinUuid().next()), QrAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
-                val selected = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val selected = QrDetailNavKey(id = Arb.kotlinUuid().next())
                 val backStack = qrBackStack(detailKeyList = detailKeyList)
 
                 backStack.navigateToQrDetail(id = selected.id)
@@ -62,7 +60,7 @@ class QrNavigationTest :
         }
 
         test("상세 영역에 QR 상세가 없으면 목록에서 선택한 QR 상세를 이어서 놓는다") {
-            val detail = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = QrDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = qrBackStack(detailKeyList = emptyList())
 
             backStack.navigateToQrDetail(id = detail.id)

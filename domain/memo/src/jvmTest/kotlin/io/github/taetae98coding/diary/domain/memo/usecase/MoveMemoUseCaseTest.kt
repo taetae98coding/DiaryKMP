@@ -1,22 +1,25 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -36,9 +39,9 @@ import kotlin.uuid.Uuid
 class MoveMemoUseCaseTest :
     BehaviorSpec({
         Given("삭제되지 않은 메모가 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
+            val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = false)
             val detailSlot = slot<MemoDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -142,8 +145,8 @@ class MoveMemoUseCaseTest :
         }
 
         Given("완료된 메모가 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = false, isFinished = true)
             val detailSlot = slot<MemoDetail>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -157,7 +160,7 @@ class MoveMemoUseCaseTest :
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = capture(detailSlot), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -185,14 +188,14 @@ class MoveMemoUseCaseTest :
         }
 
         Given("동기화 요청이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = false)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
-                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                Result.failure(IllegalStateException(Arb.string().next()))
             val findMemoUseCase = mockk<FindMemoUseCase>()
             every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
@@ -200,7 +203,7 @@ class MoveMemoUseCaseTest :
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -234,8 +237,8 @@ class MoveMemoUseCaseTest :
         }
 
         Given("대상 메모가 삭제되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = true)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -270,8 +273,8 @@ class MoveMemoUseCaseTest :
         }
 
         Given("대상 메모를 찾을 수 없다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -305,10 +308,10 @@ class MoveMemoUseCaseTest :
         }
 
         Given("메모 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val storedMemo = memo(id = memoId, isDeleted = false)
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -342,9 +345,6 @@ class MoveMemoUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 
         private fun memo(
@@ -352,13 +352,15 @@ class MoveMemoUseCaseTest :
             isDeleted: Boolean,
             isFinished: Boolean = false,
         ): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::id, id)
-                .setExp(Memo::isDeleted, isDeleted)
-                .setExp(Memo::isFinished, isFinished)
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    id = id,
+                    isDeleted = isDeleted,
+                    isFinished = isFinished,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

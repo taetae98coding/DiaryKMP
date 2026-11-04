@@ -13,8 +13,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -23,16 +21,16 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 완료된 메모 목록과 메모 상세가 어떻게 놓이는지는 두 기능이 앱에 등록한 배치 정보가 정한다.
 // 두 기능의 실제 배치 정보와 선택 전 상세를 그대로 쓰고, 두 화면의 본문만 이름이 보이는 대역으로 바꿔 창 크기별로 검증한다.
@@ -45,13 +43,13 @@ class TagMemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-80dc456e-1256-41b6-9760-5a524c376a51 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_PLACEHOLDER_TEXT).assertIsDisplayed()
 
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -62,13 +60,13 @@ class TagMemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w400dp-h800dp")
     fun `TC-762bd757-ca59-46fe-8465-a294ff2be17d 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_PLACEHOLDER_TEXT).assertDoesNotExist()
 
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
@@ -78,10 +76,10 @@ class TagMemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
 
@@ -97,14 +95,14 @@ class TagMemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.runOnIdle {
             backStack.removeLastOrNull()
-            backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next()))
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
@@ -119,7 +117,7 @@ class TagMemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-16070905-ee83-4cd0-81c4-a2b2df72c7be 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 TagDetail로 돌아간다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = finishedListBackStack(tagId = tagId)
         setAppNavDisplay(backStack = backStack)
 

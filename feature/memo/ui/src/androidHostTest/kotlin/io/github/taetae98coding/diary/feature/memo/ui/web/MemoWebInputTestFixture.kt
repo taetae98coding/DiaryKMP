@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.web.web
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -46,14 +46,12 @@ internal const val DEFAULT_WEB_PICKER_SEARCH_PLACEHOLDER = "Search webs"
 internal const val DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE = "No search results"
 internal const val DEFAULT_WEB_DETAIL_ACTION = "Open web detail"
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 internal fun testWeb(
     title: String,
     url: String = "https://example.com/${title.lowercase()}",
     isDeleted: Boolean = false,
 ): Web =
-    fixtureMonkey.web(isDeleted = isDeleted).let { web ->
+    Arb.web(isDeleted = isDeleted).next().let { web ->
         web.copy(detail = web.detail.copy(title = title, url = url))
     }
 

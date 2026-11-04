@@ -1,66 +1,51 @@
 package io.github.taetae98coding.diary.core.testing.memo
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.core.testing.finishedAndDeletedCaseList
-import kotlin.time.Instant
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 // 대표 태그는 없을 수 있으므로 플래그 조합마다 있는 조건과 없는 조건을 함께 확인한다.
-public fun FixtureMonkey.memoCaseList(): List<MemoCase> =
+public fun memoCaseList(): List<MemoCase> =
     finishedAndDeletedCaseList.flatMap { (isFinished, isDeleted) ->
-        listOf(null, giveMeOne<Uuid>()).map { primaryTagId ->
+        listOf(null, Arb.kotlinUuid().next()).map { primaryTagId ->
             MemoCase(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId)
         }
     }
 
-public fun FixtureMonkey.memo(
+public fun Arb.Companion.memo(
     isFinished: Boolean,
     isDeleted: Boolean,
     primaryTagId: Uuid?,
-): Memo =
-    giveMeKotlinBuilder<Memo>()
-        .setExp(Memo::isFinished, isFinished)
-        .setExp(Memo::isDeleted, isDeleted)
-        .sample()
-        .copy(primaryTagId = primaryTagId)
+): Arb<Memo> = Arb.memo().map { memo -> memo.copy(primaryTagId = primaryTagId, isFinished = isFinished, isDeleted = isDeleted) }
 
-public fun FixtureMonkey.memo(title: String): Memo = memo(title = title, dateTime = null)
+public fun Arb.Companion.memo(title: String): Arb<Memo> = Arb.memo(title = title, dateTime = null)
 
-public fun FixtureMonkey.memo(
+public fun Arb.Companion.memo(
     title: String,
     dateTime: MemoDateTime?,
-): Memo =
-    giveMeKotlinBuilder<Memo>()
-        .setExp(Memo::detail, giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime))
-        .setExp(Memo::updatedAt, giveMeOne<Instant>())
-        .setExp(Memo::createdAt, giveMeOne<Instant>())
-        .sample()
+): Arb<Memo> =
+    arbitrary {
+        val memo = Arb.memo().bind()
 
-public fun FixtureMonkey.localMemo(
+        memo.copy(detail = Arb.memoDetail().bind().copy(title = title, dateTime = dateTime))
+    }
+
+public fun Arb.Companion.localMemo(
     isFinished: Boolean,
     isDeleted: Boolean,
     primaryTagId: Uuid?,
-): MemoLocalEntity =
-    giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::isFinished, isFinished)
-        .setExp(MemoLocalEntity::isDeleted, isDeleted)
-        .sample()
-        .copy(primaryTagId = primaryTagId)
+): Arb<MemoLocalEntity> = Arb.memoLocalEntity().map { memo -> memo.copy(primaryTagId = primaryTagId, isFinished = isFinished, isDeleted = isDeleted) }
 
-public fun FixtureMonkey.remoteMemo(
+public fun Arb.Companion.remoteMemo(
     isFinished: Boolean,
     isDeleted: Boolean,
     primaryTagId: Uuid?,
-): MemoRemoteEntity =
-    giveMeKotlinBuilder<MemoRemoteEntity>()
-        .setExp(MemoRemoteEntity::isFinished, isFinished)
-        .setExp(MemoRemoteEntity::isDeleted, isDeleted)
-        .sample()
-        .copy(primaryTagId = primaryTagId)
+): Arb<MemoRemoteEntity> = Arb.memoRemoteEntity().map { memo -> memo.copy(primaryTagId = primaryTagId, isFinished = isFinished, isDeleted = isDeleted) }

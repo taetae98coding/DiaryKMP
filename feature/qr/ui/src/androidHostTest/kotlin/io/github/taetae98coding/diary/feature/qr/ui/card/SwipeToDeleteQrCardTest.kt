@@ -14,11 +14,12 @@ import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrCodeValueList
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,7 +106,7 @@ class SwipeToDeleteQrCardTest {
     @Test
     fun `준비된 QR 카드를 누르면 선택 동작을 한 번 실행한다`() {
         var clickCount = 0
-        setCard(qr = qrTestFixtureMonkey.qr(isDeleted = false), onClick = { clickCount += 1 })
+        setCard(qr = Arb.qr(isDeleted = false).next(), onClick = { clickCount += 1 })
 
         composeRule.onNodeWithTag(QR_CARD_TEST_TAG).performClick()
         composeRule.waitForIdle()

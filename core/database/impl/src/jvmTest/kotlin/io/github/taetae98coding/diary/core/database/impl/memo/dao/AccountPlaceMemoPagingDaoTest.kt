@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -17,20 +14,25 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountPlaceMemoPagingDaoTest :
     FunSpec({
@@ -166,8 +168,8 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-21aab824-34c2-40e0-83cc-c863eb73a142 현재 계정의 대상 장소와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val target = place()
             val other = place()
             val activeMemo = memo(isFinished = false, isDeleted = false)
@@ -187,7 +189,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-b5ddb49d-bfcf-4ad8-af3b-f39c929391d5 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val activeMemo = memo(isFinished = false)
             val finishedMemo = memo(isFinished = true)
@@ -198,7 +200,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소를 삭제해도 연결된 미완료 메모는 계속 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
@@ -209,10 +211,10 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소의 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
             insertPlaceMemo(accountId, target, targetMemo)
 
             database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
@@ -223,7 +225,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-d56bb86e-a3fa-4580-901e-654e87cc1a05 대상 장소의 좌표를 수정해도 연결된 미완료 메모는 계속 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
@@ -241,7 +243,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-653af079-5d1f-4943-b644-51fe9f1c4dfe 장소별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
@@ -344,7 +346,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 TC-c39dbdfa-8f33-408a-ac18-cf1660e92aee 메모를 완료하면 목록에서 사라지고 다시 시작하면 연결이 유지되어 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
@@ -361,7 +363,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 TC-c39dbdfa-8f33-408a-ac18-cf1660e92aee 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
@@ -378,7 +380,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             val relation = memoPlace(memoId = targetMemo.id, placeId = target.id)
@@ -392,7 +394,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val targetMemo = memo()
             val relation = memoPlace(memoId = targetMemo.id, placeId = target.id, isDeleted = true)
@@ -406,7 +408,7 @@ class AccountPlaceMemoPagingDaoTest :
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = place()
             val movingMemo =
                 memo(
@@ -454,43 +456,49 @@ class AccountPlaceMemoPagingDaoTest :
     }) {
     public companion object {
         private fun memo(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            detail: MemoDetailLocalEntity = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+            detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
             updatedAt: Instant = instant(),
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::id, id)
-                .setExp(MemoLocalEntity::detail, detail)
-                .setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, updatedAt)
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    id = id,
+                    detail = detail,
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = updatedAt,
+                    createdAt = instant(),
+                )
 
         private fun place(isDeleted: Boolean = false): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::isDeleted, isDeleted)
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun memoPlace(
             memoId: Uuid,
             placeId: Uuid,
             isDeleted: Boolean = false,
         ): MemoPlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoPlaceLocalEntity>()
-                .setExp(MemoPlaceLocalEntity::memoId, memoId)
-                .setExp(MemoPlaceLocalEntity::placeId, placeId)
-                .setExp(MemoPlaceLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoPlaceLocalEntity::updatedAt, instant())
-                .setExp(MemoPlaceLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoPlaceLocalEntity()
+                .next()
+                .copy(
+                    memoId = memoId,
+                    placeId = placeId,
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun placeTag(
             placeId: Uuid,
@@ -505,16 +513,17 @@ class AccountPlaceMemoPagingDaoTest :
                 createdAt = instant(),
             )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,
             start: LocalDateTime?,
             endInclusive: LocalDateTime?,
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
         ): MemoDetailLocalEntity =
-            fixtureMonkey
-                .giveMeOne<MemoDetailLocalEntity>()
+            Arb
+                .memoDetailLocalEntity()
+                .next()
                 .copy(
                     title = title,
                     isAllDay = isAllDay,

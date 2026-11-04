@@ -56,7 +56,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onTitleInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrCodeValue
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
@@ -64,11 +63,13 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -113,7 +114,7 @@ class QrDetailScreenTest {
         val fake = setScreen()
 
         caseList.forEach { fillCase ->
-            val detail = qrTestFixtureMonkey.qrDetail(value = fillCase.value)
+            val detail = Arb.qrDetail(value = fillCase.value).next()
             fake.reload(detail = detail)
 
             composeRule.onNode(screenTitle(detail.title), useUnmergedTree = true).assertExists()
@@ -152,7 +153,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-c78bde66-c00f-42df-ae30-01628f3e911e 화면에는 정해진 탭, 입력과 동작만 둔다`() {
-        setScreen(detail = qrTestFixtureMonkey.qrDetail(description = qrTestFixtureMonkey.nonBlankString(), value = HELLO))
+        setScreen(detail = Arb.qrDetail(description = Arb.nonBlankString().next(), value = HELLO).next())
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.waitForIdle()
 
@@ -165,8 +166,8 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-1707fd4b-403e-4afa-88c2-d5a581961b6c 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
-        val storedDescription = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
+        val storedDescription = Arb.nonBlankString().next()
         val detail = QrDetail(title = storedTitle, description = storedDescription, value = HELLO)
         val caseList: List<Pair<() -> Unit, Boolean>> =
             listOf(
@@ -195,7 +196,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-6eac81d7-9218-4b4d-a57e-205557922e2e 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         every { fake.viewModel.update(detail = any()) } answers {
@@ -244,7 +245,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-69797177-9c6a-4a07-9ba0-c2b3456f28cb 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO)).let { fake ->
             composeRule.onTitleInput().performTextReplacement(editedTitle)
@@ -264,8 +265,8 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-71f45fb1-578c-4bd8-a9ed-beff96864cb0 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
-        val storedDescription = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
+        val storedDescription = Arb.nonBlankString().next()
         val editedDescription = editedText()
         val detail = QrDetail(title = storedTitle, description = storedDescription, value = HELLO)
         val fake = setScreen(detail = detail)
@@ -292,7 +293,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-153eb53d-f3c0-40fc-90e8-dad2749d8e37 QR 값이 비어 있으면 QR 탭에서 선택한 포맷의 첫 입력을 알린다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = EXAMPLE_URL))
         every { fake.viewModel.update(detail = any()) } answers { fake.effect.trySend(QrDetailEffect.ValueEmpty) }
@@ -360,7 +361,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-3dfc9b71-b8a2-462d-a87b-22aa53d6755f QrScan 화면에서 읽은 값을 받으면 QR 값을 바꾸고 수정 동작을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val resultEventBus = ResultEventBus()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO), resultEventBus = resultEventBus)
 
@@ -377,7 +378,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-b7d6ac5a-9a5f-40a2-8c32-dff664e6c913 되돌리기는 저장된 QR을 바꾸지 않고 입력만 되돌린다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
         composeRule.onQrFieldInput(NETWORK_NAME_LABEL).performTextInput("home")
@@ -397,7 +398,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-0aadb52b-f4a6-4bc0-8a09-5c9199f61191 삭제에 성공하면 확인을 묻지 않고 QrHome 화면으로 돌아간다`() {
         var navigateUpCount = 0
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
         every { fake.viewModel.delete() } answers { fake.effect.trySend(QrDetailEffect.DeleteSucceeded) }
 
@@ -433,7 +434,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val otherTitle = otherText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
@@ -453,7 +454,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-ff23013a-f4c3-484d-b4e7-e8207ea7ae8d 뒤로가면 수정하지 않은 채 돌아간다`() {
         var navigateUpCount = 0
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
 
         listOf(INFO_TAB_INDEX, QR_TAB_INDEX).forEachIndexed { index, tab ->
@@ -500,7 +501,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-3d388656-9d46-429c-9229-d050d997a570 앱이 백그라운드에 다녀와도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
         val editedTitle = editedText()
-        val fake = FakeViewModel(detail = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO))
+        val fake = FakeViewModel(detail = QrDetail(title = Arb.nonBlankString().next(), description = "", value = HELLO))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
@@ -530,7 +531,7 @@ class QrDetailScreenTest {
     // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 QR의 화면을 다시 구성한다.
     @Test
     fun `TC-c4da1b3a-7069-4be3-a2e4-8f62fa9ae5ea 앱을 다시 실행해 진입하면 수정 중이던 내용을 복원하지 않는다`() {
-        val stored = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO)
+        val stored = QrDetail(title = Arb.nonBlankString().next(), description = "", value = HELLO)
         val firstLaunch = FakeViewModel(detail = stored)
         var launchCount by mutableIntStateOf(0)
         composeRule.setContent {
@@ -568,7 +569,7 @@ class QrDetailScreenTest {
                 "DTEND;VALUE=DATE:20260102",
                 "END:VEVENT",
             ).joinToString(separator = "\n")
-        val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = stored))
+        val fake = setScreen(detail = Arb.qrDetail(value = stored).next())
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.onQrFieldInput(EVENT_TITLE_LABEL).performTextReplacement("b")
         composeRule.waitForIdle()
@@ -688,7 +689,7 @@ class QrDetailScreenTest {
     }
 
     private fun assertInputRetained() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = FakeViewModel(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         val restorationTester = StateRestorationTester(composeRule)
@@ -765,7 +766,7 @@ class QrDetailScreenTest {
     private fun SemanticsNodeInteractionsProvider.selectedFormat(): String = onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList)).editableText()
 
     private fun setScreen(
-        detail: QrDetail = qrTestFixtureMonkey.qrDetail(),
+        detail: QrDetail = Arb.qrDetail().next(),
         registry: ActivityResultRegistry = respondingRegistry(isGranted = false),
         navigateUp: () -> Unit = {},
         navigateToScan: () -> Unit = {},
@@ -830,7 +831,7 @@ class QrDetailScreenTest {
     }
 
     private class FakeViewModel(
-        detail: QrDetail = qrTestFixtureMonkey.qrDetail(),
+        detail: QrDetail = Arb.qrDetail().next(),
     ) {
         val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Uuid.random(), detail = detail))
         val effect = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
@@ -876,9 +877,9 @@ class QrDetailScreenTest {
         const val SCROLLABLE_QUALIFIERS = "ko-w480dp-h480dp"
         const val PERMISSION_DENIED = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."
 
-        fun editedText(): String = "edited-" + qrTestFixtureMonkey.nonBlankString()
+        fun editedText(): String = "edited-" + Arb.nonBlankString().next()
 
-        fun otherText(): String = "other-" + qrTestFixtureMonkey.nonBlankString()
+        fun otherText(): String = "other-" + Arb.nonBlankString().next()
 
         fun updateButton(): SemanticsMatcher = hasClickAction() and hasContentDescription(UPDATE)
 

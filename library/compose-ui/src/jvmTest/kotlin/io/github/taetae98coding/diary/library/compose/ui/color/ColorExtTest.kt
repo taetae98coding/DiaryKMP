@@ -1,12 +1,13 @@
 package io.github.taetae98coding.diary.library.compose.ui.color
 
 import androidx.compose.ui.graphics.Color
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import kotlin.random.Random
 
 class ColorExtTest : FunSpec() {
@@ -53,22 +54,17 @@ class ColorExtTest : FunSpec() {
         }
 
         test("같은 시드로 생성한 무작위 컬러는 동일하다") {
-            val seed = fixtureMonkey.giveMeOne<Long>()
+            val seed = Arb.long().next()
 
             randomColor(random = Random(seed = seed)) shouldBe randomColor(random = Random(seed = seed))
         }
 
         test("임의 컬러의 Hex 변환과 파싱은 왕복 보존된다") {
             repeat(times = 10) {
-                val color = Color(color = 0xFF000000.toInt() or (fixtureMonkey.giveMeOne<Int>() and 0xFFFFFF))
+                val color = Color(color = 0xFF000000.toInt() or (Arb.int().next() and 0xFFFFFF))
 
                 parseHexColorOrNull(color.toHexString()) shouldBe color
             }
         }
-    }
-
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

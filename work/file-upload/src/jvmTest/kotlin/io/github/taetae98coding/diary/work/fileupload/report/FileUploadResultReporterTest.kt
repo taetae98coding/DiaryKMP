@@ -1,20 +1,19 @@
 package io.github.taetae98coding.diary.work.fileupload.report
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileUploadResultReporterTest :
     BehaviorSpec({
@@ -58,9 +57,9 @@ class FileUploadResultReporterTest :
                 Then("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 쌓아 둔 성공을 한 번 전달한다") {
                     runTest {
                         val fixture = ReporterFixture()
-                        val fileId = fixtureMonkey.giveMeOne<Uuid>()
+                        val fileId = Arb.kotlinUuid().next()
 
-                        fixture.reporter.report(result = FileUploadResult.Succeeded(name = fixtureMonkey.giveMeOne<String>(), fileId = fileId))
+                        fixture.reporter.report(result = FileUploadResult.Succeeded(name = Arb.string().next(), fileId = fileId))
 
                         fixture.eventHolder.succeededEvent.test {
                             awaitItem() shouldBe FileUploadEvent.Succeeded(fileId = fileId)
@@ -72,7 +71,7 @@ class FileUploadResultReporterTest :
 
             When("올리기가 실패로 끝난 뒤 FileHome이 성공을 받기 시작한다") {
                 Then("아무것도 전달하지 않는다") {
-                    listOf(FileUploadResult.TooLarge, FileUploadResult.Failed(name = fixtureMonkey.giveMeOne<String>())).forEach { result ->
+                    listOf(FileUploadResult.TooLarge, FileUploadResult.Failed(name = Arb.string().next())).forEach { result ->
                         runTest {
                             val fixture = ReporterFixture()
 
@@ -87,8 +86,8 @@ class FileUploadResultReporterTest :
     })
 
 private fun resultEventList(): List<Pair<FileUploadResult, FileUploadEvent>> {
-    val fileId = fixtureMonkey.giveMeOne<Uuid>()
-    val name = fixtureMonkey.giveMeOne<String>()
+    val fileId = Arb.kotlinUuid().next()
+    val name = Arb.string().next()
 
     return listOf(
         FileUploadResult.Succeeded(name = name, fileId = fileId) to FileUploadEvent.Succeeded(fileId = fileId),

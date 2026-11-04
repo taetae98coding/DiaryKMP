@@ -1,13 +1,15 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -124,15 +126,12 @@ class RefreshUserDataUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun userAccount(): Account.User =
             Account.User(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
-                email = fixtureMonkey.giveMeOne<String>(),
-                profileImage = fixtureMonkey.giveMeOne<String>(),
-                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                id = Arb.kotlinUuid().next(),
+                email = Arb.string().next(),
+                profileImage = Arb.string().next(),
+                isSessionValid = Arb.boolean().next(),
             )
 
         private fun getAccountUseCase(result: Result<Account>): GetAccountUseCase =

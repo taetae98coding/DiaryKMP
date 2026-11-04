@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.logger.analytics.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.analytics.api.ScreenViewLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
@@ -10,6 +7,10 @@ import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.mockk
@@ -26,7 +27,7 @@ class AnalyticsDiaryLoggerDelegateTest :
             When("화면 이름을 담은 원격 분석 로그를 공통 창구에 전달한다") {
                 Then("TC-754975c5-f888-4204-aacf-764754c83a6a 어디에도 원격 분석이 남지 않고 전달은 오류 없이 완료된다") {
                     // 빈 문자열이 생성되면 검증이 무의미해지므로 접두사로 비어 있지 않음을 보장한다.
-                    val screenName = "screen${fixtureMonkey.giveMeOne<Int>()}"
+                    val screenName = "screen${Arb.int().next()}"
 
                     val output =
                         captureOutput {
@@ -48,8 +49,8 @@ class AnalyticsDiaryLoggerDelegateTest :
             When("화면 조회 로그와 원격 분석 로그를 공통 창구에 전달한다") {
                 Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 원격 분석 기록 수단이 두 로그를 남긴다") {
                     clearMocks(recordScreenView, recordEvent)
-                    val screenViewLog = ScreenViewLog(screenName = fixtureMonkey.giveMeOne<String>())
-                    val eventLog = AnalyticsEventLog(name = fixtureMonkey.giveMeOne<String>(), parameters = JsonObject(emptyMap()))
+                    val screenViewLog = ScreenViewLog(screenName = Arb.string().next())
+                    val eventLog = AnalyticsEventLog(name = Arb.string().next(), parameters = JsonObject(emptyMap()))
 
                     DiaryLogger.log(log = screenViewLog)
                     DiaryLogger.log(log = eventLog)
@@ -65,7 +66,7 @@ class AnalyticsDiaryLoggerDelegateTest :
                     clearMocks(recordScreenView, recordEvent)
 
                     shouldNotThrowAny {
-                        DiaryLogger.log(log = OtherLog(value = fixtureMonkey.giveMeOne<Int>()))
+                        DiaryLogger.log(log = OtherLog(value = Arb.int().next()))
                     }
 
                     verify(exactly = 0) { recordScreenView(any()) }
@@ -78,9 +79,6 @@ class AnalyticsDiaryLoggerDelegateTest :
         private data class OtherLog(
             val value: Int,
         ) : DiaryLog
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun captureOutput(block: () -> Unit): String {
             val originalOut = System.out

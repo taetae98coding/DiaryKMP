@@ -24,8 +24,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
@@ -39,8 +37,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -110,7 +111,7 @@ class MemoDetailScreenFormTest {
     @Test
     fun `TC-8d7f2535-0f51-4b84-b69d-c1b22a66ba90 수정에 성공해 입력이 저장된 내용과 같아지면 수정 동작이 사라진다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
-        val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()
+        val suffix = EDITED_PREFIX + Arb.int().next()
         val uiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle)))
         val effectChannel = Channel<MemoDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(uiState = uiState, effect = effectChannel.receiveAsFlow())
@@ -135,7 +136,7 @@ class MemoDetailScreenFormTest {
     @Test
     fun `TC-bd60cef5-db8c-45ef-832d-69584bb995b4 입력을 수정한 채 복사해도 수정 중이던 내용을 복사 요청에 싣지 않는다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
-        val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()
+        val suffix = EDITED_PREFIX + Arb.int().next()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle))))
         every { viewModel.copy() } just Runs
         composeRule.setContent { Detail(viewModel = viewModel) }
@@ -155,7 +156,7 @@ class MemoDetailScreenFormTest {
     fun `TC-5b89e4fa-431c-432a-be24-1dad799bb8dc 내용을 표시한 뒤 조회가 잠시 끊겨도 수정 중이던 내용을 유지한다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
         val description = randomText(prefix = DESCRIPTION_PREFIX)
-        val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()
+        val suffix = EDITED_PREFIX + Arb.int().next()
         val content = memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle))
         val uiState = MutableStateFlow<MemoDetailUiState>(content)
         composeRule.setContent { Detail(viewModel = screenTestViewModel(uiState = uiState)) }
@@ -221,8 +222,6 @@ class MemoDetailScreenFormTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private const val DEFAULT_CONFIRM = "Confirm"
         private const val TITLE_LABEL = "Title"
         private const val COLOR_RGB_MASK = 0xFFFFFF
@@ -234,11 +233,11 @@ class MemoDetailScreenFormTest {
         private const val EDITED_PREFIX = "edited-"
 
         // 생성한 문자열은 비어 있을 수 있으므로 앞에 고정 문자열을 붙여 빈 값이 되지 않게 한다.
-        private fun randomText(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>()
+        private fun randomText(prefix: String): String = prefix + Arb.string().next()
 
         private fun randomColorHex(): String =
             "#" +
-                (fixtureMonkey.giveMeOne<Int>() and COLOR_RGB_MASK)
+                (Arb.int().next() and COLOR_RGB_MASK)
                     .toString(radix = 16)
                     .uppercase()
                     .padStart(length = COLOR_HEX_LENGTH, padChar = '0')

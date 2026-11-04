@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.place.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -16,17 +13,22 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountTagPlaceLocalDataSourceImplTest :
     FunSpec({
@@ -113,8 +115,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 ).first()
 
         test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소 중 보이는 영역 안의 장소만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val otherTag = tag()
             val insidePlace = place(title = "a-inside", latitude = 37.5, longitude = 127.0)
@@ -150,7 +152,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da 보이는 영역 안의 장소는 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val firstPlace = place(title = "a-place", latitude = 37.5, longitude = 127.0)
             val secondPlace = place(title = "b-place", latitude = 37.6, longitude = 127.1)
@@ -176,7 +178,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-c6449d6f-bc27-4926-a677-ca6ab1d60679 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val westSidePlace = place(title = "a-west-side", latitude = 37.5, longitude = 179.0)
             val eastSidePlace = place(title = "b-east-side", latitude = 37.5, longitude = -179.0)
@@ -202,8 +204,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-68f91887-9083-475d-815a-be0bbbbc9fa1 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val otherTag = tag()
             val linkedPlace = place(title = "a-linked")
@@ -227,7 +229,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-12794c3c-5d41-4116-ab5e-58888311fc2a 태그별 장소은 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val firstPlace = place(title = "a-place")
             val secondPlace = place(title = "b-place")
@@ -244,7 +246,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-132c33bc-6524-4f2f-b92a-a7c22bc8dbd5 태그별 장소을 페이지 단위로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val placeList = List(3) { index -> place(title = "place-$index") }
 
@@ -257,7 +259,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val targetPlace = place()
 
@@ -277,7 +279,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 장소을 삭제하면 목록에서 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val targetPlace = place()
 
@@ -290,7 +292,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-bdeb11f1-6a0d-4431-8b53-c302e4d06b2b 장소의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val firstPlace = place(title = "a-place")
             val secondPlace = place(title = "b-place")
@@ -313,7 +315,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 true to false,
                 false to true,
             ).forEach { (isFinished, isDeleted) ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val targetTag = tag()
                 val targetPlace = place()
 
@@ -327,7 +329,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-7eea0f3d-b613-4af6-8b9b-5fb74df62b08 장소는 저장 시점의 태그 선택으로 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tagA = tag()
             val tagB = tag()
             insertTag(accountId, tagA, tagB)
@@ -362,7 +364,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
         }
 
         test("TC-6d577b03-3e3d-4397-adb0-3cc423bcec12 태그마다 조회되는 장소이 다르다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             val firstPlace = place()
@@ -391,39 +393,44 @@ class AccountTagPlaceLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, PlaceLocalEntity>>().data.map { place -> place.id }
         }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
-                .copy(isFinished = false, isDeleted = false)
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).copy(isFinished = false, isDeleted = false)
 
         private fun place(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            latitude: Double = fixtureMonkey.giveMeOne<Long>() % 90 + 0.5,
-            longitude: Double = fixtureMonkey.giveMeOne<Long>() % 180 + 0.5,
+            title: String = "title-${Arb.string().next()}",
+            latitude: Double = Arb.long().next() % 90 + 0.5,
+            longitude: Double = Arb.long().next() % 180 + 0.5,
         ): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::detail, placeDetail(title = title, latitude = latitude, longitude = longitude))
-                .setExp(PlaceLocalEntity::isDeleted, false)
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    detail = placeDetail(title = title, latitude = latitude, longitude = longitude),
+                    isDeleted = false,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun placeDetail(
             title: String,
             latitude: Double,
             longitude: Double,
         ): PlaceDetailLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceDetailLocalEntity>()
-                .setExp(PlaceDetailLocalEntity::title, title)
-                .setExp(PlaceDetailLocalEntity::latitude, latitude)
-                .setExp(PlaceDetailLocalEntity::longitude, longitude)
-                .sample()
+            Arb
+                .placeDetailLocalEntity()
+                .next()
+                .copy(
+                    title = title,
+                    latitude = latitude,
+                    longitude = longitude,
+                )
     }
 }

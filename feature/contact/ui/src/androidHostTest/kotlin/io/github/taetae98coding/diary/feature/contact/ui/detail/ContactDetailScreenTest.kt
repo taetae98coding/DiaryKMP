@@ -10,16 +10,16 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -85,7 +85,7 @@ class ContactDetailScreenTest {
     @Test
     fun `TC-2957350d-6626-496a-88b5-14324123a7b6 저장된 생일이 다른 경로에서 바뀌어도 입력 중인 생일은 덮어쓰지 않는다`() {
         val id = Uuid.random()
-        val birthdayRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+        val birthdayRange = Arb.localDateRange().next()
         val stored = testContactDetail(name = CONTACT_NAME, birthday = ContactBirthday(date = birthdayRange.start, calendar = ContactBirthdayCalendar.SOLAR))
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
 
@@ -196,7 +196,6 @@ class ContactDetailScreenTest {
         private const val CONTACT_NAME = "ContactDetailScreenName"
         private const val CHANGED_NAME = "ContactDetailScreenChanged"
         private const val EDITING_NAME = "ContactDetailScreenEditing"
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         private fun viewModel(
             uiState: MutableStateFlow<ContactDetailUiState>,

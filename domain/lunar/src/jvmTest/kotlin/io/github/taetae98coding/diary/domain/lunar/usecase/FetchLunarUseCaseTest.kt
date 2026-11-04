@@ -1,10 +1,7 @@
 package io.github.taetae98coding.diary.domain.lunar.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -16,6 +13,12 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -24,13 +27,10 @@ import kotlinx.datetime.LocalDate
 
 private val MAX_SOLAR_DATE: LocalDate = LocalDate(2100, 1, 1)
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchLunarUseCaseTest :
     BehaviorSpec({
         Given("음력 자료 동기화가 성공하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val lunarDateList = listOf(lunarDate())
             val repository = mockk<LunarRepository>()
             coEvery { repository.fetch(year = year) } returns lunarDateList
@@ -47,8 +47,8 @@ class FetchLunarUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 음력 자료 동기화가 특정 원인으로 실패하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val year = Arb.int().next()
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<LunarRepository>()
             coEvery { repository.fetch(year = year) } throws failure
             val useCase = FetchLunarUseCase(lunarRepository = repository)
@@ -68,7 +68,7 @@ class FetchLunarUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 원격이 음력 자료를 제공하지 않도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val repository = mockk<LunarRepository>()
             coEvery { repository.fetch(year = year) } returns emptyList()
             val useCase = FetchLunarUseCase(lunarRepository = repository)
@@ -103,9 +103,9 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
 
 private fun lunarDate(): LunarDate =
     LunarDate(
-        solar = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Long>().mod(MAX_SOLAR_DATE.toEpochDays())),
-        year = fixtureMonkey.giveMeOne(),
-        month = fixtureMonkey.giveMeOne(),
-        day = fixtureMonkey.giveMeOne(),
-        isLeapMonth = fixtureMonkey.giveMeOne(),
+        solar = LocalDate.fromEpochDays(Arb.long().next().mod(MAX_SOLAR_DATE.toEpochDays())),
+        year = Arb.int().next(),
+        month = Arb.int().next(),
+        day = Arb.int().next(),
+        isLeapMonth = Arb.boolean().next(),
     )

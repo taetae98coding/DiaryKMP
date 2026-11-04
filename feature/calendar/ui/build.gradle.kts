@@ -25,16 +25,20 @@ kotlin {
             }
         }
 
-        androidHostTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
         }
 
         jvmTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(libs.androidx.paging.testing)
             }
         }

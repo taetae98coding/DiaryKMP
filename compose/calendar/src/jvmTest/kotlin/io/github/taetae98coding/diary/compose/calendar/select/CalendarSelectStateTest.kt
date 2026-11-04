@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.compose.calendar.select
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
@@ -49,13 +49,10 @@ class CalendarSelectStateTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun randomDateRange(): LocalDateRange {
-            val start = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Int>().mod(1_000_000))
+            val start = LocalDate.fromEpochDays(Arb.int().next().mod(1_000_000))
 
-            return start..start.plus(fixtureMonkey.giveMeOne<Int>().mod(30), DateTimeUnit.DAY)
+            return start..start.plus(Arb.int().next().mod(30), DateTimeUnit.DAY)
         }
     }
 }

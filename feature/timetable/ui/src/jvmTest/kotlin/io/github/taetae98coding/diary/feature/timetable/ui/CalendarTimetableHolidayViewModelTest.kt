@@ -3,14 +3,15 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,8 +29,6 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class CalendarTimetableHolidayViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -45,9 +44,9 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
 
         test("TC-85a952a5-7412-4357-a4dc-ad3dda529cab 한 연도의 공휴일 조회가 실패해도 다른 연도의 공휴일은 표시한다") {
             runTest(mainDispatcher) {
-                val newYear = fixtureMonkey.giveMeOne<Holiday>()
+                val newYear = Arb.holiday().next()
                 val getUseCase = mockk<GetCalendarHolidayUseCase>()
-                every { getUseCase(parameter = 2026) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                every { getUseCase(parameter = 2026) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 every { getUseCase(parameter = 2027) } returns flowOf(Result.success(listOf(newYear)))
                 val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = successfulFetchHolidayUseCase(), getCalendarHolidayUseCase = getUseCase)
 
@@ -80,7 +79,7 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
 
         test("TC-bffb68a6-004c-42a7-8674-37e2d578f84f 동기화가 진행 중이어도 날짜가 바뀌면 바뀐 날짜의 대상 연도를 요청하고 표시 대상도 바뀐다") {
             runTest(mainDispatcher) {
-                val holiday2027 = fixtureMonkey.giveMeOne<Holiday>()
+                val holiday2027 = Arb.holiday().next()
                 val pending = CompletableDeferred<Result<List<Holiday>>>()
                 val fetchUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchUseCase(parameter = any()) } coAnswers { pending.await() }

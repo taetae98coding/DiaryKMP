@@ -3,8 +3,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -14,13 +12,17 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.UpdatePlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -305,7 +307,7 @@ class PlaceDetailViewModelTest : FunSpec() {
         test("TC-f7f61215-e581-4e0c-af7c-9db899bc4d6d 저장된 내용이 바뀌면 표시 상태가 갱신된다") {
             runTest(mainDispatcher) {
                 val place = place()
-                val updated = place.copy(detail = place.detail.copy(title = "updated-${fixtureMonkey.giveMeOne<String>()}"))
+                val updated = place.copy(detail = place.detail.copy(title = "updated-${Arb.string().next()}"))
                 val placeFlow = MutableStateFlow(Result.success<Place?>(place))
                 val findPlaceUseCase = mockk<FindPlaceUseCase>()
                 every { findPlaceUseCase(place.id) } returns placeFlow
@@ -367,7 +369,7 @@ class PlaceDetailViewModelTest : FunSpec() {
                 val detail = detail()
                 val parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail)
                 val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
-                coEvery { updatePlaceUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { updatePlaceUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(id = id, updatePlaceUseCase = updatePlaceUseCase)
                 collectUiState(viewModel)
 
@@ -392,7 +394,7 @@ class PlaceDetailViewModelTest : FunSpec() {
         test("삭제가 실패하면 삭제 성공 Effect를 보내지 않고 진행 상태만 해제한다") {
             runTest(mainDispatcher) {
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
-                coEvery { deletePlaceUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deletePlaceUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
                 collectUiState(viewModel)
 
@@ -409,9 +411,6 @@ class PlaceDetailViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         // uiState는 구독자가 있을 때만 갱신되므로 검증 동안 수집을 유지한다.
         private fun TestScope.collectUiState(viewModel: PlaceDetailViewModel) {
             backgroundScope.launch { viewModel.uiState.collect() }
@@ -452,11 +451,11 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
 
         private fun detail(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            description: String = fixtureMonkey.giveMeOne<String>(),
-            color: Long = fixtureMonkey.giveMeOne<Long>(),
+            title: String = "title-${Arb.string().next()}",
+            description: String = Arb.string().next(),
+            color: Long = Arb.long().next(),
             coordinate: Coordinate = Coordinate(latitude = 37.5, longitude = 127.0),
-            address: String = "address-${fixtureMonkey.giveMeOne<String>()}",
+            address: String = "address-${Arb.string().next()}",
         ): PlaceDetail =
             PlaceDetail(
                 title = title,
@@ -471,8 +470,8 @@ class PlaceDetailViewModelTest : FunSpec() {
                 id = id,
                 detail = detail(),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

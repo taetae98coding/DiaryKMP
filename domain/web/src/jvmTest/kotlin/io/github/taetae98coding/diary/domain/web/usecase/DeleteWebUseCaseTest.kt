@@ -1,18 +1,21 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,7 +29,7 @@ import kotlin.uuid.Uuid
 class DeleteWebUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 웹 항목이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val id = Uuid.random()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
@@ -41,7 +44,7 @@ class DeleteWebUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -70,7 +73,7 @@ class DeleteWebUseCaseTest :
         }
 
         Given("게스트 계정이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.Guest>()
+            val account = Arb.constant(Account.Guest).next()
             val id = Uuid.random()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -98,7 +101,7 @@ class DeleteWebUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
@@ -124,8 +127,8 @@ class DeleteWebUseCaseTest :
         }
 
         Given("삭제 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
@@ -153,9 +156,6 @@ class DeleteWebUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun requestSyncUseCase(): RequestSyncUseCase {
             val useCase = mockk<RequestSyncUseCase>()
             coEvery { useCase(parameter = any()) } returns Result.success(Unit)

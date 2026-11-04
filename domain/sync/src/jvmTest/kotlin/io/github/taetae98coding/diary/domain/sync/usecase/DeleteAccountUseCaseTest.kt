@@ -1,21 +1,22 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.authentication.appleAuthorization
 import io.github.taetae98coding.diary.domain.account.repository.AccountRepository
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,14 +29,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class DeleteAccountUseCaseTest :
     BehaviorSpec({
         Given("세션이 갱신된 사용자이고 서버 탈퇴가 성공하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-            val authorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
+            val authorization = Arb.appleAuthorization().next()
             val fixture = Fixture(account = account)
 
             When("Apple 인가 코드와 함께 탈퇴한다") {
@@ -56,7 +54,7 @@ class DeleteAccountUseCaseTest :
 
         listOf<Pair<String, () -> Account>>(
             "게스트" to { Account.Guest },
-            "세션이 갱신되지 않은 사용자" to { fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false) },
+            "세션이 갱신되지 않은 사용자" to { Arb.accountUser().next().copy(isSessionValid = false) },
         ).forEach { (label, createAccount) ->
             Given("계정이 $label 다") {
                 val fixture = Fixture(account = createAccount())
@@ -75,7 +73,7 @@ class DeleteAccountUseCaseTest :
 
         Given("서버 탈퇴가 실패하도록 준비되어 있고 오류 보고 기록 수단이 등록되어 있다") {
             val failure = IllegalStateException("delete failed")
-            val fixture = Fixture(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))
+            val fixture = Fixture(account = Arb.accountUser().next().copy(isSessionValid = true))
             coEvery { fixture.accountRepository.delete(appleAuthorization = any()) } throws failure
             val reportList = recordCrashlyticsLog()
 
@@ -96,7 +94,7 @@ class DeleteAccountUseCaseTest :
 
         Given("서버 탈퇴는 성공하고 기기 데이터 삭제가 실패하도록 준비되어 있고 오류 보고 기록 수단이 등록되어 있다") {
             val failure = IllegalStateException("local delete failed")
-            val fixture = Fixture(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))
+            val fixture = Fixture(account = Arb.accountUser().next().copy(isSessionValid = true))
             coEvery { fixture.accountSyncDataRepository.delete(account = any()) } throws failure
             val reportList = recordCrashlyticsLog()
 
@@ -112,7 +110,7 @@ class DeleteAccountUseCaseTest :
         }
 
         Given("서버 탈퇴 요청이 끝나지 않은 채 진행 중이다") {
-            val fixture = Fixture(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))
+            val fixture = Fixture(account = Arb.accountUser().next().copy(isSessionValid = true))
             val started = CompletableDeferred<Unit>()
             val response = CompletableDeferred<Unit>()
             coEvery { fixture.accountRepository.delete(appleAuthorization = any()) } coAnswers {
@@ -136,7 +134,7 @@ class DeleteAccountUseCaseTest :
         }
 
         Given("서버 탈퇴는 성공하고 기기 항목 데이터 삭제만 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val fixture = Fixture(account = account)
             coEvery { fixture.accountSyncDataRepository.delete(account = any()) } throws IllegalStateException("local delete failed")
 

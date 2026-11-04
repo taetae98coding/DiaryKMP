@@ -11,18 +11,16 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private val floatingButtons: List<@Composable (onClick: () -> Unit, contentDescription: String, isInProgress: Boolean) -> Unit> =
     listOf(
@@ -45,7 +43,7 @@ class DiaryFloatingActionButtonTest {
 
     @Test
     fun `떠 있는 버튼을 누르면 동작을 한 번 실행한다`() {
-        val contentDescriptions = List(floatingButtons.size) { fixtureMonkey.nonBlankString() }
+        val contentDescriptions = List(floatingButtons.size) { Arb.nonBlankString().next() }
         val clickCounts = IntArray(floatingButtons.size)
         composeRule.setContent {
             DiaryTheme {
@@ -66,7 +64,7 @@ class DiaryFloatingActionButtonTest {
 
     @Test
     fun `진행 중인 떠 있는 버튼은 이름을 유지하고 진행 표시를 보인다`() {
-        val contentDescriptions = List(floatingButtons.size) { fixtureMonkey.nonBlankString() }
+        val contentDescriptions = List(floatingButtons.size) { Arb.nonBlankString().next() }
         composeRule.setContent {
             DiaryTheme {
                 Column {
@@ -85,7 +83,7 @@ class DiaryFloatingActionButtonTest {
 
     @Test
     fun `진행 중이 아닌 떠 있는 버튼은 진행 표시를 보이지 않는다`() {
-        val contentDescriptions = List(floatingButtons.size) { fixtureMonkey.nonBlankString() }
+        val contentDescriptions = List(floatingButtons.size) { Arb.nonBlankString().next() }
         composeRule.setContent {
             DiaryTheme {
                 Column {

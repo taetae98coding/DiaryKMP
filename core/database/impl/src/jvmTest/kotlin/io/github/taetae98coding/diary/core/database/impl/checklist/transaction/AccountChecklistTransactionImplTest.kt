@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.core.database.impl.checklist.transaction
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemSortLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -13,10 +11,14 @@ import io.github.taetae98coding.diary.core.database.impl.checklistitem.datasourc
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -43,9 +45,9 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-e0a4bfe4-2f96-43c3-82ba-b5596d4c80c5 TC-6bea336d-5773-4cdf-aae2-688bf1afbeaa TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 체크리스트와 체크 항목, 각각의 현재 계정 연결을 업로드 대기 상태로 함께 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
-            val itemList = List(3) { fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id) }
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val itemList = List(3) { Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next() }
 
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
 
@@ -60,8 +62,8 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-66d21b3c-6066-4406-9181-68d4c5371b29 체크 항목 없이도 체크리스트를 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
 
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
 
@@ -70,12 +72,12 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-409178d7-4cde-4230-a644-9c60981ea503 TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 수정은 제목, 설명과 수정 시각만 바꾸고 업로드 대기로 기록한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
-            val item = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
             database.markChecklistUploaded(accountId = accountId)
-            val detail = ChecklistDetailLocalEntity(title = "  ${fixtureMonkey.giveMeOne<String>()}  ", description = "")
+            val detail = ChecklistDetailLocalEntity(title = "  ${Arb.string().next()}  ", description = "")
             val updatedAt = instant()
 
             transaction.updateDetail(accountId = accountId, checklistId = checklist.id, detail = detail, updatedAt = updatedAt) shouldBe 1
@@ -90,9 +92,9 @@ class AccountChecklistTransactionImplTest :
 
         listOf(true, false).forEach { isDeleted ->
             test("TC-d9950fa8-8de2-4ed5-9eb9-93883cd6e478 TC-96e49a34-c00b-4352-ab42-a8ec06bffe03 TC-bc9ac9d1-bc92-4acc-a8ef-eee1dbedb8cc TC-63ed56a5-0718-4c57-a018-36a1952fca0e TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제 여부를 $isDeleted 로 바꾸면 수정 시각과 함께 저장하고 체크 항목은 바꾸지 않는다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val checklist = fixtureMonkey.localChecklist(isDeleted = !isDeleted)
-                val item = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
+                val accountId = Arb.kotlinUuid().next()
+                val checklist = Arb.localChecklist(isDeleted = !isDeleted).next()
+                val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
                 transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
                 database.markChecklistUploaded(accountId = accountId)
                 val updatedAt = instant()
@@ -109,9 +111,9 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-fd1241c1-0667-4741-a1de-10602a660b42 다른 계정의 체크리스트는 수정하거나 삭제하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
             transaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = emptyList())
             database.markChecklistUploaded(accountId = otherAccountId)
 
@@ -128,8 +130,8 @@ class AccountChecklistTransactionImplTest :
                 listOf(AccountChecklistLocalEntity(accountId = otherAccountId, checklistId = checklist.id, isDirty = false))
         }
         test("TC-fd1241c1-0667-4741-a1de-10602a660b42 기기에 없는 체크리스트는 수정하거나 삭제하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val missingChecklistId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val missingChecklistId = Arb.kotlinUuid().next()
 
             transaction.updateDetail(
                 accountId = accountId,
@@ -144,9 +146,9 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-e391624f-ed92-4843-b2d5-08238c87bcc6 제목과 설명을 앞뒤 공백과 줄바꿈을 포함해 입력한 그대로 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val detail = ChecklistDetailLocalEntity(title = " 여행 준비 ", description = "여름\n휴가 ")
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false).copy(detail = detail)
+            val checklist = Arb.localChecklist(isDeleted = false).next().copy(detail = detail)
 
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
 
@@ -154,14 +156,15 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-ccf640da-12b2-4629-8626-6c4303e76604 같은 내용의 체크리스트를 추가해도 이미 저장된 체크리스트와 체크 항목을 덮어쓰지 않고 따로 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val existing = fixtureMonkey.localChecklist(isDeleted = false)
-            val existingItem = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = existing.id)
+            val accountId = Arb.kotlinUuid().next()
+            val existing = Arb.localChecklist(isDeleted = false).next()
+            val existingItem = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = existing.id).next()
             transaction.upsert(accountId = accountId, checklist = existing, itemList = listOf(existingItem))
-            val added = fixtureMonkey.localChecklist(isDeleted = false).copy(detail = existing.detail)
+            val added = Arb.localChecklist(isDeleted = false).next().copy(detail = existing.detail)
             val addedItem =
-                fixtureMonkey
+                Arb
                     .localChecklistItem(isChecked = false, isDeleted = false, checklistId = added.id)
+                    .next()
                     .copy(content = existingItem.content)
 
             transaction.upsert(accountId = accountId, checklist = added, itemList = listOf(addedItem))
@@ -171,12 +174,13 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-6d542fda-df4b-434e-ad28-34ec2cb908db 저장한 체크리스트와 그 체크 항목을 함께 조회할 수 있다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
             val itemList =
                 List(2) { index ->
-                    fixtureMonkey
+                    Arb
                         .localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
+                        .next()
                         .copy(createdAt = Instant.fromEpochSeconds(index.toLong()))
                 }
 
@@ -189,14 +193,15 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-f48529a1-3a4b-459b-978e-79ed218d0b58 1ms씩 늦어지는 생성 시각으로 함께 저장한 체크 항목은 추가순으로 넣어 둔 순서대로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
             val now = instant()
             val itemList =
                 List(3) { index ->
                     val createdAt = now + index.milliseconds
-                    fixtureMonkey
+                    Arb
                         .localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
+                        .next()
                         .copy(createdAt = createdAt, updatedAt = createdAt)
                 }
 
@@ -210,9 +215,9 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-22a04f2e-eeb4-482f-b03a-23437e354955 저장에 실패하면 체크리스트, 체크 항목과 계정 연결 중 어느 것도 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
-            val itemList = List(2) { fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id) }
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val itemList = List(2) { Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next() }
             val failingDatabase = spyk(database)
             every { failingDatabase.accountChecklistItemDao() } throws ChecklistTestException()
             val failingTransaction = AccountChecklistTransactionImpl(database = failingDatabase)
@@ -228,8 +233,8 @@ class AccountChecklistTransactionImplTest :
         }
 
         test("TC-7c4b3430-9fee-4392-910d-658b3307c5a8 삭제 상태인 체크리스트를 수정해도 삭제 상태로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val checklist = fixtureMonkey.localChecklist(isDeleted = true)
+            val accountId = Arb.kotlinUuid().next()
+            val checklist = Arb.localChecklist(isDeleted = true).next()
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
             val detail = ChecklistDetailLocalEntity(title = "title", description = "description")
             val updatedAt = instant()
@@ -240,9 +245,7 @@ class AccountChecklistTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }
 

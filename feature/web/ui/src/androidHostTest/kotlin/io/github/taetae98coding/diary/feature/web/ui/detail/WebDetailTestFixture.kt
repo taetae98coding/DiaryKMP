@@ -19,9 +19,6 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -32,6 +29,9 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -40,7 +40,11 @@ import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestView
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -56,9 +60,6 @@ import org.koin.dsl.module
 import org.robolectric.shadows.ShadowDialog
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
 internal const val DEFAULT_OPEN_IN_NEW_DESCRIPTION = "Open externally"
@@ -129,11 +130,11 @@ private const val HEADER_VALUE_INPUT_INDEX = 4
 internal const val INPUT_COUNT_WITHOUT_HEADER = 3
 internal const val INPUT_COUNT_PER_HEADER = 2
 
-// FixtureMonkey는 빈 문자열도 생성하므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
+// 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
 internal fun testWebDetail(
-    title: String = "제목-${fixtureMonkey.giveMeOne<String>()}",
-    description: String = "설명-${fixtureMonkey.giveMeOne<String>()}",
-    url: String = "https://example.com/${fixtureMonkey.giveMeOne<Int>()}",
+    title: String = "제목-${Arb.string().next()}",
+    description: String = "설명-${Arb.string().next()}",
+    url: String = "https://example.com/${Arb.int().next()}",
     headerList: List<WebHeader> = emptyList(),
 ): WebDetail =
     WebDetail(
@@ -145,7 +146,7 @@ internal fun testWebDetail(
 
 internal fun testContentUiState(detail: WebDetail = testWebDetail()): WebDetailUiState.Content = WebDetailUiState.Content(id = Uuid.random(), detail = detail)
 
-internal fun testWebPage(): WebPage = fixtureMonkey.giveMeOne<WebPage>()
+internal fun testWebPage(): WebPage = Arb.webPage().next()
 
 internal fun ComposeContentTestRule.selectFormTab() {
     onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).performClick()
@@ -239,14 +240,14 @@ internal fun webMemo(
     title: String,
     dateTime: MemoDateTime? = null,
 ): Memo =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Memo>()
-        .setExp(
-            Memo::detail,
-            fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime),
-        ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memo()
+        .next()
+        .copy(
+            detail = Arb.memoDetail().next().copy(title = title, dateTime = dateTime),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 internal fun webMemoPagingData(
     itemList: List<MemoListItem>,

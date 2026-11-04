@@ -18,11 +18,10 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -122,8 +121,6 @@ internal fun SemanticsNodeInteractionsProvider.visibleTextList(): List<String> =
         .fetchSemanticsNodes()
         .flatMap { node -> node.config[SemanticsProperties.Text] }
         .map { text -> text.text }
-
-internal val qrTestFixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 internal const val MAX_NUMERIC_LENGTH: Int = 7089
 

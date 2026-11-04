@@ -2,21 +2,18 @@ package io.github.taetae98coding.diary.core.database.impl.memofilter.datasource
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import java.io.File
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class MemoExistenceFilterLocalDataSourceImplTest :
     FunSpec({
@@ -107,7 +104,7 @@ class MemoExistenceFilterLocalDataSourceImplTest :
         }
 
         test("TC-20d8a16c-4b36-4fbe-9b46-be1607c6e8df 유무 필터 상태 변경은 동기화 업로드 대기 목록에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
 
             dataSource.upsertHasDate(hasDate = true)
             dataSource.upsertHasTag(hasTag = false)

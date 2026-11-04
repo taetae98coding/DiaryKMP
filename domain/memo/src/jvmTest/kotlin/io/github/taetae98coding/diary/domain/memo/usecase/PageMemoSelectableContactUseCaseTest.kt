@@ -2,20 +2,22 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -27,8 +29,8 @@ import kotlin.uuid.Uuid
 class PageMemoSelectableContactUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 선택할 수 있는 연락처가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactList = List(2) { contact().toListItem(nameQualifier = fixtureMonkey.giveMeOne()) }
+            val account = Arb.accountUser().next()
+            val contactList = List(2) { contact().toListItem(nameQualifier = Arb.string().next()) }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
@@ -69,7 +71,7 @@ class PageMemoSelectableContactUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
@@ -90,14 +92,13 @@ class PageMemoSelectableContactUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun contact(): Contact =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Contact>()
-                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .contact()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

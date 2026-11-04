@@ -1,21 +1,25 @@
 package io.github.taetae98coding.diary.domain.tag.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,7 +32,7 @@ import kotlin.uuid.Uuid
 class FindTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 조회할 수 있는 태그가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val tag = tag()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -53,7 +57,7 @@ class FindTagUseCaseTest :
         }
 
         Given("조회할 태그가 없다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountTagRepository = mockk<AccountTagRepository>()
@@ -66,7 +70,7 @@ class FindTagUseCaseTest :
 
             When("태그를 조회한다") {
                 Then("태그 없음을 반환한다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>()).first()
+                    val result = useCase(parameter = Arb.kotlinUuid().next()).first()
 
                     result.shouldBeSuccess().shouldBeNull()
                 }
@@ -74,7 +78,7 @@ class FindTagUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
@@ -86,7 +90,7 @@ class FindTagUseCaseTest :
 
             When("태그 조회를 실행한다") {
                 Then("계정 조회 실패를 전달하고 태그를 조회하지 않는다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>()).first()
+                    val result = useCase(parameter = Arb.kotlinUuid().next()).first()
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
                     verify(exactly = 0) {
@@ -97,9 +101,9 @@ class FindTagUseCaseTest :
         }
 
         Given("조회한 태그가 변경되는 Flow가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val tag = tag()
-            val changedTag = tag.copy(detail = fixtureMonkey.giveMeOne<TagDetail>())
+            val changedTag = tag.copy(detail = Arb.tagDetail().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val tagFlow = MutableStateFlow<Tag?>(tag)
@@ -126,14 +130,13 @@ class FindTagUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

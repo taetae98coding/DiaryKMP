@@ -10,19 +10,20 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.ProvideTestDiaryMap
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_DIARY_MAP_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.TestDiaryMap
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,7 +80,7 @@ class MemoPlaceCardMapTest {
 
     @Test
     fun `TC-af968649-99d1-496c-86c9-9f650901d204 화면이 재생성되어도 지도가 알려온 위치와 확대 수준, 바꾼 제공자를 유지한다`() {
-        val reportedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val uiState =
             cardUiState(
                 placeUiState = MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = listOf(testPlace(title = HOME_PLACE_TITLE))),
@@ -127,11 +128,9 @@ class MemoPlaceCardMapTest {
         mapUiState: MemoPlaceMapUiState,
     ): MemoPlaceCardUiState = MemoPlaceCardUiState(mapUiState = mapUiState, placeUiState = placeUiState)
 
-    private fun locationFetchedMapUiState(): MemoPlaceMapUiState.Content = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+    private fun locationFetchedMapUiState(): MemoPlaceMapUiState.Content = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = Arb.coordinate().next())
 
     private companion object {
         const val TEST_ZOOM = 12.0
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

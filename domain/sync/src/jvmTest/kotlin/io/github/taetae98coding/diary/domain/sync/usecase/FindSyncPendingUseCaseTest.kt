@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncPendingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,7 +24,7 @@ class FindSyncPendingUseCaseTest :
             When("로그인 세션의 갱신 여부가 서로 다르다") {
                 Then("TC-98ca3ad9-b74a-421b-9a90-d740744b02fb 세션 갱신 여부와 관계없이 대기 항목이 있다고 알린다") {
                     listOf(true, false).forEach { isSessionValid ->
-                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
+                        val account = Arb.accountUser().next().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
                         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
                         val repository = mockk<AccountSyncPendingRepository>()
@@ -44,7 +45,7 @@ class FindSyncPendingUseCaseTest :
 
             When("업로드 대기 여부를 조회한다") {
                 Then("TC-4ee2634b-a9fe-41a7-8f9c-5db073eae4fe 확인된 계정으로 기기 저장소를 한 번 조회한다") {
-                    val account = fixtureMonkey.giveMeOne<Account.User>()
+                    val account = Arb.accountUser().next()
                     val getAccountUseCase = mockk<GetAccountUseCase>()
                     every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
                     val repository = mockk<AccountSyncPendingRepository>()
@@ -66,7 +67,7 @@ class FindSyncPendingUseCaseTest :
         }
 
         Given("사용자 계정에 업로드 대기 항목이 없다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val repository = mockk<AccountSyncPendingRepository>()
@@ -88,7 +89,7 @@ class FindSyncPendingUseCaseTest :
         }
 
         Given("기기 저장소의 업로드 대기 여부가 바뀐다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val repository = mockk<AccountSyncPendingRepository>()
@@ -111,7 +112,7 @@ class FindSyncPendingUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val repository = mockk<AccountSyncPendingRepository>()
@@ -132,9 +133,4 @@ class FindSyncPendingUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

@@ -8,8 +8,6 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
@@ -18,7 +16,10 @@ import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centim
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -37,7 +38,7 @@ class ContactDetailUpdateVisibilityTest {
 
     @Test
     fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 설명을 바꾸면 수정 동작을 제공한다`() {
-        assertUpdateVisible { detail -> descriptionState.setText("${detail.description}-${fixtureMonkey.giveMeOne<String>()}") }
+        assertUpdateVisible { detail -> descriptionState.setText("${detail.description}-${Arb.string().next()}") }
     }
 
     @Test
@@ -62,12 +63,12 @@ class ContactDetailUpdateVisibilityTest {
 
     @Test
     fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 고향을 바꾸면 수정 동작을 제공한다`() {
-        assertUpdateVisible { detail -> hometownState.setTextAndPlaceCursorAtEnd("${detail.hometown}-${fixtureMonkey.giveMeOne<String>()}") }
+        assertUpdateVisible { detail -> hometownState.setTextAndPlaceCursorAtEnd("${detail.hometown}-${Arb.string().next()}") }
     }
 
     @Test
     fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 알게 된 경로를 바꾸면 수정 동작을 제공한다`() {
-        assertUpdateVisible { detail -> howWeMetState.setTextAndPlaceCursorAtEnd("${detail.howWeMet}-${fixtureMonkey.giveMeOne<String>()}") }
+        assertUpdateVisible { detail -> howWeMetState.setTextAndPlaceCursorAtEnd("${detail.howWeMet}-${Arb.string().next()}") }
     }
 
     @Test
@@ -86,7 +87,7 @@ class ContactDetailUpdateVisibilityTest {
         lateinit var state: ContactFormState
         setScaffold(detail = detail) { value -> state = value }
 
-        composeRule.runOnIdle { state.nameState.textFieldState.setTextAndPlaceCursorAtEnd("${detail.name}-${fixtureMonkey.giveMeOne<String>()}") }
+        composeRule.runOnIdle { state.nameState.textFieldState.setTextAndPlaceCursorAtEnd("${detail.name}-${Arb.string().next()}") }
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assert(hasClickAction())
 
         composeRule.runOnIdle { state.nameState.textFieldState.setTextAndPlaceCursorAtEnd(detail.name) }
@@ -98,7 +99,7 @@ class ContactDetailUpdateVisibilityTest {
     @Test
     fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 즐겨찾기만 바꾸면 수정 동작을 제공하지 않는다`() {
         val detail = storedDetail()
-        var uiState by mutableStateOf(ContactDetailUiState.Content(id = fixtureMonkey.giveMeOne<Uuid>(), detail = detail, isFavorite = false))
+        var uiState by mutableStateOf(ContactDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail, isFavorite = false))
         composeRule.setContent {
             DiaryTheme {
                 ContactDetailTestScaffold(
@@ -133,7 +134,7 @@ class ContactDetailUpdateVisibilityTest {
         detail: ContactDetail,
         onState: (ContactFormState) -> Unit,
     ) {
-        val content = ContactDetailUiState.Content(id = fixtureMonkey.giveMeOne<Uuid>(), detail = detail)
+        val content = ContactDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail)
         composeRule.setContent {
             DiaryTheme {
                 val state = rememberContactDetailFormState(initialDetail = detail)
@@ -149,7 +150,6 @@ class ContactDetailUpdateVisibilityTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
         private const val DEFAULT_UPDATE_BUTTON_DESCRIPTION = "Update contact"
         private const val OTHER_HEIGHT_TEXT = "180"
         private const val OTHER_FOOT_SIZE_TEXT = "260"
@@ -159,9 +159,9 @@ class ContactDetailUpdateVisibilityTest {
                 height = 175.5.centimeter,
                 footSize = 250.millimeter,
                 birthday = ContactBirthday(date = LocalDate(year = 1994, month = 3, day = 21), calendar = ContactBirthdayCalendar.SOLAR),
-                hometown = "고향-${fixtureMonkey.giveMeOne<String>()}",
-                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<String>()}",
-                phoneNumberList = listOf("번호-${fixtureMonkey.giveMeOne<String>()}", "번호-${fixtureMonkey.giveMeOne<String>()}"),
+                hometown = "고향-${Arb.string().next()}",
+                howWeMet = "알게 된 경로-${Arb.string().next()}",
+                phoneNumberList = listOf("번호-${Arb.string().next()}", "번호-${Arb.string().next()}"),
             )
     }
 }

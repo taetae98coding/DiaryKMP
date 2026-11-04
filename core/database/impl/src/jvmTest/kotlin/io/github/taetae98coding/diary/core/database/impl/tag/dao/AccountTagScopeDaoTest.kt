@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.tag.dao
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -21,20 +18,25 @@ import io.github.taetae98coding.diary.core.database.impl.tag.transaction.Account
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 private const val SOUTH = -90.0
 private const val NORTH = 90.0
@@ -220,7 +222,7 @@ class AccountTagScopeDaoTest :
                 .map { place -> place.id }
 
         test("TC-5a247ffc-c974-4880-9f26-ce05e62af7e0 표시 범위에 따라 세 목록에 담기는 태그가 달라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             val grandChildTag = tag()
@@ -265,7 +267,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-f22e32bd-afa2-4ac2-8ee6-2134fed88626 범위 안 여러 태그와 연결된 항목도 목록에 한 번만 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
@@ -284,7 +286,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-b3c18b65-245d-44ed-819b-bc19dc0489ec 범위 안 여러 태그와 연결된 장소도 지도에 핀 하나로만 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
@@ -297,7 +299,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 목록 조회가 갱신된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
@@ -325,7 +327,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-11a748b2-3712-4bb6-b382-9f0c78449aab 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
@@ -346,7 +348,7 @@ class AccountTagScopeDaoTest :
                 tag().copy(isFinished = true),
                 tag().copy(isDeleted = true),
             ).forEach { rootTag ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val childTag = tag()
                 insertTag(accountId, rootTag, childTag)
                 link(accountId = accountId, fromTagId = rootTag.id, toTagId = childTag.id)
@@ -362,7 +364,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-bd009926-ec5f-4936-8486-ed743d13988f 완료된 메모 목록에는 표시 범위를 적용하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
@@ -377,7 +379,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-1742db05-4807-4512-ab3a-b1d1ba00e892 하위 태그는 그 태그에서 향해 나가는 연결의 도착 태그만 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             val parentTag = tag()
@@ -397,7 +399,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-9a66b140-8d18-4eef-9a61-89c62db0a66b 후손 태그는 연결을 계속 따라간 태그를 모두 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             val thirdTag = tag()
@@ -419,7 +421,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-a60bac4d-9731-472a-a6b3-0f608caf441e 순환하는 연결이 있어도 후손 태그 조회가 끝나고 같은 태그가 한 번만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             val thirdTag = tag()
@@ -440,7 +442,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-cc30ec87-4523-4857-a365-fc3a3f6176be 서로 다른 경로가 같은 태그에 닿아도 한 번만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val leftTag = tag()
             val rightTag = tag()
@@ -458,7 +460,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-c4494862-8d80-492e-89b4-82dc09b3c9cb 삭제된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val deletedTag = tag().copy(isDeleted = true)
             val beyondTag = tag()
@@ -473,7 +475,7 @@ class AccountTagScopeDaoTest :
         }
 
         test("TC-cecd789d-ef15-48f8-ad61-95dbf347c4a6 완료된 하위 태그와 그 태그를 지나는 태그는 후손 태그에 포함된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val finishedTag = tag().copy(isFinished = true)
             val beyondTag = tag()
@@ -491,8 +493,8 @@ class AccountTagScopeDaoTest :
         }
 
         test("다른 계정의 태그 연결은 표시 범위를 넓히지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag)
@@ -521,31 +523,33 @@ class AccountTagScopeDaoTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>().data.map(id)
         }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
-                .let { tag ->
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { tag ->
                     tag.copy(
-                        detail = tag.detail.copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                        detail = tag.detail.copy(title = "title-${Arb.string().next()}"),
                         isFinished = false,
                         isDeleted = false,
                     )
                 }
 
         private fun memo(): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
-                .let { memo ->
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { memo ->
                     memo.copy(
-                        detail = memo.detail.copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                        detail = memo.detail.copy(title = "title-${Arb.string().next()}"),
                         primaryTagId = null,
                         isFinished = false,
                         isDeleted = false,
@@ -553,27 +557,29 @@ class AccountTagScopeDaoTest :
                 }
 
         private fun web(): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
-                .let { web ->
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { web ->
                     web.copy(
-                        detail = web.detail.copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                        detail = web.detail.copy(title = "title-${Arb.string().next()}"),
                         isDeleted = false,
                     )
                 }
 
         private fun place(): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
-                .let { place ->
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { place ->
                     place.copy(
-                        detail = place.detail.copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                        detail = place.detail.copy(title = "title-${Arb.string().next()}"),
                         isDeleted = false,
                     )
                 }

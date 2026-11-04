@@ -8,12 +8,11 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
 import io.mockk.every
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -25,8 +24,6 @@ import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
 private const val TITLE_INPUT_INDEX = 0
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -96,7 +93,7 @@ class PlaceAddScreenFocusTest {
         }
 
         listOf(TITLE_INPUT_INDEX to TYPED_TITLE, ADDRESS_INDEX to TYPED_ADDRESS).forEach { (focusedIndex, typedText) ->
-            val coordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+            val coordinate = mapCoordinateInFormPrecision()
             composeRule.onAllNodes(hasSetTextAction())[focusedIndex].performTextInput(typedText)
             composeRule.onAllNodes(hasSetTextAction())[focusedIndex].assertIsFocused()
 

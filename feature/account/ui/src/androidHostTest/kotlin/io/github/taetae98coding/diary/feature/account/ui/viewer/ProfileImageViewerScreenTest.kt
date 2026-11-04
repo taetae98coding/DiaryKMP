@@ -17,11 +17,11 @@ import coil3.SingletonImageLoader
 import coil3.annotation.DelicateCoilApi
 import coil3.request.ErrorResult
 import coil3.test.FakeImageLoaderEngine
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.awaitCancellation
 import org.junit.After
 import org.junit.Before
@@ -32,9 +32,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -171,4 +168,4 @@ class ProfileImageViewerScreenTest {
     }
 }
 
-private fun imageUrl(): String = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+private fun imageUrl(): String = "https://example.com/${Arb.kotlinUuid().next()}.jpg"

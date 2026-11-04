@@ -1,17 +1,17 @@
 package io.github.taetae98coding.diary.core.web.network.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderRemoteEntity
 import io.github.taetae98coding.diary.core.web.network.impl.WebNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.web.network.impl.createWebPageHttpClient
 import io.github.taetae98coding.diary.core.web.network.impl.di.WebPageHttpClient
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -27,7 +27,7 @@ import org.koin.plugin.module.dsl.koinApplication
 class WebPageRemoteDataSourceImplTest :
     FunSpec({
         test("TC-178ebe51-6c6f-4137-8b09-b4009f5bd484 저장된 URL로 요청하고 응답 본문을 그대로 전달한다") {
-            val body = "<html><body>${fixtureMonkey.giveMeOne<String>()}</body></html>"
+            val body = "<html><body>${Arb.string().next()}</body></html>"
             val engine = createMockEngine(body = body)
             val dataSource = createDataSource(engine)
 
@@ -79,7 +79,7 @@ class WebPageRemoteDataSourceImplTest :
         }
 
         test("TC-b8dfa3f3-7752-4c7e-8d4c-9e57373efca9 다른 주소로 옮겨 가라는 응답을 따라가 마지막 응답과 그 주소를 결과로 삼는다") {
-            val body = "<html><body>${fixtureMonkey.giveMeOne<String>()}</body></html>"
+            val body = "<html><body>${Arb.string().next()}</body></html>"
             val engine =
                 MockEngine { request ->
                     if (request.url.toString() == URL) {
@@ -104,9 +104,6 @@ class WebPageRemoteDataSourceImplTest :
     public companion object {
         private const val URL = "https://developer.android.com/"
         private const val REDIRECTED_URL = "https://developer.android.com/redirected/"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun createMockEngine(
             body: String = "<html></html>",

@@ -3,33 +3,33 @@ package io.github.taetae98coding.diary.feature.tag.ui
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal fun tagMemo(
     title: String,
     dateTime: MemoDateTime? = null,
 ): Memo =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Memo>()
-        .setExp(
-            Memo::detail,
-            fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime),
-        ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memo()
+        .next()
+        .copy(
+            detail = Arb.memoDetail().next().copy(title = title, dateTime = dateTime),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 internal fun tagMemoPagingData(
     itemList: List<MemoListItem>,
@@ -48,6 +48,6 @@ internal fun tagMemoPagingData(
 
 internal fun allDayMemoDateTime(date: LocalDate): MemoDateTime.AllDay = MemoDateTime.AllDay(dateRange = date..date)
 
-internal fun fixtureText(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)
+internal fun fixtureText(prefix: String): String = prefix + Arb.string().next().filter(Char::isLetterOrDigit)
 
-internal fun fixtureId(): Uuid = fixtureMonkey.giveMeOne<Uuid>()
+internal fun fixtureId(): Uuid = Arb.kotlinUuid().next()

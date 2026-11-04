@@ -5,8 +5,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.navigation3.runtime.NavBackStack
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
@@ -22,25 +20,24 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class EntityDetailMemoNavigationTest :
     FunSpec({
         test("MemoAdd ScreenNavKey를 저장하고 복원하면 초기 연락처, 장소, 웹 ID가 유지된다") {
             val keyList: List<ScreenNavKey> =
                 listOf(
-                    MemoAddNavKey(initialContactId = fixtureMonkey.giveMeOne<Uuid>()),
-                    MemoAddNavKey(initialPlaceId = fixtureMonkey.giveMeOne<Uuid>()),
-                    MemoAddNavKey(initialWebId = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoAddNavKey(initialContactId = Arb.kotlinUuid().next()),
+                    MemoAddNavKey(initialPlaceId = Arb.kotlinUuid().next()),
+                    MemoAddNavKey(initialWebId = Arb.kotlinUuid().next()),
                 )
 
             keyList.forEach { key ->
@@ -60,7 +57,7 @@ class EntityDetailMemoNavigationTest :
         }
 
         test("TC-fd0c7f3a-df61-4e6a-925a-44d5e803d546 TC-b1ad2a25-587e-407b-8ec2-272511eb793f TC-9ccf649e-904e-4c51-90b7-e15c2a2456af 넓은 화면에서도 상세 메모 탭에서 이어진 화면에서는 내비게이션을 숨긴다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val id = Arb.kotlinUuid().next()
             val moreBackStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key)
             val detailBackStackList =
                 listOf(
@@ -72,7 +69,7 @@ class EntityDetailMemoNavigationTest :
                 detailBackStackList.flatMap { (detailBackStack, memoAddKey) ->
                     listOf(
                         detailBackStack + memoAddKey,
-                        detailBackStack + MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                        detailBackStack + MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                     )
                 }
 
@@ -90,16 +87,16 @@ class EntityDetailMemoNavigationTest :
             "TC-e9e30493-4fea-45ac-aa7b-13d43f9f057a TC-b24a6b4a-42c6-41a7-aeac-da02eb2c44e0 TC-0716933d-7223-4e1f-8374-751bae112bab " +
                 "넓은 화면에서도 TagDetail의 목록 탭에서 이어진 추가와 상세 화면에서는 내비게이션을 숨긴다",
         ) {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
             val tagDetailBackStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(id = tagId))
             val backStackCases =
                 listOf(
                     tagDetailBackStack + MemoAddNavKey(primaryTagId = tagId),
-                    tagDetailBackStack + MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                     tagDetailBackStack + WebAddNavKey(initialTagId = tagId),
-                    tagDetailBackStack + WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + WebDetailNavKey(id = Arb.kotlinUuid().next()),
                     tagDetailBackStack + PlaceAddNavKey(initialTagId = tagId),
-                    tagDetailBackStack + PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStackCases.forEach { keys ->

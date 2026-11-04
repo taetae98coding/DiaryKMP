@@ -8,19 +8,21 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -155,7 +157,7 @@ class MemoFinishedListScreenTest {
     @Test
     fun `TC-4ba90c11-1024-43f2-b455-da3ec1822758 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
         val environment = screenTestEnvironment()
-        val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
+        val otherMemoId = Arb.kotlinUuid().next()
         justRun { environment.viewModel.restore(id = otherMemoId) }
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -261,19 +263,19 @@ class MemoFinishedListScreenTest {
         private const val KOREAN_DELETED_MESSAGE = "메모가 삭제되었습니다."
         private const val DEFAULT_UNDO_ACTION = "Undo"
         private const val KOREAN_UNDO_ACTION = "실행 취소"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun screenTestEnvironment(): ScreenTestEnvironment {
             val memo =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<Memo>()
-                    .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = MEMO_TITLE, dateTime = null))
-                    .setExp(Memo::isFinished, true)
-                    .setExp(Memo::isDeleted, false)
-                    .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                    .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                    .sample()
+                Arb
+                    .memo()
+                    .next()
+                    .copy(
+                        detail = Arb.memoDetail().next().copy(title = MEMO_TITLE, dateTime = null),
+                        isFinished = true,
+                        isDeleted = false,
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
+                    )
             val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
             val viewModel = mockk<MemoFinishedListViewModel>()
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))

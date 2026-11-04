@@ -1,33 +1,31 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
+import io.github.taetae98coding.diary.core.testing.playlist.youtubeVideo
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.repository.YoutubeVideoRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 
 private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchYoutubeVideoUseCaseTest :
     BehaviorSpec({
         Given("영상 정보 조회가 성공하도록 준비되어 있다") {
             When("YouTube 영상 링크로 불러온다") {
                 Then("TC-a4483895-1bff-43b1-98af-3787cc0ca408 입력한 링크로 조회하고 영상 제목과 채널 이름을 전달한다") {
-                    val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
+                    val video = Arb.youtubeVideo().next()
                     val repository = successRepository(video = video)
                     val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 
@@ -37,7 +35,7 @@ class FetchYoutubeVideoUseCaseTest :
                 }
 
                 Then("TC-7eded492-d855-445f-b3c9-e16bd41d208f 링크의 앞뒤 공백을 없앤 값으로 조회한다") {
-                    val repository = successRepository(video = fixtureMonkey.giveMeOne<YoutubeVideo>())
+                    val repository = successRepository(video = Arb.youtubeVideo().next())
                     val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 
                     useCase(parameter = "  $YOUTUBE_LINK  ").shouldBeSuccess()
@@ -48,7 +46,7 @@ class FetchYoutubeVideoUseCaseTest :
         }
 
         Given("영상 정보 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException("fetch-${fixtureMonkey.giveMeOne<String>()}")
+            val throwable = IllegalStateException("fetch-${Arb.string().next()}")
             val repository = mockk<YoutubeVideoRepository>()
             coEvery { repository.fetch(link = any()) } throws throwable
             val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
@@ -103,7 +101,7 @@ class FetchYoutubeVideoUseCaseTest :
                     "http://www.youtube.com/watch?v=dQw4w9WgXcQ",
                 ).forEach { link ->
                     Then("TC-48f834e5-bf64-46f8-a82a-965b9eb865cb YouTube 주소로 영상 정보를 조회한다: $link") {
-                        val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
+                        val video = Arb.youtubeVideo().next()
                         val repository = successRepository(video = video)
                         val useCase = FetchYoutubeVideoUseCase(youtubeVideoRepository = repository)
 

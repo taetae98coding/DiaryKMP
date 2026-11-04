@@ -26,8 +26,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -48,8 +46,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilter
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -214,9 +214,8 @@ class MemoHomeFilterOpenBoundaryTest {
         const val TOP_LEVEL_CONTENT = "TopLevelContent"
         const val DATE_LABEL = "Date"
         const val EXIST_LABEL = "With"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
-        fun filterTag(): Tag = testTag(title = "filter-tag-${fixtureMonkey.giveMeOne<String>()}")
+        fun filterTag(): Tag = testTag(title = "filter-tag-${Arb.string().next()}")
 
         fun storedExistence(): MemoExistenceFilter = MemoExistenceFilter(date = MemoFilterExistence.EXIST)
 

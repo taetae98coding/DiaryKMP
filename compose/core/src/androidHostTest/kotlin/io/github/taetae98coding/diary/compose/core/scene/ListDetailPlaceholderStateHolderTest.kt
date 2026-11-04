@@ -32,14 +32,14 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -199,9 +199,8 @@ class ListDetailPlaceholderStateHolderTest {
         const val LIST_CONTENT = "ListContent"
         const val FULL_SCREEN_CONTENT = "FullScreenContent"
         const val OTHER_CONTENT = "OtherContent"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
-        fun fixtureInput(): String = "input-${fixtureMonkey.giveMeOne<String>()}"
+        fun fixtureInput(): String = "input-${Arb.string().next()}"
 
         fun testViewModelStoreOwner(): ViewModelStoreOwner =
             object : ViewModelStoreOwner {

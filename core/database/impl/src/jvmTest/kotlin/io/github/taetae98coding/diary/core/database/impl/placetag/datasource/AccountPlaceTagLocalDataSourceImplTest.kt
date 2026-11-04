@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
@@ -29,7 +26,11 @@ import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.Ac
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -37,14 +38,15 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountPlaceTagLocalDataSourceImplTest :
     FunSpec({
@@ -174,7 +176,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 .map { place -> place.id }
 
         test("TC-36040314-b2fa-4cd6-9b33-b1d5710bd002 하나의 장소에 여러 태그를 연결할 수 있다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val firstTag = tag()
             val secondTag = tag()
@@ -189,7 +191,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-1caa66c1-25d4-4218-83ca-b975ef8903b3 하나의 태그를 여러 장소에 연결할 수 있다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstPlace = place()
             val secondPlace = place()
             val tag = tag()
@@ -204,7 +206,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-41a8ac6d-424e-42eb-b1c9-f1feb9820aa9 같은 장소와 태그의 연결은 중복되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -217,7 +219,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-9f9a59a5-d2d3-45a2-904b-489b03a5c944 연결된 태그가 없는 장소도 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             insertPlace(accountId, place)
 
@@ -225,7 +227,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-13ae46b2-5a38-4f9e-a24d-6ae65b6acd79 연결하거나 해제해도 장소와 태그의 내용은 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val baseTag = tag()
             val tag = baseTag.copy(detail = baseTag.detail.copy(color = place.detail.color.inv()))
@@ -242,8 +244,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-2cf2151c-47fb-46db-9562-b46d6292a2a9 계정과 연결되지 않은 태그는 연결된 태그로 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val place = place()
             val otherAccountTag = tag()
             insertPlace(accountId, place)
@@ -255,7 +257,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-f380865f-40ed-4b8f-adea-05aafc8149b9 연결을 해제하면 조회되지 않고 다시 만들면 복구된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -270,7 +272,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-202cb7c8-07c8-4f7c-b971-844929636b95 TC-cda91020-0a3f-48e4-af24-76391114f1fa 삭제된 태그는 조회되지 않고 완료된 태그는 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -289,13 +291,13 @@ class AccountPlaceTagLocalDataSourceImplTest :
             AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
-                cursor = fixtureMonkey.giveMeOne<Long>(),
+                cursor = Arb.long().next(),
             )
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
         }
 
         test("TC-ed9a3af3-c21a-417a-bb26-63211e4875c2 연결된 태그는 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val firstTag = tag(title = "a")
             val secondTag = tag(title = "b")
@@ -311,17 +313,17 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-1817b87d-dbfd-444d-9bb6-a8b52d9a0588 기기에 없는 태그를 가리키는 연결은 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             insertPlace(accountId, place)
 
-            link(accountId = accountId, placeId = place.id, tagId = fixtureMonkey.giveMeOne<Uuid>())
+            link(accountId = accountId, placeId = place.id, tagId = Arb.kotlinUuid().next())
 
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
         }
 
         test("TC-df698e6c-8b40-4208-8843-63eed23c334a 태그를 완료하거나 삭제해도 연결은 해제되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -346,7 +348,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-cfcc2dee-59c0-4ee4-9117-c2c39c75dfa5 장소를 삭제해도 태그 연결은 해제되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -359,7 +361,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-ede3116b-87ed-43c0-ab0b-7b189644b973 장소의 내용 수정은 태그 연결을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val firstTag = tag()
             val secondTag = tag()
@@ -371,7 +373,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             placeTransaction.updateDetail(
                 accountId = accountId,
                 placeId = place.id,
-                detail = fixtureMonkey.giveMeOne<PlaceDetailLocalEntity>(),
+                detail = Arb.placeDetailLocalEntity().next(),
                 updatedAt = instant(),
             )
 
@@ -380,7 +382,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-4bc90091-859a-4965-ab30-3972f677477d 태그와 태그의 연결을 따라 장소가 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             val place = place()
@@ -402,8 +404,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-e87bf594-41f5-4e62-85d7-830a592712f9 장소와 태그를 연결해도 그 장소에 연결된 메모에는 태그가 연결되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+            val accountId = Arb.kotlinUuid().next()
+            val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -444,7 +446,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-7a28c56d-8d87-4e0f-92a0-97784ad00d1f 연결 해제는 같은 장소의 다른 연결을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val removedTag = tag()
             val keptTag = tag()
@@ -459,7 +461,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-cb94f332-7620-4cad-8baf-c8fc133c0b75 가리키는 항목이 기기에 없는 연결도 저장은 성공한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tag = tag()
             insertPlace(accountId, place)
@@ -472,8 +474,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-514c141c-6bad-40e1-b1bd-77c64ccfdfc2 연결할 수 있는 태그는 계정과 연결된 미완료·미삭제 태그다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val place = place()
             val selectableTag = tag()
             val finishedTag = tag().copy(isFinished = true)
@@ -487,7 +489,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-97c62caf-cc7f-4f53-be0d-dd8ad576eca8 연결할 수 있는 태그에 없는 연결된 태그도 목록에 함께 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val selectableTag = tag(title = "a")
             val finishedTag = tag(title = "b")
@@ -500,7 +502,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-006b9a6d-7ea2-4e2d-9e27-512cfb32355d 목록에 나타난 연결할 수 없는 태그의 연결을 해제하면 목록에서 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val finishedTag = tag()
             insertPlace(accountId, place)
@@ -516,7 +518,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-3330799c-1f9d-4a22-8486-fb2bc9446002 계정의 미완료·미삭제 태그는 하나도 제외되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val firstTag = tag(title = "a")
             val secondTag = tag(title = "b")
@@ -528,7 +530,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-775ecb03-f12a-4bfc-8b94-55ecb871e940 목록의 태그는 완료 여부로 구분하지 않고 제목 오름차순으로 정렬된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val firstTag = tag(title = "a")
             val finishedTag = tag(title = "b")
@@ -543,7 +545,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-deb2f172-cf67-4ec6-82cd-7aa59a83badf 검색어는 이모지·제목·설명 중 하나 이상을 포함하면 만족한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val titleTag = tag(title = "여행 기록")
             val englishTag = tag(title = "Travel")
@@ -560,7 +562,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-91a28ed2-a761-49ec-8fa6-a51061cfa4b2 고른 뒤 완료된 태그는 추가한 장소와 연결되어 연결된 태그로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val finishedTag = tag().copy(isFinished = true)
             insertTag(accountId, finishedTag)
@@ -571,7 +573,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-91a28ed2-a761-49ec-8fa6-a51061cfa4b2 고른 뒤 삭제된 태그도 추가한 장소와 연결되어 삭제를 되돌리면 연결된 태그로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val deletedTag = tag().copy(isDeleted = true)
             insertTag(accountId, deletedTag)
@@ -584,7 +586,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-2121054a-8501-4544-acb9-e2ecc6f802c7 TC-4dd1e038-bbcb-4df9-827c-fd1f7f26cd84 TC-a1f67716-6619-4c28-bb0b-db49aee35c12 장소 추가와 태그 연결이 하나의 저장 작업으로 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val selectedTagList = List(2) { tag() }
             val unselectedTag = tag()
@@ -614,7 +616,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-be4de6d2-ac3c-49d1-94a5-1709dadf41c4 TC-1c64c262-6223-452d-b72b-6ff5c108b7a5 저장이 실패하면 장소, 계정 연결과 태그 연결이 모두 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val targetTag = tag()
             insertTag(accountId, targetTag)
@@ -653,7 +655,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-b9ccc593-1f09-4710-ba90-3ec29a001f44 TC-60158d7b-c0fc-42ce-b158-12e70939875e 태그 연결은 장소 목록·지도 핀과 장소 검색 결과를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstPlace = place(title = "a-place").withCoordinate(latitude = 1.0, longitude = 1.0)
             val secondPlace = place(title = "b-place").withCoordinate(latitude = 2.0, longitude = 2.0)
             val targetTag = tag(title = TAG_ONLY_TITLE)
@@ -673,7 +675,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-ab233228-ddbe-4193-a127-b9e46fc8e48a 태그 연결의 저장은 장소를 업로드 대기로 만들지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val targetTag = tag()
             insertPlace(accountId, place)
@@ -689,7 +691,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-30f2e9b2-a8c2-45ba-b29e-2b1bf9ac1e0f 태그 연결 결과가 그 태그의 장소 탭에 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val targetTag = tag()
             insertPlace(accountId, place)
@@ -704,7 +706,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-2798d9a2-1611-4b32-aaf6-4f9f5b3cdadd 태그 연결과 해제는 장소의 내용과 수정 시각을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val targetTag = tag()
             insertPlace(accountId, place)
@@ -719,7 +721,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-5cdc8027-6bc1-4935-ba05-377cfa1d5cd9 삭제 상태인 장소에서도 태그 연결을 바꿀 수 있다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = true)
             val targetTag = tag()
             insertPlace(accountId, place)
@@ -735,8 +737,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-088d4249-7c3b-409f-94e8-dba21aacbdbf TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결의 업로드 대기 여부가 계정별로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val place = place()
             val targetTag = tag()
             insertPlace(accountId, place)
@@ -762,7 +764,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-7b76bc8d-ce67-4e8f-8798-77c0f5bebeb7 TC-74e4c103-2255-4f3b-8e5f-0dba291014d6 연결된 태그는 페이지로 나누지 않고 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val finishedTag = tag(title = "z-finished").copy(isFinished = true)
             val activeTag = tag(title = "a-active")
@@ -780,7 +782,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-6cddd37e-ef3a-48f0-869d-c33623995b26 검색어를 만족하는 태그는 목록의 첫 페이지에 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val matchedTag = tag(title = "z-matched-$SEARCH_ONLY_QUERY")
             insertPlace(accountId, place)
@@ -793,7 +795,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
         }
 
         test("TC-0040fa16-bd85-4002-9e38-ad256ce90a59 태그 선택 목록을 페이지 단위로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val tagList = List(3) { index -> tag(title = "tag-$index") }
             insertPlace(accountId, place)
@@ -840,15 +842,16 @@ class AccountPlaceTagLocalDataSourceImplTest :
             longitude: Double,
         ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
-        private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
-                .let { tag ->
+        private fun tag(title: String = "title-${Arb.string().next()}"): TagLocalEntity =
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { tag ->
                     tag.copy(
                         detail = tag.detail.copy(title = title),
                         isFinished = false,
@@ -861,13 +864,14 @@ class AccountPlaceTagLocalDataSourceImplTest :
             description: String,
         ): TagLocalEntity = copy(detail = detail.copy(emoji = emoji, description = description))
 
-        private fun place(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
-                .let { place ->
+        private fun place(title: String = "title-${Arb.string().next()}"): PlaceLocalEntity =
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { place ->
                     place.copy(
                         detail = place.detail.copy(title = title),
                         isDeleted = false,

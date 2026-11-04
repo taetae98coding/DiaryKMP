@@ -1,17 +1,20 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,7 +26,7 @@ import kotlin.uuid.Uuid
 class GetSelectedPlaceUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 선택한 장소가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val placeList = List(2) { place() }
             val placeIdSet = placeList.mapTo(mutableSetOf()) { place -> place.id }
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -62,7 +65,7 @@ class GetSelectedPlaceUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
@@ -74,7 +77,7 @@ class GetSelectedPlaceUseCaseTest :
 
             When("선택한 장소를 조회한다") {
                 Then("실패를 그대로 전달한다") {
-                    useCase(parameter = setOf(fixtureMonkey.giveMeOne<Uuid>()))
+                    useCase(parameter = setOf(Arb.kotlinUuid().next()))
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -83,14 +86,13 @@ class GetSelectedPlaceUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun place(): Place =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Place>()
-                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .place()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

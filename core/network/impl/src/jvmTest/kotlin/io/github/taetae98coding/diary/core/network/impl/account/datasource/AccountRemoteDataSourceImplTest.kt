@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.core.network.impl.account.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.account.entity.AppleAuthorizationRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.TestException
 import io.github.taetae98coding.diary.core.network.impl.account.entity.AccountDeleteRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.account.appleAuthorizationRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -23,9 +23,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.serialization.json.Json
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountRemoteDataSourceImplTest :
     FunSpec({
@@ -42,7 +39,7 @@ class AccountRemoteDataSourceImplTest :
         }
 
         test("TC-8f644268-bf99-49ba-9d69-db161bfe2ed8 Apple 재인증을 거쳤으면 인가 코드와 식별 값을 담아 보낸다") {
-            val authorization = fixtureMonkey.giveMeOne<AppleAuthorizationRemoteEntity>()
+            val authorization = Arb.appleAuthorizationRemoteEntity().next()
             val bodySlot = slot<Any>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery { supabaseFunction(function = "v1-account-delete", body = capture(bodySlot), typeInfo = any(), headers = any()) } returns httpResponse()

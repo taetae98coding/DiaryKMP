@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.checklist.ui
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.isChecklistAddOnDetailPane
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistListDetailPaneTest :
     FunSpec({
@@ -32,8 +30,8 @@ class ChecklistListDetailPaneTest :
         test("TC-1acd4129-8246-4cf5-bdd5-08ee0b9e92f7 체크리스트 상세로 이동했으면 상세 영역에 체크리스트 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherScreenNavKey, ChecklistHomeNavKey, ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(OtherScreenNavKey, ChecklistHomeNavKey, ChecklistAddNavKey, ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(OtherScreenNavKey, ChecklistHomeNavKey, ChecklistDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(OtherScreenNavKey, ChecklistHomeNavKey, ChecklistAddNavKey, ChecklistDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             backStackCases.forEach { backStack ->

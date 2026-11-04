@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.file.ui
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.file.api.isFileAddOnDetailPane
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileListDetailPaneTest :
     FunSpec({
@@ -22,7 +20,7 @@ class FileListDetailPaneTest :
                     listOf(FileHomeNavKey),
                     listOf(OtherScreenNavKey, FileHomeNavKey),
                     listOf(OtherScreenNavKey, FileHomeNavKey, FileAddNavKey),
-                    listOf(OtherScreenNavKey, FileHomeNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), FileAddNavKey),
+                    listOf(OtherScreenNavKey, FileHomeNavKey, FileDetailNavKey(id = Arb.kotlinUuid().next()), FileAddNavKey),
                 )
 
             backStackCases.forEach { backStack ->
@@ -33,8 +31,8 @@ class FileListDetailPaneTest :
         test("TC-e8b1d116-f857-4329-acb8-5fd73bad2f05 FileDetail로 이동했으면 상세 영역에 FileAdd가 놓이지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherScreenNavKey, FileHomeNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(OtherScreenNavKey, FileHomeNavKey, FileAddNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(OtherScreenNavKey, FileHomeNavKey, FileDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(OtherScreenNavKey, FileHomeNavKey, FileAddNavKey, FileDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             backStackCases.forEach { backStack ->

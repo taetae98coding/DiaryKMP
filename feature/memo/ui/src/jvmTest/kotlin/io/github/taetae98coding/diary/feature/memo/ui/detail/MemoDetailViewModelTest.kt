@@ -3,21 +3,24 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.CopyMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UpdateMemoUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -70,7 +73,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-3a4b49d6-5255-4631-9372-37346ffe8352 조회가 실패하면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findMemoUseCase = mockk<FindMemoUseCase>()
-                every { findMemoUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                every { findMemoUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = viewModel(findMemoUseCase = findMemoUseCase)
 
                 viewModel.uiState.test {
@@ -107,7 +110,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-5b89e4fa-431c-432a-be24-1dad799bb8dc 내용을 표시한 뒤 조회가 잠시 끊기면 로딩 상태가 되었다가 다시 내용으로 돌아온다") {
             runTest(mainDispatcher) {
                 listOf<Result<Memo?>>(
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    Result.failure(IllegalStateException(Arb.string().next())),
                     Result.success(null),
                 ).forEach { brokenResult ->
                     val memo = memo()
@@ -135,7 +138,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-e56b13c0-7157-4641-b74c-7a4b0b62ab4a 조회한 메모의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo()
-                val changedMemo = memo.copy(detail = fixtureMonkey.giveMeOne<MemoDetail>())
+                val changedMemo = memo.copy(detail = Arb.memoDetail().next())
                 val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 every { findMemoUseCase(any()) } returns resultFlow
@@ -234,9 +237,9 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-042e7d6a-8110-4c0f-92f9-0f51830bd3cb 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstDetail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "first-${fixtureMonkey.giveMeOne<String>()}")
-                val secondDetail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "second-${fixtureMonkey.giveMeOne<String>()}")
+                val id = Arb.kotlinUuid().next()
+                val firstDetail = Arb.memoDetail().next().copy(title = "first-${Arb.string().next()}")
+                val secondDetail = Arb.memoDetail().next().copy(title = "second-${Arb.string().next()}")
                 val completion = CompletableDeferred<Result<Int>>()
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
                 coEvery { updateMemoUseCase(any()) } coAnswers { completion.await() }
@@ -262,7 +265,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } coAnswers { completion.await() }
@@ -297,7 +300,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } coAnswers { completion.await() }
@@ -327,8 +330,8 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val detail = fixtureMonkey.giveMeOne<MemoDetail>()
+                val id = Arb.kotlinUuid().next()
+                val detail = Arb.memoDetail().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } coAnswers { completion.await() }
@@ -361,7 +364,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 수정 처리 중 전달된 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
                 coEvery { updateMemoUseCase(any()) } coAnswers { completion.await() }
@@ -374,7 +377,7 @@ class MemoDetailViewModelTest : FunSpec() {
                         finishMemoUseCase = finishMemoUseCase,
                     )
 
-                viewModel.update(fixtureMonkey.giveMeOne<MemoDetail>())
+                viewModel.update(Arb.memoDetail().next())
                 runCurrent()
 
                 viewModel.finish()
@@ -389,9 +392,9 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("수정이 취소되면 다음 수정 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstDetail = fixtureMonkey.giveMeOne<MemoDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<MemoDetail>()
+                val id = Arb.kotlinUuid().next()
+                val firstDetail = Arb.memoDetail().next()
+                val secondDetail = Arb.memoDetail().next()
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
                 coEvery {
                     updateMemoUseCase(UpdateMemoUseCase.Parameter(id = id, detail = firstDetail))
@@ -421,7 +424,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("완료가 취소되면 다음 다시 시작 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(parameter = id) } throws CancellationException()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -445,7 +448,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("다시 시작이 취소되면 다음 완료 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(parameter = id) } throws CancellationException()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -469,7 +472,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("삭제가 취소되면 다음 삭제 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(parameter = id) } throws CancellationException()
                 val viewModel =
@@ -496,7 +499,7 @@ class MemoDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(updateMemoUseCase = updateMemoUseCase)
 
                 viewModel.effect.test {
-                    viewModel.update(fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"))
+                    viewModel.update(Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}"))
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MemoDetailEffect.UpdateSucceeded
@@ -511,9 +514,9 @@ class MemoDetailViewModelTest : FunSpec() {
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
                 val updateMemoUseCase = mockk<UpdateMemoUseCase>()
-                coEvery { updateMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { updateMemoUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(id = memo.id, findMemoUseCase = findMemoUseCase, updateMemoUseCase = updateMemoUseCase)
-                val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                val detail = Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}")
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoDetailUiState.Loading
@@ -542,7 +545,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 완료를 실행하면 현재 메모의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -564,7 +567,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 다시 시작을 실행하면 현재 메모의 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -586,7 +589,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-231b6a8e-83cc-4cf4-8c2d-558f5715280a TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 삭제에 성공하면 현재 메모의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -610,7 +613,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-99521be8-d19f-4211-8d1a-f7d766a9ad09 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
-                coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
 
                 viewModel.effect.test {
@@ -625,9 +628,9 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-a82081c9-eb59-4e31-9d25-84b26de5fa27 완료와 다시 시작 저장에 실패하면 Effect를 보내지 않고 다시 요청할 수 있다") {
             runTest(mainDispatcher) {
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
-                coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
-                coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase, restartMemoUseCase = restartMemoUseCase)
 
                 viewModel.effect.test {
@@ -651,8 +654,8 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-3173bd65-b0f9-4f01-8a9e-df2b3bd4cf60 복사에 성공하면 복사본 메모의 상세로 전환하는 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val copiedId = Arb.kotlinUuid().next()
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
                 coEvery { copyMemoUseCase(any()) } returns Result.success(copiedId)
                 val viewModel =
@@ -676,7 +679,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-b795c4a5-6336-4660-af19-1b869e952178 복사에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
-                coEvery { copyMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { copyMemoUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(copyMemoUseCase = copyMemoUseCase)
 
                 viewModel.effect.test {
@@ -690,7 +693,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 복사 처리 중 전달된 복사 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
                 coEvery { copyMemoUseCase(any()) } coAnswers { completion.await() }
@@ -713,7 +716,7 @@ class MemoDetailViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { copyMemoUseCase(parameter = id) }
                 coVerify(exactly = 1) { finishMemoUseCase(parameter = id) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.copy()
@@ -725,12 +728,12 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("TC-4a606184-d0ac-4779-9edc-29b91548284a 완료 처리 중 전달된 복사 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } coAnswers { completion.await() }
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
-                coEvery { copyMemoUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { copyMemoUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel =
                     viewModel(
                         id = id,
@@ -753,7 +756,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
         test("복사가 취소되면 다음 복사 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val copyMemoUseCase = mockk<CopyMemoUseCase>()
                 coEvery { copyMemoUseCase(parameter = id) } throws CancellationException()
                 val viewModel =
@@ -765,7 +768,7 @@ class MemoDetailViewModelTest : FunSpec() {
                 viewModel.copy()
                 advanceUntilIdle()
 
-                coEvery { copyMemoUseCase(parameter = id) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { copyMemoUseCase(parameter = id) } returns Result.success(Arb.kotlinUuid().next())
                 viewModel.copy()
                 advanceUntilIdle()
 
@@ -798,7 +801,7 @@ class MemoDetailViewModelTest : FunSpec() {
 
                     (awaitItem() as MemoDetailUiState.Content).isCopyInProgress shouldBe true
 
-                    completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                    completion.complete(Result.success(Arb.kotlinUuid().next()))
                     advanceUntilIdle()
 
                     (awaitItem() as MemoDetailUiState.Content).isCopyInProgress shouldBe false
@@ -810,7 +813,7 @@ class MemoDetailViewModelTest : FunSpec() {
         test("TC-178e5498-cdf7-4b54-94f3-b47ad896d8d1 수정에 성공해 저장 제목이 바뀌면 상단 바 제목이 갱신된다") {
             runTest(mainDispatcher) {
                 val memo = memo()
-                val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"
+                val newTitle = "new-${Arb.string().next()}"
                 val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
                 val findMemoUseCase = mockk<FindMemoUseCase>()
                 every { findMemoUseCase(any()) } returns resultFlow
@@ -843,15 +846,14 @@ class MemoDetailViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun emptyFindMemoUseCase(): FindMemoUseCase {
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -860,7 +862,7 @@ class MemoDetailViewModelTest : FunSpec() {
         }
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             findMemoUseCase: FindMemoUseCase = emptyFindMemoUseCase(),
             updateMemoUseCase: UpdateMemoUseCase = mockk(relaxed = true),
             finishMemoUseCase: FinishMemoUseCase = mockk(relaxed = true),

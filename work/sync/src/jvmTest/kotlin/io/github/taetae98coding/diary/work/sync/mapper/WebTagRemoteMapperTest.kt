@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.webtag.webTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.webtag.webTagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 
 class WebTagRemoteMapperTest :
@@ -59,21 +60,22 @@ class WebTagRemoteMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun localWebTag(isDeleted: Boolean): WebTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<WebTagLocalEntity>()
-        .setExp(WebTagLocalEntity::isDeleted, isDeleted)
-        .setExp(WebTagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(WebTagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .webTagLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun remoteWebTag(isDeleted: Boolean): WebTagRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<WebTagRemoteEntity>()
-        .setExp(WebTagRemoteEntity::isDeleted, isDeleted)
-        .setExp(WebTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(WebTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .webTagRemoteEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )

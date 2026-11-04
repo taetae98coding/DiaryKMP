@@ -8,12 +8,10 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
+import io.github.taetae98coding.diary.core.testing.authentication.appleAuthorization
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -21,6 +19,8 @@ import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -35,9 +35,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class ProfileDeleteViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -193,7 +190,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
 
         test("TC-394d73c1-14ac-40cc-8355-db7b3bc510ec 받은 Apple 인가 코드로 탈퇴를 요청한다") {
             runTest(mainDispatcher) {
-                val authorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
+                val authorization = Arb.appleAuthorization().next()
                 val deleteAccountUseCase = deleteAccountUseCase()
                 val viewModel = viewModel(deleteAccountUseCase = deleteAccountUseCase)
 

@@ -1,16 +1,18 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialAuthorizationCode
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -43,8 +45,8 @@ class SignInWithGoogleUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 Google 앱 로그인이 특정 원인으로 실패하도록 준비되어 있다") {
-            val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-            val failure = GoogleUseCaseTestException(fixtureMonkey.giveMeOne())
+            val credential = Arb.googleCredentialIdToken().next()
+            val failure = GoogleUseCaseTestException(Arb.string().next())
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } throws failure
             val useCase = SignInWithGoogleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
@@ -64,7 +66,7 @@ class SignInWithGoogleUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 Google 앱 로그인이 성공하도록 준비되어 있다") {
-            val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+            val credential = Arb.googleCredentialIdToken().next()
             val repository = mockk<SessionRepository>()
             coEvery { repository.create(credential) } returns Unit
             val useCase = SignInWithGoogleUseCase(sessionRepository = repository, loginProviderRepository = loginProviderRepository())
@@ -81,13 +83,10 @@ class SignInWithGoogleUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private val credentialCases =
             listOf(
-                CredentialCase(name = "idToken") { fixtureMonkey.giveMeOne<GoogleCredential.IdToken>() },
-                CredentialCase(name = "authorization code") { fixtureMonkey.giveMeOne<GoogleCredential.AuthorizationCode>() },
+                CredentialCase(name = "idToken") { Arb.googleCredentialIdToken().next() },
+                CredentialCase(name = "authorization code") { Arb.googleCredentialAuthorizationCode().next() },
             )
     }
 }

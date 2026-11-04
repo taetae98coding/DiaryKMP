@@ -1,24 +1,21 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.UserData
 import io.github.taetae98coding.diary.core.model.authentication.LoginProvider
+import io.github.taetae98coding.diary.core.testing.account.userData
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class CheckAppleReauthenticationRequiredUseCaseTest :
     BehaviorSpec({
@@ -34,7 +31,7 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
                 val loginProviderRepository = mockk<LoginProviderRepository>()
                 coEvery { loginProviderRepository.read() } returns record
                 val userDataRepository = mockk<UserDataRepository>()
-                every { userDataRepository.get() } returns flowOf(fixtureMonkey.giveMeOne<UserData>().copy(loginProviderSet = linkedSet))
+                every { userDataRepository.get() } returns flowOf(Arb.userData().next().copy(loginProviderSet = linkedSet))
                 val useCase =
                     CheckAppleReauthenticationRequiredUseCase(
                         loginProviderRepository = loginProviderRepository,

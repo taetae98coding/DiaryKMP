@@ -40,7 +40,6 @@ firebase = "35.1.0" # https://firebase.google.com/support/release-notes/android
 firebaseIos = "12.19.3" # https://github.com/firebase/firebase-ios-sdk/releases
 firebaseCrashlyticsGradlePlugin = "3.0.8"
 firebasePerformanceGradlePlugin = "2.0.2"
-fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
 googleId = "1.2.1" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
 googleLocation = "21.4.0" # https://developers.google.com/android/guides/releases?hl=en
 googleMap = "9.0.1" # https://github.com/googlemaps/android-maps-compose/releases
@@ -134,7 +133,6 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
 
-fixture-monkey-kotlin = { module = "com.navercorp.fixturemonkey:fixture-monkey-kotlin", version.ref = "fixtureMonkey" }
 
 google-identity-googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleId" }
 google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMap" }
@@ -150,6 +148,7 @@ koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmo
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlincrypto-hash-sha2 = { module = "org.kotlincrypto.hash:sha2", version.ref = "kotlinCryptoHash" }

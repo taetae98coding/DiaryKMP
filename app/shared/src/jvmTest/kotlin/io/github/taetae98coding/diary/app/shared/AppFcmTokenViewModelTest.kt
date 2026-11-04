@@ -3,14 +3,14 @@
 package io.github.taetae98coding.diary.app.shared
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -51,7 +51,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 인증된 계정이 확인되면 제출 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
                 viewModel.uiState.confirmedAccount().test {
@@ -63,7 +63,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 로그인이 완료되어 인증된 계정으로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -78,7 +78,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-68ae3e2d-db68-4521-841f-5fa83acf7e6b 로그아웃되어 게스트로 바뀌면 앞선 제출을 기다리지 않고 제출 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
@@ -102,7 +102,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 같은 계정의 세션이 인증된 상태로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+                val account = Arb.accountUser().next().copy(isSessionValid = false)
                 val validAccount = account.copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
@@ -123,7 +123,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             ).forEach { (name, change) ->
                 test(name) {
                     runTest(mainDispatcher) {
-                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                        val account = Arb.accountUser().next().copy(isSessionValid = true)
                         val changedAccount = change(account)
                         val accountFlow = MutableStateFlow<Account>(account)
                         val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
@@ -141,7 +141,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-6fee7d8e-8951-49e5-a985-2864217598f2 화면이 재생성되어 다시 관측하면 같은 계정이어도 제출 계기가 한 번 다시 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -160,8 +160,8 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 확인된 계정이 다른 계정으로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-                val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
+                val otherAccount = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -176,7 +176,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("TC-a1ebfeb6-711c-4050-a781-92f8e6a83cee 같은 계정이 같은 정보로 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 // 같은 값을 다시 보내지 않는 상태 흐름으로는 "다시 확인됨"을 만들 수 없으므로 같은 값을 그대로 다시 보내는 흐름을 쓴다.
                 val accountFlow = MutableSharedFlow<Account>(replay = 1).apply { tryEmit(account) }
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
@@ -195,7 +195,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
             try {
                 runTest(mainDispatcher) {
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                    val account = Arb.accountUser().next().copy(isSessionValid = true)
                     val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
                     viewModel.uiState.confirmedAccount().test {
@@ -213,7 +213,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
         test("관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -251,7 +251,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
                 viewModel.submit(Account.Guest)
-                viewModel.submit(fixtureMonkey.giveMeOne<Account.User>())
+                viewModel.submit(Arb.accountUser().next())
                 advanceUntilIdle()
 
                 coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
@@ -280,9 +280,6 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
     public companion object {
         private const val STOP_TIMEOUT_ELAPSED_MILLIS = 10_000L
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun viewModel(
             accountFlow: Flow<Result<Account>> = flowOf(Result.success(Account.Guest)),

@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.sync.transaction
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
@@ -46,11 +44,30 @@ import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLo
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
+import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemLocalEntity
+import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.placetag.placeTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.core.testing.webtag.webTagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 private val ACCOUNT_TABLE_LIST =
@@ -146,16 +163,16 @@ class AccountDataTransactionImplTest :
             accountId: Uuid,
             isDirty: Boolean,
         ): FilledEntity {
-            val memo = fixtureMonkey.giveMeOne<MemoLocalEntity>().copy(primaryTagId = null)
-            val tag = fixtureMonkey.giveMeOne<TagLocalEntity>()
-            val otherTag = fixtureMonkey.giveMeOne<TagLocalEntity>()
-            val place = fixtureMonkey.giveMeOne<PlaceLocalEntity>()
-            val web = fixtureMonkey.giveMeOne<WebLocalEntity>()
-            val contact = fixtureMonkey.giveMeOne<ContactLocalEntity>()
-            val music = fixtureMonkey.giveMeOne<MusicLocalEntity>()
-            val qr = fixtureMonkey.giveMeOne<QrLocalEntity>()
-            val checklist = fixtureMonkey.giveMeOne<ChecklistLocalEntity>()
-            val checklistItem = fixtureMonkey.giveMeOne<ChecklistItemLocalEntity>().copy(checklistId = checklist.id)
+            val memo = Arb.memoLocalEntity().next().copy(primaryTagId = null)
+            val tag = Arb.tagLocalEntity().next()
+            val otherTag = Arb.tagLocalEntity().next()
+            val place = Arb.placeLocalEntity().next()
+            val web = Arb.webLocalEntity().next()
+            val contact = Arb.contactLocalEntity().next()
+            val music = Arb.musicLocalEntity().next()
+            val qr = Arb.qrLocalEntity().next()
+            val checklist = Arb.checklistLocalEntity().next()
+            val checklistItem = Arb.checklistItemLocalEntity().next().copy(checklistId = checklist.id)
 
             database.memoDao().upsert(memo)
             database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = memo.id, isDirty = isDirty))
@@ -235,35 +252,35 @@ class AccountDataTransactionImplTest :
             entity: FilledEntity,
         ) {
             database.memoTagDao().upsert(
-                fixtureMonkey.giveMeOne<MemoTagLocalEntity>().copy(memoId = entity.memoId, tagId = entity.tagId),
+                Arb.memoTagLocalEntity().next().copy(memoId = entity.memoId, tagId = entity.tagId),
             )
             database.accountMemoTagDao().upsert(
                 AccountMemoTagLocalEntity(accountId = accountId, memoId = entity.memoId, tagId = entity.tagId, isDirty = isDirty),
             )
 
             database.memoPlaceDao().upsert(
-                fixtureMonkey.giveMeOne<MemoPlaceLocalEntity>().copy(memoId = entity.memoId, placeId = entity.placeId),
+                Arb.memoPlaceLocalEntity().next().copy(memoId = entity.memoId, placeId = entity.placeId),
             )
             database.accountMemoPlaceDao().upsert(
                 AccountMemoPlaceLocalEntity(accountId = accountId, memoId = entity.memoId, placeId = entity.placeId, isDirty = isDirty),
             )
 
             database.memoWebDao().upsert(
-                fixtureMonkey.giveMeOne<MemoWebLocalEntity>().copy(memoId = entity.memoId, webId = entity.webId),
+                Arb.memoWebLocalEntity().next().copy(memoId = entity.memoId, webId = entity.webId),
             )
             database.accountMemoWebDao().upsert(
                 AccountMemoWebLocalEntity(accountId = accountId, memoId = entity.memoId, webId = entity.webId, isDirty = isDirty),
             )
 
             database.memoContactDao().upsert(
-                fixtureMonkey.giveMeOne<MemoContactLocalEntity>().copy(memoId = entity.memoId, contactId = entity.contactId),
+                Arb.memoContactLocalEntity().next().copy(memoId = entity.memoId, contactId = entity.contactId),
             )
             database.accountMemoContactDao().upsert(
                 AccountMemoContactLocalEntity(accountId = accountId, memoId = entity.memoId, contactId = entity.contactId, isDirty = isDirty),
             )
 
             database.tagLinkDao().upsert(
-                fixtureMonkey.giveMeOne<TagLinkLocalEntity>().copy(fromTagId = entity.tagId, toTagId = entity.otherTagId),
+                Arb.tagLinkLocalEntity().next().copy(fromTagId = entity.tagId, toTagId = entity.otherTagId),
             )
             database.accountTagLinkDao().upsert(
                 AccountTagLinkLocalEntity(
@@ -275,14 +292,14 @@ class AccountDataTransactionImplTest :
             )
 
             database.webTagDao().upsert(
-                fixtureMonkey.giveMeOne<WebTagLocalEntity>().copy(webId = entity.webId, tagId = entity.tagId),
+                Arb.webTagLocalEntity().next().copy(webId = entity.webId, tagId = entity.tagId),
             )
             database.accountWebTagDao().upsert(
                 AccountWebTagLocalEntity(accountId = accountId, webId = entity.webId, tagId = entity.tagId, isDirty = isDirty),
             )
 
             database.placeTagDao().upsert(
-                fixtureMonkey.giveMeOne<PlaceTagLocalEntity>().copy(placeId = entity.placeId, tagId = entity.tagId),
+                Arb.placeTagLocalEntity().next().copy(placeId = entity.placeId, tagId = entity.tagId),
             )
             database.accountPlaceTagDao().upsert(
                 AccountPlaceTagLocalEntity(accountId = accountId, placeId = entity.placeId, tagId = entity.tagId, isDirty = isDirty),
@@ -302,7 +319,7 @@ class AccountDataTransactionImplTest :
                     SyncCursorLocalEntity(
                         accountId = accountId,
                         kind = kind.persistentValue,
-                        usn = fixtureMonkey.giveMeOne<Long>(),
+                        usn = Arb.long().next(),
                     ),
                 )
             }
@@ -319,7 +336,7 @@ class AccountDataTransactionImplTest :
         }
 
         test("TC-ce8de4c6-cb52-4b84-a7d8-ef0fbd8517b7 강제 전체 재동기화는 그 계정의 항목과 연결, 업로드 대기 항목, 동기화 상태와 필터 선택을 지운다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 
             transaction.delete(accountId = accountId)
@@ -333,8 +350,8 @@ class AccountDataTransactionImplTest :
         }
 
         test("TC-fb5b77ea-f160-4081-baed-4c400465f7ea 강제 전체 재동기화는 게스트와 다른 계정의 데이터, 기기에 유지하는 설정을 지우지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
             fill(accountId = Uuid.NIL)
             fill(accountId = otherAccountId)
@@ -358,8 +375,8 @@ class AccountDataTransactionImplTest :
         }
 
         test("TC-775f15b7-762d-4817-ad69-41b01e6aa9c4 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val entity = fillEntity(accountId = accountId, isDirty = true)
             fillRelation(accountId = accountId, isDirty = true, entity = entity)
             linkEntityToAccount(accountId = otherAccountId, entity = entity)
@@ -379,7 +396,7 @@ class AccountDataTransactionImplTest :
         }
 
         test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 열여섯 종류가 모두 기본 커서로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 
             transaction.delete(accountId = accountId)
@@ -390,9 +407,4 @@ class AccountDataTransactionImplTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

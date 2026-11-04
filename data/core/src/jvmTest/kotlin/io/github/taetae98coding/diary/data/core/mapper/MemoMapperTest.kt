@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoCaseList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class MemoMapperTest :
     FunSpec({
         test("domain to local") {
-            fixtureMonkey.memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
-                val domain = fixtureMonkey.memo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId)
+            memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
+                val domain = Arb.memo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId).next()
 
                 domain.toLocal() shouldBe
                     MemoLocalEntity(
@@ -33,8 +30,8 @@ class MemoMapperTest :
         }
 
         test("local to domain") {
-            fixtureMonkey.memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
-                val local = fixtureMonkey.localMemo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId)
+            memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
+                val local = Arb.localMemo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId).next()
 
                 local.toDomain() shouldBe
                     Memo(
@@ -50,8 +47,8 @@ class MemoMapperTest :
         }
 
         test("domain to local to domain") {
-            fixtureMonkey.memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
-                val domain = fixtureMonkey.memo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId)
+            memoCaseList().forEach { (isFinished, isDeleted, primaryTagId) ->
+                val domain = Arb.memo(isFinished = isFinished, isDeleted = isDeleted, primaryTagId = primaryTagId).next()
 
                 domain.toLocal().toDomain() shouldBe domain
             }

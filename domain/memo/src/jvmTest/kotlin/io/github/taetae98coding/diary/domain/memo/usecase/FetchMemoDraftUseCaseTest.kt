@@ -1,18 +1,17 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
+import io.github.taetae98coding.diary.core.testing.memo.memoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
@@ -21,6 +20,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -41,15 +42,12 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchMemoDraftUseCaseTest :
     BehaviorSpec({
         Given("Gemini 설정이 저장되어 있다") {
             When("메모 초안을 조회하면") {
                 Then("TC-9b073a1f-64e9-4bb1-be62-c93c520d2f8b: 저장된 설정과 입력 중인 내용을 함께 전달한다") {
-                    val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                    val setting = Arb.geminiSetting().next()
                     val settingSlot = slot<GeminiSetting>()
                     val requestSlot = slot<MemoDraftRequest>()
                     val memoDraftRepository =
@@ -103,7 +101,7 @@ class FetchMemoDraftUseCaseTest :
         Given("도우미를 연 뒤 저장된 Gemini 설정이 바뀌었다") {
             When("메모 초안을 조회하면") {
                 Then("TC-c5df7d5f-6386-4350-8e19-85d16fc93017: 조회하는 시점에 저장된 설정으로 요청한다") {
-                    val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSetting>())
+                    val settingFlow = MutableStateFlow(Arb.geminiSetting().next())
                     val settingList = mutableListOf<GeminiSetting>()
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {
@@ -116,7 +114,7 @@ class FetchMemoDraftUseCaseTest :
                             clock = Clock.System,
                         )
                     useCase(parameter = emptyParameter()).shouldBeSuccess()
-                    val changedSetting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                    val changedSetting = Arb.geminiSetting().next()
 
                     settingFlow.value = changedSetting
                     useCase(parameter = emptyParameter()).shouldBeSuccess()
@@ -304,7 +302,7 @@ private fun failing(cause: Throwable): Flow<MemoDraftGeneration> = flow { throw 
 
 private fun failingAfterProgress(cause: Throwable): Flow<MemoDraftGeneration> =
     flow {
-        emit(MemoDraftGeneration.InProgress(progress = fixtureMonkey.giveMeOne<MemoDraftProgress>()))
+        emit(MemoDraftGeneration.InProgress(progress = Arb.memoDraftProgress().next()))
         throw cause
     }
 
@@ -317,7 +315,7 @@ private fun emptyParameter(): FetchMemoDraftUseCase.Parameter =
     )
 
 private fun createUseCase(
-    setting: GeminiSetting = fixtureMonkey.giveMeOne(),
+    setting: GeminiSetting = Arb.geminiSetting().next(),
     draft: MemoDraft = MemoDraft.EMPTY,
     memoDraftRepository: MemoDraftRepository =
         mockk {

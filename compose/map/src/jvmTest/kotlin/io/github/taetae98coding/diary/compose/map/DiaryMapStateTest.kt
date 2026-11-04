@@ -2,14 +2,17 @@ package io.github.taetae98coding.diary.compose.map
 
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.graphics.Color
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.map.provider.label
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.enum
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
@@ -17,7 +20,7 @@ import kotlin.uuid.Uuid
 class DiaryMapStateTest :
     FunSpec({
         test("provider는 초기 제공자를 반환한다") {
-            val initialProvider = fixtureMonkey.giveMeOne<DiaryMapProvider>()
+            val initialProvider = Arb.enum<DiaryMapProvider>().next()
             val state = DiaryMapState(initialProvider = initialProvider)
 
             state.provider shouldBe initialProvider
@@ -32,7 +35,7 @@ class DiaryMapStateTest :
         }
 
         test("select를 같은 제공자로 반복해도 제공자가 유지된다") {
-            val provider = fixtureMonkey.giveMeOne<DiaryMapProvider>()
+            val provider = Arb.enum<DiaryMapProvider>().next()
             val state = DiaryMapState(initialProvider = provider)
 
             repeat(REPEAT_COUNT) { state.select(provider) }
@@ -45,9 +48,9 @@ class DiaryMapStateTest :
                 List(PIN_COUNT) {
                     DiaryMapPin(
                         id = Uuid.random(),
-                        coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
-                        color = Color(fixtureMonkey.giveMeOne<Int>()),
-                        label = "label-${fixtureMonkey.giveMeOne<String>()}",
+                        coordinate = Arb.diaryMapCoordinate().next(),
+                        color = Color(Arb.int().next()),
+                        label = "label-${Arb.string().next()}",
                     )
                 }
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -81,7 +84,7 @@ class DiaryMapStateTest :
         }
 
         test("TC-85d33219-3dc6-48c2-8ed9-a0d99cef51d1 제공자를 바꿔도 마지막 카메라를 이어받는다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val camera = Arb.diaryMapCamera().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(camera)
 
@@ -91,8 +94,8 @@ class DiaryMapStateTest :
         }
 
         test("이전 제공자로 되돌아가도 마지막 카메라를 이어받는다") {
-            val naverCamera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
-            val googleCamera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val naverCamera = Arb.diaryMapCamera().next()
+            val googleCamera = Arb.diaryMapCamera().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.moveCamera(naverCamera)
@@ -110,8 +113,8 @@ class DiaryMapStateTest :
         }
 
         test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 카메라의 보이는 영역을 확인한다") {
-            val bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = bounds)
+            val bounds = Arb.diaryMapBounds().next()
+            val camera = Arb.diaryMapCamera().next().copy(bounds = bounds)
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.moveCamera(camera)
@@ -121,27 +124,27 @@ class DiaryMapStateTest :
 
         test("TC-5cd1c7e9-0a1e-4eb4-a461-faea1bbf63d2: 알려온 카메라에 보이는 영역이 없으면 영역이 없는 것으로 다룬다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()))
+            state.moveCamera(Arb.diaryMapCamera().next().copy(bounds = Arb.diaryMapBounds().next()))
 
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = null))
+            state.moveCamera(Arb.diaryMapCamera().next().copy(bounds = null))
 
             state.bounds.shouldBeNull()
         }
 
         test("moveTo는 보이는 영역을 바꾸지 않는다") {
-            val bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()
+            val bounds = Arb.diaryMapBounds().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = bounds))
+            state.moveCamera(Arb.diaryMapCamera().next().copy(bounds = bounds))
 
-            state.moveTo(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+            state.moveTo(Arb.diaryMapCoordinate().next())
 
             state.bounds shouldBe bounds
         }
 
         test("Saver는 보이는 영역을 저장하고 복원한다") {
-            val bounds = fixtureMonkey.giveMeOne<DiaryMapBounds>()
+            val bounds = Arb.diaryMapBounds().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = bounds))
+            state.moveCamera(Arb.diaryMapCamera().next().copy(bounds = bounds))
 
             val restored = state.saveAndRestore()
 
@@ -150,7 +153,7 @@ class DiaryMapStateTest :
 
         test("Saver는 보이는 영역이 없으면 영역이 없는 상태로 복원한다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = null))
+            state.moveCamera(Arb.diaryMapCamera().next().copy(bounds = null))
 
             val restored = state.saveAndRestore()
 
@@ -158,7 +161,7 @@ class DiaryMapStateTest :
         }
 
         test("Saver는 선택한 제공자를 저장하고 복원한다") {
-            val provider = fixtureMonkey.giveMeOne<DiaryMapProvider>()
+            val provider = Arb.enum<DiaryMapProvider>().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.select(provider)
 
@@ -168,7 +171,7 @@ class DiaryMapStateTest :
         }
 
         test("Saver는 보고 있던 카메라를 저장하고 복원한다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val camera = Arb.diaryMapCamera().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(camera)
 
@@ -192,7 +195,7 @@ class DiaryMapStateTest :
         }
 
         test("selectSpot은 고른 지점을 새 값으로 바꾼다") {
-            val spot = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val spot = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.selectSpot(spot)
@@ -201,8 +204,8 @@ class DiaryMapStateTest :
         }
 
         test("selectSpot을 다른 지점으로 부르면 마지막 지점만 남는다") {
-            val first = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-            val second = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val first = Arb.diaryMapCoordinate().next()
+            val second = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.selectSpot(first)
@@ -224,21 +227,21 @@ class DiaryMapStateTest :
         }
 
         test("TC-0b42bac1-148e-42f4-8416-c8738c4246b5 지도가 옮겨진 위치를 알려와도 고른 지점은 그대로 남는다") {
-            val spot = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val spot = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.selectSpot(spot)
 
-            state.moveCamera(fixtureMonkey.giveMeOne<DiaryMapCamera>())
-            state.moveTo(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+            state.moveCamera(Arb.diaryMapCamera().next())
+            state.moveTo(Arb.diaryMapCoordinate().next())
 
             state.spot shouldBe spot
         }
 
         test("TC-e890a3ff-0159-46cc-b17d-6c276659e0fd 화면이 지점을 지우면 지점이 없어지고 보고 있던 위치와 확대 수준은 그대로다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val camera = Arb.diaryMapCamera().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(camera)
-            state.selectSpot(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+            state.selectSpot(Arb.diaryMapCoordinate().next())
 
             state.selectSpot(null)
 
@@ -248,7 +251,7 @@ class DiaryMapStateTest :
 
         test("selectSpot에 값이 없으면 고른 지점을 지운다") {
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
-            state.selectSpot(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+            state.selectSpot(Arb.diaryMapCoordinate().next())
 
             state.selectSpot(null)
 
@@ -256,7 +259,7 @@ class DiaryMapStateTest :
         }
 
         test("coordinate는 보고 있는 지도 위치를 반환한다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+            val camera = Arb.diaryMapCamera().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.moveCamera(camera)
@@ -271,8 +274,8 @@ class DiaryMapStateTest :
         }
 
         test("moveTo는 보고 있던 확대 수준을 유지하며 가운데 위치만 옮긴다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
-            val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val camera = Arb.diaryMapCamera().next()
+            val target = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.moveCamera(camera)
 
@@ -283,7 +286,7 @@ class DiaryMapStateTest :
         }
 
         test("보고 있던 위치가 없으면 moveTo는 동네 수준 확대로 옮긴다") {
-            val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val target = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
             state.moveTo(target)
@@ -298,7 +301,7 @@ class DiaryMapStateTest :
 
         test("moveTo는 옮길 위치를 명령으로 내보낸다") {
             runTest {
-                val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+                val target = Arb.diaryMapCoordinate().next()
                 val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
                 state.moveTo(target)
@@ -314,8 +317,8 @@ class DiaryMapStateTest :
 
         test("TC-c37cd3e5-4f57-4948-a671-c7f24ea37f50 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
             runTest {
-                val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
-                val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+                val camera = Arb.diaryMapCamera().next()
+                val target = Arb.diaryMapCoordinate().next()
                 val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
                 state.moveCamera(camera)
 
@@ -332,7 +335,7 @@ class DiaryMapStateTest :
 
         test("moveTo를 같은 위치로 반복해도 명령이 그때마다 전달된다") {
             runTest {
-                val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+                val target = Arb.diaryMapCoordinate().next()
                 val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
                 state.moveTo(target)
@@ -350,8 +353,8 @@ class DiaryMapStateTest :
 
         test("명령을 받기 전에 moveTo가 여러 번 불리면 마지막 위치만 전달된다") {
             runTest {
-                val first = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-                val last = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+                val first = Arb.diaryMapCoordinate().next()
+                val last = Arb.diaryMapCoordinate().next()
                 val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
                 state.moveTo(first)
@@ -367,7 +370,7 @@ class DiaryMapStateTest :
         }
 
         test("Saver는 고른 지점을 저장하고 복원한다") {
-            val spot = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+            val spot = Arb.diaryMapCoordinate().next()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
             state.selectSpot(spot)
 
@@ -388,27 +391,24 @@ class DiaryMapStateTest :
         private const val REPEAT_COUNT = 3
         private const val PIN_COUNT = 3
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private const val MAX_LATITUDE = 900_000
         private const val MAX_LONGITUDE = 1_800_000
         private const val COORDINATE_SCALE = 10_000.0
         private const val INITIAL_COORDINATE_COUNT = 2
 
-        // FixtureMonkey의 Double은 좌표 범위를 크게 벗어나므로, 정수로 유효 범위의 위도와 경도를 만든다.
+        // 임의로 만든 Double은 좌표 범위를 크게 벗어나므로, 정수로 유효 범위의 위도와 경도를 만든다.
         private fun validCoordinate(): DiaryMapCoordinate =
             DiaryMapCoordinate(
-                latitude = fixtureMonkey.giveMeOne<Int>() % MAX_LATITUDE / COORDINATE_SCALE,
-                longitude = fixtureMonkey.giveMeOne<Int>() % MAX_LONGITUDE / COORDINATE_SCALE,
+                latitude = Arb.int().next() % MAX_LATITUDE / COORDINATE_SCALE,
+                longitude = Arb.int().next() % MAX_LONGITUDE / COORDINATE_SCALE,
             )
 
         private fun pin(): DiaryMapPin =
             DiaryMapPin(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
-                coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
-                color = Color(fixtureMonkey.giveMeOne<Int>()),
-                label = "label-${fixtureMonkey.giveMeOne<String>()}",
+                id = Arb.kotlinUuid().next(),
+                coordinate = Arb.diaryMapCoordinate().next(),
+                color = Color(Arb.int().next()),
+                label = "label-${Arb.string().next()}",
             )
 
         private fun DiaryMapState.saveAndRestore(): DiaryMapState? {

@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.qr.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -13,11 +11,15 @@ import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountQr
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.testing.qr.localQr
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.qr.qrDetailLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.spyk
 import kotlin.time.Instant
@@ -64,9 +66,9 @@ class AccountQrSyncTransactionImplTest :
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { qr -> qr.id == qrId }
 
         test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 QR은 포함되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val guestEntity = fixtureMonkey.localQr(isDeleted = false)
-            val accountEntity = fixtureMonkey.localQr(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val guestEntity = Arb.localQr(isDeleted = false).next()
+            val accountEntity = Arb.localQr(isDeleted = false).next()
             insertWithSyncState(accountId = Uuid.NIL, qr = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, qr = accountEntity, isDirty = true)
 
@@ -74,15 +76,15 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("업로드 대기가 아닌 QR은 업로드 대상에 포함되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            insertWithSyncState(accountId = accountId, qr = fixtureMonkey.localQr(isDeleted = false), isDirty = false)
+            val accountId = Arb.kotlinUuid().next()
+            insertWithSyncState(accountId = accountId, qr = Arb.localQr(isDeleted = false).next(), isDirty = false)
 
             syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-34019de4-2dbc-40fd-9c1b-c494f2543998 추가한 QR은 계정의 업로드 대기로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val qr = fixtureMonkey.localQr(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val qr = Arb.localQr(isDeleted = false).next()
 
             AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
 
@@ -94,8 +96,8 @@ class AccountQrSyncTransactionImplTest :
             false to "실행 취소",
         ).forEach { (isDeleted, label) ->
             test("TC-9f59d662-8251-4eb6-85e1-8fd2875148cf ${label}한 QR은 계정의 업로드 대기로 기록된다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val qr = fixtureMonkey.localQr(isDeleted = !isDeleted)
+                val accountId = Arb.kotlinUuid().next()
+                val qr = Arb.localQr(isDeleted = !isDeleted).next()
                 val updatedAt = instant()
                 insertWithSyncState(accountId = accountId, qr = qr, isDirty = false)
 
@@ -111,8 +113,8 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val qr = fixtureMonkey.localQr(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val qr = Arb.localQr(isDeleted = false).next()
             insertWithSyncState(accountId = accountId, qr = qr, isDirty = true)
 
             transaction.clearPending(accountId = accountId, qrList = listOf(qr))
@@ -121,8 +123,8 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 QR은 업로드 대기로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val pushedQr = fixtureMonkey.localQr(isDeleted = false).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val accountId = Arb.kotlinUuid().next()
+            val pushedQr = Arb.localQr(isDeleted = false).next().copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changedQr = pushedQr.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
             insertWithSyncState(accountId = accountId, qr = changedQr, isDirty = true)
 
@@ -136,11 +138,11 @@ class AccountQrSyncTransactionImplTest :
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val localQr = fixtureMonkey.localQr(isDeleted = false).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
+                val accountId = Arb.kotlinUuid().next()
+                val localQr = Arb.localQr(isDeleted = false).next().copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remoteQr =
                     localQr.copy(
-                        detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>(),
+                        detail = Arb.qrDetailLocalEntity().next(),
                         isDeleted = !localQr.isDeleted,
                         updatedAt = remoteUpdatedAt,
                     )
@@ -153,11 +155,11 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지하고 커서는 전진한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val localQr = fixtureMonkey.localQr(isDeleted = false).copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
+            val accountId = Arb.kotlinUuid().next()
+            val localQr = Arb.localQr(isDeleted = false).next().copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remoteQr =
                 localQr.copy(
-                    detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>(),
+                    detail = Arb.qrDetailLocalEntity().next(),
                     updatedAt = Instant.fromEpochMilliseconds(1_000),
                 )
             insertWithSyncState(accountId = accountId, qr = localQr, isDirty = true)
@@ -174,11 +176,11 @@ class AccountQrSyncTransactionImplTest :
             "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val localQr = fixtureMonkey.localQr(isDeleted = false).copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
+                val accountId = Arb.kotlinUuid().next()
+                val localQr = Arb.localQr(isDeleted = false).next().copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
                 val remoteQr =
                     localQr.copy(
-                        detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>(),
+                        detail = Arb.qrDetailLocalEntity().next(),
                         updatedAt = remoteUpdatedAt,
                     )
                 insertWithSyncState(accountId = accountId, qr = localQr, isDirty = true)
@@ -190,8 +192,8 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 QR과 커서가 모두 반영되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val remoteQr = fixtureMonkey.localQr(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val remoteQr = Arb.localQr(isDeleted = false).next()
             val failingDatabase = spyk(database)
             every { failingDatabase.syncCursorDao() } throws QrSyncTestException()
             val failingTransaction = AccountQrSyncTransactionImpl(database = failingDatabase)
@@ -206,8 +208,8 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 QR은 계정과 연결되어 새로 저장되고 동기화 완료로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val remote = fixtureMonkey.localQr(isDeleted = false)
+            val accountId = Arb.kotlinUuid().next()
+            val remote = Arb.localQr(isDeleted = false).next()
 
             transaction.upsert(accountId = accountId, qrList = listOf(remote), cursor = 5L)
 
@@ -217,9 +219,9 @@ class AccountQrSyncTransactionImplTest :
         }
 
         test("QR 커서는 다른 종류의 커서와 따로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
 
-            transaction.upsert(accountId = accountId, qrList = listOf(fixtureMonkey.localQr(isDeleted = false)), cursor = 5L)
+            transaction.upsert(accountId = accountId, qrList = listOf(Arb.localQr(isDeleted = false).next()), cursor = 5L)
 
             SyncKindLocalEntity.entries
                 .filter { kind -> kind != SyncKindLocalEntity.QR }
@@ -227,9 +229,6 @@ class AccountQrSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

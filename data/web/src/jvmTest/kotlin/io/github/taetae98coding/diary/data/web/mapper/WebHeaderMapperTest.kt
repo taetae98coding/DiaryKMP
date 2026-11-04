@@ -1,17 +1,17 @@
 package io.github.taetae98coding.diary.data.web.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.core.testing.web.webHeader
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class WebHeaderMapperTest :
     FunSpec({
         test("domain to remote") {
-            val domain = fixtureMonkey.giveMeOne<WebHeader>()
+            val domain = Arb.webHeader().next()
 
             domain.toRemote() shouldBe
                 WebPageHeaderRemoteEntity(
@@ -20,6 +20,3 @@ class WebHeaderMapperTest :
                 )
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

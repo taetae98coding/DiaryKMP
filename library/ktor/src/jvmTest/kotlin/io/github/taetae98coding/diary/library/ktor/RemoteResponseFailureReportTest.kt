@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.library.ktor
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -15,6 +12,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
@@ -65,10 +66,10 @@ class RemoteResponseFailureReportTest :
             listOf(
                 HttpStatusCode.OK to VALID_JSON,
                 HttpStatusCode.NoContent to "",
-                HttpStatusCode.BadRequest to fixtureMonkey.giveMeOne<String>(),
-                HttpStatusCode.NotFound to fixtureMonkey.giveMeOne<String>(),
-                HttpStatusCode.Conflict to fixtureMonkey.giveMeOne<String>(),
-                HttpStatusCode.TooManyRequests to fixtureMonkey.giveMeOne<String>(),
+                HttpStatusCode.BadRequest to Arb.string().next(),
+                HttpStatusCode.NotFound to Arb.string().next(),
+                HttpStatusCode.Conflict to Arb.string().next(),
+                HttpStatusCode.TooManyRequests to Arb.string().next(),
                 HttpStatusCode.NotFound to INVALID_JSON,
             ).forEach { (status, content) ->
                 val reportList = recordCrashlyticsLog()
@@ -153,9 +154,9 @@ class RemoteResponseFailureReportTest :
 
         test("TC-c8c0bb6b-0a6e-4e54-8c79-aaf8cd688a3f 보고에는 요청 방식, 서버 이름, 주소 경로, 응답 상태가 담긴다") {
             val reportList = recordCrashlyticsLog()
-            val query = "query${fixtureMonkey.giveMeOne<Int>()}"
-            val requestContent = "request${fixtureMonkey.giveMeOne<Int>()}"
-            val responseContent = "response${fixtureMonkey.giveMeOne<Int>()}"
+            val query = "query${Arb.int().next()}"
+            val requestContent = "request${Arb.int().next()}"
+            val responseContent = "response${Arb.int().next()}"
             val client = createJsonHttpClient(baseUrl = BASE_URL, engine = MockEngine { respond(content = responseContent, status = HttpStatusCode.ServiceUnavailable) })
 
             shouldThrowAny {
@@ -177,7 +178,7 @@ class RemoteResponseFailureReportTest :
                     install(RemoteResponseFailureReport) { reportsPath = false }
                 }
 
-            client.get("$BASE_URL$PATH?token=${fixtureMonkey.giveMeOne<Int>()}")
+            client.get("$BASE_URL$PATH?token=${Arb.int().next()}")
 
             val report = reportList.single()
             report.message shouldContain "GET $HOST 403"
@@ -211,7 +212,7 @@ class RemoteResponseFailureReportTest :
         }
 
         test("TC-11116101-46d7-47d6-af90-68fd1130b4f6 보고를 남겨도 요청의 결과는 바뀌지 않는다") {
-            val content = fixtureMonkey.giveMeOne<String>()
+            val content = Arb.string().next()
             val reported = createJsonHttpClient(baseUrl = BASE_URL, engine = jsonEngine(status = HttpStatusCode.InternalServerError, content = content), expectSuccess = false)
             val plain = plainJsonClient(engine = jsonEngine(status = HttpStatusCode.InternalServerError, content = content))
 
@@ -266,8 +267,6 @@ class RemoteResponseFailureReportTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private const val HOST = "example.test"
         private const val BASE_URL = "https://$HOST/"
         private const val PATH = "items"

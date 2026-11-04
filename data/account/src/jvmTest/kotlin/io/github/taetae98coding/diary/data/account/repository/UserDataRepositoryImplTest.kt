@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.UserData
@@ -14,11 +12,16 @@ import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileIma
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser
 import io.github.taetae98coding.diary.core.testing.image.imageCropRegion
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.profile.profileImageRemoteEntity
+import io.github.taetae98coding.diary.data.account.supabaseUser
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -48,9 +51,9 @@ class UserDataRepositoryImplTest :
 
         listOf("프로필 이미지가 있음", "프로필 이미지가 없음").forEach { profileImageCase ->
             test("TC-eb97bcf8-b19b-4f4c-9acb-e8aa55062f83 $profileImageCase 인증 제공자의 사용자 정보를 저장된 사용자 정보로 사용한다") {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val email = fixtureMonkey.giveMeOne<String>()
-                val profileImage = if (profileImageCase == "프로필 이미지가 있음") fixtureMonkey.giveMeOne<String>() else null
+                val id = Arb.kotlinUuid().next()
+                val email = Arb.string().next()
+                val profileImage = if (profileImageCase == "프로필 이미지가 있음") Arb.string().next() else null
                 val supabaseUser = SupabaseUser(id = id, email = email, profileImage = profileImage, providerSet = emptySet())
                 val supabaseAuth = mockk<SupabaseAuth>()
                 every { supabaseAuth.getUserFlow() } returns flowOf(supabaseUser)
@@ -90,7 +93,7 @@ class UserDataRepositoryImplTest :
                     contentLength = capture(contentLengthSlot),
                     openContent = capture(openContentSlot),
                 )
-            } returns fixtureMonkey.giveMeOne<ProfileImageRemoteEntity>()
+            } returns Arb.profileImageRemoteEntity().next()
             val repository =
                 repository(
                     imageConverter = imageConverter(uri = uri, converted = converted),
@@ -109,9 +112,9 @@ class UserDataRepositoryImplTest :
             val uri = fileUri()
             val previousUser =
                 SupabaseUser(
-                    id = fixtureMonkey.giveMeOne<Uuid>(),
-                    email = fixtureMonkey.giveMeOne<String>(),
-                    profileImage = "previous-${fixtureMonkey.giveMeOne<String>()}",
+                    id = Arb.kotlinUuid().next(),
+                    email = Arb.string().next(),
+                    profileImage = "previous-${Arb.string().next()}",
                     providerSet = emptySet(),
                 )
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -153,7 +156,7 @@ class UserDataRepositoryImplTest :
         }
 
         test("TC-df22a338-0c73-4499-bd21-019626020708 반영 자체는 사용자 정보를 다시 확인하지 않고, 다시 확인한 뒤 새 주소가 나타난다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
+            val previousUser = Arb.supabaseUser().next().copy(providerSet = emptySet())
             val newUser = previousUser.copy(profileImage = "new-${previousUser.profileImage}")
             val userFlow = MutableStateFlow(previousUser)
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -206,11 +209,11 @@ class UserDataRepositoryImplTest :
         }
 
         test("TC-cf52b49b-0abb-4be5-9993-df80f5a89d42 사용자 정보 다시 확인에 성공하면 저장된 사용자 정보가 받은 정보로 바뀐다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
+            val previousUser = Arb.supabaseUser().next().copy(providerSet = emptySet())
             val retrievedUser =
                 previousUser.copy(
-                    email = "retrieved-" + fixtureMonkey.giveMeOne<String>(),
-                    profileImage = "retrieved-" + fixtureMonkey.giveMeOne<String>(),
+                    email = "retrieved-" + Arb.string().next(),
+                    profileImage = "retrieved-" + Arb.string().next(),
                 )
             val userFlow = MutableStateFlow<SupabaseUser?>(previousUser)
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -228,7 +231,7 @@ class UserDataRepositoryImplTest :
         }
 
         test("TC-c3f5a153-0abf-4ed1-b7aa-eb278192b989 사용자 정보 다시 확인에 실패하면 저장된 사용자 정보가 바뀌지 않는다") {
-            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet())
+            val previousUser = Arb.supabaseUser().next().copy(providerSet = emptySet())
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)
             coEvery { supabaseAuth.retrieveUserForCurrentSession() } throws IllegalStateException("retrieve failed")
@@ -244,21 +247,18 @@ class UserDataRepositoryImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private const val MAX_SIDE_LENGTH = 1024
         private const val QUALITY = 90
 
-        private fun fileUri(): FileUri = FileUri("file://${fixtureMonkey.giveMeOne<String>()}")
+        private fun fileUri(): FileUri = FileUri("file://${Arb.string().next()}")
 
-        private fun cropRegion(): ImageCropRegion = fixtureMonkey.imageCropRegion()
+        private fun cropRegion(): ImageCropRegion = Arb.imageCropRegion().next()
 
-        private fun imageBytes(): ByteArray = "image-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
+        private fun imageBytes(): ByteArray = "image-${Arb.string().next()}".encodeToByteArray()
 
         private fun supabaseAuth(): SupabaseAuth =
             mockk<SupabaseAuth>().also { auth ->
-                every { auth.getUserFlow() } returns flowOf(fixtureMonkey.giveMeOne<SupabaseUser>().copy(providerSet = emptySet()))
+                every { auth.getUserFlow() } returns flowOf(Arb.supabaseUser().next().copy(providerSet = emptySet()))
             }
 
         private fun fileLocalDataSource(
@@ -283,7 +283,7 @@ class UserDataRepositoryImplTest :
             mockk<ProfileImageRemoteDataSource>().also { dataSource ->
                 coEvery {
                     dataSource.upload(mimeType = any(), contentLength = any(), openContent = any())
-                } returns fixtureMonkey.giveMeOne<ProfileImageRemoteEntity>()
+                } returns Arb.profileImageRemoteEntity().next()
             }
 
         private fun failingProfileImageRemoteDataSource(): ProfileImageRemoteDataSource =

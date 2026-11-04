@@ -1,18 +1,22 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +30,8 @@ import kotlin.uuid.Uuid
 class RestoreContactUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 삭제된 연락처가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -41,7 +45,7 @@ class RestoreContactUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -73,8 +77,8 @@ class RestoreContactUseCaseTest :
         }
 
         Given("게스트 계정이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.Guest>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.constant(Account.Guest).next()
+            val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
@@ -101,7 +105,7 @@ class RestoreContactUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
@@ -115,7 +119,7 @@ class RestoreContactUseCaseTest :
 
             When("연락처의 삭제를 실행 취소한다") {
                 Then("TC-ce0d1dc4-4bbc-4542-ade4-18e84ed6f8ea 실행 취소가 성공으로 다뤄지지 않고 연락처의 삭제 여부를 바꾸지 않는다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -127,8 +131,8 @@ class RestoreContactUseCaseTest :
         }
 
         Given("실행 취소 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
@@ -146,7 +150,7 @@ class RestoreContactUseCaseTest :
 
             When("연락처의 삭제를 실행 취소한다") {
                 Then("TC-650c78d8-577e-4860-b767-6c943b38e514 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -156,9 +160,6 @@ class RestoreContactUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun requestSyncUseCase(): RequestSyncUseCase {
             val useCase = mockk<RequestSyncUseCase>()
             coEvery { useCase(parameter = any()) } returns Result.success(Unit)

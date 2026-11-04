@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -29,7 +28,8 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.core.testing.place.place
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -64,13 +64,11 @@ internal const val KOREAN_PLACE_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "ë‹¤ë¥
 internal const val NAVER_PROVIDER_NAME: String = "Naver"
 internal const val GOOGLE_PROVIDER_NAME: String = "Google"
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 internal fun testPlace(
     title: String,
-    coordinate: Coordinate = fixtureMonkey.coordinateInFormPrecision(),
+    coordinate: Coordinate = Arb.coordinateInFormPrecision().next(),
 ): Place =
-    fixtureMonkey.place(isDeleted = false).let { place ->
+    Arb.place(isDeleted = false).next().let { place ->
         place.copy(detail = place.detail.copy(title = title, coordinate = coordinate))
     }
 

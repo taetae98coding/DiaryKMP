@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.data.place.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceDisplayNameRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
+import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.doubles.shouldBeNaN
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlin.uuid.Uuid
 
 class SearchedPlaceMapperTest :
@@ -19,12 +21,12 @@ class SearchedPlaceMapperTest :
         test("TC-165b3a7d-e8b9-44db-8de6-1fc45e3f4d51 네이버 이름의 강조 표식을 제거한다") {
             val place = naverPlace(title = "<b>서울</b>역 <B>맛집</B>")
 
-            place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>()).name shouldBe "서울역 맛집"
+            place.toDomain(id = Arb.kotlinUuid().next()).name shouldBe "서울역 맛집"
         }
 
         test("TC-8faf1cb5-cbd4-4d47-ac79-47103378eac2 네이버 결과의 주소는 도로명 주소를 먼저 보여 준다") {
-            val jibun = "지번-${fixtureMonkey.giveMeOne<String>()}"
-            val road = "도로명-${fixtureMonkey.giveMeOne<String>()}"
+            val jibun = "지번-${Arb.string().next()}"
+            val road = "도로명-${Arb.string().next()}"
 
             listOf(
                 Triple(jibun, road, road),
@@ -34,13 +36,13 @@ class SearchedPlaceMapperTest :
             ).forEach { (address, roadAddress, expected) ->
                 val place = naverPlace(address = address, roadAddress = roadAddress)
 
-                place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>()).address shouldBe expected
+                place.toDomain(id = Arb.kotlinUuid().next()).address shouldBe expected
             }
         }
 
         test("TC-578a8b85-e169-4604-9240-64501d16ef2b Google 결과의 주소는 전체 주소를 먼저 보여 준다") {
-            val formatted = "전체-${fixtureMonkey.giveMeOne<String>()}"
-            val short = "짧은-${fixtureMonkey.giveMeOne<String>()}"
+            val formatted = "전체-${Arb.string().next()}"
+            val short = "짧은-${Arb.string().next()}"
 
             listOf(
                 Triple(formatted, short, formatted),
@@ -54,14 +56,14 @@ class SearchedPlaceMapperTest :
                         shortFormattedAddress = shortFormattedAddress,
                     )
 
-                place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>()).address shouldBe expected
+                place.toDomain(id = Arb.kotlinUuid().next()).address shouldBe expected
             }
         }
 
         test("네이버 좌표는 위도와 경도로 바꾼다") {
             val place = naverPlace(mapx = "1270276620", mapy = "375657760")
 
-            val actual = place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>())
+            val actual = place.toDomain(id = Arb.kotlinUuid().next())
 
             actual.coordinate.latitude shouldBe (37.565776 plusOrMinus COORDINATE_TOLERANCE)
             actual.coordinate.longitude shouldBe (127.027662 plusOrMinus COORDINATE_TOLERANCE)
@@ -70,15 +72,15 @@ class SearchedPlaceMapperTest :
         test("네이버 좌표를 읽을 수 없으면 성립하지 않는 좌표로 둔다") {
             val place = naverPlace(mapx = "", mapy = "좌표 아님")
 
-            val actual = place.toDomain(id = fixtureMonkey.giveMeOne<Uuid>())
+            val actual = place.toDomain(id = Arb.kotlinUuid().next())
 
             actual.coordinate.latitude.shouldBeNaN()
             actual.coordinate.longitude.shouldBeNaN()
         }
 
         test("전달한 식별자와 제공자가 돌려준 이름과 좌표를 그대로 담는다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val name = "이름-${fixtureMonkey.giveMeOne<String>()}"
+            val id = Arb.kotlinUuid().next()
+            val name = "이름-${Arb.string().next()}"
             val latitude = 37.5665
             val longitude = 126.9780
             val place =
@@ -99,38 +101,37 @@ class SearchedPlaceMapperTest :
 
 private const val COORDINATE_TOLERANCE = 1e-9
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun naverPlace(
-    title: String = "이름-${fixtureMonkey.giveMeOne<String>()}",
-    address: String = "지번-${fixtureMonkey.giveMeOne<String>()}",
-    roadAddress: String = "도로명-${fixtureMonkey.giveMeOne<String>()}",
+    title: String = "이름-${Arb.string().next()}",
+    address: String = "지번-${Arb.string().next()}",
+    roadAddress: String = "도로명-${Arb.string().next()}",
     mapx: String = "1270276620",
     mapy: String = "375657760",
 ): NaverPlaceRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<NaverPlaceRemoteEntity>()
-        .setExp(NaverPlaceRemoteEntity::title, title)
-        .setExp(NaverPlaceRemoteEntity::address, address)
-        .setExp(NaverPlaceRemoteEntity::roadAddress, roadAddress)
-        .setExp(NaverPlaceRemoteEntity::mapx, mapx)
-        .setExp(NaverPlaceRemoteEntity::mapy, mapy)
-        .sample()
+    Arb
+        .naverPlaceRemoteEntity()
+        .next()
+        .copy(
+            title = title,
+            address = address,
+            roadAddress = roadAddress,
+            mapx = mapx,
+            mapy = mapy,
+        )
 
 private fun googlePlace(
-    name: String = "이름-${fixtureMonkey.giveMeOne<String>()}",
-    formattedAddress: String = "전체-${fixtureMonkey.giveMeOne<String>()}",
-    shortFormattedAddress: String = "짧은-${fixtureMonkey.giveMeOne<String>()}",
+    name: String = "이름-${Arb.string().next()}",
+    formattedAddress: String = "전체-${Arb.string().next()}",
+    shortFormattedAddress: String = "짧은-${Arb.string().next()}",
     latitude: Double = 37.5665,
     longitude: Double = 126.9780,
 ): GooglePlaceRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<GooglePlaceRemoteEntity>()
-        .setExp(GooglePlaceRemoteEntity::displayName, GooglePlaceDisplayNameRemoteEntity(text = name))
-        .setExp(GooglePlaceRemoteEntity::formattedAddress, formattedAddress)
-        .setExp(GooglePlaceRemoteEntity::shortFormattedAddress, shortFormattedAddress)
-        .setExp(
-            GooglePlaceRemoteEntity::location,
-            GooglePlaceLocationRemoteEntity(latitude = latitude, longitude = longitude),
-        ).sample()
+    Arb
+        .googlePlaceRemoteEntity()
+        .next()
+        .copy(
+            displayName = GooglePlaceDisplayNameRemoteEntity(text = name),
+            formattedAddress = formattedAddress,
+            shortFormattedAddress = shortFormattedAddress,
+            location = GooglePlaceLocationRemoteEntity(latitude = latitude, longitude = longitude),
+        )

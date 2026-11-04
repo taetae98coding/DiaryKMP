@@ -6,17 +6,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -259,8 +260,8 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         test("장소를 선택하면 그 메모와 장소의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val placeId = Arb.kotlinUuid().next()
                 val addMemoPlaceUseCase = mockk<AddMemoPlaceUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoPlaceUseCase = addMemoPlaceUseCase)
 
@@ -273,8 +274,8 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         test("장소 선택을 해제하면 그 메모와 장소의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val placeId = Arb.kotlinUuid().next()
                 val removeMemoPlaceUseCase = mockk<RemoveMemoPlaceUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, removeMemoPlaceUseCase = removeMemoPlaceUseCase)
 
@@ -287,9 +288,9 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         test("TC-272f0653-ae21-41ac-be9b-05b19642e54c 앞선 장소 연결 변경이 처리 중이어도 뒤이은 장소 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstPlaceId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondPlaceId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val firstPlaceId = Arb.kotlinUuid().next()
+                val secondPlaceId = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Unit>>()
                 val addMemoPlaceUseCase = mockk<AddMemoPlaceUseCase>()
                 coEvery { addMemoPlaceUseCase(any()) } coAnswers { completion.await() }
@@ -376,8 +377,8 @@ class MemoPlaceViewModelTest : FunSpec() {
 
         test("TC-5833576a-1a50-410a-a08c-16171ab49d4c 같은 Place 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val placeId = Arb.kotlinUuid().next()
                 val addMemoPlaceUseCase = mockk<AddMemoPlaceUseCase>(relaxed = true)
                 val removeMemoPlaceUseCase = mockk<RemoveMemoPlaceUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoPlaceUseCase = addMemoPlaceUseCase, removeMemoPlaceUseCase = removeMemoPlaceUseCase)
@@ -397,19 +398,18 @@ class MemoPlaceViewModelTest : FunSpec() {
     public companion object {
         private const val SEARCH_QUERY = "Riverside"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun place(): Place =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Place>()
-                .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .place()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             placePagingFlow: Flow<Result<PagingData<Place>>> = emptyFlow(),
             memoPlaceFlow: Flow<Result<List<Place>>> = emptyFlow(),
             addMemoPlaceUseCase: AddMemoPlaceUseCase = mockk(relaxed = true),

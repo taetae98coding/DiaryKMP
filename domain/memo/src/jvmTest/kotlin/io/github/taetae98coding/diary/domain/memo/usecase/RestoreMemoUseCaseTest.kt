@@ -1,17 +1,20 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -25,8 +28,8 @@ import kotlin.uuid.Uuid
 class RestoreMemoUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -49,7 +52,7 @@ class RestoreMemoUseCaseTest :
                 Then(
                     "TC-eceaa918-fd40-4705-bf26-6e7114abd072 TC-516ee709-1117-4b0b-a57b-2f554a3c1358 TC-52b64423-a1b5-4e2c-ab00-dd70b9353702 TC-d91ed131-c84d-4723-8d59-a6aa527d8067 TC-2aee7166-a476-4951-a3de-b5e513588b84 TC-ede2d580-39fb-4af7-8d88-5bdc60bfbc58 현재 계정의 메모를 미삭제 상태와 동작 시점 수정 시각으로 되돌린다",
                 ) {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
 
                     val result = useCase(parameter = memoId)
 
@@ -62,7 +65,7 @@ class RestoreMemoUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -78,7 +81,7 @@ class RestoreMemoUseCaseTest :
 
             When("삭제 복구를 실행한다") {
                 Then("계정 조회 실패를 전달하고 메모 상태를 변경하지 않는다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    val result = useCase(parameter = Arb.kotlinUuid().next())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
                     coVerify(exactly = 0) {
@@ -90,7 +93,7 @@ class RestoreMemoUseCaseTest :
         }
 
         Given("삭제 실행 취소와 동기화 요청이 성공하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -100,7 +103,7 @@ class RestoreMemoUseCaseTest :
                 accountMemoRepository.updateDeleted(account = account, memoId = any(), isDeleted = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 RestoreMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -111,7 +114,7 @@ class RestoreMemoUseCaseTest :
 
             When("삭제를 실행 취소한다") {
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 메모 갱신 후 동기화를 한 번 요청한다") {
-                    val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    val result = useCase(parameter = Arb.kotlinUuid().next())
 
                     result.shouldBeSuccess(1)
                     coVerifyOrder {
@@ -122,9 +125,4 @@ class RestoreMemoUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

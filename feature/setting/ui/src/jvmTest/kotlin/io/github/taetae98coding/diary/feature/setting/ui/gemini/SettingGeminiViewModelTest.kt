@@ -3,14 +3,14 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetGeminiSettingUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,9 +28,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class SettingGeminiViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -46,7 +43,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
         test("TC-b7f4e2f9-6e46-467f-a334-663f7169f362 저장된 설정을 그대로 제공한다") {
             runTest(mainDispatcher) {
-                val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                val setting = Arb.geminiSetting().next()
                 val viewModel = createViewModel(settingFlow = flowOf(Result.success(setting)))
 
                 viewModel.uiState.test {
@@ -91,7 +88,7 @@ class SettingGeminiViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val stored = MutableStateFlow(Result.success(GeminiSetting.EMPTY))
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
-                val target = fixtureMonkey.giveMeOne<GeminiSetting>()
+                val target = Arb.geminiSetting().next()
                 coEvery { setGeminiSettingUseCase(target) } coAnswers {
                     stored.value = Result.success(target)
                     Result.success(Unit)
@@ -217,7 +214,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
         test("TC-4f7ca966-2ddc-4ddc-858d-befcae34e2ee 저장에 성공하면 성공을 알린다") {
             runTest(mainDispatcher) {
-                val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                val setting = Arb.geminiSetting().next()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
                 coEvery { setGeminiSettingUseCase(setting) } returns Result.success(Unit)
                 val viewModel = createViewModel(setGeminiSettingUseCase = setGeminiSettingUseCase)
@@ -234,7 +231,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
         test("TC-e4611d27-bb3d-41c8-b08d-0c1028146247 저장에 실패하면 실패를 알린다") {
             runTest(mainDispatcher) {
-                val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                val setting = Arb.geminiSetting().next()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
                 coEvery { setGeminiSettingUseCase(setting) } returns Result.failure(IllegalStateException("save error"))
                 val viewModel = createViewModel(setGeminiSettingUseCase = setGeminiSettingUseCase)
@@ -251,7 +248,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
         test("저장이 끝나면 다시 저장할 수 있다") {
             runTest(mainDispatcher) {
-                val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                val setting = Arb.geminiSetting().next()
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
                 coEvery { setGeminiSettingUseCase(setting) } returns Result.failure(IllegalStateException("save error"))
                 val viewModel = createViewModel(setGeminiSettingUseCase = setGeminiSettingUseCase)

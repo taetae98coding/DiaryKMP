@@ -16,6 +16,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidMain {
             dependencies {
                 implementation(libs.androidx.activity.compose)

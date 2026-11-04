@@ -49,6 +49,8 @@ import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeVie
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -429,7 +431,7 @@ class ChecklistNavDisplayTest {
                 testChecklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-")
             }
 
-        fun item(content: String): ChecklistItem = checklistTestFixtureMonkey.checklistItem(isChecked = false, isDeleted = false, content = content)
+        fun item(content: String): ChecklistItem = Arb.checklistItem(isChecked = false, isDeleted = false, content = content).next()
     }
 }
 

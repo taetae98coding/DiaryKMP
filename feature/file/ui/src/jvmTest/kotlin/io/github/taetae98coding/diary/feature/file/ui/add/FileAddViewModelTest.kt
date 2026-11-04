@@ -3,8 +3,6 @@
 package io.github.taetae98coding.diary.feature.file.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
@@ -17,12 +15,16 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseC
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -42,9 +44,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileAddViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -72,8 +71,8 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-0751a03c-734b-4264-adcb-ece99ed4ed1b 파일을 고르면 읽은 이름과 크기의 파일이 고른 파일이 된다") {
             runTest(mainDispatcher) {
-                val uri = fixtureMonkey.fileUri()
-                val source = fixtureMonkey.fileUploadSource().copy(uri = uri)
+                val uri = Arb.fileUri().next()
+                val source = Arb.fileUploadSource().next().copy(uri = uri)
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = uri) } returns Result.success(source)
                 val viewModel = viewModel(readUseCase = readUseCase)
@@ -88,8 +87,8 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-0c908f3c-7a9d-4a76-82c6-2c23c2dbc398 이미 고른 파일이 있어도 다시 고르면 새 파일로 바뀐다") {
             runTest(mainDispatcher) {
-                val first = fixtureMonkey.fileUploadSource()
-                val second = fixtureMonkey.fileUploadSource()
+                val first = Arb.fileUploadSource().next()
+                val second = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = first.uri) } returns Result.success(first)
                 coEvery { readUseCase(parameter = second.uri) } returns Result.success(second)
@@ -107,7 +106,7 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-c89e24fb-6233-4119-80c9-9444a789c6d6 고를 수 없는 파일을 고르면 이유를 알리고 이전에 고른 파일을 둔다") {
             runTest(mainDispatcher) {
-                val previous = fixtureMonkey.fileUploadSource()
+                val previous = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = previous.uri) } returns Result.success(previous)
                 val viewModel = viewModel(readUseCase = readUseCase)
@@ -121,7 +120,7 @@ class FileAddViewModelTest : FunSpec() {
                         FileUnreadableException(name = "", cause = IllegalStateException("read")) to FileAddEffect.FileUnreadable,
                         FileTooLargeException() to FileAddEffect.FileTooLarge,
                     ).forEach { (exception, effect) ->
-                        val uri = fixtureMonkey.fileUri()
+                        val uri = Arb.fileUri().next()
                         coEvery { readUseCase(parameter = uri) } returns Result.failure(exception)
 
                         viewModel.select(uri = uri)
@@ -137,7 +136,7 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-13958209-1811-4ea0-b20a-56f57c8a9f75 TC-3dc2f4fc-8d3e-4a5b-9348-d5c731e2e72e TC-e9ed04a3-cd3b-48fd-900c-a41bcca35a4a 올리기 성립 조건을 어기면 이유를 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
+                val source = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
@@ -167,9 +166,9 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-4c8c007d-7359-4fa6-9caf-57f28b16a319 올리기를 실행하면 고른 파일과 입력한 제목·설명으로 맡기고 고른 파일을 비운다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
-                val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-                val description = fixtureMonkey.giveMeOne<String>()
+                val source = Arb.fileUploadSource().next()
+                val title = "title-${Arb.string().next()}"
+                val description = Arb.string().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
@@ -199,7 +198,7 @@ class FileAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 listOf(
                     FileUploadState.Uploading(percent = null),
-                    FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>()),
+                    FileUploadState.Uploading(percent = Arb.int().next()),
                 ).forEach { state ->
                     val requestUseCase = mockk<RequestFileUploadUseCase>()
                     val viewModel =
@@ -213,7 +212,7 @@ class FileAddViewModelTest : FunSpec() {
                     viewModel.uiState.value.isUploading
                         .shouldBeTrue()
 
-                    viewModel.upload(title = "title-${fixtureMonkey.giveMeOne<String>()}", description = "")
+                    viewModel.upload(title = "title-${Arb.string().next()}", description = "")
                     advanceUntilIdle()
 
                     coVerify(exactly = 0) { requestUseCase(parameter = any()) }
@@ -235,12 +234,12 @@ class FileAddViewModelTest : FunSpec() {
                 val viewModel = viewModel(requestUseCase = requestUseCase, stateFlow = stateFlow)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
-                viewModel.upload(title = "title-${fixtureMonkey.giveMeOne<String>()}", description = "")
+                viewModel.upload(title = "title-${Arb.string().next()}", description = "")
                 runCurrent()
                 viewModel.uiState.value.isUploading
                     .shouldBeTrue()
 
-                viewModel.upload(title = "title-${fixtureMonkey.giveMeOne<String>()}", description = "")
+                viewModel.upload(title = "title-${Arb.string().next()}", description = "")
                 requested.complete(Unit)
                 advanceUntilIdle()
                 viewModel.uiState.value.isUploading
@@ -256,7 +255,7 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-2bdb00f3-e9db-459e-a33a-82f72bcf4a92 올리는 중에도 파일을 고를 수 있다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
+                val source = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val viewModel =
@@ -275,7 +274,7 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-f33a3f46-e611-4fd6-b6a4-453ca777497a 화면을 보는 동안 끝난 올리기의 결과를 알리고 고른 파일은 둔다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
+                val source = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
@@ -287,7 +286,7 @@ class FileAddViewModelTest : FunSpec() {
 
                 viewModel.effect.test {
                     mapOf(
-                        FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>()) to FileAddEffect.UploadSucceeded,
+                        FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next()) to FileAddEffect.UploadSucceeded,
                         FileUploadEvent.TooLarge to FileAddEffect.FileTooLarge,
                         FileUploadEvent.Failed to FileAddEffect.UploadFailed,
                     ).forEach { (event, effect) ->
@@ -314,11 +313,11 @@ class FileAddViewModelTest : FunSpec() {
 
         test("TC-a1099bb4-240a-42f7-9476-8fc329821611 TC-4828e410-703c-4644-a5aa-6bc44c948b6b 올리기를 맡기지 못하면 올리지 못했다고 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
+                val source = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
-                coEvery { requestUseCase(parameter = any()) } returns Result.failure(SecurityException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { requestUseCase(parameter = any()) } returns Result.failure(SecurityException(Arb.string().next()))
                 val viewModel = viewModel(readUseCase = readUseCase, requestUseCase = requestUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
@@ -326,7 +325,7 @@ class FileAddViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 viewModel.effect.test {
-                    viewModel.upload(title = "title-${fixtureMonkey.giveMeOne<String>()}", description = "")
+                    viewModel.upload(title = "title-${Arb.string().next()}", description = "")
                     advanceUntilIdle()
 
                     awaitItem() shouldBe FileAddEffect.UploadFailed
@@ -338,7 +337,7 @@ class FileAddViewModelTest : FunSpec() {
 
         test("같은 파일을 읽는 중에 다시 고르면 한 번만 읽는다") {
             runTest(mainDispatcher) {
-                val source = fixtureMonkey.fileUploadSource()
+                val source = Arb.fileUploadSource().next()
                 val readUseCase = mockk<ReadFileUploadSourceUseCase>()
                 coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val viewModel = viewModel(readUseCase = readUseCase)

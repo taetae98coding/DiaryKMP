@@ -11,12 +11,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.exception.FileNameBlankException
@@ -24,14 +23,12 @@ import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankExcept
 import io.github.taetae98coding.diary.domain.file.usecase.DownloadFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.FetchFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.UpdateFileUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-
-internal val fileDetailFixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal const val DOWNLOAD_DESCRIPTION = "다운로드"
 internal const val UPDATE_DESCRIPTION = "파일 수정"
@@ -55,12 +52,12 @@ private const val NAME_INPUT_INDEX = 2
 
 // 서버와 저장 위치의 응답은 mock이 돌려주는 값으로 제어한다. 수정 성립 조건의 판단은 domain이 소유하므로 여기서는 그 결과만 흉내 낸다.
 internal class FileDetailMocks(
-    file: DiaryFile = fileDetailFixtureMonkey.nonBlankDiaryFile(),
+    file: DiaryFile = Arb.nonBlankDiaryFile().next(),
 ) {
     var file: DiaryFile = file
         private set
 
-    val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fileDetailFixtureMonkey.giveMeOne<Account.User>()))
+    val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
     val updateList = mutableListOf<UpdateFileUseCase.Parameter>()
     val downloadList = mutableListOf<DiaryFile>()
 

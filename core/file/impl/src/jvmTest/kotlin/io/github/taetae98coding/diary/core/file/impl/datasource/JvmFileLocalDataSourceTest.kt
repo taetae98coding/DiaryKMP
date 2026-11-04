@@ -1,12 +1,13 @@
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUri
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.buffered
@@ -14,14 +15,11 @@ import kotlinx.io.readByteArray
 import java.io.File
 import java.net.URI
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class JvmFileLocalDataSourceTest :
     FunSpec({
         test("파일 이름을 알린다") {
             runTest {
-                val file = namedFile(name = "보고서 ${fixtureMonkey.giveMeOne<Int>()}.pdf")
+                val file = namedFile(name = "보고서 ${Arb.int().next()}.pdf")
                 val dataSource = JvmFileLocalDataSource(dispatcher = StandardTestDispatcher(testScheduler))
 
                 dataSource.name(uri = FileUri(file.toURI().toString())) shouldBe file.name
@@ -119,7 +117,7 @@ class JvmFileLocalDataSourceTest :
         }
     }) {
     public companion object {
-        private fun fileBytes(): ByteArray = "file-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
+        private fun fileBytes(): ByteArray = "file-${Arb.string().next()}".encodeToByteArray()
 
         private fun namedFile(name: String): File {
             val directory =

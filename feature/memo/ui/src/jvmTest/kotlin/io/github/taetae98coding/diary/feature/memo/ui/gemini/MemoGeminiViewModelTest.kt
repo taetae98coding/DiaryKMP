@@ -4,21 +4,21 @@ package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
+import io.github.taetae98coding.diary.core.testing.memo.memoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -64,8 +64,6 @@ private val PARAMETER =
         description = "",
         dateTime = null,
     )
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private const val PROGRESS_COUNT = 3
 
@@ -347,7 +345,7 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-da9bb546-e1b1-4d67-a91e-42cf5e0ae8c3 그 밖의 실패에서 Gemini가 돌려준 설명을 함께 알린다") {
             runTest(mainDispatcher) {
-                val description = fixtureMonkey.nonBlankString()
+                val description = Arb.nonBlankString().next()
                 val viewModel = failingViewModel(GeminiRequestException.Other(description = description, cause = null))
                 advanceUntilIdle()
                 viewModel.open()
@@ -378,7 +376,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 viewModel.generate(parameter = PARAMETER)
                 advanceUntilIdle()
 
-                List(PROGRESS_COUNT) { fixtureMonkey.giveMeOne<MemoDraftProgress>() }.forEach { progress ->
+                List(PROGRESS_COUNT) { Arb.memoDraftProgress().next() }.forEach { progress ->
                     parameterSlot.captured.onProgress(progress)
                     advanceUntilIdle()
 
@@ -409,7 +407,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 viewModel.open()
                 viewModel.generate(parameter = PARAMETER)
                 advanceUntilIdle()
-                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                parameterSlot.captured.onProgress(Arb.memoDraftProgress().next())
                 advanceUntilIdle()
 
                 completion.complete(Result.failure(GeminiRequestException.Network(cause = null)))
@@ -438,7 +436,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 viewModel.open()
                 viewModel.generate(parameter = PARAMETER)
                 advanceUntilIdle()
-                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                parameterSlot.captured.onProgress(Arb.memoDraftProgress().next())
                 advanceUntilIdle()
 
                 viewModel.cancel()

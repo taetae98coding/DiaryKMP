@@ -3,19 +3,21 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankException
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.UpdateWebUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -65,7 +67,7 @@ class WebDetailViewModelTest : FunSpec() {
 
         test("TC-43a42162-c097-4b5c-923a-12c3dae536be TC-e5efe348-ca20-44cd-a171-8a705ae43ad0 웹 항목을 조회할 수 없으면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
 
                 listOf(
                     Result.failure(IllegalStateException()),
@@ -85,7 +87,7 @@ class WebDetailViewModelTest : FunSpec() {
         test("TC-1e17e1be-6bfc-43c0-a465-18f55e142110 저장 내용이 바뀌면 화면에 표시하는 저장 내용을 갱신한다") {
             runTest(mainDispatcher) {
                 val web = web()
-                val changedWeb = web.copy(detail = web.detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}"))
+                val changedWeb = web.copy(detail = web.detail.copy(title = "changed-${Arb.string().next()}"))
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web))
                 val viewModel = viewModel(id = web.id, webFlow = webFlow)
 
@@ -161,7 +163,7 @@ class WebDetailViewModelTest : FunSpec() {
         test("TC-d837592b-4ade-4baa-be57-80723a8a8fc0 수정에 성공하면 수정 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
                 val web = web()
-                val detail = web.detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}")
+                val detail = web.detail.copy(title = "changed-${Arb.string().next()}")
                 val updateWebUseCase = mockk<UpdateWebUseCase>()
                 coEvery { updateWebUseCase(parameter = UpdateWebUseCase.Parameter(id = web.id, detail = detail)) } returns Result.success(1)
                 val viewModel = viewModel(id = web.id, webFlow = flowOf(Result.success(web)), updateWebUseCase = updateWebUseCase)
@@ -369,9 +371,6 @@ class WebDetailViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             id: Uuid,
             webFlow: Flow<Result<Web?>>,
@@ -392,10 +391,10 @@ class WebDetailViewModelTest : FunSpec() {
         private fun web(): Web =
             Web(
                 id = Uuid.random(),
-                detail = fixtureMonkey.giveMeKotlinBuilder<WebDetail>().sample(),
+                detail = Arb.webDetail().next(),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

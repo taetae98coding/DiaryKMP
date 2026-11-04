@@ -4,17 +4,19 @@ package io.github.taetae98coding.diary.feature.more.ui.home.signout
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -202,7 +204,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                 val signOutUseCase = signOutUseCase()
                 val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
                 every { findSyncPendingUseCase(Unit) } returns
-                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel =
                     MoreHomeSignOutViewModel(
                         savedStateHandle = SavedStateHandle(),
@@ -225,23 +227,23 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-0acd3802-a869-448b-b008-6ec3f7d8e7e9 로그아웃에 실패하면 안내 없이 계정 표시를 유지한다") {
             runTest(mainDispatcher) {
-                val email = "diary-" + fixtureMonkey.giveMeOne<String>()
-                val profileImage = fixtureMonkey.giveMeOne<String>()
+                val email = "diary-" + Arb.string().next()
+                val profileImage = Arb.string().next()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns
                     flowOf(
                         Result.success<Account>(
                             Account.User(
-                                id = fixtureMonkey.giveMeOne<Uuid>(),
+                                id = Arb.kotlinUuid().next(),
                                 profileImage = profileImage,
                                 email = email,
-                                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                                isSessionValid = Arb.boolean().next(),
                             ),
                         ),
                     )
                 val accountViewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
                 val signOutUseCase = mockk<SignOutUseCase>()
-                coEvery { signOutUseCase(Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { signOutUseCase(Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(hasPending = false, signOutUseCase = signOutUseCase)
 
                 accountViewModel.uiState.test {
@@ -301,17 +303,17 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
 
         test("TC-ed16b7dd-6081-4893-a56f-9a2301d0fbe9 로그아웃을 처리하는 동안 진행 상태를 표시하지 않고 계정 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val email = "diary-" + fixtureMonkey.giveMeOne<String>()
-                val profileImage = fixtureMonkey.giveMeOne<String>()
+                val email = "diary-" + Arb.string().next()
+                val profileImage = Arb.string().next()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns
                     flowOf(
                         Result.success<Account>(
                             Account.User(
-                                id = fixtureMonkey.giveMeOne<Uuid>(),
+                                id = Arb.kotlinUuid().next(),
                                 profileImage = profileImage,
                                 email = email,
-                                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                                isSessionValid = Arb.boolean().next(),
                             ),
                         ),
                     )
@@ -384,8 +386,6 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun signOutUseCase(): SignOutUseCase {
             val signOutUseCase = mockk<SignOutUseCase>()
             coEvery { signOutUseCase(Unit) } returns Result.success(Unit)

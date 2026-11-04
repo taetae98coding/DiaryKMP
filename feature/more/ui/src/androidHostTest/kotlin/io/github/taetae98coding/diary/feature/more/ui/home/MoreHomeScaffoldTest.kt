@@ -12,22 +12,19 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -139,7 +136,7 @@ class MoreHomeScaffoldTest {
     @Test
     @Config(qualifiers = "ko")
     fun `한국어 환경에서 계정 카드와 프로필 이미지의 누름 동작 접근성 이름을 제공한다`() {
-        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        val profileImage = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
         setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL) })
 
         clickLabel(composeRule.onNodeWithText(USER_EMAIL)) shouldBe "프로필 열기"
@@ -148,7 +145,7 @@ class MoreHomeScaffoldTest {
 
     @Test
     fun `기본 환경에서 계정 카드와 프로필 이미지의 누름 동작 접근성 이름을 제공한다`() {
-        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        val profileImage = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
         setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL) })
 
         clickLabel(composeRule.onNodeWithText(USER_EMAIL)) shouldBe DEFAULT_ACCOUNT_CARD_CLICK_LABEL

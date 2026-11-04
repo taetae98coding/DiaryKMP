@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.data.place.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
@@ -11,12 +8,17 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateCircle
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
+import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
+import io.kotest.property.arbitrary.take
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -25,7 +27,7 @@ class PlaceSearchRepositoryImplTest :
     FunSpec({
         test("네이버 검색은 응답한 장소 개수만큼 서로 다른 식별자를 가진 결과를 전달한다") {
             val query = query()
-            val remoteList = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(PLACE_COUNT)
+            val remoteList = Arb.naverPlaceRemoteEntity().take(PLACE_COUNT).toList()
             val dataSource = mockk<NaverPlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query) } returns remoteList
             val repository = NaverPlaceSearchRepositoryImpl(naverPlaceRemoteDataSource = dataSource)
@@ -50,7 +52,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("네이버 검색 실패를 그대로 전파한다") {
             val query = query()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val dataSource = mockk<NaverPlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query) } throws throwable
             val repository = NaverPlaceSearchRepositoryImpl(naverPlaceRemoteDataSource = dataSource)
@@ -62,7 +64,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("TC-723e26ea-30ae-44f5-afac-07ace5e60932 네이버 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
             val query = query()
-            val remoteList = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(PLACE_COUNT)
+            val remoteList = Arb.naverPlaceRemoteEntity().take(PLACE_COUNT).toList()
             val dataSource = mockk<NaverPlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query) } returns remoteList
             val repository = NaverPlaceSearchRepositoryImpl(naverPlaceRemoteDataSource = dataSource)
@@ -101,7 +103,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("Google 검색은 기준 위치가 없으면 위치 조건 없이 조회한다") {
             val query = query()
-            val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
+            val remoteList = Arb.googlePlaceRemoteEntity().take(PLACE_COUNT).toList()
             val dataSource = mockk<GooglePlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query, locationBias = null) } returns remoteList
             val repository = GooglePlaceSearchRepositoryImpl(googlePlaceRemoteDataSource = dataSource)
@@ -114,7 +116,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("TC-6c825776-996f-4050-a771-d3db0185cd19 Google 검색은 같은 검색어라도 요청할 때마다 새로 조회한다") {
             val query = query()
-            val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
+            val remoteList = Arb.googlePlaceRemoteEntity().take(PLACE_COUNT).toList()
             val dataSource = mockk<GooglePlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query, locationBias = null) } returns remoteList
             val repository = GooglePlaceSearchRepositoryImpl(googlePlaceRemoteDataSource = dataSource)
@@ -128,8 +130,10 @@ class PlaceSearchRepositoryImplTest :
         test("TC-2eff41ae-28e1-4305-a906-620d864e6476 네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
             val remoteList =
-                fixtureMonkey
-                    .giveMe<NaverPlaceRemoteEntity>(PLACE_COUNT)
+                Arb
+                    .naverPlaceRemoteEntity()
+                    .take(PLACE_COUNT)
+                    .toList()
                     .mapIndexed { index, remote -> remote.copy(title = "장소-$index") }
             val withoutCoordinate = remoteList[1].copy(mapx = "", mapy = "")
             val dataSource = mockk<NaverPlaceRemoteDataSource>()
@@ -144,7 +148,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
             val query = query()
-            val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
+            val remoteList = Arb.googlePlaceRemoteEntity().take(PLACE_COUNT).toList()
             val withoutCoordinate = remoteList[1].copy(location = GooglePlaceLocationRemoteEntity())
             val dataSource = mockk<GooglePlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query, locationBias = null) } returns listOf(remoteList[0], withoutCoordinate, remoteList[2])
@@ -158,7 +162,7 @@ class PlaceSearchRepositoryImplTest :
 
         test("Google 검색 실패를 그대로 전파한다") {
             val query = query()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val dataSource = mockk<GooglePlaceRemoteDataSource>()
             coEvery { dataSource.search(query = query, locationBias = null) } throws throwable
             val repository = GooglePlaceSearchRepositoryImpl(googlePlaceRemoteDataSource = dataSource)
@@ -171,9 +175,6 @@ class PlaceSearchRepositoryImplTest :
     private companion object {
         private const val PLACE_COUNT = 3
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun query(): String = "검색어-${fixtureMonkey.giveMeOne<String>()}"
+        private fun query(): String = "검색어-${Arb.string().next()}"
     }
 }

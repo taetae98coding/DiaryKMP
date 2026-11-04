@@ -7,8 +7,6 @@ import androidx.room3.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
@@ -22,9 +20,14 @@ import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.qr.localQr
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -32,8 +35,6 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // Room Gradle 플러그인이 내보낸 스키마를 테스트가 모듈 폴더 기준으로 읽는다.
 private val schemaDirectoryPath: Path = Paths.get("schemas")
@@ -62,15 +63,15 @@ class DiaryDatabaseMigrationTest :
         }
 
         test("TC-20a28b81-a5c0-457d-821b-b734aa885427 앱을 업데이트해도 기기에 저장된 데이터와 동기화 상태가 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo =
-                fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).let { memo ->
+                Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next().let { memo ->
                     memo.copy(detail = memo.detail.copy(isAllDay = null, start = null, endInclusive = null))
                 }
-            val usn = fixtureMonkey.giveMeOne<Long>()
-            val qr = fixtureMonkey.localQr(isDeleted = false)
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
-            val checklistItem = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
+            val usn = Arb.long().next()
+            val qr = Arb.localQr(isDeleted = false).next()
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val checklistItem = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
 
             helper.createDatabase(version = 1).use { connection ->
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
@@ -103,10 +104,10 @@ class DiaryDatabaseMigrationTest :
         }
 
         test("TC-0b67c147-01b1-4f5f-8b63-d27db810cc3f 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
-            val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
-            val memoUsn = fixtureMonkey.giveMeOne<Long>()
+            val contactUsn = Arb.long().next().coerceAtLeast(1L)
+            val memoUsn = Arb.long().next()
 
             helper.createDatabase(version = 2).use { connection ->
                 connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
@@ -129,10 +130,10 @@ class DiaryDatabaseMigrationTest :
         }
 
         test("TC-635c851c-6f40-43f2-be72-fbb7849562c1 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val birthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
-            val noBirthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>().toEpochMilliseconds()
+            val accountId = Arb.kotlinUuid().next()
+            val birthdayContactId = Arb.kotlinUuid().next()
+            val noBirthdayContactId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next().toEpochMilliseconds()
 
             helper.createDatabase(version = 2).use { connection ->
                 connection.execSQL(
@@ -155,10 +156,10 @@ class DiaryDatabaseMigrationTest :
         }
 
         test("TC-066194b1-e95c-4e7e-a246-e1de8e25a8db 알게 된 경로가 생기는 업데이트에서 연락처만 처음부터 다시 내려받는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
-            val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
-            val memoUsn = fixtureMonkey.giveMeOne<Long>()
+            val contactUsn = Arb.long().next().coerceAtLeast(1L)
+            val memoUsn = Arb.long().next()
 
             helper.createDatabase(version = 4).use { connection ->
                 connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
@@ -181,10 +182,10 @@ class DiaryDatabaseMigrationTest :
         }
 
         test("TC-0fbc4ba6-6989-406a-87d3-e41faf5359fa 앱을 업데이트하면 기존 연락처는 비어 있는 알게 된 경로를 갖는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>().toEpochMilliseconds()
-            val isDirty = fixtureMonkey.giveMeOne<Boolean>()
+            val accountId = Arb.kotlinUuid().next()
+            val contactId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next().toEpochMilliseconds()
+            val isDirty = Arb.boolean().next()
 
             helper.createDatabase(version = 4).use { connection ->
                 connection.execSQL("INSERT INTO contact (id, name, updated_at) VALUES ('$contactId', 'contact', $updatedAt)")

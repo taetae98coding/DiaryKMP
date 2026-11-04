@@ -1,22 +1,26 @@
 package io.github.taetae98coding.diary.domain.weather.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.weather
+import io.github.taetae98coding.diary.core.testing.weather.weatherCondition
+import io.github.taetae98coding.diary.core.testing.weather.weatherTemperature
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.numericDouble
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,9 +39,6 @@ private const val YEAR = 2026
 private const val MONTH = 7
 private const val FORECAST_INTERVAL_HOUR = 3
 private const val LAST_FORECAST_HOUR = 21
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GetCurrentCalendarWeatherUseCaseTest :
     BehaviorSpec({
@@ -70,7 +71,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("TC-58bfcd86-53c1-4ad1-af1d-28858fae4836 오늘의 현재 날씨와 예보가 서로 다른 시각과 현재 기온으로 저장되어 있다") {
-            val fartherTemperature = fixtureMonkey.giveMeOne<Double>()
+            val fartherTemperature = Arb.numericDouble().next()
             val closestTemperature = fartherTemperature + positiveDouble()
             val current =
                 currentWeather(
@@ -106,7 +107,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
 
         Given("TC-f14eb448-0b91-4f95-a730-45fc08ee61c1 오늘이 아닌 날짜에 하루 전체에 걸친 여러 시간대별 예보가 저장되어 있다") {
             val current = currentWeather(day = 1, hour = 6)
-            val lowestMin = fixtureMonkey.giveMeOne<Double>()
+            val lowestMin = Arb.numericDouble().next()
             val highestMax = lowestMin + positiveDouble()
             val earlyForecast =
                 forecastWeather(
@@ -144,8 +145,8 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("TC-503663c5-d0b5-475f-a6a5-652c8c931b9c 날씨 상태 두 개가 함께 온 날씨 하나가 저장되어 있다") {
-            val representativeCondition = fixtureMonkey.giveMeOne<WeatherCondition>()
-            val otherCondition = fixtureMonkey.giveMeOne<WeatherCondition>()
+            val representativeCondition = Arb.weatherCondition().next()
+            val otherCondition = Arb.weatherCondition().next()
             val weather = currentWeather(day = 1, hour = 6).copy(conditionList = listOf(representativeCondition, otherCondition))
             val useCase = useCase(weatherList = listOf(weather))
 
@@ -180,7 +181,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("저장된 날씨와 지역명이 함께 있다") {
-            val locationName = fixtureMonkey.giveMeOne<String>()
+            val locationName = Arb.string().next()
             val current = currentWeather(day = 1, hour = 6)
             val useCase = useCase(weatherList = listOf(current), locationName = locationName)
 
@@ -195,7 +196,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("TC-0ca5c992-f91a-4355-ac04-ffa4203a4698 오늘의 현재 시각과 같은 거리인 두 날씨가 저장되어 있다") {
-            val earlyTemperature = fixtureMonkey.giveMeOne<Double>()
+            val earlyTemperature = Arb.numericDouble().next()
             val lateTemperature = earlyTemperature + positiveDouble()
             val earlyForecast =
                 forecastWeather(
@@ -302,7 +303,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("TC-dc8281f5-411d-46ac-b51e-ca1a8e6fb5a9 오늘의 날씨가 현재 시각 이후 일부 시간대만 저장되어 있다") {
-            val closestTemperature = fixtureMonkey.giveMeOne<Double>()
+            val closestTemperature = Arb.numericDouble().next()
             val closestForecast =
                 forecastWeather(
                     day = 1,
@@ -371,7 +372,7 @@ class GetCurrentCalendarWeatherUseCaseTest :
         }
 
         Given("저장된 날씨 관찰이 실패한다") {
-            val failure = GetCurrentCalendarWeatherTestException(fixtureMonkey.giveMeOne())
+            val failure = GetCurrentCalendarWeatherTestException(Arb.string().next())
             val repository = mockk<WeatherRepository>()
             every { repository.get() } returns
                 flow {
@@ -432,32 +433,36 @@ private fun clock(hour: Int = 0): Clock =
 private fun currentWeather(
     day: Int,
     hour: Int,
-    currentTemperature: Double = fixtureMonkey.giveMeOne(),
+    currentTemperature: Double = Arb.numericDouble().next(),
 ): Weather =
-    fixtureMonkey
-        .giveMeOne<Weather>()
+    Arb
+        .weather()
+        .next()
         .copy(
             dateTime = instant(day = day, hour = hour),
             temperature =
-                fixtureMonkey
-                    .giveMeOne<WeatherTemperature>()
+                Arb
+                    .weatherTemperature()
+                    .next()
                     .copy(current = currentTemperature),
         )
 
 private fun forecastWeather(
     day: Int,
     hour: Int,
-    min: Double = fixtureMonkey.giveMeOne(),
-    max: Double = fixtureMonkey.giveMeOne(),
-    currentTemperature: Double = fixtureMonkey.giveMeOne(),
+    min: Double = Arb.numericDouble().next(),
+    max: Double = Arb.numericDouble().next(),
+    currentTemperature: Double = Arb.numericDouble().next(),
 ): Weather =
-    fixtureMonkey
-        .giveMeOne<Weather>()
+    Arb
+        .weather()
+        .next()
         .copy(
             dateTime = instant(day = day, hour = hour),
             temperature =
-                fixtureMonkey
-                    .giveMeOne<WeatherTemperature>()
+                Arb
+                    .weatherTemperature()
+                    .next()
                     .copy(
                         current = currentTemperature,
                         min = min,
@@ -486,4 +491,4 @@ private fun instant(
         minute = 0,
     ).toInstant(TimeZone.currentSystemDefault())
 
-private fun positiveDouble(): Double = fixtureMonkey.giveMeOne<Double>().absoluteValue % 100.0 + 1.0
+private fun positiveDouble(): Double = Arb.numericDouble().next().absoluteValue % 100.0 + 1.0

@@ -2,22 +2,20 @@
 
 package io.github.taetae98coding.diary.compose.credential
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlatformSignInStateTest : FunSpec() {
     init {
@@ -49,7 +47,7 @@ class PlatformSignInStateTest : FunSpec() {
 
         test("결과를 받은 흐름은 새 흐름을 열어도 취소되지 않는다") {
             runTest {
-                val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+                val credential = Arb.googleCredentialIdToken().next()
                 val state = PlatformSignInState()
                 val afterSignIn = CompletableDeferred<Unit>()
 
@@ -71,8 +69,8 @@ class PlatformSignInStateTest : FunSpec() {
 
         test("결과를 받은 뒤 새로 시작한 흐름의 결과는 받는다") {
             runTest {
-                val firstCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-                val nextCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+                val firstCredential = Arb.googleCredentialIdToken().next()
+                val nextCredential = Arb.googleCredentialIdToken().next()
                 val state = PlatformSignInState()
 
                 state.signIn { firstCredential } shouldBe firstCredential

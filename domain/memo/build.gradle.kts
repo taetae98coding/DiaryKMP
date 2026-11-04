@@ -13,11 +13,16 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(projects.logger.crashlytics.api)
                 implementation(libs.androidx.paging.testing)
-                implementation(projects.core.testing)
             }
         }
     }

@@ -10,22 +10,20 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.testing.asPagingSourceFactory
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 기기에 저장된 태그를 한 번에 PAGE_SIZE씩 나누어 불러오는 목록을 실제 페이지 조회로 구성한다.
 // 첫 조회는 앞쪽 한 페이지만 불러오고 나머지 자리는 아직 준비되지 않은 자리로 둔다.
@@ -98,7 +96,7 @@ class TagHomePagingTest {
         private fun sortedByTitleTagList(): List<Tag> {
             val titlePrefix = fixtureText(prefix = "PagedTag").take(TITLE_PREFIX_LENGTH)
 
-            return List(TAG_COUNT) { index -> fixtureMonkey.tag(title = "${titlePrefix}Index${index.toString().padStart(length = 3, padChar = '0')}") }
+            return List(TAG_COUNT) { index -> Arb.tag(title = "${titlePrefix}Index${index.toString().padStart(length = 3, padChar = '0')}").next() }
         }
     }
 }

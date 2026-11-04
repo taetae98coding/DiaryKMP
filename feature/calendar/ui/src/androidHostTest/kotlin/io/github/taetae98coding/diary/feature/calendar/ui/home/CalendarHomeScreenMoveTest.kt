@@ -23,8 +23,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
@@ -44,12 +42,16 @@ import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.maps.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -70,9 +72,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -962,7 +961,7 @@ class CalendarHomeScreenMoveTest {
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
             memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
-            birthdayList = listOf(CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
+            birthdayList = listOf(CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = july(day = 8))),
             navigateToContactDetail = contactDetailList::add,
             navigateToMemoAdd = memoAddList::add,
             onState = { capturedState = it },
@@ -992,11 +991,12 @@ class CalendarHomeScreenMoveTest {
             memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
             weatherList =
                 listOf(
-                    fixtureMonkey.calendarWeather(
-                        date = july(day = 21),
-                        temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
-                        descriptionList = listOf(SUNNY_DESCRIPTION),
-                    ),
+                    Arb
+                        .calendarWeather(
+                            date = july(day = 21),
+                            temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
+                            descriptionList = listOf(SUNNY_DESCRIPTION),
+                        ).next(),
                 ),
             uriHandler = uriHandler,
             navigateToMemoAdd = memoAddList::add,
@@ -1021,7 +1021,7 @@ class CalendarHomeScreenMoveTest {
     fun `TC-6e98ce37-5a22-4e13-8965-bda526b869a6 저장에 실패하면 원래 기간으로 표시되고 오류 안내가 표시되지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val moveMemoUseCase = mockk<MoveMemoUseCase>()
-        coEvery { moveMemoUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        coEvery { moveMemoUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns flowOf(Result.success(listOf(memo)))
         val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
@@ -1279,9 +1279,9 @@ class CalendarHomeScreenMoveTest {
         endInclusive: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = fixtureMonkey.giveMeOne<Uuid>(),
+            id = Arb.kotlinUuid().next(),
             title = title,
-            color = fixtureMonkey.giveMeOne(),
+            color = Arb.long().next(),
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
         )
 

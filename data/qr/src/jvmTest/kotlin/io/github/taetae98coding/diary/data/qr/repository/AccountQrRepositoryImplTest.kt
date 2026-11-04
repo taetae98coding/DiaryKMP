@@ -5,23 +5,28 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.data.qr.mapper.toDomain
 import io.github.taetae98coding.diary.data.qr.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -40,8 +45,8 @@ import kotlin.uuid.Uuid
 class AccountQrRepositoryImplTest :
     FunSpec({
         test("TC-7221dee8-4896-4a4d-a339-46fd8892bcce QR을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val qr = fixtureMonkey.qr(isDeleted = false)
+            val account = Arb.accountUser().next()
+            val qr = Arb.qr(isDeleted = false).next()
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
             coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal())) } just Runs
@@ -55,9 +60,9 @@ class AccountQrRepositoryImplTest :
         }
 
         test("TC-7b950adf-1ab9-4742-9b91-33003d0955b6 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val qr = fixtureMonkey.qr(isDeleted = false)
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val qr = Arb.qr(isDeleted = false).next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
             coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal())) } throws throwable
@@ -69,8 +74,8 @@ class AccountQrRepositoryImplTest :
         }
 
         test("TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f QR 목록 페이지 조회는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val localQrList = List(2) { fixtureMonkey.localQr(isDeleted = false) }
+            val account = Arb.accountUser().next()
+            val localQrList = List(2) { Arb.localQr(isDeleted = false).next() }
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
             every { localDataSource.page(accountId = account.id) } returns pagingSource(localQrList)
@@ -80,8 +85,8 @@ class AccountQrRepositoryImplTest :
         }
 
         test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 QR 찾기는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val localQr = fixtureMonkey.localQr(isDeleted = true)
+            val account = Arb.accountUser().next()
+            val localQr = Arb.localQr(isDeleted = true).next()
             val localDataSource = mockk<AccountQrLocalDataSource>()
             every { localDataSource.find(accountId = account.id, qrId = localQr.id) } returns flowOf(localQr)
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = mockk())
@@ -90,8 +95,8 @@ class AccountQrRepositoryImplTest :
         }
 
         test("TC-7576dbc8-7db2-49f3-96e3-9f1c337fb63c QR 찾기는 기기에 저장된 QR만 조회하고 내려받아 저장하지 않는다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val localQr = fixtureMonkey.localQr(isDeleted = false)
+            val account = Arb.accountUser().next()
+            val localQr = Arb.localQr(isDeleted = false).next()
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
             every { localDataSource.find(accountId = account.id, qrId = localQr.id) } returns flowOf(localQr)
@@ -103,8 +108,8 @@ class AccountQrRepositoryImplTest :
         }
 
         test("찾는 QR이 기기에 없으면 없음을 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountQrLocalDataSource>()
             every { localDataSource.find(accountId = account.id, qrId = id) } returns flowOf(null)
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = mockk())
@@ -113,10 +118,10 @@ class AccountQrRepositoryImplTest :
         }
 
         test("TC-92975a11-7beb-4f64-bd53-24a2718ccf23 수정 요청은 내용과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val detail = fixtureMonkey.qrDetail()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
+            val detail = Arb.qrDetail().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val transaction = mockk<AccountQrTransaction>()
             coEvery { transaction.updateDetail(accountId = account.id, qrId = id, detail = detail.toLocal(), updatedAt = updatedAt) } returns 1
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = mockk(), accountQrTransaction = transaction)
@@ -126,10 +131,10 @@ class AccountQrRepositoryImplTest :
 
         listOf(true, false).forEach { isDeleted ->
             test("TC-9f59d662-8251-4eb6-85e1-8fd2875148cf 삭제 여부를 $isDeleted 로 바꾸는 요청은 삭제 여부와 수정 시각만 현재 계정 기준으로 반영한다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val qrId = fixtureMonkey.giveMeOne<Uuid>()
-                val updatedAt = fixtureMonkey.giveMeOne<Instant>()
-                val updatedCount = fixtureMonkey.giveMeOne<Int>()
+                val account = Arb.accountUser().next()
+                val qrId = Arb.kotlinUuid().next()
+                val updatedAt = Arb.secondPrecisionInstant().next()
+                val updatedCount = Arb.int().next()
                 val localDataSource = mockk<AccountQrLocalDataSource>()
                 val transaction = mockk<AccountQrTransaction>()
                 coEvery {
@@ -144,8 +149,8 @@ class AccountQrRepositoryImplTest :
         }
 
         test("삭제 여부 저장이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
             coEvery {
@@ -156,17 +161,14 @@ class AccountQrRepositoryImplTest :
             shouldThrow<IllegalStateException> {
                 repository.updateDeleted(
                     account = account,
-                    qrId = fixtureMonkey.giveMeOne<Uuid>(),
-                    isDeleted = fixtureMonkey.giveMeOne<Boolean>(),
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                    qrId = Arb.kotlinUuid().next(),
+                    isDeleted = Arb.boolean().next(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun pagingSource(qrList: List<QrLocalEntity>): PagingSource<Int, QrLocalEntity> =
             mockk(relaxed = true) {
                 coEvery { load(any()) } returns

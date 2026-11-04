@@ -1,23 +1,21 @@
 package io.github.taetae98coding.diary.data.account.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.fcm.api.FcmTokenProvider
 import io.github.taetae98coding.diary.core.network.api.fcm.datasource.FcmTokenRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.fcm.entity.FcmTokenRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import java.util.Locale
 import java.util.TimeZone
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FcmTokenRepositoryImplTest :
     FunSpec({
@@ -52,7 +50,7 @@ class FcmTokenRepositoryImplTest :
         }
 
         test("TC-4ad45434-a094-433f-a10c-75c8436f933d 같은 정보라도 요청마다 다시 등록한다") {
-            val installationId = fixtureMonkey.nonBlankString()
+            val installationId = Arb.nonBlankString().next()
             val remote = mockk<FcmTokenRemoteDataSource>()
             coEvery { remote.upsert(fcmToken = any()) } returns Unit
             val repository = repository(installationId = installationId, remote = remote)
@@ -70,7 +68,7 @@ class FcmTokenRepositoryImplTest :
             ).forEach { (name, device) ->
                 test(name) {
                     val (timeZone, language) = device
-                    val installationId = fixtureMonkey.nonBlankString()
+                    val installationId = Arb.nonBlankString().next()
                     val remote = mockk<FcmTokenRemoteDataSource>()
                     coEvery { remote.upsert(fcmToken = any()) } returns Unit
                     val repository = repository(installationId = installationId, remote = remote)
@@ -85,8 +83,8 @@ class FcmTokenRepositoryImplTest :
         }
 
         test("TC-9dd94831-e04b-4153-a301-f3b3b594f394 등록에 실패하면 요청은 한 번만 보내고 실패를 전달하며, 다음 요청에서 다시 등록한다") {
-            val installationId = fixtureMonkey.nonBlankString()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val installationId = Arb.nonBlankString().next()
+            val failure = IllegalStateException(Arb.string().next())
             val remote = mockk<FcmTokenRemoteDataSource>()
             coEvery { remote.upsert(fcmToken = any()) } throws failure
             val repository = repository(installationId = installationId, remote = remote)
@@ -111,8 +109,8 @@ class FcmTokenRepositoryImplTest :
         }
 
         test("TC-2f536477-2e13-417c-8893-61f94d263f71 해제에 실패하면 요청은 한 번만 보내고 실패를 전달하며, 다음 요청에서 다시 해제한다") {
-            val installationId = fixtureMonkey.nonBlankString()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val installationId = Arb.nonBlankString().next()
+            val failure = IllegalStateException(Arb.string().next())
             val remote = mockk<FcmTokenRemoteDataSource>()
             coEvery { remote.upsert(fcmToken = any()) } throws failure
             val repository = repository(installationId = installationId, remote = remote)
@@ -127,7 +125,7 @@ class FcmTokenRepositoryImplTest :
         }
 
         test("TC-a5d2b40e-e204-4dc5-aa2f-9cb56a893b1a 설치 ID를 받아 오지 못하면 제출하지 않고 실패를 전달한다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val provider = mockk<FcmTokenProvider>()
             coEvery { provider.getInstallationId() } throws failure
             val remote = mockk<FcmTokenRemoteDataSource>()
@@ -140,8 +138,8 @@ class FcmTokenRepositoryImplTest :
         }
 
         test("TC-bf3183c4-151d-459d-a768-f0fc6596c1f4 새로 발급된 설치 ID는 다음 등록에 담긴다") {
-            val firstInstallationId = fixtureMonkey.nonBlankString()
-            val newInstallationId = fixtureMonkey.nonBlankString()
+            val firstInstallationId = Arb.nonBlankString().next()
+            val newInstallationId = Arb.nonBlankString().next()
             val provider = mockk<FcmTokenProvider>()
             coEvery { provider.getInstallationId() } returnsMany listOf(firstInstallationId, newInstallationId)
             val remote = mockk<FcmTokenRemoteDataSource>()

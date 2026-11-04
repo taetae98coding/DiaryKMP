@@ -45,8 +45,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -100,9 +98,13 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -175,26 +177,26 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 상세 영역에서 연락처 상세를 보고 돌아와도 연락처 추가의 입력이 남는다`() {
-        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = Arb.kotlinUuid().next())))
     }
 
     @Test
     fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 추가에 다녀와도 연락처 추가의 입력이 남는다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
 
         assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoAddNavKey(initialContactId = contactId)))
     }
 
     @Test
     fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 상세에 다녀와도 연락처 추가의 입력이 남는다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
 
-        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoDetailNavKey(id = Arb.kotlinUuid().next())))
     }
 
     @Test
     fun `TC-f58cc5cd-1fb4-443d-81cd-62b7e7f00561 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 완료된 메모 목록에 다녀와도 연락처 추가의 입력이 남는다`() {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val contactId = Arb.kotlinUuid().next()
 
         assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId)))
     }
@@ -353,7 +355,7 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-00adf068-56a2-4ea5-893c-f78c79d6f27a 선택 전 연락처 추가에서 추가에 성공해도 상세 영역은 연락처 추가로 남는다`() {
-        contactAddViewModelFactory = { effectViewModel(effect = ContactAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        contactAddViewModelFactory = { effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Arb.kotlinUuid().next())) }
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact))
         composeRule.nameInput().performTextInput(placeholderInput().name)
@@ -644,7 +646,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.waitForIdle()
         composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
         pressBack()
@@ -653,7 +655,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
     }
 
-    private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}").contact }
+    private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${Arb.int().next()}").contact }
 
     private fun scrollToPositionContact(contactList: List<Contact>) {
         composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
@@ -906,20 +908,19 @@ class ContactListDetailPlaceholderTest {
         const val DEFAULT_DELETE_CONTACT_DESCRIPTION = "Delete contact"
         const val POSITION_CONTACT_COUNT = 30
         const val POSITION_SCROLL_INDEX = 25
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun detailContent(id: Uuid): String = "ContactDetail-$id"
 
         fun contactCard(contact: Contact): SemanticsMatcher = hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(contact.detail.name)
 
-        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${fixtureMonkey.giveMeOne<String>()}").contact
+        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${Arb.string().next()}").contact
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
-                name = "name-${fixtureMonkey.giveMeOne<String>()}",
-                description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
-                howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}",
+                name = "name-${Arb.string().next()}",
+                description = "description-${Arb.string().next()}",
+                hometown = "hometown-${Arb.string().next()}",
+                howWeMet = "how-we-met-${Arb.string().next()}",
             )
     }
 }

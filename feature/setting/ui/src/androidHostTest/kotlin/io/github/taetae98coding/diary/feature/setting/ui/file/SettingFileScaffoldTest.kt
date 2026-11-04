@@ -8,21 +8,18 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko")
@@ -57,7 +54,7 @@ class SettingFileScaffoldTest {
 
     @Test
     fun `TC-0d5074c9-38b9-433a-aa49-7b74fe270e88 고른 폴더가 있으면 그 폴더와 되돌리기를 표시한다`() {
-        val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(name = "Documents")
+        val directory = Arb.fileDownloadDirectory().next().copy(name = "Documents")
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = directory))
 
         composeRule.onNodeWithText("Documents").assert(hasClickLabel(CHOOSE_LABEL))
@@ -68,7 +65,7 @@ class SettingFileScaffoldTest {
 
     @Test
     fun `TC-b06cf4e1-aa8a-40f1-b29b-bd81ba582ae5 이름이 빈 폴더를 골라 두면 위치 자리에 고른 폴더를 표시한다`() {
-        val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(uri = fixtureMonkey.nonBlankString(), name = "")
+        val directory = Arb.fileDownloadDirectory().next().copy(uri = Arb.nonBlankString().next(), name = "")
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = directory))
 
         composeRule.onAllNodesWithText(CHOSEN_DIRECTORY_LABEL, useUnmergedTree = true).fetchSemanticsNodes().size shouldBe 1

@@ -13,8 +13,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -25,7 +23,9 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -36,8 +36,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 캘린더 홈과 시간표에서 연 화면이 어떻게 놓이는지는 각 기능이 앱에 등록한 배치 정보가 정한다.
 // 실제 배치 정보를 그대로 쓰고, 화면 본문만 이름이 보이는 대역으로 바꿔 목록과 상세를 함께 쓸 수 있는 넓은 창에서 검증한다.
@@ -69,13 +67,13 @@ class CalendarOpenedScreenLayoutTest {
 
     @Test
     fun `TC-0f42ef17-d670-4f8a-8a3f-d0c674d0588a 캘린더 홈 화면에서 연 ContactDetail 화면은 단독으로 표시된다`() {
-        assertShownAlone(openedKey = ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+        assertShownAlone(openedKey = ContactDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     @Test
     fun `TC-d774bdc4-ce95-4a92-994b-b802410f0435 시간표에서 연 MemoDetail 화면은 단독으로 표시된다`() {
         assertShownAlone(
-            openedKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            openedKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()),
             belowKeyList = listOf(CalendarHomeNavKey, SEPTEMBER_24_TIMETABLE),
         )
     }
@@ -98,7 +96,7 @@ class CalendarOpenedScreenLayoutTest {
     @Test
     fun `TC-9e1c615a-75a4-418a-a564-09d2a59555af 알림으로 메모 홈 위에 연 시간표는 단독으로 표시된다`() {
         assertShownAlone(
-            openedKey = CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = SEPTEMBER_24, id = fixtureMonkey.giveMeOne<Uuid>()),
+            openedKey = CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = SEPTEMBER_24, id = Arb.kotlinUuid().next()),
             belowKeyList = listOf(CalendarHomeNavKey, MemoHomeNavKey),
         )
     }

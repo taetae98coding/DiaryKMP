@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
@@ -19,11 +16,18 @@ import io.github.taetae98coding.diary.core.database.impl.memo.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.impl.memoweb.transaction.AccountMemoWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -108,7 +112,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-55bbe837-e22f-4c82-b395-3a3e6b83bd66 삭제된 웹 항목은 연결이 남아 있어도 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -120,7 +124,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-e76b1675-49db-42aa-a50a-f6b4adf775b7 TC-424db2e8-0488-4798-9c86-fb32bbe220a6 TC-6960fd0c-8e84-4220-9a04-2ed98fc35e59 조회한 웹 항목은 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val lastWeb = web(title = LAST_WEB_TITLE)
             val firstWeb = web(title = FIRST_WEB_TITLE)
@@ -130,9 +134,9 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-e9444682-39b7-4828-85f9-91c1f76ca31b 가리키는 웹 항목이 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val missingWebId = fixtureMonkey.giveMeOne<Uuid>()
+            val missingWebId = Arb.kotlinUuid().next()
             memoTransaction.upsert(
                 accountId = accountId,
                 memoList = listOf(memo),
@@ -151,8 +155,8 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-e9444682-39b7-4828-85f9-91c1f76ca31b 가리키는 메모가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val missingMemoId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val missingMemoId = Arb.kotlinUuid().next()
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
@@ -167,7 +171,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-afeca13f-3b78-49ec-99c8-88d6b05d4efa 메모가 내려받아지면 먼저 저장되어 있던 연결의 웹 항목이 함께 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -189,8 +193,8 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("다른 계정의 웹 항목은 연결이 있어도 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web()))
 
@@ -198,8 +202,8 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-07d54a79-48a2-45ce-8a51-1cf82a5e46b6 계정과 연결되지 않은 웹 항목은 메모의 연결된 웹 항목으로 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             val otherAccountWeb = web()
             webTransaction.upsert(accountId = otherAccountId, webList = listOf(otherAccountWeb), webTagList = emptyList())
@@ -216,8 +220,8 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-236e3acd-9fd1-45fe-842a-4be76c62464d 같은 태그와 연결되어 있어도 메모와 웹 항목은 연결되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             webTransaction.upsert(
@@ -254,7 +258,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-27e5b63c-9169-4794-8b00-967e2599601c 삭제된 웹 항목의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -271,8 +275,8 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-89d8de55-5bef-4789-a0b0-231ef02fe974 선택할 수 있는 웹 항목은 계정과 연결된 삭제되지 않은 웹 항목이다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val selectableWeb = web()
             val deletedWeb = web().copy(isDeleted = true)
             val otherAccountWeb = web()
@@ -283,7 +287,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-901baeec-4bf8-43d0-b255-4713ee5c5b6f 선택할 수 있는 웹 항목은 제목 오름차순으로 정렬된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val lastWeb = web(title = LAST_WEB_TITLE)
             val firstWeb = web(title = FIRST_WEB_TITLE)
             webTransaction.upsert(accountId = accountId, webList = listOf(lastWeb, firstWeb), webTagList = emptyList())
@@ -292,7 +296,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-a5bb5bdd-231e-4510-b72e-b0e944ae0f0c 선택했더라도 삭제된 웹 항목은 선택 목록에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val keptWeb = web()
             val deletedWeb = web()
@@ -304,7 +308,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-500023fc-2d3f-40da-ab0e-9653e681213d TC-96152606-17bd-4fe8-93b7-6ccdbc6f759c 검색어는 제목과 설명으로 판정한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val titleMatchedWeb = web(title = "$SEARCH_QUERY-title")
             val descriptionMatchedWeb =
                 web(title = FIRST_WEB_TITLE).let { web ->
@@ -328,7 +332,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-970b49fd-805e-4068-96d4-009765bb586c 빈 검색어는 선택 목록을 좁히지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstWeb = web(title = FIRST_WEB_TITLE)
             val lastWeb = web(title = LAST_WEB_TITLE)
             webTransaction.upsert(accountId = accountId, webList = listOf(firstWeb, lastWeb), webTagList = emptyList())
@@ -337,7 +341,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-47b094bf-6b6d-49a9-bc8b-432bff85c22c 검색어는 선택한 웹 항목에도 같은 기준으로 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val matchedWeb = web(title = "$SEARCH_QUERY-title")
             val selectedWeb = web(title = FIRST_WEB_TITLE)
@@ -348,7 +352,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-2ff0fb38-aad4-48fe-8c2c-2ed28995761a 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val webList =
                 List(WEB_COUNT) { index ->
                     web(title = "Web-${index.toString().padStart(length = 3, padChar = '0')}")
@@ -370,7 +374,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-4c802fe3-ab30-4d77-85f9-ca5c61f79ecd 웹 항목이 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstWeb = web(title = FIRST_WEB_TITLE)
             webTransaction.upsert(accountId = accountId, webList = listOf(firstWeb), webTagList = emptyList())
             val addedWeb = web(title = LAST_WEB_TITLE)
@@ -383,7 +387,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-5bf8bc46-ce01-4c59-ad16-6b7d53a5890e TC-4c802fe3-ab30-4d77-85f9-ca5c61f79ecd 저장된 웹 항목의 제목이 바뀌면 연결된 웹 항목 조회와 열려 있는 선택 목록에 스스로 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web(title = FIRST_WEB_TITLE)
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -403,7 +407,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("TC-152eb8e0-856c-459c-9812-9f80327f79ef 저장된 웹 항목이 삭제되면 연결된 웹 항목 조회와 열려 있는 선택 목록에서 스스로 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web(title = FIRST_WEB_TITLE)
             val otherWeb = web(title = LAST_WEB_TITLE)
@@ -423,7 +427,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         }
 
         test("검색어의 대소문자는 판정에 영향을 주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web(title = "AndroidDeveloper")
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
@@ -440,31 +444,34 @@ class AccountMemoWebLocalDataSourceImplTest :
         private const val SMALL_PAGE_SIZE = 10
         private const val WEB_COUNT = 25
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun web(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::detail, webDetail(title = title))
-                .setExp(WebLocalEntity::isDeleted, false)
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
+        private fun web(title: String = "title-${Arb.string().next()}"): WebLocalEntity =
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    detail = webDetail(title = title),
+                    isDeleted = false,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun webDetail(title: String): WebDetailLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebDetailLocalEntity>()
-                .setExp(WebDetailLocalEntity::title, title)
-                .setExp(WebDetailLocalEntity::headerList, emptyList<Nothing>())
-                .sample()
+            Arb
+                .webDetailLocalEntity()
+                .next()
+                .copy(
+                    title = title,
+                    headerList = emptyList<Nothing>(),
+                )
 
         private fun memoWeb(
             memoId: Uuid,
@@ -478,7 +485,7 @@ class AccountMemoWebLocalDataSourceImplTest :
                 createdAt = instant(),
             )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private suspend fun PagingSource<Int, WebLocalEntity>.loadPage(
             key: Int? = null,

@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.numericDouble
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +28,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class CalendarTimetableWeatherViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -88,7 +88,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
         test("동기화가 실패해도 다음 계기의 동기화를 다시 요청한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
-                coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
                 viewModel.fetch()
@@ -107,12 +107,12 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
                         weatherList =
                             listOf(
                                 CalendarWeather(
-                                    date = fixtureMonkey.giveMeOne<LocalDate>(),
-                                    temperature = CalendarWeatherTemperature.Current(value = fixtureMonkey.giveMeOne<Double>()),
+                                    date = Arb.kotlinxLocalDate().next(),
+                                    temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()),
                                     weatherList = emptyList(),
                                 ),
                             ),
-                        locationName = fixtureMonkey.nonBlankString(),
+                        locationName = Arb.nonBlankString().next(),
                     )
                 val getUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
                 every { getUseCase(parameter = Unit) } returns flowOf(Result.success(report))
@@ -128,7 +128,7 @@ class CalendarTimetableWeatherViewModelTest : FunSpec() {
         test("TC-67e702c6-49f8-44c2-8e6a-c5add506e4f0 날짜별 날씨 조회가 실패하면 날씨 없이 제공한다") {
             runTest(mainDispatcher) {
                 val getUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
-                every { getUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                every { getUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = weatherViewModel(getCurrentCalendarWeatherUseCase = getUseCase)
 
                 viewModel.uiState.test {

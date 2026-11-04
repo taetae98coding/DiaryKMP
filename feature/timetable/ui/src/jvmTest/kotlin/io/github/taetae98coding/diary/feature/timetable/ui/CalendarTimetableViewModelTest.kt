@@ -3,15 +3,16 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,8 +26,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class CalendarTimetableViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -73,7 +72,7 @@ class CalendarTimetableViewModelTest : FunSpec() {
                 val useCase =
                     getCalendarMemoUseCase(
                         firstRange to Result.success(firstList),
-                        secondRange to Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                        secondRange to Result.failure(IllegalStateException(Arb.string().next())),
                     )
                 val viewModel = CalendarTimetableViewModel(getCalendarMemoUseCase = useCase)
 
@@ -125,7 +124,7 @@ private fun getCalendarMemoUseCase(vararg resultByDateRange: Pair<LocalDateRange
 }
 
 private fun memo(): CalendarMemo {
-    val date = date(day = 22 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 3u).toInt())
+    val date = date(day = 22 + (Arb.int().next().toUInt() % 3u).toInt())
 
-    return fixtureMonkey.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = date..date))
+    return Arb.calendarMemo(dateTime = MemoDateTime.AllDay(dateRange = date..date)).next()
 }

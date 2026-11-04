@@ -1,20 +1,23 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceTagRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -29,8 +32,8 @@ import kotlin.uuid.Uuid
 class PlaceTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -41,8 +44,8 @@ class PlaceTagUseCaseTest :
 
             When("장소에 태그를 연결한다") {
                 Then("TC-36040314-b2fa-4cd6-9b33-b1d5710bd002 현재 계정의 연결로 저장한다") {
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val useCase =
                         AddPlaceTagUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -66,8 +69,8 @@ class PlaceTagUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-b20c9c1d-25d9-4cb4-b8fb-82207b8e9772 TC-ac9a2e63-4625-45e5-ac14-107889410d99 저장한 뒤 동기화를 한 번 요청한다") {
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)
                     val useCase =
                         AddPlaceTagUseCase(
@@ -95,8 +98,8 @@ class PlaceTagUseCaseTest :
 
             When("연결을 해제한다") {
                 Then("TC-f380865f-40ed-4b8f-adea-05aafc8149b9 현재 계정의 연결을 해제 상태로 저장한다") {
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val useCase =
                         RemovePlaceTagUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -120,8 +123,8 @@ class PlaceTagUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-b20c9c1d-25d9-4cb4-b8fb-82207b8e9772 TC-ac9a2e63-4625-45e5-ac14-107889410d99 해제를 저장한 뒤 동기화를 한 번 요청한다") {
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)
                     val useCase =
                         RemovePlaceTagUseCase(
@@ -149,7 +152,7 @@ class PlaceTagUseCaseTest :
 
             When("연결된 태그를 조회한다") {
                 Then("TC-ed9a3af3-c21a-417a-bb26-63211e4875c2 현재 계정의 연결된 태그를 그대로 전달한다") {
-                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = Arb.kotlinUuid().next()
                     val tagList = List(2) { tag() }
                     every {
                         accountPlaceTagRepository.getTagList(account = account, placeId = placeId)
@@ -166,7 +169,7 @@ class PlaceTagUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -187,8 +190,8 @@ class PlaceTagUseCaseTest :
                         useCase(
                             parameter =
                                 AddPlaceTagUseCase.Parameter(
-                                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    tagId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    placeId = Arb.kotlinUuid().next(),
+                                    tagId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -214,7 +217,7 @@ class PlaceTagUseCaseTest :
                             accountPlaceTagRepository = accountPlaceTagRepository,
                         )
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -223,14 +226,13 @@ class PlaceTagUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

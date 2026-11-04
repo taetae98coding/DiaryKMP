@@ -6,24 +6,22 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileEntryTest :
     FunSpec({
         test("TC-675a9714-031d-420a-8df3-639645c0a8c6 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록·상세 배치의 상세 pane이다") {
-            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val caseList =
                 listOf(
                     listOf(OtherNavKey, FileHomeNavKey, FileAddNavKey) to FileAddNavKey,
@@ -37,7 +35,7 @@ class FileEntryTest :
         }
 
         test("TC-93ef7888-533c-419e-ab80-d0ca6304a6f8 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 목록·상세 배치에 참여하지 않는다") {
-            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val caseList =
                 listOf(
                     listOf(OtherNavKey, FileAddNavKey) to FileAddNavKey,

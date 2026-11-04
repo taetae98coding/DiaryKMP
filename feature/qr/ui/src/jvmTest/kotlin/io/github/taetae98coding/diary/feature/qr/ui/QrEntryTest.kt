@@ -6,19 +6,17 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrEntryTest :
     FunSpec({
@@ -41,14 +39,14 @@ class QrEntryTest :
         }
 
         test("TC-0a34437d-40fb-40de-8b7a-53f3dc5293ae QR 목록에서 이어 진입한 QR 상세는 목록·상세 배치의 상세 pane이다") {
-            val key = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val key = QrDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey, key)
 
             metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
         }
 
         test("QR 목록에서 진입하지 않은 QR 상세는 목록·상세 배치에 참여하지 않는다") {
-            val key = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val key = QrDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(QrHomeNavKey, OtherNavKey, key)
 
             metadataOf(backStack = backStack, key = key).shouldBeEmpty()

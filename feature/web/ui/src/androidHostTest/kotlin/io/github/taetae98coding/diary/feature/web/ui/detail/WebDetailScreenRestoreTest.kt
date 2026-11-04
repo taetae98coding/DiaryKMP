@@ -12,8 +12,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -24,10 +22,13 @@ import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -44,8 +45,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -151,7 +150,7 @@ class WebDetailScreenRestoreTest {
     fun `TC-2c7098bf-a237-42c5-bcbb-eb55788d7132 응답을 받지 못하면 응답 본문 방식은 불러오기 실패 안내를 보여 준다`() {
         val detail = testWebDetail()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-        coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))
         setWebDetailScreen(webViewModel = webViewModel(detail = detail), pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase))
 
@@ -275,8 +274,8 @@ class WebDetailScreenRestoreTest {
                     id = FIRST_WEB_ID,
                     detail = detail,
                     isDeleted = false,
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                    createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
             val findWebUseCase = mockk<FindWebUseCase>()
             every { findWebUseCase(parameter = FIRST_WEB_ID) } returns flowOf<Result<Web?>>(Result.success(web))

@@ -72,6 +72,8 @@ import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeVie
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -775,8 +777,8 @@ class ChecklistListDetailNavigationTest {
                             ChecklistDetailItemUiState(
                                 itemList =
                                     listOf(
-                                        checklistTestFixtureMonkey.checklistItem(isChecked = false, isDeleted = false, content = DETAIL_ITEM),
-                                        checklistTestFixtureMonkey.checklistItem(isChecked = true, isDeleted = false, content = DETAIL_CHECKED_ITEM),
+                                        Arb.checklistItem(isChecked = false, isDeleted = false, content = DETAIL_ITEM).next(),
+                                        Arb.checklistItem(isChecked = true, isDeleted = false, content = DETAIL_CHECKED_ITEM).next(),
                                     ),
                                 isLoaded = true,
                                 sort = ChecklistItemSort.ADDED,

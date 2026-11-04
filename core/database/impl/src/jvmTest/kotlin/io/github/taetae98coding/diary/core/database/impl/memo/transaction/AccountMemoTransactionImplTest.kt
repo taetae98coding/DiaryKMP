@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.memo.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
@@ -16,7 +13,12 @@ import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemo
 import io.github.taetae98coding.diary.core.database.impl.memotag.datasource.AccountMemoTagSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.localDateRange
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -26,6 +28,8 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -99,7 +103,7 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 TC-0ad50339-a92e-40c2-b05a-07ecf700ee28 메모 생성·수정·복사·이동·완료·다시 시작·삭제·실행 취소·대표 태그 지정과 해제는 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val updatedAt = instant()
 
@@ -110,7 +114,7 @@ class AccountMemoTransactionImplTest :
             transaction.updateDetail(
                 accountId = accountId,
                 memoId = memo.id,
-                detail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+                detail = Arb.memoDetailLocalEntity().next(),
                 updatedAt = updatedAt,
             )
             assertPending(accountId = accountId, memoId = memo.id)
@@ -121,7 +125,7 @@ class AccountMemoTransactionImplTest :
             assertPending(accountId = accountId, memoId = copiedMemo.id)
 
             // 이동은 기간만 바꾼 내용을 수정으로 저장한다.
-            val movedDateRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+            val movedDateRange = Arb.localDateRange().next()
             insertWithSyncState(accountId, memo, isDirty = false)
             transaction.updateDetail(
                 accountId = accountId,
@@ -156,20 +160,20 @@ class AccountMemoTransactionImplTest :
             memoTagTransaction.updatePrimaryTagId(
                 accountId = accountId,
                 memoId = memo.id,
-                primaryTagId = fixtureMonkey.giveMeOne<Uuid>(),
+                primaryTagId = Arb.kotlinUuid().next(),
                 updatedAt = updatedAt,
             )
             assertPending(accountId = accountId, memoId = memo.id)
 
-            insertWithSyncState(accountId, memo.copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()), isDirty = false)
+            insertWithSyncState(accountId, memo.copy(primaryTagId = Arb.kotlinUuid().next()), isDirty = false)
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = null, updatedAt = updatedAt)
             assertPending(accountId = accountId, memoId = memo.id)
         }
 
         test("TC-8da41335-53f4-4825-a1cd-5fcda367cda2 같은 메모를 반복 변경해도 업로드 대상은 한 건이다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val changedMemo = memo.copy(detail = fixtureMonkey.giveMeOne())
+            val changedMemo = memo.copy(detail = Arb.memoDetailLocalEntity().next())
 
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             transaction.upsert(accountId = accountId, memoList = listOf(changedMemo), memoTagList = emptyList())
@@ -179,10 +183,10 @@ class AccountMemoTransactionImplTest :
 
         listOf(
             "대표 태그가 없으면" to null,
-            "대표 태그가 있으면" to fixtureMonkey.giveMeOne<Uuid>(),
+            "대표 태그가 있으면" to Arb.kotlinUuid().next(),
         ).forEach { (label, primaryTagId) ->
             test("TC-e390ae1d-cb22-4975-9a59-3c3640ce056e $label 저장한 대표 태그가 그대로 조회된다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val memo = memo().copy(primaryTagId = primaryTagId)
 
                 transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
@@ -192,8 +196,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-feb101ed-a288-41ed-9753-ecf704b13bd7 대표 태그로 지정한 태그가 기기에 없어도 메모가 저장되고 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val unknownTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val unknownTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = unknownTagId)
 
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
@@ -203,9 +207,9 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-722c3857-c84d-4d3c-b093-2b02d423b38b 대표 태그를 다시 지정하면 이전 대표 태그를 대체한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val memo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
-            val newPrimaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo().copy(primaryTagId = Arb.kotlinUuid().next())
+            val newPrimaryTagId = Arb.kotlinUuid().next()
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
             transaction.upsert(
@@ -218,7 +222,7 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-02c2e084-60aa-49d7-807a-d754c9f79926 태그를 삭제하거나 되살려도 대표 태그 지정이 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val memo = memo().copy(primaryTagId = tag.id)
             val tagTransaction = AccountTagTransactionImpl(database = database)
@@ -243,8 +247,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-e945777c-6c14-4d7c-957f-02db8bb12237 메모를 완료하거나 다시 시작하거나 삭제해도 대표 태그 지정이 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val primaryTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = primaryTagId, isFinished = false, isDeleted = false)
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
@@ -259,10 +263,10 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-a45b76f8-3752-4eb0-9863-b9aab9c84938 제목·설명·컬러·기간을 수정해도 대표 태그가 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val primaryTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = primaryTagId)
-            val newDetail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>()
+            val newDetail = Arb.memoDetailLocalEntity().next()
             val updatedAt = instant()
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
@@ -282,9 +286,9 @@ class AccountMemoTransactionImplTest :
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
         ).forEach { (label, change) ->
             test("TC-1c7f4ce4-c44d-434e-a440-692a70a9033f $label 메모의 대표 태그도 다른 태그로 바꿀 수 있다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val newPrimaryTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val memo = change(memo()).copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+                val accountId = Arb.kotlinUuid().next()
+                val newPrimaryTagId = Arb.kotlinUuid().next()
+                val memo = change(memo()).copy(primaryTagId = Arb.kotlinUuid().next())
                 insertWithSyncState(accountId, memo, isDirty = false)
 
                 memoTagTransaction.updatePrimaryTagId(
@@ -303,14 +307,14 @@ class AccountMemoTransactionImplTest :
             "지정을 해제하면" to { _ -> null },
         ).forEach { (label, nextPrimaryTagId) ->
             test("TC-e221e2b1-eeef-4d6d-ad5b-9308db106f80 대표 태그를 $label 메모의 내용과 완료·삭제 여부는 바뀌지 않는다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val memo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+                val accountId = Arb.kotlinUuid().next()
+                val memo = memo().copy(primaryTagId = Arb.kotlinUuid().next())
                 insertWithSyncState(accountId, memo, isDirty = false)
 
                 memoTagTransaction.updatePrimaryTagId(
                     accountId = accountId,
                     memoId = memo.id,
-                    primaryTagId = nextPrimaryTagId(fixtureMonkey.giveMeOne<Uuid>()),
+                    primaryTagId = nextPrimaryTagId(Arb.kotlinUuid().next()),
                     updatedAt = instant(),
                 )
 
@@ -322,9 +326,9 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-fd2e66f0-833a-4e6b-b73e-a60bfd66f9cf 하나의 메모에 여러 태그를 연결해 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val tagIdList = listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+            val tagIdList = listOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
 
             transaction.upsert(
                 accountId = accountId,
@@ -336,8 +340,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-35e06d72-7688-469c-8b79-9c1a3cb4c2e3 같은 태그를 여러 메모에 연결해도 서로 대체되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val firstMemo = memo()
             val secondMemo = memo()
 
@@ -354,8 +358,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-3c6aa8ab-aac3-4e3b-aa0c-3ab987ae4ee1 같은 메모와 태그의 연결을 다시 저장해도 한 건으로 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
 
             repeat(2) {
@@ -370,7 +374,7 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-ba01a631-dae3-45e1-b94e-cca2189d2d6f 연결할 태그가 없으면 태그 연결 없이 메모만 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
 
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
@@ -380,7 +384,7 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-42c2218a-d872-40aa-a7b8-0d6451657847 TC-e4c546a3-8757-4f7f-8fdb-33d8897e29dc 태그를 완료·다시 시작·삭제해도 메모와의 연결이 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val memo = memo()
             val tagTransaction = AccountTagTransactionImpl(database = database)
@@ -399,8 +403,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-2fe0d41a-efdf-4140-85b6-66a45c973776 TC-973a1bfe-4947-4c27-bb75-436e758d9a77 TC-32425cb7-28af-489f-8318-b0e61c7d4b5c TC-d3c48f13-735f-4f1e-b249-ce002a85e1fe 메모 상태를 변경해도 내용과 태그 연결, 대표 태그가 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = tagId, isFinished = true, isDeleted = false)
             transaction.upsert(
                 accountId = accountId,
@@ -429,8 +433,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-903020e3-9b26-4c21-bdf6-44741c9f2dc2 제목·설명·컬러·기간을 수정해도 태그 연결이 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             transaction.upsert(
                 accountId = accountId,
@@ -441,7 +445,7 @@ class AccountMemoTransactionImplTest :
             transaction.updateDetail(
                 accountId = accountId,
                 memoId = memo.id,
-                detail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+                detail = Arb.memoDetailLocalEntity().next(),
                 updatedAt = instant(),
             )
 
@@ -449,8 +453,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-c8323bc1-422c-44ee-8acb-94bc76216682 해제된 연결을 다시 만들면 기존 연결이 되살아난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val deletedMemoTag =
                 memoTag(memoId = memo.id, tagId = tagId, memo = memo).copy(
@@ -470,8 +474,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 저장된 연결의 생성 시각과 수정 시각은 메모와 같다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
 
             transaction.upsert(
@@ -493,8 +497,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-a6632462-02fa-45a7-87d6-0ede996e55f7 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val changedMemo = memo.copy(updatedAt = instant())
 
@@ -522,8 +526,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-b696fa61-04cc-4a7f-94b1-d8d7277ce50f 저장이 실패하면 메모와 계정 연결, 태그 연결이 모두 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val failingDatabase = spyk(database)
             every { failingDatabase.accountMemoTagDao() } throws AccountMemoTagTestException()
@@ -543,8 +547,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-57535117-d865-477f-a7d0-2dc0ba8e0404 저장된 연결은 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val memoTagSyncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
 
@@ -560,8 +564,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-130270d5-4801-4215-b84d-029a6f8d8b96 태그를 추가하면 연결이 저장되고 메모의 다른 값은 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
             insertWithSyncState(accountId, memo, isDirty = false)
             val updatedAt = instant()
@@ -582,8 +586,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-130270d5-4801-4215-b84d-029a6f8d8b96 추가한 연결은 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
             val memoTagSyncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
@@ -596,8 +600,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-c8323bc1-422c-44ee-8acb-94bc76216682 해제된 연결의 태그를 다시 추가하면 생성 시각을 유지한 채 되살아난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             val createdAt = instant()
             insertWithSyncState(accountId, memo, isDirty = false)
@@ -629,9 +633,9 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-278d2a9d-3386-4cee-a542-56f2577f0050 대표 태그가 아닌 태그를 제거하면 연결만 해제 상태로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
-            val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
+            val primaryTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = primaryTagId)
             insertWithSyncState(accountId, memo, isDirty = false)
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = instant())
@@ -648,8 +652,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-e24e3b75-903d-4aa6-bdf9-01d1b57956b4 대표 태그를 제거하면 연결 해제와 대표 태그 해제가 함께 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
@@ -670,8 +674,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-46c90377-814a-4f6d-b005-798b0ce42a7d TC-f7c80d8e-b121-4beb-b675-e230c0842efd 제거 저장이 실패하면 연결과 대표 태그 지정이 모두 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
@@ -694,8 +698,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 연결되지 않은 태그를 대표 태그로 지정하면 연결도 함께 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
             insertWithSyncState(accountId, memo, isDirty = false)
             val updatedAt = instant()
@@ -707,8 +711,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 TC-b7d27335-e85f-49d3-b8c3-1032a8666ebf 대표 태그 지정 저장이 실패하면 연결도 만들어지지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
             insertWithSyncState(accountId, memo, isDirty = false)
             val failingDatabase = spyk(database)
@@ -729,8 +733,8 @@ class AccountMemoTransactionImplTest :
         }
 
         test("TC-8f163fe3-4081-49db-adc8-22e85df13732 대표 태그 지정을 해제하면 대표 태그만 비워지고 연결은 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
@@ -754,8 +758,8 @@ class AccountMemoTransactionImplTest :
             }, true),
         ).forEach { (label, action, needsPrimaryTag) ->
             test("TC-4a035170-0609-46fa-a688-811b27479294 $label 메모의 수정 시각이 갱신되고 업로드 대기 상태가 된다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo().copy(primaryTagId = null)
                 insertWithSyncState(accountId, memo, isDirty = false)
                 if (needsPrimaryTag) {
@@ -772,25 +776,26 @@ class AccountMemoTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun memoTag(
             memoId: Uuid,

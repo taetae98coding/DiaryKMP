@@ -5,24 +5,22 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w1000dp-h800dp")
@@ -36,7 +34,7 @@ class ListDetailRelaunchTest {
     fun `TC-4be50706-f80f-47c6-8870-aa3eb113bf05 앱을 종료하고 다시 실행하면 체크리스트 목록과 상세 선택 없이 시작 화면에서 시작한다`() {
         assertDetailResetAfterRelaunch(
             homeNavKey = ChecklistHomeNavKey,
-            detailNavKey = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = ChecklistDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 
@@ -44,7 +42,7 @@ class ListDetailRelaunchTest {
     fun `TC-40190e97-24a5-48a0-bb95-e00a19c8c882 앱을 종료하고 다시 실행하면 파일 목록과 상세 선택 없이 시작 화면에서 시작한다`() {
         assertDetailResetAfterRelaunch(
             homeNavKey = FileHomeNavKey,
-            detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = FileDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 

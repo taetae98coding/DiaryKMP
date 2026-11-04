@@ -1,18 +1,20 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.weather
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.numericDouble
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -31,9 +33,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class CalendarHomeWeatherViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -275,7 +274,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
                 coEvery { useCase(parameter = Unit) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
                 viewModel.fetch()
@@ -308,7 +307,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 val results =
                     listOf(
                         Result.success(CalendarWeatherReport()),
-                        Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                        Result.failure(IllegalStateException(Arb.string().next())),
                     )
 
                 results.forEach { result ->
@@ -325,7 +324,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
         test("지역명이 조회되면 날씨 검색에 사용할 지역명으로 제공한다") {
             runTest(mainDispatcher) {
-                val locationName = fixtureMonkey.nonBlankString()
+                val locationName = Arb.nonBlankString().next()
                 val viewModel =
                     weatherViewModel(
                         getCurrentCalendarWeatherUseCase =
@@ -372,13 +371,13 @@ private fun getCurrentCalendarWeatherUseCase(result: Result<CalendarWeatherRepor
 private fun calendarWeather(): CalendarWeather =
     CalendarWeather(
         date = randomDate(),
-        temperature = CalendarWeatherTemperature.Current(value = fixtureMonkey.giveMeOne()),
+        temperature = CalendarWeatherTemperature.Current(value = Arb.numericDouble().next()),
         weatherList = emptyList(),
     )
 
 private fun randomDate(): LocalDate =
     LocalDate(
-        year = 2_000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 1_000u).toInt(),
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        year = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

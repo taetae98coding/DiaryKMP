@@ -4,17 +4,20 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.serialization.json.Json
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -60,7 +63,7 @@ class AccountWebTransactionImplTest :
             }
 
         test("TC-fde9eef4-29df-45a0-a37c-b394f94df62f 웹 항목과 현재 계정의 연결을 함께 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web()
 
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -77,7 +80,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 웹 항목 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = false)
             val pending = listOf(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = true))
 
@@ -98,15 +101,15 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-a5fc06fe-a481-403c-9f17-056a028e49b9 TC-4923195f-f274-4a60-aa56-53f9bef6cde9 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val now = instant()
             val web =
                 web().copy(
                     detail =
                         WebDetailLocalEntity(
-                            title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                            description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                            url = "https://example.com/${fixtureMonkey.giveMeOne<String>()}",
+                            title = "title-${Arb.string().next()}",
+                            description = "description-${Arb.string().next()}",
+                            url = "https://example.com/${Arb.string().next()}",
                             headerList = emptyList(),
                         ),
                     isDeleted = false,
@@ -120,11 +123,11 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-93bd05a6-5f77-4f2b-bd7e-05177feb4ea1 요청 헤더는 저장한 순서 그대로 함께 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val headerList =
                 listOf(
-                    WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
-                    WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
+                    WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}"),
+                    WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}"),
                     WebHeaderLocalEntity(name = "X-Region", value = ""),
                 )
             val web = web().let { web -> web.copy(detail = web.detail.copy(headerList = headerList)) }
@@ -135,7 +138,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-8a31aa2e-8927-4d2d-87ee-584f01b3d108 헤더가 없는 웹 항목은 빈 헤더 목록으로 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web().let { web -> web.copy(detail = web.detail.copy(description = "", headerList = emptyList())) }
 
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -144,7 +147,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-3e5ef5ac-bc8f-4d12-814b-004499edb02d 웹 항목을 추가해도 이미 저장된 웹 항목은 덮어쓰이지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val savedWeb = web()
             val addedWeb =
                 web().copy(
@@ -152,8 +155,8 @@ class AccountWebTransactionImplTest :
                         WebDetailLocalEntity(
                             title = "added-${savedWeb.detail.title}",
                             description = "added-${savedWeb.detail.description}",
-                            url = "https://added.example.com/${fixtureMonkey.giveMeOne<String>()}",
-                            headerList = listOf(WebHeaderLocalEntity(name = "X-Added", value = "value-${fixtureMonkey.giveMeOne<String>()}")),
+                            url = "https://added.example.com/${Arb.string().next()}",
+                            headerList = listOf(WebHeaderLocalEntity(name = "X-Added", value = "value-${Arb.string().next()}")),
                         ),
                 )
             transaction.upsert(accountId = accountId, webList = listOf(savedWeb), webTagList = emptyList())
@@ -164,14 +167,14 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-7063aa40-a5ab-4f7c-9553-6f438d3affa6 수정은 제목, 설명, URL, 요청 헤더와 수정 시각을 덮어쓴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = false)
             val changedDetail =
                 WebDetailLocalEntity(
-                    title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                    description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                    url = "https://changed.example.com/${fixtureMonkey.giveMeOne<String>()}",
-                    headerList = listOf(WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}")),
+                    title = "title-${Arb.string().next()}",
+                    description = "description-${Arb.string().next()}",
+                    url = "https://changed.example.com/${Arb.string().next()}",
+                    headerList = listOf(WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}")),
                 )
             val updatedAt = instant()
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -197,7 +200,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-f0fac02c-d9e0-4cb2-a37b-cf58f6f62d04 삭제 상태인 웹 항목을 수정해도 삭제 상태로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = true)
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
@@ -214,10 +217,10 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-fdef8ee2-2dde-49fe-941d-2b563150ec2a 헤더를 모두 지운 수정을 반영하면 요청 헤더가 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val headerList =
                 listOf(
-                    WebHeaderLocalEntity(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
+                    WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}"),
                     WebHeaderLocalEntity(name = "Accept", value = "text/html"),
                 )
             val web = web().let { web -> web.copy(detail = web.detail.copy(headerList = headerList)) }
@@ -234,8 +237,8 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-e21780df-f80d-4cd1-9d5a-b621417cb573 계정과 식별자를 함께 만족하는 웹 항목에만 수정을 반영한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val web = web()
             val otherAccountWeb = web()
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -251,7 +254,7 @@ class AccountWebTransactionImplTest :
             ) shouldBe 0
             transaction.updateDetail(
                 accountId = accountId,
-                webId = fixtureMonkey.giveMeOne<Uuid>(),
+                webId = Arb.kotlinUuid().next(),
                 detail = changedDetail,
                 updatedAt = instant(),
             ) shouldBe 0
@@ -271,7 +274,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 삭제 여부와 수정 시각만 바꾸고 웹 항목과 계정 연결을 남긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = false)
             val deletedAt = instant()
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -297,8 +300,8 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-09965a51-889a-4d99-a260-a4349abc1a4c 계정과 식별자를 함께 만족하는 웹 항목에만 삭제를 반영한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = false)
             val otherAccountWeb = web().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -312,7 +315,7 @@ class AccountWebTransactionImplTest :
             ) shouldBe 0
             transaction.updateDeleted(
                 accountId = accountId,
-                webId = fixtureMonkey.giveMeOne<Uuid>(),
+                webId = Arb.kotlinUuid().next(),
                 isDeleted = true,
                 updatedAt = instant(),
             ) shouldBe 0
@@ -330,7 +333,7 @@ class AccountWebTransactionImplTest :
         }
 
         test("TC-74d4a2ac-0065-4a70-ad58-dbc468f985c2 서로 다른 식별자의 웹 항목은 각각 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val webList = List(3) { web() }.sortedBy { web -> web.id.toString() }
 
             webList.forEach { web ->
@@ -341,20 +344,19 @@ class AccountWebTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::detail, detail())
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    detail = detail(),
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
-        private fun detail(): WebDetailLocalEntity = fixtureMonkey.giveMeOne<WebDetailLocalEntity>()
+        private fun detail(): WebDetailLocalEntity = Arb.webDetailLocalEntity().next()
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

@@ -5,25 +5,27 @@ package io.github.taetae98coding.diary.feature.contact.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.testing.contact.contactDetail
 import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -260,7 +262,7 @@ class ContactHomeViewModelTest : FunSpec() {
 
         test("TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 삭제에 성공하면 그 연락처의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
                 coEvery { deleteContactUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -281,9 +283,9 @@ class ContactHomeViewModelTest : FunSpec() {
 
         test("TC-7e085cf9-e371-4800-85f8-51a792c67ec1 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
-                coEvery { deleteContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
@@ -301,9 +303,9 @@ class ContactHomeViewModelTest : FunSpec() {
 
         test("TC-ce0d1dc4-4bbc-4542-ade4-18e84ed6f8ea 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
-                coEvery { restoreContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restoreContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
@@ -322,7 +324,7 @@ class ContactHomeViewModelTest : FunSpec() {
 
         test("TC-0fbd9855-5efc-4878-8311-9912d98cced0 실행 취소하면 그 연락처의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
                 coEvery { restoreContactUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -339,7 +341,7 @@ class ContactHomeViewModelTest : FunSpec() {
         }
         test("TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 같은 연락처의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
                 coEvery { deleteContactUseCase(parameter = id) } returns Result.success(1)
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
@@ -364,9 +366,6 @@ class ContactHomeViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageContactUseCase: PageContactUseCase,
             deleteContactUseCase: DeleteContactUseCase = mockk(),
@@ -387,16 +386,16 @@ class ContactHomeViewModelTest : FunSpec() {
         }
 
         private fun contact(): ContactListItem {
-            val detail = fixtureMonkey.giveMeKotlinBuilder<ContactDetail>().sample()
+            val detail = Arb.contactDetail().next()
 
             return Contact(
                 id = Uuid.random(),
                 detail = detail,
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
-            ).toListItem(nameQualifier = fixtureMonkey.giveMeOne())
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            ).toListItem(nameQualifier = Arb.string().next())
         }
     }
 }

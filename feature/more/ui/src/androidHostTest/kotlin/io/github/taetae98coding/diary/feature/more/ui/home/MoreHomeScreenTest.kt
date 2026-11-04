@@ -22,8 +22,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
@@ -32,8 +30,10 @@ import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccou
 import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -47,9 +47,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -270,7 +267,7 @@ class MoreHomeScreenTest {
 
     @Test
     fun `TC-830e30bd-bdbc-43af-a683-b07d1eb59b20 프로필 이미지를 선택하면 그 이미지로 ProfileImageViewer 화면으로 이동한다`() {
-        val profileImage = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg"
+        val profileImage = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
         val viewerImageList = mutableListOf<String>()
         var navigateToProfileCount = 0
         setMoreHomeScreen(

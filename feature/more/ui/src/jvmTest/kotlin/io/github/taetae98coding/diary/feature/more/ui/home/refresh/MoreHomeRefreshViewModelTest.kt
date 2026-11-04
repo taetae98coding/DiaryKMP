@@ -3,16 +3,18 @@
 package io.github.taetae98coding.diary.feature.more.ui.home.refresh
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.RefreshUserDataUseCase
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -96,23 +98,23 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
 
         test("TC-1b93af08-c181-480d-a9bb-6477302074c7 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다") {
             runTest(mainDispatcher) {
-                val email = "diary-" + fixtureMonkey.giveMeOne<String>()
-                val profileImage = fixtureMonkey.giveMeOne<String>()
+                val email = "diary-" + Arb.string().next()
+                val profileImage = Arb.string().next()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns
                     flowOf(
                         Result.success<Account>(
                             Account.User(
-                                id = fixtureMonkey.giveMeOne<Uuid>(),
+                                id = Arb.kotlinUuid().next(),
                                 profileImage = profileImage,
                                 email = email,
-                                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                                isSessionValid = Arb.boolean().next(),
                             ),
                         ),
                     )
                 val accountViewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { useCase(Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
                 accountViewModel.uiState.test {
@@ -128,9 +130,5 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(Unit) }
             }
         }
-    }
-
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

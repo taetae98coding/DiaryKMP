@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.web.datasource.WebLoginLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginCookieSameSiteLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.web.entity.WebLoginLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import org.koin.core.Koin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -17,8 +17,6 @@ import org.koin.plugin.module.dsl.koinApplication
 import java.nio.file.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createTempDirectory
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class WebLoginLocalDataSourceTest :
     FunSpec({
@@ -30,7 +28,7 @@ class WebLoginLocalDataSourceTest :
             val login =
                 WebLoginLocalEntity(
                     sessionCookieList = WebLoginCookieSameSiteLocalEntity.entries.map { sameSite -> cookie(sameSite = sameSite) },
-                    siteUrlSet = setOf("https://${fixtureMonkey.giveMeOne<Int>()}.example.com/"),
+                    siteUrlSet = setOf("https://${Arb.int().next()}.example.com/"),
                 )
             val directory = createTempDirectory("diary-setting")
             createKoin(directory).get<WebLoginLocalDataSource>().upsert(login = login)
@@ -49,7 +47,7 @@ class WebLoginLocalDataSourceTest :
         }
     })
 
-private fun cookie(sameSite: WebLoginCookieSameSiteLocalEntity): WebLoginCookieLocalEntity = fixtureMonkey.giveMeOne<WebLoginCookieLocalEntity>().copy(sameSite = sameSite)
+private fun cookie(sameSite: WebLoginCookieSameSiteLocalEntity): WebLoginCookieLocalEntity = Arb.webLoginCookieLocalEntity().next().copy(sameSite = sameSite)
 
 // 앞선 실행의 저장 영역은 닫을 수 없으므로, 저장된 파일을 새 폴더로 옮겨 처음 여는 것처럼 다시 연다.
 private fun restartedDirectory(directory: Path): Path {

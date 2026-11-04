@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -18,8 +18,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class GetGoldenHolidayUseCaseDispatcherTest :
     BehaviorSpec({
         Given("황금연휴 계산을 맡을 dispatcher가 주입되어 있다") {
@@ -28,8 +26,9 @@ class GetGoldenHolidayUseCaseDispatcherTest :
                     runTest {
                         // 날짜로 바꿀 수 있는 연도여야 하므로 표현 범위가 정해진 시각에서 연도를 뽑는다.
                         val year =
-                            fixtureMonkey
-                                .giveMeOne<Instant>()
+                            Arb
+                                .secondPrecisionInstant()
+                                .next()
                                 .toLocalDateTime(TimeZone.UTC)
                                 .year
                         val repository = mockk<HolidayRepository>()

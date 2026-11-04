@@ -1,16 +1,16 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,9 +23,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 // 2025년 12월 31일은 수요일, 2026년 1월 1일은 목요일, 2026년 12월 31일은 목요일이다.
 class GetGoldenHolidayUseCaseHolidaySourceTest :
@@ -97,7 +94,7 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
             val emptyRepository = mockk<HolidayRepository>()
             every { emptyRepository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } returns flowOf(emptyList())
             val failedRepository = mockk<HolidayRepository>()
-            every { failedRepository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            every { failedRepository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } returns flow { throw IllegalStateException(Arb.string().next()) }
 
             When("2026년의 황금연휴를 조회한다") {
                 Then("오류 없이 빈 황금연휴 목록이 나온다") {
@@ -119,7 +116,7 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
             every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {
                 if (secondArg<Int>() == YEAR) flowOf(listOf(holiday)) else flowOf(emptyList())
             }
-            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = YEAR - 1) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = YEAR - 1) } returns flow { throw IllegalStateException(Arb.string().next()) }
 
             When("2026년의 황금연휴를 조회한다") {
                 Then("실패하지 않은 년도의 공휴일로 만든 황금연휴가 나온다") {
@@ -154,7 +151,7 @@ private fun holiday(
     endInclusive: LocalDate = start,
 ): Holiday =
     Holiday(
-        name = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
         isHoliday = true,
         dateRange = LocalDateRange(start = start, endInclusive = endInclusive),
     )

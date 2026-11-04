@@ -3,16 +3,17 @@
 package io.github.taetae98coding.diary.feature.setting.ui.file
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadSetting
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileDownloadSettingUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.SetFileDownloadDirectoryUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.UnsetFileDownloadDirectoryUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,9 +31,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class SettingFileViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -62,7 +60,7 @@ class SettingFileViewModelTest : FunSpec() {
         }
 
         test("TC-2e3176b1-a1f4-4217-9cb9-e7141780387f TC-0d5074c9-38b9-433a-aa49-7b74fe270e88 저장된 설정의 고른 폴더를 그대로 제공한다") {
-            listOf(null, fixtureMonkey.giveMeOne<FileDownloadDirectory>()).forEach { directory ->
+            listOf(null, Arb.fileDownloadDirectory().next()).forEach { directory ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = directory))))
 
@@ -76,8 +74,8 @@ class SettingFileViewModelTest : FunSpec() {
 
         test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 곧바로 저장되고 저장된 폴더가 화면의 위치가 된다") {
             runTest(mainDispatcher) {
-                val uri = fixtureMonkey.giveMeOne<String>()
-                val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(uri = uri)
+                val uri = Arb.string().next()
+                val directory = Arb.fileDownloadDirectory().next().copy(uri = uri)
                 val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = null)))
                 val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
                 coEvery { setUseCase(uri) } coAnswers {
@@ -104,13 +102,13 @@ class SettingFileViewModelTest : FunSpec() {
 
         test("TC-41fd402c-68d3-4b41-9366-c2f9bb19d9ca 폴더를 쓰도록 허락받지 못하거나 저장에 실패하면 실패를 알리고 설정은 그대로 둔다") {
             runTest(mainDispatcher) {
-                val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
+                val directory = Arb.fileDownloadDirectory().next()
                 val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
                 coEvery { setUseCase(any()) } returns Result.failure(SecurityException("permission denied"))
                 val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = directory))), setUseCase = setUseCase)
 
                 viewModel.effect.test {
-                    viewModel.setDirectory(uri = fixtureMonkey.giveMeOne<String>())
+                    viewModel.setDirectory(uri = Arb.string().next())
 
                     awaitItem() shouldBe SettingFileEffect.ChangeFailed
                 }
@@ -123,7 +121,7 @@ class SettingFileViewModelTest : FunSpec() {
 
         test("TC-cef9e1ad-cca8-4668-b96c-e2124fbc09d7 기본 위치로 되돌리면 고른 폴더가 없는 설정이 화면의 위치가 된다") {
             runTest(mainDispatcher) {
-                val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>())))
+                val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = Arb.fileDownloadDirectory().next())))
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
                 coEvery { unsetUseCase(Unit) } coAnswers {
                     stored.value = Result.success(FileDownloadSetting(directory = null))
@@ -147,7 +145,7 @@ class SettingFileViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
                 coEvery { unsetUseCase(Unit) } returns Result.failure(IllegalStateException("write error"))
-                val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()))), unsetUseCase = unsetUseCase)
+                val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = Arb.fileDownloadDirectory().next()))), unsetUseCase = unsetUseCase)
 
                 viewModel.effect.test {
                     viewModel.unsetDirectory()
@@ -169,7 +167,7 @@ class SettingFileViewModelTest : FunSpec() {
                 viewModel.unsetDirectory()
                 advanceUntilIdle()
                 viewModel.unsetDirectory()
-                viewModel.setDirectory(uri = fixtureMonkey.giveMeOne<String>())
+                viewModel.setDirectory(uri = Arb.string().next())
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { unsetUseCase(Unit) }

@@ -16,14 +16,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.testing.contact.contactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
@@ -31,8 +30,11 @@ import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -46,9 +48,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -534,14 +533,14 @@ class ContactHomeFilterTest {
         const val DEFAULT_FILTERED_EMPTY_DESCRIPTION = "Change the filter to see other contacts."
 
         // 카드 문구를 정확히 찾아야 하므로 공백이나 제어 문자가 섞이지 않는 값으로 만든다.
-        fun displayText(): String = fixtureMonkey.giveMeOne<Uuid>().toString()
+        fun displayText(): String = Arb.kotlinUuid().next().toString()
 
-        fun birthday(): ContactBirthday = fixtureMonkey.giveMeOne<ContactBirthday>()
+        fun birthday(): ContactBirthday = Arb.contactBirthday().next()
 
         fun axisContactList(): List<ContactListItem> =
             listOf(
                 testContact(name = displayText(), birthday = birthday()),
-                testContact(name = displayText(), birthYear = fixtureMonkey.giveMeOne<Int>()),
+                testContact(name = displayText(), birthYear = Arb.int().next()),
                 testContact(name = displayText(), phoneNumberList = listOf(displayText())),
                 testContact(name = displayText()),
             )
@@ -557,7 +556,7 @@ class ContactHomeFilterTest {
         fun birthYearCase(): AxisCase =
             AxisCase(
                 label = DEFAULT_BIRTH_YEAR_LABEL,
-                with = testContact(name = displayText(), birthYear = fixtureMonkey.giveMeOne<Int>()),
+                with = testContact(name = displayText(), birthYear = Arb.int().next()),
                 without = testContact(name = displayText()),
                 filter = { existence -> ContactFilter(birthYear = existence) },
             )
@@ -574,7 +573,7 @@ class ContactHomeFilterTest {
         fun positionContactList(): List<ContactListItem> =
             List(POSITION_CONTACT_COUNT) { index ->
                 testContact(
-                    name = "position-${index.toString().padStart(length = 3, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}",
+                    name = "position-${index.toString().padStart(length = 3, padChar = '0')}-${Arb.int().next()}",
                     birthday = if (index % 2 == 0) null else birthday(),
                 )
             }

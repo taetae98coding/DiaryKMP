@@ -3,15 +3,15 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini.model
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
+import io.github.taetae98coding.diary.core.testing.gemini.geminiModel
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.usecase.FetchGeminiModelUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.take
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -27,9 +27,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
 private const val API_KEY = "testApiKey"
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class SettingGeminiModelViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -58,7 +55,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
 
         test("TC-1aa79bea-052a-445e-9ae7-8ab80ad1981b 다른 앱에 다녀와도 받아 온 모델 목록을 다시 조회하지 않는다") {
             runTest(mainDispatcher) {
-                val modelList = fixtureMonkey.giveMe<GeminiModel>(2)
+                val modelList = Arb.geminiModel().take(2).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(modelList)
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
@@ -139,7 +136,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
 
         test("TC-03a2c699-e091-4756-80e2-d0dcde9f0b3b 조회에 성공하면 받아 온 모델을 제공한다") {
             runTest(mainDispatcher) {
-                val modelList = fixtureMonkey.giveMe<GeminiModel>(3)
+                val modelList = Arb.geminiModel().take(3).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(modelList)
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
@@ -195,7 +192,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
 
         test("TC-c041e172-eb66-4967-93e4-6589f737dd13 실패 뒤 다시 조회하면 실패 표시를 지우고 받아 온 목록을 제공한다") {
             runTest(mainDispatcher) {
-                val modelList = fixtureMonkey.giveMe<GeminiModel>(2)
+                val modelList = Arb.geminiModel().take(2).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
                 coEvery { fetchGeminiModelUseCase(API_KEY) } returnsMany
                     listOf(
@@ -220,7 +217,7 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(fixtureMonkey.giveMe<GeminiModel>(2))
+                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(Arb.geminiModel().take(2).toList())
                 coEvery { fetchGeminiModelUseCase("nextApiKey") } coAnswers { completion.await() }
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
                 viewModel.fetch(apiKey = API_KEY)

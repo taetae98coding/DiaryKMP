@@ -11,8 +11,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
@@ -20,15 +18,19 @@ import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.authentication.appleAuthorization
+import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
 import io.github.taetae98coding.diary.domain.account.usecase.CheckAppleReauthenticationRequiredUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.DeleteAccountUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -42,9 +44,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import kotlin.math.abs
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -210,7 +209,7 @@ class ProfileScreenTest {
 
     @Test
     fun `TC-394d73c1-14ac-40cc-8355-db7b3bc510ec 재인증이 필요하면 Apple 흐름에서 받은 인가 코드로 탈퇴를 요청한다`() {
-        val authorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
+        val authorization = Arb.appleAuthorization().next()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
         coEvery { fixture.appleCredentialsManager.signIn() } returns signInResult(authorization = authorization)
         setScreen(fixture)
@@ -297,8 +296,8 @@ class ProfileScreenTest {
 
     @Test
     fun `TC-ff12655f-9d05-45d5-941d-052f02a957c2 Apple 재인증 중 다이얼로그에서 탈퇴를 다시 고르면 새 흐름만 연다`() {
-        val firstAuthorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
-        val secondAuthorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
+        val firstAuthorization = Arb.appleAuthorization().next()
+        val secondAuthorization = Arb.appleAuthorization().next()
         val first = CompletableDeferred<AppleSignInResult>()
         val second = CompletableDeferred<AppleSignInResult>()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
@@ -344,7 +343,7 @@ class ProfileScreenTest {
         confirmDelete()
         dismiss()
         composeRule.waitForIdle()
-        composeRule.runOnIdle { pending.complete(signInResult(authorization = fixtureMonkey.giveMeOne())) }
+        composeRule.runOnIdle { pending.complete(signInResult(authorization = Arb.appleAuthorization().next())) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
@@ -379,7 +378,7 @@ class ProfileScreenTest {
         coVerify(exactly = 1) { fixture.appleCredentialsManager.signIn() }
 
         restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.runOnIdle { pending.complete(signInResult(authorization = fixtureMonkey.giveMeOne())) }
+        composeRule.runOnIdle { pending.complete(signInResult(authorization = Arb.appleAuthorization().next())) }
         composeRule.waitForIdle()
 
         coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
@@ -549,7 +548,7 @@ private fun ProfileContent(fixture: Fixture) {
     }
 }
 
-private fun signInResult(authorization: AppleAuthorization?): AppleSignInResult = AppleSignInResult(credential = fixtureMonkey.giveMeOne<AppleCredential>(), authorization = authorization)
+private fun signInResult(authorization: AppleAuthorization?): AppleSignInResult = AppleSignInResult(credential = Arb.appleCredential().next(), authorization = authorization)
 
 private class Fixture(
     isAppleReauthenticationRequired: Boolean = false,
@@ -557,7 +556,7 @@ private class Fixture(
 ) {
     var navigateUpCount = 0
     var navigateToEditCount = 0
-    val accountFlow = MutableStateFlow(Result.success<Account>(fixtureMonkey.giveMeOne<Account.User>()))
+    val accountFlow = MutableStateFlow(Result.success<Account>(Arb.accountUser().next()))
     val appleCredentialsManager: AppleCredentialsManager = mockk()
     val deleteAccountUseCase: DeleteAccountUseCase = mockk()
     private val getAccountUseCase: GetAccountUseCase = mockk()

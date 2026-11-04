@@ -1,10 +1,8 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.repository.FcmTokenRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -12,6 +10,9 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -19,8 +20,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class SubmitFcmTokenUseCaseTest :
     BehaviorSpec({
@@ -41,7 +40,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("현재 계정이 사용자이지만 세션이 갱신되지 않았다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+            val account = Arb.accountUser().next().copy(isSessionValid = false)
             val repository = mockk<FcmTokenRepository>()
             val useCase = useCase(account = account, repository = repository)
 
@@ -57,7 +56,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("현재 계정이 세션이 갱신된 사용자다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } returns Unit
             val useCase = useCase(account = account, repository = repository)
@@ -74,8 +73,8 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 사용자의 등록이 특정 원인으로 실패한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } throws failure
             val reportList = recordCrashlyticsLog()
@@ -92,7 +91,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 게스트의 해제가 특정 원인으로 실패한다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.delete() } throws failure
             val reportList = recordCrashlyticsLog()
@@ -109,7 +108,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 제출이 진행 중에 중단된다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } throws CancellationException("cancelled")
             val reportList = recordCrashlyticsLog()
@@ -125,7 +124,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("저장된 사용자 정보는 있지만 세션이 인증되지 않았다가 인증된 상태로 바뀐다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+            val account = Arb.accountUser().next().copy(isSessionValid = false)
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } returns Unit
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -151,7 +150,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("로그아웃되어 현재 계정이 게스트로 바뀌었고 서버에 도달할 수 없다") {
-            val failure = IOException(fixtureMonkey.giveMeOne<String>())
+            val failure = IOException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.delete() } throws failure
             val useCase = useCase(account = Account.Guest, repository = repository)
@@ -168,8 +167,8 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 사용자의 등록이 통신 오류로 실패한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-            val failure = IOException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
+            val failure = IOException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } throws failure
             val reportList = recordCrashlyticsLog()
@@ -186,7 +185,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 기기에 토큰이 없어 등록이 요청 없이 끝난다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } returns Unit
             val reportList = recordCrashlyticsLog()
@@ -203,8 +202,8 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 토큰을 받아 오지 못해 등록이 실패한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             coEvery { repository.upsert() } throws failure
             val reportList = recordCrashlyticsLog()
@@ -221,7 +220,7 @@ class SubmitFcmTokenUseCaseTest :
         }
 
         Given("계정 확인이 실패한다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<FcmTokenRepository>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(failure))

@@ -30,8 +30,6 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
@@ -41,9 +39,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapVi
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -56,8 +57,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -77,7 +76,7 @@ class MemoDetailScreenBoundaryTest {
 
     @Test
     fun `TC-42eed8f6-6abf-4482-82cc-215ebd698cf9 다른 앱에 다녀와도 수정 중이던 내용이 그대로다`() {
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+        val description = "description-${Arb.string().next()}"
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
         composeRule.setContent { Detail(viewModel = viewModel) }
         composeRule.waitForIdle()
@@ -129,7 +128,7 @@ class MemoDetailScreenBoundaryTest {
 
     @Test
     fun `TC-97602899-817d-4dc3-a910-6bf03d9dfdbf 시스템이 앱을 정리한 뒤 화면을 복원해도 수정 중이던 내용을 복원한다`() {
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+        val description = "description-${Arb.string().next()}"
         val uiStateList = mutableListOf<MutableStateFlow<MemoDetailUiState>>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -322,7 +321,7 @@ class MemoDetailScreenBoundaryTest {
 
         private fun randomColorHex(): String =
             "#" +
-                (fixtureMonkey.giveMeOne<Int>() and COLOR_RGB_MASK)
+                (Arb.int().next() and COLOR_RGB_MASK)
                     .toString(radix = 16)
                     .uppercase()
                     .padStart(length = COLOR_HEX_LENGTH, padChar = '0')

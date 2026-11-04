@@ -18,6 +18,8 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormSt
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,8 +82,8 @@ class QrAddFormatTest {
 
     @Test
     fun `TC-3dba14b5-3efb-4128-a092-09a4f0ed3f6d 탭을 오가도 두 탭의 입력과 QR 그림이 그대로 남는다`() {
-        val detail = qrTestFixtureMonkey.qrDetail()
-        val url = "https://${qrTestFixtureMonkey.qrDetail().value.filter(Char::isLetterOrDigit)}a.com"
+        val detail = Arb.qrDetail().next()
+        val url = "https://${Arb.qrDetail().next().value.filter(Char::isLetterOrDigit)}a.com"
         val state = setQrAddScaffold()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)

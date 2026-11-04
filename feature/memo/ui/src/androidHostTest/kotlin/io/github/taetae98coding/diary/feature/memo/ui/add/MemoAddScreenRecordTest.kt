@@ -8,8 +8,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
@@ -29,8 +27,11 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContent
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toHexString
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -55,7 +56,7 @@ class MemoAddScreenRecordTest {
 
     @Test
     fun `TC-af7316e3-b944-464f-af94-d5c98fb562ff 작성 도우미로 반영한 내용으로 메모 추가를 실행한다`() {
-        val start = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Int>() and DAY_RANGE_MASK)
+        val start = LocalDate.fromEpochDays(Arb.int().next() and DAY_RANGE_MASK)
         val draft =
             MemoDraft(
                 title = randomText(prefix = TITLE_PREFIX),
@@ -189,8 +190,6 @@ class MemoAddScreenRecordTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         // 1970년부터 약 90년 안의 날짜로 한정해 날짜 입력이 표현할 수 있는 범위를 벗어나지 않게 한다.
         private const val DAY_RANGE_MASK = 0x7FFF
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
@@ -204,6 +203,6 @@ class MemoAddScreenRecordTest {
         private const val TAG_PREFIX = "tag-"
 
         // 생성한 문자열은 비어 있을 수 있으므로 앞에 고정 문자열을 붙여 빈 값이 되지 않게 한다.
-        private fun randomText(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>()
+        private fun randomText(prefix: String): String = prefix + Arb.string().next()
     }
 }

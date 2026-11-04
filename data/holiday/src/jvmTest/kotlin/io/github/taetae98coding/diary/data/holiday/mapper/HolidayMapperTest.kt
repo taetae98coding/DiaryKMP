@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.data.holiday.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.data.holiday.holidayLocalEntity
+import io.github.taetae98coding.diary.data.holiday.holidayRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -20,7 +21,7 @@ class HolidayMapperTest :
     FunSpec({
         test("remote to local") {
             listOf(true, false).forEach { isHoliday ->
-                val year = fixtureMonkey.giveMeOne<Int>()
+                val year = Arb.int().next()
                 val remote = remoteHoliday(isHoliday = isHoliday)
 
                 remote.toLocal(country = HolidayCountry.UNITED_STATES, year = year) shouldBe
@@ -59,29 +60,30 @@ class HolidayMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun remoteHoliday(isHoliday: Boolean): HolidayRemoteEntity {
     val start = date()
 
-    return fixtureMonkey
-        .giveMeKotlinBuilder<HolidayRemoteEntity>()
-        .setExp(HolidayRemoteEntity::isHoliday, isHoliday)
-        .setExp(HolidayRemoteEntity::start, start)
-        .setExp(HolidayRemoteEntity::endInclusive, start.plus(1 + randomInt(bound = 28), DateTimeUnit.DAY))
-        .sample()
+    return Arb
+        .holidayRemoteEntity()
+        .next()
+        .copy(
+            isHoliday = isHoliday,
+            start = start,
+            endInclusive = start.plus(1 + randomInt(bound = 28), DateTimeUnit.DAY),
+        )
 }
 
 private fun localHoliday(isHoliday: Boolean): HolidayLocalEntity {
     val start = date()
 
-    return fixtureMonkey
-        .giveMeKotlinBuilder<HolidayLocalEntity>()
-        .setExp(HolidayLocalEntity::isHoliday, isHoliday)
-        .setExp(HolidayLocalEntity::start, start)
-        .setExp(HolidayLocalEntity::endInclusive, start.plus(1 + randomInt(bound = 28), DateTimeUnit.DAY))
-        .sample()
+    return Arb
+        .holidayLocalEntity()
+        .next()
+        .copy(
+            isHoliday = isHoliday,
+            start = start,
+            endInclusive = start.plus(1 + randomInt(bound = 28), DateTimeUnit.DAY),
+        )
 }
 
 private fun date(): LocalDate =
@@ -91,4 +93,4 @@ private fun date(): LocalDate =
         day = 1 + randomInt(bound = 28),
     )
 
-private fun randomInt(bound: Int): Int = (fixtureMonkey.giveMeOne<Int>().toUInt() % bound.toUInt()).toInt()
+private fun randomInt(bound: Int): Int = (Arb.int().next().toUInt() % bound.toUInt()).toInt()

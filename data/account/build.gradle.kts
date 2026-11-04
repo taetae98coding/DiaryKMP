@@ -16,7 +16,7 @@ kotlin {
             }
         }
 
-        jvmTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
             }

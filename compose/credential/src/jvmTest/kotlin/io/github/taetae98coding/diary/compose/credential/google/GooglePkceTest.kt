@@ -1,19 +1,17 @@
 package io.github.taetae98coding.diary.compose.credential.google
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.credential.queryParameter
 import io.github.taetae98coding.diary.compose.credential.s256CodeChallenge
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import java.util.Base64
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GooglePkceTest :
     FunSpec({
@@ -21,7 +19,7 @@ class GooglePkceTest :
             val randomBytes = randomBytes()
             val clientId = googleClientId()
             val redirectUri = loopbackRedirectUri()
-            val authorizationCode = fixtureMonkey.nonBlankString()
+            val authorizationCode = Arb.nonBlankString().next()
             val pkceFactory = GooglePkceFactory { target -> randomBytes.copyInto(target) }
             val attemptFactory =
                 GoogleAuthorizationCodeAttemptFactory(
@@ -59,8 +57,8 @@ class GooglePkceTest :
 
             val firstAttempt = attemptFactory.create(redirectUri = loopbackRedirectUri())
             val secondAttempt = attemptFactory.create(redirectUri = loopbackRedirectUri())
-            val firstCredential = firstAttempt.toCredential(parameters = mapOf("code" to fixtureMonkey.nonBlankString()))
-            val secondCredential = secondAttempt.toCredential(parameters = mapOf("code" to fixtureMonkey.nonBlankString()))
+            val firstCredential = firstAttempt.toCredential(parameters = mapOf("code" to Arb.nonBlankString().next()))
+            val secondCredential = secondAttempt.toCredential(parameters = mapOf("code" to Arb.nonBlankString().next()))
 
             firstCredential.codeVerifier shouldNotBe secondCredential.codeVerifier
             firstAttempt.authorizationUrl.queryParameter("code_challenge") shouldNotBe
@@ -98,15 +96,16 @@ class GooglePkceTest :
         }
     })
 
-private fun randomBytes(): ByteArray = ByteArray(32) { fixtureMonkey.giveMeOne<Int>().toByte() }
+private fun randomBytes(): ByteArray = ByteArray(32) { Arb.int().next().toByte() }
 
-private fun googleClientId(): String = "${fixtureMonkey.giveMeOne<Long>().toULong()}.apps.googleusercontent.com"
+private fun googleClientId(): String = "${Arb.long().next().toULong()}.apps.googleusercontent.com"
 
 private fun loopbackRedirectUri(): String {
     val port =
         1_024 +
-            fixtureMonkey
-                .giveMeOne<Int>()
+            Arb
+                .int()
+                .next()
                 .toUInt()
                 .rem(64_512u)
                 .toInt()

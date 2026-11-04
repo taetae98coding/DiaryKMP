@@ -10,6 +10,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidMain {
             dependencies {
                 implementation(projects.core.webCookie.api)

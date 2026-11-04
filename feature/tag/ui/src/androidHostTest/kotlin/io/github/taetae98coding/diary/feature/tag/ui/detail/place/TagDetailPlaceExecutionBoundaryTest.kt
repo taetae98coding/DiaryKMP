@@ -10,18 +10,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.lifecycle.Lifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -44,7 +44,7 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 다른 탭을 선택한 뒤 장소 탭으로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         val hoistedState = TagDetailPlaceState()
         var isPlaceTabSelected by mutableStateOf(true)
@@ -64,7 +64,7 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 화면이 회전하거나 창 크기가 바뀌어도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceTab(mapViewModel = mapViewModel) }
@@ -79,7 +79,7 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         composeRule.setContent { PlaceTab(mapViewModel = mapViewModel) }
         selectMapMode()
@@ -95,7 +95,7 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 지도 모드를 유지하고 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         var isTagDetailOnTop by mutableStateOf(true)
         composeRule.setContent {
@@ -124,12 +124,12 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-47ead7cd-c668-45fc-b08e-b512f97b998c 되살아난 뒤 다른 위치를 확인해도 지도 모드와 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
-        assertRestoreContinuesMovedMap(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+        assertRestoreContinuesMovedMap(beforeCoordinate = Arb.coordinate().next(), afterCoordinate = Arb.coordinate().next())
     }
 
     @Test
     fun `TC-47ead7cd-c668-45fc-b08e-b512f97b998c 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 지도를 이어서 보여 준다`() {
-        val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val coordinate = Arb.coordinate().next()
 
         assertRestoreContinuesMovedMap(beforeCoordinate = coordinate, afterCoordinate = coordinate)
     }
@@ -143,7 +143,7 @@ class TagDetailPlaceExecutionBoundaryTest {
         beforeCoordinate: Coordinate?,
         afterCoordinate: Coordinate?,
     ) {
-        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val movedCoordinate = Arb.coordinate().next()
         val beforeFetch = fetchCurrentLocationUseCase(beforeCoordinate)
         val afterFetch = fetchCurrentLocationUseCase(afterCoordinate)
         val restorationTester = StateRestorationTester(composeRule)
@@ -188,9 +188,6 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     private companion object {
         private const val TAG_DETAIL_ENTRY_KEY = "TagDetail"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate?): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

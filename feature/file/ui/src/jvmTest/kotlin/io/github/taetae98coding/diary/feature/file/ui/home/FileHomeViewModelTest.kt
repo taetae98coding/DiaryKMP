@@ -5,17 +5,19 @@ package io.github.taetae98coding.diary.feature.file.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -30,9 +32,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileHomeViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -73,7 +72,7 @@ class FileHomeViewModelTest : FunSpec() {
 
         test("TC-cfdfb082-926f-421d-82cb-0dc590b0b2bd 계정 상태를 확인하지 못하면 본문을 비우는 상태로 돌아간다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val account = Arb.accountUser().next()
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
@@ -90,7 +89,7 @@ class FileHomeViewModelTest : FunSpec() {
         test("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 사용자 상태에서는 사용자 화면을 제공한다") {
             runTest(mainDispatcher) {
                 listOf(true, false).forEach { isSessionValid ->
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
+                    val account = Arb.accountUser().next().copy(isSessionValid = isSessionValid)
                     val viewModel = viewModel(accountFlow = MutableStateFlow(Result.success(account)))
 
                     viewModel.uiState.test {
@@ -103,7 +102,7 @@ class FileHomeViewModelTest : FunSpec() {
 
         test("조회한 파일을 페이지로 전달한다") {
             runTest(mainDispatcher) {
-                val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+                val fileList = List(2) { Arb.diaryFile().next() }
                 val pageFileUseCase = mockk<PageFileUseCase>()
                 every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase)
@@ -114,8 +113,8 @@ class FileHomeViewModelTest : FunSpec() {
 
         test("TC-7062b208-3784-4e82-b622-75fc8ac830db 고친 파일은 같은 자리에서 고친 값으로 전달하고 다른 파일은 그대로 둔다") {
             runTest(mainDispatcher) {
-                val fileList = List(3) { fixtureMonkey.giveMeOne<DiaryFile>() }
-                val updatedFile = fileList[1].copy(title = fixtureMonkey.giveMeOne<String>(), name = fixtureMonkey.giveMeOne<String>())
+                val fileList = List(3) { Arb.diaryFile().next() }
+                val updatedFile = fileList[1].copy(title = Arb.string().next(), name = Arb.string().next())
                 val pageFileUseCase = mockk<PageFileUseCase>()
                 every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
                 val viewModel = viewModel(pageFileUseCase = pageFileUseCase, updatedFileMap = mapOf(updatedFile.id to updatedFile))
@@ -126,7 +125,7 @@ class FileHomeViewModelTest : FunSpec() {
 
         test("고친 파일 목록을 확인하지 못하면 불러온 파일을 그대로 전달한다") {
             runTest(mainDispatcher) {
-                val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+                val fileList = List(2) { Arb.diaryFile().next() }
                 val pageFileUseCase = mockk<PageFileUseCase>()
                 every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
                 val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()

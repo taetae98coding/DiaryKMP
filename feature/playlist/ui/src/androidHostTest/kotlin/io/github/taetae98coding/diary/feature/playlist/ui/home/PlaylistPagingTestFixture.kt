@@ -3,16 +3,14 @@ package io.github.taetae98coding.diary.feature.playlist.ui.home
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal fun musicPagingDataOf(musicList: List<Music>): PagingData<Music> =
     PagingData.from(
@@ -49,13 +47,13 @@ internal fun failedMusicPagingData(): PagingData<Music> =
 
 internal fun testMusic(
     title: String,
-    artist: String = "가수-${fixtureMonkey.giveMeOne<Int>()}",
+    artist: String = "가수-${Arb.int().next()}",
     link: String = "https://youtu.be/dQw4w9WgXcQ",
 ): Music =
     Music(
         id = Uuid.random(),
         detail = MusicDetail(title = title, artist = artist, link = link),
         isDeleted = false,
-        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )

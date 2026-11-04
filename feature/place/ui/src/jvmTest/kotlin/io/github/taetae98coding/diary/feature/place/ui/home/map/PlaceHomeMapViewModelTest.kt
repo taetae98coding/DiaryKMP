@@ -3,17 +3,17 @@
 package io.github.taetae98coding.diary.feature.place.ui.home.map
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -151,7 +151,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
         test("TC-a09ee357-336c-4a05-80e8-69a21423fe5b 같은 화면에서 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
             runTest(mainDispatcher) {
-                val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val coordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
                 val viewModel =
                     viewModel(
@@ -175,8 +175,8 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
         test("TC-b99ac0e5-0432-4967-b457-1ea27a37b0d8 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
-                val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-                val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val beforeCoordinate = Arb.coordinate().next()
+                val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
                 coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
@@ -225,9 +225,6 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
     private companion object {
         private const val REPEAT_COUNT = 3
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun PlaceHomeUiState.shouldBeLoaded(
             defaultProvider: MapProvider,

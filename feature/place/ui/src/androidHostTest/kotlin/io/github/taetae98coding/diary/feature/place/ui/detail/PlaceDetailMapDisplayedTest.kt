@@ -12,7 +12,6 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
@@ -22,8 +21,8 @@ import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
 import io.github.taetae98coding.diary.feature.place.ui.add.mapCoordinateInFormPrecision
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,10 +43,10 @@ class PlaceDetailMapDisplayedTest {
 
     @Test
     fun `TC-45f8be21-1996-4488-a977-965aae3321dc 저장된 좌표가 바뀌어도 지도가 보고 있던 위치와 확대 수준이 유지된다`() {
-        val savedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != savedCoordinate }
+        val savedCoordinate = mapCoordinateInFormPrecision()
+        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != savedCoordinate }
         val changedCoordinate =
-            generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }
+            generateSequence { mapCoordinateInFormPrecision() }
                 .first { coordinate -> coordinate != savedCoordinate && coordinate != viewedCoordinate }
         val id = Uuid.random()
         val detail = placeDetail(coordinate = Coordinate(latitude = savedCoordinate.latitude, longitude = savedCoordinate.longitude))
@@ -117,7 +116,7 @@ class PlaceDetailMapDisplayedTest {
 
     @Test
     fun `TC-42d4d33b-e660-4a59-8bed-f3506a0c36fe 화면이 재생성되어도 지도가 보고 있던 위치와 확대 수준을 유지한다`() {
-        val viewedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val viewedCoordinate = mapCoordinateInFormPrecision()
         val id = Uuid.random()
         val uiState = MutableStateFlow<PlaceDetailUiState>(mapDisplayedContent(id = id, detail = placeDetail()))
         val restorationTester = StateRestorationTester(composeRule)
@@ -190,7 +189,5 @@ class PlaceDetailMapDisplayedTest {
 
         // 입력 정지 대기 시간이 넉넉히 지나도록 기다린다.
         private const val REFLECT_WAIT_MILLIS = 400L
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

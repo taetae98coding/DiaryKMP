@@ -9,11 +9,11 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -26,9 +26,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class AndroidDirectoryPickerTest {
@@ -37,7 +34,7 @@ class AndroidDirectoryPickerTest {
 
     @Test
     fun `TC-4a16856d-4ec7-44bf-a4bf-d11d437a63b5 선택 도구가 열린 동안 화면이 재생성되어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
-        val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${fixtureMonkey.giveMeOne<Int>()}")
+        val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${Arb.int().next()}")
         val harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<String>()
         lateinit var picker: DirectoryPicker
@@ -57,7 +54,7 @@ class AndroidDirectoryPickerTest {
 
     @Test
     fun `TC-4a16856d-4ec7-44bf-a4bf-d11d437a63b5 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 폴더가 다시 만들어진 화면에 전달된다`() {
-        val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${fixtureMonkey.giveMeOne<Int>()}")
+        val uri = Uri.parse("content://com.android.externalstorage.documents/tree/${Arb.int().next()}")
         var harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<String>()
         lateinit var picker: DirectoryPicker

@@ -17,8 +17,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -31,9 +29,11 @@ import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -49,9 +49,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -136,7 +133,7 @@ class CalendarHomeScreenBirthdayTest {
     @Test
     fun `TC-cb6f457b-3630-438b-903e-a6e92d58e816 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
-        val errorMessage = fixtureMonkey.nonBlankString()
+        val errorMessage = Arb.nonBlankString().next()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
             flowOf(Result.failure(IllegalStateException(errorMessage)))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
@@ -170,7 +167,7 @@ class CalendarHomeScreenBirthdayTest {
             flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
         coEvery { fetchLunarUseCase(parameter = any()) } returns
-            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            Result.failure(IllegalStateException(Arb.string().next()))
         val birthdayViewModel =
             CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase)
 

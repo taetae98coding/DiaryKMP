@@ -3,8 +3,6 @@
 package io.github.taetae98coding.diary.feature.qr.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
@@ -14,12 +12,14 @@ import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.FindQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.UpdateQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.enum
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -56,8 +56,8 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-333ab481-c071-43fd-949b-d8cf7eab137a 조회에 성공하면 저장된 내용과 기본 지도로 내용 상태를 만든다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
-                val provider = fixtureMonkey.giveMeOne<MapProvider>()
+                val qr = Arb.qr(isDeleted = false).next()
+                val provider = Arb.enum<MapProvider>().next()
                 val viewModel = viewModel(qr = qr, findResult = flowOf(Result.success(qr)), provider = provider)
                 collectUiState(viewModel)
 
@@ -67,7 +67,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-5a5b29f7-020d-42cd-b72d-4d2d32798b6a 조회할 수 없거나 조회에 실패하면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
 
                 listOf<Result<Qr?>>(Result.success(null), Result.failure(IllegalStateException())).forEach { result ->
                     val viewModel = viewModel(qr = qr, findResult = flowOf(result))
@@ -80,11 +80,11 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장 내용이 바뀌면 최신 저장 내용으로 내용 상태를 갱신한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val stored = MutableStateFlow(Result.success<Qr?>(qr))
                 val viewModel = viewModel(qr = qr, findResult = stored)
                 collectUiState(viewModel)
-                val changed = qr.copy(detail = fixtureMonkey.qrDetail())
+                val changed = qr.copy(detail = Arb.qrDetail().next())
 
                 stored.value = Result.success(changed)
                 runCurrent()
@@ -95,7 +95,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-94215a34-ec84-474f-8e4e-9f1c803a4123 대상 QR이 삭제 상태가 되어도 내용 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val stored = MutableStateFlow(Result.success<Qr?>(qr))
                 val viewModel = viewModel(qr = qr, findResult = stored)
                 collectUiState(viewModel)
@@ -109,8 +109,8 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-6eac81d7-9218-4b4d-a57e-205557922e2e 수정에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
-                val detail = fixtureMonkey.qrDetail()
+                val qr = Arb.qr(isDeleted = false).next()
+                val detail = Arb.qrDetail().next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = UpdateQrUseCase.Parameter(id = qr.id, detail = detail)) } returns Result.success(1)
                 val viewModel = viewModel(qr = qr, updateQrUseCase = updateQrUseCase)
@@ -130,8 +130,8 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-153eb53d-f3c0-40fc-90e8-dad2749d8e37 QR 값이 비어 있으면 QR 내용 미입력 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
-                val detail = fixtureMonkey.qrDetail(value = "")
+                val qr = Arb.qr(isDeleted = false).next()
+                val detail = Arb.qrDetail(value = "").next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = any()) } returns Result.failure(QrValueEmptyException())
                 val viewModel = viewModel(qr = qr, updateQrUseCase = updateQrUseCase)
@@ -148,14 +148,14 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-69797177-9c6a-4a07-9ba0-c2b3456f28cb 수정에 실패하면 Effect 없이 진행 상태만 해제한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(qr = qr, updateQrUseCase = updateQrUseCase)
                 collectUiState(viewModel)
 
                 viewModel.effect.test {
-                    viewModel.update(detail = fixtureMonkey.qrDetail())
+                    viewModel.update(detail = Arb.qrDetail().next())
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -167,7 +167,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-84cc1f19-bc56-4814-a68f-4515f6341e96 TC-b92856e6-8878-4d39-a0f2-b7bc32b3e0d3 수정과 삭제를 처리하는 동안 각각의 진행 상태를 표시한다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = any()) } coAnswers { CompletableDeferred<Result<Int>>().await() }
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -175,7 +175,7 @@ class QrDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(qr = qr, updateQrUseCase = updateQrUseCase, deleteQrUseCase = deleteQrUseCase)
                 collectUiState(viewModel)
 
-                viewModel.update(detail = fixtureMonkey.qrDetail())
+                viewModel.update(detail = Arb.qrDetail().next())
                 runCurrent()
                 viewModel.content().isUpdateInProgress.shouldBeTrue()
                 viewModel.content().isDeleteInProgress.shouldBeFalse()
@@ -188,7 +188,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-0aadb52b-f4a6-4bc0-8a09-5c9199f61191 삭제에 성공하면 삭제 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
                 coEvery { deleteQrUseCase(parameter = qr.id) } returns Result.success(1)
                 val viewModel = viewModel(qr = qr, deleteQrUseCase = deleteQrUseCase)
@@ -205,7 +205,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-cbfe4221-3939-44f4-9df0-58694614893d 삭제에 실패하면 Effect 없이 진행 상태만 해제하고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
                 coEvery { deleteQrUseCase(parameter = qr.id) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(qr = qr, deleteQrUseCase = deleteQrUseCase)
@@ -227,18 +227,18 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-b5ffe15e-b5a8-4f42-9fbf-6bec81e647ed 같은 종류의 요청은 처리 중에 다시 처리하지 않고 다른 종류는 제한하지 않는다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = any()) } coAnswers { CompletableDeferred<Result<Int>>().await() }
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
                 coEvery { deleteQrUseCase(parameter = qr.id) } coAnswers { CompletableDeferred<Result<Int>>().await() }
                 val viewModel = viewModel(qr = qr, updateQrUseCase = updateQrUseCase, deleteQrUseCase = deleteQrUseCase)
 
-                viewModel.update(detail = fixtureMonkey.qrDetail())
+                viewModel.update(detail = Arb.qrDetail().next())
                 runCurrent()
                 viewModel.delete()
                 runCurrent()
-                viewModel.update(detail = fixtureMonkey.qrDetail())
+                viewModel.update(detail = Arb.qrDetail().next())
                 viewModel.delete()
                 runCurrent()
 
@@ -249,7 +249,7 @@ class QrDetailViewModelTest : FunSpec() {
 
         test("TC-b5ffe15e-b5a8-4f42-9fbf-6bec81e647ed 삭제를 처리하는 동안 실행한 수정은 요청된다") {
             runTest(mainDispatcher) {
-                val qr = fixtureMonkey.qr(isDeleted = false)
+                val qr = Arb.qr(isDeleted = false).next()
                 val updateQrUseCase = mockk<UpdateQrUseCase>()
                 coEvery { updateQrUseCase(parameter = any()) } returns Result.success(1)
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -258,7 +258,7 @@ class QrDetailViewModelTest : FunSpec() {
 
                 viewModel.delete()
                 runCurrent()
-                viewModel.update(detail = fixtureMonkey.qrDetail())
+                viewModel.update(detail = Arb.qrDetail().next())
                 runCurrent()
 
                 coVerify(exactly = 1) { updateQrUseCase(parameter = any()) }
@@ -274,8 +274,6 @@ class QrDetailViewModelTest : FunSpec() {
     private fun QrDetailViewModel.content(): QrDetailUiState.Content = uiState.value.shouldBeInstanceOf<QrDetailUiState.Content>()
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun viewModel(
             qr: Qr,
             findResult: Flow<Result<Qr?>> = flowOf(Result.success(qr)),

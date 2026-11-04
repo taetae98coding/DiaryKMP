@@ -3,18 +3,19 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.domain.contact.exception.ContactNameBlankException
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.usecase.AddContactUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -46,8 +47,8 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("TC-becc61c6-c351-4436-b37c-89398688eabc 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val firstDetail = detail(name = "first-${fixtureMonkey.giveMeOne<String>()}")
-                val secondDetail = detail(name = "second-${fixtureMonkey.giveMeOne<String>()}")
+                val firstDetail = detail(name = "first-${Arb.string().next()}")
+                val secondDetail = detail(name = "second-${Arb.string().next()}")
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
@@ -65,14 +66,14 @@ class ContactAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = firstDetail)) }
                 coVerify(exactly = 0) { useCase(AddContactUseCase.Parameter(detail = secondDetail)) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
             }
         }
 
         test("TC-88536863-d156-4aa9-b193-9892b2f05bb0 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val addedId = fixtureMonkey.giveMeOne<Uuid>()
+                val addedId = Arb.kotlinUuid().next()
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(any()) } returns Result.success(addedId)
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
@@ -134,7 +135,7 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("TC-9780b7bf-e071-48e1-869d-2c1eaf10ab59 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val detail = detail().copy(description = "description-${fixtureMonkey.giveMeOne<String>()}", phoneNumberList = listOf(ContactPhoneNumber(number = "phone-${fixtureMonkey.giveMeOne<String>()}")))
+                val detail = detail().copy(description = "description-${Arb.string().next()}", phoneNumberList = listOf(ContactPhoneNumber(number = "phone-${Arb.string().next()}")))
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
@@ -170,7 +171,7 @@ class ContactAddViewModelTest : FunSpec() {
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
@@ -180,11 +181,11 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val firstDetail = detail(name = "first-${fixtureMonkey.giveMeOne<String>()}")
-                val secondDetail = detail(name = "second-${fixtureMonkey.giveMeOne<String>()}")
+                val firstDetail = detail(name = "first-${Arb.string().next()}")
+                val secondDetail = detail(name = "second-${Arb.string().next()}")
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(AddContactUseCase.Parameter(detail = firstDetail)) } throws CancellationException()
-                coEvery { useCase(AddContactUseCase.Parameter(detail = secondDetail)) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(AddContactUseCase.Parameter(detail = secondDetail)) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                 viewModel.add(detail = firstDetail)
@@ -203,11 +204,8 @@ class ContactAddViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private val BLANK_TEXT_LIST: List<String> = listOf("", "  ")
 
-        private fun detail(name: String = "name-${fixtureMonkey.giveMeOne<String>()}"): ContactDetail = ContactDetail.EMPTY.copy(name = name)
+        private fun detail(name: String = "name-${Arb.string().next()}"): ContactDetail = ContactDetail.EMPTY.copy(name = name)
     }
 }

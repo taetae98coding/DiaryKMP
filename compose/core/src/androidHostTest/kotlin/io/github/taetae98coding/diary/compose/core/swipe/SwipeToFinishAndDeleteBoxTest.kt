@@ -22,11 +22,11 @@ import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -167,7 +167,7 @@ class SwipeToFinishAndDeleteBoxTest {
 
     @Test
     fun `TC-8e09f82b-f00e-4a05-80c9-ad686dc4a674 다른 항목을 표시하면 스와이프 상태가 초기화된다`() {
-        val firstKey = fixtureMonkey.giveMeOne<Long>()
+        val firstKey = Arb.long().next()
         var key by mutableStateOf(firstKey)
         var finishCount = 0
         composeRule.setContent {
@@ -198,7 +198,7 @@ class SwipeToFinishAndDeleteBoxTest {
 
     @Test
     fun `TC-4ab185ab-69a1-43fc-ba66-3bfcd937a724 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시되고 동작을 다시 실행하지 않는다`() {
-        val key = fixtureMonkey.giveMeOne<Long>()
+        val key = Arb.long().next()
         var isShown by mutableStateOf(true)
         var finishCount = 0
         var deleteCount = 0
@@ -346,7 +346,5 @@ class SwipeToFinishAndDeleteBoxTest {
         private const val CONTENT_TEXT = "SwipeToFinishAndDeleteContent"
         private val CIRCLE_ICON_SIZE = 16.dp
         private val ACTION_ICON_SIZE = 32.dp
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

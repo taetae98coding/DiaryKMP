@@ -35,8 +35,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -49,11 +47,13 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,8 +74,6 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -438,7 +436,7 @@ class CalendarTimetableScreenDisplayTest {
     private fun birthday(
         name: String,
         day: Int,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = name, nameQualifier = "", date = september(day = day))
+    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = "", date = september(day = day))
 
     private fun scrollToAllDay() {
         composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).performScrollTo()
@@ -615,7 +613,7 @@ class CalendarTimetableScreenDisplayTest {
     private fun memo(
         title: String,
         dateTime: MemoDateTime,
-    ): CalendarMemo = fixtureMonkey.calendarMemo(dateTime = dateTime, title = title)
+    ): CalendarMemo = Arb.calendarMemo(dateTime = dateTime, title = title).next()
 
     private fun holiday(
         name: String,

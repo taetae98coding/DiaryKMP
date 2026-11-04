@@ -29,8 +29,6 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
@@ -38,8 +36,11 @@ import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGem
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.DEFAULT_NAVIGATE_UP_DESCRIPTION
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -57,8 +58,6 @@ import kotlin.uuid.Uuid
 
 private const val API_KEY_INDEX = 0
 private const val SYSTEM_PROMPT_INDEX = 1
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -173,7 +172,7 @@ class SettingGeminiScreenTest {
 
     @Test
     fun `TC-bf792eb2-1157-4aa7-9dc1-849d7f0e871b 인증 정보에 공백만 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
-        val systemPrompt = "prompt" + fixtureMonkey.giveMeOne<Int>()
+        val systemPrompt = "prompt" + Arb.int().next()
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
         setScreen(
             settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY.copy(apiKey = "   ", systemPrompt = systemPrompt))),
@@ -753,15 +752,15 @@ class SettingGeminiScreenTest {
         private const val DEFAULT_API_KEY_ISSUE_OPEN_FAILED_MESSAGE = "Couldn't open the page."
         private const val API_KEY_ISSUE_URL = "https://aistudio.google.com/api-keys"
 
-        private fun storedApiKey(): String = "storedApiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun storedApiKey(): String = "storedApiKey${Arb.kotlinUuid().next()}"
 
-        private fun editingApiKey(): String = "editingApiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun editingApiKey(): String = "editingApiKey${Arb.kotlinUuid().next()}"
 
-        private fun editingSuffix(): String = "editing${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun editingSuffix(): String = "editing${Arb.kotlinUuid().next()}"
 
-        private fun modelId(): String = "models/${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun modelId(): String = "models/${Arb.kotlinUuid().next()}"
 
-        private fun systemPrompt(): String = "지시문 ${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun systemPrompt(): String = "지시문 ${Arb.kotlinUuid().next()}"
 
         private fun geminiSetting(model: String = modelId()): GeminiSetting =
             GeminiSetting(
@@ -772,7 +771,7 @@ class SettingGeminiScreenTest {
 
         private fun modelList(): List<GeminiModel> =
             List(2) {
-                val suffix = fixtureMonkey.giveMeOne<Uuid>()
+                val suffix = Arb.kotlinUuid().next()
                 GeminiModel(id = "models/$suffix", displayName = "Gemini $suffix", description = "설명 $suffix")
             }
 

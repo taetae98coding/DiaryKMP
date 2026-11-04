@@ -1,16 +1,17 @@
 package io.github.taetae98coding.diary.core.file.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.file.api.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.randomByteArray
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -24,14 +25,11 @@ import kotlinx.io.RawSink
 import java.io.File
 import java.nio.file.Files
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class JvmFileDownloadLocalDataSourceTest :
     FunSpec({
         test("TC-fa368167-d81a-4307-a63d-7e49c56ec884 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 받은 내용을 그대로 저장한다") {
             runTest {
-                val bytes = fixtureMonkey.giveMeOne<ByteArray>()
+                val bytes = Arb.randomByteArray().next()
                 val chosen = Files.createTempDirectory("chosen").toFile()
                 val defaultDirectory = Files.createTempDirectory("home").toFile().resolve("Downloads")
                 val dataSource = dataSource(defaultDirectory = defaultDirectory)
@@ -126,7 +124,7 @@ class JvmFileDownloadLocalDataSourceTest :
             runTest {
                 val directory = Files.createTempDirectory("retain").toFile()
                 val file = Files.createTempFile("retain", ".txt").toFile()
-                val bookmark = fixtureMonkey.giveMeOne<String>()
+                val bookmark = Arb.string().next()
                 val directoryBookmark = mockk<DirectoryBookmark>()
                 every { directoryBookmark.create(path = directory.absolutePath) } returns bookmark
                 val dataSource = dataSource(directoryBookmark = directoryBookmark)
@@ -140,7 +138,7 @@ class JvmFileDownloadLocalDataSourceTest :
         test("북마크를 만들지 못하면 폴더를 기억하지 않고 실패한다") {
             runTest {
                 val directory = Files.createTempDirectory("retain").toFile()
-                val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                val exception = IllegalStateException(Arb.string().next())
                 val directoryBookmark = mockk<DirectoryBookmark>()
                 every { directoryBookmark.create(path = any()) } throws exception
 
@@ -153,7 +151,7 @@ class JvmFileDownloadLocalDataSourceTest :
         test("TC-fa368167-d81a-4307-a63d-7e49c56ec884 북마크가 있는 폴더에는 접근을 얻은 동안에만 쓰고, 다 쓴 뒤 접근을 돌려준다") {
             runTest {
                 val directory = Files.createTempDirectory("scoped").toFile()
-                val bookmark = fixtureMonkey.giveMeOne<String>()
+                val bookmark = Arb.string().next()
                 val access = mockk<AutoCloseable>(relaxUnitFun = true)
                 val directoryBookmark = mockk<DirectoryBookmark>()
                 every { directoryBookmark.startAccessing(bookmark = bookmark) } returns access
@@ -179,11 +177,11 @@ class JvmFileDownloadLocalDataSourceTest :
             runTest {
                 val directory = Files.createTempDirectory("scoped").toFile()
                 val directoryBookmark = mockk<DirectoryBookmark>()
-                every { directoryBookmark.startAccessing(bookmark = any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                every { directoryBookmark.startAccessing(bookmark = any()) } throws IllegalStateException(Arb.string().next())
 
                 shouldThrow<FileDownloadDirectoryUnavailableException> {
                     dataSource(directoryBookmark = directoryBookmark).save(
-                        directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = fixtureMonkey.nonBlankString()),
+                        directory = FileDownloadDirectory(uri = directory.absolutePath, name = directory.name, bookmark = Arb.nonBlankString().next()),
                         nameCandidate = { "report.pdf" },
                         write = {},
                     )

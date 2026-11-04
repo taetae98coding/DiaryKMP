@@ -1,10 +1,9 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
@@ -13,7 +12,8 @@ import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepos
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoWebRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -23,6 +23,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -39,8 +42,8 @@ import kotlin.uuid.Uuid
 class CopyMemoUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정의 메모와 복사 시점이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val source = memo()
             val memoSlot = slot<Memo>()
             val tagIdSetSlot = slot<Set<Uuid>>()
@@ -105,7 +108,7 @@ class CopyMemoUseCaseTest :
         }
 
         Given("복사본 저장과 동기화 요청이 성공하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val source = memo()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -124,7 +127,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -158,7 +161,7 @@ class CopyMemoUseCaseTest :
             "삭제된" to memo().copy(isFinished = false, isDeleted = true),
         ).forEach { (label, source) ->
             Given("$label 메모가 준비되어 있다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val account = Arb.accountUser().next()
                 val memoSlot = slot<Memo>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -177,7 +180,7 @@ class CopyMemoUseCaseTest :
                 coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
                 coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
                 val clock = mockk<Clock>()
-                every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+                every { clock.now() } returns Arb.secondPrecisionInstant().next()
                 val useCase =
                     CopyMemoUseCase(
                         getAccountUseCase = getAccountUseCase,
@@ -204,9 +207,9 @@ class CopyMemoUseCaseTest :
         }
 
         Given("연결된 태그와 대표 태그를 가진 메모가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val primaryTagId = Arb.kotlinUuid().next()
+            val otherTagId = Arb.kotlinUuid().next()
             val source = memo().copy(primaryTagId = primaryTagId)
             val memoSlot = slot<Memo>()
             val tagIdSetSlot = slot<Set<Uuid>>()
@@ -227,7 +230,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns setOf(primaryTagId, otherTagId)
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -253,9 +256,9 @@ class CopyMemoUseCaseTest :
         }
 
         Given("연결된 웹 항목을 가진 메모가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val firstWebId = fixtureMonkey.giveMeOne<Uuid>()
-            val secondWebId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val firstWebId = Arb.kotlinUuid().next()
+            val secondWebId = Arb.kotlinUuid().next()
             val source = memo()
             val webIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -277,7 +280,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoPlaceRepository.readPlaceIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns setOf(firstWebId, secondWebId)
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -316,8 +319,8 @@ class CopyMemoUseCaseTest :
         }
 
         Given("연결된 태그가 없고 대표 태그만 남은 메모가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val primaryTagId = Arb.kotlinUuid().next()
             val source = memo().copy(primaryTagId = primaryTagId)
             val tagIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -337,7 +340,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -362,9 +365,9 @@ class CopyMemoUseCaseTest :
         }
 
         Given("장소가 연결된 메모가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val firstPlaceId = fixtureMonkey.giveMeOne<Uuid>()
-            val secondPlaceId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val firstPlaceId = Arb.kotlinUuid().next()
+            val secondPlaceId = Arb.kotlinUuid().next()
             val source = memo()
             val placeIdSetSlot = slot<Set<Uuid>>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -384,7 +387,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -423,7 +426,7 @@ class CopyMemoUseCaseTest :
         }
 
         Given("대표 태그가 없고 연결된 태그도 없는 메모가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val source = memo().copy(primaryTagId = null)
             val memoSlot = slot<Memo>()
             val tagIdSetSlot = slot<Set<Uuid>>()
@@ -444,7 +447,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -470,8 +473,8 @@ class CopyMemoUseCaseTest :
         }
 
         Given("복사할 메모를 조회할 수 없도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -508,9 +511,9 @@ class CopyMemoUseCaseTest :
         }
 
         Given("메모 조회가 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val findMemoUseCase = mockk<FindMemoUseCase>()
@@ -547,8 +550,8 @@ class CopyMemoUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val memoId = Arb.kotlinUuid().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val findMemoUseCase = mockk<FindMemoUseCase>(relaxed = true)
@@ -584,7 +587,7 @@ class CopyMemoUseCaseTest :
         }
 
         Given("같은 메모를 두 번 연속으로 복사한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val source = memo()
             val capturedMemoList = mutableListOf<Memo>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -604,7 +607,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.readWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.readTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -631,14 +634,13 @@ class CopyMemoUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

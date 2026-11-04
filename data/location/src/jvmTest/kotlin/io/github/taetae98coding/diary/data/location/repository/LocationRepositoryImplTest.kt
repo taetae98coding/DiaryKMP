@@ -1,29 +1,28 @@
 package io.github.taetae98coding.diary.data.location.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
+import io.github.taetae98coding.diary.core.testing.location.location
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class LocationRepositoryImplTest :
     FunSpec({
         test("TC-2c496166-aa66-4845-806c-f298bfa324bf 디바이스 위치를 우선 사용한다") {
-            val deviceLocation = fixtureMonkey.giveMeOne<Location>()
-            val ipRemoteDataSource = ipRemoteDataSource(entity = fixtureMonkey.giveMeOne())
+            val deviceLocation = Arb.location().next()
+            val ipRemoteDataSource = ipRemoteDataSource(entity = Arb.ipRemoteEntity().next())
             val repository =
                 repository(
                     locationProvider = locationProvider(location = deviceLocation),
@@ -36,7 +35,7 @@ class LocationRepositoryImplTest :
         }
 
         test("TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 디바이스 위치를 확인하지 못한 모든 조건에서 공인 IP 기준 위치를 사용한다") {
-            val ipEntity = fixtureMonkey.giveMeOne<IpRemoteEntity>()
+            val ipEntity = Arb.ipRemoteEntity().next()
             val repository =
                 repository(
                     locationProvider = locationProvider(location = null),
@@ -48,7 +47,7 @@ class LocationRepositoryImplTest :
         }
 
         test("TC-9fcbe51f-442e-4407-a375-fa4ff12e4175 공인 IP 기준 위치 조회에 실패하면 현재 위치를 확인하지 못한다") {
-            val failure = LocationRepositoryTestException(fixtureMonkey.giveMeOne())
+            val failure = LocationRepositoryTestException(Arb.string().next())
             val ipRemoteDataSource = mockk<IpRemoteDataSource>()
             coEvery { ipRemoteDataSource.get() } throws failure
             val repository =
@@ -63,7 +62,7 @@ class LocationRepositoryImplTest :
         }
 
         test("디바이스 위치를 확인할 때마다 공인 IP 기준 위치 조회를 한 번만 요청한다") {
-            val ipRemoteDataSource = ipRemoteDataSource(entity = fixtureMonkey.giveMeOne())
+            val ipRemoteDataSource = ipRemoteDataSource(entity = Arb.ipRemoteEntity().next())
             val repository =
                 repository(
                     locationProvider = locationProvider(location = null),

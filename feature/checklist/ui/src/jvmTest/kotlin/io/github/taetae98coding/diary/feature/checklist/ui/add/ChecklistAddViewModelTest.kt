@@ -3,14 +3,15 @@
 package io.github.taetae98coding.diary.feature.checklist.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistTitleBlankException
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -43,7 +44,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
-                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.effect.test {
@@ -63,7 +64,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
                 coEvery { addChecklistUseCase(parameter = parameter) } coAnswers {
                     gate.await()
-                    Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                    Result.success(Arb.kotlinUuid().next())
                 }
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
@@ -83,7 +84,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
-                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.effect.test {
@@ -119,7 +120,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
                 coEvery { addChecklistUseCase(parameter = any()) } coAnswers {
                     gate.await()
-                    Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                    Result.success(Arb.kotlinUuid().next())
                 }
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
@@ -137,7 +138,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val parameter = parameter()
                 val addChecklistUseCase = mockk<AddChecklistUseCase>()
-                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { addChecklistUseCase(parameter = parameter) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
@@ -151,15 +152,12 @@ class ChecklistAddViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private const val ITEM_COUNT = 3
 
         private fun parameter(): AddChecklistUseCase.Parameter =
             AddChecklistUseCase.Parameter(
-                detail = fixtureMonkey.checklistDetail(),
-                itemContentList = List(ITEM_COUNT) { index -> "item-$index-" + fixtureMonkey.giveMeOne<String>() },
+                detail = Arb.checklistDetail().next(),
+                itemContentList = List(ITEM_COUNT) { index -> "item-$index-" + Arb.string().next() },
             )
     }
 }

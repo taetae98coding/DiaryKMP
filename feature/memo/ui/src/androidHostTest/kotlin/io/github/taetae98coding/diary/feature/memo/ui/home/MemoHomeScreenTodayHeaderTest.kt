@@ -16,9 +16,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -28,10 +25,14 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -251,8 +252,6 @@ class MemoHomeScreenTodayHeaderTest {
         private const val KOREAN_TODAY_HEADER = "오늘"
         private val DEFAULT_MONTH_NAMES =
             listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private const val PREVIOUS_TODAY_TITLE = "PreviousTodayMemoTitle"
         private const val NEW_TODAY_TITLE = "NewTodayMemoTitle"
@@ -271,17 +270,19 @@ class MemoHomeScreenTodayHeaderTest {
             date: LocalDate,
             title: String? = null,
         ): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(
-                    Memo::detail,
-                    fixtureMonkey
-                        .giveMeOne<MemoDetail>()
-                        .let { detail -> if (title == null) detail else detail.copy(title = title) }
-                        .copy(dateTime = MemoDateTime.AllDay(dateRange = date..date)),
-                ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail =
+                        Arb
+                            .memoDetail()
+                            .next()
+                            .let { detail -> if (title == null) detail else detail.copy(title = title) }
+                            .copy(dateTime = MemoDateTime.AllDay(dateRange = date..date)),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun dateHeader(text: String): SemanticsMatcher = hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(text)
     }

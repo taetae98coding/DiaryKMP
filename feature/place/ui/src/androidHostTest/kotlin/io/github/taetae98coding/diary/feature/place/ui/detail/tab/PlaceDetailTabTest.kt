@@ -22,12 +22,11 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.core.testing.place.searchedPlace
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
@@ -57,18 +56,17 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.setPlaceDetailScre
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.refreshableList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -297,7 +295,7 @@ class PlaceDetailTabTest {
         // 검색 다이얼로그는 지도를 포함해 호스트 테스트 환경에서 띄울 수 없으므로, 검색 결과를 고른 것과 같은 반영을 화면 상태에 직접 적용한다.
         val placeTitle = newPlaceTitle()
         val detail = placeDetail(title = placeTitle)
-        val place = fixtureMonkey.giveMeOne<SearchedPlace>().copy(coordinate = fixtureMonkey.coordinateInFormPrecision())
+        val place = Arb.searchedPlace().next().copy(coordinate = Arb.coordinateInFormPrecision().next())
         lateinit var formState: PlaceFormState
         preparePlaceDetailTabViewModels()
         composeRule.setContent {
@@ -393,8 +391,8 @@ class PlaceDetailTabTest {
         const val MEMO_COUNT = 30
         const val PAGE_TIMEOUT_MILLIS = 5_000L
 
-        fun newPlaceTitle(): String = "PlaceTitle${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+        fun newPlaceTitle(): String = "PlaceTitle${Arb.string().next().filter(Char::isLetterOrDigit)}"
 
-        fun newMemoTitle(): String = "PlaceMemo${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+        fun newMemoTitle(): String = "PlaceMemo${Arb.string().next().filter(Char::isLetterOrDigit)}"
     }
 }

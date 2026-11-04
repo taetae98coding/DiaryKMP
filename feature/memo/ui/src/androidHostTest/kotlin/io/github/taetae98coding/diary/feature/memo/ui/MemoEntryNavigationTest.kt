@@ -37,8 +37,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -117,8 +115,10 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -151,12 +151,12 @@ class MemoEntryNavigationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey)
-    private val homeMemo: Memo = fixtureMonkey.memo(title = HOME_MEMO_TITLE)
+    private val homeMemo: Memo = Arb.memo(title = HOME_MEMO_TITLE).next()
     private val storedHomeMemoList = MutableStateFlow(listOf(homeMemo))
     private var finishedMemoList: List<Memo> = emptyList()
     private val finishedPagingData = MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
     private val detailContentMap = mutableMapOf<Uuid, DetailContent>()
-    private var copiedId: Uuid = fixtureMonkey.giveMeOne<Uuid>()
+    private var copiedId: Uuid = Arb.kotlinUuid().next()
     private var isGeminiSettingMissing: Boolean = false
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
@@ -173,7 +173,7 @@ class MemoEntryNavigationTest {
 
     @Test
     fun `TC-527627f5-3cbc-4326-b0d3-62be6c057fea 복사에 성공하면 상세 대상이 복사본 메모의 저장된 내용으로 바뀐다`() {
-        val originalId = fixtureMonkey.giveMeOne<Uuid>()
+        val originalId = Arb.kotlinUuid().next()
         val original = detailContent(prefix = ORIGINAL_PREFIX, color = ORIGINAL_COLOR, dateTime = null)
         val copied = detailContent(prefix = COPIED_PREFIX, color = COPIED_COLOR, dateTime = allDayDateTime())
         detailContentMap[originalId] = original
@@ -208,7 +208,7 @@ class MemoEntryNavigationTest {
 
         entryKeyList().forEach { entryKey ->
             listOf(::clickNavigateUp, ::pressBack).forEach { navigateBack ->
-                val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
                 showDetail(entryKey = entryKey, detailKey = detailKey)
 
                 navigateBack()
@@ -223,7 +223,7 @@ class MemoEntryNavigationTest {
         setMemoNavDisplay()
 
         entryKeyList().forEach { entryKey ->
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             showDetail(entryKey = entryKey, detailKey = detailKey)
 
             composeRule.onNode(actionButton(DEFAULT_DELETE_BUTTON_DESCRIPTION)).performClick()
@@ -237,7 +237,7 @@ class MemoEntryNavigationTest {
     fun `TC-a6baf1a0-fcf7-4d4c-beb0-649aeca097ca 뒤로가기를 사용하면 MemoAdd 화면이 닫히고 진입하기 전 화면이 표시된다`() {
         setMemoNavDisplay()
 
-        listOf(MemoHomeNavKey, TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())).forEach { entryKey ->
+        listOf(MemoHomeNavKey, TagDetailNavKey(id = Arb.kotlinUuid().next())).forEach { entryKey ->
             listOf(::clickNavigateUp, ::pressBack).forEach { navigateBack ->
                 composeRule.runOnIdle { backStack.replaceAll(listOf(entryKey, MemoAddNavKey())) }
                 composeRule.waitForIdle()
@@ -258,7 +258,7 @@ class MemoEntryNavigationTest {
         backStack.replaceAll(listOf(MemoHomeNavKey, MemoAddNavKey()))
         setMemoNavDisplay()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(ADD_INPUT_TITLE)
-        val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         composeRule.runOnIdle { backStack.add(detailKey) }
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(detailContentOf(detailKey.id).title).onFirst().assertExists()
@@ -278,7 +278,7 @@ class MemoEntryNavigationTest {
         setMemoNavDisplay()
 
         listOf(::pressBack, ::deleteOnDetail).forEach { leaveDetail ->
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, detailKey)) }
             composeRule.waitForIdle()
             composeRule.onAllNodesWithText(detailContentOf(detailKey.id).title).onFirst().assertExists()
@@ -314,7 +314,7 @@ class MemoEntryNavigationTest {
 
     @Test
     fun `TC-88767c4e-e929-48a6-9ef7-195dce9b2e0b 상세 화면에서 다시 시작하거나 삭제한 뒤 돌아오면 그 메모가 완료된 메모 목록에서 사라진다`() {
-        finishedMemoList = List(FINISHED_MEMO_COUNT) { index -> fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null).withTitle(finishedTitle(index)) }
+        finishedMemoList = List(FINISHED_MEMO_COUNT) { index -> Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next().withTitle(finishedTitle(index)) }
         finishedPagingData.value = finishedMemoList.toPagingData()
         backStack.replaceAll(listOf(MemoHomeNavKey, MemoFinishedListNavKey))
         setMemoNavDisplay()
@@ -339,7 +339,7 @@ class MemoEntryNavigationTest {
     @Test
     fun `TC-061303d8-59e2-40eb-aec4-eca114a536e4 TC-0b0bd3c2-f4dd-4f43-b06d-6fabb9f1b5a9 설정이 갖춰지지 않아 SettingGemini 화면에 다녀와도 메모 입력이 남는다`() {
         isGeminiSettingMissing = true
-        val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         setMemoNavDisplay()
 
         listOf(MemoAddNavKey(), detailKey).forEach { memoKey ->
@@ -621,13 +621,12 @@ class MemoEntryNavigationTest {
         const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Write with Gemini"
         const val TITLE_INPUT_INDEX = 0
         const val DESCRIPTION_INPUT_INDEX = 1
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun entryKeyList(): List<ScreenNavKey> {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
+            val contactId = Arb.kotlinUuid().next()
+            val placeId = Arb.kotlinUuid().next()
+            val webId = Arb.kotlinUuid().next()
 
             return listOf(
                 MemoHomeNavKey,

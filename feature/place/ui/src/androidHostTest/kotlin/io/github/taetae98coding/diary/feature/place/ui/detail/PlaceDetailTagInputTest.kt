@@ -14,7 +14,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
@@ -27,8 +26,9 @@ import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
@@ -38,8 +38,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -116,7 +114,7 @@ class PlaceDetailTagInputTest {
      */
     @Test
     fun `TC-1f48861e-d312-4334-8d4f-a251df532203 태그를 연결하거나 해제해도 지도가 보고 있는 위치와 지점 표시는 바뀌지 않는다`() {
-        val detail = placeDetail(coordinate = fixtureMonkey.coordinateInFormPrecision())
+        val detail = placeDetail(coordinate = Arb.coordinateInFormPrecision().next())
         val savedCoordinate = detail.coordinate.toDiaryMapCoordinate()
         val tag = placeTestTag(title = SELECTABLE_TAG_TITLE)
         val tagUiState = mutableStateOf(EntityTagInputUiState())

@@ -24,8 +24,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -66,8 +64,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -138,7 +138,7 @@ class MemoFinishedListDetailNavigationTest {
     @Test
     fun `TC-e43cbca2-ba1c-4a39-9784-d783cf8ce485 복사한 메모 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
         val memoList = memoList()
-        val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+        val copiedId = Arb.kotlinUuid().next()
         setMemoNavDisplay(memoList = memoList, copiedId = copiedId)
         selectMemo(memoList[0])
         composeRule.onNode(actionButton(DEFAULT_COPY_BUTTON_DESCRIPTION)).performClick()
@@ -185,7 +185,7 @@ class MemoFinishedListDetailNavigationTest {
 
     private fun setMemoNavDisplay(
         memoList: List<Memo>,
-        copiedId: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+        copiedId: Uuid = Arb.kotlinUuid().next(),
     ) {
         finishedMemoList = memoList
         finishedPagingData.value = memoPagingDataOf(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) })
@@ -294,7 +294,6 @@ class MemoFinishedListDetailNavigationTest {
         const val MEMO_COUNT = 3
         const val TOP_LEVEL_CONTENT = "TopLevelContent"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a memo"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun listTitle(index: Int): String = "MemoFinishedListDetailTitle$index"
 
@@ -304,7 +303,7 @@ class MemoFinishedListDetailNavigationTest {
 
         fun memoList(): List<Memo> =
             List(MEMO_COUNT) { index ->
-                fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null).let { memo ->
+                Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next().let { memo ->
                     memo.copy(detail = memo.detail.copy(title = listTitle(index = index), dateTime = null))
                 }
             }

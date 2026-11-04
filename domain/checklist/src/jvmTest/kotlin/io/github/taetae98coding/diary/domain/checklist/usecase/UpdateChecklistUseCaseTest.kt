@@ -1,19 +1,24 @@
 package io.github.taetae98coding.diary.domain.checklist.usecase
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,7 +35,7 @@ class UpdateChecklistUseCaseTest :
             UpdateInput(title = "   ", description = "여름", isStoredTitleUsed = true),
         ).forEach { (title, description, isStoredTitleUsed) ->
             Given("현재 계정과 연결된 체크리스트가 있고 제목 '$title', 설명 '$description' 이 입력되어 있다") {
-                val context = UpdateContext(account = fixtureMonkey.giveMeOne<Account.User>())
+                val context = UpdateContext(account = Arb.accountUser().next())
                 context.stubUpdatedCount(updatedCount = 1)
 
                 When("수정을 반영한다") {
@@ -58,9 +63,9 @@ class UpdateChecklistUseCaseTest :
         }
 
         Given("로그인하지 않아 게스트 계정이 확인된다") {
-            val context = UpdateContext(account = fixtureMonkey.giveMeOne<Account.Guest>())
+            val context = UpdateContext(account = Arb.constant(Account.Guest).next())
             context.stubUpdatedCount(updatedCount = 1)
-            val detail = fixtureMonkey.checklistDetail()
+            val detail = Arb.checklistDetail().next()
 
             When("수정을 반영한다") {
                 context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = detail)).shouldBeSuccess(1)
@@ -79,11 +84,11 @@ class UpdateChecklistUseCaseTest :
         }
 
         Given("현재 계정과 연결된 체크리스트가 기기에 없다") {
-            val context = UpdateContext(account = fixtureMonkey.giveMeOne<Account.User>())
+            val context = UpdateContext(account = Arb.accountUser().next())
             context.stubUpdatedCount(updatedCount = 0)
 
             When("수정을 반영한다") {
-                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = fixtureMonkey.checklistDetail()))
+                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = Arb.checklistDetail().next()))
 
                 Then("TC-fd1241c1-0667-4741-a1de-10602a660b42 바뀐 체크리스트가 없음을 전달한다") {
                     result.shouldBeSuccess(0)
@@ -92,12 +97,12 @@ class UpdateChecklistUseCaseTest :
         }
 
         Given("기기 저장이 실패하도록 설정되어 있다") {
-            val context = UpdateContext(account = fixtureMonkey.giveMeOne<Account.User>())
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val context = UpdateContext(account = Arb.accountUser().next())
+            val throwable = IllegalStateException(Arb.string().next())
             coEvery { context.repository.updateDetail(account = any(), checklistId = any(), detail = any(), updatedAt = any()) } throws throwable
 
             When("수정을 반영한다") {
-                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = fixtureMonkey.checklistDetail()))
+                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = Arb.checklistDetail().next()))
 
                 Then("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -107,12 +112,12 @@ class UpdateChecklistUseCaseTest :
         }
 
         Given("현재 계정 조회가 실패하도록 설정되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val context = UpdateContext(account = null, accountFailure = throwable)
             context.stubUpdatedCount(updatedCount = 1)
 
             When("수정을 반영한다") {
-                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = fixtureMonkey.checklistDetail()))
+                val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = Arb.checklistDetail().next()))
 
                 Then("아무것도 저장하지 않고 계정 조회 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -132,8 +137,8 @@ private class UpdateContext(
     val account: Account?,
     accountFailure: Throwable? = null,
 ) {
-    val checklist: Checklist = fixtureMonkey.checklist(isDeleted = false)
-    val now: Instant = fixtureMonkey.giveMeOne()
+    val checklist: Checklist = Arb.checklist(isDeleted = false).next()
+    val now: Instant = Arb.secondPrecisionInstant().next()
     val requestSyncUseCase: RequestSyncUseCase = requestSyncUseCase()
     val repository: AccountChecklistRepository = mockk()
     private val getAccountUseCase: GetAccountUseCase =

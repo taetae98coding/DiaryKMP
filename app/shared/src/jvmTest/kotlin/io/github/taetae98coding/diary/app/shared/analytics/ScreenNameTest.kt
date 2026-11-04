@@ -2,8 +2,6 @@
 
 package io.github.taetae98coding.diary.app.shared.analytics
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageEditNavKey
@@ -60,11 +58,14 @@ import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -102,8 +103,8 @@ class ScreenNameTest :
         }
 
         test("TC-16c187ba-3651-4483-b320-64e260bc6fbe 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val date = fixtureMonkey.giveMeOne<LocalDate>()
+            val id = Arb.kotlinUuid().next()
+            val date = Arb.kotlinxLocalDate().next()
             val valuedNavKeyList =
                 listOf(
                     CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date),
@@ -144,45 +145,43 @@ class ScreenNameTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         // 화면 이름은 Google Analytics 4로 나가는 계약이므로 스펙이 정한 값을 그대로 적는다.
         private fun screenNameByNavKey(): Map<ScreenNavKey, String> =
             mapOf(
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
-                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to "CalendarTimetable",
+                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = Arb.kotlinxLocalDate().next()) to "CalendarTimetable",
                 ChecklistAddNavKey to "ChecklistAdd",
-                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ChecklistDetail",
+                ChecklistDetailNavKey(id = Arb.kotlinUuid().next()) to "ChecklistDetail",
                 ChecklistHomeNavKey to "ChecklistHome",
                 ContactAddNavKey() to "ContactAdd",
-                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
-                ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to "ContactMemoFinishedList",
+                ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()) to "ContactMemoFinishedList",
                 DDayHomeNavKey to "DDayHome",
                 FileAddNavKey to "FileAdd",
-                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "FileDetail",
+                FileDetailNavKey(id = Arb.kotlinUuid().next()) to "FileDetail",
                 FileHomeNavKey to "FileHome",
                 HolidayHomeNavKey to "HolidayHome",
                 LoginHomeNavKey to "LoginHome",
                 MemoAddNavKey() to "MemoAdd",
-                MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "MemoDetail",
+                MemoDetailNavKey(id = Arb.kotlinUuid().next()) to "MemoDetail",
                 MemoFinishedListNavKey to "MemoFinishedList",
                 MemoHomeNavKey to "MemoHome",
                 MemoHomeFilterNavKey to "MemoHomeFilter",
                 MoreHomeNavKey to "MoreHome",
                 MusicAddNavKey to "MusicAdd",
-                MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "MusicDetail",
+                MusicDetailNavKey(id = Arb.kotlinUuid().next()) to "MusicDetail",
                 PlaceAddNavKey() to "PlaceAdd",
-                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceDetail",
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()) to "PlaceDetail",
                 PlaceHomeNavKey to "PlaceHome",
-                PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceMemoFinishedList",
+                PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()) to "PlaceMemoFinishedList",
                 PlaylistHomeNavKey to "PlaylistHome",
                 ProfileNavKey to "Profile",
                 ProfileImageEditNavKey to "ProfileImageEdit",
-                ProfileImageViewerNavKey(imageUrl = "https://example.com/${fixtureMonkey.giveMeOne<Uuid>()}.jpg") to "ProfileImageViewer",
+                ProfileImageViewerNavKey(imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg") to "ProfileImageViewer",
                 QrAddNavKey to "QrAdd",
-                QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "QrDetail",
+                QrDetailNavKey(id = Arb.kotlinUuid().next()) to "QrDetail",
                 QrHomeNavKey to "QrHome",
                 QrScanNavKey to "QrScan",
                 RoutineAddNavKey to "RoutineAdd",
@@ -194,40 +193,40 @@ class ScreenNameTest :
                 SettingHomeNavKey to "SettingHome",
                 SettingMapNavKey to "SettingMap",
                 TagAddNavKey() to "TagAdd",
-                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "TagDetail",
+                TagDetailNavKey(id = Arb.kotlinUuid().next()) to "TagDetail",
                 TagFinishedListNavKey to "TagFinishedList",
                 TagHomeNavKey to "TagHome",
                 TagHomeFilterNavKey to "TagHomeFilter",
-                TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to "TagMemoFinishedList",
+                TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to "TagMemoFinishedList",
                 WebAddNavKey() to "WebAdd",
-                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "WebDetail",
+                WebDetailNavKey(id = Arb.kotlinUuid().next()) to "WebDetail",
                 WebHomeNavKey to "WebHome",
-                WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()) to "WebMemoFinishedList",
+                WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()) to "WebMemoFinishedList",
             )
 
         private fun valuedNavKeyPairList(): List<Pair<ScreenNavKey, ScreenNavKey>> =
             listOf(
-                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to
-                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = fixtureMonkey.giveMeOne<LocalDate>()),
-                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to
-                    ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()),
-                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()) to MemoAddNavKey(),
-                MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()) to
-                    PlaceMemoFinishedListNavKey(placeId = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to PlaceAddNavKey(),
-                QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()) to TagAddNavKey(),
-                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()),
-                WebAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to WebAddNavKey(),
-                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()) to WebMemoFinishedListNavKey(webId = fixtureMonkey.giveMeOne<Uuid>()),
+                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = Arb.kotlinxLocalDate().next()) to
+                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = Arb.kotlinxLocalDate().next()),
+                ChecklistDetailNavKey(id = Arb.kotlinUuid().next()) to ChecklistDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()) to ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()) to
+                    ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()),
+                FileDetailNavKey(id = Arb.kotlinUuid().next()) to FileDetailNavKey(id = Arb.kotlinUuid().next()),
+                MemoDetailNavKey(id = Arb.kotlinUuid().next()) to MemoDetailNavKey(id = Arb.kotlinUuid().next()),
+                MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next()) to MemoAddNavKey(),
+                MusicDetailNavKey(id = Arb.kotlinUuid().next()) to MusicDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()) to PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()) to
+                    PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()),
+                PlaceAddNavKey(initialTagId = Arb.kotlinUuid().next()) to PlaceAddNavKey(),
+                QrDetailNavKey(id = Arb.kotlinUuid().next()) to QrDetailNavKey(id = Arb.kotlinUuid().next()),
+                TagAddNavKey(requestKey = Arb.kotlinUuid().next()) to TagAddNavKey(),
+                TagDetailNavKey(id = Arb.kotlinUuid().next()) to TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()),
+                WebAddNavKey(initialTagId = Arb.kotlinUuid().next()) to WebAddNavKey(),
+                WebDetailNavKey(id = Arb.kotlinUuid().next()) to WebDetailNavKey(id = Arb.kotlinUuid().next()),
+                WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()) to WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()),
             )
 
         private fun collectRegisteredScreenNavKey(): Map<KClass<*>, KSerializer<*>> {

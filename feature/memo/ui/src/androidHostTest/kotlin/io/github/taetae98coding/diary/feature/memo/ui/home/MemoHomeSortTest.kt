@@ -19,9 +19,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -33,13 +30,17 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -126,9 +127,9 @@ class MemoHomeSortTest {
         sort: ListSort,
         sortLabel: String,
     ) {
-        val titlePrefix = "SortMemo${fixtureMonkey.giveMeOne<Int>()}"
-        val earlierMemo = fixtureMonkey.memo(title = "${titlePrefix}A")
-        val laterMemo = fixtureMonkey.memo(title = "${titlePrefix}B")
+        val titlePrefix = "SortMemo${Arb.int().next()}"
+        val earlierMemo = Arb.memo(title = "${titlePrefix}A").next()
+        val laterMemo = Arb.memo(title = "${titlePrefix}B").next()
         val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
         every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(laterMemo, earlierMemo))))
         every { pageMemoHomeUseCase(parameter = sort) } returns flowOf(Result.success(PagingData.from(listOf(earlierMemo, laterMemo))))
@@ -160,9 +161,9 @@ class MemoHomeSortTest {
 
     @Test
     fun `TC-ec9e1134-0566-46bd-9e09-e79332e4eef6 정렬을 바꿔도 필터로 걸러진 같은 메모가 순서만 바뀌어 표시된다`() {
-        val titlePrefix = "SortMemo${fixtureMonkey.giveMeOne<Int>()}"
-        val firstMemo = fixtureMonkey.memo(title = "${titlePrefix}First")
-        val secondMemo = fixtureMonkey.memo(title = "${titlePrefix}Second")
+        val titlePrefix = "SortMemo${Arb.int().next()}"
+        val firstMemo = Arb.memo(title = "${titlePrefix}First").next()
+        val secondMemo = Arb.memo(title = "${titlePrefix}Second").next()
         val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
         every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(firstMemo, secondMemo))))
         every { pageMemoHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
@@ -294,12 +295,14 @@ class MemoHomeSortTest {
     private fun memoListItem(): MemoListItem =
         MemoListItem.Content(
             memo =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<Memo>()
-                    .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null))
-                    .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                    .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                    .sample(),
+                Arb
+                    .memo()
+                    .next()
+                    .copy(
+                        detail = Arb.memoDetail().next().copy(dateTime = null),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
+                    ),
         )
 
     private companion object {
@@ -314,8 +317,5 @@ class MemoHomeSortTest {
         private const val KOREAN_DEFAULT_SORT = "기본순"
         private const val DEFAULT_TITLE_SORT = "Title"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

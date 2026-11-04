@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -24,19 +21,25 @@ import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.Accoun
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountMemoDaoExistenceFilterTest :
     FunSpec({
@@ -120,8 +123,8 @@ class AccountMemoDaoExistenceFilterTest :
                         memoId = memoId,
                         tagId = tagId,
                         isDeleted = isDeleted,
-                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
                     ),
                 )
                 database.accountMemoTagDao().upsert(
@@ -147,8 +150,8 @@ class AccountMemoDaoExistenceFilterTest :
                         memoId = memoId,
                         placeId = placeId,
                         isDeleted = isDeleted,
-                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
                     ),
                 )
                 database.accountMemoPlaceDao().upsert(
@@ -204,7 +207,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-7e253b07-b1e4-4535-aab1-7758a9f0c219 유무 필터를 한 번도 고르지 않으면 모든 메모가 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val place = place()
             val fullMemo = memo(detail = detail(isAllDay = true))
@@ -219,7 +222,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 날짜 축을 있음으로 두면 기간이 있는 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
             insertMemo(accountId, dateMemo, noDateMemo)
@@ -230,7 +233,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 태그 축을 있음으로 두면 태그와 연결된 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val tagMemo = memo()
             val noTagMemo = memo()
@@ -244,7 +247,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-5cc4183b-eb06-4b7b-9774-5ce3309633a0 장소 축을 있음으로 두면 장소와 연결된 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val placeMemo = memo()
             val noPlaceMemo = memo()
@@ -258,7 +261,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-25999924-32ec-41d1-8404-959eec4bbb20 날짜 축을 없음으로 두면 기간이 없는 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
             insertMemo(accountId, dateMemo, noDateMemo)
@@ -269,7 +272,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-25999924-32ec-41d1-8404-959eec4bbb20 태그 축을 없음으로 두면 태그와 연결되지 않은 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val tagMemo = memo()
             val noTagMemo = memo()
@@ -283,7 +286,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-25999924-32ec-41d1-8404-959eec4bbb20 장소 축을 없음으로 두면 장소와 연결되지 않은 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val placeMemo = memo()
             val noPlaceMemo = memo()
@@ -297,7 +300,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-e1809211-a095-4491-8368-160d00b7b157 축을 전체로 되돌리면 그 축으로 거르지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
             insertMemo(accountId, dateMemo, noDateMemo)
@@ -310,7 +313,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-af3ec584-09da-446e-b9ba-09f28cfbd1d7 서로 다른 축을 함께 고르면 모두 만족하는 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val datePlaceMemo = memo(detail = detail(isAllDay = true))
             val dateOnlyMemo = memo(detail = detail(isAllDay = true))
@@ -327,7 +330,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-6534011c-4061-4c5c-a2b4-8b19a98be0ee 태그 축이 없음이면 선택한 태그를 무시하고 태그 없는 메모가 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val tagMemo = memo()
             val noTagMemo = memo()
@@ -344,7 +347,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-2eac01d6-3594-4cb0-9f2e-c1ec5a0356dd 태그 축을 되돌리면 유지된 태그 선택이 다시 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val tagMemo = memo()
             val noTagMemo = memo()
@@ -361,7 +364,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-6b58977b-e462-416f-a657-ae0a391da817 태그 축이 있음이면 태그 필터를 함께 적용한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectedTag = tag()
             val otherTag = tag()
             val selectedTagMemo = memo()
@@ -379,7 +382,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-06375d56-0888-42b0-a756-de074f0d7652 유무 필터와 태그 필터를 함께 만족하는 메모만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectedTag = tag()
             val otherTag = tag()
             val selectedTagDateMemo = memo(detail = detail(isAllDay = true))
@@ -398,7 +401,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-b5a78f72-0063-4134-8573-c31ba0c1aef3 날짜 축은 종일 여부와 시각을 판정에 쓰지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val allDayMemo =
                 memo(
                     detail =
@@ -435,7 +438,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("종일 여부, 시작, 종료 중 하나라도 없는 메모는 기간이 없는 것으로 본다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val fullMemo = memo(detail = detail(isAllDay = true))
             val noEndMemo = memo(detail = detail(isAllDay = true, endInclusive = null))
             val noStartMemo = memo(detail = detail(isAllDay = true, start = null))
@@ -458,8 +461,8 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-36293b8b-3c59-4c6a-a72c-c05be13c4267 태그 축은 해제된 연결과 삭제된 태그를 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val activeTag = tag()
             val finishedTag = tag(isFinished = true)
             val deletedTag = tag(isDeleted = true)
@@ -484,8 +487,8 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-6f8663b7-982b-4c46-8f90-4fe207ba6b59 장소 축은 해제된 연결과 삭제된 장소를 세지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val activePlace = place()
             val deletedPlace = place(isDeleted = true)
             val otherAccountPlace = place()
@@ -507,7 +510,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-cd0e6040-8cae-4f18-a066-1d9eae4ebabc 유무 필터를 만족해도 완료되거나 삭제된 메모는 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val activeMemo = memo(detail = detail(isAllDay = true))
             val finishedMemo = memo(detail = detail(isAllDay = true), isFinished = true)
             val deletedMemo = memo(detail = detail(isAllDay = true), isDeleted = true)
@@ -519,7 +522,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 기간이 더해지면 날짜 축으로 다시 판정한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo(detail = detail(isAllDay = null))
             insertMemo(accountId, memo)
             setExistence(hasDate = true)
@@ -541,7 +544,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 태그 연결이 더해지면 태그 축으로 다시 판정한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val memo = memo()
             insertMemo(accountId, memo)
@@ -555,7 +558,7 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-e5713cf2-3da6-423c-8fea-8eb4fd1817ee 메모에 장소 연결이 더해지면 장소 축으로 다시 판정한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             val memo = memo()
             insertMemo(accountId, memo)
@@ -569,8 +572,8 @@ class AccountMemoDaoExistenceFilterTest :
         }
 
         test("TC-4d4d586a-a64f-4b3d-b492-3c2922690709 유무 필터는 계정과 무관하게 모든 계정의 목록 조회에 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val dateMemo = memo(detail = detail(isAllDay = true))
             val noDateMemo = memo(detail = detail(isAllDay = null))
             val otherAccountDateMemo = memo(detail = detail(isAllDay = true))
@@ -592,23 +595,26 @@ class AccountMemoDaoExistenceFilterTest :
             isDeleted: Boolean = false,
             detail: MemoDetailLocalEntity = detail(isAllDay = null),
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
-                .setExp(MemoLocalEntity::detail, detail)
-                .setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    id = Arb.kotlinUuid().next(),
+                    detail = detail,
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun detail(
             isAllDay: Boolean?,
             start: LocalDateTime? = defaultDateTime.takeIf { isAllDay != null },
             endInclusive: LocalDateTime? = defaultDateTime.takeIf { isAllDay != null },
         ): MemoDetailLocalEntity =
-            fixtureMonkey
-                .giveMeOne<MemoDetailLocalEntity>()
+            Arb
+                .memoDetailLocalEntity()
+                .next()
                 .copy(
                     isAllDay = isAllDay,
                     start = start,
@@ -619,24 +625,28 @@ class AccountMemoDaoExistenceFilterTest :
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
         ): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
-                .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>())
-                .setExp(TagLocalEntity::isFinished, isFinished)
-                .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    id = Arb.kotlinUuid().next(),
+                    detail = Arb.tagDetailLocalEntity().next(),
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun place(isDeleted: Boolean = false): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
-                .setExp(PlaceLocalEntity::detail, fixtureMonkey.giveMeOne<PlaceDetailLocalEntity>())
-                .setExp(PlaceLocalEntity::isDeleted, isDeleted)
-                .setExp(PlaceLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(PlaceLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    id = Arb.kotlinUuid().next(),
+                    detail = Arb.placeDetailLocalEntity().next(),
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

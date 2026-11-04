@@ -13,9 +13,14 @@ kotlin {
             }
         }
 
-        jvmTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
+            }
+        }
+
+        jvmTest {
+            dependencies {
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.more.api)
             }
@@ -24,12 +29,6 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(libs.androidx.activity.compose)
-            }
-        }
-
-        androidHostTest {
-            dependencies {
-                implementation(projects.core.testing)
             }
         }
     }

@@ -14,8 +14,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -33,16 +31,16 @@ import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 완료된 메모 목록과 메모 상세가 어떻게 놓이는지는 메모 기능이 앱에 등록한 배치 정보가 정한다.
 // 실제 배치 정보와 선택 전 상세를 그대로 쓰고, 화면 본문만 이름이 보이는 대역으로 바꿔 창 크기별로 검증한다.
@@ -88,7 +86,7 @@ class MemoFinishedListLayoutTest {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -105,7 +103,7 @@ class MemoFinishedListLayoutTest {
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_PLACEHOLDER_TEXT).assertDoesNotExist()
 
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
@@ -117,7 +115,7 @@ class MemoFinishedListLayoutTest {
     fun `TC-446a7b3f-b8d8-47b7-8101-e05eb4a53f27 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
 
         pressBack()
@@ -133,9 +131,9 @@ class MemoFinishedListLayoutTest {
     fun `TC-446a7b3f-b8d8-47b7-8101-e05eb4a53f27 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
 
         pressBack()
@@ -149,7 +147,7 @@ class MemoFinishedListLayoutTest {
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-0523c77b-f821-4c55-b2d8-2603bccde3fb 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 MemoHome 목록으로 돌아간다`() {
         // MemoHome의 선택 전 상세는 실제 메모 추가 화면이라 이 대역 환경에서 띄울 수 없으므로, 돌아갈 MemoHome에 메모 상세를 열어 둔다.
-        val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack(MemoHomeNavKey, homeDetailKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -163,21 +161,21 @@ class MemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-17db916b-14c5-4630-b776-0acc114d266e 넓은 창에서 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
-        val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack(MemoHomeNavKey, homeDetailKey, MemoFinishedListNavKey)
         val openedKeyList: List<ScreenNavKey> =
             listOf(
-                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                WebAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                WebDetailNavKey(id = Arb.kotlinUuid().next()),
+                WebAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceAddNavKey(requestKey = Arb.kotlinUuid().next()),
             )
         setAppNavDisplay(backStack = backStack)
-        composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { backStack.navigateToMemoDetail(Arb.kotlinUuid().next()) }
         composeRule.waitForIdle()
         val selectedDetailKey = backStack.last()
 
@@ -200,7 +198,7 @@ class MemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-4b6fb492-81b6-4c57-8992-1c7a884b53c6 넓은 창에서 완료된 메모 목록에 다녀와도 메모 목록 배치의 상세가 그대로다`() {
-        val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, homeDetailKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
@@ -208,7 +206,7 @@ class MemoFinishedListLayoutTest {
 
         composeRule.runOnIdle {
             backStack.add(MemoFinishedListNavKey)
-            backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>())
+            backStack.navigateToMemoDetail(Arb.kotlinUuid().next())
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -224,18 +222,18 @@ class MemoFinishedListLayoutTest {
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
     fun `TC-6d809b7b-b833-45ea-b2fb-3f573e852a2e 넓은 창의 메모 목록 배치에서 상세 메모가 연 연결 항목은 단독으로 표시하고 돌아오면 떠나기 전 메모가 놓인다`() {
-        val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, homeDetailKey)
         val openedKeyList: List<ScreenNavKey> =
             listOf(
-                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                WebAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                ContactAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                PlaceAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                WebDetailNavKey(id = Arb.kotlinUuid().next()),
+                WebAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceAddNavKey(requestKey = Arb.kotlinUuid().next()),
             )
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()

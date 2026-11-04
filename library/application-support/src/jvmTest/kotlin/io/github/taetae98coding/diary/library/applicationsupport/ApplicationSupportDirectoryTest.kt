@@ -1,17 +1,15 @@
 package io.github.taetae98coding.diary.library.applicationsupport
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import java.nio.file.Paths
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 // 생성 문자열에 경로 구분자나 NUL이 섞이면 경로를 만들 수 없어 경로에 쓸 수 있는 문자만 남긴다.
-private fun pathSegment(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)
+private fun pathSegment(prefix: String): String = prefix + Arb.string().next().filter(Char::isLetterOrDigit)
 
 class ApplicationSupportDirectoryTest :
     FunSpec({

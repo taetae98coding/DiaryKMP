@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.web.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
@@ -15,16 +12,19 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountTagWebLocalDataSourceImplTest :
     FunSpec({
@@ -89,8 +89,8 @@ class AccountTagWebLocalDataSourceImplTest :
                 .pagedWebIdList(loadSize = loadSize)
 
         test("TC-dcd46928-6c6c-4815-98ce-dac1679940f3 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 웹 항목만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val otherTag = tag()
             val linkedWeb = web(title = "a-linked")
@@ -114,7 +114,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-d78d5005-016c-4999-a0db-c050105980ef 태그별 웹 항목은 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val firstWeb = web(title = "a-web")
             val secondWeb = web(title = "b-web")
@@ -131,7 +131,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-bbe313f4-ac99-4a84-ac55-4a8b97039d5b 태그별 웹 항목을 페이지 단위로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val webList = List(3) { index -> web(title = "web-$index") }
 
@@ -144,7 +144,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val targetWeb = web()
 
@@ -164,7 +164,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 웹 항목을 삭제하면 목록에서 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val targetWeb = web()
 
@@ -177,7 +177,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 웹 항목의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val targetTag = tag()
             val firstWeb = web(title = "a-web")
             val secondWeb = web(title = "b-web")
@@ -200,7 +200,7 @@ class AccountTagWebLocalDataSourceImplTest :
                 true to false,
                 false to true,
             ).forEach { (isFinished, isDeleted) ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val targetTag = tag()
                 val targetWeb = web()
 
@@ -214,7 +214,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-a1c70efb-92cb-4be0-9cb4-3514c5abff40 웹 항목는 저장 시점의 태그 선택으로 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tagA = tag()
             val tagB = tag()
             insertTag(accountId, tagA, tagB)
@@ -249,7 +249,7 @@ class AccountTagWebLocalDataSourceImplTest :
         }
 
         test("TC-8b82947c-df43-4860-ab2f-b50719cf60c5 태그마다 조회되는 웹 항목이 다르다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             val firstWeb = web()
@@ -278,23 +278,25 @@ class AccountTagWebLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>().data.map { web -> web.id }
         }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
-                .copy(isFinished = false, isDeleted = false)
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).copy(isFinished = false, isDeleted = false)
 
-        private fun web(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
-                .let { web ->
+        private fun web(title: String = "title-${Arb.string().next()}"): WebLocalEntity =
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                ).let { web ->
                     web.copy(
                         detail = web.detail.copy(title = title),
                         isDeleted = false,

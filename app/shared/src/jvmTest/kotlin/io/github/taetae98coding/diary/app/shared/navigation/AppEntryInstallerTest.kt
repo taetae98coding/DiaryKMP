@@ -6,16 +6,23 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.di.DiaryKoinApplication
 import io.github.taetae98coding.diary.core.navigation.ScreenEntryInstaller
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.localDateRange
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.bind
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateRange
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -23,9 +30,8 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.modules.SerializersModuleCollector
 import org.koin.plugin.module.dsl.koinApplication
 import kotlin.reflect.KClass
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 class AppEntryInstallerTest :
     FunSpec({
@@ -85,4 +91,12 @@ private fun screenNavKeyClassList(): List<KClass<out ScreenNavKey>> {
     return classList
 }
 
-private fun KClass<out ScreenNavKey>.instance(): ScreenNavKey = objectInstance ?: checkNotNull(fixtureMonkey.giveMeOne(java))
+private val navKeyArgumentArbs: Map<KClass<*>, Arb<*>> =
+    mapOf(
+        Uuid::class to Arb.kotlinUuid(),
+        Instant::class to Arb.secondPrecisionInstant(),
+        LocalDate::class to Arb.kotlinxLocalDate(),
+        LocalDateRange::class to Arb.localDateRange(),
+    )
+
+private fun KClass<out ScreenNavKey>.instance(): ScreenNavKey = objectInstance ?: Arb.bind(navKeyArgumentArbs, this).next()

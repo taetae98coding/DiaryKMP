@@ -1,22 +1,28 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeDateTime
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -35,15 +41,17 @@ class UpdateMemoUseCaseTest :
             "   " to "공백 문자로만 이루어진 제목",
         ).forEach { (blankTitle, label) ->
             Given("$label 으로 수정하고 기존 메모에 저장된 제목이 있다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val now = fixtureMonkey.giveMeOne<Instant>()
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val account = Arb.accountUser().next()
+                val now = Arb.secondPrecisionInstant().next()
+                val memoId = Arb.kotlinUuid().next()
                 val storedMemo =
-                    fixtureMonkey
-                        .giveMeKotlinBuilder<Memo>()
-                        .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                        .sample()
+                    Arb
+                        .memo()
+                        .next()
+                        .copy(
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
+                        )
                 val detailSlot = slot<MemoDetail>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -68,7 +76,7 @@ class UpdateMemoUseCaseTest :
 
                 When("설명, 컬러, 기간만 바꿔 수정한다") {
                     Then("TC-0e2363e3-7060-411c-bf08-8b868bdffec3 기존 제목을 유지하고 설명, 컬러, 기간은 수정한 내용으로 저장한다") {
-                        val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = blankTitle)
+                        val detail = Arb.memoDetail().next().copy(title = blankTitle)
 
                         val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))
 
@@ -83,9 +91,9 @@ class UpdateMemoUseCaseTest :
         }
 
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
+            val memoId = Arb.kotlinUuid().next()
             val detailSlot = slot<MemoDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -115,7 +123,7 @@ class UpdateMemoUseCaseTest :
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
                 Then("TC-c72ce1a3-4efa-4763-a33d-3e0802a2afd4 제목, 설명, 컬러와 저장 시각으로 현재 계정의 메모를 갱신한다") {
-                    val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                    val detail = Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))
 
@@ -129,13 +137,13 @@ class UpdateMemoUseCaseTest :
 
                 Then("TC-5492d840-0f80-427f-a299-510d1bfea856 수정한 기간이 저장에 반영된다") {
                     listOf(
-                        fixtureMonkey.giveMeOne<MemoDateTime.AllDay>(),
-                        fixtureMonkey.giveMeOne<MemoDateTime.DateTime>(),
+                        Arb.memoDateTimeAllDay().next(),
+                        Arb.memoDateTimeDateTime().next(),
                         null,
                     ).forEach { dateTime ->
                         val detail =
-                            fixtureMonkey.giveMeOne<MemoDetail>().copy(
-                                title = "title-${fixtureMonkey.giveMeOne<String>()}",
+                            Arb.memoDetail().next().copy(
+                                title = "title-${Arb.string().next()}",
                                 dateTime = dateTime,
                             )
 
@@ -149,7 +157,7 @@ class UpdateMemoUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -169,8 +177,8 @@ class UpdateMemoUseCaseTest :
                 Then("계정 조회 실패를 전달하고 수정하지 않는다") {
                     val parameter =
                         UpdateMemoUseCase.Parameter(
-                            id = fixtureMonkey.giveMeOne<Uuid>(),
-                            detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
+                            id = Arb.kotlinUuid().next(),
+                            detail = Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}"),
                         )
 
                     val result = useCase(parameter = parameter)
@@ -185,8 +193,8 @@ class UpdateMemoUseCaseTest :
         }
 
         Given("메모 수정과 동기화 요청이 성공하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -197,7 +205,7 @@ class UpdateMemoUseCaseTest :
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
             val useCase =
                 UpdateMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -209,7 +217,7 @@ class UpdateMemoUseCaseTest :
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 메모 갱신 후 동기화를 한 번 요청한다") {
-                    val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                    val detail = Arb.memoDetail().next().copy(title = "title-${Arb.string().next()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))
 
@@ -222,9 +230,4 @@ class UpdateMemoUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

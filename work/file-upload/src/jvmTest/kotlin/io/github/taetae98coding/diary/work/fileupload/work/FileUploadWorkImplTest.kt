@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.work.fileupload.work
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
@@ -14,13 +12,16 @@ import io.github.taetae98coding.diary.domain.file.exception.FileUploadAccountCha
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.domain.file.usecase.UploadFileRequest
 import io.github.taetae98coding.diary.domain.file.usecase.UploadFileUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResult
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultReporter
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -36,8 +37,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class FileUploadWorkImplTest :
     BehaviorSpec({
         Given("고른 파일을 서버에 보관할 수 있다") {
@@ -46,7 +45,7 @@ class FileUploadWorkImplTest :
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
-                        val file = fixtureMonkey.diaryFile()
+                        val file = Arb.diaryFile().next()
                         val stepList =
                             listOf(
                                 FileUploadStep.Started(source = source),
@@ -71,7 +70,7 @@ class FileUploadWorkImplTest :
                 Then("TC-f27003e1-5af1-458e-8752-01093aba51f6 크기 초과를 알리고 실패를 그대로 던진다") {
                     runTest {
                         val fixture = WorkFixture()
-                        val exception = FileTooLargeException(message = fixtureMonkey.giveMeOne<String>())
+                        val exception = FileTooLargeException(message = Arb.string().next())
                         fixture.emit(flowOf(Result.failure(exception)))
 
                         val thrown = shouldThrow<FileTooLargeException> { fixture.work.doWork(request = fixture.request) {} }
@@ -90,7 +89,7 @@ class FileUploadWorkImplTest :
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
-                        fixture.emit(flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
+                        fixture.emit(flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IllegalStateException(Arb.string().next()))))
 
                         shouldThrow<IllegalStateException> { fixture.work.doWork(request = fixture.request) {} }
 
@@ -106,7 +105,7 @@ class FileUploadWorkImplTest :
                     runTest {
                         val fixture = WorkFixture()
                         val name = fixture.source().name
-                        fixture.emit(flowOf(Result.failure(FileUnreadableException(name = name, cause = IllegalStateException(fixtureMonkey.giveMeOne<String>())))))
+                        fixture.emit(flowOf(Result.failure(FileUnreadableException(name = name, cause = IllegalStateException(Arb.string().next())))))
 
                         shouldThrow<FileUnreadableException> { fixture.work.doWork(request = fixture.request) {} }
 
@@ -122,7 +121,7 @@ class FileUploadWorkImplTest :
                     runTest {
                         val fixture = WorkFixture()
                         val source = fixture.source()
-                        fixture.emit(flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IOException(fixtureMonkey.giveMeOne<String>()))))
+                        fixture.emit(flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IOException(Arb.string().next()))))
 
                         shouldThrow<IOException> { fixture.work.doWork(request = fixture.request) {} }
 
@@ -137,8 +136,8 @@ class FileUploadWorkImplTest :
             When("올리기가 성공이나 실패로 끝난다") {
                 Then("TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 붙들어 둔 파일을 놓는다") {
                     listOf(
-                        { source: FileUploadSource -> Result.success(FileUploadStep.Completed(source = source, file = fixtureMonkey.giveMeOne<DiaryFile>())) },
-                        { _: FileUploadSource -> Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())) },
+                        { source: FileUploadSource -> Result.success(FileUploadStep.Completed(source = source, file = Arb.diaryFile().next())) },
+                        { _: FileUploadSource -> Result.failure(IllegalStateException(Arb.string().next())) },
                     ).forEach { last ->
                         runTest {
                             val fixture = WorkFixture()
@@ -159,7 +158,7 @@ class FileUploadWorkImplTest :
                 Then("TC-5bf0813a-9e0b-440f-b9f1-47b7c93a182d 이름을 알 수 없는 실패로 알리고 붙들어 둔 파일을 놓는다") {
                     runTest {
                         val fixture = WorkFixture()
-                        fixture.emit(flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
+                        fixture.emit(flowOf(Result.failure(IllegalStateException(Arb.string().next()))))
 
                         shouldThrow<IllegalStateException> { fixture.work.doWork(request = fixture.request) {} }
 
@@ -175,7 +174,7 @@ class FileUploadWorkImplTest :
                 Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa TC-7bbb807f-5371-454d-a6af-23cb41612544 TC-9a3d1cca-9e61-4cf0-9b75-19c9369e3002 TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 결과를 알리지 않고 중단으로 끝내며 붙들어 둔 파일을 놓는다") {
                     runTest {
                         val fixture = WorkFixture()
-                        fixture.emit(flowOf(Result.failure(FileUploadAccountChangedException(message = fixtureMonkey.giveMeOne<String>()))))
+                        fixture.emit(flowOf(Result.failure(FileUploadAccountChangedException(message = Arb.string().next()))))
 
                         shouldThrow<FileUploadAccountChangedException> { fixture.work.doWork(request = fixture.request) {} }
 
@@ -207,7 +206,7 @@ class FileUploadWorkImplTest :
     })
 
 private class WorkFixture {
-    val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+    val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
     val uploadFileUseCase = mockk<UploadFileUseCase>()
     val fileRepository =
         mockk<FileRepository> {
@@ -224,7 +223,7 @@ private class WorkFixture {
             fileUploadResultReporter = reporter,
         )
 
-    fun source(): FileUploadSource = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
+    fun source(): FileUploadSource = Arb.fileUploadSource().next().copy(uri = request.content.uri)
 
     fun emit(flow: Flow<Result<FileUploadStep>>) {
         every { uploadFileUseCase(parameter = UploadFileRequest(content = request.content, accountId = request.accountId)) } returns flow

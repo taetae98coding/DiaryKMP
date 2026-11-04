@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.feature.place.ui.form
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+import io.kotest.property.Arb
 
 class PlaceFormStateTest :
     FunSpec({
         test("TC-c7e9ea0f-dde3-4b8a-9abf-d2c00ce0b516 지도에서 위치를 고르면 위도와 경도가 채워진다") {
-            val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
 
-            List(2) { fixtureMonkey.mapCoordinateInFormPrecision() }.forEach { selectedCoordinate ->
+            List(2) { mapCoordinateInFormPrecision() }.forEach { selectedCoordinate ->
                 state.clearCoordinate()
                 state.selectSpotOnMap(selectedCoordinate)
 
@@ -27,9 +24,9 @@ class PlaceFormStateTest :
         }
 
         test("TC-c28713da-07da-459e-bfeb-7a1e0acad043 지도에서 다른 위치를 고르면 좌표가 새 위치로 바뀌고 지점은 하나만 남는다") {
-            val firstCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-            val secondCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstCoordinate }
-            val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+            val firstCoordinate = mapCoordinateInFormPrecision()
+            val secondCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstCoordinate }
+            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
 
             state.selectSpotOnMap(firstCoordinate)
             state.selectSpotOnMap(secondCoordinate)
@@ -40,11 +37,11 @@ class PlaceFormStateTest :
         }
 
         test("TC-4ed40457-9c12-4c4d-85a3-cacf681225eb 지도에서 고른 좌표를 이어서 직접 고칠 수 있다") {
-            val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+            val selectedCoordinate = mapCoordinateInFormPrecision()
             val changedLatitude =
-                generateSequence { fixtureMonkey.mapCoordinateInFormPrecision().latitude.toCoordinateText() }
+                generateSequence { mapCoordinateInFormPrecision().latitude.toCoordinateText() }
                     .first { latitude -> latitude != selectedCoordinate.latitude.toCoordinateText() }
-            val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
 
             state.selectSpotOnMap(selectedCoordinate)
             state.latitudeState.setTextAndPlaceCursorAtEnd(changedLatitude)
@@ -54,13 +51,13 @@ class PlaceFormStateTest :
         }
 
         test("TC-caf684a1-2033-4e4a-b288-c6b69bbdd231 지도에서 고른 좌표는 항상 성립하는 좌표다") {
-            val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
 
             listOf(
                 DiaryMapCoordinate(latitude = 90.0, longitude = 180.0),
                 DiaryMapCoordinate(latitude = -90.0, longitude = -180.0),
                 DiaryMapCoordinate(latitude = 0.0, longitude = 0.0),
-                fixtureMonkey.mapCoordinateInFormPrecision(),
+                mapCoordinateInFormPrecision(),
             ).forEach { selectedCoordinate ->
                 state.selectSpotOnMap(selectedCoordinate)
 

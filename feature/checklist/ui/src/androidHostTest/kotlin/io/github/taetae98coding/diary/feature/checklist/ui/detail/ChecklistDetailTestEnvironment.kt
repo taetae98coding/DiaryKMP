@@ -11,7 +11,8 @@ import androidx.compose.ui.test.isToggleable
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
-import io.github.taetae98coding.diary.feature.checklist.ui.checklistTestFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -55,11 +56,12 @@ internal fun item(
     content: String,
     isChecked: Boolean = false,
 ): ChecklistItem =
-    checklistTestFixtureMonkey.checklistItem(
-        isChecked = isChecked,
-        isDeleted = false,
-        content = content,
-    )
+    Arb
+        .checklistItem(
+            isChecked = isChecked,
+            isDeleted = false,
+            content = content,
+        ).next()
 
 internal fun SemanticsNodeInteractionsProvider.titleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[0]
 

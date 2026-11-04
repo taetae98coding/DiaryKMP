@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -19,9 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GetSettingHolidayUseCaseTest :
     BehaviorSpec({
@@ -103,7 +102,7 @@ class GetSettingHolidayUseCaseTest :
             val useCase =
                 getSettingHolidayUseCase(
                     holidayFlow = flowOf(emptyList()),
-                    hiddenKeySetFlow = flowOf(setOf(fixtureMonkey.giveMeOne())),
+                    hiddenKeySetFlow = flowOf(setOf(Arb.string().next())),
                 )
 
             When("설정 화면용 공휴일을 조회한다") {
@@ -117,7 +116,7 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("저장된 전체 공휴일을 읽을 수 없다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val useCase =
                 getSettingHolidayUseCase(
                     holidayFlow = flow { throw failure },
@@ -135,7 +134,7 @@ class GetSettingHolidayUseCaseTest :
         }
 
         Given("숨김 key를 읽을 수 없다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val useCase =
                 getSettingHolidayUseCase(
                     holidayFlow = flowOf(listOf(holiday())),
@@ -169,17 +168,17 @@ private fun getSettingHolidayUseCase(
             },
     )
 
-private fun holiday(name: String = fixtureMonkey.giveMeOne()): Holiday {
+private fun holiday(name: String = Arb.string().next()): Holiday {
     val start = randomDate()
 
     return Holiday(
         name = name,
-        isHoliday = fixtureMonkey.giveMeOne(),
+        isHoliday = Arb.boolean().next(),
         dateRange = start..start,
     )
 }
 
-private fun uniqueName(suffix: String): String = "${fixtureMonkey.giveMeOne<String>()}-$suffix"
+private fun uniqueName(suffix: String): String = "${Arb.string().next()}-$suffix"
 
 private fun Throwable.shouldHaveRootCause(expected: Throwable) {
     generateSequence(this) { throwable -> throwable.cause }
@@ -188,7 +187,7 @@ private fun Throwable.shouldHaveRootCause(expected: Throwable) {
 
 private fun randomDate(): LocalDate =
     LocalDate(
-        year = 2000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 100u).toInt(),
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.app.shared
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReconcileFileUploadUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +27,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class AppFileUploadViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -43,13 +42,13 @@ class AppFileUploadViewModelTest : FunSpec() {
 
         test("TC-042ef401-f527-4521-ae60-76c65320e5ef 확인된 계정 상태를 바뀔 때마다 한 번씩 전달하고 확인하지 못한 동안은 전달하지 않는다") {
             runTest(mainDispatcher) {
-                val user = fixtureMonkey.giveMeOne<Account.User>()
+                val user = Arb.accountUser().next()
                 val viewModel =
                     viewModel(
                         accountFlow =
                             flowOf(
                                 Result.success(user),
-                                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                                Result.failure(IllegalStateException(Arb.string().next())),
                                 Result.success(user),
                                 Result.success(Account.Guest),
                             ),
@@ -65,7 +64,7 @@ class AppFileUploadViewModelTest : FunSpec() {
 
         test("계정을 확인하기 전에는 확인 중 상태다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(accountFlow = flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
+                val viewModel = viewModel(accountFlow = flowOf(Result.failure(IllegalStateException(Arb.string().next()))))
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe AppFileUploadUiState.Loading
@@ -90,7 +89,7 @@ class AppFileUploadViewModelTest : FunSpec() {
 
         test("같은 계정으로 올리기 맞춤이 반복되어도 진행 중에는 UseCase를 한 번만 실행하고 다른 계정은 따로 실행한다") {
             runTest(mainDispatcher) {
-                val user = fixtureMonkey.giveMeOne<Account.User>()
+                val user = Arb.accountUser().next()
                 val reconcileFileUploadUseCase = mockk<ReconcileFileUploadUseCase>()
                 coEvery { reconcileFileUploadUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel = viewModel(accountFlow = flowOf(), reconcileFileUploadUseCase = reconcileFileUploadUseCase)

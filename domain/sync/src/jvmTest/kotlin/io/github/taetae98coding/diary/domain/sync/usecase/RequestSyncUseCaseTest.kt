@@ -1,16 +1,17 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,7 +29,7 @@ private fun requestSyncUseCase(
 class RequestSyncUseCaseTest :
     BehaviorSpec({
         Given("로그인 세션이 인증된 사용자 계정이 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 
@@ -87,7 +88,7 @@ class RequestSyncUseCaseTest :
         }
 
         Given("로그인 세션이 인증되지 않은 사용자 계정이 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+            val account = Arb.accountUser().next().copy(isSessionValid = false)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val syncManager = mockk<SyncManager>(relaxed = true)
@@ -180,7 +181,7 @@ class RequestSyncUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val syncManager = mockk<SyncManager>(relaxed = true)
@@ -196,9 +197,4 @@ class RequestSyncUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

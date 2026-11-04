@@ -5,10 +5,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,7 @@ class SchedulePeriodicSyncEffectTest {
 
     @Test
     fun `TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 앱이 인증된 사용자 계정을 확인하면 주기 동기화를 예약한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
         setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync)
@@ -38,7 +38,7 @@ class SchedulePeriodicSyncEffectTest {
 
     @Test
     fun `TC-cc07f234-2c6a-4021-a650-4a0161718819 로그아웃되어 계정이 바뀌면 주기 동기화 예약을 다시 정한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
         setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync)
@@ -52,7 +52,7 @@ class SchedulePeriodicSyncEffectTest {
 
     @Test
     fun `TC-56ebf0e0-19c8-4454-8389-44dc03ca0d63 로그인 세션이 갱신되지 않은 사용자로 바뀌면 주기 동기화 예약을 다시 정한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
         setSchedulePeriodicSyncEffect(uiStateFlow, schedulePeriodicSync)
@@ -92,10 +92,5 @@ class SchedulePeriodicSyncEffectTest {
         }
 
         return lifecycleOwner
-    }
-
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

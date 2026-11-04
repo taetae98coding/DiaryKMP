@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -14,11 +12,13 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,7 +79,7 @@ class MemoPlaceMapStateTest {
 
     @Test
     fun `TC-af968649-99d1-496c-86c9-9f650901d204 화면이 재생성되어도 사용자가 옮긴 지도 위치와 바꾼 제공자를 유지한다`() {
-        val movedCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val movedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val restorationTester = StateRestorationTester(composeRule)
         var mapState: DiaryMapState? = null
 
@@ -101,8 +101,8 @@ class MemoPlaceMapStateTest {
 
     @Test
     fun `TC-ca9a2c3d-6156-4d6f-9fa2-17b71a953a42 지도 보기에서 장소 추가로 이동하면 카드가 아니라 지도 보기의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val pickerCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val cardCoordinate = Arb.coordinate().next()
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val cardMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = cardCoordinate.toDiaryMapCoordinate())
         val pickerState = MemoPlacePickerState()
         lateinit var pickerMapState: DiaryMapState
@@ -123,12 +123,12 @@ class MemoPlaceMapStateTest {
 
     @Test
     fun `TC-6f7e7eb7-7b0f-4556-9d47-24e0d4fe9605 목록 보기의 내용을 보여 주는 동안 장소 추가로 이동하면 카드의 지도 위치를 넘긴다`() {
-        val cardCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val pickerMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+        val cardCoordinate = Arb.coordinate().next()
+        val pickerMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = Arb.coordinate().next().toDiaryMapCoordinate())
         val returnedState =
             MemoPlacePickerState().apply {
                 toggleViewMode()
-                pickerMapState.moveTo(fixtureMonkey.giveMeOne<DiaryMapCoordinate>())
+                pickerMapState.moveTo(Arb.coordinate().next().toDiaryMapCoordinate())
                 toggleViewMode()
             }
         val mapViewState = MemoPlacePickerState().apply { toggleViewMode() }
@@ -167,7 +167,7 @@ class MemoPlaceMapStateTest {
 
     private fun cardUiState(
         selectedPlaceList: List<Place>,
-        mapUiState: MemoPlaceMapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = fixtureMonkey.giveMeOne<Coordinate>()),
+        mapUiState: MemoPlaceMapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, isCurrentLocationFetched = true, currentCoordinate = Arb.coordinate().next()),
     ): MemoPlaceCardUiState =
         MemoPlaceCardUiState(
             mapUiState = mapUiState,
@@ -179,7 +179,5 @@ class MemoPlaceMapStateTest {
     private companion object {
         const val FIRST_PLACE_TITLE = "집"
         const val SECOND_PLACE_TITLE = "회사"
-
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

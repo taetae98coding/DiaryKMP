@@ -14,8 +14,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.location.Coordinate
@@ -23,9 +21,12 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -161,7 +162,7 @@ class PlaceHomeScaffoldTest {
 
     @Test
     fun `TC-c58529bf-774f-4c95-b18b-e1bf636ac0db 지도를 옮기지 않았으면 장소 추가와 추가 단축키가 진입 시 시작한 위치를 넘긴다`() {
-        val initialCoordinate = fixtureMonkey.coordinateInFormPrecision()
+        val initialCoordinate = Arb.coordinateInFormPrecision().next()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceHomeScaffold(
             uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.GOOGLE, initialCoordinate = initialCoordinate) },
@@ -220,16 +221,13 @@ class PlaceHomeScaffoldTest {
         // 장소 추가 버튼과 추가 단축키
         private const val ADD_ACTION_COUNT = 2
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
-                detail = fixtureMonkey.giveMeOne<PlaceDetail>(),
+                detail = Arb.placeDetail().next(),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

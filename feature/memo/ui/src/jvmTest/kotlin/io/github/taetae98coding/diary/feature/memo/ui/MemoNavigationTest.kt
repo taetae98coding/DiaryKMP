@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
@@ -23,18 +21,20 @@ import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class MemoNavigationTest :
     FunSpec({
         test("TC-61240c8d-6424-4b3e-ac04-a2f3620c3223 다른 메모를 선택하면 앞 메모 상세의 기록 없이 새 메모 상세를 놓는다") {
-            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
-            val previousDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val selectedId = Arb.kotlinUuid().next()
+            val previousDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val detailCases =
                 listOf(
@@ -57,13 +57,13 @@ class MemoNavigationTest :
         }
 
         test("TC-e07028dc-6ea4-49ad-be72-8682a67d5bdb 메모를 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 놓는다") {
-            val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+            val copiedId = Arb.kotlinUuid().next()
             val addKey = MemoAddNavKey()
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     MemoHomeNavKey,
                     addKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStack.navigateToCopiedMemo(copiedId)
@@ -72,14 +72,14 @@ class MemoNavigationTest :
         }
 
         test("TC-762386df-655e-4d63-a1bb-8fd0fca5f3c8 완료된 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
-            val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
+            val copiedId = Arb.kotlinUuid().next()
             val listKey = TagMemoFinishedListNavKey(tagId = tagId)
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     TagDetailNavKey(id = tagId),
                     listKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStack.navigateToCopiedMemo(copiedId)
@@ -89,28 +89,28 @@ class MemoNavigationTest :
         }
 
         test("TC-370da243-e4a5-422b-9ad8-8a58d583ccd8 복사한 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
             val listKey = TagMemoFinishedListNavKey(tagId = tagId)
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     TagDetailNavKey(id = tagId),
                     listKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
-            backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+            backStack.navigateToCopiedMemo(Arb.kotlinUuid().next())
             backStack.removeLastOrNull()
 
             backStack shouldContainExactly listOf(TagDetailNavKey(id = tagId), listKey)
         }
 
         test("TC-939518c8-77cb-415f-a0c2-d4a9e0df7138 완료된 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
-            val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+            val copiedId = Arb.kotlinUuid().next()
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     MemoHomeNavKey,
                     MemoFinishedListNavKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStack.navigateToCopiedMemo(copiedId)
@@ -124,19 +124,19 @@ class MemoNavigationTest :
                 NavBackStack<ScreenNavKey>(
                     MemoHomeNavKey,
                     MemoFinishedListNavKey,
-                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
-            backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+            backStack.navigateToCopiedMemo(Arb.kotlinUuid().next())
             backStack.removeLastOrNull()
 
             backStack shouldContainExactly listOf(MemoHomeNavKey, MemoFinishedListNavKey)
         }
 
         test("TC-abdda444-b2d6-460d-972d-66eb9778918c 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 MemoHome 목록으로 돌아간다") {
-            val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val homeBackStackCases: List<List<ScreenNavKey>> = listOf(listOf(MemoHomeNavKey), listOf(MemoHomeNavKey, homeDetailKey))
-            val finishedListDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+            val finishedListDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())))
 
             homeBackStackCases.forEach { homeBackStack ->
                 finishedListDetailCases.forEach { detailKeyList ->
@@ -152,8 +152,8 @@ class MemoNavigationTest :
         test("TC-5af8f42f-ecc8-4479-b95a-5ae7e4ea4afc 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
             val detailCases =
                 listOf(
-                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next()), MemoDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -167,7 +167,7 @@ class MemoNavigationTest :
         }
 
         test("TC-4b6fb492-81b6-4c57-8992-1c7a884b53c6 완료된 메모 목록에 다녀와도 상세 영역과 뒤로가기 기록이 그대로다") {
-            val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = MemoAddNavKey()
             val cases: List<Pair<List<ScreenNavKey>, List<ScreenNavKey>>> =
                 listOf(
@@ -179,7 +179,7 @@ class MemoNavigationTest :
                 val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, *homeDetailList.toTypedArray())
 
                 backStack.add(MemoFinishedListNavKey)
-                backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.navigateToMemoDetail(Arb.kotlinUuid().next())
                 backStack.navigateUpFromMemoFinishedList()
 
                 backStack shouldContainExactly listOf(MemoHomeNavKey) + homeDetailList
@@ -192,7 +192,7 @@ class MemoNavigationTest :
         }
 
         test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey)
 
             backStack.navigateUpFromMemoFinishedList()
@@ -202,9 +202,9 @@ class MemoNavigationTest :
 
         test("TC-f7581140-8f0c-4adb-a8f9-f29690dc3859 항목 완료 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
             entityFinishedListBackStackCases().forEach { (entityDetailKey, listKey) ->
-                val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+                val copiedId = Arb.kotlinUuid().next()
                 val backStack =
-                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
 
                 backStack.navigateToCopiedMemo(copiedId)
 
@@ -216,9 +216,9 @@ class MemoNavigationTest :
         test("TC-4be4919a-3bf7-40a7-966e-bb19deac0d00 복사한 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
             entityFinishedListBackStackCases().forEach { (entityDetailKey, listKey) ->
                 val backStack =
-                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
 
-                backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.navigateToCopiedMemo(Arb.kotlinUuid().next())
                 backStack.removeLastOrNull()
 
                 backStack shouldContainExactly listOf(entityDetailKey, listKey)
@@ -229,14 +229,14 @@ class MemoNavigationTest :
             val entryKeyList =
                 listOf(
                     MemoHomeNavKey,
-                    TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                    ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                    ContactDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             entryKeyList.forEach { entryKey ->
-                val backStack = NavBackStack(entryKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+                val backStack = NavBackStack(entryKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()))
 
-                backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.navigateToCopiedMemo(Arb.kotlinUuid().next())
                 backStack.removeLastOrNull()
 
                 backStack shouldContainExactly listOf(entryKey)
@@ -252,7 +252,7 @@ class MemoNavigationTest :
         }
 
         test("TC-cff9b2aa-42f7-4122-98a8-31a541a26ab2 태그 추가를 누르면 필터를 닫고 TagAdd 화면으로 이동한다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey, MemoHomeFilterNavKey)
 
             backStack.navigateToTagAddFromFilter()
@@ -261,7 +261,7 @@ class MemoNavigationTest :
         }
 
         test("TC-5a31355a-bdb7-43b1-8891-a1379cb38385 TagAdd 화면에서 돌아오면 필터가 다시 열리지 않고 추가한 태그를 선택으로 돌려받지 않는다") {
-            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey, MemoHomeFilterNavKey)
 
             backStack.navigateToTagAddFromFilter()
@@ -274,18 +274,14 @@ class MemoNavigationTest :
 
         test("TC-1f7abc2c-d694-4f46-be86-7ea3ce9a83bf 메모 웹 입력에서 웹 추가를 선택하면 초기 태그 없는 웹 추가로 이동한다") {
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoAddNavKey())
-            val requestKey = fixtureMonkey.giveMeOne<Uuid>()
+            val requestKey = Arb.kotlinUuid().next()
 
             backStack.navigateToWebAddFromMemoWebInput(requestKey = requestKey)
 
             backStack shouldContainExactly listOf(MemoHomeNavKey, MemoAddNavKey(), WebAddNavKey(requestKey = requestKey))
             (backStack.last() as WebAddNavKey).initialTagId.shouldBeNull()
         }
-    }) {
-    companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-    }
-}
+    })
 
 private fun entityFinishedListBackStackCases(): List<Pair<ScreenNavKey, ScreenNavKey>> {
     val contactId = Uuid.random()

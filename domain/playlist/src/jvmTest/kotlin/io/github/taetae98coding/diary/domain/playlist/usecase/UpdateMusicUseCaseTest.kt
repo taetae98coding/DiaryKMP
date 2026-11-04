@@ -1,23 +1,25 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -31,7 +33,7 @@ import kotlin.uuid.Uuid
 class UpdateMusicUseCaseTest :
     BehaviorSpec({
         Given("저장된 곡과 현재 계정이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = music()
             val detailSlot = slot<MusicDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -132,7 +134,7 @@ class UpdateMusicUseCaseTest :
         }
 
         Given("링크가 비어 있는 곡이 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = music(link = "")
             val detailSlot = slot<MusicDetail>()
             val accountMusicRepository = mockk<AccountMusicRepository>()
@@ -161,7 +163,7 @@ class UpdateMusicUseCaseTest :
         }
 
         Given("YouTube 주소가 아닌 링크로 수정하려 한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = music()
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
             val requestSyncUseCase = requestSyncUseCase()
@@ -201,7 +203,7 @@ class UpdateMusicUseCaseTest :
         }
 
         Given("대상 곡이 없도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery {
@@ -223,9 +225,9 @@ class UpdateMusicUseCaseTest :
         }
 
         Given("수정 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = music()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery {
                 accountMusicRepository.updateDetail(account = account, musicId = any(), detail = any(), updatedAt = any())
@@ -251,7 +253,7 @@ class UpdateMusicUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
@@ -280,9 +282,6 @@ class UpdateMusicUseCaseTest :
     public companion object {
         private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         private const val OTHER_YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=ArmDp-zijuc"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun useCase(
             account: Account,
@@ -324,23 +323,25 @@ class UpdateMusicUseCaseTest :
         }
 
         private fun music(link: String = YOUTUBE_LINK): Music =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Music>()
-                .setExp(Music::detail, storedDetail(link = link))
-                .setExp(Music::updatedAt, instant())
-                .setExp(Music::createdAt, instant())
-                .sample()
+            Arb
+                .music()
+                .next()
+                .copy(
+                    detail = storedDetail(link = link),
+                    updatedAt = instant(),
+                    createdAt = instant(),
+                )
 
         private fun storedDetail(link: String): MusicDetail =
             MusicDetail(
-                title = "stored-title-${fixtureMonkey.giveMeOne<String>()}",
-                artist = "stored-artist-${fixtureMonkey.giveMeOne<String>()}",
+                title = "stored-title-${Arb.string().next()}",
+                artist = "stored-artist-${Arb.string().next()}",
                 link = link,
             )
 
         private fun detail(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            artist: String = "artist-${fixtureMonkey.giveMeOne<String>()}",
+            title: String = "title-${Arb.string().next()}",
+            artist: String = "artist-${Arb.string().next()}",
             link: String = YOUTUBE_LINK,
         ): MusicDetail =
             MusicDetail(
@@ -349,6 +350,6 @@ class UpdateMusicUseCaseTest :
                 link = link,
             )
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

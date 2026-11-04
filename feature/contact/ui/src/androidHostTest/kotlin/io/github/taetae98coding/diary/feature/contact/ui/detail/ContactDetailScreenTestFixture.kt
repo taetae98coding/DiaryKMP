@@ -17,9 +17,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -28,6 +25,8 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
@@ -41,7 +40,9 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -69,9 +70,6 @@ internal const val DEFAULT_UPDATE_DESCRIPTION = "Update contact"
 internal val FIRST_CONTACT_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000001")
 
 private const val EFFECT_BUFFER_CAPACITY = 8
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 // KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
@@ -234,14 +232,14 @@ internal fun contactMemo(
     title: String,
     dateTime: MemoDateTime? = null,
 ): Memo =
-    fixtureMonkey
-        .giveMeKotlinBuilder<Memo>()
-        .setExp(
-            Memo::detail,
-            fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime),
-        ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memo()
+        .next()
+        .copy(
+            detail = Arb.memoDetail().next().copy(title = title, dateTime = dateTime),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 internal fun contactMemoPagingData(
     itemList: List<MemoListItem>,

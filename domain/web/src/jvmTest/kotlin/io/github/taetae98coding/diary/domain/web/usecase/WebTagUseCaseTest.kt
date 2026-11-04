@@ -1,20 +1,23 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebTagRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -29,8 +32,8 @@ import kotlin.uuid.Uuid
 class WebTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -41,8 +44,8 @@ class WebTagUseCaseTest :
 
             When("웹 항목에 태그를 연결한다") {
                 Then("TC-db74bb38-a1d5-445f-9731-1a4585cc47ba 현재 계정의 연결로 저장한다") {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val useCase =
                         AddWebTagUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -66,8 +69,8 @@ class WebTagUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-66a6f319-4748-437b-8fb2-4b65ec0d5c0a TC-51ef66dc-6d05-47c9-9de3-0344fa78c83d 저장한 뒤 동기화를 한 번 요청한다") {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
                     val useCase =
                         AddWebTagUseCase(
@@ -95,8 +98,8 @@ class WebTagUseCaseTest :
 
             When("연결을 해제한다") {
                 Then("TC-4103b438-d654-41af-9549-c615fb7aba9b 현재 계정의 연결을 해제 상태로 저장한다") {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveWebTagUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -120,8 +123,8 @@ class WebTagUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-66a6f319-4748-437b-8fb2-4b65ec0d5c0a TC-51ef66dc-6d05-47c9-9de3-0344fa78c83d 해제를 저장한 뒤 동기화를 한 번 요청한다") {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
+                    val tagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
                     val useCase =
                         RemoveWebTagUseCase(
@@ -149,7 +152,7 @@ class WebTagUseCaseTest :
 
             When("연결된 태그를 조회한다") {
                 Then("TC-0bc7baaf-dfbd-4bdc-81bb-8a77b3d1fab9 현재 계정의 연결된 태그를 그대로 전달한다") {
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = Arb.kotlinUuid().next()
                     val tagList = List(2) { tag() }
                     every {
                         accountWebTagRepository.getTagList(account = account, webId = webId)
@@ -166,7 +169,7 @@ class WebTagUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -187,8 +190,8 @@ class WebTagUseCaseTest :
                         useCase(
                             parameter =
                                 AddWebTagUseCase.Parameter(
-                                    webId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    tagId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    webId = Arb.kotlinUuid().next(),
+                                    tagId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -214,7 +217,7 @@ class WebTagUseCaseTest :
                             accountWebTagRepository = accountWebTagRepository,
                         )
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -223,14 +226,13 @@ class WebTagUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

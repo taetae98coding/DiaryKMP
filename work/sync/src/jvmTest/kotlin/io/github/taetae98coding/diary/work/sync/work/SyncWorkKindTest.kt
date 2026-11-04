@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
@@ -9,6 +9,9 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.MockKMatcherScope
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -303,7 +306,7 @@ class SyncWorkKindTest :
                 kindContext(
                     pendingCountMap = mapOf(TAG to 201, PLACE to 1, WEB to 1, CONTACT to 1, MEMO to 1) + linkLabelList.associateWith { 1 },
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequestSizeList = context.recordPush(kindCase = kindCase(label = TAG), failingRequestNumber = 2, failure = failure)
 
             val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -320,7 +323,7 @@ class SyncWorkKindTest :
                 kindContext(
                     pendingCountMap = mapOf(TAG to 1, PLACE to 1, WEB to 1, CONTACT to 1, MEMO to 201) + memoLinkLabelList.associateWith { 1 },
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val memoRequestSizeList = context.recordPush(kindCase = kindCase(label = MEMO), failingRequestNumber = 2, failure = failure)
 
             val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -336,7 +339,7 @@ class SyncWorkKindTest :
                     pendingCountMap =
                         mapOf(TAG to 1, PLACE to 201, MEMO to 1, MEMO_TAG to 1, TAG_LINK to 1, MEMO_PLACE to 1, PLACE_TAG to 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val placeRequestSizeList = context.recordPush(kindCase = kindCase(label = PLACE), failingRequestNumber = 2, failure = failure)
 
             val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -357,7 +360,7 @@ class SyncWorkKindTest :
                     kindContext(
                         pendingCountMap = mapOf(TAG to 1, MEMO to 1, failingLabel to 201) + waitingLabelList.associateWith { 1 },
                     )
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 val requestSizeList =
                     context.recordPush(kindCase = kindCase(label = failingLabel), failingRequestNumber = 2, failure = failure)
 
@@ -373,7 +376,7 @@ class SyncWorkKindTest :
 
         test("TC-0d0bc23f-d741-436a-8829-dc233ee1b43a TC-38d5d054-84c2-42b1-a9bf-75572a81a394 체크리스트 묶음이 실패하면 체크 항목만 시도하지 않고 태그와 QR은 업로드한다") {
             val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 201, CHECKLIST_ITEM to 1, QR to 1, TAG to 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val requestSizeList =
                 context.recordPush(kindCase = kindCase(label = CHECKLIST), failingRequestNumber = 2, failure = failure)
 
@@ -408,7 +411,7 @@ class SyncWorkKindTest :
         test("TC-3902db0b-13a5-4b5c-9d0d-2953c81702eb 한 묶음이 실패해도 앞서 성공한 묶음의 대기 해제만 남고 되돌리지 않는다") {
             val tagList = tags(size = 201)
             val context = context(tagList = tagList)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             context.recordPush(kindCase = kindCase(label = TAG), failingRequestNumber = 2, failure = failure)
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -420,11 +423,11 @@ class SyncWorkKindTest :
         }
 
         test("TC-64fcf9ff-6061-4b06-b6df-c6c61179ac5d 메모 업로드가 성공하고 메모와 태그의 연결 업로드가 실패하면 메모의 대기 해제만 유지된다") {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
             val primaryTagMemo = memo().copy(primaryTagId = tagId)
             val memoTag = memoTag().copy(memoId = primaryTagMemo.id, tagId = tagId)
             val context = context(memoList = listOf(primaryTagMemo), memoTagList = listOf(memoTag))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.memoTagRemoteDataSource.push(any()) } throws failure
 
             val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -438,7 +441,7 @@ class SyncWorkKindTest :
         }
 
         test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 계정 확인이 실패해도 오류 보고는 남지 않는다") {
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val context =
                 kindContext(pendingCountMap = mapOf(TAG to 1, MEMO to 1))
                     .copy(getAccountUseCase = accountFailureUseCase(failure = failure))
@@ -455,7 +458,7 @@ class SyncWorkKindTest :
         kindCaseList.forEach { kindCase ->
             test("TC-93f39ef0-82c2-433f-9711-df1f20a51b65 ${kindCase.label} 업로드가 실패하면 대기 해제와 내려받기 없이 동기화가 실패한다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 coEvery { kindCase.push(this, context) } throws failure
 
                 val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -517,7 +520,7 @@ class SyncWorkKindTest :
 
             test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b ${kindCase.label} 내려받기가 실패해도 나머지 열다섯 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 val otherKindCaseList = kindCaseList.filterNot { other -> other.label == kindCase.label }
                 coEvery { kindCase.pull(this, context, any()) } throws failure
                 val expectedSaveMap =
@@ -544,7 +547,7 @@ class SyncWorkKindTest :
 
             test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 ${kindCase.label} 내려받기가 실패하면 나머지 종류의 내려받기가 끝난 뒤 동기화가 실패한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 coEvery { kindCase.pull(this, context, any()) } throws failure
 
                 val actual = shouldThrowExactly<TestException> { context.subject.doWork() }

@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.core.network.impl.profile.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.profile.profileImageRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -30,14 +31,11 @@ import kotlinx.io.readByteArray
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class ProfileImageRemoteDataSourceImplTest :
     FunSpec({
         test("이미지 내용을 미리 읽지 않고 전송하는 동안 그대로 흘려보낸다") {
-            val bytes = "profile-image-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
-            val response = fixtureMonkey.giveMeOne<ProfileImageRemoteEntity>()
+            val bytes = "profile-image-${Arb.string().next()}".encodeToByteArray()
+            val response = Arb.profileImageRemoteEntity().next()
             val bodySlot = slot<Any>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
