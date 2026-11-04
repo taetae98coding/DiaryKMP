@@ -8,13 +8,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.PlatformSignInState
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.rememberPlatformSignInState
 import io.github.taetae98coding.diary.feature.login.ui.Res
 import io.github.taetae98coding.diary.feature.login.ui.login_sign_in_failed_message
@@ -75,7 +75,6 @@ internal fun LoginHomeScreen(
         },
         modifier = modifier,
         uiStateProvider = { uiState },
-        platformSignInState = platformSignInState,
         snackbarHostState = snackbarHostState,
     )
 }
@@ -90,10 +89,7 @@ private suspend fun requestGoogleSignIn(
     if (viewModel.uiState.value.isInProgress) return
 
     try {
-        val credential =
-            platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
-                credentialsManager.signIn()
-            } ?: return
+        val credential = platformSignInState.signIn { credentialsManager.signIn() }
         viewModel.signInWithGoogle(credential = credential)
     } catch (_: GoogleCredentialsUserCancelException) {
     } catch (_: GoogleCredentialsException) {
@@ -111,10 +107,7 @@ private suspend fun requestAppleSignIn(
     if (viewModel.uiState.value.isInProgress) return
 
     try {
-        val credential =
-            platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
-                credentialsManager.signIn().credential
-            } ?: return
+        val credential = platformSignInState.signIn { credentialsManager.signIn().credential }
         viewModel.signInWithApple(credential = credential)
     } catch (_: AppleCredentialsUserCancelException) {
     } catch (_: AppleCredentialsException) {

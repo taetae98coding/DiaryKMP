@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.app.shared
 
 import io.github.taetae98coding.diary.compose.credential.CredentialsDispatcher
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsClientId
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDirectory
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory

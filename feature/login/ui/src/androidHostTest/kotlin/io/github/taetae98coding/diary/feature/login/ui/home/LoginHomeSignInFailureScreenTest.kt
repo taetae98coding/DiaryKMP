@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.feature.login.ui.home
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

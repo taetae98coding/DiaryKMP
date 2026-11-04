@@ -33,7 +33,6 @@ internal class ProfileDeleteViewModel(
     val effect: Flow<ProfileDeleteEffect> = _effect.receiveAsFlow()
 
     private var isDeleting = false
-    private var isAwaitingAppleAuthorization = false
 
     fun showConfirm() {
         if (uiState.value.isInProgress) return
@@ -48,8 +47,8 @@ internal class ProfileDeleteViewModel(
         updateConfirmVisible(isConfirmVisible = false)
     }
 
-    // 흐름의 끝을 알 수 있는 Apple 재인증은 화면이 흐름을 시작하기 전부터 끝날 때까지 진행 중으로 둔다.
-    fun confirmDelete(isSignInEndDetectable: Boolean) {
+    // Apple 재인증은 화면이 진행하고 그동안 다이얼로그를 진행 중으로 두지 않으므로, 판정이 끝나면 요청만 보내고 진행 중을 푼다.
+    fun confirmDelete() {
         if (uiState.value.isInProgress) return
         uiState.update { state -> state.copy(isInProgress = true) }
 
@@ -58,7 +57,6 @@ internal class ProfileDeleteViewModel(
                 checkAppleReauthenticationRequiredUseCase(parameter = Unit)
                     .onSuccess { isRequired ->
                         if (isRequired) {
-                            isAwaitingAppleAuthorization = isSignInEndDetectable
                             _effect.send(ProfileDeleteEffect.RequestAppleAuthorization)
                         } else {
                             isDeleting = true
@@ -70,7 +68,7 @@ internal class ProfileDeleteViewModel(
                         }
                     }.onFailure { fail() }
             } finally {
-                if (!isAwaitingAppleAuthorization) endProgress()
+                endProgress()
             }
         }
     }
@@ -78,7 +76,6 @@ internal class ProfileDeleteViewModel(
     fun delete(appleAuthorization: AppleAuthorization) {
         if (isDeleting) return
         isDeleting = true
-        isAwaitingAppleAuthorization = false
         uiState.update { state -> state.copy(isInProgress = true) }
 
         viewModelScope.launch {
@@ -91,18 +88,9 @@ internal class ProfileDeleteViewModel(
         }
     }
 
-    // 끝을 알 수 있는 Apple 재인증을 기다리던 중 화면이 사라지면 진행 중을 풀고 다이얼로그를 닫는다. 판정과 서버 요청 중에는 그대로 둔다.
-    fun cancelAppleAuthorization() {
-        if (!isAwaitingAppleAuthorization) return
-        isAwaitingAppleAuthorization = false
-
-        endAppleAuthorization()
-    }
-
     // Apple 재인증이 인가 코드 없이 끝나면 탈퇴 대기로 돌아간다.
     fun endAppleAuthorization() {
         if (isDeleting) return
-        isAwaitingAppleAuthorization = false
 
         endProgress()
         updateConfirmVisible(isConfirmVisible = false)

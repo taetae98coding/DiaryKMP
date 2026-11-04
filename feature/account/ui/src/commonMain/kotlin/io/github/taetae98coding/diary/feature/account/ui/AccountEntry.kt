@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.feature.account.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import io.github.taetae98coding.diary.compose.credential.rememberAppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.rememberAppleCredentialsManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.account.api.ProfileImageViewerNavKey

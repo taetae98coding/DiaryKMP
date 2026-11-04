@@ -5,9 +5,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.compose.credential.AppleSignInResult
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.kotest.matchers.shouldBe

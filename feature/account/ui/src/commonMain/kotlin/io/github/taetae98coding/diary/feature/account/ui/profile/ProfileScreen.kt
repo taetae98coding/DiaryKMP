@@ -2,17 +2,16 @@ package io.github.taetae98coding.diary.feature.account.ui.profile
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.PlatformSignInState
-import io.github.taetae98coding.diary.compose.credential.authorize
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.apple.authorize
 import io.github.taetae98coding.diary.compose.credential.rememberPlatformSignInState
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import kotlinx.coroutines.launch
@@ -35,10 +34,8 @@ internal fun ProfileScreen(
     ProfileGuestEffect(navigateUp = navigateUp, accountUiState = accountViewModel.uiState)
     ProfileDeleteEffect(
         requestAppleAuthorization = {
-            val uiState = deleteViewModel.uiState.value
-            // 다이얼로그가 닫혔거나, 재생성 전에 보낸 요청이라 이전 화면이 사라지며 진행 중을 풀었으면 받지 않는다.
-            if (!uiState.isConfirmVisible) return@ProfileDeleteEffect
-            if (appleCredentialsManager.isSignInEndDetectable && !uiState.isInProgress) return@ProfileDeleteEffect
+            // 요청을 받기 전에 다이얼로그가 닫혔으면 받지 않는다.
+            if (!deleteViewModel.uiState.value.isConfirmVisible) return@ProfileDeleteEffect
 
             coroutineScope.launch {
                 requestAppleAuthorization(
@@ -52,7 +49,6 @@ internal fun ProfileScreen(
         snackbarHostState = snackbarHostState,
         effect = deleteViewModel.effect,
     )
-    CancelAppleAuthorizationOnDisposeEffect(deleteViewModel = deleteViewModel)
 
     ProfileScaffold(
         onEvent = { event ->
@@ -77,18 +73,18 @@ internal fun ProfileScreen(
                 }
 
                 is ProfileScaffoldEvent.ConfirmDeleteAccount -> {
-                    deleteViewModel.confirmDelete(isSignInEndDetectable = appleCredentialsManager.isSignInEndDetectable)
+                    deleteViewModel.confirmDelete()
                 }
             }
         },
         modifier = modifier,
         deleteUiStateProvider = { deleteUiState },
-        isDeleteInProgressProvider = { deleteUiState.isInProgress || platformSignInState.isInProgress },
+        isDeleteInProgressProvider = { deleteUiState.isInProgress },
         snackbarHostState = snackbarHostState,
     )
 }
 
-// 흐름의 끝을 알 수 없는 플랫폼에서 새 흐름을 열면 이전 흐름이 취소되므로, 가장 최근에 시작한 흐름만 탈퇴 대기로 되돌린다.
+// 새 흐름을 열면 이전 흐름이 취소되며 끝나므로, 가장 최근에 시작한 흐름이 끝났을 때만 탈퇴 대기로 되돌린다.
 private class ProfileAppleAuthorizationAttempt {
     private var latest = 0
 
@@ -106,10 +102,7 @@ private suspend fun requestAppleAuthorization(
     val current = attempt.start()
     var appleAuthorization: AppleAuthorization? = null
     try {
-        appleAuthorization =
-            platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
-                credentialsManager.authorize()
-            }
+        appleAuthorization = platformSignInState.signIn { credentialsManager.authorize() }
     } catch (_: AppleCredentialsUserCancelException) {
     } catch (exception: AppleCredentialsException) {
         viewModel.failAppleAuthorization(throwable = exception)
@@ -118,12 +111,4 @@ private suspend fun requestAppleAuthorization(
     }
 
     appleAuthorization?.let { authorization -> viewModel.delete(appleAuthorization = authorization) }
-}
-
-// 화면이 사라지면 그 화면이 기다리던 Apple 재인증은 끝나지 않으므로, 기다리던 진행 중 상태를 푼다.
-@Composable
-private fun CancelAppleAuthorizationOnDisposeEffect(deleteViewModel: ProfileDeleteViewModel) {
-    DisposableEffect(deleteViewModel) {
-        onDispose { deleteViewModel.cancelAppleAuthorization() }
-    }
 }

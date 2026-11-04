@@ -2,8 +2,8 @@ package io.github.taetae98coding.diary.feature.login.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import io.github.taetae98coding.diary.compose.credential.rememberAppleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.rememberGoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.rememberAppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.google.rememberGoogleCredentialsManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.login.ui.home.LoginHomeScreen

@@ -2,6 +2,10 @@ package io.github.taetae98coding.diary.compose.credential
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.credential.apple.AppleWebSignInRequestFactory
+import io.github.taetae98coding.diary.compose.credential.apple.AppleWebSignInResponse
+import io.github.taetae98coding.diary.compose.credential.apple.appleCredentialsConfig
+import io.github.taetae98coding.diary.compose.credential.google.GoogleAuthorizationCodeAttemptFactory
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow

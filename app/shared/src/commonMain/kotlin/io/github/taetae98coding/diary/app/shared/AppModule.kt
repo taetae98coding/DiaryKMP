@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.app.shared
 
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsConfig
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsConfig
 import io.github.taetae98coding.diary.core.google.network.impl.GooglePlacesConfig
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverOpenApiConfig
 import io.github.taetae98coding.diary.core.supabase.impl.SupabaseConfig

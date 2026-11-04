@@ -14,9 +14,9 @@ import androidx.lifecycle.SavedStateHandle
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.compose.credential.AppleSignInResult
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
@@ -296,12 +296,12 @@ class ProfileScreenTest {
     }
 
     @Test
-    fun `TC-ff12655f-9d05-45d5-941d-052f02a957c2 끝을 알 수 없으면 다이얼로그에서 탈퇴를 다시 고를 때 새 흐름만 연다`() {
+    fun `TC-ff12655f-9d05-45d5-941d-052f02a957c2 Apple 재인증 중 다이얼로그에서 탈퇴를 다시 고르면 새 흐름만 연다`() {
         val firstAuthorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
         val secondAuthorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
         val first = CompletableDeferred<AppleSignInResult>()
         val second = CompletableDeferred<AppleSignInResult>()
-        val fixture = Fixture(isAppleReauthenticationRequired = true, isSignInEndDetectable = false)
+        val fixture = Fixture(isAppleReauthenticationRequired = true)
         coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { first.await() } coAndThen { second.await() }
         setScreen(fixture)
 
@@ -323,21 +323,21 @@ class ProfileScreenTest {
     }
 
     @Test
-    fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf 끝을 알 수 없으면 취소로 닫을 때 흐름을 끝내고 탈퇴하지 않는다`() {
-        assertDesktopDismissEndsFlow { composeRule.onNodeWithText(CANCEL_LABEL).performClick() }
+    fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf Apple 재인증 중 취소로 닫으면 흐름을 끝내고 탈퇴하지 않는다`() {
+        assertDismissDuringReauthenticationEndsFlow { composeRule.onNodeWithText(CANCEL_LABEL).performClick() }
     }
 
     @Test
-    fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf 끝을 알 수 없으면 뒤로가기로 닫을 때 흐름을 끝내고 탈퇴하지 않는다`() {
-        assertDesktopDismissEndsFlow {
+    fun `TC-fdf51fd0-26c2-4877-a583-b9a9166aeecf Apple 재인증 중 뒤로가기로 닫으면 흐름을 끝내고 탈퇴하지 않는다`() {
+        assertDismissDuringReauthenticationEndsFlow {
             val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
             composeRule.runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
         }
     }
 
-    private fun assertDesktopDismissEndsFlow(dismiss: () -> Unit) {
+    private fun assertDismissDuringReauthenticationEndsFlow(dismiss: () -> Unit) {
         val pending = CompletableDeferred<AppleSignInResult>()
-        val fixture = Fixture(isAppleReauthenticationRequired = true, isSignInEndDetectable = false)
+        val fixture = Fixture(isAppleReauthenticationRequired = true)
         coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { pending.await() }
         setScreen(fixture)
 
@@ -376,7 +376,7 @@ class ProfileScreenTest {
         restorationTester.setContent { ProfileContent(fixture) }
 
         confirmDelete()
-        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
+        coVerify(exactly = 1) { fixture.appleCredentialsManager.signIn() }
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.runOnIdle { pending.complete(signInResult(authorization = fixtureMonkey.giveMeOne())) }
@@ -406,7 +406,7 @@ class ProfileScreenTest {
         composeRule.waitForIdle()
 
         coVerify(exactly = 1) { fixture.appleCredentialsManager.signIn() }
-        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -464,21 +464,6 @@ class ProfileScreenTest {
         composeRule.onNodeWithText(FAILED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(DELETE_LABEL).assertIsEnabled()
-    }
-
-    @Test
-    fun `TC-eab88e98-92cb-40ec-9d65-bb9b8ebd4ba4 끝을 알 수 있는 Apple 재인증 중에는 다이얼로그에 진행 중을 표시한다`() {
-        val fixture = Fixture(isAppleReauthenticationRequired = true)
-        coEvery { fixture.appleCredentialsManager.signIn() } coAnswers { CompletableDeferred<AppleSignInResult>().await() }
-        setScreen(fixture)
-
-        confirmDelete()
-
-        composeRule.onNodeWithContentDescription(PROGRESS_DESCRIPTION).assertExists()
-        composeRule.onNodeWithText(CONFIRM_TITLE).assertExists()
-        composeRule.onNodeWithText(CONFIRM_LABEL).assertIsNotEnabled()
-        composeRule.onNodeWithText(CANCEL_LABEL).assertIsNotEnabled()
-        coVerify(exactly = 1) { fixture.appleCredentialsManager.signIn() }
     }
 
     @Test
@@ -568,7 +553,6 @@ private fun signInResult(authorization: AppleAuthorization?): AppleSignInResult 
 
 private class Fixture(
     isAppleReauthenticationRequired: Boolean = false,
-    isSignInEndDetectable: Boolean = true,
     isAppleReauthenticationCheckFailed: Boolean = false,
 ) {
     var navigateUpCount = 0
@@ -580,7 +564,6 @@ private class Fixture(
     val checkUseCase: CheckAppleReauthenticationRequiredUseCase = mockk()
 
     init {
-        every { appleCredentialsManager.isSignInEndDetectable } returns isSignInEndDetectable
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
         coEvery { checkUseCase(parameter = Unit) } returns
             if (isAppleReauthenticationCheckFailed) {

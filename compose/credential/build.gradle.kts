@@ -22,7 +22,6 @@ kotlin {
             dependencies {
                 api(projects.core.model)
                 implementation(libs.jetbrains.compose.ui)
-                implementation(libs.jetbrains.lifecycle.runtime.compose)
                 implementation(libs.koin.annotations)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlincrypto.hash.sha2)
@@ -31,6 +30,7 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.browser)
                 implementation(libs.androidx.credentials.play.services.auth)
                 implementation(libs.google.identity.googleid)
@@ -39,7 +39,6 @@ kotlin {
 
         androidHostTest {
             dependencies {
-                implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }

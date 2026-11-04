@@ -7,10 +7,10 @@ import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.compose.credential.GoogleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManager
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
@@ -45,17 +45,9 @@ internal fun screenTestViewModel(
     return viewModel
 }
 
-internal fun mockGoogleCredentialsManager(isSignInEndDetectable: Boolean = true): GoogleCredentialsManager {
-    val manager = mockk<GoogleCredentialsManager>()
-    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
-    return manager
-}
+internal fun mockGoogleCredentialsManager(): GoogleCredentialsManager = mockk()
 
-internal fun mockAppleCredentialsManager(isSignInEndDetectable: Boolean = true): AppleCredentialsManager {
-    val manager = mockk<AppleCredentialsManager>()
-    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
-    return manager
-}
+internal fun mockAppleCredentialsManager(): AppleCredentialsManager = mockk()
 
 internal fun ComposeContentTestRule.setLoginHomeScreen(
     viewModel: LoginHomeViewModel,

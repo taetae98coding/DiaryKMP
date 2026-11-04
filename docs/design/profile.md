@@ -54,12 +54,16 @@ stateDiagram-v2
     Idle: 대기
     Dialog: 확인 다이얼로그
     Progress: 다이얼로그에서 탈퇴 진행 중
+    Reauth: 다이얼로그에서 Apple 재인증 진행
     [*] --> Idle
     Idle --> Dialog: 탈퇴하기
     Dialog --> Idle: 취소 · 닫기
     Dialog --> Progress: 탈퇴
     Progress --> Idle: 실패 · 다이얼로그 닫고 스낵바
-    Progress --> Idle: Apple 재인증 취소 · 다이얼로그 닫음
+    Progress --> Reauth: Apple 재인증 필요
+    Reauth --> Progress: 인가 코드 수신 · 탈퇴 다시 선택
+    Reauth --> Idle: 취소 · 닫기 · Apple 재인증 취소
+    Reauth --> Idle: 인가 코드 받지 못함 · 다이얼로그 닫고 스낵바
     Progress --> [*]: 성공 · MoreHome으로
 ```
 
@@ -72,7 +76,7 @@ stateDiagram-v2
 | 확인 대기 | `탈퇴` 텍스트 버튼 | 누를 수 있음 |
 | 탈퇴 진행 중 | `탈퇴` 버튼을 Material 비활성 표현으로 두고, 버튼 크기는 그대로 둔 채 문구를 감추고 그 자리 가운데에 원형 진행 표시를 둔다. 지름은 [진행 표시 크기](./dimens.md) | Material 비활성 표현으로 둠 |
 
-탈퇴 진행 중에는 Apple 재인증 흐름이 진행되는 동안과 서버 처리를 기다리는 동안을 구분하지 않고 같은 표현을 쓴다. 흐름의 끝을 알 수 없는 데스크톱의 Apple 재인증 동안에는 기준 스펙에 따라 진행 표현을 두지 않고 확인 대기와 같이 표시한다.
+탈퇴 진행 중 표현은 Apple 재인증이 필요한지 판단하는 동안과 서버 처리를 기다리는 동안에 쓴다. Apple 재인증 흐름이 진행되는 동안에는 기준 스펙에 따라 진행 표현을 두지 않고 확인 대기와 같이 표시한다.
 
 Profile 화면의 두 동작 항목은 다이얼로그 뒤에 가려지므로 진행 중을 따로 표현하지 않는다.
 

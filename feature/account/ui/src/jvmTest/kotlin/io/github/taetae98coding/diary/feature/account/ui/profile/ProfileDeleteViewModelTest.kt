@@ -88,7 +88,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
 
                 viewModel.effect.test {
                     viewModel.showConfirm()
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileDeleteEffect.RequestAppleAuthorization
@@ -98,37 +98,13 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-eab88e98-92cb-40ec-9d65-bb9b8ebd4ba4 끝을 알 수 있는 Apple 재인증을 요청하면 다이얼로그를 연 채 진행 중을 유지한다") {
-            runTest(mainDispatcher) {
-                val authorization = fixtureMonkey.giveMeOne<AppleAuthorization>()
-                val deleteAccountUseCase = deleteAccountUseCase()
-                val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true), deleteAccountUseCase = deleteAccountUseCase)
-
-                viewModel.showConfirm()
-                viewModel.confirmDelete(isSignInEndDetectable = true)
-                advanceUntilIdle()
-                viewModel.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = true)
-
-                viewModel.dismissConfirm()
-                viewModel.confirmDelete(isSignInEndDetectable = true)
-                advanceUntilIdle()
-                viewModel.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = true)
-
-                viewModel.delete(appleAuthorization = authorization)
-                advanceUntilIdle()
-
-                viewModel.uiState.value.isInProgress shouldBe false
-                coVerify(exactly = 1) { deleteAccountUseCase(parameter = authorization) }
-            }
-        }
-
         test("TC-b28f7750-5460-48cc-927e-e6e0ab50a3a9 Apple 재인증이 취소되면 진행 중을 풀고 탈퇴하지 않는다") {
             runTest(mainDispatcher) {
                 val deleteAccountUseCase = deleteAccountUseCase()
                 val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true), deleteAccountUseCase = deleteAccountUseCase)
 
                 viewModel.showConfirm()
-                viewModel.confirmDelete(isSignInEndDetectable = true)
+                viewModel.confirmDelete()
                 advanceUntilIdle()
                 viewModel.endAppleAuthorization()
 
@@ -137,12 +113,12 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ff12655f-9d05-45d5-941d-052f02a957c2 끝을 알 수 없는 Apple 재인증을 요청하면 다이얼로그를 연 채 진행 중을 두지 않는다") {
+        test("TC-ff12655f-9d05-45d5-941d-052f02a957c2 Apple 재인증을 요청하면 다이얼로그를 연 채 진행 중을 두지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true))
 
                 viewModel.showConfirm()
-                viewModel.confirmDelete(isSignInEndDetectable = false)
+                viewModel.confirmDelete()
                 advanceUntilIdle()
 
                 viewModel.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = false)
@@ -156,7 +132,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 val viewModel = viewModel(deleteAccountUseCase = deleteAccountUseCase)
 
                 viewModel.showConfirm()
-                viewModel.confirmDelete(isSignInEndDetectable = true)
+                viewModel.confirmDelete()
                 advanceUntilIdle()
                 viewModel.dismissConfirm()
 
@@ -172,7 +148,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 val viewModel = viewModel(checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
 
                 viewModel.effect.test {
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileDeleteEffect.DeleteFailed
@@ -190,7 +166,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
 
                 viewModel.effect.test {
                     viewModel.showConfirm()
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -220,7 +196,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 coEvery { deleteAccountUseCase(parameter = any()) } coAnswers { response.await() }
                 val viewModel = viewModel(deleteAccountUseCase = deleteAccountUseCase)
 
-                viewModel.confirmDelete(isSignInEndDetectable = true)
+                viewModel.confirmDelete()
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress shouldBe true
@@ -239,9 +215,9 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 coEvery { deleteAccountUseCase(parameter = any()) } coAnswers { response.await() }
                 val viewModel = viewModel(deleteAccountUseCase = deleteAccountUseCase)
 
-                viewModel.confirmDelete(isSignInEndDetectable = true)
+                viewModel.confirmDelete()
                 advanceUntilIdle()
-                viewModel.confirmDelete(isSignInEndDetectable = true)
+                viewModel.confirmDelete()
                 viewModel.showConfirm()
                 advanceUntilIdle()
 
@@ -270,7 +246,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                     )[ProfileDeleteViewModel::class]
 
                 viewModel.effect.test {
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     store.clear()
@@ -290,13 +266,13 @@ class ProfileDeleteViewModelTest : FunSpec() {
 
                 viewModel.effect.test {
                     viewModel.showConfirm()
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileDeleteEffect.DeleteFailed
                     viewModel.uiState.value shouldBe ProfileDeleteUiState()
 
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ProfileDeleteEffect.DeleteFailed
@@ -311,7 +287,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 val viewModel = viewModel()
 
                 viewModel.effect.test {
-                    viewModel.confirmDelete(isSignInEndDetectable = true)
+                    viewModel.confirmDelete()
                     advanceUntilIdle()
 
                     expectNoEvents()
