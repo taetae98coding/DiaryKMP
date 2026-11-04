@@ -237,7 +237,7 @@ class ProfileScreenTest {
     }
 
     @Test
-    fun `TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 Apple 재인증 취소는 오류 보고를 남기지 않는다`() {
+    fun `TC-364abafa-b866-4902-b128-c8a3799b563f Apple 재인증 취소는 오류 보고를 남기지 않는다`() {
         val reportList = mutableListOf<CrashlyticsLog>()
         val delegate = mockk<DiaryLoggerDelegate>()
         every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? CrashlyticsLog)?.let(reportList::add) }

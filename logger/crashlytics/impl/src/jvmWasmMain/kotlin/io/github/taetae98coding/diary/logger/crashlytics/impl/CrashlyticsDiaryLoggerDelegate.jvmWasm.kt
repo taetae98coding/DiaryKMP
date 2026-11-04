@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.logger.crashlytics.impl
 
-internal actual fun recordException(
-    message: String,
-    throwable: Throwable,
-) = Unit
+import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
+
+internal actual fun recordException(log: CrashlyticsLog) = Unit

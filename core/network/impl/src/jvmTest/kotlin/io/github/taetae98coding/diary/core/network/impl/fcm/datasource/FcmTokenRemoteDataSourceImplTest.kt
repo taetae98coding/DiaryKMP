@@ -53,7 +53,7 @@ class FcmTokenRemoteDataSourceImplTest :
             Json.encodeToString(FcmTokenRemoteEntity.serializer(), bodySlot.captured as FcmTokenRemoteEntity) shouldBe """{"installationId":"fid-a"}"""
         }
 
-        test("TC-9a2080b2-f51e-4d2a-bb69-cbf648bdd0ee 요청이 실패하면 실패를 그대로 전달한다") {
+        test("TC-4d24fc43-3f72-4b39-9d43-ea654eb37958 요청이 실패하면 실패를 그대로 전달한다") {
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery { supabaseFunction(function = any(), body = any(), typeInfo = any(), headers = any()) } throws TestException("network")
             val dataSource = FcmTokenRemoteDataSourceImpl(supabaseFunction = supabaseFunction)

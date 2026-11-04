@@ -11,6 +11,10 @@ import io.github.taetae98coding.diary.core.gemini.network.impl.createGeminiHttpC
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
+import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -34,6 +38,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
@@ -277,6 +283,36 @@ class GeminiContentRemoteDataSourceImplTest :
                 }
             }
         }
+
+        test("TC-12677c0d-ad0b-4684-b74b-a79692f1ee8a 받은 조각을 읽지 못하면 원격 응답 실패 보고가 한 번 남는다") {
+            val reportList = recordCrashlyticsLog()
+            val request = request()
+
+            shouldThrow<GeminiException.InvalidContent> { createDataSource(createEngine(body = "data: {not json\n\n")).stream(request = request) }
+
+            val report = reportList.single()
+            report.message shouldContain "POST generativelanguage.googleapis.com/v1beta/${request.model}:streamGenerateContent 200"
+            report.message shouldContain "JsonDecodingException"
+        }
+
+        test("TC-78cd381e-2737-42c3-b920-1a6b404d2d69: 오류 보고에 생성된 내용과 보낸 내용을 담지 않는다") {
+            val request = request()
+            val generated = "생성된 문장 ${fixtureMonkey.giveMeOne<Uuid>()}"
+
+            listOf(
+                createEngine(body = """data: {"candidates": [$generated""" + "\n\n"),
+                errorEngine(HttpStatusCode.ServiceUnavailable, status = "UNAVAILABLE", message = generated),
+            ).forEach { engine ->
+                val reportList = recordCrashlyticsLog()
+
+                shouldThrow<GeminiException> { createDataSource(engine).stream(request = request) }
+
+                val report = reportList.single()
+                listOf(report.message, report.throwable.message.orEmpty(), report.issueKey).forEach { text ->
+                    listOf(generated, request.apiKey, request.systemInstruction, request.prompt).forEach { secret -> text shouldNotContain secret }
+                }
+            }
+        }
     }) {
     private companion object {
         private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
@@ -386,6 +422,14 @@ class GeminiContentRemoteDataSourceImplTest :
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             }
+
+        private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
+            val reportList = mutableListOf<CrashlyticsLog>()
+            val delegate = mockk<DiaryLoggerDelegate>()
+            every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? CrashlyticsLog)?.let(reportList::add) }
+            DiaryLogger.add(delegate = delegate)
+            return reportList
+        }
 
         private fun createDataSource(engine: HttpClientEngine): GeminiContentRemoteDataSource =
             koinApplication<GeminiNetworkTestKoinApplication> {

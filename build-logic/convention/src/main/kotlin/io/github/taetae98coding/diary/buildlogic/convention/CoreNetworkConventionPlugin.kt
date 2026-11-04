@@ -32,6 +32,7 @@ internal class CoreNetworkConventionPlugin : Plugin<Project> {
                 jvmTest {
                     dependencies {
                         implementation(ktorLibrary("client.mock"))
+                        implementation(project(":logger:crashlytics:api"))
                     }
                 }
             }

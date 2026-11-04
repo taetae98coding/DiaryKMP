@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.gemini.network.impl.entity.GenerateCo
 import io.github.taetae98coding.diary.core.gemini.network.impl.entity.GenerationConfigRemoteEntity
 import io.github.taetae98coding.diary.core.gemini.network.impl.entity.PartRemoteEntity
 import io.github.taetae98coding.diary.core.gemini.network.impl.toGeminiException
+import io.github.taetae98coding.diary.library.ktor.reportUnreadableContent
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -20,6 +21,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.preparePost
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
@@ -81,7 +83,7 @@ internal class GeminiContentRemoteDataSourceImpl(
                         throw toGeminiException(status = response.status, body = response.bodyAsText(), json = json, cause = null)
                     }
 
-                    response.bodyAsChannel().forEachEventData { data -> emitText(data = data, stopReason = stopReason) }
+                    response.bodyAsChannel().forEachEventData { data -> emitText(data = data, stopReason = stopReason, response = response) }
                 }
 
             stopReason.toAbnormalStopExceptionOrNull()?.let { exception -> throw exception }
@@ -112,11 +114,13 @@ internal class GeminiContentRemoteDataSourceImpl(
     private suspend fun FlowCollector<String>.emitText(
         data: String,
         stopReason: StopReason,
+        response: HttpResponse,
     ) {
         val event =
             try {
                 json.decodeFromString<GenerateContentResponseRemoteEntity>(data)
-            } catch (_: SerializationException) {
+            } catch (exception: SerializationException) {
+                response.reportUnreadableContent(cause = exception)
                 // 조각에는 생성된 내용이 담기므로 파싱 예외를 원인으로 잇지 않는다.
                 throw GeminiException.InvalidContent(detail = "stream event could not be read")
             }

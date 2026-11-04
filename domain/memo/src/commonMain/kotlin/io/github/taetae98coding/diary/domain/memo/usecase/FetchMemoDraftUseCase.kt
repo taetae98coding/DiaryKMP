@@ -8,8 +8,6 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
-import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -47,10 +45,6 @@ public class FetchMemoDraftUseCase internal constructor(
             }
 
         return checkNotNull(draft) { "Memo draft generation ended without a result" }.toUsable()
-    }
-
-    override fun onFailure(throwable: Throwable) {
-        DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
     }
 
     private fun MemoDraft.toUsable(): MemoDraft =

@@ -4,8 +4,6 @@ import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.Account
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
-import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -42,25 +40,18 @@ internal class SyncWorkImpl(
     private val clock: Clock,
 ) : SyncWork {
     override suspend fun doWork() {
-        try {
-            val account =
-                when (val confirmedAccount = awaitConfirmedAccount()) {
-                    is Account.Guest -> return
-                    is Account.User -> confirmedAccount
-                }
-            val accountId = account.id
+        val account =
+            when (val confirmedAccount = awaitConfirmedAccount()) {
+                is Account.Guest -> return
+                is Account.User -> confirmedAccount
+            }
+        val accountId = account.id
 
-            // 플랫폼마다 다른 주기 예약기가 요청 경로를 거치지 않고 이 작업을 바로 실행하므로 준비를 요청 시점이 아니라 여기서 한다.
-            prepareSyncUseCase(parameter = account).getOrThrow()
-            push(accountId = accountId)
-            pull(accountId = accountId)
-            accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (throwable: Throwable) {
-            DiaryLogger.log(log = CrashlyticsLog(message = "데이터 동기화 실패", throwable = throwable))
-            throw throwable
-        }
+        // 플랫폼마다 다른 주기 예약기가 요청 경로를 거치지 않고 이 작업을 바로 실행하므로 준비를 요청 시점이 아니라 여기서 한다.
+        prepareSyncUseCase(parameter = account).getOrThrow()
+        push(accountId = accountId)
+        pull(accountId = accountId)
+        accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
     }
 
     private suspend fun awaitConfirmedAccount(): Account =

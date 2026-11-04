@@ -676,7 +676,7 @@ class SyncWorkTest :
             "내려받기: 메모" to { context, failure -> coEvery { context.memoRemoteDataSource.pull(any()) } throws failure },
             "내려받기: 연결" to { context, failure -> coEvery { context.memoTagRemoteDataSource.pull(any()) } throws failure },
         ).forEach { (label, prepareFailure) ->
-            test("TC-ff799c65-2ad3-472d-893b-a41a7586012c $label 단계가 실패하면 실패 원인을 담은 오류 보고가 한 번 남는다") {
+            test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 $label 단계가 실패해도 오류 보고는 남지 않는다") {
                 val context =
                     context(
                         tagList = tags(size = 1),
@@ -691,40 +691,8 @@ class SyncWorkTest :
                     context.subject.doWork()
                 }
 
-                val report = reportList.single()
-                report.throwable.shouldBeInstanceOf<TestException>()
-                report.throwable.message shouldBe failure.message
-                report.message shouldBe SYNC_FAILURE_REPORT_MESSAGE
+                reportList.shouldBeEmpty()
             }
-        }
-
-        test("TC-06eb87fd-45cd-42b6-a11f-176c8073a21d 여러 종류의 내려받기가 실패해도 오류 보고는 한 번만 남는다") {
-            val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
-            coEvery { context.tagRemoteDataSource.pull(any()) } throws failure
-            coEvery { context.memoRemoteDataSource.pull(any()) } throws failure
-            coEvery { context.memoTagRemoteDataSource.pull(any()) } throws failure
-            val reportList = recordCrashlyticsLog()
-
-            shouldThrowExactly<TestException> {
-                context.subject.doWork()
-            }
-
-            reportList.shouldHaveSize(1)
-        }
-
-        test("TC-367c7b17-98eb-4fb9-a44e-072b4be2c056 동기화가 성공하면 오류 보고가 남지 않는다") {
-            val context =
-                context(
-                    tagList = tags(size = 1),
-                    memoList = memos(size = 1),
-                    memoTagList = memoTags(size = 1),
-                )
-            val reportList = recordCrashlyticsLog()
-
-            context.subject.doWork()
-
-            reportList.shouldBeEmpty()
         }
 
         test("TC-08cbe2b5-73ec-4ef2-b388-f95850b0b1ed 진행 중인 동기화가 취소되면 오류 보고가 남지 않는다") {
@@ -740,7 +708,7 @@ class SyncWorkTest :
             reportList.shouldBeEmpty()
         }
 
-        test("TC-89d9c2ca-e9f9-4c8e-99c3-eba824b3717e 오프라인으로 인한 동기화 실패도 오류 보고로 남는다") {
+        test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 오프라인으로 실패해도 오류 보고는 남지 않는다") {
             val context = context(tagList = tags(size = 1))
             val failure = UnknownHostException(fixtureMonkey.giveMeOne<String>())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
@@ -750,10 +718,6 @@ class SyncWorkTest :
                 context.subject.doWork()
             }
 
-            val report = reportList.single()
-            report.throwable.shouldBeInstanceOf<UnknownHostException>()
-            report.throwable.message shouldBe failure.message
+            reportList.shouldBeEmpty()
         }
     })
-
-private const val SYNC_FAILURE_REPORT_MESSAGE: String = "데이터 동기화 실패"

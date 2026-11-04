@@ -29,6 +29,8 @@ public fun createJsonHttpClient(
             json(json)
         }
 
+        install(RemoteResponseFailureReport)
+
         install(DefaultRequest) {
             url(baseUrl)
             defaultRequest()

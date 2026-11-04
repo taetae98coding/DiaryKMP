@@ -98,6 +98,21 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-364abafa-b866-4902-b128-c8a3799b563f Apple 로그인 흐름이 오류 없이 끝나면 오류 보고를 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val reportList = recordCrashlyticsLog()
+                val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true))
+
+                viewModel.showConfirm()
+                viewModel.confirmDelete()
+                advanceUntilIdle()
+                viewModel.endAppleAuthorization()
+                advanceUntilIdle()
+
+                reportList.shouldBeEmpty()
+            }
+        }
+
         test("TC-b28f7750-5460-48cc-927e-e6e0ab50a3a9 Apple 재인증이 취소되면 진행 중을 풀고 탈퇴하지 않는다") {
             runTest(mainDispatcher) {
                 val deleteAccountUseCase = deleteAccountUseCase()
@@ -295,7 +310,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-30f87464-4507-40d0-aafe-b02ec5314b62 TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 Apple 인가 코드를 받지 못하면 실패를 알리고 오류 보고를 남긴다") {
+        test("TC-30f87464-4507-40d0-aafe-b02ec5314b62 TC-364abafa-b866-4902-b128-c8a3799b563f Apple 로그인 흐름이 오류로 끝나면 실패를 알리고 오류 보고를 남긴다") {
             runTest(mainDispatcher) {
                 val failure = IllegalStateException("no code")
                 val reportList = recordCrashlyticsLog()
@@ -316,7 +331,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 확인을 열고 닫기만 하면 오류 보고가 남지 않는다") {
+        test("TC-364abafa-b866-4902-b128-c8a3799b563f 확인을 열고 닫기만 하면 오류 보고가 남지 않는다") {
             runTest(mainDispatcher) {
                 val reportList = recordCrashlyticsLog()
                 val viewModel = viewModel()

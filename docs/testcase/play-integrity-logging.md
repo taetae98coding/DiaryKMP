@@ -13,7 +13,7 @@ flowchart TD
     Platform -- 예 --> Token["Google Play에<br/>무결성 확인 정보 요청"]
     Token -- 실패 --> TokenFail["로그 없이 끝<br/>TC-20072077-72da-437e-bd3a-7874cfc5c4d4"]
     Token -- 성공 --> Server["서버에 판정 결과 요청"]
-    Server -- 실패 --> ServerFail["로그 없이 끝<br/>TC-38f0fd49-9bdf-435a-aef3-ca084756c93f"]
+    Server -- 실패 --> ServerFail["원격 분석 로그 없이 끝<br/>TC-38f0fd49-9bdf-435a-aef3-ca084756c93f"]
     Server -- 성공 --> Log["판정 결과를<br/>원격 분석 로그로 남김<br/>TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc"]
 ```
 
@@ -108,12 +108,12 @@ flowchart TD
 - When: 판정을 확인한다.
 - Then: 서버로 판정 결과 요청이 발생하지 않고, 원격 분석 로그와 오류 보고가 남지 않으며, 확인은 오류 없이 끝난다.
 
-### TC-38f0fd49-9bdf-435a-aef3-ca084756c93f: 서버가 판정 결과를 돌려주지 못하면 로그 없이 끝낸다
+### TC-38f0fd49-9bdf-435a-aef3-ca084756c93f: 서버가 판정 결과를 돌려주지 못하면 원격 분석 로그 없이 끝낸다
 
 - 근거: `client > domain > 실패 처리`
 - Given: Google Play가 무결성 확인 정보를 발급하고, 서버가 판정 결과 요청에 실패로 답한다.
 - When: 판정을 확인한다.
-- Then: 원격 분석 로그와 오류 보고가 남지 않고, 확인은 오류 없이 끝난다.
+- Then: 원격 분석 로그가 남지 않고, 판정 확인의 실패로는 오류 보고가 남지 않으며, 확인은 오류 없이 끝난다. 서버의 실패 응답이 남기는 오류 보고는 [원격 응답 실패 보고 테스트 케이스](./remote-response-failure-logging.md)에서 다룬다.
 
 ### TC-09a7d8bf-6294-4edf-b420-535dd1cb599f: 앱이 활성 상태가 될 때마다 확인한다
 

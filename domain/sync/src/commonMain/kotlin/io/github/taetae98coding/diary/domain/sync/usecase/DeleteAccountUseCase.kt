@@ -9,8 +9,6 @@ import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
-import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import kotlinx.coroutines.CancellationException
 import org.koin.core.annotation.Factory
 
@@ -29,23 +27,18 @@ public class DeleteAccountUseCase internal constructor(
         }
 
         accountRepository.delete(appleAuthorization = parameter)
-        runReporting { accountSyncDataRepository.delete(account = account) }
-        runReporting { accountSyncTimeRepository.delete(account = account) }
+        runIgnoringFailure { accountSyncDataRepository.delete(account = account) }
+        runIgnoringFailure { accountSyncTimeRepository.delete(account = account) }
         signOutUseCase(parameter = Unit)
     }
 
-    // 서버의 계정은 이미 지워져 되돌릴 수 없으므로, 기기 데이터를 지우지 못해도 보고만 하고 나머지 정리와 로그아웃을 이어 간다.
-    private suspend fun runReporting(block: suspend () -> Unit) {
+    // 서버의 계정은 이미 지워져 되돌릴 수 없으므로, 기기 데이터를 지우지 못해도 나머지 정리와 로그아웃을 이어 간다.
+    private suspend fun runIgnoringFailure(block: suspend () -> Unit) {
         try {
             block()
         } catch (exception: CancellationException) {
             throw exception
-        } catch (throwable: Throwable) {
-            DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
+        } catch (_: Throwable) {
         }
-    }
-
-    override fun onFailure(throwable: Throwable) {
-        DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
     }
 }

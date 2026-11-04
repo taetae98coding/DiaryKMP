@@ -42,7 +42,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있다") {
-            val record = mockk<(String, Throwable) -> Unit>(relaxed = true)
+            val record = mockk<(CrashlyticsLog) -> Unit>(relaxed = true)
             DiaryLogger.add(delegate = CrashlyticsDiaryLoggerDelegate(record = record))
 
             When("오류 보고 로그를 공통 창구에 전달한다") {
@@ -52,7 +52,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
 
                     DiaryLogger.log(log = log)
 
-                    verify(exactly = 1) { record(log.message, log.throwable) }
+                    verify(exactly = 1) { record(log) }
                     confirmVerified(record)
                 }
             }
@@ -65,7 +65,7 @@ class CrashlyticsDiaryLoggerDelegateTest :
                         DiaryLogger.log(log = OtherLog(value = fixtureMonkey.giveMeOne<Int>()))
                     }
 
-                    verify(exactly = 0) { record(any(), any()) }
+                    verify(exactly = 0) { record(any()) }
                 }
             }
         }

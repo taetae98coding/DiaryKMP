@@ -57,31 +57,12 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-c41ea30b-6edc-478b-b8b3-f85b335e61fe TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
-                    val report = reportList.single()
-
-                    report.throwable shouldBeSameInstanceAs failure
-                    report.message shouldContain "FetchLunarUseCase"
+                Then("TC-c6e531c4-1558-43a1-879e-c9e73f55d26b 오류 보고는 남지 않는다") {
+                    reportList.shouldBeEmpty()
                 }
 
                 Then("TC-16f767f7-bf9a-4111-ba16-fb3e808cd5b5 실패 결과로 끝나 제공하지 않는 연도와 구분된다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
-                }
-            }
-        }
-
-        Given("오류 보고 기록 수단이 등록되어 있고 음력 자료 동기화가 성공하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val repository = mockk<LunarRepository>()
-            coEvery { repository.fetch(year = year) } returns listOf(lunarDate())
-            val useCase = FetchLunarUseCase(lunarRepository = repository)
-            val reportList = recordCrashlyticsLog()
-
-            When("특정 연도의 음력 자료 동기화를 요청한다") {
-                useCase(parameter = year)
-
-                Then("TC-2fbda8e9-2020-4454-a510-e4e54d2711c1 오류 보고가 남지 않는다") {
-                    reportList.shouldBeEmpty()
                 }
             }
         }

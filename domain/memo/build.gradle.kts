@@ -9,13 +9,13 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.setting)
                 implementation(projects.domain.sync)
-                implementation(projects.logger.crashlytics.api)
                 api(libs.androidx.paging.common)
             }
         }
 
         jvmTest {
             dependencies {
+                implementation(projects.logger.crashlytics.api)
                 implementation(libs.androidx.paging.testing)
                 implementation(projects.core.testing)
             }

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -436,7 +437,7 @@ class SyncWorkKindTest :
             context.verifyNoPull()
         }
 
-        test("TC-d997a10e-93f1-469d-ab8f-e1005e382f7f 계정 상태를 확인하지 못해 끝난 동기화도 원인을 담은 오류 보고가 한 번 남는다") {
+        test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 계정 확인이 실패해도 오류 보고는 남지 않는다") {
             val failure = TestException(fixtureMonkey.giveMeOne())
             val context =
                 kindContext(pendingCountMap = mapOf(TAG to 1, MEMO to 1))
@@ -446,9 +447,7 @@ class SyncWorkKindTest :
             val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
 
             actual.message shouldBe failure.message
-            val report = reportList.single()
-            report.throwable.shouldBeInstanceOf<TestException>()
-            report.throwable.message shouldBe failure.message
+            reportList.shouldBeEmpty()
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 0) }
             context.verifyNoPull()
         }

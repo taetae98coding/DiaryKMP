@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRep
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.string.shouldContain
@@ -60,9 +61,9 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
             When("Apple 재인증이 필요한지 판정한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 실패를 돌려주고 오류 보고를 남긴다") {
+                Then("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e TC-364abafa-b866-4902-b128-c8a3799b563f 실패를 돌려주고 오류 보고는 남기지 않는다") {
                     result.shouldBeFailure()
-                    reportList.single().message shouldContain "CheckAppleReauthenticationRequiredUseCase"
+                    reportList.shouldBeEmpty()
                 }
             }
         }

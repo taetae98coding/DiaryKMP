@@ -128,6 +128,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |
 | [QrScan](./qr-scan.md) | [QrScan 화면](../spec/client/qr-scan.md) |
 | [QR 목록·상세 배치](./qr-list-detail.md) | [QR 목록·상세 배치](../spec/client/qr-list-detail.md) |
+| [원격 응답 실패 보고](./remote-response-failure-logging.md) | [원격 응답 실패 보고](../spec/client/remote-response-failure-logging.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/client/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |

@@ -13,7 +13,6 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.sync)
                 implementation(projects.library.coroutines)
-                implementation(projects.logger.crashlytics.api)
             }
         }
 
@@ -32,6 +31,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.logger.crashlytics.api)
                 implementation(projects.core.testing)
                 implementation(libs.kotlinx.serialization.json)
             }

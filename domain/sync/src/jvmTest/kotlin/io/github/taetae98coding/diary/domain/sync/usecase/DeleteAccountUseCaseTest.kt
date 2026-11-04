@@ -88,9 +88,8 @@ class DeleteAccountUseCaseTest :
                     coVerify(exactly = 0) { fixture.signOutUseCase(parameter = Unit) }
                 }
 
-                // 실패가 코루틴 경계를 넘으며 같은 내용의 사본으로 바뀔 수 있어 메시지로 비교한다.
-                Then("TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 서버 처리 실패를 오류 보고로 남긴다") {
-                    reportList.single().throwable.message shouldBe failure.message
+                Then("TC-364abafa-b866-4902-b128-c8a3799b563f 서버 처리 실패는 오류 보고를 남기지 않는다") {
+                    reportList.shouldBeEmpty()
                 }
             }
         }
@@ -104,22 +103,9 @@ class DeleteAccountUseCaseTest :
             When("탈퇴한다") {
                 val result = fixture.useCase(parameter = null)
 
-                Then("TC-f27c4cf4-95f6-427d-8ec1-b0c5a57dd2f6 로그아웃하고 성공으로 끝나며 삭제 실패를 오류 보고로 남긴다") {
+                Then("TC-892a1660-772e-408f-ad0e-c99ca15aefba 로그아웃하고 성공으로 끝나며 오류 보고는 남기지 않는다") {
                     result.shouldBeSuccess()
                     coVerify(exactly = 1) { fixture.signOutUseCase(parameter = Unit) }
-                    reportList.single().throwable shouldBeSameInstanceAs failure
-                }
-            }
-        }
-
-        Given("서버 탈퇴가 성공하도록 준비되어 있고 오류 보고 기록 수단이 등록되어 있다") {
-            val fixture = Fixture(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))
-            val reportList = recordCrashlyticsLog()
-
-            When("탈퇴한다") {
-                fixture.useCase(parameter = null)
-
-                Then("TC-f060a68c-704d-4435-b2ad-cc5dfdd0af78 오류 보고가 남지 않는다") {
                     reportList.shouldBeEmpty()
                 }
             }

@@ -126,7 +126,7 @@ class FcmTokenRepositoryImplTest :
             coVerify(exactly = 2) { remote.upsert(fcmToken = FcmTokenRemoteEntity(installationId = installationId)) }
         }
 
-        test("TC-8df0e0c3-4978-4aa1-b355-df1ed8d79653 설치 ID를 받아 오지 못하면 제출하지 않고 실패를 전달한다") {
+        test("TC-a5d2b40e-e204-4dc5-aa2f-9cb56a893b1a 설치 ID를 받아 오지 못하면 제출하지 않고 실패를 전달한다") {
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val provider = mockk<FcmTokenProvider>()
             coEvery { provider.getInstallationId() } throws failure

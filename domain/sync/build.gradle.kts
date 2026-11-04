@@ -7,6 +7,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.account)
+            }
+        }
+
+        jvmTest {
+            dependencies {
                 implementation(projects.logger.crashlytics.api)
             }
         }

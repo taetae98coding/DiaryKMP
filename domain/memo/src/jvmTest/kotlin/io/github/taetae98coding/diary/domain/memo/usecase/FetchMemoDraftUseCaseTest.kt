@@ -257,42 +257,11 @@ class FetchMemoDraftUseCaseTest :
                         }
                     val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
 
-                    useCase(parameter = emptyParameter())
+                    val result = useCase(parameter = emptyParameter())
 
-                    Then("TC-b746e610-5fed-4771-8f4c-92c1cbea6d35 $name 원인을 담은 오류 보고가 한 번 남는다") {
-                        val report = reportList.single()
-
-                        report.throwable shouldBeSameInstanceAs failure
-                        report.message shouldContain "FetchMemoDraftUseCase"
-                    }
-                }
-            }
-        }
-
-        Given("오류 보고 기록 수단이 등록되어 있고 사용자가 적은 내용과 저장된 설정에 값이 있다") {
-            When("생성이 실패하면") {
-                Then("TC-78cd381e-2737-42c3-b920-1a6b404d2d69 오류 보고의 메시지와 실패 원인에 인증 정보와 사용자가 적은 내용을 담지 않는다") {
-                    val reportList = recordCrashlyticsLog()
-                    val setting = GeminiSetting(apiKey = "apiKey-${fixtureMonkey.giveMeOne<Uuid>()}", model = "models/gemini", systemPrompt = "system-${fixtureMonkey.giveMeOne<Uuid>()}")
-                    val parameter =
-                        FetchMemoDraftUseCase.Parameter(
-                            prompt = "prompt-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            title = "title-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            description = "description-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            dateTime = null,
-                        )
-                    val memoDraftRepository =
-                        mockk<MemoDraftRepository> {
-                            every { stream(any(), any()) } returns failing(GeminiApiKeyInvalidException(cause = IllegalStateException("generate failed")))
-                        }
-                    val useCase = createUseCase(setting = setting, memoDraftRepository = memoDraftRepository)
-
-                    useCase(parameter = parameter)
-
-                    val report = reportList.single()
-                    val reportedTextList = listOf(report.message) + generateSequence(report.throwable) { throwable -> throwable.cause }.mapNotNull { throwable -> throwable.message }
-                    listOf(setting.apiKey, setting.systemPrompt, parameter.prompt, parameter.title, parameter.description).forEach { secret ->
-                        reportedTextList.forEach { text -> text shouldNotContain secret }
+                    Then("TC-ad9b9bbf-b6c9-4611-b438-bed0b7576447 $name 실패는 오류 보고를 남기지 않는다") {
+                        result.shouldBeFailure() shouldBeSameInstanceAs failure
+                        reportList.shouldBeEmpty()
                     }
                 }
             }
@@ -323,11 +292,10 @@ class FetchMemoDraftUseCaseTest :
 
 private fun reportFailureCases(): List<Triple<String, Throwable, Boolean>> =
     listOf(
-        Triple("인증 정보가 유효하지 않은 실패", GeminiApiKeyInvalidException(cause = null), false),
         Triple("구조화된 형태가 아닌 응답", GeminiRequestException.Other(description = "", cause = null), false),
         Triple("대기 한도 안에 조각이 오지 않음", GeminiRequestException.Timeout(cause = null), false),
         Triple("통신 오류", GeminiRequestException.Network(cause = null), false),
-        Triple("조각을 받는 도중의 실패", GeminiRequestException.Network(cause = null), true),
+        Triple("조각을 받는 도중 연결이 끊김", GeminiRequestException.Network(cause = null), true),
     )
 
 private fun completed(draft: MemoDraft): Flow<MemoDraftGeneration> = flowOf(MemoDraftGeneration.Completed(draft = draft))

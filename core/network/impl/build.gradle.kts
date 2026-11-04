@@ -24,6 +24,7 @@ kotlin {
                 implementation(ktorLibs.client.contentNegotiation)
                 implementation(ktorLibs.client.mock)
                 implementation(ktorLibs.serialization.kotlinx.json)
+                implementation(projects.logger.crashlytics.api)
             }
         }
     }

@@ -71,29 +71,10 @@ class FetchHolidayUseCaseTest :
             val reportList = recordCrashlyticsLog()
 
             When("특정 연도의 공휴일 동기화를 요청한다") {
-                useCase(parameter = year)
+                val result = useCase(parameter = year)
 
-                Then("TC-358d29f3-29e8-4f44-a03a-a5cfed370247 TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
-                    val report = reportList.single()
-
-                    report.throwable shouldBeSameInstanceAs failure
-                    report.message shouldContain "FetchHolidayUseCase"
-                }
-            }
-        }
-
-        Given("오류 보고 기록 수단이 등록되어 있고 공휴일 동기화가 성공하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val repository = mockk<HolidayRepository>()
-            coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns listOf(holiday())
-            val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
-
-            val reportList = recordCrashlyticsLog()
-
-            When("특정 연도의 공휴일 동기화를 요청한다") {
-                useCase(parameter = year)
-
-                Then("TC-75aeb7c0-ad3a-4462-a042-81c9e9193458 오류 보고가 남지 않는다") {
+                Then("TC-944eb4ec-3e92-4b1a-8495-a6bd0439c0f7 실패로 끝나고 오류 보고는 남지 않는다") {
+                    result.shouldBeFailure() shouldBeSameInstanceAs failure
                     reportList.shouldBeEmpty()
                 }
             }

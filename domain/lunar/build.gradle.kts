@@ -4,7 +4,7 @@ plugins {
 
 kotlin {
     sourceSets {
-        commonMain {
+        jvmTest {
             dependencies {
                 implementation(projects.logger.crashlytics.api)
             }
