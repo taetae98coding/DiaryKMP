@@ -160,7 +160,10 @@ jobs:
     needs: [version, check]
     if: inputs.android && needs.check.outputs.android != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # Baseline Profile 생성이 에뮬레이터 기동과 nonMinifiedRelease 빌드로 20분 남짓 더 걸린다.
+    timeout-minutes: 120
+    env:
+      BASELINE_PROFILE_DIR: app/android/src/main/generated/baselineProfiles
     steps:
       - name: 📥 소스 가져오기
         uses: actions/checkout@v7
@@ -189,6 +192,40 @@ jobs:
           mkdir -p app/android/keystore app/android/src/real
           echo "$ANDROID_REAL_KEYSTORE_BASE64" | base64 -d > app/android/keystore/real.jks
           echo "$GOOGLE_SERVICES_REAL_JSON_BASE64" | base64 -d > app/android/src/real/google-services.json
+
+      # Gradle 관리 기기의 에뮬레이터가 하드웨어 가속을 쓰도록 러너 사용자에게 /dev/kvm을 연다.
+      - name: 🖥️ 에뮬레이터 가속(KVM) 허용
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # 배포하는 코드로 프로필을 새로 만들어 AAB에 넣는다. 생성이 실패하면 낡은 프로필로 배포하지 않고 잡을 멈춘다.
+      # 기기 설치가 실패해도 Gradle이 성공으로 끝나는 경우가 있어, 기존 프로필을 지우고 새 파일이 생겼는지 확인한다.
+      - name: 📈 Baseline Profile 생성
+        run: |
+          set -euo pipefail
+          rm -rf "$BASELINE_PROFILE_DIR"
+          ./gradlew :app:android:generateBaselineProfile \
+            -Pbuildkonfig.flavor=real \
+            -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=BaselineProfile \
+            -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+          for profile in baseline-prof.txt startup-prof.txt; do
+            if [ ! -s "$BASELINE_PROFILE_DIR/$profile" ]; then
+              echo "::error::$BASELINE_PROFILE_DIR/$profile 이 생성되지 않았습니다."
+              exit 1
+            fi
+          done
+
+      # finalize가 버전 커밋에 함께 넣어 저장소의 프로필을 마지막 배포와 같게 맞춘다.
+      - name: 📤 Baseline Profile 업로드
+        uses: actions/upload-artifact@v7
+        with:
+          name: baseline-profile
+          path: ${{ env.BASELINE_PROFILE_DIR }}
+          if-no-files-found: error
+          retention-days: 7
 
       - name: 🏗️ real 릴리스 AAB 빌드
         run: ./gradlew :app:android:bundleRealRelease -Pbuildkonfig.flavor=real
@@ -511,6 +548,14 @@ jobs:
           version: ${{ needs.version.outputs.version }}
           build: ${{ needs.version.outputs.build }}
 
+      # Android를 배포하지 않았거나 이미 올라가 있어 건너뛴 실행은 새 프로필이 없으므로 저장소의 프로필을 그대로 둔다.
+      - name: 📥 Baseline Profile 받기
+        if: needs.android.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: baseline-profile
+          path: app/android/src/main/generated/baselineProfiles
+
       # 아직 태그가 없으므로 직전 태그 뒤의 커밋을 --tag로 이번 버전에 묶는다.
       # 매번 전체 이력으로 다시 만들어 재실행해도 같은 파일이 나온다.
       - name: 📝 CHANGELOG.md 생성
@@ -526,8 +571,8 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # 첫 배포에서는 CHANGELOG.md가 추적되지 않으므로 -a와 별도로 스테이징한다.
-          git add CHANGELOG.md
+          # -a는 추적하지 않는 파일을 넣지 않으므로, 처음 생기는 CHANGELOG.md와 프로필 파일은 따로 스테이징한다.
+          git add CHANGELOG.md app/android/src/main/generated/baselineProfiles
           git commit -am "chore: 앱을 $VERSION ($BUILD) 버전으로 올린다"
           git tag -a "$VERSION" -m "$VERSION ($BUILD)"
           # 배포 중에 main이 앞서 나갔다면 fast-forward가 아니어서 push가 실패한다. 태그는 main에 들어간 커밋에만 단다.
