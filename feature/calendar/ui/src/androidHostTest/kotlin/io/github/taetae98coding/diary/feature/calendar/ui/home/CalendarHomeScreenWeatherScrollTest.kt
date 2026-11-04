@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -289,7 +290,7 @@ class CalendarHomeScreenWeatherScrollTest {
         CalendarWeatherReport(
             weatherList =
                 listOf(
-                    calendarWeather(
+                    fixtureMonkey.calendarWeather(
                         date = july(day = WEATHER_DAY),
                         temperature = CalendarWeatherTemperature.Current(value = temperature),
                         descriptionList = listOf(SUNNY_DESCRIPTION),

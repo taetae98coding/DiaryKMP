@@ -17,10 +17,10 @@ import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.search.holidaySearchUri
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.feature.calendar.ui.common.search.holidaySearchUri
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState

@@ -9,7 +9,6 @@ kotlin {
                 implementation(projects.compose.calendar)
                 implementation(projects.compose.permission)
                 implementation(projects.compose.tag)
-                implementation(projects.compose.timetable)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.lunar)
@@ -21,10 +20,8 @@ kotlin {
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.tag.api)
-                implementation(projects.library.composeUi)
-                implementation(projects.library.kotlin)
+                implementation(projects.feature.timetable.api)
                 implementation(projects.library.kotlinxDatetime)
-                implementation(libs.coil.compose)
             }
         }
 

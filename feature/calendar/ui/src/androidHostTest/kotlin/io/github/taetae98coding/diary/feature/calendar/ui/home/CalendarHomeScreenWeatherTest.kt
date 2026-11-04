@@ -17,6 +17,7 @@ import androidx.compose.ui.test.swipeLeft
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.weather.CALENDAR_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
@@ -25,7 +26,7 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
-import io.github.taetae98coding.diary.feature.calendar.ui.common.weather.CALENDAR_WEATHER_ICONS_TEST_TAG
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -70,7 +71,7 @@ class CalendarHomeScreenWeatherTest {
             CalendarWeatherReport(
                 weatherList =
                     listOf(
-                        calendarWeather(
+                        fixtureMonkey.calendarWeather(
                             date = july(day = 15),
                             temperature = CalendarWeatherTemperature.Current(value = 24.3),
                             descriptionList = listOf(SUNNY_DESCRIPTION),
@@ -86,7 +87,7 @@ class CalendarHomeScreenWeatherTest {
     @Test
     fun `TC-150b4b4d-d2ad-4950-a585-6cd96e1cdd98 캘린더에 보이는 주와 겹치지 않는 날짜의 날씨는 표시되지 않는다`() {
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 15),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList = listOf(SUNNY_DESCRIPTION),
@@ -114,7 +115,7 @@ class CalendarHomeScreenWeatherTest {
     @Config(sdk = [36], qualifiers = "w840dp-h900dp")
     fun `TC-1020d8a1-0e40-42b9-aba8-04a1242da437 오늘 날짜의 모든 날씨 아이콘과 현재 기온이 표시된다`() {
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 15),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList = listOf(SUNNY_DESCRIPTION, CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
@@ -153,7 +154,7 @@ class CalendarHomeScreenWeatherTest {
     @Test
     fun `TC-141a0841-2fba-4903-ba97-22f6cc0d3c09 오늘이 아닌 날짜의 모든 날씨 아이콘과 최저 최고 기온이 표시된다`() {
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 16),
                 temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
                 descriptionList = listOf(CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
@@ -173,7 +174,7 @@ class CalendarHomeScreenWeatherTest {
     @Test
     fun `TC-e7ee237a-2c9e-4efb-91ee-a632bf7c8e29 온도 표시가 없는 날짜는 날씨 아이콘만 표시된다`() {
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 16),
                 temperature = CalendarWeatherTemperature.None,
                 descriptionList = listOf(CLOUDY_DESCRIPTION),
@@ -192,7 +193,7 @@ class CalendarHomeScreenWeatherTest {
     fun `TC-c9866073-5352-4222-aff1-c6f4cc89bc1f 한 번에 보이지 않는 날씨 아이콘을 가로로 스크롤해 확인한다`() {
         val descriptionList = List(size = WEATHER_ICON_COUNT) { index -> "$WEATHER_DESCRIPTION_PREFIX$index" }
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 15),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList = descriptionList,
@@ -222,7 +223,7 @@ class CalendarHomeScreenWeatherTest {
         val sunnyImageUrl = "https://openweathermap.org/img/wn/01d.png"
         val cloudyImageUrl = "https://openweathermap.org/img/wn/02d.png"
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = july(day = 15),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList =

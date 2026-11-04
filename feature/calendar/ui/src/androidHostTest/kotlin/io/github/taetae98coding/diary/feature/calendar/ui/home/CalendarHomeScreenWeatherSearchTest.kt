@@ -16,12 +16,13 @@ import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.search.weatherSearchUri
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
-import io.github.taetae98coding.diary.feature.calendar.ui.common.search.weatherSearchUri
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -217,14 +218,14 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     private fun todayWeather(): CalendarWeather =
-        calendarWeather(
+        fixtureMonkey.calendarWeather(
             date = july(day = 15),
             temperature = CalendarWeatherTemperature.Current(value = 24.3),
             descriptionList = listOf(SUNNY_DESCRIPTION),
         )
 
     private fun tomorrowWeather(): CalendarWeather =
-        calendarWeather(
+        fixtureMonkey.calendarWeather(
             date = july(day = 16),
             temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
             descriptionList = listOf(CLOUDY_DESCRIPTION),

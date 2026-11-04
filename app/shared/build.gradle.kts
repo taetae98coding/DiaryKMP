@@ -109,6 +109,8 @@ kotlin {
                 implementation(projects.feature.setting.ui)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.tag.ui)
+                implementation(projects.feature.timetable.api)
+                implementation(projects.feature.timetable.ui)
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)

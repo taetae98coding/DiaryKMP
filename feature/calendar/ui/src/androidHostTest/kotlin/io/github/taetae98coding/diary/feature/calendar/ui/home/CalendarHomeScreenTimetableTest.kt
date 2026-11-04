@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performTouchInput
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.search.holidaySearchUri
+import io.github.taetae98coding.diary.compose.calendar.search.weatherSearchUri
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -23,12 +25,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.common.search.holidaySearchUri
-import io.github.taetae98coding.diary.feature.calendar.ui.common.search.weatherSearchUri
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -103,7 +104,7 @@ class CalendarHomeScreenTimetableTest {
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
         // 날씨는 이름 아이템보다 위 줄을 차지하므로 다른 주에 두어 작은 화면에서도 모든 아이템이 한 번에 보이게 한다.
         val weather =
-            calendarWeather(
+            fixtureMonkey.calendarWeather(
                 date = september(day = 29),
                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                 descriptionList = listOf("clear sky"),

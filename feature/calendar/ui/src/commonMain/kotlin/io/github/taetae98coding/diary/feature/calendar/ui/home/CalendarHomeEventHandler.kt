@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.toDateRange
-import io.github.taetae98coding.diary.feature.calendar.ui.common.memo.toDateRange
+import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
+import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import kotlinx.datetime.LocalDateRange
 import kotlin.uuid.Uuid
 

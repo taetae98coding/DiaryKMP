@@ -11,7 +11,6 @@ import io.github.taetae98coding.diary.feature.account.api.ProfileImageViewerNavK
 import io.github.taetae98coding.diary.feature.account.api.ProfileNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
@@ -56,6 +55,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey

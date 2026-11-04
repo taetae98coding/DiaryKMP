@@ -1,0 +1,38 @@
+plugins {
+    alias(libs.plugins.convention.feature.ui)
+}
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.compose.calendar)
+                implementation(projects.compose.timetable)
+                implementation(projects.domain.contact)
+                implementation(projects.domain.holiday)
+                implementation(projects.domain.lunar)
+                implementation(projects.domain.memo)
+                implementation(projects.domain.weather)
+                implementation(projects.feature.contact.api)
+                implementation(projects.feature.core)
+                implementation(projects.feature.memo.api)
+                implementation(projects.feature.timetable.api)
+                implementation(projects.library.composeUi)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(projects.core.testing)
+                implementation(projects.feature.calendar.api)
+                implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+    }
+}

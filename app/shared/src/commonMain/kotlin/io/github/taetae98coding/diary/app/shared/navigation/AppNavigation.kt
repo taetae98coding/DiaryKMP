@@ -14,6 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -50,6 +51,7 @@ import io.github.taetae98coding.diary.feature.routine.ui.routineEntry
 import io.github.taetae98coding.diary.feature.search.ui.searchEntry
 import io.github.taetae98coding.diary.feature.setting.ui.settingEntry
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
+import io.github.taetae98coding.diary.feature.timetable.ui.timetableEntry
 import io.github.taetae98coding.diary.feature.web.ui.webEntry
 
 @Composable
@@ -85,42 +87,44 @@ internal fun AppNavigation(
             transitionSpec = { DiaryFadeContentTransform },
             popTransitionSpec = { DiaryFadeContentTransform },
             predictivePopTransitionSpec = { DiaryFadeContentTransform },
-            entryProvider =
-                entryProvider {
-                    memoEntry(
-                        backStack = appState.backStack,
-                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Memo),
-                    )
-                    tagEntry(
-                        backStack = appState.backStack,
-                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Tag),
-                    )
-                    calendarEntry(
-                        backStack = appState.backStack,
-                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Calendar),
-                    )
-                    routineEntry(
-                        backStack = appState.backStack,
-                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Routine),
-                    )
-                    moreEntry(backStack = appState.backStack)
-
-                    checklistEntry(backStack = appState.backStack)
-                    contactEntry(backStack = appState.backStack)
-                    dDayEntry(backStack = appState.backStack)
-                    fileEntry(backStack = appState.backStack)
-                    holidayEntry(backStack = appState.backStack)
-                    loginEntry(backStack = appState.backStack)
-                    accountEntry(backStack = appState.backStack)
-                    placeEntry(backStack = appState.backStack)
-                    playlistEntry(backStack = appState.backStack)
-                    qrEntry(backStack = appState.backStack)
-                    searchEntry(backStack = appState.backStack)
-                    settingEntry(backStack = appState.backStack)
-                    webEntry(backStack = appState.backStack)
-                },
+            entryProvider = entryProvider { appEntries(appState = appState) },
         )
     }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.appEntries(appState: AppState) {
+    memoEntry(
+        backStack = appState.backStack,
+        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Memo),
+    )
+    tagEntry(
+        backStack = appState.backStack,
+        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Tag),
+    )
+    calendarEntry(
+        backStack = appState.backStack,
+        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Calendar),
+    )
+    routineEntry(
+        backStack = appState.backStack,
+        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Routine),
+    )
+    moreEntry(backStack = appState.backStack)
+
+    checklistEntry(backStack = appState.backStack)
+    contactEntry(backStack = appState.backStack)
+    dDayEntry(backStack = appState.backStack)
+    fileEntry(backStack = appState.backStack)
+    holidayEntry(backStack = appState.backStack)
+    loginEntry(backStack = appState.backStack)
+    accountEntry(backStack = appState.backStack)
+    placeEntry(backStack = appState.backStack)
+    playlistEntry(backStack = appState.backStack)
+    qrEntry(backStack = appState.backStack)
+    searchEntry(backStack = appState.backStack)
+    settingEntry(backStack = appState.backStack)
+    timetableEntry(backStack = appState.backStack)
+    webEntry(backStack = appState.backStack)
 }
 
 @Composable

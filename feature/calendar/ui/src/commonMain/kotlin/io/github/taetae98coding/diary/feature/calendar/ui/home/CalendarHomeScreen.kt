@@ -5,12 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.core.permission.PermissionManager
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import kotlinx.datetime.LocalDateRange
 import kotlin.uuid.Uuid
 

@@ -20,13 +20,14 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.timetable.ui.timetableEntry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
@@ -116,6 +117,7 @@ class CalendarOpenedScreenLayoutTest {
                 remember {
                     entryProvider<ScreenNavKey> {
                         calendarEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                        timetableEntry(backStack = backStack)
                         memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
                         contactEntry(backStack = backStack)
                     }

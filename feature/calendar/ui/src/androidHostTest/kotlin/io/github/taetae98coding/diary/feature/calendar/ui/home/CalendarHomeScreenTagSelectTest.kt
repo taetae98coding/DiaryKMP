@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SelectCalendarFilterTagUseCase
@@ -95,7 +96,7 @@ class CalendarHomeScreenTagSelectTest {
                 CalendarWeatherReport(
                     weatherList =
                         listOf(
-                            calendarWeather(
+                            fixtureMonkey.calendarWeather(
                                 date = july(day = 15),
                                 temperature = CalendarWeatherTemperature.Current(value = 24.3),
                                 descriptionList = listOf(SUNNY_DESCRIPTION),

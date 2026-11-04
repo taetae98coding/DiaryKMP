@@ -25,6 +25,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
+import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -35,11 +37,10 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
-import io.github.taetae98coding.diary.feature.calendar.ui.common.birthday.toDateRange
-import io.github.taetae98coding.diary.feature.calendar.ui.common.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
@@ -991,7 +992,7 @@ class CalendarHomeScreenMoveTest {
             memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
             weatherList =
                 listOf(
-                    calendarWeather(
+                    fixtureMonkey.calendarWeather(
                         date = july(day = 21),
                         temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
                         descriptionList = listOf(SUNNY_DESCRIPTION),

@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.feature.routine.api.routineNavKeys
 import io.github.taetae98coding.diary.feature.search.api.searchNavKeys
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
 import io.github.taetae98coding.diary.feature.tag.api.tagNavKeys
+import io.github.taetae98coding.diary.feature.timetable.api.timetableNavKeys
 import io.github.taetae98coding.diary.feature.web.api.webNavKeys
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -45,6 +46,7 @@ internal val AppNavKeySavedStateConfiguration: SavedStateConfiguration =
                     searchNavKeys()
                     settingNavKeys()
                     tagNavKeys()
+                    timetableNavKeys()
                     webNavKeys()
                 }
             }

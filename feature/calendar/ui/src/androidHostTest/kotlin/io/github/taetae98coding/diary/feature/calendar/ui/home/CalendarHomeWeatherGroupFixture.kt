@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -11,10 +12,12 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +26,8 @@ import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 internal object CalendarHomeWeatherGroupFixture {
     const val SUNDAY_TEMPERATURE_TEXT = "17.8°/28.2°"
@@ -88,7 +93,7 @@ internal object CalendarHomeWeatherGroupFixture {
         max: Double,
         description: String,
     ): CalendarWeather =
-        calendarWeather(
+        fixtureMonkey.calendarWeather(
             date = date,
             temperature = CalendarWeatherTemperature.MinMax(min = min, max = max),
             descriptionList = listOf(description),
