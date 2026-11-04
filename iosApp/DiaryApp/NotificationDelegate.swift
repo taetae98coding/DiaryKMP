@@ -4,7 +4,7 @@ import UserNotifications
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationDelegate()
 
-    // 알림에 담긴 앱 화면 주소의 키다. core:navigation의 ScreenDeepLink.USER_INFO_KEY와 같아야 한다.
+    // 알림에 담긴 앱 화면 주소의 키다. core:navigation의 ScreenDeepLink.NOTIFICATION_DATA_KEY와 같아야 한다.
     private static let deepLinkUserInfoKey = "deepLink"
 
     private override init() {

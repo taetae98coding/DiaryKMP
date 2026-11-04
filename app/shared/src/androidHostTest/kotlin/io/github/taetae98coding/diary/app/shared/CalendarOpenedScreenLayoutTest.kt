@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.timetable.ui.timetableEntry
@@ -96,6 +97,14 @@ class CalendarOpenedScreenLayoutTest {
                         ),
                 ),
             belowKeyList = listOf(CalendarHomeNavKey, SEPTEMBER_24_TIMETABLE),
+        )
+    }
+
+    @Test
+    fun `TC-9e1c615a-75a4-418a-a564-09d2a59555af 알림으로 메모 홈 위에 연 시간표는 단독으로 표시된다`() {
+        assertShownAlone(
+            openedKey = CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = SEPTEMBER_24, id = fixtureMonkey.giveMeOne<Uuid>()),
+            belowKeyList = listOf(CalendarHomeNavKey, MemoHomeNavKey),
         )
     }
 

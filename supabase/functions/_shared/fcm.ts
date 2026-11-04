@@ -9,6 +9,8 @@ export type FcmTarget = { fid: string; token?: never } | { token: string; fid?: 
 
 export type FcmMessage = FcmTarget & {
   notification: { title: string; body?: string };
+  // Android는 알림을 선택했을 때 앱에 넘기는 값으로, iOS는 알림의 userInfo로 앱에 전달된다.
+  data: Record<string, string>;
   android: {
     collapse_key: string;
     ttl: string;

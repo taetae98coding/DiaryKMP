@@ -15,11 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.deeplink.DeepLinkRequest
+import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLinkMatcher
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
+import io.github.taetae98coding.diary.app.shared.navigation.matchOrNull
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
-import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
@@ -30,6 +32,8 @@ import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
+import kotlin.uuid.Uuid
 
 @Stable
 internal class AppState(
@@ -72,21 +76,32 @@ internal class AppState(
     }
 
     fun openDeepLink(deepLink: String) {
-        when (deepLink) {
-            ScreenDeepLink.FILE_HOME -> openFileHome()
+        val request = DeepLinkRequest(deepLink)
+
+        AppDeepLinkMatcher.fileHome.matchOrNull(request)?.let { result ->
+            openFileHome(result.backStack)
+            return
+        }
+        AppDeepLinkMatcher.timetable.matchOrNull(request)?.let { result ->
+            openTimetable(result.key)
         }
     }
 
-    private fun openFileHome() {
+    private fun openTimetable(navKey: CalendarTimetableNavKey) {
+        val openedKey = navKey.copy(id = Uuid.random())
+
+        if (backStack.lastOrNull() is CalendarTimetableNavKey) {
+            backStack[backStack.lastIndex] = openedKey
+        } else {
+            backStack.add(openedKey)
+        }
+    }
+
+    private fun openFileHome(navKeyList: List<ScreenNavKey>) {
         if (isFileScreenVisible()) return
 
-        val navKeyList =
-            listOf(TopLevelNavigation.DEFAULT, TopLevelNavigation.More)
-                .distinct()
-                .map(TopLevelNavigation::key)
-
         backStack.clear()
-        backStack.addAll(navKeyList + FileHomeNavKey)
+        backStack.addAll(navKeyList)
     }
 
     private fun isFileScreenVisible(): Boolean =

@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.github.taetae98coding.diary.app.shared.App
 import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
+import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 
 internal class DiaryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,12 @@ internal class DiaryActivity : ComponentActivity() {
         openDeepLink(intent = intent)
     }
 
+    // 앱이 표시한 알림은 주소를 data로, 백그라운드에서 FCM SDK가 표시한 알림은 서버가 보낸 값을 extras로 넘긴다.
     private fun openDeepLink(intent: Intent) {
-        intent.dataString?.let(AppDeepLink::open)
+        val deepLink = intent.dataString ?: intent.getStringExtra(ScreenDeepLink.NOTIFICATION_DATA_KEY).orEmpty()
+
+        if (deepLink.isNotEmpty()) {
+            AppDeepLink.open(deepLink = deepLink)
+        }
     }
 }

@@ -18,7 +18,7 @@ internal class IosFileUploadNotifier : FileUploadNotifier {
             UNMutableNotificationContent().apply {
                 setTitle(result.title(text = text))
                 result.body(text = text).takeIf { body -> body.isNotEmpty() }?.let(::setBody)
-                setUserInfo(mapOf(ScreenDeepLink.USER_INFO_KEY to ScreenDeepLink.FILE_HOME))
+                setUserInfo(mapOf(ScreenDeepLink.NOTIFICATION_DATA_KEY to ScreenDeepLink.FILE_HOME))
             }
         val request =
             UNNotificationRequest.requestWithIdentifier(

@@ -72,14 +72,35 @@ class RemoteNotificationPresenterTest {
     }
 
     @Test
-    fun `TC-32789430-ba38-42d7-b2a3-22f563e53c61 알림을 선택하면 앱의 시작 지점을 열고 선택한 알림은 사라진다`() {
-        presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>())
+    fun `TC-3788b5fc-b522-403e-897a-7f8a5b9565ad 알림을 선택하면 알림 날짜의 시간표 주소로 앱을 열고 알림은 사라진다`() {
+        presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>().copy(deepLink = TIMETABLE_DEEP_LINK))
 
         val posted = shadowOf(notificationManager()).allNotifications.single()
         val launchIntent = shadowOf(posted.contentIntent.shouldNotBeNull()).savedIntent
 
         launchIntent.component?.className shouldBe LAUNCHER_ACTIVITY_CLASS_NAME
+        launchIntent.dataString shouldBe TIMETABLE_DEEP_LINK
         (posted.flags and Notification.FLAG_AUTO_CANCEL) shouldBe Notification.FLAG_AUTO_CANCEL
+    }
+
+    @Test
+    fun `열 화면이 있으면 떠 있는 진입 화면이 주소를 받도록 연다`() {
+        presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>().copy(deepLink = TIMETABLE_DEEP_LINK))
+
+        val launchIntent = shadowOf(shadowOf(notificationManager()).allNotifications.single().contentIntent).savedIntent
+        val reuseFlags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        (launchIntent.flags and reuseFlags) shouldBe reuseFlags
+    }
+
+    @Test
+    fun `TC-18f273e4-70a3-43f2-a3ee-c64bcc64f8ef 열 화면이 없으면 주소 없이 앱만 연다`() {
+        presenter.present(fixtureMonkey.giveMeOne<RemoteNotification>().copy(deepLink = ""))
+
+        val launchIntent = shadowOf(shadowOf(notificationManager()).allNotifications.single().contentIntent).savedIntent
+
+        launchIntent.component?.className shouldBe LAUNCHER_ACTIVITY_CLASS_NAME
+        launchIntent.data shouldBe null
     }
 
     @Test
@@ -134,6 +155,9 @@ class RemoteNotificationPresenterTest {
     private fun notificationManager(): NotificationManager = context.getSystemService(NotificationManager::class.java)
 
     private companion object {
+        // 서버가 2026년 11월 4일에 발생한 일일 메모 알림에 담아 보내는 주소다.
+        private const val TIMETABLE_DEEP_LINK: String = "diary://timetable?type=day&date=2026-11-04"
+
         const val LAUNCHER_ACTIVITY_CLASS_NAME: String = "io.github.taetae98coding.diary.TestLauncherActivity"
     }
 }

@@ -78,6 +78,7 @@ android {
 
 dependencies {
     implementation(projects.app.shared)
+    implementation(projects.core.navigation)
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.firebase.performance)
