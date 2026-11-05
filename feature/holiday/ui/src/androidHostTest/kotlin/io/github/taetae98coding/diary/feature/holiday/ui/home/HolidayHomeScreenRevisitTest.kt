@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUse
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ERROR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_LOADING_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
+import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_RETRY_LABEL
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -136,6 +137,29 @@ class HolidayHomeScreenRevisitTest {
 
         completion.complete(Result.success(providedHolidayList()))
         composeRule.waitForIdle()
+    }
+
+    @Test
+    fun `TC-72e64829-36c1-4c81-84c2-51304e5d172c 완료된 년도를 다시 동기화한 결과 실패가 있으면 오류 안내가 표시된다`() {
+        val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
+        coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = fetchHolidayUseCase,
+            getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
+        )
+
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
+
+        // 이후의 동기화는 2025년만 실패한다.
+        coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returns
+            Result.failure(IllegalStateException(Arb.string().next()))
+        scrollTo(year = YEAR + 1)
+        scrollTo(year = YEAR)
+
+        composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RETRY_LABEL).assertExists()
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertDoesNotExist()
     }
 
     @Test

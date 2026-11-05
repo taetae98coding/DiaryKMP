@@ -75,6 +75,31 @@ class DiaryDateTimeInputDatePickerDialogTest {
     }
 
     @Test
+    fun `TC-ce1bb9b6-4b63-4329-906e-c4adfd80b0e9 종료 날짜 선택 다이얼로그에서 확인하면 고른 날짜가 반영된다`() {
+        setDiaryDateTimeInput(initialValue = allDayValue())
+
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).performClick()
+        composeRule.onNode(hasText(text = PICK_DAY_CELL_TEXT, substring = true)).performClick()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+
+        composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(PICKED_END_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-a1bb49f4-9e4e-4057-bb7d-228d708c667a 종료 날짜 선택 다이얼로그를 취소하면 기존 값이 유지된다`() {
+        setDiaryDateTimeInput(initialValue = allDayValue())
+
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).performClick()
+        composeRule.onNode(hasText(text = PICK_DAY_CELL_TEXT, substring = true)).performClick()
+        composeRule.onNodeWithText(DEFAULT_CANCEL).performClick()
+
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(PICKED_END_DATE_TEXT).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-100445a4-5154-4302-ab94-c8bd236938e3 시작을 종료보다 뒤로 선택하면 종료가 시작에 맞춰진다`() {
         setDiaryDateTimeInput(
             initialValue =
@@ -108,5 +133,9 @@ class DiaryDateTimeInputDatePickerDialogTest {
                 DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
             }
         }
+    }
+
+    private companion object {
+        private const val PICKED_END_DATE_TEXT = "Jul 25, 2026"
     }
 }

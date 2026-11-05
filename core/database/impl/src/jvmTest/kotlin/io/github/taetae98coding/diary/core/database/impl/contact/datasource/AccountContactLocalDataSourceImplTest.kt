@@ -99,19 +99,103 @@ class AccountContactLocalDataSourceImplTest :
                 listOf(recentFavorite, oldFavorite, recentOther, oldOther)
         }
 
-        test("즐겨찾기인 연락처도 삭제되었거나 다른 계정과 연결되어 있으면 노출하지 않는다") {
+        test("TC-9fc00544-2fa0-4f81-80aa-77ea44c04e91 현재 계정과 연결되고 삭제되지 않은 연락처만 노출한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val favorite = contact(name = FIRST_NAME, isFavorite = true)
+            val other = contact(name = ANOTHER_NAME)
             val deletedFavorite = contact(name = MIDDLE_NAME, isFavorite = true).copy(isDeleted = true)
-            val otherAccountFavorite = contact(name = ANOTHER_NAME, isFavorite = true)
-            transaction.upsert(accountId = accountId, contactList = listOf(favorite, deletedFavorite))
-            transaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountFavorite))
+            val deletedOther = contact(name = LAST_NAME).copy(isDeleted = true)
+            val otherAccountFavorite = contact(name = "EContact", isFavorite = true)
+            val otherAccountOther = contact(name = "FContact")
+            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite, deletedOther))
+            transaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountFavorite, otherAccountOther))
 
-            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite, other)
+            page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(favorite, other)
         }
 
-        test("TC-7f25844a-3385-4cf1-ba2b-6c31a33c4c8e TC-c01f5552-16a5-454a-a625-b79418424739 생일과 달력 구분, 태어난 연도, 고향, 즐겨찾기 여부가 함께 조회된다") {
+        test("TC-28dfd5bb-5a64-4514-a6f2-536ca2e9f8f8 즐겨찾기 여부와 관계없이 노출 기준을 만족하는 연락처가 모두 노출된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val favorite = contact(name = LAST_NAME, isFavorite = true)
+            val other = contact(name = FIRST_NAME)
+            val deletedFavorite = contact(name = MIDDLE_NAME, isFavorite = true).copy(isDeleted = true)
+            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite))
+
+            ListSortLocalEntity.entries.forEach { sort ->
+                page(accountId = accountId, sort = sort).toSet() shouldBe setOf(favorite, other)
+            }
+
+            transaction.updateFavorite(accountId = accountId, contactId = other.id, isFavorite = true, updatedAt = NEW_INSTANT)
+
+            ListSortLocalEntity.entries.forEach { sort ->
+                page(accountId = accountId, sort = sort).map { item -> item.id }.toSet() shouldBe setOf(favorite.id, other.id)
+            }
+        }
+
+        test("TC-1c7010ad-28ed-42c8-b291-5ddea4beaeb7 이름순 정렬은 알게 된 경로를 쓰지 않고 이름만으로 정한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val sameNameFirst = contact(name = FIRST_NAME).withHowWeMet("Z")
+            val sameNameSecond = contact(name = FIRST_NAME).withHowWeMet("Z")
+            val longerName = contact(name = "${FIRST_NAME}1").withHowWeMet("")
+            transaction.upsert(accountId = accountId, contactList = listOf(longerName, sameNameFirst, sameNameSecond))
+
+            val items = pageItems(accountId = accountId, sort = ListSortLocalEntity.NAME)
+
+            items.map { item -> item.contact.detail.name } shouldBe listOf(FIRST_NAME, FIRST_NAME, "${FIRST_NAME}1")
+            items.map { item -> item.nameQualifier } shouldBe listOf("Z", "Z", "")
+        }
+
+        test("TC-e353695f-5048-4230-b9e7-3413310e9031 실행 취소로 돌아온 연락처는 즐겨찾기 묶음과 정렬 기준에 맞는 위치에 다시 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val shownFavorite = contact(name = ANOTHER_NAME, isFavorite = true)
+            val restoredFavorite = contact(name = LAST_NAME, isFavorite = true)
+            val shownOther = contact(name = FIRST_NAME)
+            val anotherShownOther = contact(name = MIDDLE_NAME)
+            val restoredOther = contact(name = "EContact")
+            transaction.upsert(
+                accountId = accountId,
+                contactList = listOf(shownFavorite, restoredFavorite, shownOther, anotherShownOther, restoredOther),
+            )
+            transaction.updateDeleted(accountId = accountId, contactId = restoredFavorite.id, isDeleted = true, updatedAt = NEW_INSTANT)
+            transaction.updateDeleted(accountId = accountId, contactId = restoredOther.id, isDeleted = true, updatedAt = NEW_INSTANT)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe
+                listOf(shownFavorite.id, shownOther.id, anotherShownOther.id)
+
+            transaction.updateDeleted(accountId = accountId, contactId = restoredFavorite.id, isDeleted = false, updatedAt = NEWEST_INSTANT)
+            transaction.updateDeleted(accountId = accountId, contactId = restoredOther.id, isDeleted = false, updatedAt = NEWEST_INSTANT)
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe
+                listOf(shownFavorite.id, restoredFavorite.id, shownOther.id, anotherShownOther.id, restoredOther.id)
+            page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED).map { item -> item.id } shouldBe
+                listOf(restoredFavorite.id, shownFavorite.id, restoredOther.id, shownOther.id, anotherShownOther.id)
+        }
+
+        test("TC-132ea7e0-fc17-4feb-a89a-444bce49f3a5 저장 상태가 바뀌면 노출 기준과 정렬 기준으로 목록을 갱신한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val first = contact(name = FIRST_NAME)
+            val last = contact(name = LAST_NAME)
+            val added = contact(name = MIDDLE_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(first, last))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(first, last)
+
+            transaction.upsert(accountId = accountId, contactList = listOf(added))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(first.id, added.id, last.id)
+
+            transaction.updateDetail(accountId = accountId, contactId = last.id, detail = last.detail.copy(name = "0Contact"), updatedAt = NEW_INSTANT)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(last.id, first.id, added.id)
+
+            transaction.updateFavorite(accountId = accountId, contactId = added.id, isFavorite = true, updatedAt = NEW_INSTANT)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(added.id, last.id, first.id)
+
+            transaction.updateFavorite(accountId = accountId, contactId = added.id, isFavorite = false, updatedAt = NEW_INSTANT)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(last.id, first.id, added.id)
+
+            transaction.updateDeleted(accountId = accountId, contactId = first.id, isDeleted = true, updatedAt = NEW_INSTANT)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(last.id, added.id)
+        }
+
+        test("TC-7f25844a-3385-4cf1-ba2b-6c31a33c4c8e 생일과 달력 구분, 태어난 연도, 고향, 즐겨찾기 여부가 함께 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val stored =
                 contact(name = FIRST_NAME, isFavorite = true).let { contact ->
@@ -160,7 +244,7 @@ class AccountContactLocalDataSourceImplTest :
             page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(recent, oldFirst, oldAnother)
         }
 
-        test("TC-c01cf3f6-6ce5-4033-ab44-7afc4fa1f298 즐겨찾기가 없으면 노출 기준의 연락처가 모두 고른 기준 하나로만 정렬된다") {
+        test("TC-c01cf3f6-6ce5-4033-ab44-7afc4fa1f298 즐겨찾기가 하나도 없으면 목록은 고른 기준 하나로만 정렬된다") {
             val accountId = Arb.kotlinUuid().next()
             val nameFirst = contact(name = FIRST_NAME, updatedAt = OLD_INSTANT)
             val nameLast = contact(name = LAST_NAME, updatedAt = NEW_INSTANT)
@@ -284,6 +368,20 @@ class AccountContactLocalDataSourceImplTest :
             transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday))
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(shown, withoutBirthday)
+        }
+
+        test("TC-c01f5552-16a5-454a-a625-b79418424739 입력한 고향은 그대로, 즐겨찾기 여부는 즐겨찾기가 아닌 값으로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val stored =
+                contact(name = FIRST_NAME, isFavorite = false).let { contact ->
+                    contact.copy(detail = contact.detail.copy(hometown = HOMETOWN))
+                }
+            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+
+            val loaded = page(accountId = accountId, sort = ListSortLocalEntity.NAME).single()
+
+            loaded.detail.hometown shouldBe HOMETOWN
+            loaded.isFavorite shouldBe false
         }
 
         test("TC-0ab3e2d9-b691-489e-bbf0-07e3daf5db6a 고향을 비우면 비어 있는 값으로 저장한다") {
@@ -417,6 +515,7 @@ class AccountContactLocalDataSourceImplTest :
         private val BIRTHDAY = LocalDate(year = 1990, month = 3, day = 4)
         private val OLD_INSTANT = Instant.fromEpochMilliseconds(1_000_000_000)
         private val NEW_INSTANT = Instant.fromEpochMilliseconds(2_000_000_000)
+        private val NEWEST_INSTANT = Instant.fromEpochMilliseconds(3_000_000_000)
 
         private fun contact(
             name: String,

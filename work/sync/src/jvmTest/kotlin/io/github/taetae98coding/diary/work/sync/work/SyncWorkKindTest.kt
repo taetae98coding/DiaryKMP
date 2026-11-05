@@ -390,6 +390,33 @@ class SyncWorkKindTest :
             context.verifyNoPull()
         }
 
+        listOf(
+            MUSIC to listOf(TAG, PLACE, WEB, CONTACT),
+            MEMO_PLACE to listOf(MEMO_TAG),
+            MEMO_WEB to listOf(MEMO_TAG, MEMO_PLACE),
+            MEMO_CONTACT to listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB),
+            WEB_TAG to listOf(PLACE_TAG),
+            PLACE_TAG to listOf(WEB_TAG),
+        ).forEach { (failingLabel, continuingLabelList) ->
+            test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 $failingLabel 묶음이 실패해도 ${continuingLabelList.joinToString()} 은 끝까지 업로드한다") {
+                val prerequisiteCountMap = mapOf(TAG to 1, PLACE to 1, WEB to 1, CONTACT to 1, MEMO to 1)
+                val context =
+                    kindContext(
+                        pendingCountMap = prerequisiteCountMap + continuingLabelList.associateWith { 201 } + (failingLabel to 201),
+                    )
+                val failure = TestException(Arb.string().next())
+                val failingRequestSizeList =
+                    context.recordPush(kindCase = kindCase(label = failingLabel), failingRequestNumber = 2, failure = failure)
+
+                val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
+
+                actual.message shouldBe failure.message
+                failingRequestSizeList shouldContainExactly listOf(100, 100)
+                continuingLabelList.forEach { label -> context.verifyPushCount(label = label, exactly = 3) }
+                context.verifyNoPull()
+            }
+        }
+
         test("TC-674eebce-610c-4b46-8dce-79aef5252327 체크 항목은 체크리스트 업로드가 모두 끝난 뒤에 업로드를 시작한다") {
             runTest {
                 val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 1, CHECKLIST_ITEM to 1))

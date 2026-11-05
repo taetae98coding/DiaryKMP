@@ -114,7 +114,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                     sort = ListSortLocalEntity.DEFAULT,
                 ).first()
 
-        test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소 중 보이는 영역 안의 장소만 조회한다") {
+        test("TC-e440efbf-b1fe-4adf-b374-c4dd0e3b64da TC-91c58f1b-a800-4028-90b3-e6b6e9fa953c 현재 계정의 대상 태그와 활성 연결을 가진 미삭제 장소 중 보이는 영역 안의 장소만 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val targetTag = tag()

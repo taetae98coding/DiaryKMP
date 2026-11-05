@@ -15,6 +15,7 @@ import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
 class CheckAppleReauthenticationRequiredUseCaseTest :
@@ -44,6 +45,26 @@ class CheckAppleReauthenticationRequiredUseCaseTest :
                     Then("TC-1423165f-ffc3-4281-b7a0-13e4561f09ce 재인증 필요 여부가 $expected 다") {
                         result.shouldBeSuccess(expected)
                     }
+                }
+            }
+        }
+
+        Given("로그인 수단 기록이 없고 저장된 사용자 정보를 읽지 못하도록 준비되어 있다") {
+            val loginProviderRepository = mockk<LoginProviderRepository>()
+            coEvery { loginProviderRepository.read() } returns null
+            val userDataRepository = mockk<UserDataRepository>()
+            every { userDataRepository.get() } returns flow { throw IllegalStateException("user data read failed") }
+            val useCase =
+                CheckAppleReauthenticationRequiredUseCase(
+                    loginProviderRepository = loginProviderRepository,
+                    userDataRepository = userDataRepository,
+                )
+
+            When("Apple 재인증이 필요한지 판정한다") {
+                val result = useCase(parameter = Unit)
+
+                Then("TC-0ad36304-87ed-4c7b-bf3c-34c2ff1b125e 실패를 돌려준다") {
+                    result.shouldBeFailure()
                 }
             }
         }

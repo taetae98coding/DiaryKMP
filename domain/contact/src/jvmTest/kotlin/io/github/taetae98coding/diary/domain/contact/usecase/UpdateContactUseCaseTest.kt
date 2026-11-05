@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.contact.contact
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
@@ -219,19 +220,44 @@ class UpdateContactUseCaseTest :
                 Then("TC-d0baff5e-e6ef-4b37-b9e5-128b36176f79 저장된 기존 이름을 사용하고 나머지는 입력한 대로 반영한다") {
                     listOf("", "   ").forEach { name ->
                         val description = "description-${Arb.string().next()}"
-                        val phoneNumber = ContactPhoneNumber(number = "010-0000-0000")
+                        val hometown = "hometown-${Arb.string().next()}"
+                        val howWeMet = "how-we-met-${Arb.string().next()}"
+                        val measured =
+                            Arb
+                                .contact(
+                                    numberList = listOf("010-${Arb.string().next()}"),
+                                    hasMeasure = true,
+                                    isFavorite = false,
+                                    isDeleted = false,
+                                ).next()
+                                .detail
 
                         useCase(
                             parameter =
                                 UpdateContactUseCase.Parameter(
                                     id = stored.id,
-                                    detail = detail(name = name, description = description, phoneNumberList = listOf(phoneNumber)),
+                                    detail =
+                                        detail(
+                                            name = name,
+                                            description = description,
+                                            height = measured.height,
+                                            footSize = measured.footSize,
+                                            birthday = measured.birthday,
+                                            hometown = hometown,
+                                            howWeMet = howWeMet,
+                                            phoneNumberList = measured.phoneNumberList,
+                                        ),
                                 ),
                         ).shouldBeSuccess(1)
 
                         detailSlot.captured.name shouldBe stored.detail.name
                         detailSlot.captured.description shouldBe description
-                        detailSlot.captured.phoneNumberList shouldBe listOf(phoneNumber)
+                        detailSlot.captured.height shouldBe measured.height
+                        detailSlot.captured.footSize shouldBe measured.footSize
+                        detailSlot.captured.birthday shouldBe measured.birthday
+                        detailSlot.captured.hometown shouldBe hometown
+                        detailSlot.captured.howWeMet shouldBe howWeMet
+                        detailSlot.captured.phoneNumberList shouldBe measured.phoneNumberList
                     }
                 }
             }

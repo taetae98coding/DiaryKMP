@@ -200,6 +200,7 @@ internal fun memoScreenPageViewModel(pageUiState: WebDetailPageUiState = WebDeta
     every { viewModel.uiState } returns MutableStateFlow(pageUiState)
     justRun { viewModel.load() }
     justRun { viewModel.retry() }
+    justRun { viewModel.reloadIfFailed() }
     return viewModel
 }
 

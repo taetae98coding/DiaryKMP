@@ -50,6 +50,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewMod
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_COPY_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_RESTART_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailEffect
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailUiState
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailViewModel
@@ -72,6 +74,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -106,6 +110,7 @@ class EntityMemoFinishedListDetailNavigationTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
+    private var finishedMemoList: List<Memo> = emptyList()
     private val finishedPagingData = MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
 
     @Before
@@ -171,6 +176,81 @@ class EntityMemoFinishedListDetailNavigationTest {
         assertPlaceholderWithList(backStack = backStack, listBackStack = listBackStack)
     }
 
+    @Test
+    fun `TC-ff4ecfe1-ba3a-4861-b8cb-7a9025078a77 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 남는다`() {
+        val contactId = Arb.kotlinUuid().next()
+        val listBackStack = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId))
+        val memoList = memoList()
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
+        selectMemo(memoList[0])
+
+        composeRule.onNode(actionButton(DEFAULT_RESTART_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+
+        backStack.last() shouldBe MemoDetailNavKey(id = memoList[0].id)
+        composeRule.onAllNodesWithText(listTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
+        composeRule.onNodeWithText(listTitle(index = 1)).assertExists()
+        composeRule.onAllNodesWithText(detailTitle(id = memoList[0].id)).fetchSemanticsNodes().isNotEmpty() shouldBe true
+        composeRule.onNode(actionButton(DEFAULT_FINISH_BUTTON_DESCRIPTION)).assertExists()
+    }
+
+    // TagMemoFinishedList의 목록 화면은 feature:tag:ui의 internal entry라 이 모듈에서 쓸 수 없으므로, 같은 공용 화면과 pane 구성을 대역 entry로 둔다.
+    @Test
+    fun `TC-42df8afa-98d6-4069-a6b8-c80d0d09868f TagMemoFinishedList 상세 영역에서 메모를 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
+        val tagId = Arb.kotlinUuid().next()
+
+        assertDeleteReturnsToPlaceholder(listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId)))
+    }
+
+    @Test
+    fun `TC-42df8afa-98d6-4069-a6b8-c80d0d09868f TagMemoFinishedList 목록에서 다른 메모를 고른 뒤 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
+        val tagId = Arb.kotlinUuid().next()
+        val listBackStack = listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId))
+        val memoList = memoList()
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
+        selectMemo(memoList[0])
+        selectMemo(memoList[1])
+
+        deleteOnDetail()
+
+        assertPlaceholderWithList(backStack = backStack, listBackStack = listBackStack)
+    }
+
+    @Test
+    fun `TC-42df8afa-98d6-4069-a6b8-c80d0d09868f TagMemoFinishedList 복사한 메모 상세에서 삭제하면 목록은 유지되고 선택 전 상태가 된다`() {
+        val tagId = Arb.kotlinUuid().next()
+        val listBackStack = listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId))
+        val memoList = memoList()
+        val copiedId = Arb.kotlinUuid().next()
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = copiedId)
+        selectMemo(memoList[0])
+        composeRule.onNode(actionButton(DEFAULT_COPY_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe MemoDetailNavKey(id = copiedId)
+
+        deleteOnDetail()
+
+        assertPlaceholderWithList(backStack = backStack, listBackStack = listBackStack)
+    }
+
+    @Test
+    fun `TC-36b2d72b-1d09-436a-90ba-450bc8e24fef TagMemoFinishedList 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 남는다`() {
+        val tagId = Arb.kotlinUuid().next()
+        val listBackStack = listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId))
+        val memoList = memoList()
+        val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
+        selectMemo(memoList[0])
+
+        composeRule.onNode(actionButton(DEFAULT_RESTART_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+
+        backStack.last() shouldBe MemoDetailNavKey(id = memoList[0].id)
+        composeRule.onAllNodesWithText(listTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
+        composeRule.onNodeWithText(listTitle(index = 1)).assertExists()
+        composeRule.onAllNodesWithText(detailTitle(id = memoList[0].id)).fetchSemanticsNodes().isNotEmpty() shouldBe true
+        composeRule.onNode(actionButton(DEFAULT_FINISH_BUTTON_DESCRIPTION)).assertExists()
+    }
+
     private fun assertDeleteReturnsToPlaceholder(listBackStack: List<ScreenNavKey>) {
         val memoList = memoList()
         val backStack = setNavDisplay(listBackStack = listBackStack, memoList = memoList, copiedId = Arb.kotlinUuid().next())
@@ -207,6 +287,7 @@ class EntityMemoFinishedListDetailNavigationTest {
         copiedId: Uuid,
     ): NavBackStack<ScreenNavKey> {
         val backStack = NavBackStack<ScreenNavKey>(EntityFinishedListTestTopLevelNavKey, *listBackStack.toTypedArray())
+        finishedMemoList = memoList
         finishedPagingData.value = memoPagingDataOf(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) })
         val viewModelModule = viewModelModule(copiedId = copiedId)
 
@@ -244,9 +325,11 @@ class EntityMemoFinishedListDetailNavigationTest {
                                         entry<ContactDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
                                         entry<PlaceDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
                                         entry<WebDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
+                                        entry<TagDetailNavKey> { Text(text = ENTITY_DETAIL_CONTENT) }
                                         entityMemoFinishedListEntry<ContactMemoFinishedListNavKey>(backStack = backStack)
                                         entityMemoFinishedListEntry<PlaceMemoFinishedListNavKey>(backStack = backStack)
                                         entityMemoFinishedListEntry<WebMemoFinishedListNavKey>(backStack = backStack)
+                                        entityMemoFinishedListEntry<TagMemoFinishedListNavKey>(backStack = backStack)
                                         memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
                                     },
                             )
@@ -325,6 +408,12 @@ class EntityMemoFinishedListDetailNavigationTest {
             every { effect } returns effectChannel.receiveAsFlow()
             every { delete() } answers { effectChannel.trySend(MemoDetailEffect.DeleteSucceeded).getOrThrow() }
             every { copy() } answers { effectChannel.trySend(MemoDetailEffect.CopySucceeded(id = copiedId)).getOrThrow() }
+            // 다시 시작이 저장되면 완료된 메모 목록이 다시 조회되는 것과 같게 목록 조회 결과에서 그 메모를 뺀다.
+            every { restart() } answers {
+                uiState.value = memoDetailUiState(id = id, detail = memoDetail(title = detailTitle(id = id)), isFinished = false)
+                finishedMemoList = finishedMemoList.filterNot { memo -> memo.id == id }
+                finishedPagingData.value = memoPagingDataOf(itemList = finishedMemoList.map { memo -> MemoListItem.Content(memo = memo) })
+            }
         }
     }
 

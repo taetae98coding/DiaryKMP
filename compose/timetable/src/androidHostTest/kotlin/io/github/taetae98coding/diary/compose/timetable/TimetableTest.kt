@@ -184,7 +184,7 @@ class TimetableTest {
     fun `TC-3615b3eb-deb8-477c-9994-a9cd2509e779 현재 시각의 날짜가 표시되면 현재 시각 위치를 표시한다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23), now = TEN_O_CLOCK_ON_23)
 
-        composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -390,6 +390,21 @@ class TimetableTest {
 
         composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
         composeRule.onNodeWithText(SUNNY).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-1a46b192-a5c1-4b22-afc7-915873d3cffe 좌우로 넘기면 날짜 정보가 날짜 안내와 함께 이동한다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            dateInfo(date = september(day = 23)) { Text(text = SUNNY) }
+            dateInfo(date = september(day = 24)) { Text(text = CLOUDY) }
+        }
+        composeRule.onNodeWithText(SUNNY).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText(CLOUDY).assertIsDisplayed()
+        composeRule.onNodeWithText(SUNNY).assertDoesNotExist()
     }
 
     @Test
@@ -780,6 +795,7 @@ private const val COLUMN_ALIGNMENT_TOLERANCE_PX = 1F
 
 private const val MEETING = "Meeting"
 private const val SUNNY = "Sunny"
+private const val CLOUDY = "Cloudy"
 private const val TRIP = "Trip"
 private const val ALL_DAY_LABEL = "All day"
 private const val NIGHT = "Night"

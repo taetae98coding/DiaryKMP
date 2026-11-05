@@ -98,6 +98,7 @@ TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome
 | 연락처 실행 취소 |
 | 곡 실행 취소 |
 | QR 추가 |
+| QR 수정 |
 | QR 삭제 |
 | QR 실행 취소 |
 | 체크리스트 추가 |

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -106,6 +107,18 @@ class ContactHomeScreenTest {
         composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
+        verify(exactly = 1) { syncViewModel.refresh() }
+    }
+
+    @Test
+    fun `TC-feb4d498-1610-4a5a-80f0-588d81287adc 빈 상태에서 목록 영역을 당기면 새로고침을 한 번 실행한다`() {
+        val syncViewModel = syncViewModel()
+
+        setContactHomeScreen(syncViewModel = syncViewModel)
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         verify(exactly = 1) { syncViewModel.refresh() }
     }
 

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.web.ui.add
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -8,7 +9,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.pressKey
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -46,6 +50,33 @@ class WebAddScreenTest {
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.urlInput().assert(hasText(TYPED_URL))
+    }
+
+    @Test
+    fun `TC-3bdf375e-123a-41e9-afdb-3c8143ede7d5 URL 입력에서 엔터를 눌러도 줄이 나뉘지 않는다`() {
+        setWebAddScreen(viewModel = screenTestViewModel())
+        composeRule.urlInput().performTextInput(TYPED_URL)
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().performKeyInput { pressKey(Key.Enter) }
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+    }
+
+    @Test
+    fun `TC-550652e5-df46-4833-8965-9be538ef312c 입력 칸의 폭보다 긴 URL을 입력해도 입력 칸이 여러 줄로 늘어나지 않는다`() {
+        setWebAddScreen(viewModel = screenTestViewModel())
+        composeRule.urlInput().performTextInput(TYPED_URL)
+        composeRule.waitForIdle()
+        val shortUrlHeight = composeRule.urlInput().inputHeight()
+
+        composeRule.urlInput().performTextReplacement(LONG_URL)
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().assert(hasText(LONG_URL))
+        composeRule.urlInput().inputLineCount() shouldBe 1
+        composeRule.urlInput().inputHeight() shouldBe shortUrlHeight
     }
 
     @Test

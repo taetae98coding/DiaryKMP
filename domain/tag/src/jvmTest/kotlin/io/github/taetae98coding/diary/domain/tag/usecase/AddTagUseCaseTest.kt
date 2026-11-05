@@ -257,6 +257,63 @@ class AddTagUseCaseTest :
                 }
             }
         }
+
+        Given("태그 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.failure(IllegalStateException(Arb.string().next()))
+            val tagSlot = slot<Tag>()
+            val accountTagRepository = mockk<AccountTagRepository>()
+            coEvery { accountTagRepository.upsert(account = account, tag = capture(tagSlot), linkedTagIdSet = any()) } just Runs
+            val clock = mockk<Clock>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
+            val useCase =
+                AddTagUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountTagRepository = accountTagRepository,
+                    clock = clock,
+                )
+
+            When("공백이 아닌 제목으로 태그를 추가한다") {
+                Then("TC-96b04aa8-21c9-43f0-bfda-3adcab0b7862 추가는 성공으로 전달되고 저장한 태그를 되돌리지 않는다") {
+                    val tagId = useCase(parameter = AddTagUseCase.Parameter(detail = Arb.tagDetail().next().copy(title = nonBlankTitle()))).shouldBeSuccess()
+
+                    tagSlot.captured.id shouldBe tagId
+                    tagSlot.captured.isDeleted shouldBe false
+                    coVerify(exactly = 1) { accountTagRepository.upsert(account = account, tag = any(), linkedTagIdSet = any()) }
+                }
+            }
+        }
+
+        Given("계정이 게스트 상태로 준비되어 있다") {
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
+            val accountTagRepository = mockk<AccountTagRepository>()
+            coEvery { accountTagRepository.upsert(account = Account.Guest, tag = any(), linkedTagIdSet = any()) } just Runs
+            val clock = mockk<Clock>()
+            every { clock.now() } returns Arb.secondPrecisionInstant().next()
+            val useCase =
+                AddTagUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountTagRepository = accountTagRepository,
+                    clock = clock,
+                )
+
+            When("공백이 아닌 제목으로 태그를 추가한다") {
+                Then("TC-197cc6ba-39d2-4103-9201-6f475c8ff995 게스트 계정으로 기기에 저장하고 추가를 성공으로 전달하며 서버 반영 여부는 동기화 요청에 맡긴다") {
+                    useCase(parameter = AddTagUseCase.Parameter(detail = Arb.tagDetail().next().copy(title = nonBlankTitle()))).shouldBeSuccess()
+
+                    coVerify(exactly = 1) { accountTagRepository.upsert(account = Account.Guest, tag = any(), linkedTagIdSet = any()) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
     }) {
     public companion object {
         private fun nonBlankTitle(): String = "title-${Arb.string().next()}"

@@ -256,6 +256,19 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
         }
 
+        test("TC-18f56040-b9af-4bce-a122-f4ee7b1286d3 계정과 연결되지 않은 장소에는 태그를 연결해도 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val place = place()
+            val tag = tag()
+            insertPlace(otherAccountId, place)
+            insertTag(accountId, tag)
+
+            link(accountId = accountId, placeId = place.id, tagId = tag.id)
+
+            linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
+        }
+
         test("TC-f380865f-40ed-4b8f-adea-05aafc8149b9 연결을 해제하면 조회되지 않고 다시 만들면 복구된다") {
             val accountId = Arb.kotlinUuid().next()
             val place = place()
@@ -443,6 +456,28 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
                 .data
                 .shouldBeEmpty()
+        }
+
+        test("TC-f89750c7-4e53-48b0-a48d-d236c4ef9491 장소와 태그를 연결해도 메모·장소, 메모·웹, 메모·태그, 태그·태그 연결은 만들어지지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            val place = place()
+            val tag = tag()
+            insertPlace(accountId, place)
+            insertTag(accountId, tag)
+            AccountMemoTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+            )
+
+            link(accountId = accountId, placeId = place.id, tagId = tag.id)
+
+            linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
+            database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.tagLinkDao().findByFromTagIdList(listOf(tag.id)).shouldBeEmpty()
         }
 
         test("TC-7a28c56d-8d87-4e0f-92a0-97784ad00d1f 연결 해제는 같은 장소의 다른 연결을 바꾸지 않는다") {
@@ -804,6 +839,17 @@ class AccountPlaceTagLocalDataSourceImplTest :
             dataSource
                 .pageSelectableTag(accountId = accountId, placeId = place.id, query = "")
                 .pagedTagIdList(loadSize = 2) shouldBe tagList.take(2).map { tag -> tag.id }
+
+            val pagingSource = dataSource.pageSelectableTag(accountId = accountId, placeId = place.id, query = "")
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = 2, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+            val secondPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Append(key = firstPage.nextKey!!, loadSize = 2, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+            secondPage.data.map { tag -> tag.id } shouldBe tagList.drop(2).map { tag -> tag.id }
         }
     }) {
     companion object {

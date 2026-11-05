@@ -100,8 +100,12 @@ class QrDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(qr = qr, findResult = stored)
                 collectUiState(viewModel)
 
-                stored.value = Result.success(qr.copy(isDeleted = true))
-                runCurrent()
+                viewModel.effect.test {
+                    stored.value = Result.success(qr.copy(isDeleted = true))
+                    runCurrent()
+
+                    expectNoEvents()
+                }
 
                 viewModel.content() shouldBe QrDetailUiState.Content(id = qr.id, detail = qr.detail)
             }

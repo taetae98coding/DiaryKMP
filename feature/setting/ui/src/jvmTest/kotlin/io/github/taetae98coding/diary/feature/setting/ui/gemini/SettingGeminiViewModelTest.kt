@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.SetGeminiSettingUseCase
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -113,9 +114,9 @@ class SettingGeminiViewModelTest : FunSpec() {
             val settingList =
                 listOf(
                     GeminiSetting.EMPTY,
-                    GeminiSetting.EMPTY.copy(apiKey = "apiKey"),
-                    GeminiSetting.EMPTY.copy(model = "models/gemini-flash"),
-                    GeminiSetting.EMPTY.copy(systemPrompt = "prompt"),
+                    GeminiSetting.EMPTY.copy(apiKey = Arb.nonBlankString().next()),
+                    GeminiSetting.EMPTY.copy(model = Arb.nonBlankString().next()),
+                    GeminiSetting.EMPTY.copy(systemPrompt = Arb.nonBlankString().next()),
                 )
 
             settingList.forEach { setting ->
@@ -138,7 +139,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
         test("TC-bf990bf1-0db9-445b-8837-0b8ecd081f5a 저장할 때 값의 유효성을 확인하지 않는다") {
             runTest(mainDispatcher) {
-                val setting = GeminiSetting(apiKey = "invalid", model = "models/removed", systemPrompt = "")
+                val setting = GeminiSetting(apiKey = Arb.nonBlankString().next(), model = Arb.nonBlankString().next(), systemPrompt = "")
                 val setGeminiSettingUseCase = mockk<SetGeminiSettingUseCase>()
                 coEvery { setGeminiSettingUseCase(setting) } returns Result.success(Unit)
                 val viewModel = createViewModel(setGeminiSettingUseCase = setGeminiSettingUseCase)

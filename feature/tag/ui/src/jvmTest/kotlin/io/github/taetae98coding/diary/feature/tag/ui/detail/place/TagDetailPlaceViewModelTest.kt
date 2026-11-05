@@ -266,7 +266,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 보이는 영역을 확인하기 전에는 지도 모드의 목록을 조회하지 않는다") {
+        test("보이는 영역을 확인하기 전에는 지도 모드의 목록을 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()

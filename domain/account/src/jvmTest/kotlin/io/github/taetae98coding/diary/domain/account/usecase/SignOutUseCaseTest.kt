@@ -30,6 +30,10 @@ class SignOutUseCaseTest :
                     confirmVerified(sessionRepository)
                 }
 
+                Then("TC-a9e03db2-b461-4351-8506-d90fa5fe6a90 기기에 저장된 로그인 정보를 지우는 요청이 한 번 이루어진다") {
+                    coVerify(exactly = 1) { sessionRepository.delete() }
+                }
+
                 Then("TC-649f316c-b797-4ee8-bcde-3ef39857c274 로그인 수단 기록을 지운다") {
                     coVerify(exactly = 1) { loginProviderRepository.unset() }
                 }

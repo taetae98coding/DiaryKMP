@@ -6,11 +6,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -127,6 +132,7 @@ internal const val CHANGED_ADDRESS = "바뀐 주소"
 internal const val CHANGED_LATITUDE = "38.0"
 internal const val CHANGED_LONGITUDE = "128.0"
 internal const val INVALID_LATITUDE = "abc"
+internal const val OUT_OF_RANGE_LATITUDE = "90.1"
 
 private const val SAVED_LATITUDE = 37.5665
 private const val SAVED_LONGITUDE = 126.978
@@ -235,6 +241,21 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
 
 internal fun ComposeContentTestRule.selectPlaceDetailTab(contentDescription: String) {
     onNodeWithContentDescription(contentDescription).performClick()
+    waitForIdle()
+}
+
+internal const val SAVED_COLOR_HEX = "#3A7BD5"
+internal const val CHANGED_COLOR_HEX = "#FF7BD5"
+private const val COLOR_CHANNEL_MAX = 255F
+private const val COLOR_CONFIRM_TEXT = "Confirm"
+
+internal fun ComposeContentTestRule.changeColor() {
+    onNodeWithText(SAVED_COLOR_HEX).performScrollTo().performClick()
+    waitForIdle()
+    onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+        .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(COLOR_CHANNEL_MAX) }
+    waitForIdle()
+    onNodeWithText(COLOR_CONFIRM_TEXT).performClick()
     waitForIdle()
 }
 

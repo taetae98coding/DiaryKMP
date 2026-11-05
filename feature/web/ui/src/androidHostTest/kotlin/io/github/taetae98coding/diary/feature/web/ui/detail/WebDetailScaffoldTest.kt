@@ -101,13 +101,14 @@ class WebDetailScaffoldTest {
     fun `TC-2d129da1-13b5-4b78-8c21-7f4d7b3e30ce 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
         setWebDetailScaffold(uiState = testContentUiState().copy(isDeleteInProgress = true))
 
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-3fa7af0b-2cfa-4983-99a1-f445b7b0375c 삭제를 처리하는 동안에도 탭 전환과 정보 확인, 외부로 열기, 뒤로가기를 할 수 있다`() {
-        val detail = testWebDetail()
+        val detail = testWebDetail(headerList = listOf(WebHeader(name = FIRST_HEADER_NAME, value = FIRST_HEADER_VALUE)))
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -118,6 +119,12 @@ class WebDetailScaffoldTest {
 
         composeRule.onNodeWithText(detail.title).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.headerNameInput().assert(hasText(FIRST_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText(FIRST_HEADER_VALUE))
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
 
@@ -204,19 +211,27 @@ class WebDetailScaffoldTest {
 
     @Test
     fun `TC-ed5f7e67-ca83-4085-bcac-dfff466a11c3 입력이 저장 내용과 다를 때만 수정 동작을 제공한다`() {
-        val detail = testWebDetail()
+        val detail = testWebDetail(headerList = listOf(WebHeader(name = FIRST_HEADER_NAME, value = FIRST_HEADER_VALUE)))
 
         setWebDetailScaffold(uiState = testContentUiState(detail = detail), detail = detail, initialTab = WebDetailTab.FORM)
 
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
 
-        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()
+        listOf(
+            Pair({ composeRule.titleInput() }, detail.title),
+            Pair({ composeRule.descriptionInput() }, detail.description),
+            Pair({ composeRule.urlInput() }, detail.url),
+            Pair({ composeRule.headerNameInput() }, FIRST_HEADER_NAME),
+            Pair({ composeRule.headerValueInput() }, FIRST_HEADER_VALUE),
+        ).forEach { (input, savedValue) ->
+            input().performTextReplacement(TYPED_TITLE)
+            composeRule.waitForIdle()
+            composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()
 
-        composeRule.titleInput().performTextReplacement(detail.title)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+            input().performTextReplacement(savedValue)
+            composeRule.waitForIdle()
+            composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+        }
 
         composeRule.addHeaderRow()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()
@@ -297,6 +312,7 @@ class WebDetailScaffoldTest {
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
         composeRule.waitForIdle()
 
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assertExists()
     }
@@ -324,8 +340,10 @@ class WebDetailScaffoldTest {
         composeRule.selectFormTab()
 
         composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
         composeRule.urlInput().assert(hasText(detail.url))
         composeRule.headerNameInput().assert(hasText(FIRST_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText(FIRST_HEADER_VALUE))
 
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
         composeRule.waitForIdle()
@@ -349,7 +367,7 @@ class WebDetailScaffoldTest {
 
     @Test
     fun `TC-dba61c49-dcfe-4e84-9d12-fb1e074eec45 불러오는 동안에도 웹 항목 정보를 확인하고 수정하고 뒤로갈 수 있다`() {
-        val detail = testWebDetail()
+        val detail = testWebDetail(headerList = listOf(WebHeader(name = FIRST_HEADER_NAME, value = FIRST_HEADER_VALUE)))
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
 
         setWebDetailScaffold(
@@ -361,6 +379,10 @@ class WebDetailScaffoldTest {
         )
 
         composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.headerNameInput().assert(hasText(FIRST_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText(FIRST_HEADER_VALUE))
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()

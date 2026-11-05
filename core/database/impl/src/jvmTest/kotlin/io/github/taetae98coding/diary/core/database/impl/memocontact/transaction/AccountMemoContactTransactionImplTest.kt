@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.database.impl.memo.datasource.Account
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.AccountMemoContactLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.AccountMemoContactSyncLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.memofilter.datasource.MemoExistenceFilterLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
@@ -345,6 +346,24 @@ class AccountMemoContactTransactionImplTest :
             }
         }
 
+        test("TC-f6c6a87b-7b2e-4198-af63-8dfaf8667d51 연락처 연결은 유무 필터의 날짜·태그·장소 판정에 쓰이지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo().visible().withoutPeriod()
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact()))
+            val filterDataSource = MemoExistenceFilterLocalDataSourceImpl(database = database)
+            filterDataSource.upsertHasDate(hasDate = false)
+            filterDataSource.upsertHasTag(hasTag = false)
+            filterDataSource.upsertHasPlace(hasPlace = false)
+
+            val memoList =
+                database
+                    .accountMemoDao()
+                    .page(accountId = accountId, sort = "title")
+                    .loadAll()
+
+            memoList.map { value -> value.id } shouldBe listOf(memo.id)
+        }
+
         test("TC-5000e502-08b0-4d89-92b2-8f4f2acedf14 메모 연결은 연락처 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = Arb.kotlinUuid().next()
@@ -481,6 +500,17 @@ class AccountMemoContactTransactionImplTest :
             )
 
             findPendingContactIdList(accountId = accountId) shouldBe listOf(addedContact.id)
+        }
+
+        test("TC-67f953f6-883a-4912-af4b-650db9024031 새 메모와 함께 저장한 연락처 연결은 그 계정의 업로드 대기 항목으로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo()
+            val contactList = List(2) { contact() }
+
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = contactList)
+
+            findPendingContactIdList(accountId = accountId) shouldContainExactlyInAnyOrder contactList.map { contact -> contact.id }
+            syncDataSource.readPendingList(accountId = accountId).map { memoContact -> memoContact.memoId }.toSet() shouldBe setOf(memo.id)
         }
 
         test("TC-29c9ab13-eb7d-431b-b9f8-27c1c50327b5 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
@@ -786,6 +816,8 @@ class AccountMemoContactTransactionImplTest :
 
         // 목록 조회는 완료되지 않고 삭제되지 않은 메모만 노출하므로, 노출 기준을 검증하는 메모는 두 상태를 고정한다.
         private fun MemoLocalEntity.visible(): MemoLocalEntity = copy(isFinished = false, isDeleted = false)
+
+        private fun MemoLocalEntity.withoutPeriod(): MemoLocalEntity = copy(detail = detail.copy(isAllDay = null, start = null, endInclusive = null))
 
         private fun tag(): TagLocalEntity =
             Arb

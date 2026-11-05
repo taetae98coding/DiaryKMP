@@ -100,7 +100,7 @@ class AccountPlaceTagSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
-        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소와 태그의 연결은 포함되지 않는다") {
+        test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소와 태그의 연결은 포함되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val guestEntity = placeTag()
             val accountEntity = placeTag()

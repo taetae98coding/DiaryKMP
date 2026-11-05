@@ -111,21 +111,32 @@ class FileDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-1f753104-5be1-47c2-a16c-5ae4605d9545 불러오는 중이거나 불러온 뒤에는 다시 시도를 처리하지 않는다") {
+        test("TC-1f753104-5be1-47c2-a16c-5ae4605d9545 불러오는 중에 다시 시도를 반복해도 다시 시도 한 번에 대해서만 불러온다") {
             runTest(mainDispatcher) {
                 val file = Arb.diaryFile().next()
+                val response = CompletableDeferred<Result<DiaryFile>>()
                 val fetchUseCase = mockk<FetchFileUseCase>()
-                coEvery { fetchUseCase(parameter = file.id) } returns Result.success(file)
+                coEvery { fetchUseCase(parameter = file.id) } returns Result.failure(IllegalStateException()) coAndThen { response.await() }
                 val viewModel = viewModel(id = file.id, fetchUseCase = fetchUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.fetch()
+                advanceUntilIdle()
                 viewModel.retry()
                 advanceUntilIdle()
                 viewModel.retry()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchUseCase(parameter = file.id) }
+                viewModel.uiState.value shouldBe FileDetailUiState.Loading
+                coVerify(exactly = 2) { fetchUseCase(parameter = file.id) }
+
+                response.complete(Result.success(file))
+                advanceUntilIdle()
+                viewModel.retry()
+                advanceUntilIdle()
+
+                viewModel.uiState.value shouldBe FileDetailUiState.Content(file = file)
+                coVerify(exactly = 2) { fetchUseCase(parameter = file.id) }
             }
         }
 

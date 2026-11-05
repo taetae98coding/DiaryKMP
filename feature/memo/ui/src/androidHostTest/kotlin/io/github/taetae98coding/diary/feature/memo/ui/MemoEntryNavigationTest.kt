@@ -72,12 +72,17 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_TITLE
+import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.contact.awaitContactPickerRows
+import io.github.taetae98coding.diary.feature.memo.ui.contact.contactDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_COPY_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_RESTART_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.DEFAULT_UPDATE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailEffect
@@ -104,10 +109,14 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
+import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
+import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.web.awaitWebPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
+import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogNodeWithText
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
@@ -157,7 +166,10 @@ class MemoEntryNavigationTest {
     private val finishedPagingData = MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
     private val detailContentMap = mutableMapOf<Uuid, DetailContent>()
     private var copiedId: Uuid = Arb.kotlinUuid().next()
+    private val finishRequestedIdList = mutableListOf<Uuid>()
     private var isGeminiSettingMissing: Boolean = false
+    private var addWebList: List<Web> = emptyList()
+    private var addContactList: List<ContactListItem> = emptyList()
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
     @Before
@@ -203,6 +215,25 @@ class MemoEntryNavigationTest {
     }
 
     @Test
+    fun `TC-7ffb98ff-8996-4636-ae1d-ffbe4e6cd44c 복사본의 상세는 완료 동작을 제공하고 이어지는 동작은 복사본을 대상으로 한다`() {
+        val originalId = Arb.kotlinUuid().next()
+        finishedMemoList = listOf(Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next().copy(id = originalId))
+        backStack.replaceAll(listOf(MemoHomeNavKey, MemoDetailNavKey(id = originalId)))
+        setMemoNavDisplay()
+        composeRule.onNode(actionButton(DEFAULT_RESTART_BUTTON_DESCRIPTION)).assertExists()
+        composeRule.onNode(actionButton(DEFAULT_FINISH_BUTTON_DESCRIPTION)).assertDoesNotExist()
+
+        composeRule.onNode(actionButton(DEFAULT_COPY_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(actionButton(DEFAULT_RESTART_BUTTON_DESCRIPTION)).assertDoesNotExist()
+        composeRule.onNode(actionButton(DEFAULT_FINISH_BUTTON_DESCRIPTION)).performClick()
+        composeRule.waitForIdle()
+
+        finishRequestedIdList shouldBe listOf(copiedId)
+    }
+
+    @Test
     fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 뒤로가기를 사용하면 MemoDetail 화면을 벗어나 진입 화면으로 돌아간다`() {
         setMemoNavDisplay()
 
@@ -215,6 +246,74 @@ class MemoEntryNavigationTest {
 
                 assertEntryShown(entryKey = entryKey, leftDetailId = detailKey.id)
             }
+        }
+    }
+
+    @Test
+    fun `TC-4acd006c-b51f-4459-b474-3aee6620efd6 웹 칩으로 WebDetail 화면에 다녀와도 웹 입력의 선택이 유지된다`() {
+        val addWeb = testWeb(title = ADD_WEB_TITLE)
+        addWebList = listOf(addWeb)
+        val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+        setMemoNavDisplay()
+
+        composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, MemoAddNavKey())) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_WEB_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.awaitWebPickerRows()
+        composeRule.webDialogNodeWithText(addWeb.detail.title).performClick()
+        composeRule.closeDialogByBack()
+
+        listOf(MemoAddNavKey::class to addWeb, MemoDetailNavKey::class to detailContentOf(detailKey.id).web).forEach { (keyClass, web) ->
+            if (keyClass == MemoDetailNavKey::class) {
+                composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, detailKey)) }
+                composeRule.waitForIdle()
+            }
+            val screenKeyList = backStack.toList()
+
+            composeRule.onNodeWithText(web.detail.title).performScrollTo().performClick()
+            composeRule.waitForIdle()
+
+            backStack.toList() shouldBe screenKeyList + WebDetailNavKey(id = web.id)
+
+            pressBack()
+
+            backStack.toList() shouldBe screenKeyList
+            composeRule.onNodeWithText(web.detail.title).performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `TC-61f74d5f-d529-4c9a-b9e7-7c1cdad7f532 연락처 칩으로 ContactDetail 화면에 다녀와도 연락처 입력의 선택이 유지된다`() {
+        val addContact = testContact(name = ADD_CONTACT_NAME)
+        addContactList = listOf(addContact)
+        val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+        setMemoNavDisplay()
+
+        composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, MemoAddNavKey())) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CONTACT_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.awaitContactPickerRows()
+        composeRule.contactDialogNodeWithText(addContact.contact.detail.name).performClick()
+        composeRule.closeDialogByBack()
+
+        listOf(MemoAddNavKey::class to addContact, MemoDetailNavKey::class to detailContentOf(detailKey.id).contact).forEach { (keyClass, contact) ->
+            if (keyClass == MemoDetailNavKey::class) {
+                composeRule.runOnIdle { backStack.replaceAll(listOf(MemoHomeNavKey, detailKey)) }
+                composeRule.waitForIdle()
+            }
+            val screenKeyList = backStack.toList()
+
+            composeRule.onNodeWithText(contact.contact.detail.name).performScrollTo().performClick()
+            composeRule.waitForIdle()
+
+            backStack.toList() shouldBe screenKeyList + ContactDetailNavKey(id = contact.contact.id)
+
+            pressBack()
+
+            backStack.toList() shouldBe screenKeyList
+            composeRule.onNodeWithText(contact.contact.detail.name).performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
         }
     }
 
@@ -254,8 +353,8 @@ class MemoEntryNavigationTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-e183d38a-ea59-4d68-a14a-cfa4320aef19 상세 영역에서 메모를 삭제하면 목록은 유지되고 그 전에 놓였던 메모 추가가 상세 영역에 놓인다`() {
-        backStack.replaceAll(listOf(MemoHomeNavKey, MemoAddNavKey()))
+    fun `TC-e183d38a-ea59-4d68-a14a-cfa4320aef19 상세 영역에서 메모를 삭제하면 목록은 유지되고 선택 전 메모 추가가 상세 영역에 놓인다`() {
+        backStack.replaceAll(listOf(MemoHomeNavKey))
         setMemoNavDisplay()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(ADD_INPUT_TITLE)
         val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
@@ -266,7 +365,7 @@ class MemoEntryNavigationTest {
         composeRule.onNode(actionButton(DEFAULT_DELETE_BUTTON_DESCRIPTION)).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(MemoHomeNavKey, MemoAddNavKey())
+        backStack.toList() shouldBe listOf(MemoHomeNavKey)
         composeRule.onNodeWithText(HOME_MEMO_TITLE).assertIsDisplayed()
         composeRule.onAllNodesWithText(detailContentOf(detailKey.id).title).assertCountEquals(0)
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(ADD_INPUT_TITLE))
@@ -462,8 +561,8 @@ class MemoEntryNavigationTest {
             }
             factory<MemoAddViewModel> { screenTestRealViewModel().viewModel }
             factory<MemoAddTagViewModel> { screenTestRealViewModel().tagViewModel }
-            factory<MemoAddWebViewModel> { screenTestRealViewModel().webViewModel }
-            factory<MemoAddContactViewModel> { screenTestRealViewModel().contactViewModel }
+            factory<MemoAddWebViewModel> { screenTestRealViewModel(webList = addWebList).webViewModel }
+            factory<MemoAddContactViewModel> { screenTestRealViewModel(contactList = addContactList).contactViewModel }
             factory<MemoAddPlaceViewModel> { screenTestRealViewModel().placeViewModel }
             // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
             factory<MemoPlaceMapViewModel> {
@@ -577,6 +676,7 @@ class MemoEntryNavigationTest {
                 removeFromFinishedList(id)
                 effectChannel.trySend(MemoDetailEffect.DeleteSucceeded).getOrThrow()
             }
+            every { finish() } answers { finishRequestedIdList.add(id) }
             every { restart() } answers {
                 removeFromFinishedList(id)
                 uiState.value = (uiState.value as MemoDetailUiState.Content).copy(isFinished = false)
@@ -608,6 +708,8 @@ class MemoEntryNavigationTest {
         const val TIMEOUT_MILLIS = 5_000L
         const val FINISHED_MEMO_COUNT = 3
         const val HOME_MEMO_TITLE = "MemoEntryHomeMemo"
+        const val ADD_WEB_TITLE = "MemoEntryAddWeb"
+        const val ADD_CONTACT_NAME = "MemoEntryAddContact"
         const val ADD_INPUT_TITLE = "MemoEntryAddInput"
         const val ORIGINAL_PREFIX = "Original"
         const val COPIED_PREFIX = "Copied"

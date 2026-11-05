@@ -5,8 +5,11 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class PlaylistNavigationTest :
@@ -16,6 +19,7 @@ class PlaylistNavigationTest :
                 listOf(
                     emptyList(),
                     listOf(MusicAddNavKey),
+                    listOf(MusicDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->

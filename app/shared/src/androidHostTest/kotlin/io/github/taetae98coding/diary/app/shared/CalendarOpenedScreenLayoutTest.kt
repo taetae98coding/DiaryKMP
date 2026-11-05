@@ -94,6 +94,14 @@ class CalendarOpenedScreenLayoutTest {
     }
 
     @Test
+    fun `TC-5f113b1e-444a-4a7b-b146-61ed8a196c7a 시간표에서 연 ContactDetail 화면은 단독으로 표시된다`() {
+        assertShownAlone(
+            openedKey = ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+            belowKeyList = listOf(CalendarHomeNavKey, SEPTEMBER_24_TIMETABLE),
+        )
+    }
+
+    @Test
     fun `TC-9e1c615a-75a4-418a-a564-09d2a59555af 알림으로 메모 홈 위에 연 시간표는 단독으로 표시된다`() {
         assertShownAlone(
             openedKey = CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = SEPTEMBER_24, id = Arb.kotlinUuid().next()),

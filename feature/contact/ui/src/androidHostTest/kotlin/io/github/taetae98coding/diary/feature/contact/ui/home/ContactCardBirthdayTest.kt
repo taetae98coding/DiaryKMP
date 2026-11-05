@@ -71,6 +71,7 @@ class ContactCardBirthdayTest {
     fun `TC-853fb0bd-2bd6-403c-b490-8a46ae0e5132 생일이 있는 연락처는 태어난 연도를 따로 표시하지 않는다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.SOLAR))
 
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertDoesNotExist()
     }
 

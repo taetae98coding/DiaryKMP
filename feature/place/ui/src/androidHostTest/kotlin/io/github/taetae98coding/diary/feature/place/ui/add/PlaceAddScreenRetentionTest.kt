@@ -171,7 +171,9 @@ class PlaceAddScreenRetentionTest {
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(TYPED_TITLE)
         composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].performTextInput(TYPED_DESCRIPTION)
+        composeRule.onAllNodes(hasSetTextAction())[ADDRESS_INDEX].performTextInput(TYPED_ADDRESS)
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].performTextInput(latitude)
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].performTextInput(TYPED_LONGITUDE)
         val initialColorHex = composeRule.currentColorHex()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
@@ -180,7 +182,9 @@ class PlaceAddScreenRetentionTest {
         verify(exactly = 1) { viewModel.add(any(), tagIdSet = any()) }
         composeRule.onNodeWithText(TYPED_TITLE).assertExists()
         composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].assert(hasText(TYPED_DESCRIPTION))
+        composeRule.onAllNodes(hasSetTextAction())[ADDRESS_INDEX].assert(hasText(TYPED_ADDRESS))
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assert(hasText(latitude))
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assert(hasText(TYPED_LONGITUDE))
         composeRule.onNodeWithText(initialColorHex, substring = true).assertExists()
     }
 

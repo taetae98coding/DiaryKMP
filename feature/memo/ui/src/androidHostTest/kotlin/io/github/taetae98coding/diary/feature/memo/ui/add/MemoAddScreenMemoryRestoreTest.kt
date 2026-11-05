@@ -6,10 +6,21 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
@@ -22,6 +33,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -229,6 +241,27 @@ class MemoAddScreenMemoryRestoreTest {
             .webViewModel.selectionUiState.value.webIdSet shouldBe setOf(targetWeb.id)
     }
 
+    @Test
+    fun `TC-1545faf2-e1e7-4d56-9b62-d34a85df6ec2 앱을 다시 실행한 뒤 새로 진입하면 이전 작성 내용 없이 새로운 입력 상태로 시작한다`() {
+        val viewModelsList = setRelaunchableMemoAddScreen { screenTestRealViewModel() }
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(TYPED_TITLE)
+        composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(TYPED_DESCRIPTION)
+        composeRule.onNode(hasRole(Role.Switch)).performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(TYPED_TITLE).assertExists()
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        val colorBeforeRelaunch = composeRule.colorHexText()
+
+        relaunch(viewModelsList)
+
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(TYPED_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOff()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsFocused()
+        // 무작위 컬러가 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        composeRule.colorHexText() shouldNotBe colorBeforeRelaunch
+    }
+
     private fun assertSelectionClearedAfterRelaunch(navKey: MemoAddNavKey) {
         val firstTag = testTag(title = TARGET_TAG_TITLE)
         val secondTag = testTag(title = OTHER_TAG_TITLE)
@@ -322,6 +355,8 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     private companion object {
+        private const val TYPED_TITLE = "MemoryRestoreTypedTitle"
+        private const val TYPED_DESCRIPTION = "MemoryRestoreTypedDescription"
         private const val TARGET_TAG_TITLE = "MemoryRestoreTargetTag"
         private const val OTHER_TAG_TITLE = "MemoryRestoreOtherTag"
         private const val PLACE_TITLE = "MemoryRestorePlace"
@@ -330,6 +365,8 @@ class MemoAddScreenMemoryRestoreTest {
         private const val OTHER_PLACE_TITLE = "MemoryRestoreOtherPlace"
         private const val OTHER_WEB_TITLE = "MemoryRestoreOtherWeb"
         private const val OTHER_CONTACT_NAME = "MemoryRestoreOtherContact"
+
+        private fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
     }
 }
 

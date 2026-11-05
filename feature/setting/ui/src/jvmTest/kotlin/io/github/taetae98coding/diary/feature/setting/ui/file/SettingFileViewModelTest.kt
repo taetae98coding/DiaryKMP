@@ -73,30 +73,30 @@ class SettingFileViewModelTest : FunSpec() {
         }
 
         test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 곧바로 저장되고 저장된 폴더가 화면의 위치가 된다") {
-            runTest(mainDispatcher) {
-                val uri = Arb.string().next()
-                val directory = Arb.fileDownloadDirectory().next().copy(uri = uri)
-                val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = null)))
-                val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
-                coEvery { setUseCase(uri) } coAnswers {
-                    stored.value = Result.success(FileDownloadSetting(directory = directory))
-                    Result.success(Unit)
-                }
-                val viewModel = viewModel(setting = stored, setUseCase = setUseCase)
+            listOf(null, Arb.fileDownloadDirectory().next()).forEach { previous ->
+                runTest(mainDispatcher) {
+                    val uri = Arb.string().next()
+                    val directory = Arb.fileDownloadDirectory().next().copy(uri = uri)
+                    val stored = MutableStateFlow(Result.success(FileDownloadSetting(directory = previous)))
+                    val setUseCase = mockk<SetFileDownloadDirectoryUseCase>()
+                    coEvery { setUseCase(uri) } coAnswers {
+                        stored.value = Result.success(FileDownloadSetting(directory = directory))
+                        Result.success(Unit)
+                    }
+                    val viewModel = viewModel(setting = stored, setUseCase = setUseCase)
 
-                viewModel.uiState.test {
-                    awaitItem() shouldBe SettingFileUiState.Loading
-                    awaitItem() shouldBe SettingFileUiState.Content(directory = null)
-
-                    viewModel.setDirectory(uri = uri)
-
-                    awaitItem() shouldBe SettingFileUiState.Content(directory = directory)
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe SettingFileUiState.Loading
+                        awaitItem() shouldBe SettingFileUiState.Content(directory = previous)
+                        viewModel.setDirectory(uri = uri)
+                        awaitItem() shouldBe SettingFileUiState.Content(directory = directory)
+                    }
+                    viewModel.effect.test {
+                        advanceUntilIdle()
+                        expectNoEvents()
+                    }
+                    coVerify(exactly = 1) { setUseCase(uri) }
                 }
-                viewModel.effect.test {
-                    advanceUntilIdle()
-                    expectNoEvents()
-                }
-                coVerify(exactly = 1) { setUseCase(uri) }
             }
         }
 
@@ -141,16 +141,20 @@ class SettingFileViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-3a05cdca-74ef-4bb0-8d41-247f33ec83d2 되돌리기에 실패하면 실패를 알린다") {
+        test("TC-3a05cdca-74ef-4bb0-8d41-247f33ec83d2 되돌리기에 실패하면 실패를 알리고 고른 폴더를 그대로 둔다") {
             runTest(mainDispatcher) {
+                val directory = Arb.fileDownloadDirectory().next()
                 val unsetUseCase = mockk<UnsetFileDownloadDirectoryUseCase>()
                 coEvery { unsetUseCase(Unit) } returns Result.failure(IllegalStateException("write error"))
-                val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = Arb.fileDownloadDirectory().next()))), unsetUseCase = unsetUseCase)
+                val viewModel = viewModel(setting = flowOf(Result.success(FileDownloadSetting(directory = directory))), unsetUseCase = unsetUseCase)
 
                 viewModel.effect.test {
                     viewModel.unsetDirectory()
-
                     awaitItem() shouldBe SettingFileEffect.ChangeFailed
+                }
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingFileUiState.Loading
+                    awaitItem() shouldBe SettingFileUiState.Content(directory = directory)
                 }
             }
         }

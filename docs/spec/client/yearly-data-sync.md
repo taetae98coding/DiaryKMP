@@ -97,3 +97,4 @@ Android, iOS, 데스크톱 앱에서는 기기에 저장한 자료가 앱을 다
 - [CalendarHome 스펙](./calendar-home.md): 진행 중인 요청
 - [CalendarTimetable 화면 스펙](./calendar-timetable.md): 진행 중인 요청 (공휴일, 음력 자료)
 - [HolidayHome 화면 스펙](./holiday-home.md): 진행 중인 요청, 재조회 생략
+- [새로고침 스펙](./sync-refresh.md): 진행 중인 요청, 재조회 생략

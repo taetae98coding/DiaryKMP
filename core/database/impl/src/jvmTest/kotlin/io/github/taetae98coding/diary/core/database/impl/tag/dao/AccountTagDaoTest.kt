@@ -152,6 +152,21 @@ class AccountTagDaoTest :
                 )
         }
 
+        test("TC-e96dcf85-437b-44ae-9997-45014436b86d 최근 수정순은 수정 시각 내림차순으로 정렬하고 같으면 제목 오름차순으로 정렬한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val newestTag = tag(title = "Charlie", updatedAt = Instant.fromEpochMilliseconds(3_000))
+            val sameTimeBravoTag = tag(title = "Bravo", updatedAt = Instant.fromEpochMilliseconds(2_000))
+            val sameTimeAlphaTag = tag(title = "Alpha", updatedAt = Instant.fromEpochMilliseconds(2_000))
+            insert(accountId, sameTimeAlphaTag, newestTag, sameTimeBravoTag)
+
+            database
+                .accountTagDao()
+                .page(accountId = accountId, query = "", sort = ListSortLocalEntity.RECENTLY_UPDATED.queryValue)
+                .loadPage()
+                .data
+                .map { tag -> tag.id } shouldBe listOf(newestTag.id, sameTimeAlphaTag.id, sameTimeBravoTag.id)
+        }
+
         test("TC-3a0822a3-3298-4643-ac93-19c1a0c7268e 이모지는 목록 정렬에 영향을 주지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val alphaTag = tag(title = "Alpha", emoji = "\uD83E\uDD8A")

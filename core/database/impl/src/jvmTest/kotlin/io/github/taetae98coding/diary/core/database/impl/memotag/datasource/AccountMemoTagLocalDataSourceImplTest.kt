@@ -143,6 +143,18 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
+        test("TC-6f67b4ae-691f-4463-bf54-0e7c561f73af 계정과 연결되지 않은 메모에는 태그를 연결해도 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val otherAccountMemo = memo()
+            val tag = tag()
+            insertMemo(accountId = otherAccountId, memo = otherAccountMemo)
+
+            connect(accountId = accountId, memoId = otherAccountMemo.id, tag = tag)
+
+            dataSource.getTagList(accountId = accountId, memoId = otherAccountMemo.id).first().shouldBeEmpty()
+        }
+
         test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 다른 계정의 연결은 조회되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()

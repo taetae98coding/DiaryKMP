@@ -14,7 +14,6 @@ import io.github.taetae98coding.diary.feature.web.ui.web_detail_update_succeeded
 import io.github.taetae98coding.diary.feature.web.ui.web_header_name_blank_message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -24,9 +23,16 @@ internal fun LoadWebPageEffect(
     state: WebDetailScaffoldState,
 ) {
     LaunchedEffect(state, pageViewModel) {
+        var previousViewMode: WebDetailViewMode? = null
+
         snapshotFlow { state.viewMode }
-            .filter { viewMode -> viewMode == WebDetailViewMode.RESPONSE }
-            .collect { pageViewModel.load() }
+            .collect { viewMode ->
+                if (viewMode == WebDetailViewMode.RESPONSE) {
+                    if (previousViewMode == WebDetailViewMode.URL) pageViewModel.reloadIfFailed()
+                    pageViewModel.load()
+                }
+                previousViewMode = viewMode
+            }
     }
 }
 

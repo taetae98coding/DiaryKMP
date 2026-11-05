@@ -13,8 +13,7 @@
 - [항목 추가 화면 공통 스펙](./entity-add.md)
 - [항목 상세 화면 공통 스펙](./entity-detail.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)
-- [TagDetail 웹 탭 스펙](./tag-detail-web.md)
-- [TagDetail 장소 탭 스펙](./tag-detail-place.md)
+- [TagDetail 화면 스펙](./tag-detail.md)
 
 사용자가 연결을 만들고 해제하는 조작은 각 입력 컴포넌트 스펙과 화면 스펙이 소유하므로 이 문서에는 `feature`와 `domain` 영역을 두지 않는다.
 

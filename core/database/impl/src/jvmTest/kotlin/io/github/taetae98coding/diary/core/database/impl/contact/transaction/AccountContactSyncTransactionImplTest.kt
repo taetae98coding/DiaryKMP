@@ -4,6 +4,7 @@ import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountContactLocalDataSourceImpl
@@ -23,6 +24,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -73,7 +75,7 @@ class AccountContactSyncTransactionImplTest :
             contactId: Uuid,
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { contact -> contact.id == contactId }
 
-        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 연락처는 포함되지 않는다") {
+        test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 연락처는 포함되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val guestEntity = contact()
             val accountEntity = contact()
@@ -124,6 +126,33 @@ class AccountContactSyncTransactionImplTest :
 
                 dataSource.find(accountId = accountId, contactId = localContact.id).first() shouldBe remoteContact
             }
+        }
+
+        test("TC-f5c3db7c-930a-44dc-bc0f-de71333148ed 내려받은 연락처의 전화번호 목록이 기기의 목록을 대체한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val localNumberList = listOf("local-${Arb.string().next()}", "local-${Arb.string().next()}")
+            val remoteNumber = "remote-${Arb.string().next()}"
+            val remoteNumberList = listOf(remoteNumber, "remote-${Arb.string().next()}", remoteNumber)
+            val localContact =
+                Arb
+                    .localContact(numberList = localNumberList, hasMeasure = Arb.boolean().next(), isFavorite = Arb.boolean().next(), isDeleted = false)
+                    .next()
+                    .copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val remoteContact =
+                localContact.copy(
+                    detail = localContact.detail.copy(phoneNumberList = remoteNumberList.map { number -> ContactPhoneNumberLocalEntity(number = number) }),
+                    updatedAt = Instant.fromEpochMilliseconds(2_000),
+                )
+            insertWithSyncState(accountId = accountId, contact = localContact, isDirty = false)
+
+            transaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+
+            dataSource
+                .find(accountId = accountId, contactId = localContact.id)
+                .first()
+                ?.detail
+                ?.phoneNumberList
+                ?.map { phoneNumber -> phoneNumber.number } shouldBe remoteNumberList
         }
 
         test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {

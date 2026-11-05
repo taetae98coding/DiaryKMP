@@ -139,8 +139,19 @@ class AccountTagWebLocalDataSourceImplTest :
             insertWeb(accountId, *webList.toTypedArray())
             webList.forEach { value -> link(accountId = accountId, webId = value.id, tagId = targetTag.id) }
 
-            pagedWebIdList(accountId = accountId, tagId = targetTag.id, loadSize = 2) shouldBe
-                webList.take(2).map { value -> value.id }
+            val firstPage =
+                dataSource
+                    .page(accountId = accountId, tagId = targetTag.id, scope = TagScopeLocalEntity.SELF, sort = ListSortLocalEntity.DEFAULT)
+                    .loadPage(key = null, loadSize = 2)
+
+            firstPage.data.map { value -> value.id } shouldBe webList.take(2).map { value -> value.id }
+
+            val secondPage =
+                dataSource
+                    .page(accountId = accountId, tagId = targetTag.id, scope = TagScopeLocalEntity.SELF, sort = ListSortLocalEntity.DEFAULT)
+                    .loadPage(key = firstPage.nextKey, loadSize = 2)
+
+            secondPage.data.map { value -> value.id } shouldBe webList.drop(2).map { value -> value.id }
         }
 
         test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 연결을 해제하면 목록에서 사라지고 복구하면 다시 나타난다") {
@@ -174,6 +185,26 @@ class AccountTagWebLocalDataSourceImplTest :
             insertWeb(accountId, targetWeb.copy(isDeleted = true))
 
             pagedWebIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
+        }
+
+        test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 삭제를 되돌리면 웹 항목이 정렬 위치에 다시 나타난다") {
+            val accountId = Arb.kotlinUuid().next()
+            val targetTag = tag()
+            val firstWeb = web(title = "a-web")
+            val deletedWeb = web(title = "b-web")
+            val lastWeb = web(title = "c-web")
+
+            insertTag(accountId, targetTag)
+            insertWeb(accountId, firstWeb, deletedWeb.copy(isDeleted = true), lastWeb)
+            listOf(firstWeb, deletedWeb, lastWeb).forEach { value ->
+                link(accountId = accountId, webId = value.id, tagId = targetTag.id)
+            }
+
+            pagedWebIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(firstWeb.id, lastWeb.id)
+
+            insertWeb(accountId, deletedWeb)
+
+            pagedWebIdList(accountId = accountId, tagId = targetTag.id) shouldBe listOf(firstWeb.id, deletedWeb.id, lastWeb.id)
         }
 
         test("TC-5905c263-f462-4474-b5d4-6e4a7a8bf218 웹 항목의 제목을 바꾸면 바뀐 제목의 정렬 위치로 이동한다") {
@@ -265,17 +296,22 @@ class AccountTagWebLocalDataSourceImplTest :
         }
     }) {
     companion object {
-        private suspend fun PagingSource<Int, WebLocalEntity>.pagedWebIdList(loadSize: Int): List<Uuid> {
+        private suspend fun PagingSource<Int, WebLocalEntity>.pagedWebIdList(loadSize: Int): List<Uuid> = loadPage(key = null, loadSize = loadSize).data.map { web -> web.id }
+
+        private suspend fun PagingSource<Int, WebLocalEntity>.loadPage(
+            key: Int?,
+            loadSize: Int,
+        ): PagingSource.LoadResult.Page<Int, WebLocalEntity> {
             val result =
                 load(
-                    PagingSource.LoadParams.Refresh(
-                        key = null,
-                        loadSize = loadSize,
-                        placeholdersEnabled = false,
-                    ),
+                    if (key == null) {
+                        PagingSource.LoadParams.Refresh(key = null, loadSize = loadSize, placeholdersEnabled = false)
+                    } else {
+                        PagingSource.LoadParams.Append(key = key, loadSize = loadSize, placeholdersEnabled = false)
+                    },
                 )
 
-            return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>().data.map { web -> web.id }
+            return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>()
         }
 
         private fun instant(): Instant = Arb.secondPrecisionInstant().next()

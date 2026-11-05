@@ -194,6 +194,43 @@ class PlaceDetailTagInputTest {
         return state
     }
 
+    @Test
+    fun `TC-6e1e8318-ce9f-4318-898d-09657d185da4 연결된 태그를 해제해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
+        val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
+        setPlaceDetailScreen(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-80e48e65-0601-4073-9161-87db979bc146 태그를 해제해도 입력 중인 내용은 바뀌지 않는다`() {
+        val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
+        setPlaceDetailScreen(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.waitForIdle()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+        composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+    }
+
+    private fun unlinkTag(title: String) {
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        awaitPickerRow(title = title)
+        composeRule.onNode(hasText(title) and isToggleable()).performClick()
+        composeRule.waitForIdle()
+    }
+
     private fun linkTag(title: String) {
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
         composeRule.waitForIdle()

@@ -25,8 +25,8 @@ class SyncWorkSyncTimeTest :
 
         test("TC-25b81ed8-2398-4288-a009-6f60ee3043ea 업로드가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
             runTest {
-                val context = context()
-                coEvery { context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId) } throws TestException("push")
+                val context = context(tagList = tags(size = 1))
+                coEvery { context.tagRemoteDataSource.push(any()) } throws TestException("push")
 
                 shouldThrow<TestException> { context.subject.doWork() }
 

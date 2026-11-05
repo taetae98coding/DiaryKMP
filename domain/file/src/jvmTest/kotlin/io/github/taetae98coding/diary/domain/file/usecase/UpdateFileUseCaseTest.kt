@@ -52,7 +52,7 @@ class UpdateFileUseCaseTest :
 
         Given("수정 성립 조건을 어긴 입력이 있다") {
             When("수정한다") {
-                Then("TC-fc9976b9-ffb7-40c5-b037-cbf6a3b979f4 TC-049583bf-ac42-46b6-b79f-1c00b4f53ba3 TC-b4b5c536-1561-4a32-a836-c3a4358e907b 처음 어긴 조건의 실패로 끝나고 서버에 보내지 않는다") {
+                Then("TC-f4446f67-dd3d-4b7f-a77f-d426fff2763d TC-fc9976b9-ffb7-40c5-b037-cbf6a3b979f4 TC-049583bf-ac42-46b6-b79f-1c00b4f53ba3 TC-b4b5c536-1561-4a32-a836-c3a4358e907b 처음 어긴 조건의 실패로 끝나고 서버에 보내지 않는다") {
                     listOf(
                         DiaryFileDetail(name = "", title = "", description = "") to FileTitleBlankException::class,
                         DiaryFileDetail(name = "a.txt", title = "  ", description = "") to FileTitleBlankException::class,

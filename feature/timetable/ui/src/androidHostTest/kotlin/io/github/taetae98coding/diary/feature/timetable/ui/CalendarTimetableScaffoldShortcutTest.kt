@@ -46,6 +46,26 @@ class CalendarTimetableScaffoldShortcutTest {
     }
 
     @Test
+    fun `TC-7fdd92f0-0ada-4b05-a805-a9d427c51ac7 주간 형식에서 오른쪽 방향키를 누르면 다음 주로 이동한다`() {
+        setCalendarTimetableScaffold(type = CalendarTimetableNavKey.Type.WEEK, initialDate = september(day = 20))
+
+        performKey(Key.DirectionRight)
+
+        listOf(27, 28, 29, 30, 1, 2, 3).forEach { day -> composeRule.onNodeWithText(day.toString()).assertIsDisplayed() }
+        composeRule.onNodeWithText("20").assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-7fdd92f0-0ada-4b05-a805-a9d427c51ac7 주간 형식에서 왼쪽 방향키를 누르면 이전 주로 이동한다`() {
+        setCalendarTimetableScaffold(type = CalendarTimetableNavKey.Type.WEEK, initialDate = september(day = 20))
+
+        performKey(Key.DirectionLeft)
+
+        for (day in 13..19) composeRule.onNodeWithText(day.toString()).assertIsDisplayed()
+        composeRule.onNodeWithText("20").assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-cdf12a56-0dac-4795-9354-e8bdf74bd37a 이동 범위를 벗어나는 방향키 입력은 무시된다`() {
         var latestState: CalendarTimetableScaffoldState? = null
         setCalendarTimetableScaffold(

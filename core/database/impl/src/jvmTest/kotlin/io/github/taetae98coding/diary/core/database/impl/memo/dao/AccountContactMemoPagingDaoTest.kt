@@ -149,6 +149,13 @@ class AccountContactMemoPagingDaoTest :
             contactId: Uuid,
         ): List<Uuid> = pagingSource(accountId = accountId, contactId = contactId).pagedIds()
 
+        suspend fun activeContactIds(memoId: Uuid): List<Uuid> =
+            database
+                .memoContactDao()
+                .findByMemoIdList(listOf(memoId))
+                .filterNot { memoContact -> memoContact.isDeleted }
+                .map { memoContact -> memoContact.contactId }
+
         suspend fun assertPageInvalidated(
             pagingSource: PagingSource<Int, MemoLocalEntity>,
             accountId: Uuid,
@@ -317,12 +324,18 @@ class AccountContactMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, contactId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
+            val finishedAt = instant()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = finishedAt)
             }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to finishedAt)
+            activeContactIds(memoId = targetMemo.id) shouldBe listOf(target.id)
 
-            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+            val restartedAt = instant()
+            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = restartedAt)
 
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restartedAt)
+            activeContactIds(memoId = targetMemo.id) shouldBe listOf(target.id)
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 
@@ -334,12 +347,18 @@ class AccountContactMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, contactId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
+            val deletedAt = instant()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = deletedAt)
             }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to deletedAt)
+            activeContactIds(memoId = targetMemo.id) shouldBe listOf(target.id)
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            val restoredAt = instant()
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = restoredAt)
 
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restoredAt)
+            activeContactIds(memoId = targetMemo.id) shouldBe listOf(target.id)
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 

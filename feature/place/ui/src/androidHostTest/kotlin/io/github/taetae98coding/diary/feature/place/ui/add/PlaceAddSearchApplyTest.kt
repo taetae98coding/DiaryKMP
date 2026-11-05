@@ -147,8 +147,10 @@ class PlaceAddSearchApplyTest {
     fun `TC-a1247e71-b57d-46fc-a6f7-9dedc700a2bb 장소를 고르지 않고 검색을 닫으면 입력 내용이 그대로 남는다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
+        val colorBefore = composeRule.runOnIdle { state.detail.color }
         composeRule.runOnIdle {
             state.titleState.setText(TYPED_TITLE)
+            state.descriptionState.setText(TYPED_DESCRIPTION)
             state.addressState.setTextAndPlaceCursorAtEnd(TYPED_ADDRESS)
             state.latitudeState.setTextAndPlaceCursorAtEnd(TYPED_LATITUDE)
             state.longitudeState.setTextAndPlaceCursorAtEnd(TYPED_LONGITUDE)
@@ -159,6 +161,8 @@ class PlaceAddSearchApplyTest {
         composeRule.runOnIdle {
             state.searchDialogState.isVisible shouldBe false
             state.detail.title shouldBe TYPED_TITLE
+            state.detail.description shouldBe TYPED_DESCRIPTION
+            state.detail.color shouldBe colorBefore
             state.detail.address shouldBe TYPED_ADDRESS
             state.detail.coordinate shouldBe Coordinate(latitude = TYPED_LATITUDE.toDouble(), longitude = TYPED_LONGITUDE.toDouble())
         }

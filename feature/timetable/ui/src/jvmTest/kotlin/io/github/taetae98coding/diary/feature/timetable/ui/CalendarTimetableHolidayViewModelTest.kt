@@ -77,6 +77,23 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-cf08656c-af51-4e64-ab66-b87e428cdc19 같은 연도의 공휴일 동기화가 진행 중이면 다시 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val pending = CompletableDeferred<Result<List<Holiday>>>()
+                val fetchUseCase = mockk<FetchHolidayUseCase>()
+                coEvery { fetchUseCase(parameter = any()) } coAnswers { pending.await() }
+                val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = fetchUseCase, getCalendarHolidayUseCase = emptyGetCalendarHolidayUseCase())
+
+                viewModel.fetch(dateRange = day(year = 2026, month = 9, day = 23))
+                advanceUntilIdle()
+                viewModel.fetch(dateRange = day(year = 2026, month = 9, day = 24))
+                pending.complete(Result.success(emptyList()))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchUseCase(parameter = 2026) }
+            }
+        }
+
         test("TC-bffb68a6-004c-42a7-8674-37e2d578f84f 동기화가 진행 중이어도 날짜가 바뀌면 바뀐 날짜의 대상 연도를 요청하고 표시 대상도 바뀐다") {
             runTest(mainDispatcher) {
                 val holiday2027 = Arb.holiday().next()

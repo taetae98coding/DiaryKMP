@@ -129,8 +129,8 @@ class MemoPlaceCardTest {
     }
 
     /**
-     * 노출하는 장소 확인이 끝나면 지도가 표시되는 나머지 절반은 지도 제공자의 실제 표시 요소가 필요해
-     * 호스트 테스트에서 자동화할 수 없다. (Robolectric에서 지도 SDK 뷰 생성 시 VerifyError)
+     * 노출하는 장소 확인이 끝나면 지도가 표시되는 나머지 절반은 지도 표시 요소를 대신하는 테스트 지도가 필요해
+     * [MemoPlaceCardMapTest]가 확인한다. (실제 지도 SDK 뷰는 Robolectric에서 생성할 수 없다)
      */
     @Test
     fun `TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 기본 지도가 확인되어도 노출하는 장소를 확인하기 전에는 지도를 표시하지 않는다`() {

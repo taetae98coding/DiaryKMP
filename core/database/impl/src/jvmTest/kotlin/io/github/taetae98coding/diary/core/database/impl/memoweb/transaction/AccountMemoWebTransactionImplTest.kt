@@ -428,6 +428,16 @@ class AccountMemoWebTransactionImplTest :
             findPendingWebIdList(accountId = accountId) shouldBe listOf(addedWeb.id)
         }
 
+        test("TC-16582126-e239-4cef-91b8-c8ac38486eda 웹 항목을 연결한 새 메모를 저장하면 그 연결이 업로드 대기 항목으로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo()
+            val webList = List(2) { web() }
+
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = webList)
+
+            findPendingWebIdList(accountId = accountId) shouldContainExactlyInAnyOrder webList.map { web -> web.id }
+        }
+
         test("TC-5da8e195-c179-4192-b20d-cbb725e4706a 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = Arb.kotlinUuid().next()
             val now = instant()

@@ -307,6 +307,122 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe listOf(contact.copy(isFavorite = true, updatedAt = updatedAt))
         }
 
+        test("TC-6ec3f675-b8e4-4edc-8e7f-9af3c7691cfa 수정은 전화번호를 반영한 순서 그대로 대체해 저장한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact()
+            val phoneNumberList =
+                listOf(
+                    ContactPhoneNumberLocalEntity(number = "02-333-4444"),
+                    ContactPhoneNumberLocalEntity(number = "010-1234-5678"),
+                    ContactPhoneNumberLocalEntity(number = "031-555-6666"),
+                )
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateDetail(
+                accountId = accountId,
+                contactId = contact.id,
+                detail = contact.detail.copy(phoneNumberList = phoneNumberList),
+                updatedAt = instant(),
+            ) shouldBe 1
+
+            findContactList().single().detail.phoneNumberList shouldBe phoneNumberList
+        }
+
+        test("TC-1c371ce2-5734-4028-b428-301bc197ab5a 전화번호를 모두 지운 수정을 반영하면 전화번호가 남지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateDetail(
+                accountId = accountId,
+                contactId = contact.id,
+                detail = contact.detail.copy(phoneNumberList = emptyList()),
+                updatedAt = instant(),
+            ) shouldBe 1
+
+            findContactList().single().detail.phoneNumberList shouldBe emptyList()
+        }
+
+        test("TC-b55bd3d9-08dc-4afb-b09e-d24205aca28e 수정은 즐겨찾기 여부와 삭제 여부와 생성 시각과 계정 연결을 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact().copy(isFavorite = true, isDeleted = true)
+            val updatedDetail = detail().copy(name = "updated-${Arb.string().next()}")
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt) shouldBe 1
+
+            findContactList() shouldBe listOf(contact.copy(detail = updatedDetail, updatedAt = updatedAt))
+            findAccountContactList().map { accountContact -> accountContact.accountId to accountContact.contactId } shouldBe
+                listOf(accountId to contact.id)
+        }
+
+        test("TC-21d1c705-308e-4ddc-bb00-1dcffba5d805 즐겨찾기 변경은 즐겨찾기 여부와 수정 시각만 저장한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact().copy(isFavorite = false)
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt) shouldBe 1
+
+            findContactList() shouldBe listOf(contact.copy(isFavorite = true, updatedAt = updatedAt))
+        }
+
+        test("TC-9aaa0ba4-69e2-4de4-a225-3e64e1f24b30 삭제는 연락처와 계정 연결과 전화번호를 지우지 않고 삭제 여부와 수정 시각만 바꾼다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact().copy(isFavorite = true, isDeleted = false)
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
+
+            findContactList() shouldBe listOf(contact.copy(isDeleted = true, updatedAt = updatedAt))
+            findAccountContactList().map { accountContact -> accountContact.accountId to accountContact.contactId } shouldBe
+                listOf(accountId to contact.id)
+        }
+
+        test("TC-92a80131-b9a8-457a-93e9-5aef7d57aea0 TC-7ff50880-b5cd-4f40-bde3-44fe777b0439 TC-11b8fded-b993-4a0c-8334-0da88e444e17 현재 계정과 연결되지 않은 연락처는 수정과 삭제와 즐겨찾기 변경이 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val contact = contact()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            val before = findContactList()
+
+            transaction.updateDetail(
+                accountId = otherAccountId,
+                contactId = contact.id,
+                detail = detail().copy(name = "updated-${Arb.string().next()}"),
+                updatedAt = instant(),
+            ) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, contactId = contact.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+            transaction.updateFavorite(accountId = otherAccountId, contactId = contact.id, isFavorite = true, updatedAt = instant()) shouldBe 0
+            transaction.updateDetail(accountId = accountId, contactId = Arb.kotlinUuid().next(), detail = detail(), updatedAt = instant()) shouldBe 0
+
+            findContactList() shouldBe before
+        }
+
+        test("TC-1baea3d4-f655-46b8-8d62-64d922ba1d95 TC-e5d727a2-80a2-4f39-bc0f-a1295f84684d 저장에 실패하면 실패를 전달하고 저장된 연락처는 바뀌지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val contact = contact()
+            val throwable = IllegalStateException(Arb.string().next())
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            val failingDatabase = spyk(database)
+            every { failingDatabase.accountContactDao() } throws throwable
+            val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = instant())
+            }.message shouldBe throwable.message
+            shouldThrow<IllegalStateException> {
+                failingTransaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = instant())
+            }.message shouldBe throwable.message
+            shouldThrow<IllegalStateException> {
+                failingTransaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = instant())
+            }.message shouldBe throwable.message
+
+            findContactList() shouldBe listOf(contact)
+        }
+
         test("TC-05a1f42a-bfb1-4a3d-b30b-7594415bdedf 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact()

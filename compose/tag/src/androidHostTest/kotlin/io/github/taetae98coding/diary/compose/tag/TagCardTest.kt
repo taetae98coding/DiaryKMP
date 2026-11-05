@@ -69,13 +69,18 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
+    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지와 제목을 비워 표시한다`() {
         val tag = tag(colorArgb = Arb.int().next() or 0xFF000000.toInt())
 
         setTagCard(tag = null)
 
         composeRule.onNodeWithTag(TAG_CARD_TEST_TAG).assertExists()
         composeRule.onNodeWithText(tag.detail.emojiWithTitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun `자리 표시 카드의 컬러 원형 표시는 카드 배경과 같은 색으로 비워 둔다`() {
+        setTagCard(tag = null)
 
         val indicatorBounds =
             composeRule

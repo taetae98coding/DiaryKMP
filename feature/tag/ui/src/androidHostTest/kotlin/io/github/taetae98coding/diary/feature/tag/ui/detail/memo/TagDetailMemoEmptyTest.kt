@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.memo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -26,6 +27,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
+import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_finished_list_action_label
@@ -103,6 +106,36 @@ class TagDetailMemoEmptyTest {
     }
 
     @Test
+    fun `TC-0465b724-d860-4532-a375-72fd2d248d58 연결된 메모가 표시되어 있어도 완료된 메모 확인을 실행할 수 있다`() {
+        var navigateToMemoFinishedListCount = 0
+        setScreenOnMemoTab(
+            memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = LISTED_MEMO_TITLE)))),
+            navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 },
+        )
+
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(LISTED_MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).performClick()
+
+        navigateToMemoFinishedListCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-0465b724-d860-4532-a375-72fd2d248d58 대상 태그를 조회하지 못해도 완료된 메모 확인을 실행할 수 있다`() {
+        var navigateToMemoFinishedListCount = 0
+        setScreenOnMemoTab(
+            memoPagingData = loadedEmptyPagingData(),
+            uiState = TagDetailUiState.Loading,
+            navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).performClick()
+
+        navigateToMemoFinishedListCount shouldBe 1
+    }
+
+    @Test
     fun `TC-60299940-63b4-4e9f-9009-f9a8a9d20489 대상 태그를 조회하지 못해도 메모 추가와 완료된 메모 확인을 실행할 수 있다`() {
         setScreenOnMemoTab(
             memoPagingData = loadedEmptyPagingData(),
@@ -144,11 +177,13 @@ class TagDetailMemoEmptyTest {
         memoPagingData: PagingData<MemoListItem>,
         uiState: TagDetailUiState = tagDetailUiState(detail = tagDetail(TAG_TITLE)),
         navigateToMemoAdd: () -> Unit = {},
+        navigateToMemoFinishedList: () -> Unit = {},
     ) {
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(uiState)),
             memoPagingData = memoPagingData,
             navigateToMemoAdd = navigateToMemoAdd,
+            navigateToMemoFinishedList = navigateToMemoFinishedList,
         )
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
     }
@@ -160,6 +195,8 @@ class TagDetailMemoEmptyTest {
         const val KOREAN_EMPTY_DESCRIPTION = "추가 버튼으로 새 메모를 만들 수 있습니다"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
         const val DEFAULT_FINISHED_LIST_BUTTON_LABEL = "Finished memos"
+        const val LISTED_MEMO_TITLE = "TagDetailListedMemo"
+        const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
 
         fun loadedEmptyPagingData(): PagingData<MemoListItem> =
             PagingData.from(

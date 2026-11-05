@@ -145,7 +145,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-da6da799-9cd6-4577-a51a-2231c6c1a828 처음에는 두 축이 모두 전체이고 거르지 않는 조건으로 조회한다") {
+        test("TC-da6da799-9cd6-4577-a51a-2231c6c1a828 처음에는 세 축이 모두 전체이고 거르지 않는 조건으로 조회한다") {
             runTest(mainDispatcher) {
                 val contactList = listOf(contact(), contact())
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(contactList))))

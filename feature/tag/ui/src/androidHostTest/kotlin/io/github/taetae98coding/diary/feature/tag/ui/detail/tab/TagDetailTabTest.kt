@@ -53,8 +53,10 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.toHexColorText
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_TAG_LINK_LABEL
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
@@ -76,10 +78,21 @@ class TagDetailTabTest {
 
     @Test
     fun `TC-29341416-bb37-4ba2-a21a-5a267cdedb15 화면에 처음 진입하면 태그 디테일 탭이 선택된다`() {
-        setTagDetailScaffold()
+        val storedDetail =
+            tagDetail(
+                title = TAG_TITLE,
+                emoji = STORED_EMOJI,
+                description = STORED_DESCRIPTION,
+                color = STORED_COLOR,
+            )
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = storedDetail) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.titleInput().assertExists()
+        composeRule.emojiInput().assert(hasText(STORED_EMOJI))
+        composeRule.titleInput().assert(hasText(TAG_TITLE))
+        composeRule.descriptionInput().assert(hasText(STORED_DESCRIPTION))
+        composeRule.colorHexText() shouldBe STORED_COLOR.toHexColorText()
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).assertExists()
         composeRule.refreshableList().assertDoesNotExist()
     }
 

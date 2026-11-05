@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
+import io.github.taetae98coding.diary.core.model.measure.Length
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -52,6 +53,8 @@ internal fun testContact(
     name: String,
     phoneNumberList: List<String> = emptyList(),
     description: String = "설명-${Arb.string().next()}",
+    height: Length? = null,
+    footSize: Length? = null,
     birthday: ContactBirthday? = null,
     birthYear: Int? = birthday?.date?.year,
     hometown: String = "",
@@ -67,8 +70,8 @@ internal fun testContact(
                     ContactDetail(
                         name = name,
                         description = description,
-                        height = null,
-                        footSize = null,
+                        height = height,
+                        footSize = footSize,
                         birthday = birthday,
                         birthYear = birthYear,
                         hometown = hometown,

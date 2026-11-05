@@ -29,16 +29,22 @@ class ColorPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-0649b2e2-c62b-40c2-b02d-0cd8e84d9e2f 슬라이더를 움직이면 미리보기 컬러와 Hex 입력 칸이 함께 갱신된다`() {
+    fun `TC-0649b2e2-c62b-40c2-b02d-0cd8e84d9e2f R G B 슬라이더를 각각 움직이면 미리보기 컬러와 Hex 입력 칸이 함께 갱신된다`() {
         val state = setColorPickerDialog(initialColor = Color.Black)
 
-        composeRule
-            .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(CHANNEL_MAX) }
-        composeRule.waitForIdle()
+        listOf(
+            RED_HEX to Color.Red,
+            YELLOW_HEX to Color.Yellow,
+            WHITE_HEX to Color.White,
+        ).forEachIndexed { index, (expectedHex, expectedColor) ->
+            composeRule
+                .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[index]
+                .performSemanticsAction(SemanticsActions.SetProgress) { it(CHANNEL_MAX) }
+            composeRule.waitForIdle()
 
-        composeRule.onNode(hasSetTextAction()).assert(hasText(RED_HEX))
-        composeRule.runOnIdle { state.color shouldBe Color.Red }
+            composeRule.onNode(hasSetTextAction()).assert(hasText(expectedHex))
+            composeRule.runOnIdle { state.color shouldBe expectedColor }
+        }
     }
 
     @Test
@@ -126,6 +132,8 @@ class ColorPickerDialogTest {
     public companion object {
         private const val CHANNEL_MAX = 255F
         private const val RED_HEX = "#FF0000"
+        private const val YELLOW_HEX = "#FFFF00"
+        private const val WHITE_HEX = "#FFFFFF"
         private const val BASE_HEX = "#102030"
         private const val DEFAULT_RANDOM_DESCRIPTION = "Random color"
         private val BASE_COLOR = Color(color = 0xFF102030.toInt())

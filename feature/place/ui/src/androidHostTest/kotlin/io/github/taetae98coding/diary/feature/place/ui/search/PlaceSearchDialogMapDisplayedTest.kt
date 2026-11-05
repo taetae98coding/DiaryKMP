@@ -16,11 +16,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.domain.place.usecase.FetchSearchedPlaceUseCase
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
@@ -33,7 +35,11 @@ import io.github.taetae98coding.diary.feature.place.ui.add.addTagScreenTestViewM
 import io.github.taetae98coding.diary.feature.place.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldNotContainAnyOf
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -203,6 +209,102 @@ class PlaceSearchDialogMapDisplayedTest {
         }
     }
 
+    @Test
+    fun `TC-cfd7e250-3466-434c-985b-e02b813276b6 검색어를 지우면 지도 위 핀도 사라진다`() {
+        val placeList = placeList()
+        setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList))
+        openSearchAndType()
+        composeRule.runOnIdle {
+            map
+                .lastScope()
+                .state.pins.size shouldBe placeList.size
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { map.lastScope().state.pins shouldBe emptyList() }
+    }
+
+    @Test
+    fun `TC-72792cda-543c-46f3-8d6c-0606d01bc1e7 결과가 바뀌면 지도 위 핀도 새 결과로 바뀐다`() {
+        val firstList = placeList()
+        val secondList = placeList()
+        val resultQueue = ArrayDeque(listOf(firstList, secondList))
+        val uiState = MutableStateFlow<PlaceSearchUiState>(PlaceSearchUiState.Idle)
+        val viewModel = mockk<PlaceSearchViewModel>(relaxed = true)
+        every { viewModel.uiState } returns uiState
+        every { viewModel.search(any()) } answers { uiState.value = PlaceSearchUiState.Content(placeList = resultQueue.removeFirst()) }
+        every { viewModel.clear() } answers { uiState.value = PlaceSearchUiState.Idle }
+        val firstQuery = randomText(prefix = QUERY_PREFIX)
+        setPlaceAddScreen(searchViewModel = viewModel)
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(firstQuery)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            map
+                .lastScope()
+                .state.pins
+                .map { pin -> pin.id } shouldBe firstList.map { place -> place.id }
+        }
+
+        val secondQuery = randomText(prefix = CHANGED_QUERY_PREFIX)
+        composeRule.onNodeWithText(firstQuery).performTextReplacement(secondQuery)
+        composeRule.onNodeWithText(secondQuery).assertExists()
+        composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            val pinIdList =
+                map
+                    .lastScope()
+                    .state.pins
+                    .map { pin -> pin.id }
+
+            pinIdList shouldBe secondList.map { place -> place.id }
+            pinIdList shouldNotContainAnyOf firstList.map { place -> place.id }
+        }
+    }
+
+    @Test
+    fun `TC-84efa47e-9474-41da-a5f0-9403e6af0b1b 결과 핀을 표시해도 지도가 보고 있던 위치와 확대 수준은 바뀌지 않는다`() {
+        val viewedCoordinate = Arb.coordinateInFormPrecision().next().toDiaryMapCoordinate()
+        setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList()))
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { map.lastScope().reportCamera(coordinate = viewedCoordinate, zoom = VIEWED_ZOOM) }
+
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(randomText(prefix = QUERY_PREFIX))
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            map
+                .lastScope()
+                .state.pins.size shouldBe PLACE_COUNT
+            map.lastScope().state.coordinate shouldBe viewedCoordinate
+            map.lastScope().zoom shouldBe VIEWED_ZOOM
+        }
+    }
+
+    @Test
+    fun `TC-ec1a0c10-9784-4b75-9764-8ac770320821 다이얼로그의 지도를 눌러도 지점이 만들어지지 않는다`() {
+        setPlaceAddScreen(searchViewModel = searchViewModel(resultList = placeList()))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            map.lastScope().onSpotClick.shouldBeNull()
+            map.lastScope().onPinClick.shouldNotBeNull()
+            map
+                .lastScope()
+                .state.spot
+                .shouldBeNull()
+        }
+        composeRule.onNode(isDialog()).assertExists()
+    }
+
     private fun setPlaceAddScreen(
         searchViewModel: PlaceSearchViewModel,
         defaultProvider: MapProvider = MapProvider.NAVER,
@@ -257,10 +359,13 @@ class PlaceSearchDialogMapDisplayedTest {
         private const val DEFAULT_SEARCH_MAP_DESCRIPTION = "Place search map"
         private const val DEFAULT_NAVER_LABEL = "Naver"
         private const val QUERY_PREFIX = "query"
+        private const val CHANGED_QUERY_PREFIX = "changed-query"
         private const val PLACE_ADDRESS_PREFIX = "address"
         private const val FIRST_PLACE_NAME_PREFIX = "first-place"
         private const val SECOND_PLACE_NAME_PREFIX = "second-place"
         private const val BASE_LATITUDE = 37.0
         private const val BASE_LONGITUDE = 127.0
+        private const val VIEWED_ZOOM = 12.0
+        private const val PLACE_COUNT = 2
     }
 }

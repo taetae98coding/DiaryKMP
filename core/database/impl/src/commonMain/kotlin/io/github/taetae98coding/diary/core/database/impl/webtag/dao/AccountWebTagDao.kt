@@ -31,6 +31,8 @@ internal interface AccountWebTagDao : RoomDao<AccountWebTagLocalEntity> {
                 AND account_web_tag.account_id = :accountId
         INNER JOIN web
             ON web.id = web_tag.web_id
+        INNER JOIN account_web
+            ON account_web.web_id = web.id AND account_web.account_id = :accountId
         WHERE tag.is_deleted = 0
         ORDER BY tag.title ASC
         """,
@@ -56,6 +58,8 @@ internal interface AccountWebTagDao : RoomDao<AccountWebTagLocalEntity> {
                         ON account_web_tag.web_id = web_tag.web_id
                             AND account_web_tag.tag_id = web_tag.tag_id
                             AND account_web_tag.account_id = :accountId
+                    INNER JOIN account_web
+                        ON account_web.web_id = web_tag.web_id AND account_web.account_id = :accountId
                     WHERE web_tag.tag_id = tag.id
                         AND web_tag.web_id = :webId
                         AND web_tag.is_deleted = 0

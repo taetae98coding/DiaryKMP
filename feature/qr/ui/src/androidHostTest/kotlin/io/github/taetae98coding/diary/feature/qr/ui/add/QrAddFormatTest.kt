@@ -145,6 +145,22 @@ class QrAddFormatTest {
         composeRule.qrCodeValue() shouldBe longestUrl
     }
 
+    @Test
+    fun `TC-6ee9a1f1-ee16-408e-9212-8304efc22752 위치 포맷 입력이 QR 하나에 담을 수 없게 되면 반영하지 않는다`() {
+        val longestLatitude = "1".repeat(MAX_BYTE_LENGTH - LOCATION_PREFIX_LENGTH)
+        val state = setQrAddScaffold()
+        composeRule.selectTab(QR_TAB_INDEX)
+        composeRule.write { state().contentState.selectFormat(QrFormat.LOCATION) }
+        composeRule.onQrFieldInput(DEFAULT_LATITUDE_LABEL).performTextInput(longestLatitude)
+        composeRule.waitForIdle()
+
+        composeRule.onQrFieldInput(DEFAULT_LATITUDE_LABEL).performTextInput("1")
+        composeRule.waitForIdle()
+
+        composeRule.onQrFieldInput(DEFAULT_LATITUDE_LABEL).editableText() shouldBe longestLatitude
+        composeRule.qrCodeValue() shouldBe "geo:$longestLatitude,"
+    }
+
     private fun assertFormatMenu(
         formatLabel: String,
         currentFormatName: String,
@@ -187,6 +203,8 @@ class QrAddFormatTest {
         const val KOREAN_FORMAT_LABEL = "포맷"
         const val DEFAULT_FORMAT_LABEL = "Format"
         const val DEFAULT_URL_LABEL = "URL"
+        const val DEFAULT_LATITUDE_LABEL = "Latitude"
+        const val LOCATION_PREFIX_LENGTH = 5
         const val DEFAULT_PHONE_NUMBER_LABEL = "Phone number"
         const val DEFAULT_ADDRESS_LABEL = "Address"
         val KOREAN_FORMAT_NAME_LIST = listOf("텍스트", "URL", "연락처", "Wi-Fi", "위치", "이메일", "전화", "SMS", "일정")

@@ -234,7 +234,7 @@ class GeminiContentRemoteDataSourceImplTest :
             actual.description shouldBe message
         }
 
-        test("인증 정보가 유효하지 않은 실패를 구분해 알린다") {
+        test("TC-cafafa06-f52a-4988-ab6e-164c6d4fd04b: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
             listOf(
                 errorEngine(HttpStatusCode.Unauthorized, status = "UNAUTHENTICATED"),
                 errorEngine(HttpStatusCode.Forbidden, status = "PERMISSION_DENIED"),

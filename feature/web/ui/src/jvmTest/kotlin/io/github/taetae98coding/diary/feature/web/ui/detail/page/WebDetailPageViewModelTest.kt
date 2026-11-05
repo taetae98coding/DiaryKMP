@@ -164,6 +164,29 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-44066812-528e-4f8c-9740-8d9fa9d9eb7d 불러오기에 실패한 상태에서만 응답 본문 방식으로 돌아올 때 다시 불러온다") {
+            runTest(mainDispatcher) {
+                val webPage = webPage()
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
+                    listOf(Result.failure(IllegalStateException()), Result.success(webPage))
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
+
+                viewModel.load()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Failure
+
+                viewModel.reloadIfFailed()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
+
+                viewModel.reloadIfFailed()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
+                coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-6d2cd3ce-0709-4540-830a-47fa35713946 불러오는 동안 전달된 다시 시도 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val response = CompletableDeferred<Result<WebPage>>()

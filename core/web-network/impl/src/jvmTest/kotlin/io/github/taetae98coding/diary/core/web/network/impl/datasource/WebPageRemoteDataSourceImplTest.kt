@@ -69,8 +69,8 @@ class WebPageRemoteDataSourceImplTest :
             requestHeaders[HttpHeaders.Cookie].shouldBeNull()
         }
 
-        test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 2xx가 아닌 응답도 실패로 다루지 않고 본문을 전달한다") {
-            listOf(HttpStatusCode.NotFound, HttpStatusCode.InternalServerError).forEach { status ->
+        test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 상태 코드와 관계없이 실패로 다루지 않고 본문을 전달한다") {
+            listOf(HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.InternalServerError).forEach { status ->
                 val body = "<html><body>${status.value}</body></html>"
                 val dataSource = createDataSource(createMockEngine(body = body, status = status))
 

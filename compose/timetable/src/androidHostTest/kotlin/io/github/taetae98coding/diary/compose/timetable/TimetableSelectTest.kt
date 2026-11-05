@@ -106,6 +106,26 @@ class TimetableSelectTest {
     }
 
     @Test
+    fun `TC-27a8e99a-740b-4db7-a213-cd1fbc965d61 하루 형식에서 날짜 머리줄이나 종일 영역을 길게 누르면 표시 중인 날짜 하루가 전달된다`() {
+        setTimetable {
+            allDayItem(dateRange = september(day = 23)..september(day = 23), key = VACATION) { Text(text = VACATION) }
+        }
+
+        performLongPress(dayCenter(day = 23))
+        performUp()
+        performLongPress(
+            composeRule
+                .onNodeWithText(VACATION)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot.center,
+        )
+        performUp()
+
+        eventList shouldBe List(2) { TimetableEvent.SelectDate(dateRange = september(day = 23)..september(day = 23)) }
+    }
+
+    @Test
     fun `TC-d423318f-51a8-4ab4-8ffa-0f5bcd1b68e7 종일 영역의 아이템 위를 길게 누르면 그 자리의 날짜에서 선택이 시작된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {

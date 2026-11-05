@@ -112,6 +112,17 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
+    fun `TC-6de34fe8-78af-4cfd-81c8-20ce5de98193 메모 탭을 선택하는 것만으로는 새로고침을 요청하지 않는다`() {
+        setScreen()
+        composeRule.selectPlaceDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+
+        composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertIsDisplayed()
+        verify(exactly = 0) { requireNotNull(memoSyncViewModelRef).refresh() }
+    }
+
+    @Test
     fun `TC-1ab2f516-fdad-404d-b693-d930b83cda6c 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = placeMemo(title = SCREEN_MEMO_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
@@ -152,6 +163,7 @@ class PlaceDetailScreenMemoTest {
         verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
         emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
 
+        composeRule.onNodeWithText(text = memo.detail.title, useUnmergedTree = true).assertIsNotDisplayed()
         composeRule.onNodeWithText(KOREAN_DELETED_MESSAGE).assertIsDisplayed()
         composeRule.onNodeWithText(KOREAN_UNDO_ACTION).assertIsDisplayed()
     }

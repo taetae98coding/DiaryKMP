@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -28,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class FetchCurrentWeatherUseCaseTest :
     BehaviorSpec({
-        Given("TC-89671f9e-6427-4dfe-b210-2388f68f48e6 현재 위치의 날씨 동기화가 성공하도록 준비되어 있다") {
+        Given("현재 위치의 날씨 동기화가 성공하도록 준비되어 있다") {
             val repository = mockk<WeatherRepository>()
             coEvery { repository.fetch() } just Runs
             val useCase = FetchCurrentWeatherUseCase(weatherRepository = repository)
@@ -43,7 +42,7 @@ class FetchCurrentWeatherUseCaseTest :
             }
         }
 
-        Given("TC-47671c52-4594-48cc-8861-e46521d110cb 현재 위치의 날씨 동기화가 실패하도록 준비되어 있다") {
+        Given("현재 위치의 날씨 동기화가 실패하도록 준비되어 있다") {
             val failure = FetchCurrentWeatherTestException(Arb.string().next())
             val repository = mockk<WeatherRepository>()
             coEvery { repository.fetch() } throws failure

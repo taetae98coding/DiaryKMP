@@ -76,13 +76,31 @@ class CalendarTimetableNavigationReturnTest {
         assertTimetableMemoAddReturn(returnToTimetable = ::closeTopScreen)
     }
 
+    @Test
+    fun `TC-5f113b1e-444a-4a7b-b146-61ed8a196c7a 시간표에서 연 ContactDetail 화면에서 뒤로 가면 보던 날짜와 시간대를 유지한다`() {
+        assertTimetableDetailReturn(detailKey = ContactDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = CONTACT_DETAIL_CONTENT, returnToTimetable = ::pressBack)
+    }
+
+    @Test
+    fun `TC-5f113b1e-444a-4a7b-b146-61ed8a196c7a 시간표에서 연 ContactDetail 화면이 연락처를 삭제하고 닫히면 보던 날짜와 시간대를 유지한다`() {
+        assertTimetableDetailReturn(detailKey = ContactDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = CONTACT_DETAIL_CONTENT, returnToTimetable = ::closeTopScreen)
+    }
+
     private fun assertTimetableMemoDetailReturn(returnToTimetable: () -> Unit) {
+        assertTimetableDetailReturn(detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = MEMO_DETAIL_CONTENT, returnToTimetable = returnToTimetable)
+    }
+
+    private fun assertTimetableDetailReturn(
+        detailKey: ScreenNavKey,
+        detailContent: String,
+        returnToTimetable: () -> Unit,
+    ) {
         setTimetableNavDisplay()
         openTimetableOnSeptember24Evening()
 
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
+        composeRule.runOnIdle { backStack.add(detailKey) }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText(MEMO_DETAIL_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(detailContent).assertIsDisplayed()
         returnToTimetable()
 
         assertTimetableOnSeptember24Evening()

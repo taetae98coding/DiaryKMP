@@ -303,12 +303,16 @@ class MusicDetailScreenTest {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setMusicDetailScreen(uiState = contentUiState(), uriHandler = uriHandler)
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
     }
 
     @Test
@@ -403,6 +407,27 @@ class MusicDetailScreenTest {
 
         navigateUpCount shouldBe 1
         verify(exactly = 0) { viewModel.update(detail = any()) }
+    }
+
+    @Test
+    fun `TC-917a95b1-daae-4e09-ad20-3c6967902cd0 단독으로 표시되면 뒤로가기로 이전 화면으로 돌아간다`() {
+        var navigateUpCount = 0
+        setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 })
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-e1d68a79-74e0-416a-a913-0ae5d6911ce2 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+        setMusicDetailScreen(
+            uiState = contentUiState(),
+            componentVisible = MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -690,6 +715,7 @@ class MusicDetailScreenTest {
         effect: Flow<MusicDetailEffect> = emptyFlow(),
         navigateUp: () -> Unit = {},
         uriHandler: UriHandler = mockk(relaxed = true),
+        componentVisible: MusicDetailScaffoldComponentVisible = MusicDetailScaffoldComponentVisible(),
     ): MusicDetailViewModel {
         val viewModel = detailViewModel(uiState = uiState, effect = effect)
 
@@ -698,7 +724,7 @@ class MusicDetailScreenTest {
                 CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                     MusicDetailScreen(
                         navigateUp = navigateUp,
-                        componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
+                        componentVisibleProvider = { componentVisible },
                         viewModel = viewModel,
                     )
                 }

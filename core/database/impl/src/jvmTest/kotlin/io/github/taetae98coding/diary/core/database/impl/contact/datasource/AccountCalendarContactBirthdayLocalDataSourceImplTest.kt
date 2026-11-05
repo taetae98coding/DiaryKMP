@@ -413,7 +413,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
             birthdayContactIdList(accountId = accountId) shouldBe listOf(contact.id)
         }
 
-        test("음력 생일 조회는 현재 계정의 삭제되지 않은 음력 생일 연락처만 저장된 날짜 그대로 담는다") {
+        test("TC-aa0a0973-e0b9-48ef-b564-5785a1112936 음력 생일 조회는 현재 계정의 삭제되지 않은 음력 생일 연락처만 저장된 날짜 그대로 담는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val lunarContact = contact(birthday = LocalDate(1990, 7, 8), name = "나", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
@@ -459,17 +459,21 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 endInclusive = LocalDate(2026, 1, 3),
             ).map { birthday -> birthday.birthdayDate } shouldBe listOf(LocalDate(2026, 1, 2))
         }
+
         test("TC-9dc8ae2c-0b36-4315-84e6-7944047abfde 이름이 같은 연락처의 생일에는 구분 경로를 함께 담는다") {
             val sameName = "name-${Arb.nonBlankString().next()}-name"
             val howWeMet = "how-${Arb.nonBlankString().next()}-met"
             listOf(
-                contact(birthday = null, name = sameName) to howWeMet,
-                contact(birthday = null, name = sameName).copy(isDeleted = true) to "",
-                contact(birthday = null, name = "other-$sameName") to "",
-            ).forEach { (other, expected) ->
+                Triple(contact(birthday = null, name = sameName), false, howWeMet),
+                Triple(contact(birthday = null, name = sameName).copy(isDeleted = true), false, ""),
+                Triple(contact(birthday = null, name = "other-$sameName"), false, ""),
+                Triple(contact(birthday = null, name = sameName), true, ""),
+                Triple(contact(birthday = null, name = sameName.replace("name-", "name -")), false, ""),
+            ).forEach { (other, inOtherAccount, expected) ->
                 val accountId = Arb.kotlinUuid().next()
                 val target = contact(birthday = LocalDate(1990, 7, 8), name = sameName).withHowWeMet(howWeMet)
-                upsert(accountId, target, other)
+                upsert(accountId, target)
+                upsert(if (inOtherAccount) Arb.kotlinUuid().next() else accountId, other)
 
                 birthdayList(accountId = accountId).single().nameQualifier shouldBe expected
             }
@@ -494,7 +498,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 }
         }
 
-        test("음력 생일에도 이름이 같은 연락처의 구분 경로를 함께 담는다") {
+        test("TC-d55b6405-24dd-4df8-9c92-0a17711bd9fe 음력 생일에도 이름이 같은 연락처의 구분 경로를 함께 담는다") {
             val sameName = "name-${Arb.nonBlankString().next()}-name"
             val howWeMet = "how-${Arb.nonBlankString().next()}-met"
             val accountId = Arb.kotlinUuid().next()

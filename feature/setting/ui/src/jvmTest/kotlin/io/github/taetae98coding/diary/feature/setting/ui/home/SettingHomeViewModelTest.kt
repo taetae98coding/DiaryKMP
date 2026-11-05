@@ -100,6 +100,25 @@ class SettingHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-f9d774f7-c64b-4f6c-af2b-188c19a37b09 제공 여부를 읽지 못한 뒤 화면을 떠났다가 다시 들어오면 다시 확인한다") {
+            runTest(mainDispatcher) {
+                val readUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
+                coEvery { readUseCase(Unit) } returnsMany listOf(Result.failure(IllegalStateException("read error")), Result.success(true))
+
+                viewModel(fileUseCase = readUseCase).uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                viewModel(fileUseCase = readUseCase).uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                }
+                coVerify(exactly = 2) { readUseCase(Unit) }
+            }
+        }
+
         test("TC-1146e230-f3a9-493c-afa2-61762b676e52 화면을 보는 동안에는 제공 여부가 바뀌어도 항목 목록이 바뀌지 않는다") {
             runTest(mainDispatcher) {
                 val readUseCase = fileUseCaseReturning(Result.success(true), Result.success(false))

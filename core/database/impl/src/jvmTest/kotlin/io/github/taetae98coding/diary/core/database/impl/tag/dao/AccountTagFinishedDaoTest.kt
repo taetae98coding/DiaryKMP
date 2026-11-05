@@ -272,8 +272,15 @@ class AccountTagFinishedDaoTest :
                 isFinished = false,
                 updatedAt = Instant.fromEpochMilliseconds(2_000),
             ) shouldBe 0
+            database.accountTagDao().updateDeleted(
+                accountId = otherAccountId,
+                tagId = tag.id,
+                isDeleted = true,
+                updatedAt = Instant.fromEpochMilliseconds(3_000),
+            ) shouldBe 0
 
             finishedTagIdList(accountId) shouldBe listOf(tag.id)
+            database.accountTagDao().find(accountId = accountId, tagId = tag.id).first() shouldBe tag
         }
 
         test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 상태 변경은 태그의 이모지, 제목, 설명, 컬러를 바꾸지 않는다") {

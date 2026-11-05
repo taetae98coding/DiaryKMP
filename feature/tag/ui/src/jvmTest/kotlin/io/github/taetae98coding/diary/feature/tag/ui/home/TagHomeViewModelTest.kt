@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUse
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
@@ -173,6 +174,50 @@ class TagHomeViewModelTest : FunSpec() {
                     awaitItem() shouldBe TagHomeScaffoldFilterUiState(isLoaded = true)
                     expectNoEvents()
                 }
+            }
+        }
+
+        test("TC-c4d4a7e6-80e0-42e5-a3fe-5a9288bb8c96 TC-8057a94c-d9bc-491f-b11f-aa65820ee2a3 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+            runTest(mainDispatcher) {
+                val first = tag(title = "A-${Arb.string().next()}")
+                val second = tag(title = "B-${Arb.string().next()}")
+                val titleTagList = listOf(first, second)
+                val recentlyUpdatedTagList = listOf(second, first)
+                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
+                every { pageTagHomeUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.from(titleTagList)))
+                every { pageTagHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+                    flowOf(Result.success(PagingData.from(recentlyUpdatedTagList)))
+                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe titleTagList
+
+                    viewModel.select(sort = ListSort.RECENTLY_UPDATED)
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe recentlyUpdatedTagList
+                    viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-789dd2df-4ab2-4892-b499-29150f142804 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(title = "A-${Arb.string().next()}"), tag(title = "B-${Arb.string().next()}"))
+                val pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.success(tagList)))
+                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
+
+                    viewModel.select(sort = ListSort.TITLE)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
+                coVerify(exactly = 1) { pageTagHomeUseCase(parameter = ListSort.TITLE) }
             }
         }
 

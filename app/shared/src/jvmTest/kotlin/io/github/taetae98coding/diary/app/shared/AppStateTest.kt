@@ -237,6 +237,18 @@ class AppStateTest :
             }
         }
 
+        test("TC-b8c0beb4-729c-4d2d-8278-08c9dcc7995f 더보기에서 연 세부 화면에서 뒤로가면 더보기로 돌아간다") {
+            listOf(LoginHomeNavKey, SettingHomeNavKey).forEach { detailKey ->
+                val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + detailKey).toTypedArray())
+
+                appState.backStack.removeLast()
+
+                appState.backStack.toList() shouldBe expectedBackStack(TopLevelNavigation.More)
+                appState.currentTopLevelNavigation shouldBe TopLevelNavigation.More
+                appState.isNavigationVisible.shouldBeTrue()
+            }
+        }
+
         test("TC-af129482-c473-4ec8-a9df-79c72a9de480 목록과 세부 화면 함께 표시 시 내비게이션 표시") {
             listDetailTwoPaneCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = true)
@@ -326,6 +338,19 @@ class AppStateTest :
 
                 appState.isNavigationVisible.shouldBeFalse()
                 appState.currentTopLevelNavigation shouldBe TopLevelNavigation.Tag
+            }
+        }
+
+        test("TC-3fedcb68-e75e-4e97-bcf8-6d70f8914f97 완료된 메모 목록에서는 화면 너비와 관계없이 내비게이션 숨김") {
+            listOf(false, true).forEach { isListDetailTwoPane ->
+                val appState =
+                    createAppState(
+                        *(expectedBackStack(TopLevelNavigation.Memo) + MemoFinishedListNavKey).toTypedArray(),
+                        isListDetailTwoPane = isListDetailTwoPane,
+                    )
+
+                appState.isNavigationVisible.shouldBeFalse()
+                appState.currentTopLevelNavigation shouldBe TopLevelNavigation.Memo
             }
         }
 

@@ -571,6 +571,58 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(memo.id)
         }
 
+        test("TC-8ce67955-5c7b-4f38-b9e0-ae8e0051b220 메모의 기간이 없어지면 날짜 축으로 다시 판정한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo(detail = detail(isAllDay = true))
+            insertMemo(accountId, memo)
+            setExistence(hasDate = true)
+            pagedIds(accountId) shouldBe listOf(memo.id)
+
+            database.accountMemoDao().updateDetail(
+                accountId = accountId,
+                memoId = memo.id,
+                title = memo.detail.title,
+                description = memo.detail.description,
+                color = memo.detail.color,
+                isAllDay = null,
+                start = null,
+                endInclusive = null,
+                updatedAt = Instant.fromEpochMilliseconds(2_000),
+            )
+
+            pagedIds(accountId).shouldBeEmpty()
+        }
+
+        test("TC-8ce67955-5c7b-4f38-b9e0-ae8e0051b220 메모의 태그 연결이 해제되면 태그 축으로 다시 판정한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tag = tag()
+            val memo = memo()
+            insertMemo(accountId, memo)
+            insertTag(accountId, tag)
+            linkTag(accountId = accountId, memoId = memo.id, tagId = tag.id)
+            setExistence(hasTag = true)
+            pagedIds(accountId) shouldBe listOf(memo.id)
+
+            linkTag(accountId = accountId, memoId = memo.id, tagId = tag.id, isDeleted = true)
+
+            pagedIds(accountId).shouldBeEmpty()
+        }
+
+        test("TC-8ce67955-5c7b-4f38-b9e0-ae8e0051b220 메모의 장소 연결이 해제되면 장소 축으로 다시 판정한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place()
+            val memo = memo()
+            insertMemo(accountId, memo)
+            insertPlace(accountId, place)
+            linkPlace(accountId = accountId, memoId = memo.id, placeId = place.id)
+            setExistence(hasPlace = true)
+            pagedIds(accountId) shouldBe listOf(memo.id)
+
+            linkPlace(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = true)
+
+            pagedIds(accountId).shouldBeEmpty()
+        }
+
         test("TC-4d4d586a-a64f-4b3d-b492-3c2922690709 유무 필터는 계정과 무관하게 모든 계정의 목록 조회에 적용된다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()

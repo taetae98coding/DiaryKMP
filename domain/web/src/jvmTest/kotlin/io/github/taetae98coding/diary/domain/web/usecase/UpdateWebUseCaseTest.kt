@@ -194,6 +194,32 @@ class UpdateWebUseCaseTest :
             }
         }
 
+        Given("기기 저장은 성공하고 서버 반영 요청은 실패하도록 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val stored = web()
+            val accountWebRepository = mockk<AccountWebRepository>()
+            coEvery {
+                accountWebRepository.updateDetail(account = account, webId = stored.id, detail = any(), updatedAt = any())
+            } returns 1
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+            val useCase =
+                useCase(
+                    getAccountUseCase = getAccountUseCase(account = account),
+                    requestSyncUseCase = requestSyncUseCase,
+                    findWebUseCase = findWebUseCase(web = stored),
+                    accountWebRepository = accountWebRepository,
+                )
+
+            When("웹 항목을 수정한다") {
+                Then("TC-c6828a34-6fdc-4319-b79c-5a9a022b2ea7 서버 반영 실패와 관계없이 기기에 저장한 결과로 성공을 전달한다") {
+                    useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
+
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
+
         Given("게스트 계정이 준비되어 있다") {
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)

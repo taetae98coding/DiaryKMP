@@ -16,7 +16,9 @@ import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -163,6 +165,35 @@ class AndroidSyncWorkSchedulerTest {
             manager.sync()
 
             manager.state.first() shouldBe SyncWorkState.PENDING
+            connectNetwork()
+            withTimeout(TIMEOUT_MILLIS) { manager.state.first { state -> state == SyncWorkState.NONE } }
+            executeCount shouldBe 2
+        }
+    }
+
+    @Test
+    fun `TC-7cdabcdd-1312-4b27-a209-d5ef12be0568 진행 중인 동기화 작업은 새 요청에 취소되어 끝까지 실행되지 않고 새 작업이 한 번 실행된다`() {
+        runBlocking {
+            val firstWorkCancelled = CompletableDeferred<Unit>()
+            coEvery { syncWork.doWork() } coAnswers {
+                executeCount++
+                if (executeCount == 1) {
+                    try {
+                        awaitCancellation()
+                    } catch (exception: CancellationException) {
+                        firstWorkCancelled.complete(Unit)
+                        throw exception
+                    }
+                }
+            }
+            val manager = AndroidSyncWorkScheduler(context = context)
+            manager.sync()
+            connectNetwork()
+            withTimeout(TIMEOUT_MILLIS) { manager.state.first { state -> state == SyncWorkState.RUNNING } }
+
+            manager.sync()
+
+            withTimeout(TIMEOUT_MILLIS) { firstWorkCancelled.await() }
             connectNetwork()
             withTimeout(TIMEOUT_MILLIS) { manager.state.first { state -> state == SyncWorkState.NONE } }
             executeCount shouldBe 2

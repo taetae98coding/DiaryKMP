@@ -64,6 +64,7 @@ class CalendarHomeScreenBirthdayTest {
         )
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        assertBirthdayUnderDate(dateDescription = "July 8")
     }
 
     @Test
@@ -112,6 +113,8 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2027)).assertIsDisplayed()
+        assertBirthdayUnderDate(dateDescription = "July 8")
     }
 
     @Test
@@ -293,6 +296,18 @@ class CalendarHomeScreenBirthdayTest {
                 )
             }
         }
+    }
+
+    // 생일 아이템이 그 날짜 칸과 같은 가로 자리에 놓였는지 확인한다.
+    private fun assertBirthdayUnderDate(dateDescription: String) {
+        val dateBounds = composeRule.onNodeWithContentDescription(dateDescription).fetchSemanticsNode().boundsInRoot
+        val birthdayCenterX =
+            composeRule
+                .onNodeWithText(BIRTHDAY_TEXT)
+                .fetchSemanticsNode()
+                .boundsInRoot.center.x
+
+        (birthdayCenterX in dateBounds.left..dateBounds.right) shouldBe true
     }
 
     private fun top(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top

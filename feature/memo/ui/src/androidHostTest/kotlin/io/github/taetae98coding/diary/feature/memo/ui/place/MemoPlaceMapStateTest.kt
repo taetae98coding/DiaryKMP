@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import org.junit.Before
@@ -74,6 +75,31 @@ class MemoPlaceMapStateTest {
             (states.size > 1) shouldBe true
             states.last() shouldBeSameInstanceAs initialState
             initialState.coordinate shouldBe firstPlace.detail.coordinate.toDiaryMapCoordinate()
+        }
+    }
+
+    @Test
+    fun `TC-5a66c202-a4b1-456e-ab60-ad42422f0d35 카드가 표시된 뒤 기본 지도가 바뀌면 바뀐 기본 지도로 처음 위치에서 새로 시작한다`() {
+        val firstPlace = testPlace(title = FIRST_PLACE_TITLE)
+        var uiState by mutableStateOf(cardUiState(selectedPlaceList = listOf(firstPlace)))
+        val states = mutableListOf<DiaryMapState?>()
+
+        composeRule.setContent {
+            states += rememberMemoPlaceMapState(uiState = uiState)
+        }
+        val naverState = composeRule.runOnIdle { states.last().shouldNotBeNull() }
+        composeRule.runOnIdle { naverState.moveTo(Arb.coordinate().next().toDiaryMapCoordinate()) }
+
+        composeRule.runOnIdle {
+            uiState = cardUiState(selectedPlaceList = listOf(firstPlace), mapUiState = MemoPlaceMapUiState.Content(provider = MapProvider.GOOGLE, isCurrentLocationFetched = true, currentCoordinate = null))
+        }
+
+        composeRule.runOnIdle {
+            val googleState = states.last().shouldNotBeNull()
+
+            googleState shouldNotBeSameInstanceAs naverState
+            googleState.provider shouldBe DiaryMapProvider.GOOGLE
+            googleState.coordinate shouldBe firstPlace.detail.coordinate.toDiaryMapCoordinate()
         }
     }
 

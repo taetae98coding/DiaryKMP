@@ -31,6 +31,8 @@ internal interface AccountMemoTagDao : RoomDao<AccountMemoTagLocalEntity> {
                 AND account_memo_tag.account_id = :accountId
         INNER JOIN memo
             ON memo.id = memo_tag.memo_id
+        INNER JOIN account_memo
+            ON account_memo.memo_id = memo.id AND account_memo.account_id = :accountId
         WHERE tag.is_deleted = 0
         ORDER BY tag.title ASC
         """,
@@ -56,6 +58,8 @@ internal interface AccountMemoTagDao : RoomDao<AccountMemoTagLocalEntity> {
                         ON account_memo_tag.memo_id = memo_tag.memo_id
                             AND account_memo_tag.tag_id = memo_tag.tag_id
                             AND account_memo_tag.account_id = :accountId
+                    INNER JOIN account_memo
+                        ON account_memo.memo_id = memo_tag.memo_id AND account_memo.account_id = :accountId
                     WHERE memo_tag.tag_id = tag.id
                         AND memo_tag.memo_id = :memoId
                         AND memo_tag.is_deleted = 0
@@ -86,6 +90,8 @@ internal interface AccountMemoTagDao : RoomDao<AccountMemoTagLocalEntity> {
             ON account_memo_tag.memo_id = memo_tag.memo_id
                 AND account_memo_tag.tag_id = memo_tag.tag_id
                 AND account_memo_tag.account_id = :accountId
+        INNER JOIN account_memo
+            ON account_memo.memo_id = memo_tag.memo_id AND account_memo.account_id = :accountId
         WHERE memo_tag.memo_id = :memoId AND memo_tag.is_deleted = 0
         """,
     )

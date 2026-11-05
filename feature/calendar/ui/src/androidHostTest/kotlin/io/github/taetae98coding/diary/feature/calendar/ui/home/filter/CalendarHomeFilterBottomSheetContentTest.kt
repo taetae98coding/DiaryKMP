@@ -15,8 +15,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.testing.asPagingSourceFactory
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -26,6 +29,7 @@ import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -247,6 +251,35 @@ class CalendarHomeFilterBottomSheetContentTest {
         composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
     }
 
+    // 선택할 수 있는 태그를 한 번에 TAG_PAGE_SIZE씩 나누어 불러오도록 실제 페이지 조회로 구성한다.
+    @Test
+    fun `TC-646d0ca9-49b0-4009-bc06-ed0f98bf20ee 태그 필터를 열면 이동 없이 선택할 수 있는 태그 전체가 제목 오름차순으로 채워진다`() {
+        val tagList = List(PAGED_TAG_COUNT) { index -> tag(title = "$PAGED_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}") }
+        val tagPagingFlow =
+            Pager(
+                config = PagingConfig(pageSize = TAG_PAGE_SIZE, initialLoadSize = TAG_PAGE_SIZE, prefetchDistance = 1),
+                pagingSourceFactory = tagList.asPagingSourceFactory(),
+            ).flow
+
+        composeRule.setContent {
+            DiaryTheme {
+                CalendarHomeFilterBottomSheetContent(
+                    tagPagingItems = tagPagingFlow.collectAsLazyPagingItems(),
+                    uiStateProvider = { CalendarHomeFilterUiState() },
+                    onEvent = {},
+                )
+            }
+        }
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(tagList.last().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule
+            .onAllNodesWithText(PAGED_TAG_TITLE_PREFIX, substring = true)
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text } } shouldContainExactly tagList.map { tag -> tag.detail.title }.sorted()
+    }
+
     // 필터를 연 채로 조회 결과가 바뀌는 것을 재현하려고, 화면에 넘기는 태그 흐름을 테스트가 바꾼다.
     private fun setSwitchingContent(
         selectedTagIdSet: Set<Uuid> = emptySet(),
@@ -295,6 +328,9 @@ class CalendarHomeFilterBottomSheetContentTest {
         private const val UNSELECT_ALL_CONTENT_DESCRIPTION = "Clear tag filter"
         private const val ADD_LABEL = "Add tag"
         private const val TAG_UPDATE_TIMEOUT_MILLIS = 5_000L
+        private const val TAG_PAGE_SIZE = 20
+        private const val PAGED_TAG_COUNT = TAG_PAGE_SIZE * 3
+        private const val PAGED_TAG_TITLE_PREFIX = "PagedFilterTag"
 
         private fun tag(
             title: String,

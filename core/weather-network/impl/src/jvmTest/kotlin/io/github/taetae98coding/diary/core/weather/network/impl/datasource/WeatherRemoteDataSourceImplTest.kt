@@ -107,7 +107,7 @@ class WeatherRemoteDataSourceImplTest :
         test("TC-1d6fddee-fdd6-4b3d-a2cb-e89fbcd086e6: 성공 응답의 예보 항목을 시각 순서대로 그대로 전달한다") {
             val forecast =
                 Arb.forecastRemoteEntity().next().let { entity ->
-                    entity.copy(list = List(5) { Arb.forecastWeatherRemoteEntity().next() })
+                    entity.copy(list = List(5) { Arb.forecastWeatherRemoteEntity().next() }.sortedBy { weather -> weather.dateTime })
                 }
             val engine = createEngine(forecastContent = Json.encodeToString(forecast))
             val dataSource = createDataSource(engine)

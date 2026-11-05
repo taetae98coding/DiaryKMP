@@ -58,7 +58,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-b9322a47-1482-415f-b1e8-907b1fef9457 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
+    fun `TC-bda4daa2-04b7-42a4-afb5-701f40a37620 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
         val eventList = mutableListOf<MemoFinishedListScaffoldEvent>()
         setMemoFinishedListScaffold(onEvent = eventList::add)
 

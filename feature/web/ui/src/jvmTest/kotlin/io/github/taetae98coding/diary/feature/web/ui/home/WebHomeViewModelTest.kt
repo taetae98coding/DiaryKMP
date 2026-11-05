@@ -40,7 +40,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 class WebHomeViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -278,7 +277,7 @@ class WebHomeViewModelTest : FunSpec() {
                     )
 
             return Web(
-                id = Uuid.random(),
+                id = Arb.kotlinUuid().next(),
                 detail = detail,
                 isDeleted = false,
                 updatedAt = Arb.secondPrecisionInstant().next(),

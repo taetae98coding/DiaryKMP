@@ -7,6 +7,8 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -15,14 +17,17 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
+import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrContentFormState
@@ -35,6 +40,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrContentFo
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
@@ -207,31 +213,73 @@ class QrAddLocationTest {
 
     @Test
     fun `TC-7148148e-ecdc-40ac-a941-7b1607d78fbe 기본 지도를 확인하지 못하면 지도 없이 좌표를 입력해 위치 QR을 추가한다`() {
-        val eventList = mutableListOf<QrAddScaffoldEvent>()
-        var state: QrAddFormState? = null
+        val viewModel = effectViewModel(effect = QrAddEffect.AddSucceeded)
         composeRule.setContent {
-            val formState = rememberQrAddFormState()
-            state = formState
-
             DiaryTheme {
-                QrAddScaffold(onEvent = { event -> eventList += event }, state = formState)
+                QrAddScreen(
+                    navigateUp = {},
+                    navigateToScan = {},
+                    permissionManager = rememberPermissionManager(),
+                    resultEventBus = remember { ResultEventBus() },
+                    componentVisibleProvider = { QrAddScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
             }
         }
-        composeRule.onTitleInput().performTextInput("title")
-        composeRule.selectTab(QR_TAB_INDEX)
-        composeRule.write { checkNotNull(state).contentState.selectFormat(QrFormat.LOCATION) }
+        composeRule.onTitleInput().performTextInput(TYPED_TITLE)
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = LOCATION_FORMAT_NAME)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(MAP_CONTENT_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(LOADING_TEXT).assertDoesNotExist()
 
-        composeRule.onNode(hasSetTextAction() and hasText("Latitude")).performTextInput(LATITUDE_TEXT)
-        composeRule.onNode(hasSetTextAction() and hasText("Longitude")).performTextInput(LONGITUDE_TEXT)
+        composeRule.onNode(hasSetTextAction() and hasText(LATITUDE_LABEL)).performTextInput(LATITUDE_TEXT)
+        composeRule.onNode(hasSetTextAction() and hasText(LONGITUDE_LABEL)).performTextInput(LONGITUDE_TEXT)
         composeRule.onNodeWithContentDescription(ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(QrAddScaffoldEvent.ClickAdd)
-        composeRule.runOnIdle { checkNotNull(state).detail.value shouldBe LOCATION_QR_VALUE }
+        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = TYPED_TITLE, description = "", value = LOCATION_QR_VALUE)) }
+        composeRule.onNodeWithText(ADD_SUCCEEDED_MESSAGE).assertExists()
+    }
+
+    /**
+     * 지도를 누르는 조작은 지도 제공자의 표시 요소가 받으므로, 지도 내용을 대신하는 구현이 받은 지점 선택 동작을 실행한다.
+     */
+    @Test
+    fun `TC-6a9896ec-5164-4f5d-9592-136409c1aa63 위치 포맷에서 지도로 위치를 고르면 입력 초점이 보고 있던 입력에 그대로 남는다`() {
+        var map: DiaryMapContentOverrideScope? = null
+        val mapContent =
+            object : DiaryMapContentOverride {
+                @Composable
+                override fun DiaryMapContentOverrideScope.MapContent() {
+                    map = this
+                }
+            }
+        composeRule.setContent {
+            val formState = rememberQrAddFormState(defaultProvider = MapProvider.NAVER)
+
+            DiaryTheme {
+                CompositionLocalProvider(LocalDiaryMapContentOverride provides mapContent) {
+                    QrAddScaffold(
+                        onEvent = {},
+                        state = formState,
+                        uiStateProvider = { QrAddUiState(defaultProvider = MapProvider.NAVER) },
+                    )
+                }
+            }
+        }
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = LOCATION_FORMAT_NAME)
+        composeRule.onNode(hasSetTextAction() and hasText(LATITUDE_LABEL)).performTextInput("1")
+        composeRule.onNode(hasSetTextAction() and hasText(LATITUDE_LABEL)).assertIsFocused()
+        val selected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+
+        composeRule.write { checkNotNull(map).onSpotClick?.invoke(selected) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasSetTextAction() and hasText(LATITUDE_LABEL)).editableText() shouldBe selected.latitude.toPlaceCoordinateText()
+        composeRule.onNode(hasSetTextAction() and hasText(LONGITUDE_LABEL)).editableText() shouldBe selected.longitude.toPlaceCoordinateText()
+        composeRule.onNode(hasSetTextAction() and hasText(LATITUDE_LABEL)).assertIsFocused()
+        composeRule.onNode(hasSetTextAction() and hasText(LONGITUDE_LABEL)).assertIsNotFocused()
     }
 
     @Test
@@ -428,10 +476,15 @@ class QrAddLocationTest {
     }
 
     private companion object {
+        private const val LATITUDE_LABEL = "Latitude"
+        private const val LONGITUDE_LABEL = "Longitude"
         const val REFLECT_DELAY_MILLIS = 200L
         const val REPORTED_ZOOM = 9.0
         const val MAP_CONTENT_DESCRIPTION = "QR location map"
         const val ADD_DESCRIPTION = "Add QR code"
+        const val ADD_SUCCEEDED_MESSAGE = "QR code added."
+        const val FORMAT_LABEL = "Format"
+        const val LOCATION_FORMAT_NAME = "Location"
         const val LOADING_TEXT = "Loading"
         const val TYPED_TITLE = "회사"
         const val TYPED_DESCRIPTION = "본사 위치"

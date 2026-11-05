@@ -246,7 +246,7 @@ class AccountWebTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
         }
 
-        test("TC-b4d210da-d026-47a3-9985-9c00403ecab9 삭제된 태그는 조회되지 않고 완료된 태그는 조회된다") {
+        test("TC-b4d210da-d026-47a3-9985-9c00403ecab9 TC-806007af-1e20-415d-af6c-996d9731eb0f 삭제된 태그는 조회되지 않고 완료된 태그는 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val web = web()
             val tag = tag()
@@ -418,6 +418,38 @@ class AccountWebTagLocalDataSourceImplTest :
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
                 .data
                 .shouldBeEmpty()
+        }
+
+        test("TC-0ac60428-268f-403a-b50b-c4378477274e 계정과 연결되지 않은 웹 항목에는 태그를 연결해도 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val web = web()
+            val tag = tag()
+            insertWeb(otherAccountId, web)
+            insertTag(accountId, tag)
+            link(accountId = accountId, webId = web.id, tagId = tag.id)
+            linkedTagList(accountId = accountId, webId = web.id).shouldBeEmpty()
+        }
+
+        test("TC-3a03f5f4-5892-4bb4-b8f7-bfbbcb1dd15c 웹 항목과 태그를 연결해도 메모·웹, 메모·태그, 태그·태그 연결은 만들어지지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            val web = web()
+            val tag = tag()
+            insertWeb(accountId, web)
+            insertTag(accountId, tag)
+            AccountMemoTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+            )
+
+            link(accountId = accountId, webId = web.id, tagId = tag.id)
+
+            linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
+            database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.tagLinkDao().findByFromTagIdList(listOf(tag.id)).shouldBeEmpty()
         }
 
         test("TC-1b5d8181-1df0-48a4-a4fd-729a64e1e6e6 연결 해제는 같은 웹 항목의 다른 연결을 바꾸지 않는다") {
@@ -791,6 +823,17 @@ class AccountWebTagLocalDataSourceImplTest :
             dataSource
                 .pageSelectableTag(accountId = accountId, webId = web.id, query = "")
                 .pagedTagIdList(loadSize = 2) shouldBe tagList.take(2).map { tag -> tag.id }
+
+            val pagingSource = dataSource.pageSelectableTag(accountId = accountId, webId = web.id, query = "")
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = 2, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+            val secondPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Append(key = firstPage.nextKey!!, loadSize = 2, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
+            secondPage.data.map { tag -> tag.id } shouldBe tagList.drop(2).map { tag -> tag.id }
         }
     }) {
     companion object {

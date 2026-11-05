@@ -192,7 +192,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(web)
         }
 
-        test("다른 계정의 웹 항목은 연결이 있어도 조회되지 않는다") {
+        test("TC-f94ceadd-c56d-4759-a601-d612bcdde052 다른 계정의 메모를 기준으로 하면 연결된 웹 항목이 조회되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()

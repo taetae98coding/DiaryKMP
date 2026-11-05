@@ -127,6 +127,19 @@ class PlayIntegrityRepositoryImplTest :
             shouldThrowExactly<IllegalStateException> { repository.fetch() } shouldBe failure
             coVerify(exactly = 0) { remoteDataSource.decode(token = any(), packageName = any()) }
         }
+
+        test("TC-38f0fd49-9bdf-435a-aef3-ca084756c93f 서버가 실패로 답하면 다시 요청하지 않고 실패를 전달한다") {
+            val token = Arb.playIntegrityToken().next()
+            val failure = IllegalStateException(Arb.string().next())
+            val tokenProvider = mockk<PlayIntegrityTokenProvider>()
+            coEvery { tokenProvider.getToken(requestHash = any()) } returns token
+            val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
+            coEvery { remoteDataSource.decode(token = any(), packageName = any()) } throws failure
+            val repository = PlayIntegrityRepositoryImpl(playIntegrityTokenProvider = tokenProvider, playIntegrityRemoteDataSource = remoteDataSource)
+
+            shouldThrowExactly<IllegalStateException> { repository.fetch() } shouldBe failure
+            coVerify(exactly = 1) { remoteDataSource.decode(token = any(), packageName = any()) }
+        }
     }) {
     private companion object {
         fun verdict(appRecognitionVerdict: String = Arb.string().next()): JsonObject = JsonObject(mapOf("appIntegrity" to JsonObject(mapOf("appRecognitionVerdict" to JsonPrimitive(appRecognitionVerdict)))))

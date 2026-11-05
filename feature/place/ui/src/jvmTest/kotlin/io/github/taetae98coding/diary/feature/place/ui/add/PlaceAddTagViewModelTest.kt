@@ -25,6 +25,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -147,6 +148,33 @@ class PlaceAddTagViewModelTest : FunSpec() {
                     expectMostRecentItem().tagList.shouldBeEmpty()
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("TC-71d58634-9629-4149-805c-c8482f8d3e5c 표시 기준에서 빠졌던 태그가 다시 표시 기준을 만족하면 유지되어 있던 선택이 다시 나타난다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val viewModel =
+                    PlaceAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase(),
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+
+                    selectedTagFlow.value = Result.success(listOf(tag))
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
             }
         }
 

@@ -184,8 +184,11 @@ class ChecklistDetailScreenTest {
 
         environment.itemUiState.value = environment.itemUiState.value.copy(itemList = listOf(passport.copy(isChecked = true)))
         composeRule.waitForIdle()
-
         composeRule.onNode(itemRow(PASSPORT)).assertIsOn()
+
+        environment.itemUiState.value = environment.itemUiState.value.copy(itemList = listOf(passport.copy(isChecked = false)))
+        composeRule.waitForIdle()
+        composeRule.onNode(itemRow(PASSPORT)).assertIsOff()
     }
 
     @Test
@@ -271,6 +274,7 @@ class ChecklistDetailScreenTest {
         composeRule.onNode(isDialog()).assertDoesNotExist()
         composeRule.rowContentList() shouldBe listOf(PASSPORT, UMBRELLA)
         composeRule.onNodeWithText(DEFAULT_UNDO).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE).assertDoesNotExist()
     }
 
     @Test

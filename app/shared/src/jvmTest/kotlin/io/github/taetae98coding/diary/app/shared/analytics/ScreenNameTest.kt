@@ -42,6 +42,7 @@ import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
@@ -66,6 +67,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.numericDouble
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -105,23 +107,28 @@ class ScreenNameTest :
         test("TC-16c187ba-3651-4483-b320-64e260bc6fbe 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
             val id = Arb.kotlinUuid().next()
             val date = Arb.kotlinxLocalDate().next()
+            val imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
             val valuedNavKeyList =
                 listOf(
-                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date),
+                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date, id = id),
                     ChecklistDetailNavKey(id = id),
+                    ContactAddNavKey(requestKey = id),
                     ContactDetailNavKey(id = id),
                     ContactMemoFinishedListNavKey(contactId = id),
                     FileDetailNavKey(id = id),
                     MemoDetailNavKey(id = id),
-                    MemoAddNavKey(primaryTagId = id),
+                    MemoAddNavKey(primaryTagId = id, initialContactId = id, initialPlaceId = id, initialWebId = id),
+                    MusicDetailNavKey(id = id),
                     PlaceDetailNavKey(id = id),
                     PlaceMemoFinishedListNavKey(placeId = id),
-                    PlaceAddNavKey(initialTagId = id),
+                    PlaceAddNavKey(initialTagId = id, requestKey = id),
+                    ProfileImageViewerNavKey(imageUrl = imageUrl),
                     QrDetailNavKey(id = id),
+                    SearchHomeNavKey(initialType = SearchHomeType.TAG),
                     TagAddNavKey(requestKey = id),
                     TagDetailNavKey(id = id),
                     TagMemoFinishedListNavKey(tagId = id),
-                    WebAddNavKey(initialTagId = id),
+                    WebAddNavKey(initialTagId = id, requestKey = id),
                     WebDetailNavKey(id = id),
                     WebMemoFinishedListNavKey(webId = id),
                 )
@@ -130,6 +137,7 @@ class ScreenNameTest :
                 withClue(navKey) {
                     navKey.screenName shouldNotContain id.toString()
                     navKey.screenName shouldNotContain date.toString()
+                    navKey.screenName shouldNotContain imageUrl
                 }
             }
         }
@@ -214,17 +222,21 @@ class ScreenNameTest :
                     ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()),
                 FileDetailNavKey(id = Arb.kotlinUuid().next()) to FileDetailNavKey(id = Arb.kotlinUuid().next()),
                 MemoDetailNavKey(id = Arb.kotlinUuid().next()) to MemoDetailNavKey(id = Arb.kotlinUuid().next()),
-                MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next()) to MemoAddNavKey(),
+                ContactAddNavKey(requestKey = Arb.kotlinUuid().next()) to ContactAddNavKey(),
+                MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next(), initialContactId = Arb.kotlinUuid().next()) to MemoAddNavKey(),
+                ProfileImageViewerNavKey(imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg") to
+                    ProfileImageViewerNavKey(imageUrl = "https://example.com/${Arb.kotlinUuid().next()}.jpg"),
+                SearchHomeNavKey(initialType = SearchHomeType.MEMO) to SearchHomeNavKey(initialType = SearchHomeType.PLACE),
                 MusicDetailNavKey(id = Arb.kotlinUuid().next()) to MusicDetailNavKey(id = Arb.kotlinUuid().next()),
                 PlaceDetailNavKey(id = Arb.kotlinUuid().next()) to PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
                 PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()) to
                     PlaceMemoFinishedListNavKey(placeId = Arb.kotlinUuid().next()),
-                PlaceAddNavKey(initialTagId = Arb.kotlinUuid().next()) to PlaceAddNavKey(),
+                PlaceAddNavKey(latitude = Arb.numericDouble().next(), longitude = Arb.numericDouble().next(), initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to PlaceAddNavKey(),
                 QrDetailNavKey(id = Arb.kotlinUuid().next()) to QrDetailNavKey(id = Arb.kotlinUuid().next()),
                 TagAddNavKey(requestKey = Arb.kotlinUuid().next()) to TagAddNavKey(),
                 TagDetailNavKey(id = Arb.kotlinUuid().next()) to TagDetailNavKey(id = Arb.kotlinUuid().next()),
                 TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()) to TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next()),
-                WebAddNavKey(initialTagId = Arb.kotlinUuid().next()) to WebAddNavKey(),
+                WebAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to WebAddNavKey(),
                 WebDetailNavKey(id = Arb.kotlinUuid().next()) to WebDetailNavKey(id = Arb.kotlinUuid().next()),
                 WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()) to WebMemoFinishedListNavKey(webId = Arb.kotlinUuid().next()),
             )

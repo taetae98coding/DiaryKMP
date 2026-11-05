@@ -61,6 +61,19 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
+    fun `TC-3473625a-040f-4672-9180-69705b7c05ca 연락처가 있어도 연락처 추가를 선택할 수 있다`() {
+        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        setContactHomeScaffold(contactList = listOf(testContact(name = CONTACT_NAME)), onEvent = eventList::add)
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(CONTACT_NAME).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
     fun `TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)

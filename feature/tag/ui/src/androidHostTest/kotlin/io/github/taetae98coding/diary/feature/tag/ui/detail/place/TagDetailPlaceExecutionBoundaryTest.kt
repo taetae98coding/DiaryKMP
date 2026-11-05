@@ -139,6 +139,31 @@ class TagDetailPlaceExecutionBoundaryTest {
         assertRestoreContinuesMovedMap(beforeCoordinate = null, afterCoordinate = null)
     }
 
+    @Test
+    fun `TC-b49c1cc9-9eff-4f98-86aa-d0262912af17 목록 모드로 되살아나면 그 뒤 처음 지도 모드로 바꿀 때 현재 위치를 다시 확인한다`() {
+        val beforeFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val afterFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val restorationTester = StateRestorationTester(composeRule)
+        var mapViewModel = mapViewModel(beforeFetch)
+        restorationTester.setContent { PlaceTab(mapViewModel = mapViewModel) }
+        selectMapMode()
+        composeRule.runOnIdle { placeState.toggleViewMode() }
+        composeRule.waitForIdle()
+
+        mapViewModel = mapViewModel(afterFetch)
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.LIST }
+        coVerify(exactly = 0) { afterFetch(parameter = Unit) }
+
+        selectMapMode()
+
+        composeRule.runOnIdle { placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP }
+        coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
+        coVerify(exactly = 1) { afterFetch(parameter = Unit) }
+    }
+
     private fun assertRestoreContinuesMovedMap(
         beforeCoordinate: Coordinate?,
         afterCoordinate: Coordinate?,

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
@@ -91,6 +92,13 @@ class PlaylistHomeScaffoldTest {
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
+        val cardTextList =
+            composeRule
+                .onNodeWithTag(MUSIC_CARD_TEST_TAG)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.Text]
+                .map { text -> text.text }
+        cardTextList.filter(String::isNotEmpty) shouldBe listOf(FIRST_TITLE)
     }
 
     @Test

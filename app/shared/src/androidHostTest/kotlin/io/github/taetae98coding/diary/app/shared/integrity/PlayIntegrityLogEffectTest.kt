@@ -146,6 +146,7 @@ class PlayIntegrityLogEffectTest {
         composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
+        callCount shouldBe 1
     }
 
     private fun setRestorableEffect(log: () -> Unit): StateRestorationTester {

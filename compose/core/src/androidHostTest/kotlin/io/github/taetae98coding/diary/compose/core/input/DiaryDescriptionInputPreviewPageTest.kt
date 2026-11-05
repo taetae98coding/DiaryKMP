@@ -61,6 +61,7 @@ class DiaryDescriptionInputPreviewPageTest {
         swipeToPage(state = state, page = DiaryDescriptionInputPage.Input)
 
         composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assert(hasText(MARKDOWN_SOURCE))
         composeRule.onNodeWithText(MARKDOWN_HEADING_TEXT).assertIsNotDisplayed()
     }
 

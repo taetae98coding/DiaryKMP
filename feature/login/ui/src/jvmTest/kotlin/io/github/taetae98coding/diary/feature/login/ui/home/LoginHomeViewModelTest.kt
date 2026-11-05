@@ -2,6 +2,10 @@
 
 package io.github.taetae98coding.diary.feature.login.ui.home
 
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
@@ -24,6 +28,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -317,6 +322,39 @@ class LoginHomeViewModelTest : FunSpec() {
                             expectNoEvents()
                         }
                     }
+                }
+            }
+        }
+
+        test("TC-9cb265a3-39f1-4db0-85e6-b8cb5538ee85 앱 로그인 처리 중 화면을 떠나 ViewModel이 정리되면 시도를 중단하고 안내하지 않는다") {
+            runTest(mainDispatcher) {
+                val credential = Arb.googleCredentialIdToken().next()
+                val cancelled = CompletableDeferred<Unit>()
+                val googleUseCase = mockk<SignInWithGoogleUseCase>()
+                val appleUseCase = mockk<SignInWithAppleUseCase>()
+                coEvery { googleUseCase(any()) } coAnswers {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        cancelled.complete(Unit)
+                    }
+                }
+                val store = ViewModelStore()
+                val viewModel =
+                    ViewModelProvider.create(
+                        store = store,
+                        factory = viewModelFactory { initializer { loginHomeViewModel(googleUseCase, appleUseCase) } },
+                    )[LoginHomeViewModel::class]
+
+                viewModel.effect.test {
+                    viewModel.signInWithGoogle(credential)
+                    runCurrent()
+
+                    store.clear()
+                    advanceUntilIdle()
+
+                    cancelled.isCompleted shouldBe true
+                    expectNoEvents()
                 }
             }
         }

@@ -5,21 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private const val EDITING_API_KEY = "editingApiKey"
-private const val OTHER_API_KEY = "otherApiKey"
-private const val STORED_API_KEY = "storedApiKey"
-private const val MODEL_ID = "models/gemini-flash"
-private const val OTHER_MODEL_ID = "models/gemini-pro"
-private const val SYSTEM_PROMPT = "첫 줄\n둘째 줄"
-private const val STORED_SYSTEM_PROMPT = "지시문"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -29,6 +24,7 @@ class SettingGeminiFormStateTest {
 
     @Test
     fun `TC-1aa3bc50-802d-4ef8-b2e2-9fe319706954 화면이 재생성되어도 입력 중이던 값을 유지한다`() {
+        val editing = Arb.geminiSetting().next().copy(systemPrompt = "${Arb.nonBlankString().next()}\n${Arb.nonBlankString().next()}")
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: SettingGeminiFormState
 
@@ -37,20 +33,15 @@ class SettingGeminiFormStateTest {
         }
 
         composeRule.runOnIdle {
-            state.apiKeyState.setTextAndPlaceCursorAtEnd(EDITING_API_KEY)
-            state.systemPromptState.setTextAndPlaceCursorAtEnd(SYSTEM_PROMPT)
-            state.model = MODEL_ID
+            state.apiKeyState.setTextAndPlaceCursorAtEnd(editing.apiKey)
+            state.systemPromptState.setTextAndPlaceCursorAtEnd(editing.systemPrompt)
+            state.model = editing.model
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.runOnIdle {
-            state.setting shouldBe
-                GeminiSetting(
-                    apiKey = EDITING_API_KEY,
-                    model = MODEL_ID,
-                    systemPrompt = SYSTEM_PROMPT,
-                )
+            state.setting shouldBe editing
         }
     }
 
@@ -72,7 +63,7 @@ class SettingGeminiFormStateTest {
 
     @Test
     fun `저장된 설정을 초기 값으로 편집 상태를 만든다`() {
-        val setting = GeminiSetting(apiKey = STORED_API_KEY, model = OTHER_MODEL_ID, systemPrompt = STORED_SYSTEM_PROMPT)
+        val setting = Arb.geminiSetting().next()
         lateinit var state: SettingGeminiFormState
 
         composeRule.setContent {
@@ -84,7 +75,9 @@ class SettingGeminiFormStateTest {
 
     @Test
     fun `TC-4d92bc2f-8b06-40ba-a362-61422ff97702 저장된 설정이 바뀌어도 편집 중인 값을 덮어쓰지 않는다`() {
-        val initial = GeminiSetting(apiKey = STORED_API_KEY, model = OTHER_MODEL_ID, systemPrompt = STORED_SYSTEM_PROMPT)
+        val initial = Arb.geminiSetting().next()
+        val editingApiKey = initial.apiKey + Arb.nonBlankString().next()
+        val otherApiKey = initial.apiKey + Arb.nonBlankString().next()
         val storedSetting = mutableStateOf(initial)
         lateinit var state: SettingGeminiFormState
 
@@ -93,9 +86,9 @@ class SettingGeminiFormStateTest {
             state = rememberSettingGeminiFormState(initialSetting = setting)
         }
 
-        composeRule.runOnIdle { state.apiKeyState.setTextAndPlaceCursorAtEnd(EDITING_API_KEY) }
-        composeRule.runOnIdle { storedSetting.value = initial.copy(apiKey = OTHER_API_KEY) }
+        composeRule.runOnIdle { state.apiKeyState.setTextAndPlaceCursorAtEnd(editingApiKey) }
+        composeRule.runOnIdle { storedSetting.value = initial.copy(apiKey = otherApiKey) }
 
-        composeRule.runOnIdle { state.apiKey shouldBe EDITING_API_KEY }
+        composeRule.runOnIdle { state.apiKey shouldBe editingApiKey }
     }
 }

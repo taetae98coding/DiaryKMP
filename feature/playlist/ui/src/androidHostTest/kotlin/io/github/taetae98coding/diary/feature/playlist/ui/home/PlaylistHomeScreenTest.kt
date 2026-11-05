@@ -67,10 +67,11 @@ class PlaylistHomeScreenTest {
 
     @Test
     fun `TC-cdffb691-2c41-4b33-a6da-8c243b81a200 목록의 곡을 선택하면 그 곡의 상세 화면으로 이동한다`() {
+        val other = testMusic(title = OTHER_MUSIC_TITLE, artist = MUSIC_ARTIST)
         val music = testMusic(title = MUSIC_TITLE, artist = MUSIC_ARTIST)
         val navigatedIdList = mutableListOf<Uuid>()
 
-        setPlaylistHomeScreen(musicList = listOf(music), navigateToDetail = { id -> navigatedIdList += id })
+        setPlaylistHomeScreen(musicList = listOf(other, music), navigateToDetail = { id -> navigatedIdList += id })
         composeRule.onNodeWithText(MUSIC_TITLE).performClick()
         composeRule.waitForIdle()
 
@@ -143,6 +144,7 @@ class PlaylistHomeScreenTest {
 
     private companion object {
         private const val MUSIC_TITLE = "ScreenMusicTitle"
+        private const val OTHER_MUSIC_TITLE = "ScreenOtherMusicTitle"
         private const val MUSIC_ARTIST = "ScreenMusicArtist"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"

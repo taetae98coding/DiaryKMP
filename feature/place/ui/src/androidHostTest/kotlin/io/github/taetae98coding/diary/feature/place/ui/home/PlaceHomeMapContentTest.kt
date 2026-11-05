@@ -5,12 +5,17 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -18,6 +23,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -40,6 +46,7 @@ import io.github.taetae98coding.diary.feature.place.ui.boundsAround
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -144,6 +151,53 @@ class PlaceHomeMapContentTest {
     }
 
     @Test
+    fun `TC-c855d27e-5cbe-4ba9-8b87-9aef2f19c6ee 지도 모드에서 이 지역에 장소가 없어도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
+        val center = Arb.coordinateInFormPrecision().next()
+        val environment = setPlaceHomeScreen()
+        environment.reportCamera(center)
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithTag(DIARY_EMPTY_BOX_TEST_TAG).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        environment.addRequests shouldBe listOf(center)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MAP_VIEW_MODE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-9d901920-8f6b-4898-a890-3f67ed524655 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 지도가 보던 위치와 확대 수준, 고른 제공자를 유지한다`() {
+        val moved = Arb.coordinateInFormPrecision().next()
+        var isPlaceHomeOnTop by mutableStateOf(true)
+        val environment = setPlaceHomeScreen(defaultProvider = MapProvider.NAVER, isPlaceHomeOnTopProvider = { isPlaceHomeOnTop })
+        environment.reportCamera(moved)
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        listOf("장소 추가", "장소 상세", "검색").forEach { destination ->
+            withClue(destination) {
+                // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관하는 것을 그대로 따른다.
+                composeRule.runOnIdle { isPlaceHomeOnTop = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isPlaceHomeOnTop = true }
+                composeRule.waitForIdle()
+                composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { environment.map.isShown }
+
+                val scope = environment.map.firstScope()
+                scope.state.provider shouldBe DiaryMapProvider.GOOGLE
+                scope.state.coordinate shouldBe moved.toDiaryMapCoordinate()
+                scope.zoom shouldBe ZOOM
+            }
+        }
+    }
+
+    @Test
     fun `TC-41fc41e1-dd6c-4625-924f-7c992bc83387 지도 모드에서 지도가 표시되어 있으면 검색 동작을 제공한다`() {
         setPlaceHomeScreen()
 
@@ -231,6 +285,7 @@ class PlaceHomeMapContentTest {
         initialCoordinate: Coordinate = Arb.coordinateInFormPrecision().next(),
         placeList: List<Place> = emptyList(),
         activityResultRegistry: ActivityResultRegistry = spyk<ActivityResultRegistry>(),
+        isPlaceHomeOnTopProvider: () -> Boolean = { true },
     ): Environment {
         val environment = Environment(storedPlaces = MutableStateFlow(placeList))
         val mapViewModel = mapViewModel(defaultProvider = defaultProvider, initialCoordinate = initialCoordinate)
@@ -240,20 +295,26 @@ class PlaceHomeMapContentTest {
         every { registryOwner.activityResultRegistry } returns activityResultRegistry
 
         composeRule.setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+
             CompositionLocalProvider(
                 LocalDiaryMapContentOverride provides environment.map,
                 LocalActivityResultRegistryOwner provides registryOwner,
             ) {
-                DiaryTheme {
-                    PlaceHomeScreen(
-                        navigateUp = {},
-                        navigateToAdd = environment.addRequests::add,
-                        navigateToDetail = environment.detailRequests::add,
-                        navigateToSearch = {},
-                        mapViewModel = mapViewModel,
-                        placeListViewModel = placeListViewModel,
-                        syncViewModel = syncViewModel,
-                    )
+                if (isPlaceHomeOnTopProvider()) {
+                    saveableStateHolder.SaveableStateProvider(key = PLACE_HOME_ENTRY_KEY) {
+                        DiaryTheme {
+                            PlaceHomeScreen(
+                                navigateUp = {},
+                                navigateToAdd = environment.addRequests::add,
+                                navigateToDetail = environment.detailRequests::add,
+                                navigateToSearch = {},
+                                mapViewModel = mapViewModel,
+                                placeListViewModel = placeListViewModel,
+                                syncViewModel = syncViewModel,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -315,6 +376,7 @@ class PlaceHomeMapContentTest {
 
     private companion object {
         const val DEFAULT_GOOGLE_LABEL = "Google"
+        const val PLACE_HOME_ENTRY_KEY = "PlaceHome"
         const val TIMEOUT_MILLIS = 5_000L
 
         // 지도가 처음 정하는 확대 수준과 구분되도록 다른 값으로 알려 온다.

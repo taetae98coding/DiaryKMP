@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
@@ -17,6 +18,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
@@ -424,6 +426,103 @@ class MemoAddScreenPlaceMapTest {
             pickerMap().state.coordinate shouldBe pickerCoordinate
         }
         detailIdList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-48e1e605-3ba0-47b8-abb4-3828a8cbf7a3 지도 보기 목록의 장소를 눌러도 지도가 옮겨지지 않고 선택 여부만 바뀐다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE, coordinate = INSIDE_COORDINATE)
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val detailIdList = mutableListOf<Uuid>()
+        setMemoAddScreen(placeList = listOf(homePlace), navigateToPlaceDetail = detailIdList::add)
+        composeRule.openPlacePicker()
+        composeRule.showMapView()
+        composeRule.runOnIdle { pickerMap().reportCamera(coordinate = pickerCoordinate, zoom = TEST_ZOOM, bounds = VISIBLE_BOUNDS) }
+        composeRule.awaitDialogNode(HOME_PLACE_TITLE)
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOn()
+        composeRule.runOnIdle {
+            pickerMap().state.coordinate shouldBe pickerCoordinate
+            pickerMap().zoom shouldBe TEST_ZOOM
+            pickerMap().state.pins.map(DiaryMapPin::id) shouldBe listOf(homePlace.id)
+        }
+        detailIdList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-49f993ee-983e-4813-a437-dbac9202b007 지도 보기의 지도에서 핀이 없는 곳을 누르면 아무 일도 일어나지 않는다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE, coordinate = INSIDE_COORDINATE)
+        val pickerCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val detailIdList = mutableListOf<Uuid>()
+        setMemoAddScreen(placeList = listOf(homePlace), navigateToPlaceDetail = detailIdList::add)
+        composeRule.openPlacePicker()
+        composeRule.showMapView()
+        composeRule.runOnIdle { pickerMap().reportCamera(coordinate = pickerCoordinate, zoom = TEST_ZOOM, bounds = VISIBLE_BOUNDS) }
+        composeRule.awaitDialogNode(HOME_PLACE_TITLE)
+
+        composeRule.runOnIdle { pickerMap().onSpotClick?.invoke(Arb.coordinate().next().toDiaryMapCoordinate()) }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            pickerMap().state.spot.shouldBeNull()
+            pickerMap().state.coordinate shouldBe pickerCoordinate
+            pickerMap().state.pins.map(DiaryMapPin::id) shouldBe listOf(homePlace.id)
+        }
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOff()
+        detailIdList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-57e8c50e-d99a-4372-ad46-54f2c218e967 검색어를 입력하면 확정 동작 없이 검색어를 만족하는 장소만 목록에 남는다`() {
+        setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)))
+        composeRule.openPlacePicker()
+        composeRule.awaitDialogNode(OFFICE_PLACE_TITLE)
+
+        composeRule.placeDialogSearchField().performTextInput(HOME_PLACE_QUERY)
+        composeRule.awaitDialogNodeGone(OFFICE_PLACE_TITLE)
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-b826a68e-6f4e-43f0-964d-5e51a2aad49b 검색어를 지우면 대상 장소가 모두 다시 나타난다`() {
+        setMemoAddScreen(placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)))
+        composeRule.openPlacePicker()
+        composeRule.awaitDialogNode(OFFICE_PLACE_TITLE)
+        composeRule.placeDialogSearchField().performTextInput(HOME_PLACE_QUERY)
+        composeRule.awaitDialogNodeGone(OFFICE_PLACE_TITLE)
+
+        composeRule.placeDialogSearchField().performTextClearance()
+        composeRule.awaitDialogNode(OFFICE_PLACE_TITLE)
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-e8eae743-7a34-442f-8258-b9d5166a64a1 선택한 장소의 제목 컬러 좌표가 바뀌면 카드의 지도 핀에 반영된다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE, coordinate = OUTSIDE_COORDINATE)
+        val reportedCoordinate = Arb.coordinate().next().toDiaryMapCoordinate()
+        val placeStore = MutableStateFlow(listOf(homePlace))
+        setMemoAddScreen(placeStore = placeStore, initialPlaceId = homePlace.id)
+        composeRule.runOnIdle { cardMap().reportCamera(coordinate = reportedCoordinate, zoom = TEST_ZOOM) }
+        composeRule.runOnIdle { cardMap().state.pins shouldBe listOf(homePlace.expectedPin()) }
+
+        listOf(
+            homePlace.copy(detail = homePlace.detail.copy(title = OFFICE_PLACE_TITLE)),
+            homePlace.copy(detail = homePlace.detail.copy(color = homePlace.detail.color + 1)),
+            homePlace.copy(detail = homePlace.detail.copy(coordinate = INSIDE_COORDINATE)),
+        ).forEach { changedPlace ->
+            placeStore.value = listOf(changedPlace)
+            composeRule.waitForIdle()
+
+            composeRule.runOnIdle {
+                cardMap().state.pins shouldBe listOf(changedPlace.expectedPin())
+                cardMap().state.coordinate shouldBe reportedCoordinate
+                cardMap().zoom shouldBe TEST_ZOOM
+            }
+        }
     }
 
     @Test

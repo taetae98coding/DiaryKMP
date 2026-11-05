@@ -35,40 +35,56 @@ class MemoNavigationTest :
         test("TC-61240c8d-6424-4b3e-ac04-a2f3620c3223 다른 메모를 선택하면 앞 메모 상세의 기록 없이 새 메모 상세를 놓는다") {
             val selectedId = Arb.kotlinUuid().next()
             val previousDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
-            val addKey = MemoAddNavKey()
             val detailCases =
                 listOf(
                     emptyList(),
                     listOf(previousDetailKey),
-                    listOf(addKey, previousDetailKey),
                 )
 
             detailCases.forEach { detailKeyList ->
                 val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, *detailKeyList.toTypedArray())
-                val expected =
-                    listOf(MemoHomeNavKey) +
-                        detailKeyList.filterNot { key -> key == previousDetailKey } +
-                        MemoDetailNavKey(id = selectedId)
 
                 backStack.navigateToMemoDetail(selectedId)
 
-                backStack shouldContainExactly expected
+                backStack shouldContainExactly listOf(MemoHomeNavKey, MemoDetailNavKey(id = selectedId))
+                backStack.removeLastOrNull()
+                backStack shouldContainExactly listOf(MemoHomeNavKey)
+            }
+        }
+
+        test("TC-71fb7b42-0621-4f4c-8530-164f59dcd835 목록에서 연 메모 추가가 놓인 동안 다른 메모를 고르면 추가를 걷어내고 그 상세로 바꾼다") {
+            val selectedId = Arb.kotlinUuid().next()
+            val previousDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+            val addOpenedFromListCases =
+                listOf(
+                    listOf(previousDetailKey, MemoAddNavKey()),
+                    listOf(MemoAddNavKey()),
+                )
+
+            addOpenedFromListCases.forEach { detailKeyList ->
+                val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, *detailKeyList.toTypedArray())
+
+                backStack.navigateToMemoDetail(selectedId)
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey, MemoDetailNavKey(id = selectedId))
+                backStack.removeLastOrNull()
+                backStack shouldContainExactly listOf(MemoHomeNavKey)
             }
         }
 
         test("TC-e07028dc-6ea4-49ad-be72-8682a67d5bdb 메모를 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 놓는다") {
             val copiedId = Arb.kotlinUuid().next()
-            val addKey = MemoAddNavKey()
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     MemoHomeNavKey,
-                    addKey,
                     MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStack.navigateToCopiedMemo(copiedId)
 
-            backStack shouldContainExactly listOf(MemoHomeNavKey, addKey, MemoDetailNavKey(id = copiedId))
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoDetailNavKey(id = copiedId))
+            backStack.removeLastOrNull()
+            backStack shouldContainExactly listOf(MemoHomeNavKey)
         }
 
         test("TC-762386df-655e-4d63-a1bb-8fd0fca5f3c8 완료된 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
@@ -133,7 +149,7 @@ class MemoNavigationTest :
             backStack shouldContainExactly listOf(MemoHomeNavKey, MemoFinishedListNavKey)
         }
 
-        test("TC-abdda444-b2d6-460d-972d-66eb9778918c 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 MemoHome 목록으로 돌아간다") {
+        test("TC-abdda444-b2d6-460d-972d-66eb9778918c TC-d65fbf7b-d699-42bf-8449-22d55dd61b1f 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 MemoHome 목록으로 돌아간다") {
             val homeDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
             val homeBackStackCases: List<List<ScreenNavKey>> = listOf(listOf(MemoHomeNavKey), listOf(MemoHomeNavKey, homeDetailKey))
             val finishedListDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(MemoDetailNavKey(id = Arb.kotlinUuid().next())))

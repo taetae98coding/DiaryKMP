@@ -29,7 +29,7 @@ class WebDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-b5610b9b-0b4b-413c-9236-896c51c8bccb 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
+    fun `TC-b5610b9b-0b4b-413c-9236-896c51c8bccb TC-9e01404b-fd4a-4c29-a173-785dc7b22d51 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnMemoTab(navigateToMemoFinishedList = { navigateCount += 1 })
 

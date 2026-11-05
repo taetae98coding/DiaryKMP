@@ -190,9 +190,20 @@ class MapMessageTest :
                 """{"type": "camera", "latitude": ${camera.latitude}, "longitude": ${camera.longitude}, "zoom": ${camera.zoom}}"""
             val clickMessage =
                 """{"type": "click", "latitude": ${coordinate.latitude}, "longitude": ${coordinate.longitude}}"""
+            val deliveredList = mutableListOf<DiaryMapCoordinate>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
-            cameraMessage.toMapMessageOrNull() shouldBe MapMessage.Camera(camera = camera)
-            clickMessage.toMapMessageOrNull() shouldBe MapMessage.Click(coordinate = coordinate)
+            listOf(cameraMessage, clickMessage).forEach { message ->
+                state.handleMapMessage(
+                    message = message,
+                    onReady = {},
+                    onSpotClick = { spot -> deliveredList += spot },
+                    onPinClick = null,
+                )
+            }
+
+            state.camera shouldBe camera
+            deliveredList shouldBe listOf(coordinate)
         }
 
         test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 위치 소식의 보이는 영역을 확인한다") {

@@ -54,6 +54,7 @@ internal const val TYPED_LONGITUDE = "126.9780"
 internal const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
 internal const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add place"
 internal const val DEFAULT_SEARCH_BUTTON_DESCRIPTION = "Search place"
+internal const val HEX_COLOR_LENGTH = 7
 internal const val DESCRIPTION_INDEX = 1
 internal const val ADDRESS_INDEX = 2
 internal const val LATITUDE_INDEX = 3

@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -110,7 +111,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-f9bff6e7-f638-4c0d-99ea-f6279ca0b857 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
+    fun `TC-f9bff6e7-f638-4c0d-99ea-f6279ca0b857 TC-f868d081-61f3-4ee0-b902-551b84aaea24 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -171,6 +172,7 @@ class QrNavDisplayTest {
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
         composeRule.onQrTextInput().performTextInput(detail.value)
+        composeRule.selectFormat(formatLabel = DEFAULT_FORMAT_LABEL, formatName = "URL")
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
@@ -180,8 +182,11 @@ class QrNavDisplayTest {
         composeRule.waitForIdle()
 
         backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.titleInputText() shouldBe ""
         composeRule.descriptionInputText() shouldBe ""
+        composeRule.selectTab(QR_TAB_INDEX)
+        composeRule.onNode(hasText(DEFAULT_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe "Text"
         composeRule.qrTextInputText() shouldBe ""
         composeRule.qrCodeValue() shouldBe ""
         addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any()) } }

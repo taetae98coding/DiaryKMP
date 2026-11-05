@@ -87,7 +87,7 @@ class AppStateDeepLinkTest :
         test("TC-0d02a609-d833-4ec1-9cd1-e33ddbee22e7 목록과 함께 표시한 FileDetail 위에서 연 FileAdd를 보고 있으면 알림을 선택해도 배치를 유지한다") {
             val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, detail, FileAddNavKey)
-            val appState = createAppState(*initialBackStack.toTypedArray())
+            val appState = createAppState(*initialBackStack.toTypedArray(), directive = TWO_PANE_DIRECTIVE)
 
             appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
 

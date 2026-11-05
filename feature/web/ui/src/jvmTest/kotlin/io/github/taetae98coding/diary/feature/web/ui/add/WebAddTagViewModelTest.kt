@@ -116,7 +116,15 @@ class WebAddTagViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem().tagList.shouldBeEmpty()
                     awaitItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
                 }
+
+                val otherTag = tag()
+                viewModel.add(id = otherTag.id)
+                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id, otherTag.id)
+
+                viewModel.remove(id = tag.id)
+                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(otherTag.id)
             }
         }
 
@@ -170,6 +178,35 @@ class WebAddTagViewModelTest : FunSpec() {
 
                     viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                 }
+            }
+        }
+
+        test("TC-71d58634-9629-4149-805c-c8482f8d3e5c 표시 기준에서 빠졌던 태그가 다시 표시 기준을 만족하면 유지되어 있던 선택이 다시 나타난다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Tag>())))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val viewModel =
+                    WebAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase,
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+
+                    selectedTagFlow.value = Result.success(listOf(tag))
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
             }
         }
 

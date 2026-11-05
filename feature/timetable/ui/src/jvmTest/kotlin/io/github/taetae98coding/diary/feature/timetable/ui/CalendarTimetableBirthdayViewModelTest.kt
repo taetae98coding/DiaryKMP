@@ -111,6 +111,21 @@ class CalendarTimetableBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-bf087088-ec80-4bcb-8701-ac814a9dbca3 한 연도의 음력 자료 동기화가 실패해도 다른 연도를 동기화한다") {
+            runTest(mainDispatcher) {
+                val fetchUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchUseCase(parameter = 2026) } returns Result.failure(IllegalStateException(Arb.nonBlankString().next()))
+                coEvery { fetchUseCase(parameter = 2027) } returns Result.success(emptyList())
+                val viewModel = birthdayViewModel(fetchLunarUseCase = fetchUseCase)
+
+                viewModel.fetch(dateRange = LocalDate(year = 2026, month = 12, day = 31)..LocalDate(year = 2026, month = 12, day = 31))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchUseCase(parameter = 2026) }
+                coVerify(exactly = 1) { fetchUseCase(parameter = 2027) }
+            }
+        }
+
         test("TC-fb0d7338-9eb2-47e7-903f-1433d289a6b3 같은 연도의 음력 자료 동기화가 진행 중이면 다시 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<LunarDate>>>()

@@ -24,11 +24,13 @@ import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
+import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -41,7 +43,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 // 첫 조회는 앞쪽 메모만 돌려주고 뒤쪽은 아직 준비되지 않은 자리로 남긴다.
-// 이어지는 조회는 끝나지 않게 두어, 준비되지 않은 메모가 로딩 상태로 계속 표시되게 한다.
+// 이어지는 조회는 기본으로 끝나지 않게 두어 준비되지 않은 메모가 로딩 상태로 계속 표시되게 하고, 나중 메모를 주면 그 메모를 돌려준다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
 class MemoHomeDateHeaderPlaceholderTest {
@@ -80,8 +82,44 @@ class MemoHomeDateHeaderPlaceholderTest {
             .size shouldBeLessThanOrEqual 1
     }
 
-    private fun setMemoHomeScreen(loadedMemoList: List<Memo>) {
-        val viewModel = realViewModel(loadedMemoList = loadedMemoList)
+    @Test
+    fun `TC-af05fa15-cacd-472f-b9ff-e9df72c8d308 준비되지 않았던 메모가 준비되면 해당 날짜 그룹의 헤더가 표시된다`() {
+        val loadedMemoList =
+            List(LOADED_MEMO_COUNT) { index ->
+                Arb.memo(title = "LoadedMemo$index", dateTime = MemoDateTime.AllDay(dateRange = LOADED_DATE..LOADED_DATE)).next()
+            }
+        val laterMemoList =
+            List(PLACEHOLDER_COUNT) { index ->
+                Arb.memo(title = "LaterMemo$index", dateTime = MemoDateTime.AllDay(dateRange = LATER_DATE..LATER_DATE)).next()
+            }
+        val laterGate = CompletableDeferred<Unit>()
+        setMemoHomeScreen(loadedMemoList = loadedMemoList, laterMemoList = laterMemoList, laterGate = laterGate)
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(loadedMemoList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onAllNodes(hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(LATER_DATE_HEADER)).fetchSemanticsNodes().shouldBeEmpty()
+
+        composeRule.refreshableList().performScrollToIndex(LOADED_MEMO_COUNT + PLACEHOLDER_COUNT)
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(LATER_DATE_HEADER)).fetchSemanticsNodes().shouldBeEmpty()
+
+        laterGate.complete(Unit)
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule
+                .onAllNodes(hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(LATER_DATE_HEADER))
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+
+        composeRule.onAllNodesWithText("LaterMemo", substring = true).fetchSemanticsNodes().isNotEmpty() shouldBe true
+    }
+
+    private fun setMemoHomeScreen(
+        loadedMemoList: List<Memo>,
+        laterMemoList: List<Memo>? = null,
+        laterGate: CompletableDeferred<Unit> = CompletableDeferred(),
+    ) {
+        val viewModel = realViewModel(loadedMemoList = loadedMemoList, laterMemoList = laterMemoList, laterGate = laterGate)
 
         composeRule.setContent {
             DiaryTheme {
@@ -100,7 +138,11 @@ class MemoHomeDateHeaderPlaceholderTest {
         }
     }
 
-    private fun realViewModel(loadedMemoList: List<Memo>): MemoHomeViewModel {
+    private fun realViewModel(
+        loadedMemoList: List<Memo>,
+        laterMemoList: List<Memo>?,
+        laterGate: CompletableDeferred<Unit>,
+    ): MemoHomeViewModel {
         val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
         every { getMemoFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
         val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
@@ -111,7 +153,7 @@ class MemoHomeDateHeaderPlaceholderTest {
         every { pageMemoHomeUseCase(parameter = any()) } answers {
             Pager(
                 config = PagingConfig(pageSize = LOADED_MEMO_COUNT, initialLoadSize = LOADED_MEMO_COUNT, enablePlaceholders = true),
-                pagingSourceFactory = { partiallyLoadedPagingSource(loadedMemoList = loadedMemoList) },
+                pagingSourceFactory = { partiallyLoadedPagingSource(loadedMemoList = loadedMemoList, laterMemoList = laterMemoList, laterGate = laterGate) },
             ).flow.map { pagingData -> Result.success(pagingData) }
         }
 
@@ -127,7 +169,11 @@ class MemoHomeDateHeaderPlaceholderTest {
         )
     }
 
-    private fun partiallyLoadedPagingSource(loadedMemoList: List<Memo>): PagingSource<Int, Memo> {
+    private fun partiallyLoadedPagingSource(
+        loadedMemoList: List<Memo>,
+        laterMemoList: List<Memo>?,
+        laterGate: CompletableDeferred<Unit>,
+    ): PagingSource<Int, Memo> {
         val pagingSource = mockk<PagingSource<Int, Memo>>(relaxed = true)
         every { pagingSource.getRefreshKey(any()) } returns null
         every { pagingSource.invalid } returns false
@@ -139,6 +185,15 @@ class MemoHomeDateHeaderPlaceholderTest {
                     nextKey = 1,
                     itemsBefore = 0,
                     itemsAfter = PLACEHOLDER_COUNT,
+                )
+            } else if (laterMemoList != null) {
+                laterGate.await()
+                PagingSource.LoadResult.Page(
+                    data = laterMemoList,
+                    prevKey = null,
+                    nextKey = null,
+                    itemsBefore = LOADED_MEMO_COUNT,
+                    itemsAfter = 0,
                 )
             } else {
                 awaitCancellation()
@@ -152,6 +207,8 @@ class MemoHomeDateHeaderPlaceholderTest {
         private const val PLACEHOLDER_COUNT = 40
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val LOADED_DATE_HEADER = "Jan 2, 2020"
+        private const val LATER_DATE_HEADER = "Jan 3, 2020"
+        private val LATER_DATE = LocalDate(year = 2020, month = 1, day = 3)
         private val LOADED_DATE = LocalDate(year = 2020, month = 1, day = 2)
     }
 }

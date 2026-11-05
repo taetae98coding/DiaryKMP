@@ -69,6 +69,12 @@ class WebAddViewModelTest : FunSpec() {
 
                 completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
+
+                viewModel.add(secondDetail, tagIdSet = emptySet())
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(AddWebUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 1) { useCase(AddWebUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
 

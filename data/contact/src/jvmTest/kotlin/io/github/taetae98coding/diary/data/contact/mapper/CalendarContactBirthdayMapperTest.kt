@@ -37,7 +37,7 @@ class CalendarContactBirthdayMapperTest :
                 )
         }
 
-        test("구분 경로는 앞뒤 공백을 빼고 공백뿐이면 비운다") {
+        test("TC-e64556bb-cb16-4075-a1ca-eacde5a5ad90 구분 경로는 앞뒤 공백을 빼고 공백뿐이면 비운다") {
             listOf("" to "", "  " to "", "  회사  " to "회사").forEach { (stored, expected) ->
                 Arb
                     .calendarContactBirthdayLocalEntity()

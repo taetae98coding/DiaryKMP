@@ -11,7 +11,6 @@ import io.github.taetae98coding.diary.compose.credential.PlatformSignInState
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.compose.credential.apple.authorize
 import io.github.taetae98coding.diary.compose.credential.rememberPlatformSignInState
 import io.github.taetae98coding.diary.core.model.authentication.AppleAuthorization
 import kotlinx.coroutines.launch
@@ -102,7 +101,8 @@ private suspend fun requestAppleAuthorization(
     val current = attempt.start()
     var appleAuthorization: AppleAuthorization? = null
     try {
-        appleAuthorization = platformSignInState.signIn { credentialsManager.authorize() }
+        appleAuthorization = platformSignInState.signIn { credentialsManager.signIn() }.authorization
+        if (appleAuthorization == null && attempt.isLatest(current)) viewModel.failAppleAuthorizationWithoutCode()
     } catch (_: AppleCredentialsUserCancelException) {
     } catch (exception: AppleCredentialsException) {
         viewModel.failAppleAuthorization(throwable = exception)

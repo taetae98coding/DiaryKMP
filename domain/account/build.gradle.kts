@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.logger.console.api)
                 implementation(projects.logger.crashlytics.api)
             }
         }

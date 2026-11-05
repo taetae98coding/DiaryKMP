@@ -163,18 +163,19 @@ class AccountMusicLocalDataSourceImplTest :
 
         test("TC-9d5c8d13-b400-4c57-8c27-3a66a01e4e11 TC-0d30ddb5-93ad-4f30-8535-b378c6be519c 수정한 곡은 목록에 반영되고 삭제한 곡은 목록에서 사라진다") {
             val accountId = Arb.kotlinUuid().next()
-            val music = music()
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
+            val music = music(title = FIRST_MUSIC_TITLE)
+            val otherMusic = music(title = MIDDLE_MUSIC_TITLE)
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, otherMusic))
             val detail = music.detail.copy(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
             val updatedAt = instant()
 
             musicTransaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt)
 
-            pagedMusics(accountId) shouldBe listOf(music.copy(detail = detail, updatedAt = updatedAt))
+            pagedMusics(accountId) shouldBe listOf(otherMusic, music.copy(detail = detail, updatedAt = updatedAt))
 
             musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = instant())
 
-            pagedMusics(accountId).shouldBeEmpty()
+            pagedMusics(accountId) shouldBe listOf(otherMusic)
         }
 
         test("TC-5f1a7f9a-2311-4d3f-9cbc-25cba566c9a0 실행 취소한 곡은 제목 오름차순에 맞는 자리로 다시 조회된다") {

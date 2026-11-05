@@ -79,9 +79,9 @@
 ### TC-17c6fa27-e39b-491c-b584-ed87d716dadf: 카메라 권한이 허용되지 않으면 화면에 머무르고 권한 안내를 표시한다
 
 - 근거: `feature > QR 스캔 시작`
-- Given: 사용자 언어가 한국어이고, QrAdd 화면에 제목 `회사`, 설명 `출입용`과 텍스트 포맷의 내용 `abc`가 입력되어 있으며, 카메라 권한 요청 결과가 `거부`로 정해져 있다.
+- Given: 사용자 언어가 한국어이고, QrAdd 화면에 제목 `회사`, 설명 `출입용`과 텍스트 포맷의 내용 `abc`가 입력되어 있고 QR 탭을 보고 있으며, 카메라 권한 요청 결과가 `거부`로 정해져 있다.
 - When: 사용자가 QR 스캔 시작을 선택한다.
-- Then: QrScan 화면으로 이동하지 않고, `카메라 권한을 허용해야 QR을 스캔할 수 있습니다.` 안내가 표시되며, 제목 `회사`, 설명 `출입용`과 텍스트 포맷의 내용 `abc`는 그대로 남는다.
+- Then: QrScan 화면으로 이동하지 않고, `카메라 권한을 허용해야 QR을 스캔할 수 있습니다.` 안내가 표시되며, 제목 `회사`, 설명 `출입용`과 텍스트 포맷의 내용 `abc`, 선택한 텍스트 포맷과 보고 있던 QR 탭은 그대로 남는다.
 
 ### TC-e1081d6e-3f9a-4da8-8f77-a928430ef54a: 권한 요청에 응답하기 전에는 다시 선택해도 새 요청을 시작하지 않는다
 
@@ -241,6 +241,13 @@
 - When: 사용자가 주소 끝에 글자 하나를 더 입력한다.
 - Then: 주소 입력과 QR 그림은 입력하기 전 값 그대로 남고, 별도 안내가 표시되지 않는다.
 
+### TC-6ee9a1f1-ee16-408e-9212-8304efc22752: 위치 포맷 입력이 QR 하나에 담을 수 없게 되면 반영하지 않는다
+
+- 근거: `feature > 포맷별 입력`, `feature > 위치 입력`, `domain > QR 값의 길이`
+- Given: QrAdd 화면의 위치 포맷에서 위도 입력에 입력한 결과의 QR 값이 QR 하나에 담을 수 있는 가장 긴 값이 되도록 글자가 입력되어 있다.
+- When: 사용자가 위도 끝에 글자 하나를 더 입력한다.
+- Then: 위도 입력과 QR 그림은 입력하기 전 값 그대로 남고, 별도 안내가 표시되지 않는다.
+
 ### TC-e7733d1d-d345-4d59-affc-2a1013cbdf74: 위치 포맷에서 지도로 위치를 고르면 위도와 경도가 채워지고 그 위치의 QR을 그린다
 
 - 근거: `feature > 위치 입력`
@@ -275,6 +282,13 @@
   | 비어 있음 |
   | `abc` |
   | `90.1` |
+
+### TC-6a9896ec-5164-4f5d-9592-136409c1aa63: 위치 포맷에서 지도로 위치를 고르면 입력 초점이 보고 있던 입력에 그대로 남는다
+
+- 근거: `feature > 위치 입력`
+- Given: 기본 지도를 확인했고, QrAdd 화면의 위치 포맷에서 위도 입력에 입력 초점이 있다.
+- When: 사용자가 지도에서 위치를 고른다.
+- Then: 위도와 경도가 고른 위치로 채워지고, 입력 초점은 위도 입력에 그대로 남으며 경도 입력으로 옮겨지지 않는다.
 
 ### TC-3e4f65ab-633f-42cc-8136-3b666e5cfbf4: 위치 포맷에서 지도를 옮기거나 확대·축소해도 고른 좌표는 바뀌지 않는다
 
@@ -329,6 +343,13 @@
 - Given: QR 추가가 성공하도록 설정되어 있고, 제목이 입력되어 있으며, 위치 포맷에서 지도로 고른 좌표가 있다.
 - When: 사용자가 QR 추가를 실행한다.
 - Then: 고른 지점이 없는 상태가 되고, 지도를 다른 위치로 옮기도록 지정하지 않는다.
+
+### TC-b8dc1118-cdec-49eb-8c8b-3e5a817b93cb: 제목 없이 추가해도 되돌리기 기록은 유지된다
+
+- 근거: `feature > 제목 미입력`
+- Given: QrAdd 화면의 제목이 비어 있고, 텍스트 포맷의 `hello`를 Wi-Fi 포맷에서 네트워크 이름 `home`으로 새로 써 되돌리기를 선택할 수 있는 상태다.
+- When: 사용자가 QR 추가를 실행한다.
+- Then: QR이 추가되지 않고, 되돌리기를 선택할 수 있는 상태가 그대로이며 되돌리면 텍스트 포맷의 `hello`로 돌아간다.
 
 ### TC-1a5e7fb5-df16-4fd9-8bef-df01b624f7e9: 제목 없이 추가하면 정보 탭으로 바꾸고 제목 입력을 알린다
 
@@ -460,6 +481,13 @@
 - Given: QrAdd 화면에 제목 `회사`가 입력되어 있고, 빈 QR 값에서 연락처 포맷의 전화번호에만 `010`을 입력했다.
 - When: 사용자가 QR 추가를 실행한다.
 - Then: 제목 `회사`와 QR 값 `BEGIN:VCARD`, `VERSION:3.0`, `N:`, `FN:`, `TEL:010`, `END:VCARD`를 CR LF로 이은 값으로 QR 추가가 요청된다.
+
+### TC-6aa4b433-7bef-4734-b260-313ec9f23d22: 포맷 입력을 고치는 동안에는 입력한 글자를 그대로 둔다
+
+- 근거: `feature > 포맷별 입력`
+- Given: QrAdd 화면의 QR 값이 비어 있고 URL 포맷이 선택되어 있다.
+- When: 사용자가 주소에 앞뒤 공백이 붙은 ` a.com `을 입력한다.
+- Then: 주소 입력에는 입력한 ` a.com `이 그대로 남고, QR 그림 자리에는 앞뒤 공백을 지운 `a.com`을 담은 QR이 그려진다.
 
 ### TC-df92e072-9645-4c44-948e-f84870718e0f: 포맷 입력으로 바로 앞에 쓴 값은 그 포맷의 값으로 보아 기록을 남기지 않는다
 
@@ -722,6 +750,8 @@
 - When: QrAdd 화면이 재생성된다.
 - Then: 위도와 경도가 그대로이고, 같은 곳의 고른 지점과 바꾼 지도 제공자로 지도가 다시 보인다.
 
+지도가 보고 있던 위치와 확대 수준을 되살리는 것은 [DiaryMap 테스트 케이스](./diary-map.md)의 `TC-ffe3d6a4-1504-4305-b8f8-f39fd2889ecd`이 다룬다.
+
 ### TC-6d4bc05d-a5a6-4f88-b565-67e28d2b3037: QR 값의 시작으로 포맷을 알아본다
 
 - 근거: `domain > 포맷 알아보기`
@@ -784,11 +814,16 @@
   | 연락처 | `BEGIN:VCARD⏎FN:a⏎NOTE:x⏎END:VCARD` | 회사 `c` | `BEGIN:VCARD⏎FN:a⏎NOTE:x⏎ORG:c⏎END:VCARD` |
   | 연락처 | `BEGIN:VCARD⏎FN:a⏎TEL:010⏎END:VCARD` | 전화번호를 비움 | `BEGIN:VCARD⏎FN:a⏎END:VCARD` |
   | 연락처 | `BEGIN:VCARD⏎N:a;b;;;⏎FN:a b⏎END:VCARD` | 이름 `c` | `BEGIN:VCARD⏎N:c⏎FN:c⏎END:VCARD` |
+  | 연락처 | `BEGIN:VCARD⏎N:a;b;;;⏎FN:a b⏎TEL:010⏎END:VCARD` | 이름을 비움 | `BEGIN:VCARD⏎N:⏎FN:⏎TEL:010⏎END:VCARD` |
   | Wi-Fi | `WIFI:T:WPA;S:home;P:pw;;` | 보안 방식 `없음` | `WIFI:T:nopass;S:home;;` |
   | Wi-Fi | `WIFI:S:home;;` | 숨겨진 네트워크 켬 | `WIFI:S:home;H:true;;` |
+  | Wi-Fi | `WIFI:T:WPA;S:home;P:pw;H:true;;` | 비밀번호를 비움 | `WIFI:T:WPA;S:home;H:true;;` |
+  | Wi-Fi | `WIFI:T:WPA;S:home;P:pw;H:true;;` | 숨겨진 네트워크 끔 | `WIFI:T:WPA;S:home;P:pw;;` |
+  | Wi-Fi | `WIFI:T:nopass;S:home;;`, 비밀번호 입력에 `pw`가 남아 있음 | 보안 방식 `WPA/WPA2/WPA3` | `WIFI:T:WPA;S:home;P:pw;;` |
   | 위치 | `geo:37.5,127,30;u=10?q=cafe` | 위도 `36` | `geo:36,127,30;u=10?q=cafe` |
   | 이메일 | `mailto:a@b.c?cc=x@y.z&body=hi` | 제목 `yo` | `mailto:a@b.c?cc=x@y.z&body=hi&subject=yo` |
   | 이메일 | `mailto:a@b.c?cc=x@y.z&body=hi` | 본문을 비움 | `mailto:a@b.c?cc=x@y.z` |
+  | 이메일 | `mailto:a@b.c?cc=x@y.z&body=hi` | 받는 사람 `d@e.f` | `mailto:d@e.f?cc=x@y.z&body=hi` |
   | 전화 | `TEL:010` | 전화번호 `011` | `TEL:011` |
   | SMS | `sms:010?body=hi` | 전화번호 `011` | `sms:011?body=hi` |
   | SMS | `SMSTO:010:hi` | 메시지를 비움 | `SMSTO:010` |
@@ -885,6 +920,7 @@
 - Given: 로그인한 사용자 계정이 있다.
 - When: 제목, 설명과 QR 값을 담은 QR을 저장한 뒤 그 QR을 조회한다.
 - Then: 저장한 제목, 설명과 QR 값이 함께 조회된다.
+
 ### TC-fbf49960-d768-4bea-bc33-740469a525b7: 로그인하지 않은 상태에서 추가한 QR은 서버에 반영되지 않는다
 
 - 근거: `data > 동기화`

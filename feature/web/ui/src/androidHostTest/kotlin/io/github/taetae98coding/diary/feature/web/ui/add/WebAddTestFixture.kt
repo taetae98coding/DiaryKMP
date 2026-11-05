@@ -2,12 +2,14 @@ package io.github.taetae98coding.diary.feature.web.ui.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
@@ -38,6 +40,7 @@ internal const val INPUT_COUNT_PER_HEADER = 2
 internal const val TYPED_TITLE = "WebTitleInput"
 internal const val TYPED_DESCRIPTION = "WebDescriptionInput"
 internal const val TYPED_URL = "https://developer.android.com"
+internal const val LONG_URL = "https://developer.android.com/very/long/path/that/is/certainly/wider/than/the/url/input/field/on/a/phone/screen/and/keeps/going/on/and/on/index.html"
 internal const val TYPED_FIRST_HEADER_NAME = "Authorization"
 internal const val TYPED_FIRST_HEADER_VALUE = "Bearer token"
 internal const val TYPED_SECOND_HEADER_NAME = "Accept"
@@ -141,4 +144,16 @@ internal fun WebAddScreenTestTheme(
     CompositionLocalProvider(LocalResultEventBus provides resultEventBus) {
         DiaryTheme(content = content)
     }
+}
+
+internal fun SemanticsNodeInteraction.inputHeight(): Int = fetchSemanticsNode().size.height
+
+internal fun SemanticsNodeInteraction.inputLineCount(): Int {
+    val layoutResultList = mutableListOf<TextLayoutResult>()
+    fetchSemanticsNode()
+        .config[SemanticsActions.GetTextLayoutResult]
+        .action
+        ?.invoke(layoutResultList)
+
+    return layoutResultList.single().lineCount
 }

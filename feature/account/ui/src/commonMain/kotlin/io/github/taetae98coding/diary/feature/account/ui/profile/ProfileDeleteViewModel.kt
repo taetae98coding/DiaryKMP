@@ -57,6 +57,8 @@ internal class ProfileDeleteViewModel(
                 checkAppleReauthenticationRequiredUseCase(parameter = Unit)
                     .onSuccess { isRequired ->
                         if (isRequired) {
+                            // Apple 로그인 흐름 중 앱이 다시 시작되면 흐름이 중단되므로, 복원할 때는 다이얼로그를 닫힌 상태로 둔다.
+                            savedStateHandle[KEY_IS_CONFIRM_VISIBLE] = false
                             _effect.send(ProfileDeleteEffect.RequestAppleAuthorization)
                         } else {
                             isDeleting = true
@@ -98,6 +100,10 @@ internal class ProfileDeleteViewModel(
 
     fun failAppleAuthorization(throwable: Throwable) {
         DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
+        failAppleAuthorizationWithoutCode()
+    }
+
+    fun failAppleAuthorizationWithoutCode() {
         endAppleAuthorization()
         viewModelScope.launch { _effect.send(ProfileDeleteEffect.DeleteFailed) }
     }

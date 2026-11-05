@@ -29,7 +29,7 @@ class PlaceDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-ede97071-e52c-4fd4-a217-5de367225eb2 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
+    fun `TC-ede97071-e52c-4fd4-a217-5de367225eb2 TC-9e01404b-fd4a-4c29-a173-785dc7b22d51 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnMemoTab(navigateToMemoFinishedList = { navigateCount += 1 })
 

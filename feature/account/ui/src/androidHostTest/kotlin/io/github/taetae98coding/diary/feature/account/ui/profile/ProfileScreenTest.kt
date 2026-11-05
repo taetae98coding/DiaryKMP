@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
 import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.compose.credential.apple.AppleSignInResult
@@ -151,6 +152,22 @@ class ProfileScreenTest {
     }
 
     @Test
+    fun `TC-39cad1b0-fe53-4dc0-b394-b2d34e99ad42 세션 갱신 여부만 바뀌어도 화면을 닫지 않는다`() {
+        val fixture = Fixture()
+        val user = Arb.accountUser().next().copy(isSessionValid = true)
+        fixture.accountFlow.value = Result.success(user)
+        setScreen(fixture)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { fixture.accountFlow.value = Result.success(user.copy(isSessionValid = false)) }
+        composeRule.waitForIdle()
+
+        fixture.navigateUpCount shouldBe 0
+        composeRule.onNodeWithText(CHANGE_LABEL).assertIsEnabled()
+        composeRule.onNodeWithText(DELETE_LABEL).assertIsEnabled()
+    }
+
+    @Test
     fun `TC-265aa834-9a55-4d5b-83db-a892be445edc 탈퇴하기를 선택하면 확인 다이얼로그가 열린다`() {
         val fixture = Fixture()
         setScreen(fixture)
@@ -190,6 +207,7 @@ class ProfileScreenTest {
 
         composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
         coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
+        coVerify(exactly = 0) { fixture.appleCredentialsManager.signIn() }
     }
 
     @Test
@@ -251,7 +269,8 @@ class ProfileScreenTest {
     }
 
     @Test
-    fun `TC-30f87464-4507-40d0-aafe-b02ec5314b62 Apple 인가 코드를 받지 못하면 탈퇴 실패를 안내한다`() {
+    fun `TC-30f87464-4507-40d0-aafe-b02ec5314b62 TC-364abafa-b866-4902-b128-c8a3799b563f 오류 없이 인가 코드 없이 끝나면 탈퇴 실패를 안내하고 오류 보고는 남기지 않는다`() {
+        val reportList = recordCrashlyticsLog()
         val fixture = Fixture(isAppleReauthenticationRequired = true)
         coEvery { fixture.appleCredentialsManager.signIn() } returns signInResult(authorization = null)
         setScreen(fixture)
@@ -261,6 +280,23 @@ class ProfileScreenTest {
         composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
         coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
         composeRule.onNodeWithText(FAILED_MESSAGE).assertExists()
+        reportList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-30f87464-4507-40d0-aafe-b02ec5314b62 TC-364abafa-b866-4902-b128-c8a3799b563f Apple 로그인 흐름이 오류로 끝나면 탈퇴 실패를 안내하고 오류 보고를 남긴다`() {
+        val reportList = recordCrashlyticsLog()
+        val failure = AppleCredentialsException(message = "apple failure")
+        val fixture = Fixture(isAppleReauthenticationRequired = true)
+        coEvery { fixture.appleCredentialsManager.signIn() } throws failure
+        setScreen(fixture)
+
+        confirmDelete()
+
+        composeRule.onNodeWithText(CONFIRM_TITLE).assertDoesNotExist()
+        coVerify(exactly = 0) { fixture.deleteAccountUseCase(parameter = any()) }
+        composeRule.onNodeWithText(FAILED_MESSAGE).assertExists()
+        reportList.single().throwable shouldBe failure
     }
 
     @Test
@@ -546,6 +582,15 @@ private fun ProfileContent(fixture: Fixture) {
             deleteViewModel = fixture.deleteViewModel,
         )
     }
+}
+
+private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
+    val reportList = mutableListOf<CrashlyticsLog>()
+    val delegate = mockk<DiaryLoggerDelegate>()
+    every { delegate.log(log = any()) } answers { (firstArg<DiaryLog>() as? CrashlyticsLog)?.let(reportList::add) }
+    DiaryLogger.add(delegate = delegate)
+
+    return reportList
 }
 
 private fun signInResult(authorization: AppleAuthorization?): AppleSignInResult = AppleSignInResult(credential = Arb.appleCredential().next(), authorization = authorization)

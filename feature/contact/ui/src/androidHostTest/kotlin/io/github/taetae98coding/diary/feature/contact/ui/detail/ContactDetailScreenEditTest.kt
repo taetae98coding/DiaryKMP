@@ -31,8 +31,8 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
-import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_PHONE_NUMBER_BLANK_MESSAGE
+import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
@@ -41,6 +41,9 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.howWeMetInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
+import io.github.taetae98coding.diary.feature.contact.ui.add.selectBirthday
+import io.github.taetae98coding.diary.feature.contact.ui.add.today
+import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -363,6 +366,7 @@ class ContactDetailScreenEditTest {
         howWeMetInput().performTextReplacement(input.howWeMet)
         onNodeWithContentDescription(DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION).performSemanticsAction(SemanticsActions.OnClick)
         waitForIdle()
+        selectBirthday()
         addPhoneNumberRowOnScreen()
         phoneNumberInput(row = 1).performTextInput(input.phoneNumber)
         waitForIdle()
@@ -378,7 +382,8 @@ class ContactDetailScreenEditTest {
         footSizeInput().assert(hasText(EDITED_FOOT_SIZE_TEXT))
         hometownInput().assert(hasText(input.hometown))
         howWeMetInput().assert(hasText(input.howWeMet))
-        onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
+        onNodeWithText(todayDisplayText()).assertExists()
+        birthYearInput().assert(hasText(today().year.toString()))
         phoneNumberRowCount() shouldBe STORED_PHONE_NUMBER_COUNT + 1 + blankPhoneNumberRowCount
         phoneNumberInput(row = 1).assert(hasText(input.phoneNumber))
     }

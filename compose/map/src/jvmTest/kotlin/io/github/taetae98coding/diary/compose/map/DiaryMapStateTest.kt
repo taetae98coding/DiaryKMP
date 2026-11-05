@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.map
 
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.graphics.Color
+import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.map.provider.label
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -367,6 +368,61 @@ class DiaryMapStateTest :
                         zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM,
                     )
             }
+        }
+
+        test("TC-6710929d-f7fc-4c18-b6ad-76185ddb3cea 화면이 다른 곳을 지점으로 지정하면 그 곳만 지점이 되고 보고 있던 위치와 확대 수준은 그대로다") {
+            val camera = Arb.diaryMapCamera().next()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.moveCamera(camera)
+            state.selectSpot(Arb.diaryMapCoordinate().next())
+            val newSpot = Arb.diaryMapCoordinate().next()
+
+            state.selectSpot(newSpot)
+
+            state.spot shouldBe newSpot
+            state.camera shouldBe camera
+        }
+
+        test("TC-b1cd40a3-293f-4ba7-96d2-451c17d137d5 지도가 옮겨진 위치를 알려와도 전달된 핀 목록은 그대로 남는다") {
+            val pins = List(PIN_COUNT) { pin() }
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.updatePins(pins)
+
+            state.moveCamera(Arb.diaryMapCamera().next())
+            state.moveTo(Arb.diaryMapCoordinate().next())
+
+            state.pins shouldBe pins
+        }
+
+        test("TC-091389e2-aa31-47c7-b84f-09529ba04d7a 사용자가 지도를 옮겨 새 위치를 알려와도 지도를 되돌리는 이동 요청은 보내지지 않는다") {
+            val camera = Arb.diaryMapCamera().next()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = Arb.diaryMapCoordinate().next())
+
+            state.moveCommand.test {
+                state.moveCamera(camera)
+
+                state.camera shouldBe camera
+                expectNoEvents()
+            }
+        }
+
+        test("TC-d87428ad-50ce-4e35-8200-afcd4b9026fa 지점을 바꿔도 핀은 그대로이고 핀 목록을 바꿔도 지점은 그대로다") {
+            val spot = Arb.diaryMapCoordinate().next()
+            val pins = List(PIN_COUNT) { pin() }
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.selectSpot(spot)
+            state.updatePins(pins)
+
+            state.updatePins(listOf(pin()))
+            state.updatePins(emptyList())
+
+            state.spot shouldBe spot
+
+            state.updatePins(pins)
+            state.selectSpot(Arb.diaryMapCoordinate().next())
+            state.selectSpot(null)
+
+            state.pins shouldBe pins
         }
 
         test("Saver는 고른 지점을 저장하고 복원한다") {

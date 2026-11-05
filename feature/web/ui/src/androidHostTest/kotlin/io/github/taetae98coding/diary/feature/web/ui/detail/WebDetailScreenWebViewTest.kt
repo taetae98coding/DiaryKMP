@@ -12,6 +12,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -38,6 +40,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
@@ -238,6 +241,65 @@ class WebDetailScreenWebViewTest {
         coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
     }
 
+    @Test
+    fun `TC-33f0130f-dc24-45c3-8e9b-2d0e9eb93202 불러오는 도중 URL 방식으로 바꾸면 URL 방식으로 표시하고 응답을 받은 뒤 돌아오면 그 결과를 보여 준다`() {
+        val detail = testWebDetail()
+        val page = testWebPage()
+        val response = CompletableDeferred<Result<WebPage>>()
+        val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+        coEvery { fetchWebPageUseCase(parameter = any()) } coAnswers { response.await() }
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+        )
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        isProgressShown() shouldBe true
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+        isProgressShown() shouldBe false
+        shadowOf(findWebViewList().single()).lastLoadedUrl shouldBe detail.url
+
+        composeRule.runOnIdle { response.complete(Result.success(page)) }
+        composeRule.waitForIdle()
+        shadowOf(findWebViewList().single()).lastLoadedUrl shouldBe detail.url
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+
+        awaitPageWebView(page = page)
+        isProgressShown() shouldBe false
+        coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
+    }
+
+    @Test
+    fun `TC-44066812-528e-4f8c-9740-8d9fa9d9eb7d 불러오기에 실패한 뒤 URL 방식에서 응답 본문 방식으로 돌아오면 다시 불러온다`() {
+        val detail = testWebDetail()
+        val page = testWebPage()
+        val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+        coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
+            listOf(Result.failure(IllegalStateException("fetch failed")), Result.success(page))
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+        )
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.onNodeWithText(PAGE_FAILURE_TITLE).assertExists()
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+
+        awaitPageWebView(page = page)
+        composeRule.onNodeWithText(PAGE_FAILURE_TITLE).assertDoesNotExist()
+        coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+    }
+
+    private fun isProgressShown(): Boolean =
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .isNotEmpty()
+
     // 문서 안의 링크 이동과 스크롤은 앱을 거치지 않고 웹 표시 수단 안에서 일어나므로, 웹 표시 수단을 직접 다른 주소로 옮기고 스크롤한다.
     private fun moveInsideDocument(webView: WebView) {
         composeRule.runOnUiThread {
@@ -323,6 +385,7 @@ class WebDetailScreenWebViewTest {
         const val NAVIGATED_URL = "https://kotlinlang.org/"
         const val SCROLLED_Y = 480
         const val PAGE_TIMEOUT_MILLIS = 5_000L
+        const val PAGE_FAILURE_TITLE = "Unable to load the web page"
 
         fun webViewModel(detail: WebDetail): WebDetailViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = detail)))
 

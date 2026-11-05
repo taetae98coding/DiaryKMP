@@ -51,6 +51,23 @@ class MemoGeminiDialogTest {
     }
 
     @Test
+    fun `TC-52cc9cbb-b5c0-4819-94ef-2f5838293b74 줄바꿈이 여러 번 들어 있는 긴 프롬프트도 그대로 생성을 실행한다`() {
+        val longPrompt = List(LONG_PROMPT_LINE_COUNT) { index -> "$index 번째 줄 ${"가".repeat(LONG_PROMPT_LINE_LENGTH)}" }.joinToString(separator = "\n")
+        val promptList = mutableListOf<String>()
+        setDialog(
+            uiState = MemoGeminiUiState(step = MemoGeminiStep.PROMPT),
+            onEvent = { event -> if (event is MemoGeminiDialogEvent.ClickGenerate) promptList += event.prompt },
+        )
+
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(longPrompt)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_GENERATE_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        promptList shouldBe listOf(longPrompt)
+    }
+
+    @Test
     fun `TC-b1c391bd-de35-495f-8346-0a07ef6f7fe6 생성하는 동안 진행 표시와 취소를 보여 준다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.GENERATING))
 
@@ -170,18 +187,36 @@ class MemoGeminiDialogTest {
     }
 
     @Test
-    fun `TC-6c6f219a-1cbd-404d-8cbb-f0e6d438c90a 비어 있는 결과는 반영할 수 없다`() {
-        setDialog(
-            uiState =
-                MemoGeminiUiState(
-                    step = MemoGeminiStep.RESULT,
-                    draft = MemoDraft(title = "제목만 있는 결과", description = "", dateTime = null),
-                ),
-        )
+    fun `TC-6c6f219a-1cbd-404d-8cbb-f0e6d438c90a 비어 있는 결과는 반영할 수 없고 채워진 결과만 반영할 수 있다`() {
+        val dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 9, 21)..LocalDate(2026, 9, 22))
+        val uiState = mutableStateOf(MemoGeminiUiState(step = MemoGeminiStep.RESULT))
+        composeRule.setContent {
+            DiaryTheme {
+                MemoGeminiDialogHost(
+                    onEvent = {},
+                    onDismissRequest = {},
+                    uiStateProvider = { uiState.value },
+                )
+            }
+        }
 
-        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_TITLE_LABEL)).assert(hasClickAction())
-        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_DESCRIPTION_LABEL)).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_DATE_TIME_LABEL)).assertDoesNotExist()
+        listOf(
+            MemoDraft(title = "제목만 있는 결과", description = "", dateTime = null) to DEFAULT_TITLE_LABEL,
+            MemoDraft(title = "", description = "설명만 있는 결과", dateTime = null) to DEFAULT_DESCRIPTION_LABEL,
+            MemoDraft(title = "", description = "", dateTime = dateTime) to DEFAULT_DATE_TIME_LABEL,
+        ).forEach { (draft, filledLabel) ->
+            composeRule.runOnIdle { uiState.value = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = draft) }
+            composeRule.waitForIdle()
+            if (draft.description.isNotEmpty()) awaitText(draft.description)
+
+            listOf(DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_DATE_TIME_LABEL).forEach { label ->
+                if (label == filledLabel) {
+                    composeRule.onNodeWithContentDescription(applyDescription(label)).assert(hasClickAction())
+                } else {
+                    composeRule.onNodeWithContentDescription(applyDescription(label)).assertDoesNotExist()
+                }
+            }
+        }
     }
 
     @Test
@@ -430,6 +465,8 @@ class MemoGeminiDialogTest {
 
     private companion object {
         private const val WAIT_TIMEOUT_MILLIS = 5_000L
+        private const val LONG_PROMPT_LINE_COUNT = 50
+        private const val LONG_PROMPT_LINE_LENGTH = 40
         private const val DEFAULT_PROMPT_LABEL = "Prompt"
         private const val DEFAULT_GENERATE_ACTION = "Generate"
         private const val DEFAULT_CANCEL_ACTION = "Cancel"

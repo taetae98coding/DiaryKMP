@@ -37,6 +37,7 @@ class MusicDetailScreenFocusTest {
             }
         }
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
         composeRule.linkInput().performTextReplacement(NOT_YOUTUBE_LINK)
         composeRule.waitForIdle()
 
@@ -45,12 +46,13 @@ class MusicDetailScreenFocusTest {
 
         composeRule.linkInput().assertIsFocused()
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
-        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
         composeRule.linkInput().assert(hasText(NOT_YOUTUBE_LINK))
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
     }
 
     private companion object {
         private const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
+        private const val EDITING_ARTIST = "MusicDetailFocusEditingArtist"
     }
 }

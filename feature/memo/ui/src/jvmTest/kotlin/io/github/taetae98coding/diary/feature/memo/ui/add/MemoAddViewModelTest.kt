@@ -186,27 +186,33 @@ class MemoAddViewModelTest : FunSpec() {
 
         test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 TC-b26a374f-dbe3-4ad8-9e4f-b36db2d3d639 전달받은 태그 선택을 그대로 추가 요청에 담는다") {
             runTest(mainDispatcher) {
-                val detail = detail()
                 val primaryTagId = Arb.kotlinUuid().next()
                 val otherTagId = Arb.kotlinUuid().next()
-                val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
-                val viewModel = viewModel(addMemoUseCase = useCase)
-
-                viewModel.add(
-                    detail = detail,
-                    tagSelection = MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = primaryTagId),
-                )
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) {
-                    useCase(
-                        AddMemoUseCase.Parameter(
-                            detail = detail,
-                            primaryTagId = primaryTagId,
-                            tagIdSet = setOf(primaryTagId, otherTagId),
-                        ),
+                val selectionList =
+                    listOf(
+                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId), primaryTagId = primaryTagId),
+                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = otherTagId),
+                        MemoTagSelectionUiState(tagIdSet = setOf(otherTagId), primaryTagId = otherTagId),
                     )
+
+                selectionList.forEach { selection ->
+                    val detail = detail()
+                    val useCase = mockk<AddMemoUseCase>()
+                    coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
+                    val viewModel = viewModel(addMemoUseCase = useCase)
+
+                    viewModel.add(detail = detail, tagSelection = selection)
+                    advanceUntilIdle()
+
+                    coVerify(exactly = 1) {
+                        useCase(
+                            AddMemoUseCase.Parameter(
+                                detail = detail,
+                                primaryTagId = selection.primaryTagId,
+                                tagIdSet = selection.tagIdSet,
+                            ),
+                        )
+                    }
                 }
             }
         }

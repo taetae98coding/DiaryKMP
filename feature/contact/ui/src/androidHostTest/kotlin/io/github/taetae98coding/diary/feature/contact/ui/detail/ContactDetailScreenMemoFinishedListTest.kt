@@ -29,7 +29,7 @@ class ContactDetailScreenMemoFinishedListTest {
     }
 
     @Test
-    fun `TC-3895d588-3775-4e4c-ad4f-da5520095064 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
+    fun `TC-3895d588-3775-4e4c-ad4f-da5520095064 TC-9e01404b-fd4a-4c29-a173-785dc7b22d51 완료된 메모 확인을 선택하면 완료된 메모 목록 이동을 요청한다`() {
         var navigateCount = 0
         setScreenOnMemoTab(navigateToMemoFinishedList = { navigateCount += 1 })
 

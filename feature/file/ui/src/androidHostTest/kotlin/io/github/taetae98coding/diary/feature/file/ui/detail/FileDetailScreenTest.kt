@@ -413,7 +413,6 @@ class FileDetailScreenTest {
     @Test
     fun `TC-5db21cb6-38ef-4b0d-8165-9ac171b23038 뒤로가면 FileHome으로 돌아간다`() {
         val newTitle = Arb.nonBlankString().next()
-        val moreDescription = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
 
         setScreen(screen = screen)

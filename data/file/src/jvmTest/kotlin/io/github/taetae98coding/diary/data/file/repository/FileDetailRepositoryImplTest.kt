@@ -70,10 +70,15 @@ class FileDetailRepositoryImplTest :
 
             repository(fileRemoteDataSource = fileRemoteDataSource).updateDetail(id = id, detail = detail).title shouldBe remoteFile.title
 
-            val failingDataSource = mockk<FileRemoteDataSource>()
-            coEvery { failingDataSource.update(id = any(), name = any(), title = any(), description = any()) } throws FileNotFoundRemoteException()
-            shouldThrow<FileNotFoundRemoteException> { repository(fileRemoteDataSource = failingDataSource).updateDetail(id = id, detail = detail) }
-            coVerify(exactly = 1) { failingDataSource.update(id = any(), name = any(), title = any(), description = any()) }
+            listOf(FileNotFoundRemoteException(), IllegalStateException("bad request")).forEach { exception ->
+                val failingDataSource = mockk<FileRemoteDataSource>()
+                coEvery { failingDataSource.update(id = any(), name = any(), title = any(), description = any()) } throws exception
+                val updateHolder = FileUpdateHolder()
+
+                shouldThrow<Exception> { repository(fileRemoteDataSource = failingDataSource, fileUpdateHolder = updateHolder).updateDetail(id = id, detail = detail) }::class shouldBe exception::class
+                coVerify(exactly = 1) { failingDataSource.update(id = any(), name = any(), title = any(), description = any()) }
+                updateHolder.updated.test { awaitItem().shouldBeEmpty() }
+            }
         }
 
         test("TC-a0caa690-b9a5-4d42-b816-abe69de1e0a4 TC-7062b208-3784-4e82-b622-75fc8ac830db 고친 정보는 목록을 다시 요청하지 않고 같은 파일에만 덧씌워진다") {

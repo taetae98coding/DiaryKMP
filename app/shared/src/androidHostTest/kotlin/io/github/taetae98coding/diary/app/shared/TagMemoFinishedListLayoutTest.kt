@@ -17,10 +17,17 @@ import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -127,6 +134,43 @@ class TagMemoFinishedListLayoutTest {
         composeRule.onNodeWithText(LIST_CONTENT).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w1280dp-h1600dp")
+    fun `TC-39e0dc1d-5133-4206-a36a-953333ec7b58 넓은 창에서 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
+        val tagId = Arb.kotlinUuid().next()
+        val backStack = finishedListBackStack(tagId = tagId)
+        val openedKeyList: List<ScreenNavKey> =
+            listOf(
+                TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                WebDetailNavKey(id = Arb.kotlinUuid().next()),
+                WebAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactAddNavKey(requestKey = Arb.kotlinUuid().next()),
+                PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
+                PlaceAddNavKey(requestKey = Arb.kotlinUuid().next()),
+            )
+        setAppNavDisplay(backStack = backStack)
+        val selectedDetailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+        composeRule.runOnIdle { backStack.add(selectedDetailKey) }
+        composeRule.waitForIdle()
+
+        openedKeyList.forEach { openedKey ->
+            composeRule.runOnIdle { backStack.add(openedKey) }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(contentOf(openedKey)).assertIsDisplayed()
+            composeRule.onNodeWithText(LIST_CONTENT).assertDoesNotExist()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertDoesNotExist()
+
+            pressBack()
+
+            backStack.last() shouldBe selectedDetailKey
+            composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+        }
+    }
+
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
@@ -157,13 +201,12 @@ class TagMemoFinishedListLayoutTest {
         when (key) {
             is TagMemoFinishedListNavKey -> LIST_CONTENT
             is MemoDetailNavKey -> DETAIL_CONTENT
-            else -> OTHER_CONTENT
+            else -> key.screenName
         }
 
     private companion object {
         const val LIST_CONTENT = "TagMemoFinishedListContent"
         const val DETAIL_CONTENT = "MemoDetailContent"
-        const val OTHER_CONTENT = "OtherContent"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a memo"
     }
 }

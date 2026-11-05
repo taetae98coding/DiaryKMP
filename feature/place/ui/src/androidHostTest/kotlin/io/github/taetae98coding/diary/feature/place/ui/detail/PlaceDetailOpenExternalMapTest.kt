@@ -94,12 +94,18 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
         composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
         composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.changeColor()
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
         composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertIsDisplayed()
         composeRule.runOnIdle {
             verify(exactly = 0) { viewModel.update(any()) }

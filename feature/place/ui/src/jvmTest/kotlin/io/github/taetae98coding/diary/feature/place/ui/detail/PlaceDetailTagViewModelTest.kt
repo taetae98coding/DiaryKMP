@@ -171,6 +171,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
         }
         searchTests()
         restorationTests()
+        requestLimitTests()
     }
 
     private fun searchTests() {
@@ -254,6 +255,27 @@ class PlaceDetailTagViewModelTest : FunSpec() {
         }
     }
 
+    private fun requestLimitTests() {
+        test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addPlaceTagUseCase = mockk<AddPlaceTagUseCase>(relaxed = true)
+                val removePlaceTagUseCase = mockk<RemovePlaceTagUseCase>(relaxed = true)
+                val viewModel = viewModel(id = id, addPlaceTagUseCase = addPlaceTagUseCase, removePlaceTagUseCase = removePlaceTagUseCase)
+
+                viewModel.add(tagId = tagId)
+                viewModel.add(tagId = tagId)
+                viewModel.remove(tagId = tagId)
+                viewModel.remove(tagId = tagId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { removePlaceTagUseCase(parameter = RemovePlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
+            }
+        }
+    }
+
     private fun viewModel(
         id: Uuid,
         tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
@@ -274,25 +296,6 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             addPlaceTagUseCase = addPlaceTagUseCase,
             removePlaceTagUseCase = removePlaceTagUseCase,
         )
-
-        test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
-            runTest(mainDispatcher) {
-                val id = Arb.kotlinUuid().next()
-                val tagId = Arb.kotlinUuid().next()
-                val addPlaceTagUseCase = mockk<AddPlaceTagUseCase>(relaxed = true)
-                val removePlaceTagUseCase = mockk<RemovePlaceTagUseCase>(relaxed = true)
-                val viewModel = viewModel(id = id, addPlaceTagUseCase = addPlaceTagUseCase, removePlaceTagUseCase = removePlaceTagUseCase)
-
-                viewModel.add(tagId = tagId)
-                viewModel.add(tagId = tagId)
-                viewModel.remove(tagId = tagId)
-                viewModel.remove(tagId = tagId)
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) { addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
-                coVerify(exactly = 1) { removePlaceTagUseCase(parameter = RemovePlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
-            }
-        }
     }
 
     public companion object {

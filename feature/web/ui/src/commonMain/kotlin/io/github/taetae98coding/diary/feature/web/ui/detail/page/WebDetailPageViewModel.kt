@@ -53,6 +53,11 @@ internal class WebDetailPageViewModel(
 
     fun retry() {
         // 다시 시도는 실패 안내에서만 제공하므로 불러오는 동안 전달된 요청은 처리하지 않는다.
+        reloadIfFailed()
+    }
+
+    fun reloadIfFailed() {
+        // 불러오기에 실패해 받은 응답 본문이 없는 상태에서만 다시 불러온다.
         if (uiState.value != WebDetailPageUiState.Failure) return
 
         uiState.value = WebDetailPageUiState.Loading

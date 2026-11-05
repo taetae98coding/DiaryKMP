@@ -95,7 +95,7 @@ class ProfileDeleteViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-364abafa-b866-4902-b128-c8a3799b563f Apple 로그인 흐름이 오류 없이 끝나면 오류 보고를 남기지 않는다") {
+        test("TC-364abafa-b866-4902-b128-c8a3799b563f Apple 재인증을 취소하면 오류 보고를 남기지 않는다") {
             runTest(mainDispatcher) {
                 val reportList = recordCrashlyticsLog()
                 val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true))
@@ -107,6 +107,101 @@ class ProfileDeleteViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 reportList.shouldBeEmpty()
+            }
+        }
+
+        test("TC-364abafa-b866-4902-b128-c8a3799b563f TC-30f87464-4507-40d0-aafe-b02ec5314b62 오류 없이 인가 코드 없이 끝나면 실패를 알리되 오류 보고는 남기지 않는다") {
+            runTest(mainDispatcher) {
+                val reportList = recordCrashlyticsLog()
+                val deleteAccountUseCase = deleteAccountUseCase()
+                val viewModel = viewModel(checkUseCase = checkUseCase(isRequired = true), deleteAccountUseCase = deleteAccountUseCase)
+
+                viewModel.effect.test {
+                    viewModel.showConfirm()
+                    viewModel.confirmDelete()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe ProfileDeleteEffect.RequestAppleAuthorization
+
+                    viewModel.failAppleAuthorizationWithoutCode()
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe ProfileDeleteEffect.DeleteFailed
+                }
+
+                reportList.shouldBeEmpty()
+                viewModel.uiState.value shouldBe ProfileDeleteUiState()
+                coVerify(exactly = 0) { deleteAccountUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-9c107475-8706-4131-a031-06dd7fd577b4 Apple 재인증 중 앱이 다시 시작되면 다이얼로그를 닫은 탈퇴 대기로 시작한다") {
+            runTest(mainDispatcher) {
+                val savedStateHandle = SavedStateHandle()
+                val viewModel = viewModel(savedStateHandle = savedStateHandle, checkUseCase = checkUseCase(isRequired = true))
+
+                viewModel.showConfirm()
+                viewModel.confirmDelete()
+                advanceUntilIdle()
+
+                val deleteAccountUseCase = deleteAccountUseCase()
+                val restarted = viewModel(savedStateHandle = savedStateHandle, deleteAccountUseCase = deleteAccountUseCase)
+
+                restarted.effect.test {
+                    advanceUntilIdle()
+
+                    restarted.uiState.value shouldBe ProfileDeleteUiState()
+                    expectNoEvents()
+
+                    restarted.showConfirm()
+                    restarted.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true)
+                }
+                coVerify(exactly = 0) { deleteAccountUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-5b7e2c94-3d1a-4f68-9a0e-7c4d81b6e253 재인증 필요 여부를 판단하는 중 앱이 다시 시작되면 다이얼로그가 열린 채 복원되고 처리는 이어지지 않는다") {
+            runTest(mainDispatcher) {
+                val savedStateHandle = SavedStateHandle()
+                val checkUseCase = mockk<CheckAppleReauthenticationRequiredUseCase>()
+                coEvery { checkUseCase(parameter = Unit) } coAnswers { CompletableDeferred<Result<Boolean>>().await() }
+                val deleteAccountUseCase = deleteAccountUseCase()
+                val viewModel = viewModel(savedStateHandle = savedStateHandle, checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
+
+                viewModel.showConfirm()
+                viewModel.confirmDelete()
+                advanceUntilIdle()
+
+                val restarted = viewModel(savedStateHandle = savedStateHandle, checkUseCase = checkUseCase, deleteAccountUseCase = deleteAccountUseCase)
+                restarted.effect.test {
+                    advanceUntilIdle()
+
+                    restarted.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = false)
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { checkUseCase(parameter = Unit) }
+                coVerify(exactly = 0) { deleteAccountUseCase(parameter = any()) }
+
+                restarted.dismissConfirm()
+                viewModel(savedStateHandle = savedStateHandle).uiState.value shouldBe ProfileDeleteUiState()
+            }
+        }
+
+        test("TC-6f5044df-99bd-4c87-ae5d-32cac969d642 탈퇴 처리 중 앱이 다시 시작되면 다이얼로그가 열린 채 복원되고 처리는 이어지지 않는다") {
+            runTest(mainDispatcher) {
+                val savedStateHandle = SavedStateHandle()
+                val deleteAccountUseCase = mockk<DeleteAccountUseCase>()
+                coEvery { deleteAccountUseCase(parameter = any()) } coAnswers { CompletableDeferred<Result<Unit>>().await() }
+                val viewModel = viewModel(savedStateHandle = savedStateHandle, deleteAccountUseCase = deleteAccountUseCase)
+
+                viewModel.showConfirm()
+                viewModel.confirmDelete()
+                advanceUntilIdle()
+
+                val restarted = viewModel(savedStateHandle = savedStateHandle, deleteAccountUseCase = deleteAccountUseCase)
+                advanceUntilIdle()
+
+                restarted.uiState.value shouldBe ProfileDeleteUiState(isConfirmVisible = true, isInProgress = false)
+                coVerify(exactly = 1) { deleteAccountUseCase(parameter = any()) }
             }
         }
 

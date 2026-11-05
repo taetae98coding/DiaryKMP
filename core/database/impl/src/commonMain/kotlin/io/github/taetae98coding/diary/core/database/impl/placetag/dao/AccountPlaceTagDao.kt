@@ -31,6 +31,8 @@ internal interface AccountPlaceTagDao : RoomDao<AccountPlaceTagLocalEntity> {
                 AND account_place_tag.account_id = :accountId
         INNER JOIN place
             ON place.id = place_tag.place_id
+        INNER JOIN account_place
+            ON account_place.place_id = place.id AND account_place.account_id = :accountId
         WHERE tag.is_deleted = 0
         ORDER BY tag.title ASC
         """,
@@ -56,6 +58,8 @@ internal interface AccountPlaceTagDao : RoomDao<AccountPlaceTagLocalEntity> {
                         ON account_place_tag.place_id = place_tag.place_id
                             AND account_place_tag.tag_id = place_tag.tag_id
                             AND account_place_tag.account_id = :accountId
+                    INNER JOIN account_place
+                        ON account_place.place_id = place_tag.place_id AND account_place.account_id = :accountId
                     WHERE place_tag.tag_id = tag.id
                         AND place_tag.place_id = :placeId
                         AND place_tag.is_deleted = 0

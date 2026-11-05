@@ -78,7 +78,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository(account = account, stored = stored), requestSyncUseCase = requestSyncUseCase)
 
             When("QR을 수정한다") {
-                Then("TC-9f38037d-9012-41e2-a0d8-2e520c4c214c 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-9f38037d-9012-41e2-a0d8-2e520c4c214c 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = Arb.qrDetail().next())).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

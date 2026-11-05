@@ -149,6 +149,19 @@ class CalendarHomeScreenWeatherTest {
                 .x
         (abs(iconGroupCenter - iconAreaCenter) <= CENTER_ALIGNMENT_TOLERANCE_PX) shouldBe true
         composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+        val iconBottom =
+            composeRule
+                .onNodeWithContentDescription(SUNNY_DESCRIPTION, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .bottom
+        val temperatureTop =
+            composeRule
+                .onNodeWithText(CURRENT_TEMPERATURE_TEXT, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (iconBottom <= temperatureTop) shouldBe true
     }
 
     @Test

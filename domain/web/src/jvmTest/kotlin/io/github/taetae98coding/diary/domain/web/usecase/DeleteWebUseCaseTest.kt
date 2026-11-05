@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
@@ -24,13 +25,12 @@ import io.mockk.slot
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Clock
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 class DeleteWebUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 웹 항목이 준비되어 있다") {
             val account = Arb.accountUser().next()
-            val id = Uuid.random()
+            val id = Arb.kotlinUuid().next()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -72,9 +72,37 @@ class DeleteWebUseCaseTest :
             }
         }
 
+        Given("기기 저장은 성공하고 서버 반영 요청은 실패하도록 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val id = Arb.kotlinUuid().next()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val accountWebRepository = mockk<AccountWebRepository>()
+            coEvery {
+                accountWebRepository.updateDeleted(account = account, webId = id, isDeleted = any(), updatedAt = any())
+            } returns 1
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+            val useCase =
+                DeleteWebUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountWebRepository = accountWebRepository,
+                    clock = Clock.System,
+                )
+
+            When("웹 항목을 삭제한다") {
+                Then("TC-c6828a34-6fdc-4319-b79c-5a9a022b2ea7 서버 반영 실패와 관계없이 기기에 저장한 결과로 성공을 전달한다") {
+                    useCase(parameter = id).shouldBeSuccess(1)
+
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
+
         Given("게스트 계정이 준비되어 있다") {
             val account = Arb.constant(Account.Guest).next()
-            val id = Uuid.random()
+            val id = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
@@ -115,7 +143,7 @@ class DeleteWebUseCaseTest :
 
             When("웹 항목을 삭제한다") {
                 Then("계정 조회 실패를 전달하고 삭제를 저장하지 않는다") {
-                    useCase(parameter = Uuid.random())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -146,7 +174,7 @@ class DeleteWebUseCaseTest :
 
             When("웹 항목을 삭제한다") {
                 Then("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
-                    useCase(parameter = Uuid.random())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 

@@ -147,7 +147,7 @@ class WebDetailScreenRestoreTest {
     }
 
     @Test
-    fun `TC-2c7098bf-a237-42c5-bcbb-eb55788d7132 응답을 받지 못하면 응답 본문 방식은 불러오기 실패 안내를 보여 준다`() {
+    fun `TC-2c7098bf-a237-42c5-bcbb-eb55788d7132 응답을 받지 못하면 응답 본문 방식은 불러오기 실패 안내를 보여 주고 다시 바꿨을 때 다시 요청한다`() {
         val detail = testWebDetail()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
@@ -161,6 +161,7 @@ class WebDetailScreenRestoreTest {
 
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
         composeRule.onNodeWithText(PAGE_FAILURE_TITLE).assertExists()
+        coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
     }
 
     @Test

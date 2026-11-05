@@ -121,6 +121,7 @@ class MemoContactInputTest {
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performClick()
 
         addClickCount shouldBe 0
+        composeRule.onNodeWithText(FIRST_CONTACT_NAME).assertExists()
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
     }
 

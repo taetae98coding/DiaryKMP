@@ -349,6 +349,23 @@ class FileListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-12078c1d-5652-4eb6-b4f9-bedc705c8cbc 상세 영역의 FileDetail에서 저장하지 않은 입력은 벗어났다 다시 열면 남지 않는다`() {
+        val file = testFile()
+        val typed = typedTitle()
+        setFileNavDisplay(fileList = listOf(file))
+        openDetail(file = file)
+        titleInput().performTextInput(typed)
+        composeRule.waitForIdle()
+        titleInput().assert(hasText(typed, substring = true))
+
+        pressBack()
+        openDetail(file = file)
+
+        titleInput().assert(hasText(file.title))
+        composeRule.onNodeWithText(typed, substring = true).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-28f6f7bf-80cc-467a-8f3a-b5a40ddda245 목록에서 연 FileAdd를 뒤로가기로 닫아도 선택 전 FileAdd의 작성 내용이 남는다`() {
         val file = testFile()
         val input = fillPlaceholderWithFile(fileList = listOf(file))

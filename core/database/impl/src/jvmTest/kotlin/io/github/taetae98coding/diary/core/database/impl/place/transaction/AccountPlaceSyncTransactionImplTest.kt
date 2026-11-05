@@ -100,7 +100,16 @@ class AccountPlaceSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingPlace, secondPendingPlace)
         }
 
-        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
+        test("TC-290f5f48-48fa-40f0-ae35-16679be6895d 장소를 추가하면 그 계정의 업로드 대기 장소로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place()
+
+            accountTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(place)
+        }
+
+        test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val guestEntity = place()
             val accountEntity = place()

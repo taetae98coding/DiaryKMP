@@ -237,7 +237,5 @@ class MoreHomeScaffoldTest {
                 "Playlist",
                 "Golden Holiday",
             )
-
-        private fun userAccountUiState(): MoreHomeAccountUiState = MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)
     }
 }

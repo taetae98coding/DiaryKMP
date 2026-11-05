@@ -250,6 +250,27 @@ class TagNavigationTest :
             backStack.tagDetailContentKey(detailKey) shouldBe detailContentKey
         }
 
+        test("TC-2d22d65a-8688-441a-8fc0-0f9c82f3ae15 목록에서 연 태그 추가가 놓인 동안 다른 태그를 고르면 추가를 걷어내고 그 상세로 바꾼다") {
+            val selectedId = Arb.kotlinUuid().next()
+            val addOpenedFromListCases =
+                listOf(
+                    listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagAddNavKey()),
+                    listOf(TagAddNavKey()),
+                )
+
+            addOpenedFromListCases.forEach { detailKeyList ->
+                val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, *detailKeyList.toTypedArray())
+
+                backStack.navigateToTagDetail(selectedId)
+
+                backStack shouldContainExactly listOf(TagHomeNavKey, TagDetailNavKey(id = selectedId))
+
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(TagHomeNavKey)
+            }
+        }
+
         test("목록에서 고른 상세는 대상이 바뀌어도 같은 화면으로 이어지고, 다른 경로로 연 상세는 대상마다 따로 둔다") {
             val firstKey = TagDetailNavKey(id = Uuid.random())
             val secondKey = TagDetailNavKey(id = Uuid.random())

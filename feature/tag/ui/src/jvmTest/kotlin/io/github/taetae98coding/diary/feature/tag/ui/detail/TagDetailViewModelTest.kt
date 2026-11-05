@@ -586,6 +586,64 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 완료에 실패하면 Effect 없이 진행 상태만 해제하고 다시 완료할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val finishTagUseCase = mockk<FinishTagUseCase>()
+                coEvery { finishTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, finishTagUseCase = finishTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.finish()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.finish()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isFinishInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { finishTagUseCase(parameter = tag.id) }
+            }
+        }
+
+        test("TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 다시 시작에 실패하면 Effect 없이 진행 상태만 해제하고 다시 시작할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val restartTagUseCase = mockk<RestartTagUseCase>()
+                coEvery { restartTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, restartTagUseCase = restartTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.restart()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.restart()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isFinishInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { restartTagUseCase(parameter = tag.id) }
+            }
+        }
+
         test("TC-26fe06e0-1644-4d0b-9787-27d69f252e70 TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 삭제에 성공하면 현재 태그의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
@@ -609,18 +667,32 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-dc0fdee9-0949-4538-9fc5-fd078d6e377d 삭제 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
                 coEvery { deleteTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
-                val viewModel = viewModel(deleteTagUseCase = deleteTagUseCase)
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, deleteTagUseCase = deleteTagUseCase)
 
-                viewModel.effect.test {
-                    viewModel.delete()
-                    advanceUntilIdle()
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.delete()
+                        advanceUntilIdle()
 
-                    expectNoEvents()
+                        expectNoEvents()
+
+                        viewModel.delete()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isDeleteInProgress shouldBe false
                 }
+
+                coVerify(exactly = 2) { deleteTagUseCase(parameter = tag.id) }
             }
         }
 

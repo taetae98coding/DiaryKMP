@@ -15,8 +15,6 @@ internal class QrFieldInputTransformation(
 ) : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
         val format = field.format
-        if (format == QrFormat.LOCATION) return
-
         val edited = asCharSequence().toString()
         val value =
             if (format == QrFormat.TEXT) {

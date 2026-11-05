@@ -64,7 +64,7 @@ class MemoGeminiApplyTest {
     }
 
     @Test
-    fun `TC-00c52202-7a2d-42a6-ac16-978553caad1c 기간을 반영하면 기간을 사용하는 상태가 된다`() {
+    fun `TC-765ebb0c-9c5c-40c2-8688-08385b765be1 TC-00c52202-7a2d-42a6-ac16-978553caad1c 기간을 반영하면 기간 입력만 바뀌고 기간을 사용하는 상태가 된다`() {
         val state = createFilledFormState()
         val viewModel = createViewModel()
 

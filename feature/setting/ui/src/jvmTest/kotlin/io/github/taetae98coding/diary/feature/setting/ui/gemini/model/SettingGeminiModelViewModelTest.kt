@@ -8,9 +8,11 @@ import io.github.taetae98coding.diary.core.testing.gemini.geminiModel
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.usecase.FetchGeminiModelUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.take
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -26,14 +28,14 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-private const val API_KEY = "testApiKey"
-
 class SettingGeminiModelViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
+    private lateinit var apiKey: String
 
     init {
         beforeTest {
             mainDispatcher = StandardTestDispatcher()
+            apiKey = Arb.nonBlankString().next()
             Dispatchers.setMain(mainDispatcher)
         }
 
@@ -57,9 +59,9 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val modelList = Arb.geminiModel().take(2).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(modelList)
+                coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.success(modelList)
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
                 val loaded = viewModel.uiState.value
 
@@ -84,11 +86,11 @@ class SettingGeminiModelViewModelTest : FunSpec() {
                 coEvery { fetchGeminiModelUseCase(any()) } returns Result.success(emptyList())
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = "editingApiKey")
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchGeminiModelUseCase("editingApiKey") }
-                coVerify(exactly = 0) { fetchGeminiModelUseCase(neq("editingApiKey")) }
+                coVerify(exactly = 1) { fetchGeminiModelUseCase(apiKey) }
+                coVerify(exactly = 0) { fetchGeminiModelUseCase(neq(apiKey)) }
             }
         }
 
@@ -96,13 +98,13 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } coAnswers { completion.await() }
+                coEvery { fetchGeminiModelUseCase(apiKey) } coAnswers { completion.await() }
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiModelUiState()
 
-                    viewModel.fetch(apiKey = API_KEY)
+                    viewModel.fetch(apiKey = apiKey)
                     advanceUntilIdle()
 
                     awaitItem().isInProgress shouldBe true
@@ -119,18 +121,18 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } coAnswers { completion.await() }
+                coEvery { fetchGeminiModelUseCase(apiKey) } coAnswers { completion.await() }
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
                 completion.complete(Result.success(emptyList()))
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchGeminiModelUseCase(API_KEY) }
+                coVerify(exactly = 1) { fetchGeminiModelUseCase(apiKey) }
             }
         }
 
@@ -138,10 +140,10 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val modelList = Arb.geminiModel().take(3).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(modelList)
+                coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.success(modelList)
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -154,10 +156,10 @@ class SettingGeminiModelViewModelTest : FunSpec() {
         test("TC-94a954b5-65a0-4eb1-ab10-090f97cc5707 고를 수 있는 모델이 없으면 빈 목록을 받은 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(emptyList())
+                coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.success(emptyList())
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -177,10 +179,10 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             failureCases.forEach { (throwable, expected) ->
                 runTest(mainDispatcher) {
                     val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                    coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.failure(throwable)
+                    coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.failure(throwable)
                     val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                    viewModel.fetch(apiKey = API_KEY)
+                    viewModel.fetch(apiKey = apiKey)
                     advanceUntilIdle()
 
                     val uiState = viewModel.uiState.value
@@ -194,55 +196,56 @@ class SettingGeminiModelViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val modelList = Arb.geminiModel().take(2).toList()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returnsMany
+                coEvery { fetchGeminiModelUseCase(apiKey) } returnsMany
                     listOf(
                         Result.failure(IllegalStateException("server error")),
                         Result.success(modelList),
                     )
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
                 viewModel.uiState.value.failure shouldBe SettingGeminiModelFailure.UNKNOWN
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
                 viewModel.uiState.value shouldBe SettingGeminiModelUiState(isLoaded = true, modelList = modelList)
-                coVerify(exactly = 2) { fetchGeminiModelUseCase(API_KEY) }
+                coVerify(exactly = 2) { fetchGeminiModelUseCase(apiKey) }
             }
         }
 
         test("TC-76e81baa-7ac9-4634-ae90-2ae09f99dc1d 다시 조회하면 직전 목록 대신 진행 상태를 제공한다") {
             runTest(mainDispatcher) {
+                val nextApiKey = apiKey + Arb.nonBlankString().next()
                 val completion = CompletableDeferred<Result<List<GeminiModel>>>()
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(Arb.geminiModel().take(2).toList())
-                coEvery { fetchGeminiModelUseCase("nextApiKey") } coAnswers { completion.await() }
+                coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.success(Arb.geminiModel().take(2).toList())
+                coEvery { fetchGeminiModelUseCase(nextApiKey) } coAnswers { completion.await() }
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
-                viewModel.fetch(apiKey = "nextApiKey")
+                viewModel.fetch(apiKey = nextApiKey)
                 advanceUntilIdle()
 
                 viewModel.uiState.value shouldBe SettingGeminiModelUiState(isInProgress = true)
-                coVerify(exactly = 1) { fetchGeminiModelUseCase("nextApiKey") }
+                coVerify(exactly = 1) { fetchGeminiModelUseCase(nextApiKey) }
             }
         }
 
         test("조회가 끝나면 다시 조회할 수 있다") {
             runTest(mainDispatcher) {
                 val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
-                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(emptyList())
+                coEvery { fetchGeminiModelUseCase(apiKey) } returns Result.success(emptyList())
                 val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
 
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
-                viewModel.fetch(apiKey = API_KEY)
+                viewModel.fetch(apiKey = apiKey)
                 advanceUntilIdle()
 
-                coVerify(exactly = 2) { fetchGeminiModelUseCase(API_KEY) }
+                coVerify(exactly = 2) { fetchGeminiModelUseCase(apiKey) }
             }
         }
     }

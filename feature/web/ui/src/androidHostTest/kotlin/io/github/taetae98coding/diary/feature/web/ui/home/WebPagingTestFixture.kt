@@ -6,13 +6,13 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 internal fun webPagingDataOf(webList: List<Web>): PagingData<Web> =
     PagingData.from(
@@ -63,7 +63,7 @@ internal fun testWeb(
             )
 
     return Web(
-        id = Uuid.random(),
+        id = Arb.kotlinUuid().next(),
         detail = detail,
         isDeleted = false,
         updatedAt = Arb.secondPrecisionInstant().next(),

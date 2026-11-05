@@ -123,6 +123,20 @@ class HolidayHomeScreenSelectTest {
     }
 
     @Test
+    fun `TC-0d9d646d-950b-4c72-af0e-6b39da95d751 기준 달이 아닌 이웃 달 날짜도 실제 날짜 그대로 선택된다`() {
+        val navigatedDateRangeList = mutableListOf<LocalDateRange>()
+        setHolidayHomeScreen(
+            getGoldenHolidayUseCase = neighborMonthGetGoldenHolidayUseCase(),
+            navigateToMemoAdd = { navigatedDateRangeList += it },
+        )
+
+        composeRule.performLongPress(composeRule.dayCenter(day = NEIGHBOR_MONTH_DAY))
+        composeRule.performUp()
+
+        navigatedDateRangeList shouldBe listOf(newYearDate(day = NEIGHBOR_MONTH_DAY)..newYearDate(day = NEIGHBOR_MONTH_DAY))
+    }
+
+    @Test
     fun `TC-ccdec557-0228-4424-8a30-dcf5ef49dc64 항목이 표시하는 주 밖으로 드래그해도 선택은 그 주 범위를 넘지 않는다`() {
         val navigatedDateRangeList = mutableListOf<LocalDateRange>()
         setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
@@ -256,6 +270,35 @@ class HolidayHomeScreenSelectTest {
                 ),
         )
 
+    // 2026년 1월 2일 금요일 공휴일로 1월 2일부터 4일까지가 연휴이며, 첫 주는 12월 28일부터 1월 3일까지라 기준 달이 12월이다.
+    private fun neighborMonthGetGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
+        mockk<GetGoldenHolidayUseCase>().also { useCase ->
+            every { useCase(parameter = any()) } answers {
+                val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
+                val groupList =
+                    if (parameter.year == YEAR) {
+                        listOf(
+                            goldenHolidayGroup(
+                                optionList =
+                                    listOf(
+                                        goldenHoliday(
+                                            holidayList = listOf(holiday(name = HOLIDAY_NAME, start = newYearDate(day = NEIGHBOR_MONTH_DAY))),
+                                            start = newYearDate(day = NEIGHBOR_MONTH_DAY),
+                                            endInclusive = newYearDate(day = 4),
+                                        ),
+                                    ),
+                            ),
+                        )
+                    } else {
+                        emptyList()
+                    }
+
+                flowOf(Result.success(groupList))
+            }
+        }
+
+    private fun newYearDate(day: Int): LocalDate = LocalDate(year = YEAR, month = 1, day = day)
+
     // 연휴 항목마다 다른 달의 같은 날짜를 공휴일로 두어, 목록이 한 화면을 넘도록 만든다.
     private fun manyGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
         mockk<GetGoldenHolidayUseCase>().also { useCase ->
@@ -296,5 +339,6 @@ class HolidayHomeScreenSelectTest {
         private const val HOLIDAY_NAME = "공휴일"
         private const val MANY_GROUP_COUNT = 12
         private const val MANY_HOLIDAY_DAY = 6
+        private const val NEIGHBOR_MONTH_DAY = 2
     }
 }

@@ -87,7 +87,7 @@ class AccountQrTransactionImplTest :
             database.findQrList() shouldBe listOf(savedQr, addedQr).sortedBy { qr -> qr.id.toString() }
         }
 
-        test("TC-81e69471-1461-4beb-8334-f63d899b6f58 TC-9f59d662-8251-4eb6-85e1-8fd2875148cf TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제는 그 QR의 삭제 여부와 수정 시각만 바꾸고 QR과 계정 연결을 남기며 업로드 대기로 기록한다") {
+        test("TC-81e69471-1461-4beb-8334-f63d899b6f58 TC-9f59d662-8251-4eb6-85e1-8fd2875148cf TC-9f38037d-9012-41e2-a0d8-2e520c4c214c TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제는 그 QR의 삭제 여부와 수정 시각만 바꾸고 QR과 계정 연결을 남기며 업로드 대기로 기록한다") {
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
             val otherQr = Arb.localQr(isDeleted = false).next()

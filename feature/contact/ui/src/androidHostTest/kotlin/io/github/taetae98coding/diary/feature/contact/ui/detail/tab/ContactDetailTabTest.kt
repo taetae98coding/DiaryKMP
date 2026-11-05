@@ -3,9 +3,11 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail.tab
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -109,7 +111,9 @@ class ContactDetailTabTest {
         setScaffold(uiState = ContactDetailUiState.Loading)
 
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).assertDoesNotExist()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assert(hasClickAction())
         composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
@@ -250,6 +254,20 @@ class ContactDetailTabTest {
     }
 
     @Test
+    fun `TC-060e1fa9-ccf1-4bd7-91ef-7e3c0fd44684 즐겨찾기를 바꿔도 선택한 탭이 유지된다`() {
+        val uiState = MutableStateFlow<ContactDetailUiState>(content())
+        composeRule.setContactDetailScreen(viewModel = screenTestViewModel(uiState = uiState))
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FAVORITE_DESCRIPTION).performClick()
+        uiState.value = content().copy(isFavorite = true)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UNFAVORITE_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
     fun `TC-f6c4655c-6b0f-45dd-8ad1-484b911c005f 삭제 상태인 연락처에서도 두 탭을 모두 사용할 수 있다`() {
         // 삭제 상태인 연락처도 조회 결과로 표시되므로 내용 표시 상태로 관찰된다.
         setScaffold()
@@ -288,6 +306,7 @@ class ContactDetailTabTest {
         const val MEMO_TITLE = "ContactDetailTabMemo"
         const val PAGE_TIMEOUT_MILLIS = 5_000L
         const val DEFAULT_FAVORITE_DESCRIPTION = "Add to favorites"
+        const val DEFAULT_UNFAVORITE_DESCRIPTION = "Remove from favorites"
         const val DEFAULT_DELETE_DESCRIPTION = "Delete contact"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
 

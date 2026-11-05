@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.add
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
@@ -95,12 +96,41 @@ class TagAddScreenLinkTest {
     fun `TC-47150a56-3dac-484c-87ac-c33819a906d2 목록을 닫아도 반영된 연결이 유지된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setTagAddScreen(tagList = tagList)
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.awaitTagLinkPickerRows()
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
 
-        linkWorkTag()
+        composeRule.closeDialogByBack()
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-4f965bdf-1318-4c82-a739-56230839477e 목록에서 연결된 태그를 누르면 그 태그만 해제 상태로 표시되고 연결 입력에서 빠진다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        setTagAddScreen(tagList = tagList)
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.awaitTagLinkPickerRows()
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isToggleable() and hasAnyAncestor(isDialog()) and hasText(WORK_TAG_TITLE)).assertIsOff()
+        composeRule.onNode(isToggleable() and hasAnyAncestor(isDialog()) and hasText(EXERCISE_TAG_TITLE)).assertIsOn()
+        composeRule.closeDialogByBack()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
     }
 
     @Test

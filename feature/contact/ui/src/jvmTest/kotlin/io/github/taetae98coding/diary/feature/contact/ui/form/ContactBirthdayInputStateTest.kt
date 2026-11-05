@@ -93,7 +93,7 @@ class ContactBirthdayInputStateTest :
             state.birthYear.shouldBeNull()
         }
 
-        test("생일 없이 입력한 태어난 연도는 그 수로 읽는다") {
+        test("TC-c074e07c-8da6-4786-ad83-580d513d87eb 생일 없이 입력한 태어난 연도는 그 수로 읽는다") {
             listOf("0990" to 990, "2999" to 2999, "" to null).forEach { (typed, expected) ->
                 val state = ContactBirthdayInputState(birthday = null, birthYearState = TextFieldState(initialText = typed))
 

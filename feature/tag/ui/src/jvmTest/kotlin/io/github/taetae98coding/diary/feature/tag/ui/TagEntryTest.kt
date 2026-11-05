@@ -51,6 +51,21 @@ class TagEntryTest :
             }
         }
 
+        test("TC-374b3a7b-b08e-4076-80f2-eda7bbf7488c 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+            val addKey = TagAddNavKey()
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagHomeFilterNavKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, addKey, TagHomeFilterNavKey) to addKey,
+                )
+
+            backStackCases.forEach { (backStack, key) ->
+                metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+                metadataOf(backStack = backStack, key = TagHomeFilterNavKey).keys shouldBe bottomSheetMetadataKeys
+            }
+        }
+
         test("TC-afcd267d-f71b-459e-8228-5aa322d3c037 태그 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val detailKey = TagDetailNavKey(id = Uuid.random())
             val backStackCases =

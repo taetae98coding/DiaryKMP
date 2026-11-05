@@ -563,6 +563,69 @@ class AccountTagMemoPagingDaoTest :
                 )
             }
         }
+
+        listOf(
+            "완료 실행 취소" to true,
+            "삭제 실행 취소" to false,
+        ).forEach { (label, isFinishUndo) ->
+            test("TC-74efe09e-2852-412c-abaa-cd2b552bf626 메모 $label 는 페이지를 무효화하고 메모를 정렬 위치에 다시 포함한다") {
+                val accountId = Arb.kotlinUuid().next()
+                val targetTag = tag()
+                val undoMemo =
+                    memo(
+                        isFinished = isFinishUndo,
+                        isDeleted = !isFinishUndo,
+                        detail =
+                            detail(
+                                isAllDay = true,
+                                start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                                endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            ),
+                    )
+                val anchorMemo =
+                    memo(
+                        detail =
+                            detail(
+                                isAllDay = true,
+                                start = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
+                                endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
+                            ),
+                    )
+                insertTagMemo(accountId, targetTag, undoMemo)
+                insertTagMemo(accountId, targetTag, anchorMemo)
+                val pagingSource =
+                    database.accountTagMemoDao().page(
+                        accountId = accountId,
+                        tagId = targetTag.id,
+                        scope = TagScopeLocalEntity.SELF.queryValue,
+                        sort = ListSortLocalEntity.DEFAULT.queryValue,
+                    )
+                pagingSource.pagedIds() shouldBe listOf(anchorMemo.id)
+
+                assertTagPageInvalidated(
+                    pagingSource = pagingSource,
+                    accountId = accountId,
+                    tagId = targetTag.id,
+                    expectedIds = listOf(undoMemo.id, anchorMemo.id),
+                ) {
+                    if (isFinishUndo) {
+                        database.accountMemoDao().updateFinished(
+                            accountId = accountId,
+                            memoId = undoMemo.id,
+                            isFinished = false,
+                            updatedAt = instant(),
+                        )
+                    } else {
+                        database.accountMemoDao().updateDeleted(
+                            accountId = accountId,
+                            memoId = undoMemo.id,
+                            isDeleted = false,
+                            updatedAt = instant(),
+                        )
+                    }
+                }
+            }
+        }
     }) {
     public companion object {
         private fun memo(

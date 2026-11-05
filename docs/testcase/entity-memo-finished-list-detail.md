@@ -10,7 +10,7 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-5f1f1653-fb84-43b8-a141-9c607a7509cb: 목록과 상세를 함께 쓰는 환경에서는 두 영역을 함께 표시한다
 
-- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
+- 근거: [목록·상세 배치 공통 스펙의 함께 사용과 단독 사용](../spec/client/list-detail-pane.md#함께-사용과-단독-사용), `domain > 배치에 참여하는 화면`
 - Given: 목록과 상세를 함께 사용할 수 있는 환경이다.
 - When: 사용자가 상세 화면의 메모 탭에서 완료된 메모 확인을 선택한다.
 - Then: 대상 항목의 완료된 메모 목록을 목록·상세 배치의 목록 영역에 표시해 상세 영역과 함께 쓸 수 있다.
@@ -30,14 +30,14 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-a1f401a9-7510-4695-9b53-528000c3ef8f: 메모를 선택하면 상세 영역에 그 메모의 상세 화면이 표시된다
 
-- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
+- 근거: [목록·상세 배치 공통 스펙의 상세 선택과 교체](../spec/client/list-detail-pane.md#상세-선택과-교체)
 - Given: 목록과 상세를 함께 사용하고 있고 메모 목록에 메모가 있다.
 - When: 사용자가 목록에서 메모 하나를 선택한다.
 - Then: 메모 목록은 유지되고 상세 영역에 선택한 메모의 상세 화면이 표시된다.
 
 ### TC-3f4ed8d9-89a8-4af4-8fd3-b085c6961e97: 다른 메모를 선택하면 현재 상세를 교체한다
 
-- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
+- 근거: [목록·상세 배치 공통 스펙의 상세 선택과 교체](../spec/client/list-detail-pane.md#상세-선택과-교체)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 어떤 메모의 상세 화면이 표시되어 있다.
 - When: 사용자가 목록에서 다른 메모를 선택한다.
 - Then: 이전 상세를 쌓아 두지 않고 상세 영역이 새로 선택한 메모의 상세 화면으로 교체된다.
@@ -51,7 +51,7 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-680cb3a0-7cc4-4442-86a2-2a973905728d: 한 영역만 쓰는 환경에서는 현재 영역만 표시한다
 
-- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
+- 근거: [목록·상세 배치 공통 스펙의 함께 사용과 단독 사용](../spec/client/list-detail-pane.md#함께-사용과-단독-사용)
 - Given: 한 영역만 사용하는 환경이다.
 - When: 사용자가 완료된 메모 목록 또는 메모 상세를 사용한다.
 - Then: 현재 사용하는 화면만 단독으로 표시된다.
@@ -127,10 +127,17 @@ ContactDetail, PlaceDetail, WebDetail 메모 탭에서 진입한 메모 상세�
 
 ### TC-170510aa-f75c-496d-a57a-c3732a48e734: 상세 영역에서 메모를 삭제하면 선택 전 상태로 되돌아간다
 
-- 근거: [MemoFinishedList 목록·상세 배치 스펙의 상세 영역의 구성](../spec/client/memo-finished-list-detail.md#상세-영역의-구성)
+- 근거: [목록·상세 배치 공통 스펙의 상세 선택과 교체](../spec/client/list-detail-pane.md#상세-선택과-교체)
 - Given: 목록과 상세를 함께 사용하고 있고 상세 영역에 메모 상세가 놓여 있다.
 - When: 사용자가 상세 영역의 메모를 삭제한다.
 - Then: 완료된 메모 목록은 그대로 유지되고 상세 영역은 선택 전 상태가 된다.
+
+### TC-ff4ecfe1-ba3a-4861-b8cb-7a9025078a77: 상세 영역에서 메모를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다
+
+- 근거: [목록·상세 배치 공통 스펙의 완료 목록의 배치](../spec/client/list-detail-pane.md#완료-목록의-배치)
+- Given: 목록과 상세를 함께 사용하고 있고, 완료된 메모 목록에서 고른 메모의 상세가 상세 영역에 놓여 있으며 다시 시작이 성공하도록 설정되어 있다.
+- When: 사용자가 상세 영역의 메모를 다시 시작한다.
+- Then: 그 메모는 완료된 메모 목록에서 사라지고, 상세 영역에는 같은 메모의 상세가 남아 완료 동작을 제공한다.
 
 ### TC-886d118a-6402-4f42-a0c9-9b7607b469da: 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고, 돌아오면 떠나기 전의 메모가 놓인다
 

@@ -49,10 +49,13 @@ class RemoteNotificationPresenterTest {
 
     @Test
     fun `TC-22429a81-350f-4c39-ae40-5ee3b9a8d5d3 본문이 비어 있으면 알림에 본문 문구를 두지 않는다`() {
-        presenter.present(Arb.remoteNotification().next().copy(body = ""))
+        val notification = Arb.remoteNotification().next().copy(body = "")
+
+        presenter.present(notification)
 
         val extras = shadowOf(notificationManager()).allNotifications.single().extras
 
+        extras.getString(Notification.EXTRA_TITLE) shouldBe notification.title
         extras.getString(Notification.EXTRA_TEXT) shouldBe null
         extras.getString(Notification.EXTRA_BIG_TEXT) shouldBe null
     }

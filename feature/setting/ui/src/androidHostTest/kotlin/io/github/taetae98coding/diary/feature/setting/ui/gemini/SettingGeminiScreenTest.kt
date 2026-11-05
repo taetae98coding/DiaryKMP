@@ -144,6 +144,31 @@ class SettingGeminiScreenTest {
     }
 
     @Test
+    fun `TC-6882d5f7-6a85-40cd-9751-aa47bd44e615 열지 못한 것을 실행 환경이 알려 주지 않으면 안내하지 않는다`() {
+        val editingApiKey = editingApiKey()
+        var navigateUpCount = 0
+        // 열지 못한 것을 알려 주지 않는 실행 환경에서는 여는 요청이 오류 없이 끝나므로, 정상 반환하는 처리기로 그 환경을 흉내 낸다.
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(any()) } returns Unit
+            }
+        setScreen(
+            settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting())),
+            navigateUp = { navigateUpCount += 1 },
+            uriHandler = uriHandler,
+        )
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(editingApiKey)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_API_KEY_ISSUE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_API_KEY_ISSUE_OPEN_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_API_KEY_DESCRIPTION).performClick()
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].assert(hasText(editingApiKey))
+    }
+
+    @Test
     fun `TC-6796fe79-fe6f-47b2-b2e3-5c415fab622d 설정을 확인하기 전에도 발급 페이지를 연다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Loading), uriHandler = uriHandler)
@@ -302,16 +327,40 @@ class SettingGeminiScreenTest {
 
     @Test
     fun `TC-5305f042-c198-4a29-9d9b-7b490355f139 저장 동작을 선택하면 입력한 세 값을 저장한다`() {
-        val editingSuffix = editingSuffix()
-        val setting = geminiSetting()
+        val modelList = modelList()
+        val setting = geminiSetting(model = modelList[0].id)
+        val editingApiKey = editingApiKey()
+        val editingSystemPrompt = systemPrompt()
         val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
-        setScreen(settingViewModel = settingViewModel)
+        setScreen(
+            settingViewModel = settingViewModel,
+            modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList)),
+        )
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(editingApiKey)
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextReplacement(editingSystemPrompt)
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(modelList[1].id).performClick()
+        composeRule.waitForIdle()
 
-        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { settingViewModel.save(setting = setting.copy(systemPrompt = setting.systemPrompt + editingSuffix)) }
+        verify(exactly = 1) { settingViewModel.save(setting = GeminiSetting(apiKey = editingApiKey, model = modelList[1].id, systemPrompt = editingSystemPrompt)) }
+    }
+
+    @Test
+    fun `TC-1671c75e-283c-47f8-b4a8-b0975b3313a5 시스템 프롬프트는 여러 줄과 긴 내용을 그대로 입력하고 저장한다`() {
+        val setting = geminiSetting()
+        val longPrompt = List(size = LONG_PROMPT_LINE_COUNT) { index -> "줄 $index ${Arb.kotlinUuid().next()}" }.joinToString(separator = "\n")
+        val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        setScreen(settingViewModel = settingViewModel)
+
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextReplacement(longPrompt)
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { settingViewModel.save(setting = setting.copy(systemPrompt = longPrompt)) }
     }
 
     @Test
@@ -500,6 +549,28 @@ class SettingGeminiScreenTest {
 
         composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
         verify(exactly = 2) { modelViewModel.fetch(apiKey = storedApiKey) }
+    }
+
+    @Test
+    fun `TC-0f0c8862-4112-4544-8f20-216852b8a0ba 조회에 실패해도 고른 모델을 포함해 입력 중이던 값을 유지한다`() {
+        val modelList = modelList()
+        val setting = geminiSetting(model = modelList[0].id)
+        val editingApiKey = editingApiKey()
+        val editingSystemPrompt = systemPrompt()
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState(failure = SettingGeminiModelFailure.INVALID_API_KEY))
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting)), modelViewModel = modelViewModel)
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(editingApiKey)
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextReplacement(editingSystemPrompt)
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_INVALID_API_KEY_MESSAGE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RETRY_ACTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_API_KEY_DESCRIPTION).performClick()
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].assert(hasText(editingApiKey))
+        composeRule.onNodeWithText(editingSystemPrompt).assertExists()
+        composeRule.onNode(hasContentDescription(modelList[0].id, substring = true)).assertExists()
     }
 
     @Test
@@ -717,6 +788,38 @@ class SettingGeminiScreenTest {
         verify(exactly = 1) { revivedModelViewModel.fetch(apiKey = setting.apiKey) }
     }
 
+    @Test
+    fun `TC-d6faa5a0-f406-49e0-8734-9ae8568b5254 되살린 뒤 저장된 설정을 다시 읽어 와도 입력 중이던 값을 유지한다`() {
+        val setting = geminiSetting()
+        val editingSuffix = editingSuffix()
+        val restorationTester = StateRestorationTester(composeRule)
+        val firstSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val revivedUiStateFlow = MutableStateFlow<SettingGeminiUiState>(SettingGeminiUiState.Loading)
+        val revivedSettingViewModel = settingViewModel(revivedUiStateFlow)
+        var isRevived = false
+        restorationTester.setContent {
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = if (isRevived) revivedSettingViewModel else firstSettingViewModel,
+                    modelViewModel = modelViewModel(SettingGeminiModelUiState()),
+                )
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+
+        isRevived = true
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        revivedUiStateFlow.value = SettingGeminiUiState.Content(setting = setting)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+    }
+
     private fun setScreen(
         settingViewModel: SettingGeminiViewModel = settingViewModel(SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)),
         modelViewModel: SettingGeminiModelViewModel = modelViewModel(SettingGeminiModelUiState()),
@@ -748,9 +851,11 @@ class SettingGeminiScreenTest {
         private const val DEFAULT_SAVE_SUCCEEDED_MESSAGE = "Saved."
         private const val DEFAULT_SAVE_FAILED_MESSAGE = "Couldn't save."
         private const val DEFAULT_FETCH_FAILED_MESSAGE = "Couldn't load models"
+        private const val DEFAULT_INVALID_API_KEY_MESSAGE = "Check your API key"
         private const val DEFAULT_API_KEY_ISSUE_DESCRIPTION = "Get API key"
         private const val DEFAULT_API_KEY_ISSUE_OPEN_FAILED_MESSAGE = "Couldn't open the page."
         private const val API_KEY_ISSUE_URL = "https://aistudio.google.com/api-keys"
+        private const val LONG_PROMPT_LINE_COUNT = 500
 
         private fun storedApiKey(): String = "storedApiKey${Arb.kotlinUuid().next()}"
 

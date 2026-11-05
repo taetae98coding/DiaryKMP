@@ -163,6 +163,22 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(alphaTag.id, bravoTag.id, charlieTag.id)
         }
 
+        test("TC-12604056-2862-410d-a15b-4ddab39de9f9 정렬을 최근 수정순으로 바꿔도 최상위 태그 집합은 달라지지 않고 순서만 바뀐다") {
+            val accountId = Arb.kotlinUuid().next()
+            val olderTag = tag(title = "alpha").copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val newerTag = tag(title = "bravo").copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
+            val linkedTag = tag(title = "charlie").copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
+            val finishedTag = tag(title = "delta").copy(isFinished = true, updatedAt = Instant.fromEpochMilliseconds(4_000))
+            insertTag(accountId, olderTag, newerTag, linkedTag, finishedTag)
+            link(accountId = accountId, fromTagId = olderTag.id, toTagId = linkedTag.id)
+
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(olderTag.id, newerTag.id)
+            database
+                .accountTagDao()
+                .pageTopLevel(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED.queryValue)
+                .pagedTagIdList() shouldBe listOf(newerTag.id, olderTag.id)
+        }
+
         test("TC-48e9d359-c512-44f7-b05c-bde5269455d9 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
             val accountId = Arb.kotlinUuid().next()
             val fromTag = tag(title = "alpha")

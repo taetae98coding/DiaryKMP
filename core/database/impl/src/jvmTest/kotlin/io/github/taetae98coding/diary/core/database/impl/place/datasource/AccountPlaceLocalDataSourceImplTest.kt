@@ -66,7 +66,7 @@ class AccountPlaceLocalDataSourceImplTest :
 
         suspend fun pagedPlaces(accountId: Uuid): List<PlaceLocalEntity> = dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).pagedPlaces()
 
-        test("TC-2d22c977-b558-4b32-a782-4f02fc6424ae 삭제되지 않은 계정의 장소만 제목 오름차순으로 페이지 조회된다") {
+        test("TC-2d22c977-b558-4b32-a782-4f02fc6424ae TC-86767f8a-3cb1-4141-8e6e-7722524480b9 삭제되지 않은 계정의 장소만 제목 오름차순으로 페이지 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val firstPlace = place(title = FIRST_PLACE_TITLE)

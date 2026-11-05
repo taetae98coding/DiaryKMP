@@ -221,6 +221,17 @@ class MemoEntryTest :
                 MemoFinishedListNavKey
         }
 
+        test("TC-fd0c7f3a-df61-4e6a-925a-44d5e803d546 연락처 상세의 메모 탭에서 이동한 MemoAdd와 MemoDetail 화면은 목록·상세 배치에 참여하지 않는다") {
+            val contactId = Arb.kotlinUuid().next()
+            val contactDetailKey = ContactDetailNavKey(id = contactId)
+            val addKey = MemoAddNavKey(initialContactId = contactId)
+            val detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next())
+
+            listOf(addKey, detailKey).forEach { key ->
+                metadataOf(backStack = listOf(OtherTopLevelNavKey, contactDetailKey, key), key = key).shouldBeEmpty()
+            }
+        }
+
         test("TC-d5d2c870-c1a8-4977-bd89-f6f37f88fd13 MemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
             val backStack = listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey)
 

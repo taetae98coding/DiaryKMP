@@ -304,6 +304,18 @@ class QrAddRawTest {
     }
 
     @Test
+    fun `TC-6aa4b433-7bef-4734-b260-313ec9f23d22 포맷 입력을 고치는 동안에는 입력한 글자를 그대로 둔다`() {
+        setQrAddScreen()
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")
+
+        composeRule.onQrFieldInput("URL").performTextInput(" a.com ")
+        composeRule.waitForIdle()
+
+        composeRule.onQrFieldInput("URL").editableText() shouldBe " a.com "
+        composeRule.qrCodeValue() shouldBe "a.com"
+    }
+
+    @Test
     fun `TC-df92e072-9645-4c44-948e-f84870718e0f 포맷 입력으로 바로 앞에 쓴 값은 그 포맷의 값으로 보아 기록을 남기지 않는다`() {
         setQrAddScreen()
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")

@@ -410,6 +410,34 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(memo.id)
         }
 
+        test("TC-21e15768-6c0a-4a48-afd6-51fb9b1e4d74 완료 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+            val accountId = Arb.kotlinUuid().next()
+            val expectedMemoList =
+                List(MEMO_COUNT) { index ->
+                    memo(
+                        isFinished = true,
+                        detail = detail(title = "Memo-${index.toString().padStart(length = 3, padChar = '0')}", isAllDay = null, start = null, endInclusive = null),
+                    )
+                }
+            insert(accountId, *expectedMemoList.reversed().toTypedArray())
+            val pagingSource = database.accountMemoDao().pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+
+            firstPage.data.map { memo -> memo.id } shouldBe expectedMemoList.take(PAGE_SIZE).map { memo -> memo.id }
+            firstPage.nextKey shouldBe PAGE_SIZE
+
+            val secondPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Append(key = requireNotNull(firstPage.nextKey), loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+
+            secondPage.data.map { memo -> memo.id } shouldBe expectedMemoList.drop(PAGE_SIZE).take(PAGE_SIZE).map { memo -> memo.id }
+        }
+
         test("삭제를 되돌린 완료 메모는 자신의 시작 시점에 해당하는 자리에 다시 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val firstMemo =
@@ -447,6 +475,8 @@ class AccountMemoFinishedDaoTest :
     }) {
     public companion object {
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
+        private const val MEMO_COUNT = 7
+        private const val PAGE_SIZE = 3
 
         private fun memo(
             id: Uuid = Arb.kotlinUuid().next(),

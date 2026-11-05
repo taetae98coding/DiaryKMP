@@ -438,6 +438,24 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
+    fun `TC-3c6a9cc3-e5bc-4f92-9402-cde2099232a8 자동 선택된 연락처의 선택을 해제하면 다시 선택되지 않는다`() {
+        val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
+        val resultEventBus = ResultEventBus()
+        composeRule.setMemoAddScreenForContact(
+            viewModels = screenTestRealViewModel(contactList = listOf(addedContact)),
+            resultEventBus = resultEventBus,
+        )
+        resultEventBus.sendContactAddedResult(addedContact)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertExists()
+
+        composeRule.selectContact(name = SECOND_CONTACT_NAME)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-5abc5aa2-d43c-42d2-b0eb-d8f89cd03a13 이 입력에서 이동하지 않은 ContactAdd 화면의 연락처는 자동 선택되지 않는다`() {
         val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val resultEventBus = ResultEventBus()

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -63,6 +64,19 @@ class WebDetailTagInputTest {
     }
 
     @Test
+    fun `TC-d525909f-0c24-4462-968d-7ee148f6b37b 태그를 해제해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
+        val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
+        val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        setWebDetailScreen(tagViewModel = tagViewModel)
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        verify(exactly = 1) { tagViewModel.remove(tagId = linkedTag.id) }
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-022191e8-945d-40bd-842b-8544e389db9b 태그를 연결해도 웹 페이지를 다시 불러오지 않는다`() {
         val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
         setWebDetailScreen(
@@ -76,6 +90,23 @@ class WebDetailTagInputTest {
 
         linkTag(title = SELECTABLE_TAG_TITLE)
 
+        verify(exactly = 1) { pageViewModel.load() }
+        verify(exactly = 0) { pageViewModel.retry() }
+    }
+
+    @Test
+    fun `TC-022191e8-945d-40bd-842b-8544e389db9b 태그를 해제해도 웹 페이지를 다시 불러오지 않는다`() {
+        val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        setWebDetailScreen(pageViewModel = pageViewModel, tagViewModel = tagViewModel, selectFormTab = false)
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.selectFormTab()
+        verify(exactly = 1) { pageViewModel.load() }
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        verify(exactly = 1) { tagViewModel.remove(tagId = linkedTag.id) }
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
     }
@@ -104,6 +135,22 @@ class WebDetailTagInputTest {
 
         linkTag(title = SELECTABLE_TAG_TITLE)
 
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+    }
+
+    @Test
+    fun `TC-47eeb79e-35f7-48f5-9b08-a33ecc63b013 태그를 해제해도 입력 중인 내용은 바뀌지 않는다`() {
+        val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
+        val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        setWebDetailScreen(tagViewModel = tagViewModel)
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.waitForIdle()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        verify(exactly = 1) { tagViewModel.remove(tagId = linkedTag.id) }
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.urlInput().assert(hasText(TYPED_URL))
     }
@@ -175,11 +222,23 @@ class WebDetailTagInputTest {
         composeRule.waitForIdle()
     }
 
+    // 연결된 태그는 연결 대상 표시와 선택 목록에 모두 나타나므로, 선택 목록의 마지막 노드를 눌러 해제한다.
+    private fun unlinkTag(title: String) {
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        awaitPickerRow(title = title, count = 2)
+        composeRule.onAllNodesWithText(title).onLast().performClick()
+        composeRule.waitForIdle()
+    }
+
     // 선택 목록은 페이지 단위로 준비되므로 항목이 나타날 때까지 프레임과 실제 시간을 함께 진행시킨다.
-    private fun awaitPickerRow(title: String) {
+    private fun awaitPickerRow(
+        title: String,
+        count: Int = 1,
+    ) {
         repeat(PICKER_WAIT_ATTEMPT_COUNT) {
             composeRule.waitForIdle()
-            if (composeRule.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()) return
+            if (composeRule.onAllNodesWithText(title).fetchSemanticsNodes().size >= count) return
             composeRule.mainClock.advanceTimeByFrame()
             @Suppress("ForbiddenMethodCall")
             Thread.sleep(PICKER_WAIT_INTERVAL_MILLIS)
@@ -253,6 +312,7 @@ class WebDetailTagInputTest {
             every { viewModel.uiState } returns MutableStateFlow(pageUiState)
             justRun { viewModel.load() }
             justRun { viewModel.retry() }
+            justRun { viewModel.reloadIfFailed() }
 
             return viewModel
         }

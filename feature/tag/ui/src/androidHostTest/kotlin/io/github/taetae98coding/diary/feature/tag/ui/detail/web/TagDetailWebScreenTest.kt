@@ -10,12 +10,15 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -30,6 +33,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
+import io.github.taetae98coding.diary.feature.tag.ui.detail.syncViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
@@ -37,6 +41,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.webEffectFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webPagingDataFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
@@ -158,6 +163,30 @@ class TagDetailWebScreenTest {
         composeRule.onNodeWithText(WEB_TITLE).performClick()
 
         navigatedIdList shouldBe listOf(web.id)
+    }
+
+    @Test
+    fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 웹 탭에서 목록을 당기면 계정 데이터 동기화를 한 번 요청한다`() {
+        setScreenOnWebTab(webPagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = WEB_TITLE))))
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(WEB_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.refreshableList().performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { requireNotNull(syncViewModelRef).refresh() }
+    }
+
+    @Test
+    fun `TC-5ed1f0b3-e6e6-449c-856a-d526566e9d5b 웹 탭이 빈 상태여도 목록을 당기면 계정 데이터 동기화를 한 번 요청한다`() {
+        setScreenOnWebTab()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { requireNotNull(syncViewModelRef).refresh() }
     }
 
     @Test

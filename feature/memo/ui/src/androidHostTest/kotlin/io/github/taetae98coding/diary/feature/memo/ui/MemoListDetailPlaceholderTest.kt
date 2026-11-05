@@ -222,23 +222,23 @@ class MemoListDetailPlaceholderTest {
     }
 
     @Test
-    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
+    fun `TC-0d71de8a-1173-47d2-9774-b5c92e60375d 메모 상세 위에 목록에서 연 메모 추가에서 뒤로가면 목록을 유지하고 보던 메모 상세로 되돌아간다`() {
         val input = placeholderInput()
         val detail = MemoDetailNavKey(id = Arb.kotlinUuid().next())
         setMemoNavDisplay(input = input)
         composeRule.runOnIdle {
-            backStack.add(MemoAddNavKey())
             backStack.add(detail)
+            backStack.add(MemoAddNavKey())
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
+        composeRule.onNodeWithText(MEMO_ADD_CONTENT).assertExists()
 
         pressBack()
 
-        backStack.toList() shouldBe listOf(MemoHomeNavKey, MemoAddNavKey())
+        backStack.toList() shouldBe listOf(MemoHomeNavKey, detail)
         composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertExists()
-        composeRule.onNodeWithText(ROUTE_CONTENT).assertDoesNotExist()
-        composeRule.onNodeWithText(MEMO_ADD_CONTENT).assertExists()
+        composeRule.onNodeWithText(MEMO_ADD_CONTENT).assertDoesNotExist()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
     }
 
     @Test

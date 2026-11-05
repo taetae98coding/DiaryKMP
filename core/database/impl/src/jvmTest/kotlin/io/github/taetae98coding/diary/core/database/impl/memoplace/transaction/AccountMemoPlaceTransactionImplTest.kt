@@ -342,6 +342,16 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
+        test("TC-c12bf850-fe4e-4750-94ff-ceb9f75066b4 장소를 연결한 메모를 저장하면 그 계정의 메모와 장소 연결이 업로드 대기 항목으로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo()
+            val placeList = List(2) { place() }
+
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = placeList)
+
+            findPendingPlaceIdList(accountId = accountId) shouldContainExactlyInAnyOrder placeList.map { place -> place.id }
+        }
+
         test("TC-be64bedf-bab0-498a-9b34-1ac15108e27d 저장이 실패하면 메모와 계정 연결, 태그 연결, 장소 연결이 모두 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()

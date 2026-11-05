@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.file.ui.add
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
@@ -84,6 +88,21 @@ class FileAddScreenTest {
 
             composeRule.onNode(hasText(name).and(hasText(sizeToText.second))).assertExists()
             composeRule.onNodeWithText(NO_FILE_SELECTED).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun `TC-d6e5e799-fb08-47a8-96a4-905b9bd49603 파일을 골라도 제목을 파일 이름으로 채우지 않는다`() {
+        listOf("", TITLE).forEach { title ->
+            val screen = FileAddTestScreen()
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
+            setFileAddScreen(screen = screen)
+            if (title.isNotEmpty()) composeRule.titleInput().performTextInput(title)
+
+            composeRule.clickChooseFile()
+
+            composeRule.onNodeWithText(FILE_NAME_A).assertExists()
+            composeRule.titleInput().assert(hasText(title))
         }
     }
 
@@ -168,10 +187,13 @@ class FileAddScreenTest {
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
         composeRule.descriptionInput().performTextInput(DESCRIPTION)
+        composeRule.descriptionInput().performClick()
+        composeRule.descriptionInput().assertIsFocused()
 
         composeRule.clickUpload()
 
         composeRule.onNodeWithText(FILE_NOT_SELECTED_MESSAGE).assertExists()
+        composeRule.descriptionInput().assertIsFocused()
         composeRule.titleInput().assert(hasText(TITLE))
         composeRule.descriptionInput().assert(hasText(DESCRIPTION))
         screen.mocks.state.value shouldBe FileUploadState.Idle
@@ -287,6 +309,32 @@ class FileAddScreenTest {
             uploadProgress().assertDoesNotExist()
             composeRule.titleInput().assert(hasText(NEXT_TITLE))
             composeRule.onNodeWithText(FILE_NAME_B).assertExists()
+        }
+    }
+
+    @Test
+    fun `TC-59947c2f-2fce-4c84-a2c4-77bf7137348b 화면이 보이지 않는 동안 끝난 올리기의 결과는 돌아와도 알리지 않는다`() {
+        val screen = FileAddTestScreen()
+        val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                screen.Content()
+            }
+        }
+        composeRule.waitForIdle()
+
+        listOf(
+            FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next()),
+            FileUploadEvent.TooLarge,
+            FileUploadEvent.Failed,
+        ).forEach { event ->
+            composeRule.runOnIdle { screen.mocks.state.value = FileUploadState.Uploading(percent = null) }
+            composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+            composeRule.runOnIdle { screen.mocks.finish(event = event) }
+            composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+            composeRule.waitForIdle()
+
+            listOf(SUCCEEDED_MESSAGE, TOO_LARGE_MESSAGE, FAILED_MESSAGE).forEach { message -> composeRule.snackbarCount(message) shouldBe 0 }
         }
     }
 

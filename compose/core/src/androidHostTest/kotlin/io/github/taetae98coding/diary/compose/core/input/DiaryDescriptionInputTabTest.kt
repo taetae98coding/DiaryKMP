@@ -2,12 +2,14 @@ package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -61,6 +63,7 @@ class DiaryDescriptionInputTabTest {
         awaitSettled(state = state, page = DiaryDescriptionInputPage.Input)
 
         composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assert(hasText(MARKDOWN_SOURCE))
         composeRule.onNodeWithText(MARKDOWN_HEADING_TEXT).assertIsNotDisplayed()
         composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
         composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsNotSelected()

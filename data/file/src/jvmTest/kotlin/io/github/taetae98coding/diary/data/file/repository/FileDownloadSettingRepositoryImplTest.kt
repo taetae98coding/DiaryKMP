@@ -41,22 +41,41 @@ class FileDownloadSettingRepositoryImplTest :
             }
         }
 
-        test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 시스템의 허락을 받은 표현으로 저장하고, 앞서 고른 다른 폴더의 허락은 돌려준다") {
+        test("TC-85a21962-0120-4bf2-aa08-6d061c10d516 폴더를 고르면 시스템의 허락을 받은 표현으로 저장하고, 앞서 고른 다른 폴더가 있으면 그 허락을 돌려준다") {
             val uri = Arb.string().next()
             val previous = Arb.fileDownloadDirectoryLocalEntity().next()
             val retained = Arb.fileDownloadDirectory().next()
-            val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
-            every { settingDataSource.getDirectory() } returns flowOf(previous)
-            val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
-            coEvery { downloadDataSource.retainDirectory(uri = uri) } returns retained
+            listOf(null, previous).forEach { stored ->
+                val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
+                every { settingDataSource.getDirectory() } returns flowOf(stored)
+                val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
+                coEvery { downloadDataSource.retainDirectory(uri = uri) } returns retained
 
-            FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).setDirectory(uri = uri)
+                FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).setDirectory(uri = uri)
 
-            coVerifyOrder {
-                downloadDataSource.retainDirectory(uri = uri)
-                settingDataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = retained.uri, name = retained.name, bookmark = retained.bookmark))
-                downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = previous.uri, name = previous.name, bookmark = previous.bookmark))
+                coVerifyOrder {
+                    downloadDataSource.retainDirectory(uri = uri)
+                    settingDataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = retained.uri, name = retained.name, bookmark = retained.bookmark))
+                }
+                if (stored == null) {
+                    coVerify(exactly = 0) { downloadDataSource.releaseDirectory(directory = any()) }
+                } else {
+                    coVerify(exactly = 1) { downloadDataSource.releaseDirectory(directory = FileDownloadDirectory(uri = stored.uri, name = stored.name, bookmark = stored.bookmark)) }
+                }
             }
+        }
+
+        test("같은 폴더를 다시 고르면 방금 받은 허락을 돌려주지 않는다") {
+            val stored = Arb.fileDownloadDirectoryLocalEntity().next()
+            val retained = Arb.fileDownloadDirectory().next().copy(uri = stored.uri)
+            val settingDataSource = mockk<FileDownloadSettingLocalDataSource>(relaxUnitFun = true)
+            every { settingDataSource.getDirectory() } returns flowOf(stored)
+            val downloadDataSource = mockk<FileDownloadLocalDataSource>(relaxUnitFun = true)
+            coEvery { downloadDataSource.retainDirectory(uri = stored.uri) } returns retained
+
+            FileDownloadSettingRepositoryImpl(fileDownloadSettingLocalDataSource = settingDataSource, fileDownloadLocalDataSource = downloadDataSource).setDirectory(uri = stored.uri)
+
+            coVerify(exactly = 0) { downloadDataSource.releaseDirectory(directory = any()) }
         }
 
         test("TC-41fd402c-68d3-4b41-9366-c2f9bb19d9ca 허락을 받지 못하면 설정을 바꾸지 않는다") {

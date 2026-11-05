@@ -169,6 +169,13 @@ class AccountWebMemoPagingDaoTest :
             pagedIds(accountId = accountId, webId = webId) shouldBe expectedIds
         }
 
+        suspend fun assertConnectionKept(memoId: Uuid) {
+            database
+                .memoWebDao()
+                .findByMemoIdList(listOf(memoId))
+                .map { memoWeb -> memoWeb.isDeleted } shouldBe listOf(false)
+        }
+
         test("TC-66b72124-a4fa-4386-8639-baa8bf378edc TC-81d6f3e8-9ba5-485c-afa7-1dcda825d27c 현재 계정의 대상 웹 항목와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
@@ -342,12 +349,18 @@ class AccountWebMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, webId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
+            val finishedAt = instant()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = finishedAt)
             }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to finishedAt)
+            assertConnectionKept(memoId = targetMemo.id)
 
-            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+            val restartedAt = instant()
+            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = restartedAt)
 
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restartedAt)
+            assertConnectionKept(memoId = targetMemo.id)
             pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
         }
 
@@ -359,12 +372,18 @@ class AccountWebMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, webId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
+            val deletedAt = instant()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = deletedAt)
             }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to deletedAt)
+            assertConnectionKept(memoId = targetMemo.id)
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            val restoredAt = instant()
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = restoredAt)
 
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restoredAt)
+            assertConnectionKept(memoId = targetMemo.id)
             pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
         }
 

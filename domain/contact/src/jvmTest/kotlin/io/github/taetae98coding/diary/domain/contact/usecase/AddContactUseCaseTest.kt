@@ -246,7 +246,7 @@ class AddContactUseCaseTest :
                 }
 
                 Then("TC-c311e3f7-c458-47be-8b7a-f7372b578093 고향은 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
-                    listOf("서울", "강원도 춘천시", "Seoul, Korea", "123-!@#").forEach { hometown ->
+                    listOf("서울", "강원도 춘천시", "Seoul, Korea", "123-!@#", "  ").forEach { hometown ->
                         useCase(parameter = AddContactUseCase.Parameter(detail = detail(hometown = hometown))).shouldBeSuccess()
 
                         contactSlot.captured.detail.hometown shouldBe hometown
@@ -258,6 +258,39 @@ class AddContactUseCaseTest :
                         useCase(parameter = AddContactUseCase.Parameter(detail = detail(howWeMet = howWeMet))).shouldBeSuccess()
 
                         contactSlot.captured.detail.howWeMet shouldBe howWeMet
+                    }
+                }
+
+                Then("TC-814fa713-ba7f-4839-b047-7e319603259c 키와 신발 사이즈는 크기를 검사하지 않고 입력한 값 그대로 저장한다") {
+                    listOf(
+                        0.1.centimeter to 1.millimeter,
+                        999.9.centimeter to 999.millimeter,
+                    ).forEach { (height, footSize) ->
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(height = height, footSize = footSize))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.height shouldBe height
+                        contactSlot.captured.detail.footSize shouldBe footSize
+                    }
+                }
+
+                Then("TC-7ffd12c7-82d5-49eb-a2ef-3c2167b17841 전화번호는 형식을 검사하지 않고 입력한 번호 그대로 저장한다") {
+                    listOf("123", "+82 10-1234-5678", "abc").forEach { number ->
+                        val phoneNumberList = listOf(ContactPhoneNumber(number = number))
+
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.phoneNumberList shouldBe phoneNumberList
+                    }
+                }
+
+                Then("TC-055d735b-dca1-4a5f-9657-41971cb68a8a 생일은 오늘보다 뒤여도 검사하지 않고 고른 그대로 저장한다") {
+                    ContactBirthdayCalendar.entries.forEach { calendar ->
+                        val birthday = ContactBirthday(date = LocalDate(year = 2999, month = 12, day = 31), calendar = calendar)
+
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.birthday shouldBe birthday
+                        contactSlot.captured.detail.birthYear shouldBe 2999
                     }
                 }
 

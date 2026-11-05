@@ -398,6 +398,9 @@ class AccountMemoTransactionImplTest :
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
 
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = false, updatedAt = instant())
+            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
+
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
         }
@@ -412,24 +415,35 @@ class AccountMemoTransactionImplTest :
                 memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
             )
 
-            suspend fun assertContentKept() {
+            suspend fun assertStateChangedAndContentKept(
+                isFinished: Boolean,
+                isDeleted: Boolean,
+                updatedAt: Instant,
+            ) {
                 val stored = findMemo(accountId = accountId, memoId = memo.id).shouldNotBeNull()
+                stored.isFinished shouldBe isFinished
+                stored.isDeleted shouldBe isDeleted
+                stored.updatedAt shouldBe updatedAt
                 stored.detail shouldBe memo.detail
                 stored.primaryTagId shouldBe tagId
                 findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
             }
 
-            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = false, updatedAt = instant())
-            assertContentKept()
+            var updatedAt = instant()
+            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = false, updatedAt = updatedAt)
+            assertStateChangedAndContentKept(isFinished = false, isDeleted = false, updatedAt = updatedAt)
 
-            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
-            assertContentKept()
+            updatedAt = instant()
+            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = updatedAt)
+            assertStateChangedAndContentKept(isFinished = true, isDeleted = false, updatedAt = updatedAt)
 
-            transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
-            assertContentKept()
+            updatedAt = instant()
+            transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = updatedAt)
+            assertStateChangedAndContentKept(isFinished = true, isDeleted = true, updatedAt = updatedAt)
 
-            transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = false, updatedAt = instant())
-            assertContentKept()
+            updatedAt = instant()
+            transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = false, updatedAt = updatedAt)
+            assertStateChangedAndContentKept(isFinished = true, isDeleted = false, updatedAt = updatedAt)
         }
 
         test("TC-903020e3-9b26-4c21-bdf6-44741c9f2dc2 제목·설명·컬러·기간을 수정해도 태그 연결이 바뀌지 않는다") {
@@ -442,14 +456,34 @@ class AccountMemoTransactionImplTest :
                 memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
             )
 
+            val updatedDetail = Arb.memoDetailLocalEntity().next()
+
             transaction.updateDetail(
                 accountId = accountId,
                 memoId = memo.id,
-                detail = Arb.memoDetailLocalEntity().next(),
+                detail = updatedDetail,
                 updatedAt = instant(),
             )
 
+            findMemo(accountId = accountId, memoId = memo.id)?.detail shouldBe updatedDetail
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+        }
+
+        test("TC-32260e6a-d9a0-4596-b2e0-16ea595ca011 태그를 연결해 메모를 저장해도 장소·웹·연락처 연결은 만들어지지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
+            val memo = memo()
+
+            transaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
+            )
+
+            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoContactDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
         }
 
         test("TC-c8323bc1-422c-44ee-8acb-94bc76216682 해제된 연결을 다시 만들면 기존 연결이 되살아난다") {

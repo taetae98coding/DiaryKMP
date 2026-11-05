@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -74,6 +75,23 @@ class CalendarHomeScreenColorTest {
 
         listOf(17, 22, 23).forEach { day -> holidayColoredDateCount(day = day, holidayColor = holidayColor) shouldBe 1 }
         holidayColoredDateCount(day = 20, holidayColor = holidayColor) shouldBe 0
+    }
+
+    @Test
+    fun `TC-dae42d51-1a51-4948-8484-6a6bc4ceb177 공휴일이 준비되면 조작 없이 이름과 날짜 강조가 반영된다`() {
+        var holidayColor = Color.Unspecified
+        val holidayListFlow = MutableStateFlow(emptyList<Holiday>())
+        setCalendarHomeScreen(holidayListFlow = holidayListFlow) { holidayColor = CalendarDefaults.colors().sundayAndHolidayColor }
+        composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertDoesNotExist()
+        holidayColoredDateCount(day = 17, holidayColor = holidayColor) shouldBe 0
+
+        composeRule.runOnIdle {
+            holidayListFlow.value = listOf(holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, start = july(day = 17)))
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+        holidayColoredDateCount(day = 17, holidayColor = holidayColor) shouldBe 1
     }
 
     @Test
@@ -152,6 +170,7 @@ class CalendarHomeScreenColorTest {
 
     private fun setCalendarHomeScreen(
         holidayList: List<Holiday> = emptyList(),
+        holidayListFlow: StateFlow<List<Holiday>> = MutableStateFlow(holidayList),
         memoListFlow: StateFlow<List<CalendarMemo>> = MutableStateFlow(emptyList()),
         onTheme: @Composable () -> Unit = {},
     ) {
@@ -179,7 +198,7 @@ class CalendarHomeScreenColorTest {
                     navigateToFilter = {},
                     navigateToTimetable = {},
                     state = state,
-                    holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
+                    holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),

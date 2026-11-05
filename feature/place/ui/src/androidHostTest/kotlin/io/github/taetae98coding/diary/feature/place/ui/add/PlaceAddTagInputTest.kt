@@ -48,6 +48,8 @@ class PlaceAddTagInputTest {
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(""))
         composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].assert(hasText(""))
         composeRule.onAllNodes(hasSetTextAction())[ADDRESS_INDEX].assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assert(hasText(""))
         composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
     }
 

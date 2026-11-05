@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -29,6 +30,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
@@ -242,6 +244,30 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
+        test("TC-f7796e3c-6986-4f88-88d5-c35c377e4aa3 장소와 메모가 같은 태그에 연결되어 있어도 장소의 연결된 메모로 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val target = place()
+            val linkedMemo = memo()
+            val sameTagMemo = memo()
+            val tagId = Arb.kotlinUuid().next()
+            insertPlaceMemo(accountId, target, linkedMemo)
+            insertMemo(accountId, sameTagMemo)
+            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
+            database.memoTagDao().upsert(
+                listOf(
+                    MemoTagLocalEntity(
+                        memoId = sameTagMemo.id,
+                        tagId = tagId,
+                        isDeleted = false,
+                        updatedAt = instant(),
+                        createdAt = instant(),
+                    ),
+                ),
+            )
+
+            pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(linkedMemo.id)
+        }
+
         test("TC-653af079-5d1f-4943-b644-51fe9f1c4dfe 장소별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = Arb.kotlinUuid().next()
             val target = place()
@@ -353,13 +379,20 @@ class AccountPlaceMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, placeId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
-            }
+            val changedAt = instant()
+            val revertedAt = instant()
 
-            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+            assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = changedAt)
+            }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to changedAt)
+            database.memoPlaceDao().findByMemoIdList(listOf(targetMemo.id)).map { memoPlace -> memoPlace.isDeleted } shouldBe listOf(false)
+
+            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = revertedAt)
 
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to revertedAt)
+            database.memoPlaceDao().findByMemoIdList(listOf(targetMemo.id)).map { memoPlace -> memoPlace.isDeleted } shouldBe listOf(false)
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 TC-c39dbdfa-8f33-408a-ac18-cf1660e92aee 메모를 삭제하면 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
@@ -370,13 +403,37 @@ class AccountPlaceMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, placeId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
-            }
+            val changedAt = instant()
+            val revertedAt = instant()
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = changedAt)
+            }
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to changedAt)
+            database.memoPlaceDao().findByMemoIdList(listOf(targetMemo.id)).map { memoPlace -> memoPlace.isDeleted } shouldBe listOf(false)
+
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = revertedAt)
 
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
+            database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to revertedAt)
+            database.memoPlaceDao().findByMemoIdList(listOf(targetMemo.id)).map { memoPlace -> memoPlace.isDeleted } shouldBe listOf(false)
+        }
+
+        test("TC-7280d1c3-ca4b-46fc-9c0c-b10d4f79c7c7 메모의 완료·삭제와 실행 취소는 대상 장소의 내용과 삭제 여부를 바꾸지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val target = place()
+            val targetMemo = memo()
+            insertPlaceMemo(accountId, target, targetMemo)
+            val memoDao = database.accountMemoDao()
+
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+            database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+            database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+            database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
         }
 
         test("TC-001a9d59-526b-479d-a426-22ba5407db07 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {

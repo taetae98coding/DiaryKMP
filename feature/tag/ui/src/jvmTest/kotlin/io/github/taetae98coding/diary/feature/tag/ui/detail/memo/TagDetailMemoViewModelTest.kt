@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.memo.memo
@@ -22,6 +23,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -47,6 +49,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.atTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -78,6 +81,32 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
                 itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
                 verify(exactly = 1) { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) }
+            }
+        }
+
+        test("TC-2991e08b-63dd-4752-b878-9e688f528e50 기간 없는 메모를 날짜 그룹 없이 먼저 두고 시작 날짜가 같은 메모를 한 그룹으로 묶는다") {
+            runTest(mainDispatcher) {
+                val tagId = Arb.kotlinUuid().next()
+                val date = Arb.kotlinxLocalDate().next()
+                val noDateMemo = memo()
+                val allDayMemo = memo(dateTime = MemoDateTime.AllDay(dateRange = date..date))
+                val dateTimeMemo = memo(dateTime = MemoDateTime.DateTime(start = date.atTime(hour = 9, minute = 0), endInclusive = date.atTime(hour = 10, minute = 0)))
+                val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
+                every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(noDateMemo, allDayMemo, dateTimeMemo))))
+                val viewModel = viewModel(tagId = tagId, pageTagMemoUseCase = pageTagMemoUseCase)
+
+                val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe
+                    listOf(
+                        MemoListItem.Content(memo = noDateMemo),
+                        MemoListItem.DateHeader(date = date),
+                        MemoListItem.Content(memo = allDayMemo),
+                        MemoListItem.Content(memo = dateTimeMemo),
+                    )
             }
         }
 
@@ -333,12 +362,12 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
     private fun List<MemoListItem>.memoList(): List<Memo> = filterIsInstance<MemoListItem.Content>().map { item -> item.memo }
 
-    private fun memo(): Memo =
+    private fun memo(dateTime: MemoDateTime? = null): Memo =
         Arb
             .memo()
             .next()
             .copy(
-                detail = Arb.memoDetail().next().copy(dateTime = null),
+                detail = Arb.memoDetail().next().copy(dateTime = dateTime),
                 updatedAt = Arb.secondPrecisionInstant().next(),
                 createdAt = Arb.secondPrecisionInstant().next(),
             )

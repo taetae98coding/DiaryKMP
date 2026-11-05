@@ -401,6 +401,12 @@ class MemoAddScreenWebAddedResultTest {
 
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DOCS_WEB_TITLE).assertIsDisplayed()
+
+        composeRule.openWebPicker()
+        composeRule.awaitWebPickerRows()
+
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DOCS_WEB_TITLE).assertExists()
     }
 
     @Test

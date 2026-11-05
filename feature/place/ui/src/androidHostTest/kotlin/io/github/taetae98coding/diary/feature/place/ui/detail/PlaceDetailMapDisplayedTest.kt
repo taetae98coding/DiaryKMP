@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -11,7 +12,9 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
@@ -23,9 +26,12 @@ import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
 import io.github.taetae98coding.diary.feature.place.ui.add.mapCoordinateInFormPrecision
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,6 +107,29 @@ class PlaceDetailMapDisplayedTest {
     }
 
     @Test
+    fun `TC-744926fc-9b16-4d87-bd7e-6bd123f904d1 좌표가 성립하지 않는 채 수정을 실행해도 지도가 보고 있는 위치를 옮기지 않는다`() {
+        val savedCoordinate = mapCoordinateInFormPrecision()
+        val id = Uuid.random()
+        val detail = placeDetail(coordinate = Coordinate(latitude = savedCoordinate.latitude, longitude = savedCoordinate.longitude))
+        val uiState = MutableStateFlow<PlaceDetailUiState>(mapDisplayedContent(id = id, detail = detail))
+        val effect = Channel<PlaceDetailEffect>(Channel.BUFFERED)
+        val viewModel = screenTestViewModel(uiState = uiState, effect = effect.receiveAsFlow())
+        every { viewModel.update(any()) } answers { effect.trySend(PlaceDetailEffect.CoordinateInvalid).getOrThrow() }
+        setPlaceDetailScreen(id = id, uiState = uiState, viewModel = viewModel)
+        composeRule.mainClock.advanceTimeBy(REFLECT_WAIT_MILLIS)
+        composeRule.runOnIdle { map.firstScope().state.coordinate shouldBe savedCoordinate }
+
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(INVALID_LATITUDE)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
+        composeRule.mainClock.advanceTimeBy(REFLECT_WAIT_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_COORDINATE_INVALID_MESSAGE).assertIsDisplayed()
+        composeRule.runOnIdle { map.firstScope().state.coordinate shouldBe savedCoordinate }
+    }
+
+    @Test
     fun `TC-5e5b894d-afc7-449e-b129-3ed99682efad 지도가 표시된 PlaceDetail에서 검색을 선택하면 다이얼로그가 열린다`() {
         val id = Uuid.random()
         setPlaceDetailScreen(id = id, uiState = MutableStateFlow(mapDisplayedContent(id = id, detail = placeDetail())))
@@ -144,10 +173,11 @@ class PlaceDetailMapDisplayedTest {
         id: Uuid,
         uiState: MutableStateFlow<PlaceDetailUiState>,
         uriHandler: UriHandler = mockk(relaxed = true),
+        viewModel: PlaceDetailViewModel = screenTestViewModel(uiState = uiState),
     ) {
         preparePlaceDetailTabViewModels()
 
-        composeRule.setContent { PlaceDetailScreenContent(id = id, uiState = uiState, uriHandler = uriHandler) }
+        composeRule.setContent { PlaceDetailScreenContent(id = id, uiState = uiState, uriHandler = uriHandler, viewModel = viewModel) }
         composeRule.waitForIdle()
     }
 
@@ -156,6 +186,7 @@ class PlaceDetailMapDisplayedTest {
         id: Uuid,
         uiState: MutableStateFlow<PlaceDetailUiState>,
         uriHandler: UriHandler,
+        viewModel: PlaceDetailViewModel = screenTestViewModel(uiState = uiState),
     ) {
         CompositionLocalProvider(
             LocalUriHandler provides uriHandler,
@@ -169,7 +200,7 @@ class PlaceDetailMapDisplayedTest {
                     navigateToMemoFinishedList = {},
                     id = id,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
-                    detailViewModel = screenTestViewModel(uiState = uiState),
+                    detailViewModel = viewModel,
                     searchViewModel = searchScreenTestViewModel(),
                     navigateUp = {},
                     navigateToTagDetail = {},

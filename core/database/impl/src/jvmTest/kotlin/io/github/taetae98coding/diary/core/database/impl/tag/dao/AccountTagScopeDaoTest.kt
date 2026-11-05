@@ -298,32 +298,64 @@ class AccountTagScopeDaoTest :
             boundsPlaceIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(sharedPlace.id)
         }
 
-        test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 목록 조회가 갱신된다") {
+        test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 세 목록 조회가 갱신된다") {
             val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
             insertTag(accountId, rootTag, childTag)
 
             val childMemo = memo()
+            val childWeb = web()
+            val childPlace = place()
             insertMemo(accountId, childMemo, childTag.id)
+            insertWeb(accountId, childWeb, childTag.id)
+            insertPlace(accountId, childPlace, childTag.id)
 
-            val pagingSource =
+            val memoPagingSource =
                 database.accountTagMemoDao().page(
                     accountId = accountId,
                     tagId = rootTag.id,
                     scope = TagScopeLocalEntity.CHILD.queryValue,
                     sort = ListSortLocalEntity.DEFAULT.queryValue,
                 )
-            pagingSource.pagedIdList { memo -> memo.id }.shouldBeEmpty()
+            val webPagingSource =
+                database.accountTagWebDao().page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD.queryValue,
+                    sort = ListSortLocalEntity.TITLE.queryValue,
+                )
+            val placePagingSource =
+                database.accountTagPlaceDao().page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD.queryValue,
+                    sort = ListSortLocalEntity.TITLE.queryValue,
+                )
+            memoPagingSource.pagedIdList { memo -> memo.id }.shouldBeEmpty()
+            webPagingSource.pagedIdList { web -> web.id }.shouldBeEmpty()
+            placePagingSource.pagedIdList { place -> place.id }.shouldBeEmpty()
 
-            val invalidated = CompletableDeferred<Unit>()
-            pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+            val memoInvalidated = CompletableDeferred<Unit>()
+            val webInvalidated = CompletableDeferred<Unit>()
+            val placeInvalidated = CompletableDeferred<Unit>()
+            memoPagingSource.registerInvalidatedCallback { memoInvalidated.complete(Unit) }
+            webPagingSource.registerInvalidatedCallback { webInvalidated.complete(Unit) }
+            placePagingSource.registerInvalidatedCallback { placeInvalidated.complete(Unit) }
 
             link(accountId = accountId, fromTagId = rootTag.id, toTagId = childTag.id)
 
-            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
-            pagingSource.invalid shouldBe true
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) {
+                memoInvalidated.await()
+                webInvalidated.await()
+                placeInvalidated.await()
+            }
+            memoPagingSource.invalid shouldBe true
+            webPagingSource.invalid shouldBe true
+            placePagingSource.invalid shouldBe true
             memoIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childMemo.id)
+            webIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childWeb.id)
+            placeIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childPlace.id)
         }
 
         test("TC-11a748b2-3712-4bb6-b382-9f0c78449aab 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {

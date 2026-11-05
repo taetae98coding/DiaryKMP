@@ -144,6 +144,25 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-849af435-b059-414a-86ab-c95b40a3a99e 동기화가 끝난 뒤 다음 해 1월로 이동하면 그 달에 필요한 두 연도의 동기화를 새로 요청한다") {
+            runTest(mainDispatcher) {
+                val year = Arb.int().next().toPositiveYear()
+                val useCase = successfulFetchHolidayUseCase()
+                val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
+
+                viewModel.fetch(YearMonth(year = year, month = Month.DECEMBER))
+                advanceUntilIdle()
+                coVerify(exactly = 1) { useCase(parameter = year) }
+                coVerify(exactly = 1) { useCase(parameter = year + 1) }
+
+                viewModel.fetch(YearMonth(year = year + 1, month = Month.JANUARY))
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(parameter = year) }
+                coVerify(exactly = 2) { useCase(parameter = year + 1) }
+            }
+        }
+
         test("진행 중인 연도마다 동기화가 모두 끝날 때까지 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val year = Arb.int().next().toPositiveYear()

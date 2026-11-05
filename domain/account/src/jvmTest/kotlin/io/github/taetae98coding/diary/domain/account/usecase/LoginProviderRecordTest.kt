@@ -8,6 +8,8 @@ import io.github.taetae98coding.diary.core.testing.authentication.googleCredenti
 import io.github.taetae98coding.diary.domain.account.repository.LoginProviderRepository
 import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.Runs
@@ -42,6 +44,39 @@ class LoginProviderRecordTest :
 
                 Then("TC-649f316c-b797-4ee8-bcde-3ef39857c274 Apple 로그인을 기록한다") {
                     coVerify(exactly = 1) { loginProviderRepository.set(provider = LoginProvider.APPLE) }
+                }
+            }
+        }
+
+        Given("오류 보고 기록 수단이 등록되어 있고 앱 세션 설정은 성공하지만 로그인 수단 기록은 실패하도록 준비되어 있다") {
+            val sessionRepository = mockk<SessionRepository>()
+            coEvery { sessionRepository.create(any<GoogleCredential>()) } just Runs
+            coEvery { sessionRepository.create(any<AppleCredential>()) } just Runs
+            val loginProviderRepository = mockk<LoginProviderRepository>()
+            coEvery { loginProviderRepository.set(provider = any()) } throws IllegalStateException("record failed")
+            val reportList = recordCrashlyticsLog()
+
+            When("Google 로그인을 완료한다") {
+                val result =
+                    SignInWithGoogleUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)(
+                        parameter = Arb.googleCredentialIdToken().next(),
+                    )
+
+                Then("TC-0487b248-3a4f-4251-98cc-a65e4e0679bf Google 로그인은 성공하고 오류 보고가 남지 않는다") {
+                    result.shouldBeSuccess()
+                    reportList.shouldBeEmpty()
+                }
+            }
+
+            When("Apple 로그인을 완료한다") {
+                val result =
+                    SignInWithAppleUseCase(sessionRepository = sessionRepository, loginProviderRepository = loginProviderRepository)(
+                        parameter = Arb.appleCredential().next(),
+                    )
+
+                Then("TC-0487b248-3a4f-4251-98cc-a65e4e0679bf Apple 로그인은 성공하고 오류 보고가 남지 않는다") {
+                    result.shouldBeSuccess()
+                    reportList.shouldBeEmpty()
                 }
             }
         }

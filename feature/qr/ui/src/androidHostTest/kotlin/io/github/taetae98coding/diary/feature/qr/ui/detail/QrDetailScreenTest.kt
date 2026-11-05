@@ -43,7 +43,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
+import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
@@ -559,8 +564,36 @@ class QrDetailScreenTest {
         composeRule.titleInputText() shouldBe stored.title
     }
 
+    /**
+     * 지도 제공자의 실제 표시 요소는 만들 수 없으므로, 화면이 지도 기능에 지정하는 지점과 지도 위치로 확인한다.
+     */
     @Test
-    fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 일정 QR이 다른 경로에서 바뀌어도 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
+    fun `TC-bb6fb994-2c45-4036-8b09-adbcccb134ef 저장된 위치 QR을 열고 QR 탭으로 바꾸면 반영을 기다린 뒤 지도에 그 좌표의 지점을 표시한다`() {
+        var map: DiaryMapContentOverrideScope? = null
+        val mapContent =
+            object : DiaryMapContentOverride {
+                @Composable
+                override fun DiaryMapContentOverrideScope.MapContent() {
+                    map = this
+                }
+            }
+        val fake = FakeViewModel(detail = Arb.qrDetail(value = "geo:37.5665,126.978").next())
+        fake.uiState.value = fake.content().copy(defaultProvider = MapProvider.NAVER)
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent { CompositionLocalProvider(LocalDiaryMapContentOverride provides mapContent) { ScreenContent(viewModel = fake.viewModel) } }
+        composeRule.selectTab(QR_TAB_INDEX)
+
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        composeRule.runOnIdle {
+            checkNotNull(map).state.spot shouldBe expected
+            checkNotNull(map).state.coordinate shouldBe expected
+        }
+    }
+
+    @Test
+    fun `TC-91db2a1b-5095-412a-bc7d-9c1c4387e2ea 저장된 일정 QR이 다른 경로에서 바뀌어도 선택한 일정 포맷과 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
         val stored =
             listOf(
                 "BEGIN:VEVENT",
@@ -579,6 +612,7 @@ class QrDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.qrCodeValue() shouldBe edited
+        composeRule.selectedFormat() shouldBe EVENT_FORMAT
         composeRule.onQrFieldInput(EVENT_TITLE_LABEL).editableText() shouldBe "b"
     }
 
@@ -858,7 +892,9 @@ class QrDetailScreenTest {
         const val URL_LABEL = "URL"
         const val TEXT_FORMAT = "텍스트"
         const val EVENT_TITLE_LABEL = "일정 제목"
+        const val EVENT_FORMAT = "일정"
         const val APPENDED_TEXT = "2"
+        const val REFLECT_DELAY_MILLIS = 200L
 
         const val NAVIGATE_UP = "뒤로가기"
         const val UNDO = "되돌리기"

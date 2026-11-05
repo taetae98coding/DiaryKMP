@@ -120,6 +120,26 @@ class CalendarColorUiTest {
     }
 
     @Test
+    fun `TC-d04200e7-73bb-4bc0-a247-bbde0a0547e6 공휴일을 지정하지 않으면 어떤 날짜도 공휴일로 구분되지 않는다`() {
+        val colors = giveMeCalendarColor()
+        val defaultContentColor = giveMeColor()
+        composeRule.setContent {
+            DiaryTheme {
+                CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
+                    Calendar(
+                        state = rememberCalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY)),
+                        colors = colors,
+                    ) {}
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("12").textColor() shouldBe colors.sundayAndHolidayColor
+        composeRule.onNodeWithText("13").textColor() shouldBe defaultContentColor
+        composeRule.onNodeWithText("18").textColor() shouldBe colors.saturdayColor
+    }
+
+    @Test
     fun `TC-97967e1e-731a-4003-afeb-ead39d925689 공휴일 지정이 바뀌면 공휴일 구분이 갱신된다`() {
         val colors = giveMeCalendarColor()
         val defaultContentColor = giveMeColor()

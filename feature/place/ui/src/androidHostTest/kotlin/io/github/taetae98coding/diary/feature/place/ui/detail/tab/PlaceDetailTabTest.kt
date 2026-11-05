@@ -4,10 +4,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -19,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -28,6 +31,12 @@ import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.core.testing.place.searchedPlace
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.place.ui.detail.ADDRESS_INDEX
+import io.github.taetae98coding.diary.feature.place.ui.detail.CHANGED_ADDRESS
+import io.github.taetae98coding.diary.feature.place.ui.detail.CHANGED_COLOR_HEX
+import io.github.taetae98coding.diary.feature.place.ui.detail.CHANGED_DESCRIPTION
+import io.github.taetae98coding.diary.feature.place.ui.detail.CHANGED_LATITUDE
+import io.github.taetae98coding.diary.feature.place.ui.detail.CHANGED_LONGITUDE
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
@@ -35,16 +44,23 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_NAVIGATE_U
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_SEARCH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_UPDATE_BUTTON_DESCRIPTION
+import io.github.taetae98coding.diary.feature.place.ui.detail.DESCRIPTION_INDEX
 import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
+import io.github.taetae98coding.diary.feature.place.ui.detail.INPUT_COUNT
 import io.github.taetae98coding.diary.feature.place.ui.detail.KOREAN_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.KOREAN_MEMO_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.place.ui.detail.LATITUDE_INDEX
+import io.github.taetae98coding.diary.feature.place.ui.detail.LONGITUDE_INDEX
 import io.github.taetae98coding.diary.feature.place.ui.detail.PLACE_DETAIL_PAGER_TEST_TAG
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScaffold
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreen
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreenTestTheme
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
+import io.github.taetae98coding.diary.feature.place.ui.detail.TITLE_INDEX
+import io.github.taetae98coding.diary.feature.place.ui.detail.changeColor
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.place.ui.detail.input
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeDetail
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemoPagingData
@@ -57,6 +73,7 @@ import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.refreshableList
 import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -82,6 +99,8 @@ class PlaceDetailTabTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).assertExists()
+        composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size shouldBe INPUT_COUNT
+        composeRule.onNodeWithText(DEFAULT_TAG_INPUT_LABEL).assertExists()
         composeRule.onNodeWithText(memoTitle).assertDoesNotExist()
     }
 
@@ -109,6 +128,8 @@ class PlaceDetailTabTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).assertExists()
+        composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size shouldBe INPUT_COUNT
+        composeRule.onNodeWithText(DEFAULT_TAG_INPUT_LABEL).assertExists()
         composeRule.onNodeWithText(memoTitle).assertDoesNotExist()
     }
 
@@ -135,6 +156,11 @@ class PlaceDetailTabTest {
         setScreen(placeTitle = placeTitle, memoTitle = memoTitle, uiState = PlaceDetailUiState.Loading)
 
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).assertDoesNotExist()
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .isNotEmpty()
+            .shouldBeTrue()
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -147,11 +173,21 @@ class PlaceDetailTabTest {
         val placeTitle = newPlaceTitle()
         setScreen(placeTitle = placeTitle)
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).performTextInput(EDIT_SUFFIX)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.changeColor()
 
         composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.selectPlaceDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
-        composeRule.onNode(hasText(placeTitle + EDIT_SUFFIX) and hasSetTextAction()).assertExists()
+        composeRule.input(TITLE_INDEX).assert(hasText(placeTitle + EDIT_SUFFIX))
+        composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
     }
 
     @Test
@@ -388,6 +424,7 @@ class PlaceDetailTabTest {
 
     private companion object {
         const val EDIT_SUFFIX = "Edited"
+        const val DEFAULT_TAG_INPUT_LABEL = "Select tag"
         const val MEMO_COUNT = 30
         const val PAGE_TIMEOUT_MILLIS = 5_000L
 

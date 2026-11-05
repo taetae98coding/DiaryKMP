@@ -150,10 +150,20 @@ class ProfileImageEditScreenTest {
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, SQUARE_URI))
         choosePhoto()
         awaitReady()
+        // 정사각형 사진은 영역이 항상 전체라 옮기기만 해서는 이전 영역이 남았는지 구분할 수 없으므로, 키워서 영역을 줄여 둔다.
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput {
+            pinch(
+                start0 = Offset(center.x - width * NARROW_PINCH_RATIO, center.y),
+                end0 = Offset(center.x - width * WIDE_PINCH_RATIO, center.y),
+                start1 = Offset(center.x + width * NARROW_PINCH_RATIO, center.y),
+                end1 = Offset(center.x + width * WIDE_PINCH_RATIO, center.y),
+            )
+        }
         composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput { swipeLeft() }
 
         choosePhoto()
         awaitReady()
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).assertIsDisplayed()
         composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 

@@ -14,10 +14,15 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
+import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,18 +78,23 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 고향, 알게 된 경로는 목록에 표시하지 않는다`() {
+    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 키, 신발 사이즈, 고향, 알게 된 경로는 목록에 표시하지 않는다`() {
         val contact =
             testContact(
                 name = CONTACT_NAME,
                 phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
                 description = CONTACT_DESCRIPTION,
+                height = CONTACT_HEIGHT_CENTIMETER.centimeter,
+                footSize = CONTACT_FOOT_SIZE_MILLIMETER.millimeter,
+                birthday = ContactBirthday(date = CONTACT_BIRTHDAY_DATE, calendar = ContactBirthdayCalendar.SOLAR),
                 hometown = CONTACT_HOMETOWN,
                 howWeMet = CONTACT_HOW_WE_MET,
             )
 
         setContactHomeList(contactList = listOf(contact))
 
+        // 카드는 클릭 가능한 컨테이너여서 자식 문구를 하나로 합치므로, 합쳐진 문구로 표시된 줄을 확인한다.
+        composeRule.onNodeWithTag(CONTACT_CARD_TEST_TAG).assertTextEquals(CONTACT_NAME, CONTACT_PHONE_NUMBER, CONTACT_BIRTHDAY_TEXT)
         composeRule.onNodeWithText(CONTACT_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(CONTACT_HOMETOWN).assertDoesNotExist()
         composeRule.onNodeWithText(CONTACT_HOW_WE_MET).assertDoesNotExist()
@@ -94,6 +104,7 @@ class ContactHomeListTest {
     fun `TC-f2c81ef9-b642-4471-b828-6a40267bc604 표시할 연락처가 있으면 빈 상태 안내를 표시하지 않는다`() {
         setContactHomeList(contactList = listOf(testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))))
 
+        composeRule.onNodeWithText(CONTACT_NAME).assertExists()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
@@ -199,6 +210,10 @@ class ContactHomeListTest {
         private const val CONTACT_DESCRIPTION = "ContactHomeListDescription"
         private const val CONTACT_HOMETOWN = "ContactHomeListHometown"
         private const val CONTACT_HOW_WE_MET = "ContactHomeListHowWeMet"
+        private const val CONTACT_HEIGHT_CENTIMETER = 171.5
+        private const val CONTACT_FOOT_SIZE_MILLIMETER = 263
+        private val CONTACT_BIRTHDAY_DATE = LocalDate(year = 1990, month = 3, day = 4)
+        private const val CONTACT_BIRTHDAY_TEXT = "Mar 4, 1990"
         private const val RESTORATION_CONTACT_COUNT = 40
         private const val RESTORATION_SCROLL_INDEX = 30
     }

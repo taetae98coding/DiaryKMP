@@ -1482,7 +1482,6 @@ class FileHomeScreenTest {
         private const val UPLOADED_FILE_NAME = "uploaded.txt"
         private const val ADDED_FILE_NAME = "added.txt"
         private const val ADD_BUTTON_DESCRIPTION = "파일 추가"
-        private const val SNACKBAR_DISMISS_MILLIS = 20_000L
         private const val LOADING_DESCRIPTION = "파일 불러오는 중"
         private const val REFRESHING = "새로고침 중"
         private const val GUEST_TITLE = "로그인이 필요합니다"

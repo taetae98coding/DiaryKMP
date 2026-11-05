@@ -76,6 +76,24 @@ class AndroidPlayIntegrityTokenProviderTest {
     }
 
     @Test
+    fun `TC-aa5089cf-0ae2-46ec-aad1-7316c185e518 확인 준비는 한 번만 하고 다음 확인에도 다시 쓴다`() {
+        val firstToken = Arb.nonBlankString().next()
+        val secondToken = Arb.nonBlankString().next()
+        val preparedProvider = mockk<StandardIntegrityTokenProvider>()
+        every { preparedProvider.request(any<StandardIntegrityTokenRequest>()) } returnsMany
+            listOf(Tasks.forResult(integrityToken(firstToken)), Tasks.forResult(integrityToken(secondToken)))
+        every { integrityManager.prepareIntegrityToken(any<PrepareIntegrityTokenRequest>()) } returns Tasks.forResult(preparedProvider)
+        val context = RuntimeEnvironment.getApplication()
+        val playIntegrityTokenProvider = AndroidPlayIntegrityTokenProvider(context = context)
+
+        getToken(playIntegrityTokenProvider) shouldBe PlayIntegrityToken(token = firstToken, packageName = context.packageName)
+        getToken(playIntegrityTokenProvider) shouldBe PlayIntegrityToken(token = secondToken, packageName = context.packageName)
+
+        verify(exactly = 1) { integrityManager.prepareIntegrityToken(any<PrepareIntegrityTokenRequest>()) }
+        verify(exactly = 2) { preparedProvider.request(any<StandardIntegrityTokenRequest>()) }
+    }
+
+    @Test
     fun `준비가 무효라는 실패가 아니면 준비한 제공자를 버리지 않고 다음 확인에 다시 쓴다`() {
         val token = Arb.nonBlankString().next()
         val preparedProvider = mockk<StandardIntegrityTokenProvider>()

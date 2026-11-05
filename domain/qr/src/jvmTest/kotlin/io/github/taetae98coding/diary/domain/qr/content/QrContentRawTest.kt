@@ -111,13 +111,21 @@ class QrContentRawTest :
                     Triple(contactTel, { content: QrContent.Contact -> content.copy(phoneNumber = "") }, crlf("BEGIN:VCARD", "FN:a", "END:VCARD")),
                     Triple(contactName, { content: QrContent.Contact -> content.copy(name = "c") }, crlf("BEGIN:VCARD", "N:c", "FN:c", "END:VCARD")),
                 )
+            val contactNameBlank = crlf("BEGIN:VCARD", "N:a;b;;;", "FN:a b", "TEL:010", "END:VCARD")
+            assertPatch(QrFormat.CONTACT, contactNameBlank, { content: QrContent.Contact -> content.copy(name = "") }, crlf("BEGIN:VCARD", "N:", "FN:", "TEL:010", "END:VCARD"))
             caseList.forEach { (raw, edit, expected) -> assertPatch(QrFormat.CONTACT, raw, edit, expected) }
 
             assertPatch(QrFormat.WIFI, "WIFI:T:WPA;S:home;P:pw;;", { content: QrContent.Wifi -> content.copy(security = QrWifiSecurity.NONE) }, "WIFI:T:nopass;S:home;;")
             assertPatch(QrFormat.WIFI, "WIFI:S:home;;", { content: QrContent.Wifi -> content.copy(isHidden = true) }, "WIFI:S:home;H:true;;")
+            assertPatch(QrFormat.WIFI, "WIFI:T:WPA;S:home;P:pw;H:true;;", { content: QrContent.Wifi -> content.copy(password = "") }, "WIFI:T:WPA;S:home;H:true;;")
+            assertPatch(QrFormat.WIFI, "WIFI:T:WPA;S:home;P:pw;H:true;;", { content: QrContent.Wifi -> content.copy(isHidden = false) }, "WIFI:T:WPA;S:home;P:pw;;")
+            QrContent
+                .Wifi(ssid = "home", security = QrWifiSecurity.WPA, password = "pw")
+                .patch(raw = "WIFI:T:nopass;S:home;;", previous = QrContent.Wifi(ssid = "home", security = QrWifiSecurity.NONE, password = "pw")) shouldBe "WIFI:T:WPA;S:home;P:pw;;"
             assertPatch(QrFormat.LOCATION, "geo:37.5,127,30;u=10?q=cafe", { content: QrContent.Location -> content.copy(latitude = "36") }, "geo:36,127,30;u=10?q=cafe")
             assertPatch(QrFormat.EMAIL, "mailto:a@b.c?cc=x@y.z&body=hi", { content: QrContent.Email -> content.copy(subject = "yo") }, "mailto:a@b.c?cc=x@y.z&body=hi&subject=yo")
             assertPatch(QrFormat.EMAIL, "mailto:a@b.c?cc=x@y.z&body=hi", { content: QrContent.Email -> content.copy(body = "") }, "mailto:a@b.c?cc=x@y.z")
+            assertPatch(QrFormat.EMAIL, "mailto:a@b.c?cc=x@y.z&body=hi", { content: QrContent.Email -> content.copy(to = "d@e.f") }, "mailto:d@e.f?cc=x@y.z&body=hi")
             assertPatch(QrFormat.PHONE, "TEL:010", { content: QrContent.Phone -> content.copy(phoneNumber = "011") }, "TEL:011")
             assertPatch(QrFormat.SMS, "sms:010?body=hi", { content: QrContent.Sms -> content.copy(phoneNumber = "011") }, "sms:011?body=hi")
             assertPatch(QrFormat.SMS, "SMSTO:010:hi", { content: QrContent.Sms -> content.copy(message = "") }, "SMSTO:010")

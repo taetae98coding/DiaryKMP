@@ -17,6 +17,7 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.constant
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -69,9 +70,11 @@ class RestoreContactUseCaseTest :
                 }
 
                 Then("TC-1e7fe660-ca51-46e0-a12b-e2e2c5f54bfb TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                    clearMocks(requestSyncUseCase, answers = false)
+
                     useCase(parameter = id).shouldBeSuccess(1)
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
         }

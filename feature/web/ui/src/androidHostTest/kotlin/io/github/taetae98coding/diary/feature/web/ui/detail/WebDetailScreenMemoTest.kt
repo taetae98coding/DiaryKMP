@@ -77,18 +77,13 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-6d7309a6-7f48-4448-9be9-4cf4af1d8fd8 웹 항목 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
-        var navigateToMemoAddCount = 0
-        setScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
+    fun `TC-6d7309a6-7f48-4448-9be9-4cf4af1d8fd8 수정 폼 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+        assertMemoAddOnlyOnMemoTab(tabDescription = DEFAULT_FORM_TAB_DESCRIPTION)
+    }
 
-        composeRule.onRoot().performKeyInput { withKeyDown(Key.MetaLeft) { pressKey(Key.A) } }
-        navigateToMemoAddCount shouldBe 0
-        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertDoesNotExist()
-
-        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
-        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).performClick()
-
-        navigateToMemoAddCount shouldBe 1
+    @Test
+    fun `TC-6d7309a6-7f48-4448-9be9-4cf4af1d8fd8 웹 페이지 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+        assertMemoAddOnlyOnMemoTab(tabDescription = DEFAULT_PAGE_TAB_DESCRIPTION)
     }
 
     @Test
@@ -154,6 +149,7 @@ class WebDetailScreenMemoTest {
         verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
         emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
 
+        composeRule.onNodeWithText(text = memo.detail.title, useUnmergedTree = true).assertIsNotDisplayed()
         composeRule.onNodeWithText(KOREAN_DELETED_MESSAGE).assertIsDisplayed()
         composeRule.onNodeWithText(KOREAN_UNDO_ACTION).assertIsDisplayed()
     }
@@ -269,6 +265,21 @@ class WebDetailScreenMemoTest {
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
         verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
+    private fun assertMemoAddOnlyOnMemoTab(tabDescription: String) {
+        var navigateToMemoAddCount = 0
+        setScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
+        composeRule.selectWebDetailTab(tabDescription)
+
+        composeRule.onRoot().performKeyInput { withKeyDown(Key.MetaLeft) { pressKey(Key.A) } }
+        navigateToMemoAddCount shouldBe 0
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).performClick()
+
+        navigateToMemoAddCount shouldBe 1
     }
 
     // 웹 페이지 불러오기는 화면 fixture가 불러오는 중 상태로 둔다.

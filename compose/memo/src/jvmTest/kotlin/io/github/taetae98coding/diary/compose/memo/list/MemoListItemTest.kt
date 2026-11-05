@@ -80,11 +80,15 @@ class MemoListItemTest :
 
         test("TC-86accd72-8a38-4e57-acc0-c863e6032631 기본순에서는 날짜 헤더를 만든다") {
             val allDayMemo = memo(dateTime = allDay(day = 19))
+            val nextDateMemo = memo(dateTime = allDay(day = 21))
 
-            val itemList = memoListItemList(listOf(allDayMemo), sort = ListSort.DEFAULT)
+            val itemList = memoListItemList(listOf(allDayMemo, nextDateMemo), sort = ListSort.DEFAULT)
 
             itemList.filterIsInstance<MemoListItem.DateHeader>() shouldBe
-                listOf(MemoListItem.DateHeader(date = LocalDate(year = 2026, month = 7, day = 19)))
+                listOf(
+                    MemoListItem.DateHeader(date = LocalDate(year = 2026, month = 7, day = 19)),
+                    MemoListItem.DateHeader(date = LocalDate(year = 2026, month = 7, day = 21)),
+                )
         }
     })
 

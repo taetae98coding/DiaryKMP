@@ -391,11 +391,12 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("삭제가 실패하면 삭제 성공 Effect를 보내지 않고 진행 상태만 해제한다") {
+        test("TC-1c9d318b-94e8-4358-9c64-fa1b467b60e5 삭제에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 삭제를 다시 실행할 수 있다") {
             runTest(mainDispatcher) {
+                val id = Uuid.random()
                 val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
-                coEvery { deletePlaceUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
-                val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
+                coEvery { deletePlaceUseCase(id) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = id, deletePlaceUseCase = deletePlaceUseCase)
                 collectUiState(viewModel)
 
                 viewModel.effect.test {
@@ -403,8 +404,15 @@ class PlaceDetailViewModelTest : FunSpec() {
                     advanceUntilIdle()
 
                     expectNoEvents()
+                    viewModel.isDeleteInProgress().shouldBeFalse()
+
+                    viewModel.delete()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
                 }
 
+                coVerify(exactly = 2) { deletePlaceUseCase(id) }
                 viewModel.isDeleteInProgress().shouldBeFalse()
             }
         }

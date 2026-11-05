@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -117,6 +119,8 @@ class QrAddScreenTest {
 
         navigateToScanCount shouldBe 0
         composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertExists()
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.onNode(hasText(KOREAN_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe KOREAN_TEXT_FORMAT_NAME
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
         composeRule.qrTextInputText() shouldBe detail.value
@@ -397,6 +401,8 @@ class QrAddScreenTest {
         private const val DEFAULT_SCAN_DESCRIPTION = "Scan QR code"
         private const val KOREAN_SCAN_DESCRIPTION = "QR 스캔"
         private const val KOREAN_ADD_DESCRIPTION = "QR 추가"
+        private const val KOREAN_FORMAT_LABEL = "포맷"
+        private const val KOREAN_TEXT_FORMAT_NAME = "텍스트"
         private const val KOREAN_ADD_SUCCEEDED_MESSAGE = "QR이 추가되었습니다."
         private const val SNACKBAR_DISMISS_WAIT_MILLIS = 10_000L
         private const val KOREAN_PERMISSION_DENIED_MESSAGE = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."

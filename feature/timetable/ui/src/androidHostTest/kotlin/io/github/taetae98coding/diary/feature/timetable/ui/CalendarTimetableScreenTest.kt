@@ -59,6 +59,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -621,6 +622,25 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
+    fun `TC-95cba6cc-aa00-4126-8a7a-a73204ddc2c1 지역명이 준비되면 조작 없이 그 지역명으로 검색한다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        val weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather())))
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 23),
+            weatherReportFlow = weatherReportFlow,
+            uriHandler = uriHandler,
+        )
+
+        weatherReportFlow.value = CalendarWeatherReport(weatherList = listOf(todayWeather()), locationName = SEONGNAM)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri("https://search.naver.com/search.naver?query=%EC%84%B1%EB%82%A8%EC%8B%9C%20%EB%82%A0%EC%94%A8") }
+    }
+
+    @Test
     fun `TC-e19d9798-5498-46f7-bcaa-46c0aafab5c8 지역명이 없으면 날씨만으로 검색한다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setTimetableScreen(
@@ -860,10 +880,50 @@ class CalendarTimetableScreenTest {
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-53841678-2f11-4327-9b1f-ee8efd57ae6e 이름이 같은 연락처의 생일은 알게 된 경로와 함께 표시된다`() {
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 24),
+            birthdayListFlow = MutableStateFlow(listOf(birthday(day = 24, nameQualifier = HOW_WE_MET))),
+        )
+
+        composeRule.onNodeWithText("$BIRTHDAY_TEXT($HOW_WE_MET)").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-bf087088-ec80-4bcb-8701-ac814a9dbca3 음력 자료 동기화가 한 연도 실패해도 다른 연도를 요청하고 시간표를 보여 준다`() {
+        val fetchUseCase = mockk<FetchLunarUseCase>()
+        coEvery { fetchUseCase(parameter = 2026) } returns Result.failure(IllegalStateException(Arb.nonBlankString().next()))
+        coEvery { fetchUseCase(parameter = 2027) } returns Result.success(emptyList())
+        val getUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+        every { getUseCase(parameter = any()) } returns flowOf(Result.success(listOf(birthday(day = 31, month = 12))))
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = LocalDate(year = 2026, month = 12, day = 31),
+            memoList = listOf(memo(title = MEETING_TITLE, dateTime = timed(day = 31, month = 12, startHour = 10, endHour = 11))),
+            holidayListFlow =
+                MutableStateFlow(
+                    listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = LocalDate(year = 2026, month = 12, day = 31)..LocalDate(year = 2026, month = 12, day = 31))),
+                ),
+            birthdayViewModel = CalendarTimetableBirthdayViewModel(fetchLunarUseCase = fetchUseCase, getCalendarContactBirthdayUseCase = getUseCase),
+        )
+
+        coVerify(exactly = 1) { fetchUseCase(parameter = 2027) }
+        composeRule.onNodeWithText(MEETING_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(CHUSEOK).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(SEARCH_OPEN_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
     private fun birthday(
         day: Int,
         name: String = BIRTHDAY_NAME,
-    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = "", date = september(day = day))
+        nameQualifier: String = "",
+        month: Int = 9,
+    ): CalendarContactBirthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = name, nameQualifier = nameQualifier, date = LocalDate(year = 2026, month = month, day = day))
 
     private fun todayWeather(): CalendarWeather =
         Arb
@@ -999,6 +1059,7 @@ private const val BIRTHDAY_CONTENT_DESCRIPTION = "홍길동's birthday"
 private const val OTHER_BIRTHDAY_NAME = "김철수"
 private const val OTHER_BIRTHDAY_TEXT = "🎂 김철수"
 private const val SEONGNAM = "성남시"
+private const val HOW_WE_MET = "친구 소개"
 private const val CLEAR_SKY = "clear sky"
 private const val FEW_CLOUDS = "few clouds"
 private const val CURRENT_TEMPERATURE_TEXT = "24.3°"
@@ -1013,10 +1074,11 @@ private fun timed(
     day: Int,
     startHour: Int,
     endHour: Int,
+    month: Int = 9,
 ): MemoDateTime =
     MemoDateTime.DateTime(
-        start = LocalDateTime(year = 2026, month = 9, day = day, hour = startHour, minute = 0),
-        endInclusive = LocalDateTime(year = 2026, month = 9, day = day, hour = endHour, minute = 0),
+        start = LocalDateTime(year = 2026, month = month, day = day, hour = startHour, minute = 0),
+        endInclusive = LocalDateTime(year = 2026, month = month, day = day, hour = endHour, minute = 0),
     )
 
 private fun memo(

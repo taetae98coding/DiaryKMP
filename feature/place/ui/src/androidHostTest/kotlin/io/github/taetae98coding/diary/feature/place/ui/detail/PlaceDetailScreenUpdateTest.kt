@@ -163,25 +163,71 @@ class PlaceDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-9eb80a1c-35d7-4e8b-b107-1fa4937e3fb9 저장된 내용이 바뀌면 화면 제목만 갱신하고 수정 중인 내용은 유지한다`() {
+    fun `TC-9eb80a1c-35d7-4e8b-b107-1fa4937e3fb9 저장된 제목과 설명이 바뀌면 화면 제목만 갱신하고 수정 중인 내용은 유지한다`() {
         val detail = placeDetail()
         val id = Uuid.random()
         val uiState = MutableStateFlow(content(id = id, detail = detail))
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = uiState))
 
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
         composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
-        composeRule.waitForIdle()
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.changeColor()
 
-        uiState.value = content(id = id, detail = detail.copy(title = CHANGED_TITLE))
+        uiState.value = content(id = id, detail = detail.copy(title = EXTERNAL_TITLE, description = EXTERNAL_DESCRIPTION))
         composeRule.waitForIdle()
 
         composeRule
-            .onAllNodes(hasText(CHANGED_TITLE))
+            .onAllNodes(hasText(EXTERNAL_TITLE))
             .fetchSemanticsNodes()
             .size shouldBe 1
-        composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
+    }
+
+    @Test
+    fun `TC-45149e3f-8b71-4217-b619-2517667cd553 수정에 성공해도 화면과 입력한 내용을 유지한다`() {
+        val detail = placeDetail()
+        val id = Uuid.random()
+        val uiState = MutableStateFlow(content(id = id, detail = detail))
+        val viewModel = screenTestViewModel(uiState = uiState)
+        every { viewModel.update(any()) } answers {
+            uiState.value =
+                content(
+                    id = id,
+                    detail =
+                        detail.copy(
+                            title = CHANGED_TITLE,
+                            description = CHANGED_DESCRIPTION,
+                            address = CHANGED_ADDRESS,
+                            coordinate = Coordinate(latitude = CHANGED_LATITUDE.toDouble(), longitude = CHANGED_LONGITUDE.toDouble()),
+                        ),
+                )
+        }
+        var navigateUpCount = 0
+        composeRule.setPlaceDetailScreen(viewModel = viewModel, navigateUp = { navigateUpCount++ })
+
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.changeColor()
+        composeRule.triggerUpdate()
+
+        navigateUpCount shouldBe 0
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+        composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
     }
 
     @Test
@@ -230,5 +276,7 @@ class PlaceDetailScreenUpdateTest {
 
     private companion object {
         private const val BLANK_TITLE = "   "
+        private const val EXTERNAL_TITLE = "외부에서 바뀐 제목"
+        private const val EXTERNAL_DESCRIPTION = "외부에서 바뀐 설명"
     }
 }

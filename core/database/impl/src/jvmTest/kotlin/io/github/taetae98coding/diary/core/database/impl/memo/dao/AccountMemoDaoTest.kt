@@ -445,7 +445,46 @@ class AccountMemoDaoTest :
             pagedIds(accountId).shouldBeEmpty()
         }
 
-        test("상세 갱신은 해당 계정의 메모 제목, 설명, 컬러, 기간, 수정 시각만 바꾸고 나머지 속성은 유지한다") {
+        test("TC-2f518e6c-8fca-4c6e-904f-7ddb37f4b44a 완료, 다시 시작, 삭제는 상태와 수정 시각만 바꾸고 나머지 속성과 계정 연결은 유지한다") {
+            suspend fun assertOnlyStateChanged(
+                memo: MemoLocalEntity,
+                expected: (MemoLocalEntity, Instant) -> MemoLocalEntity,
+                update: suspend (accountId: Uuid, memoId: Uuid, updatedAt: Instant) -> Int,
+            ) {
+                val accountId = Arb.kotlinUuid().next()
+                val actionAt = Arb.secondPrecisionInstant().next()
+                insert(accountId, memo)
+
+                update(accountId, memo.id, actionAt) shouldBe 1
+
+                database
+                    .accountMemoDao()
+                    .find(accountId = accountId, memoId = memo.id)
+                    .first()
+                    .shouldNotBeNull() shouldBe expected(memo, actionAt)
+            }
+
+            assertOnlyStateChanged(
+                memo = memo(isFinished = false),
+                expected = { memo, actionAt -> memo.copy(isFinished = true, updatedAt = actionAt) },
+            ) { accountId, memoId, updatedAt ->
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = memoId, isFinished = true, updatedAt = updatedAt)
+            }
+            assertOnlyStateChanged(
+                memo = memo(isFinished = true),
+                expected = { memo, actionAt -> memo.copy(isFinished = false, updatedAt = actionAt) },
+            ) { accountId, memoId, updatedAt ->
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = memoId, isFinished = false, updatedAt = updatedAt)
+            }
+            assertOnlyStateChanged(
+                memo = memo(isDeleted = false),
+                expected = { memo, actionAt -> memo.copy(isDeleted = true, updatedAt = actionAt) },
+            ) { accountId, memoId, updatedAt ->
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = memoId, isDeleted = true, updatedAt = updatedAt)
+            }
+        }
+
+        test("TC-c72ce1a3-4efa-4763-a33d-3e0802a2afd4 상세 갱신은 해당 계정의 메모 제목, 설명, 컬러, 기간, 수정 시각만 바꾸고 나머지 속성은 유지한다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo(updatedAt = Instant.fromEpochMilliseconds(1_000))

@@ -137,6 +137,31 @@ class EntityDetailMemoLinkResultTest :
             }
         }
 
+        test("TC-53573661-7474-4f93-ad23-b9194032b27d 상세 대상이 다른 장소로 바뀌면 목록은 새 장소의 메모로 바뀐다") {
+            val accountId = Arb.kotlinUuid().next()
+            val firstPlace = Arb.localPlace(isDeleted = false).next()
+            val secondPlace = Arb.localPlace(isDeleted = false).next()
+            insertPlace(accountId = accountId, place = firstPlace)
+            insertPlace(accountId = accountId, place = secondPlace)
+            val firstMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            val secondMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            transaction.upsert(
+                accountId = accountId,
+                memoList = listOf(firstMemo, secondMemo),
+                memoTagList = emptyList(),
+                memoPlaceList =
+                    listOf(
+                        memoPlace(memo = firstMemo, placeId = firstPlace.id),
+                        memoPlace(memo = secondMemo, placeId = secondPlace.id),
+                    ),
+                memoWebList = emptyList(),
+                memoContactList = emptyList(),
+            )
+
+            placeMemoIds(accountId = accountId, placeId = firstPlace.id) shouldBe listOf(firstMemo.id)
+            placeMemoIds(accountId = accountId, placeId = secondPlace.id) shouldBe listOf(secondMemo.id)
+        }
+
         test("TC-cea9cb67-7465-4846-bcac-12652d0c07d0 새 메모는 저장 시점의 웹 항목 선택으로 연결되고 웹 항목 A의 메모 탭은 그 연결을 따른다") {
             val accountId = Arb.kotlinUuid().next()
             val webA = Arb.localWeb(isDeleted = false).next()
@@ -164,6 +189,31 @@ class EntityDetailMemoLinkResultTest :
                     (memo.id in webMemoIds(accountId = accountId, webId = webA.id)) shouldBe selectionCase.isShownInA
                 }
             }
+        }
+
+        test("TC-2abd8f05-8da5-456b-9ca0-ded1534afe50 상세 대상이 다른 웹 항목으로 바뀌면 목록은 새 웹 항목의 메모로 바뀐다") {
+            val accountId = Arb.kotlinUuid().next()
+            val firstWeb = Arb.localWeb(isDeleted = false).next()
+            val secondWeb = Arb.localWeb(isDeleted = false).next()
+            insertWeb(accountId = accountId, web = firstWeb)
+            insertWeb(accountId = accountId, web = secondWeb)
+            val firstMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            val secondMemo = Arb.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).next()
+            transaction.upsert(
+                accountId = accountId,
+                memoList = listOf(firstMemo, secondMemo),
+                memoTagList = emptyList(),
+                memoPlaceList = emptyList(),
+                memoWebList =
+                    listOf(
+                        memoWeb(memo = firstMemo, webId = firstWeb.id),
+                        memoWeb(memo = secondMemo, webId = secondWeb.id),
+                    ),
+                memoContactList = emptyList(),
+            )
+
+            webMemoIds(accountId = accountId, webId = firstWeb.id) shouldBe listOf(firstMemo.id)
+            webMemoIds(accountId = accountId, webId = secondWeb.id) shouldBe listOf(secondMemo.id)
         }
 
         test("TC-f4e12382-db96-4fe5-9c0d-a27cc28cc8f6 새 메모는 저장 시점의 연락처 선택으로 연결되고 연락처 A의 메모 탭은 그 연결을 따른다") {
