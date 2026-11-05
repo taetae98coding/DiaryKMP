@@ -295,7 +295,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun place(updatedAt: Instant = instant()): PlaceLocalEntity =
+        private fun place(updatedAt: Instant = Arb.secondPrecisionInstant().next()): PlaceLocalEntity =
             Arb
                 .placeLocalEntity()
                 .next()
@@ -303,7 +303,7 @@ class AccountPlaceSyncTransactionImplTest :
                     detail = detail(),
                     isDeleted = false,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun detail(): PlaceDetailLocalEntity =
@@ -314,7 +314,5 @@ class AccountPlaceSyncTransactionImplTest :
                     latitude = 37.5,
                     longitude = 127.0,
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

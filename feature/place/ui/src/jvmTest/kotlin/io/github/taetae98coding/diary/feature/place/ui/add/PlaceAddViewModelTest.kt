@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInva
 import io.github.taetae98coding.diary.domain.place.exception.PlaceTitleBlankException
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.feature.place.ui.form.mapCoordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.placeAddFormState
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
@@ -148,12 +148,12 @@ class PlaceAddViewModelTest : FunSpec() {
         test("TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가한다") {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
-                val selectedCoordinate = mapCoordinateInFormPrecision()
+                val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.success(id)
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
-                val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+                val state = placeAddFormState(initialMapCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
                 state.titleState.setText("title-${Arb.string().next()}")
 
                 state.selectSpotOnMap(selectedCoordinate)

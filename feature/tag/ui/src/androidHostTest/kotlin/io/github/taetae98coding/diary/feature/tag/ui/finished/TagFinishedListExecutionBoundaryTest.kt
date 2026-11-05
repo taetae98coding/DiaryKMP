@@ -27,10 +27,10 @@ import io.github.taetae98coding.diary.domain.tag.usecase.PageFinishedTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
@@ -195,7 +195,7 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     private fun tagList(): List<Tag> {
-        val titlePrefix = fixtureText(prefix = "FinishedTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedTag").next()
 
         return List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
     }

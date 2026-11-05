@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.compose.map.web
 
-import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.color
 import io.github.taetae98coding.diary.compose.map.diaryMapCamera
 import io.github.taetae98coding.diary.compose.map.diaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
@@ -277,7 +277,7 @@ class MapMessageTest :
             DiaryMapPin(
                 id = id,
                 coordinate = Arb.diaryMapCoordinate().next(),
-                color = Color(Arb.int().next()),
+                color = Arb.color().next(),
                 label = "label-${Arb.int().next()}",
             )
     }

@@ -260,8 +260,8 @@ class AccountWebLocalDataSourceImplTest :
                 .copy(
                     detail = detail(title = title),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun detail(title: String): WebDetailLocalEntity =
@@ -271,7 +271,5 @@ class AccountWebLocalDataSourceImplTest :
                 .copy(
                     title = title,
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

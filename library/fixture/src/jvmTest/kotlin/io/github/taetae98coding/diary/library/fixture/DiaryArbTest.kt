@@ -13,6 +13,7 @@ import kotlin.time.Instant
 
 private const val SAMPLE_COUNT = 1_000
 private const val MIN_DISTINCT_COUNT = 100
+private const val PREFIX = "Prefix"
 
 private val MIN_INSTANT = Instant.fromEpochSeconds(0)
 private val MAX_INSTANT = Instant.fromEpochSeconds(4_102_444_800L)
@@ -59,6 +60,14 @@ class DiaryArbTest :
                 .take(SAMPLE_COUNT)
                 .toList()
                 .distinct() shouldHaveAtLeastSize MIN_DISTINCT_COUNT
+        }
+
+        test("alphanumericString은 영문자와 숫자만으로 문자열을 만든다") {
+            Arb.alphanumericString().take(SAMPLE_COUNT).forEach { value -> value.all { char -> char in 'a'..'z' || char in 'A'..'Z' || char in '0'..'9' } shouldBe true }
+        }
+
+        test("alphanumericString에 접두사를 넘기면 접두사로 시작한다") {
+            Arb.alphanumericString(prefix = PREFIX).take(SAMPLE_COUNT).forEach { value -> value.startsWith(PREFIX) shouldBe true }
         }
 
         test("LocalDateRange를 시작일이 종료일보다 뒤이지 않게 만든다") {

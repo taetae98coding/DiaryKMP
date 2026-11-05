@@ -21,7 +21,6 @@ import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultViewModel
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
@@ -34,8 +33,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 internal const val QUERY: String = "여행"
 internal const val OTHER_QUERY: String = "회의"
@@ -53,8 +50,8 @@ internal fun searchMemo(title: String): Memo =
         .copy(
             detail = Arb.memoDetail().next().copy(title = title, dateTime = null),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun searchTag(): Tag = searchTag(title = Arb.nonBlankString().next())
@@ -66,8 +63,8 @@ internal fun searchTag(title: String): Tag =
         .copy(
             detail = Arb.tagDetail().next().copy(title = title),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun searchPlace(): Place = searchPlace(title = Arb.nonBlankString().next())
@@ -79,8 +76,8 @@ internal fun searchPlace(title: String): Place =
         .copy(
             detail = Arb.placeDetail().next().copy(title = title),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun searchWeb(): Web = searchWeb(title = Arb.nonBlankString().next())
@@ -92,13 +89,9 @@ internal fun searchWeb(title: String): Web =
         .copy(
             detail = Arb.webDetail().next().copy(title = title, headerList = emptyList()),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
-
-private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
-internal fun searchId(): Uuid = Arb.kotlinUuid().next()
 
 // uiState는 구독하는 동안에만 갱신되므로, 잠시 구독해 지금 값을 읽는다.
 internal fun TestScope.currentUiState(viewModel: SearchHomeResultViewModel<*>): SearchHomeResultUiState {

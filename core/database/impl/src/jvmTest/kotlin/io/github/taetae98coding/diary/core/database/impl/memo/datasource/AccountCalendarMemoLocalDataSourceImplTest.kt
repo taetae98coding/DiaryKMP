@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountCalendarMemoLocalDataSourceImplTest :
@@ -345,7 +344,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     tagId = tag.id,
                     detail = changedDetail,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == changedDetail.color }
@@ -369,7 +368,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     tagId = tag.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == memo.detail.color }
 
@@ -421,7 +420,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                             start = LocalDateTime(date = LocalDate(2026, 7, 20), time = Midnight),
                             endInclusive = LocalDateTime(date = LocalDate(2026, 7, 21), time = Midnight),
                         ),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.isEmpty() }
 
@@ -429,7 +428,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     detail = memo.detail,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id } == listOf(memo.id) }
 
@@ -451,7 +450,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     detail = memo.detail.copy(title = afterTitle),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id to calendarMemo.title } == listOf(memo.id to afterTitle) }
@@ -471,7 +470,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 awaitUntil { calendarMemoList -> calendarMemoList.isEmpty() }
@@ -553,8 +552,8 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                             memoId = memo.id,
                             tagId = tagId,
                             isDeleted = isTagDeleted,
-                            updatedAt = instant(),
-                            createdAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
                         )
                     },
             )
@@ -662,7 +661,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     tagId = tagId,
                     isFinished = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
             unselectableCase { accountId, tagId ->
@@ -670,7 +669,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                     accountId = accountId,
                     tagId = tagId,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -703,7 +702,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 accountId = accountId,
                 tagId = tag.id,
                 isFinished = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
             calendarMemoIdList(accountId = accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
 
@@ -711,7 +710,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 accountId = accountId,
                 tagId = tag.id,
                 isFinished = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             calendarMemoIdList(accountId = accountId) shouldBe listOf(tagMemo.id)
@@ -780,8 +779,6 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun detail(
             isAllDay: Boolean?,
             start: LocalDateTime?,
@@ -801,8 +798,8 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).copy(
                     detail = detail,
                     primaryTagId = null,
@@ -844,8 +841,8 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
     }
 }

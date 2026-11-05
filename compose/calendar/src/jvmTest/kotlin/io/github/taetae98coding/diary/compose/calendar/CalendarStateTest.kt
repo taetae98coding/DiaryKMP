@@ -15,7 +15,7 @@ class CalendarStateTest :
         }
 
         test("페이지와 달의 매핑이 왕복 보존된다") {
-            val page = Arb.int().next().mod(Int.MAX_VALUE)
+            val page = Arb.int(0..<Int.MAX_VALUE).next()
 
             page.toYearMonth().toPage() shouldBe page
         }

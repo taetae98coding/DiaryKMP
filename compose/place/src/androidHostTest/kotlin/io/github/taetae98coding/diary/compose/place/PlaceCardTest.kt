@@ -14,13 +14,13 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -162,10 +162,9 @@ class PlaceCardTest {
         private const val CENTER_TOLERANCE = 0.5f
         private const val BESIDE_INDICATOR_OFFSET = 4f
 
-        // 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
-        private fun title(): String = "제목-${Arb.string().next()}"
+        private fun title(): String = "제목-${Arb.nonBlankString().next()}"
 
-        private fun address(): String = "주소-${Arb.string().next()}"
+        private fun address(): String = "주소-${Arb.nonBlankString().next()}"
 
         // 배경과 섞이지 않고 화면에서 그대로 읽히도록 불투명한 컬러를 쓴다.
         private fun opaqueColor(): Long = (Arb.int().next() or 0xFF000000.toInt()).toLong() and 0xFFFFFFFFL

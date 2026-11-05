@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
@@ -44,7 +45,7 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-194f89a7-3dff-4784-8e6e-c4baf75cf858 지도에서 고른 좌표로 장소를 추가하고 성공 피드백을 제공한다`() {
-        val selectedCoordinate = mapCoordinateInFormPrecision()
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val addPlaceUseCase = mockk<AddPlaceUseCase>()
         coEvery { addPlaceUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
@@ -81,8 +82,8 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-b1914d6d-b257-4801-9035-cb3128cda3ac 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
-        val selectedCoordinate = mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val viewedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != selectedCoordinate }
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
 
@@ -104,7 +105,7 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-ed89a26e-ed06-4f4e-a500-1d976a9956fb 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
-        val selectedCoordinate = mapCoordinateInFormPrecision()
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
 
@@ -125,8 +126,8 @@ class PlaceAddFormEffectTest {
 
     @Test
     fun `TC-fe1090cf-43f0-43bd-8b14-41edb172d785 지도가 다른 위치를 보게 되어도 입력한 좌표는 바뀌지 않는다`() {
-        val selectedCoordinate = mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val viewedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != selectedCoordinate }
         val state = setPlaceAddForm(effect = emptyFlow())
 
         composeRule.write { state().selectSpotOnMap(selectedCoordinate) }
@@ -150,7 +151,7 @@ class PlaceAddFormEffectTest {
                 state =
                     rememberPlaceAddFormState(
                         defaultProvider = MapProvider.NAVER,
-                        initialCoordinate = mapCoordinateInFormPrecision(),
+                        initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next(),
                     )
                 ReflectCoordinateEffect(state = state)
                 PlaceAddScreenEffect(addedResultRequestKey = null, effect = effect, scaffoldState = state)

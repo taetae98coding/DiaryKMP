@@ -541,8 +541,8 @@ class AccountMemoContactLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun contact(name: String = "name-${Arb.string().next()}"): ContactLocalEntity =
@@ -554,8 +554,8 @@ class AccountMemoContactLocalDataSourceImplTest :
                     // 목록은 즐겨찾기를 앞세우므로, 이름 순서를 확인하는 연락처는 즐겨찾기 여부를 고정한다.
                     isFavorite = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun contactDetail(name: String): ContactDetailLocalEntity =
@@ -575,11 +575,9 @@ class AccountMemoContactLocalDataSourceImplTest :
                 memoId = memoId,
                 contactId = contactId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun Flow<List<ContactListItemLocalEntity>>.contacts(): Flow<List<ContactLocalEntity>> = map { list -> list.map { item -> item.contact } }
 

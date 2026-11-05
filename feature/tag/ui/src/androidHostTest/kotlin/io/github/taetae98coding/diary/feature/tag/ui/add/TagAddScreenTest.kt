@@ -31,14 +31,16 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -177,9 +179,9 @@ class TagAddScreenTest {
     fun `TC-23a41871-3bad-4475-9dfa-60d6e6f3fbf5 메모리 정리 뒤 복원하면 입력 내용은 복원하고 고른 연결은 복원하지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel()
-        val linkedTag = testTag(title = fixtureText(prefix = "LinkedTag"))
-        val typedTitle = fixtureText(prefix = "TagTitle")
-        val typedDescription = fixtureText(prefix = "TagDescription")
+        val linkedTag = testTag(title = Arb.alphanumericString(prefix = "LinkedTag").next())
+        val typedTitle = Arb.alphanumericString(prefix = "TagTitle").next()
+        val typedDescription = Arb.alphanumericString(prefix = "TagDescription").next()
         lateinit var linkViewModel: TagAddLinkViewModel
         restorationTester.setContent {
             // 메모리 정리 뒤에는 고른 연결을 들고 있던 상태 보관자도 새로 만들어진다.
@@ -337,7 +339,7 @@ class TagAddScreenTest {
     fun `TC-a54f9661-82c2-4fe5-a8b0-b48a904eac4c 추가를 실행하지 않고 화면을 떠나면 입력한 내용은 저장되지 않고 사라진다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         val addTagUseCase = mockk<AddTagUseCase>()
-        coEvery { addTagUseCase(any()) } returns Result.success(fixtureId())
+        coEvery { addTagUseCase(any()) } returns Result.success(Arb.kotlinUuid().next())
         val enteredAddViewModelList = List(ENTRY_COUNT) { TagAddViewModel(addTagUseCase = addTagUseCase) }
         val enteredLinkViewModelList = List(ENTRY_COUNT) { realLinkViewModel(tagList = listOf(linkedTag)) }
         var entryCount by mutableIntStateOf(0)

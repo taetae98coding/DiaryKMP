@@ -72,12 +72,12 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.setPlaceDetailScre
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.refreshableList
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -428,8 +428,8 @@ class PlaceDetailTabTest {
         const val MEMO_COUNT = 30
         const val PAGE_TIMEOUT_MILLIS = 5_000L
 
-        fun newPlaceTitle(): String = "PlaceTitle${Arb.string().next().filter(Char::isLetterOrDigit)}"
+        fun newPlaceTitle(): String = Arb.alphanumericString(prefix = "PlaceTitle").next()
 
-        fun newMemoTitle(): String = "PlaceMemo${Arb.string().next().filter(Char::isLetterOrDigit)}"
+        fun newMemoTitle(): String = Arb.alphanumericString(prefix = "PlaceMemo").next()
     }
 }

@@ -26,7 +26,6 @@ import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountTagTransactionImplTest :
@@ -131,7 +130,7 @@ class AccountTagTransactionImplTest :
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = Arb.kotlinUuid().next()
             val tag = tag()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             assertPending(accountId = accountId, tagId = tag.id)
@@ -166,7 +165,7 @@ class AccountTagTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val toTag = tag()
             val newTag = tag()
-            val link = TagLinkLocalEntity(fromTagId = newTag.id, toTagId = toTag.id, isDeleted = false, updatedAt = instant(), createdAt = instant())
+            val link = TagLinkLocalEntity(fromTagId = newTag.id, toTagId = toTag.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
             insertWithSyncState(accountId, toTag, isDirty = false)
 
             transaction.upsert(accountId = accountId, tagList = listOf(newTag), tagLinkList = listOf(link))
@@ -194,15 +193,13 @@ class AccountTagTransactionImplTest :
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun link(
             fromTagId: Uuid,
             toTagId: Uuid,
-        ): TagLinkLocalEntity = TagLinkLocalEntity(fromTagId = fromTagId, toTagId = toTagId, isDeleted = false, updatedAt = instant(), createdAt = instant())
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
+        ): TagLinkLocalEntity = TagLinkLocalEntity(fromTagId = fromTagId, toTagId = toTagId, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
     }
 }

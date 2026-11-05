@@ -23,7 +23,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountTagWebLocalDataSourceImplTest :
@@ -75,7 +74,7 @@ class AccountTagWebLocalDataSourceImplTest :
                 webId = webId,
                 tagId = tagId,
                 isDeleted = isDeleted,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -266,8 +265,8 @@ class AccountTagWebLocalDataSourceImplTest :
                                 webId = entity.id,
                                 tagId = value.id,
                                 isDeleted = false,
-                                updatedAt = instant(),
-                                createdAt = instant(),
+                                updatedAt = Arb.secondPrecisionInstant().next(),
+                                createdAt = Arb.secondPrecisionInstant().next(),
                             )
                         },
                 )
@@ -314,15 +313,13 @@ class AccountTagWebLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>()
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).copy(isFinished = false, isDeleted = false)
 
         private fun web(title: String = "title-${Arb.string().next()}"): WebLocalEntity =
@@ -330,8 +327,8 @@ class AccountTagWebLocalDataSourceImplTest :
                 .webLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { web ->
                     web.copy(
                         detail = web.detail.copy(title = title),

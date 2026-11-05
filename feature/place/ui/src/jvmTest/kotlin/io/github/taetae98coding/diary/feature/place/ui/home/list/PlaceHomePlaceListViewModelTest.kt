@@ -47,7 +47,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class PlaceHomePlaceListViewModelTest : FunSpec() {
@@ -446,15 +445,13 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
     private companion object {
         private const val PLACE_COUNT = 3
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
                 detail = Arb.placeDetail().next(),
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun placeList(count: Int): List<Place> = List(count) { place() }

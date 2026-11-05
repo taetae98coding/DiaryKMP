@@ -20,11 +20,11 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.navigateToContactDetail
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -170,7 +170,7 @@ class ContactDetailScreenMemoReturnTest {
         const val NEW_TIME_ZONE = "Etc/GMT+12"
         const val ENGLISH_DATE_PATTERN = "MMM d, yyyy"
 
-        fun memoTitle(prefix: String): String = "ContactMemo$prefix${Arb.string().next().filter(Char::isLetterOrDigit)}"
+        fun memoTitle(prefix: String): String = Arb.alphanumericString(prefix = "ContactMemo$prefix").next()
 
         fun content(): ContactDetailUiState.Content = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail())
     }

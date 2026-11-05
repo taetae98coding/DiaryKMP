@@ -24,7 +24,6 @@ import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.spyk
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountChecklistItemTransactionImplTest :
@@ -86,7 +85,7 @@ class AccountChecklistItemTransactionImplTest :
                 val otherItem = Arb.localChecklistItem(isChecked = !isChecked, isDeleted = false, checklistId = checklist.id).next()
                 checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item, otherItem))
                 database.markChecklistUploaded(accountId = accountId)
-                val updatedAt = instant()
+                val updatedAt = Arb.secondPrecisionInstant().next()
 
                 transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = isChecked, updatedAt = updatedAt) shouldBe 1
 
@@ -107,7 +106,7 @@ class AccountChecklistItemTransactionImplTest :
             val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
             checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
             database.markChecklistUploaded(accountId = accountId)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
 
@@ -124,9 +123,9 @@ class AccountChecklistItemTransactionImplTest :
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
             checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item))
 
-            transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = true, updatedAt = instant()) shouldBe 0
-            transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = instant()) shouldBe 0
-            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = true, updatedAt = instant()) shouldBe 0
+            transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistItemList() shouldBe listOf(item)
         }
@@ -139,7 +138,7 @@ class AccountChecklistItemTransactionImplTest :
             checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item))
             database.markChecklistUploaded(accountId = otherAccountId)
 
-            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = instant()) shouldBe 0
+            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistItemList() shouldBe listOf(item)
             database.findAccountChecklistItemList() shouldBe
@@ -161,7 +160,7 @@ class AccountChecklistItemTransactionImplTest :
             )
             checklistTransaction.upsert(accountId = accountId, checklist = otherChecklist, itemList = listOf(otherChecklistItem))
             database.markChecklistUploaded(accountId = accountId)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = updatedAt) shouldBe 2
 
@@ -186,7 +185,7 @@ class AccountChecklistItemTransactionImplTest :
             checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
             database.markChecklistUploaded(accountId = accountId)
 
-            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = instant()) shouldBe 0
+            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistItemList() shouldBe listOf(item)
             database.findAccountChecklistItemList() shouldBe
@@ -198,7 +197,7 @@ class AccountChecklistItemTransactionImplTest :
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = missingChecklistId).next()
 
             transaction.upsert(accountId = accountId, item = item) shouldBe 0
-            transaction.updateAllChecked(accountId = accountId, checklistId = missingChecklistId, isChecked = false, updatedAt = instant()) shouldBe 0
+            transaction.updateAllChecked(accountId = accountId, checklistId = missingChecklistId, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistItemList() shouldBe emptyList()
             database.findAccountChecklistItemList() shouldBe emptyList()
@@ -228,9 +227,9 @@ class AccountChecklistItemTransactionImplTest :
                 accountId = accountId,
                 item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next(),
             ) shouldBe 1
-            transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = false, updatedAt = instant()) shouldBe 1
-            transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = instant()) shouldBe 1
-            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = instant()) shouldBe 1
+            transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 1
+            transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 1
+            transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 1
 
             database.findChecklistList() shouldBe listOf(checklist)
         }
@@ -267,16 +266,12 @@ class AccountChecklistItemTransactionImplTest :
             val failingTransaction = AccountChecklistItemTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<ChecklistItemTestException> {
-                failingTransaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = instant())
+                failingTransaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next())
             }
 
             database.findChecklistItemList() shouldBe itemList.sortedBy { it.id.toString() }
             database.findAccountChecklistItemList().none { accountItem -> accountItem.isDirty } shouldBe true
         }
-    }) {
-    public companion object {
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-    }
-}
+    })
 
 private class ChecklistItemTestException : RuntimeException()

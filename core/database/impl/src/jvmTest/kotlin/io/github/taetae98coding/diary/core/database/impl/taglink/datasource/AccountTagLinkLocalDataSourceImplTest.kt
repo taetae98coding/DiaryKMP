@@ -30,7 +30,6 @@ import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountTagLinkLocalDataSourceImplTest :
@@ -76,7 +75,7 @@ class AccountTagLinkLocalDataSourceImplTest :
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -90,7 +89,7 @@ class AccountTagLinkLocalDataSourceImplTest :
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -227,7 +226,7 @@ class AccountTagLinkLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = toTag.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
@@ -288,16 +287,16 @@ class AccountTagLinkLocalDataSourceImplTest :
             insertTag(accountId, fromTag, toTag)
             link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = fromTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = fromTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             database
                 .tagLinkDao()
                 .findByFromTagIdList(listOf(fromTag.id))
@@ -327,7 +326,7 @@ class AccountTagLinkLocalDataSourceImplTest :
             insertTag(accountId, fromTag, toTag)
             link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
 
-            val deletedAt = instant()
+            val deletedAt = Arb.secondPrecisionInstant().next()
             tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, fromTagId = fromTag.id).shouldBeEmpty()
 
@@ -346,7 +345,7 @@ class AccountTagLinkLocalDataSourceImplTest :
             insertTag(accountId, fromTag, toTag)
             link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
         }
@@ -668,15 +667,13 @@ class AccountTagLinkLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>().data.map { tag -> tag.id }
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(title: String = "title-${Arb.string().next()}"): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { tag ->
                     tag.copy(
                         detail = tag.detail.copy(title = title),
@@ -695,8 +692,8 @@ class AccountTagLinkLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).copy(
                     detail = Arb.memoDetailLocalEntity().next(),
                     primaryTagId = null,

@@ -88,21 +88,21 @@ class AccountWebTransactionImplTest :
             findAccountWebList() shouldBe pending
 
             database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
-            transaction.updateDetail(accountId = accountId, webId = web.id, detail = detail(), updatedAt = instant())
+            transaction.updateDetail(accountId = accountId, webId = web.id, detail = Arb.webDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next())
             findAccountWebList() shouldBe pending
 
             database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
-            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findAccountWebList() shouldBe pending
 
             database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
-            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = false, updatedAt = instant())
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
             findAccountWebList() shouldBe pending
         }
 
         test("TC-a5fc06fe-a481-403c-9f17-056a028e49b9 TC-4923195f-f274-4a60-aa56-53f9bef6cde9 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val web =
                 web().copy(
                     detail =
@@ -176,7 +176,7 @@ class AccountWebTransactionImplTest :
                     url = "https://changed.example.com/${Arb.string().next()}",
                     headerList = listOf(WebHeaderLocalEntity(name = "Authorization", value = "token-${Arb.string().next()}")),
                 )
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
             val updatedCount =
@@ -204,12 +204,12 @@ class AccountWebTransactionImplTest :
             val web = web().copy(isDeleted = true)
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
-            val changedDetail = detail()
+            val changedDetail = Arb.webDetailLocalEntity().next()
             transaction.updateDetail(
                 accountId = accountId,
                 webId = web.id,
                 detail = changedDetail,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findWebList().single().detail shouldBe changedDetail
@@ -230,7 +230,7 @@ class AccountWebTransactionImplTest :
                 accountId = accountId,
                 webId = web.id,
                 detail = web.detail.copy(headerList = emptyList()),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findWebList().single().detail.headerList shouldBe emptyList()
@@ -244,19 +244,19 @@ class AccountWebTransactionImplTest :
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
             transaction.upsert(accountId = otherAccountId, webList = listOf(otherAccountWeb), webTagList = emptyList())
 
-            val changedDetail = detail()
+            val changedDetail = Arb.webDetailLocalEntity().next()
 
             transaction.updateDetail(
                 accountId = accountId,
                 webId = otherAccountWeb.id,
                 detail = changedDetail,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
             transaction.updateDetail(
                 accountId = accountId,
                 webId = Arb.kotlinUuid().next(),
                 detail = changedDetail,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
 
             findWebList().map { stored -> stored.detail } shouldBe
@@ -266,7 +266,7 @@ class AccountWebTransactionImplTest :
                 accountId = accountId,
                 webId = web.id,
                 detail = changedDetail,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findWebList().single { stored -> stored.id == web.id }.detail shouldBe changedDetail
@@ -276,7 +276,7 @@ class AccountWebTransactionImplTest :
         test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 삭제 여부와 수정 시각만 바꾸고 웹 항목과 계정 연결을 남긴다") {
             val accountId = Arb.kotlinUuid().next()
             val web = web().copy(isDeleted = false)
-            val deletedAt = instant()
+            val deletedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
             val updatedCount =
@@ -311,13 +311,13 @@ class AccountWebTransactionImplTest :
                 accountId = accountId,
                 webId = otherAccountWeb.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
             transaction.updateDeleted(
                 accountId = accountId,
                 webId = Arb.kotlinUuid().next(),
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
 
             findWebList().none { stored -> stored.isDeleted } shouldBe true
@@ -326,7 +326,7 @@ class AccountWebTransactionImplTest :
                 accountId = accountId,
                 webId = web.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findWebList().filter { stored -> stored.isDeleted }.map { stored -> stored.id } shouldBe listOf(web.id)
@@ -349,14 +349,10 @@ class AccountWebTransactionImplTest :
                 .webLocalEntity()
                 .next()
                 .copy(
-                    detail = detail(),
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    detail = Arb.webDetailLocalEntity().next(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun detail(): WebDetailLocalEntity = Arb.webDetailLocalEntity().next()
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

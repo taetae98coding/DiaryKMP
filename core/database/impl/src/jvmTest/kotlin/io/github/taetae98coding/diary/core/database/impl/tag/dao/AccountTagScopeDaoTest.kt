@@ -35,7 +35,6 @@ import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 private const val SOUTH = -90.0
@@ -93,7 +92,7 @@ class AccountTagScopeDaoTest :
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -109,7 +108,7 @@ class AccountTagScopeDaoTest :
                     memoId = memo.id,
                     tagId = tagId,
                     isDeleted = false,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -126,7 +125,7 @@ class AccountTagScopeDaoTest :
                     webId = web.id,
                     tagId = tagId,
                     isDeleted = false,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -143,7 +142,7 @@ class AccountTagScopeDaoTest :
                     placeId = place.id,
                     tagId = tagId,
                     isDeleted = false,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -555,15 +554,13 @@ class AccountTagScopeDaoTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>().data.map(id)
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { tag ->
                     tag.copy(
                         detail = tag.detail.copy(title = "title-${Arb.string().next()}"),
@@ -577,8 +574,8 @@ class AccountTagScopeDaoTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { memo ->
                     memo.copy(
                         detail = memo.detail.copy(title = "title-${Arb.string().next()}"),
@@ -593,8 +590,8 @@ class AccountTagScopeDaoTest :
                 .webLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { web ->
                     web.copy(
                         detail = web.detail.copy(title = "title-${Arb.string().next()}"),
@@ -607,8 +604,8 @@ class AccountTagScopeDaoTest :
                 .placeLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { place ->
                     place.copy(
                         detail = place.detail.copy(title = "title-${Arb.string().next()}"),

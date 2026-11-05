@@ -27,7 +27,6 @@ import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountTagPlaceLocalDataSourceImplTest :
@@ -79,7 +78,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = isDeleted,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -350,8 +349,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
                                 placeId = entity.id,
                                 tagId = value.id,
                                 isDeleted = false,
-                                updatedAt = instant(),
-                                createdAt = instant(),
+                                updatedAt = Arb.secondPrecisionInstant().next(),
+                                createdAt = Arb.secondPrecisionInstant().next(),
                             )
                         },
                 )
@@ -393,15 +392,13 @@ class AccountTagPlaceLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, PlaceLocalEntity>>().data.map { place -> place.id }
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).copy(isFinished = false, isDeleted = false)
 
         private fun place(
@@ -415,8 +412,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
                 .copy(
                     detail = placeDetail(title = title, latitude = latitude, longitude = longitude),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun placeDetail(

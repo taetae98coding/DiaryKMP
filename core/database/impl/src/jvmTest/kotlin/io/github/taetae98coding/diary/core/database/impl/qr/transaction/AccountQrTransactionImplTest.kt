@@ -19,7 +19,6 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountQrTransactionImplTest :
@@ -94,7 +93,7 @@ class AccountQrTransactionImplTest :
             transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDeleted(accountId = accountId, qrId = qr.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
 
@@ -113,7 +112,7 @@ class AccountQrTransactionImplTest :
             transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDeleted(accountId = accountId, qrId = qr.id, isDeleted = false, updatedAt = updatedAt) shouldBe 1
 
@@ -132,8 +131,8 @@ class AccountQrTransactionImplTest :
             transaction.upsert(accountId = accountId, qrList = listOf(qr))
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
 
-            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = instant()) shouldBe 0
-            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = false, updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findQrList() shouldBe listOf(qr)
             database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = false))
@@ -147,7 +146,7 @@ class AccountQrTransactionImplTest :
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
             val detail = Arb.qrDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDetail(accountId = accountId, qrId = qr.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
@@ -164,7 +163,7 @@ class AccountQrTransactionImplTest :
             val qr = Arb.localQr(isDeleted = true).next()
             transaction.upsert(accountId = accountId, qrList = listOf(qr))
             val detail = Arb.qrDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDetail(accountId = accountId, qrId = qr.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
@@ -178,8 +177,8 @@ class AccountQrTransactionImplTest :
             transaction.upsert(accountId = accountId, qrList = listOf(qr))
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
 
-            transaction.updateDetail(accountId = otherAccountId, qrId = qr.id, detail = Arb.qrDetailLocalEntity().next(), updatedAt = instant()) shouldBe 0
-            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+            transaction.updateDetail(accountId = otherAccountId, qrId = qr.id, detail = Arb.qrDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findQrList() shouldBe listOf(qr)
             database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = false))
@@ -199,8 +198,4 @@ class AccountQrTransactionImplTest :
             database.findQrList().shouldBeEmpty()
             database.findAccountQrList().shouldBeEmpty()
         }
-    }) {
-    public companion object {
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-    }
-}
+    })

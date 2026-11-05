@@ -40,12 +40,14 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webEffectFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webPagingDataFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webViewModelRef
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -232,7 +234,7 @@ class TagDetailWebScreenTest {
     @Test
     fun `TC-bb214b6b-c3fc-4773-8703-c50f436d53a8 안내가 보이는 동안 다른 웹 항목을 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val web = swipeWeb()
-        val otherId = fixtureId()
+        val otherId = Arb.kotlinUuid().next()
 
         composeRule.onNode(hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()

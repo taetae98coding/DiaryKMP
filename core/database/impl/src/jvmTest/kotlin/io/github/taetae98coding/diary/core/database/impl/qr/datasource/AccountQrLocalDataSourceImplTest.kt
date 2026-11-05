@@ -153,7 +153,7 @@ class AccountQrLocalDataSourceImplTest :
                 qrTransaction.upsert(accountId = accountId, qrList = listOf(renamedQr))
             }
             assertPageInvalidated(accountId = accountId, expected = emptyList()) {
-                qrTransaction.updateDeleted(accountId = accountId, qrId = qr.id, isDeleted = true, updatedAt = instant())
+                qrTransaction.updateDeleted(accountId = accountId, qrId = qr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
@@ -177,7 +177,7 @@ class AccountQrLocalDataSourceImplTest :
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, lastQr)) {
-                qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = instant())
+                qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
@@ -200,9 +200,9 @@ class AccountQrLocalDataSourceImplTest :
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
-            qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = instant())
+            qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -216,7 +216,7 @@ class AccountQrLocalDataSourceImplTest :
             val lastQr = qr(title = LAST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
             val detail = firstQr.detail.copy(title = "${LAST_QR_TITLE}2")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(accountId = accountId, expected = listOf(middleQr, lastQr, firstQr.copy(detail = detail, updatedAt = updatedAt))) {
                 qrTransaction.updateDetail(accountId = accountId, qrId = firstQr.id, detail = detail, updatedAt = updatedAt)
@@ -230,7 +230,7 @@ class AccountQrLocalDataSourceImplTest :
             val lastQr = qr(title = LAST_QR_TITLE)
             qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
             val detail = middleQr.detail.copy(value = "changed-${Arb.string().next()}")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, middleQr.copy(detail = detail, updatedAt = updatedAt), lastQr)) {
                 qrTransaction.updateDetail(accountId = accountId, qrId = middleQr.id, detail = detail, updatedAt = updatedAt)
@@ -258,7 +258,7 @@ class AccountQrLocalDataSourceImplTest :
             val qr = qr()
             qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
             val detail = Arb.qrDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             dataSource.find(accountId = accountId, qrId = qr.id).test {
                 awaitItem() shouldBe qr
@@ -284,7 +284,5 @@ class AccountQrLocalDataSourceImplTest :
                 .localQr(isDeleted = false)
                 .next()
                 .copy(detail = QrDetailLocalEntity(title = title, description = description, value = value))
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

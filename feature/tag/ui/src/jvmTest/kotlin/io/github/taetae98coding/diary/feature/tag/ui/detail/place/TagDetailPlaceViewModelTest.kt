@@ -9,7 +9,6 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
@@ -114,7 +113,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-8243e022-52a0-4d7c-b764-a3ee5f9c965e 지도 모드의 목록에는 보이는 영역 안의 장소만 남고 영역 밖의 장소는 나타나지 않는다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val insidePlace = item()
                 val outsidePlace = item()
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
@@ -141,7 +140,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-91c58f1b-a800-4028-90b3-e6b6e9fa953c 지도 모드는 대상 태그와 보이는 영역을 기준으로 조회한 장소를 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val placeList = List(2) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
                 val parameter = GetTagPlaceListUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, bounds = bounds, sort = ListSort.TITLE)
@@ -164,7 +163,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-4c9da472-7698-4c44-9b72-81f2e2887a25 표시 범위를 바꿔도 보고 있던 지도 영역을 그대로 쓴다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val widenedPlaceList = List(2) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
                 val selfParameter = GetTagPlaceListUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, bounds = bounds, sort = ListSort.TITLE)
@@ -215,7 +214,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-4544d96c-500c-4c7b-82bc-83e74cb32cf6 목록 모드는 보이는 영역 밖의 장소도 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val outsidePlaceList = List(2) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
                 val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
@@ -247,7 +246,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-4a4dd24a-ceb3-4905-b07e-2a55d2749637 지도 모드의 목록은 영역 안 장소가 한 페이지보다 많아도 한 번에 모두 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val boundsPlaceList = List(MORE_THAN_ONE_PAGE) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
                 every {
@@ -285,8 +284,8 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-bfb27e9f-3201-4ee7-861f-fd9c26ee3584 보이는 영역이 바뀌면 바뀐 영역으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val firstBounds = bounds()
-                val secondBounds = bounds()
+                val firstBounds = Arb.coordinateBounds().next()
+                val secondBounds = Arb.coordinateBounds().next()
                 val firstPlaceList = List(1) { item() }
                 val secondPlaceList = List(2) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
@@ -313,7 +312,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-1335953b-f1a2-4ad9-adf5-f4f1459b190a 정렬을 바꾸면 두 보기 모드의 조회에 함께 적용된다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val titlePlaceList = List(1) { item() }
                 val recentlyUpdatedPlaceList = List(2) { item() }
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
@@ -365,7 +364,7 @@ class TagDetailPlaceViewModelTest : FunSpec() {
         test("TC-86a673d2-f136-4633-a5b5-a02c9417252f 지도 모드의 조회가 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = Arb.kotlinUuid().next()
-                val bounds = bounds()
+                val bounds = Arb.coordinateBounds().next()
                 val throwable = IllegalStateException(Arb.string().next())
                 val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
                 every { getTagPlaceListUseCase(parameter = any()) } returns flowOf(Result.failure(throwable))
@@ -552,8 +551,6 @@ class TagDetailPlaceViewModelTest : FunSpec() {
                 deletePlaceUseCase = deletePlaceUseCase,
                 restorePlaceUseCase = restorePlaceUseCase,
             )
-
-        private fun bounds(): CoordinateBounds = Arb.coordinateBounds().next()
 
         private fun item(): Place =
             Arb

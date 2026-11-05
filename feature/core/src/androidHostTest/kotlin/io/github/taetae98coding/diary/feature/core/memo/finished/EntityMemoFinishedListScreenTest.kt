@@ -24,7 +24,11 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -164,7 +168,7 @@ class EntityMemoFinishedListScreenTest {
     @Test
     fun `TC-f49e34ff-45b1-4a1a-b06e-05f92c5b9cb6 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
         val environment = screenTestEnvironment()
-        val otherMemoId = fixtureId()
+        val otherMemoId = Arb.kotlinUuid().next()
         justRun { environment.viewModel.restore(id = otherMemoId) }
         setEntityMemoFinishedListScreen(environment.viewModel)
         waitUntilMemoIsDisplayed(title = environment.memo.detail.title)
@@ -244,7 +248,7 @@ class EntityMemoFinishedListScreenTest {
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(SECOND_TIME_ZONE))
             val secondToday = Clock.System.todayIn(TimeZone.currentSystemDefault())
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
-            val secondTodayMemo = entityMemo(title = fixtureText(prefix = "SecondTodayMemo"), dateTime = MemoDateTime.AllDay(dateRange = secondToday..secondToday))
+            val secondTodayMemo = entityMemo(title = Arb.alphanumericString(prefix = "SecondTodayMemo").next(), dateTime = MemoDateTime.AllDay(dateRange = secondToday..secondToday))
             val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
             every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
@@ -254,7 +258,7 @@ class EntityMemoFinishedListScreenTest {
                         itemList =
                             listOf(
                                 MemoListItem.DateHeader(date = firstToday),
-                                MemoListItem.Content(memo = entityMemo(title = fixtureText(prefix = "FirstTodayMemo"), dateTime = MemoDateTime.AllDay(dateRange = firstToday..firstToday))),
+                                MemoListItem.Content(memo = entityMemo(title = Arb.alphanumericString(prefix = "FirstTodayMemo").next(), dateTime = MemoDateTime.AllDay(dateRange = firstToday..firstToday))),
                                 MemoListItem.DateHeader(date = secondToday),
                                 MemoListItem.Content(memo = secondTodayMemo),
                             ),

@@ -226,15 +226,13 @@ class AccountMemoWebSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun memoWeb(updatedAt: Instant = instant()): MemoWebLocalEntity =
+        private fun memoWeb(updatedAt: Instant = Arb.secondPrecisionInstant().next()): MemoWebLocalEntity =
             Arb
                 .memoWebLocalEntity()
                 .next()
                 .copy(
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

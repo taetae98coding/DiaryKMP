@@ -4,7 +4,6 @@ import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
 import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderRemoteEntity
-import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageRemoteEntity
 import io.github.taetae98coding.diary.data.web.webPageRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -29,7 +28,7 @@ class WebPageRepositoryImplTest :
                     WebHeader(name = "X-Empty", value = ""),
                 )
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
-            coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns remotePage()
+            coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns Arb.webPageRemoteEntity().next()
             val repository = WebPageRepositoryImpl(webPageRemoteDataSource = remoteDataSource)
 
             repository.fetch(url = url, headerList = headerList)
@@ -48,7 +47,7 @@ class WebPageRepositoryImplTest :
         }
 
         test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 받은 응답의 주소를 기준 주소로, 본문을 그대로 전달한다") {
-            val remotePage = remotePage()
+            val remotePage = Arb.webPageRemoteEntity().next()
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
             coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns remotePage
             val repository = WebPageRepositoryImpl(webPageRemoteDataSource = remoteDataSource)
@@ -67,8 +66,4 @@ class WebPageRepositoryImplTest :
                 repository.fetch(url = Arb.string().next(), headerList = emptyList())
             } shouldBeSameInstanceAs throwable
         }
-    }) {
-    public companion object {
-        private fun remotePage(): WebPageRemoteEntity = Arb.webPageRemoteEntity().next()
-    }
-}
+    })

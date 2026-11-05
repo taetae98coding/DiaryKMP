@@ -18,7 +18,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -249,7 +248,7 @@ class ContactHomeFilterTest {
 
     @Test
     fun `TC-852f29ae-df6e-48e7-9930-771159a3ee43 화면이 재생성되어도 유무 필터 선택을 유지한다`() {
-        val withBirthday = testContact(name = displayText(), birthday = birthday())
+        val withBirthday = testContact(name = displayText(), birthday = Arb.contactBirthday().next())
         val withoutBirthday = testContact(name = displayText())
         val viewModel = contactHomeViewModel(contactList = listOf(withBirthday, withoutBirthday))
         val restorationTester = StateRestorationTester(composeRule)
@@ -408,7 +407,7 @@ class ContactHomeFilterTest {
         composeRule.setContent { ContactHomeScreenContent(viewModel = viewModel) }
         waitUntilNameExists(shown.contact.detail.name)
 
-        val added = testContact(name = displayText(), birthday = birthday())
+        val added = testContact(name = displayText(), birthday = Arb.contactBirthday().next())
         val matchingAdded = testContact(name = displayText())
         composeRule.runOnIdle { contactListFlow.value = listOf(shown, added, matchingAdded) }
         waitUntilNameExists(matchingAdded.contact.detail.name)
@@ -535,11 +534,9 @@ class ContactHomeFilterTest {
         // 카드 문구를 정확히 찾아야 하므로 공백이나 제어 문자가 섞이지 않는 값으로 만든다.
         fun displayText(): String = Arb.kotlinUuid().next().toString()
 
-        fun birthday(): ContactBirthday = Arb.contactBirthday().next()
-
         fun axisContactList(): List<ContactListItem> =
             listOf(
-                testContact(name = displayText(), birthday = birthday()),
+                testContact(name = displayText(), birthday = Arb.contactBirthday().next()),
                 testContact(name = displayText(), birthYear = Arb.int().next()),
                 testContact(name = displayText(), phoneNumberList = listOf(displayText())),
                 testContact(name = displayText()),
@@ -548,7 +545,7 @@ class ContactHomeFilterTest {
         fun birthdayCase(): AxisCase =
             AxisCase(
                 label = DEFAULT_BIRTHDAY_LABEL,
-                with = testContact(name = displayText(), birthday = birthday()),
+                with = testContact(name = displayText(), birthday = Arb.contactBirthday().next()),
                 without = testContact(name = displayText()),
                 filter = { existence -> ContactFilter(birthday = existence) },
             )
@@ -574,7 +571,7 @@ class ContactHomeFilterTest {
             List(POSITION_CONTACT_COUNT) { index ->
                 testContact(
                     name = "position-${index.toString().padStart(length = 3, padChar = '0')}-${Arb.int().next()}",
-                    birthday = if (index % 2 == 0) null else birthday(),
+                    birthday = if (index % 2 == 0) null else Arb.contactBirthday().next(),
                 )
             }
 

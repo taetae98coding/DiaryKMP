@@ -31,7 +31,6 @@ import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountTagMemoPagingDaoTest :
@@ -424,7 +423,7 @@ class AccountTagMemoPagingDaoTest :
                     listOf(
                         relation.copy(
                             isDeleted = true,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         ),
                     ),
                 )
@@ -456,7 +455,7 @@ class AccountTagMemoPagingDaoTest :
                     listOf(
                         relation.copy(
                             isDeleted = false,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         ),
                     ),
                 )
@@ -492,14 +491,14 @@ class AccountTagMemoPagingDaoTest :
                             accountId = accountId,
                             memoId = targetMemo.id,
                             isFinished = true,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     } else {
                         database.accountMemoDao().updateDeleted(
                             accountId = accountId,
                             memoId = targetMemo.id,
                             isDeleted = true,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     }
                 }
@@ -559,7 +558,7 @@ class AccountTagMemoPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -613,14 +612,14 @@ class AccountTagMemoPagingDaoTest :
                             accountId = accountId,
                             memoId = undoMemo.id,
                             isFinished = false,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     } else {
                         database.accountMemoDao().updateDeleted(
                             accountId = accountId,
                             memoId = undoMemo.id,
                             isDeleted = false,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     }
                 }
@@ -642,8 +641,8 @@ class AccountTagMemoPagingDaoTest :
                     detail = detail,
                     isFinished = isFinished,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun tag(
@@ -656,8 +655,8 @@ class AccountTagMemoPagingDaoTest :
                 .copy(
                     isFinished = isFinished,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun memoTag(
@@ -672,11 +671,9 @@ class AccountTagMemoPagingDaoTest :
                     memoId = memoId,
                     tagId = tagId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,

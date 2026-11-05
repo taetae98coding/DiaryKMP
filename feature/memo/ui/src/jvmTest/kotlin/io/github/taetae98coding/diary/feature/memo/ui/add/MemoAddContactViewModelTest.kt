@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactU
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -74,7 +75,7 @@ class MemoAddContactViewModelTest : FunSpec() {
 
         test("TC-f6951ae2-267d-4a58-8689-c2562dd77d1f 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allList = List(2) { contact() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageMemoSelectableContactUseCase>()

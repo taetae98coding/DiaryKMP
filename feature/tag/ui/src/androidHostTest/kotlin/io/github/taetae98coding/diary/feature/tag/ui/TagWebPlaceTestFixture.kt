@@ -14,7 +14,6 @@ import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import kotlin.time.Instant
 
 internal fun tagWeb(title: String): Web =
     Arb
@@ -23,8 +22,8 @@ internal fun tagWeb(title: String): Web =
         .copy(
             detail = Arb.webDetail().next().copy(title = title, headerList = emptyList()),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun tagPlace(title: String): Place =
@@ -34,8 +33,8 @@ internal fun tagPlace(title: String): Place =
         .copy(
             detail = Arb.placeDetail().next().copy(title = title),
             isDeleted = false,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun <T : Any> tagEntityPagingData(
@@ -63,5 +62,3 @@ internal fun <T : Any> tagEntityLoadingPagingData(): PagingData<T> =
                 append = LoadState.NotLoading(endOfPaginationReached = false),
             ),
     )
-
-private fun instant(): Instant = Arb.secondPrecisionInstant().next()

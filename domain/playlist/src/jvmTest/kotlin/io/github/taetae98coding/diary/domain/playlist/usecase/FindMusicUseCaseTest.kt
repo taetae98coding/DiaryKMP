@@ -18,7 +18,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class FindMusicUseCaseTest :
@@ -93,10 +92,8 @@ class FindMusicUseCaseTest :
                 .next()
                 .copy(
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

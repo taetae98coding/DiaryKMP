@@ -31,7 +31,6 @@ import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountMemoWebLocalDataSourceImplTest :
@@ -449,8 +448,8 @@ class AccountMemoWebLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun web(title: String = "title-${Arb.string().next()}"): WebLocalEntity =
@@ -460,8 +459,8 @@ class AccountMemoWebLocalDataSourceImplTest :
                 .copy(
                     detail = webDetail(title = title),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun webDetail(title: String): WebDetailLocalEntity =
@@ -481,11 +480,9 @@ class AccountMemoWebLocalDataSourceImplTest :
                 memoId = memoId,
                 webId = webId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private suspend fun PagingSource<Int, WebLocalEntity>.loadPage(
             key: Int? = null,

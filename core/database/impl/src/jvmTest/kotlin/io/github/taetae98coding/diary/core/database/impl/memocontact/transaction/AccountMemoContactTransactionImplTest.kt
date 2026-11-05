@@ -198,10 +198,10 @@ class AccountMemoContactTransactionImplTest :
             val memoContact = memoContact(memoId = memo.id, contactId = contact.id, memo = memo)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
-            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
+            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoContactList(memoId = memo.id) shouldBe listOf(memoContact)
 
-            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
+            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoContactList(memoId = memo.id) shouldBe listOf(memoContact)
         }
 
@@ -210,7 +210,7 @@ class AccountMemoContactTransactionImplTest :
             val memo = memo()
             val contact = contact()
             val newDetail = Arb.memoDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
             memoTransaction.updateDetail(accountId = accountId, memoId = memo.id, detail = newDetail, updatedAt = updatedAt)
@@ -225,7 +225,7 @@ class AccountMemoContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact()
-            val changedContact = contact.copy(detail = contactDetail(), updatedAt = instant())
+            val changedContact = contact.copy(detail = contactDetail(), updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
             contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
@@ -239,7 +239,7 @@ class AccountMemoContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact()
-            val changedContact = contact.copy(isFavorite = !contact.isFavorite, updatedAt = instant())
+            val changedContact = contact.copy(isFavorite = !contact.isFavorite, updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
             contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
@@ -254,7 +254,7 @@ class AccountMemoContactTransactionImplTest :
             val memo = memo()
             val contact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
-            val removedAt = instant()
+            val removedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = true, updatedAt = removedAt)
 
@@ -275,7 +275,7 @@ class AccountMemoContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact()
-            val createdAt = instant()
+            val createdAt = Arb.secondPrecisionInstant().next()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             database.memoContactDao().upsert(
@@ -283,11 +283,11 @@ class AccountMemoContactTransactionImplTest :
                     memoId = memo.id,
                     contactId = contact.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                     createdAt = createdAt,
                 ),
             )
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -476,7 +476,7 @@ class AccountMemoContactTransactionImplTest :
                 memoId = memo.id,
                 contactId = removedContact.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingContactIdList(accountId = accountId) shouldBe listOf(removedContact.id)
@@ -496,7 +496,7 @@ class AccountMemoContactTransactionImplTest :
                 memoId = memo.id,
                 contactId = addedContact.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingContactIdList(accountId = accountId) shouldBe listOf(addedContact.id)
@@ -515,7 +515,7 @@ class AccountMemoContactTransactionImplTest :
 
         test("TC-29c9ab13-eb7d-431b-b9f8-27c1c50327b5 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val memo = memo().copy(updatedAt = now, createdAt = now)
             val contact = contact()
 
@@ -567,7 +567,7 @@ class AccountMemoContactTransactionImplTest :
         test("TC-4fe1ba2a-62c2-48a5-a152-42c8f19b9f66 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val changedMemo = memo.copy(updatedAt = instant())
+            val changedMemo = memo.copy(updatedAt = Arb.secondPrecisionInstant().next())
             val contact = contact()
 
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
@@ -592,7 +592,7 @@ class AccountMemoContactTransactionImplTest :
             val removedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(keptContact, removedContact))
 
-            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = removedContact.id, isDeleted = true, updatedAt = instant())
+            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = removedContact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptContact)
         }
@@ -603,7 +603,7 @@ class AccountMemoContactTransactionImplTest :
             val contact = contact()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = updatedAt)
 
@@ -627,9 +627,9 @@ class AccountMemoContactTransactionImplTest :
             val keptContact = contact()
             val removedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = source, contactList = listOf(keptContact, removedContact))
-            accountMemoContactTransaction.upsert(accountId = accountId, memoId = source.id, contactId = removedContact.id, isDeleted = true, updatedAt = instant())
+            accountMemoContactTransaction.upsert(accountId = accountId, memoId = source.id, contactId = removedContact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
-            val copiedAt = instant()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
@@ -672,8 +672,8 @@ class AccountMemoContactTransactionImplTest :
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = instant())
-            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = true, updatedAt = instant())
+            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             database.accountContactDao().find(accountId = accountId, contactId = contact.id).first() shouldBe contact
         }
@@ -685,7 +685,7 @@ class AccountMemoContactTransactionImplTest :
             insertMemoWithContactList(accountId = accountId, memo = source, contactList = listOf(deletedContact))
             contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)))
 
-            val copiedAt = instant()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
@@ -718,7 +718,7 @@ class AccountMemoContactTransactionImplTest :
             insertMemoWithContactList(accountId = accountId, memo = source, contactList = listOf(contact))
             val sourceMemoContactList = findMemoContactList(memoId = source.id)
 
-            val copiedAt = instant()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             memoTransaction.upsert(
                 accountId = accountId,
@@ -753,7 +753,7 @@ class AccountMemoContactTransactionImplTest :
                 contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
                 memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-                accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = instant())
+                accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
                 getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(contact)
             }
@@ -770,8 +770,8 @@ class AccountMemoContactTransactionImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun contact(): ContactLocalEntity =
@@ -783,8 +783,8 @@ class AccountMemoContactTransactionImplTest :
                     // 목록은 즐겨찾기를 앞세우므로, 이름 순서를 확인하는 연락처는 즐겨찾기 여부를 고정한다.
                     isFavorite = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun contactDetail(): ContactDetailLocalEntity =
@@ -826,16 +826,14 @@ class AccountMemoContactTransactionImplTest :
                 .copy(
                     isFinished = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
             load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
                 .data
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun memoContact(
             memoId: Uuid,

@@ -11,7 +11,6 @@ import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemot
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
-import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
 import io.github.taetae98coding.diary.core.testing.file.continuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
@@ -117,7 +116,7 @@ class FileRepositoryImplTest :
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
                 fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any())
-            } coAnswers { arg<suspend () -> RawSource>(6).invoke().close().let { remoteFile() } }
+            } coAnswers { arg<suspend () -> RawSource>(6).invoke().close().let { Arb.fileRemoteEntity().next() } }
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder())
 
             shouldThrow<IllegalStateException> { repository.create(source = source, title = Arb.string().next(), description = Arb.string().next(), accountId = Arb.kotlinUuid().next(), onSent = {}) } shouldBeSameInstanceAs exception
@@ -131,7 +130,7 @@ class FileRepositoryImplTest :
             val source = Arb.fileUploadSource(size = bytes.size.toLong()).next()
             val fileLocalDataSource = fileLocalDataSource(uri = source.uri, size = source.size)
             coEvery { fileLocalDataSource.openSource(uri = source.uri) } answers { Buffer().apply { write(bytes) } }
-            val remoteFile = remoteFile()
+            val remoteFile = Arb.fileRemoteEntity().next()
             val openContentSlot = slot<suspend () -> RawSource>()
             val onSentSlot = slot<(Long) -> Unit>()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
@@ -193,7 +192,7 @@ class FileRepositoryImplTest :
 
         test("앞선 실행에서 이어지는 올리기의 진행과 결과를 이름, 크기, 보낸 양과 결과 종류 그대로 전달한다") {
             val upload = Arb.continuedFileUploadRemoteEntity().next()
-            val file = remoteFile()
+            val file = Arb.fileRemoteEntity().next()
             val name = Arb.string().next()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>(relaxUnitFun = true)
             every { fileRemoteDataSource.getContinuedUpload() } returns flowOf(upload, null)
@@ -226,7 +225,7 @@ class FileRepositoryImplTest :
 
         test("TC-c3c9a856-e7b9-41c7-b35b-025cbe78c827 목록을 처음 불러올 때 마지막 파일 없이 20개를 한 번 요청한다") {
             runTest {
-                val fileList = List(3) { remoteFile() }
+                val fileList = List(3) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns fileList
                 val repository =
@@ -245,7 +244,7 @@ class FileRepositoryImplTest :
 
         test("TC-4c3f6c39-bda2-4ac2-8036-5bf7096a0332 목록의 파일 정보에 서버가 돌려준 제목과 설명이 담긴다") {
             runTest {
-                val remoteFile = remoteFile()
+                val remoteFile = Arb.fileRemoteEntity().next()
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns listOf(remoteFile)
                 val repository =
@@ -264,7 +263,7 @@ class FileRepositoryImplTest :
 
         test("TC-e83464f1-ff45-45d4-b832-57f4b4f82143 목록의 끝에 다가가면 받은 마지막 파일의 올린 시각과 식별자를 기준으로 20개를 이어서 요청한다") {
             runTest {
-                val firstPage = List(20) { remoteFile() }
+                val firstPage = List(20) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage
                 coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
@@ -284,8 +283,6 @@ class FileRepositoryImplTest :
         }
     }) {
     public companion object {
-        private fun remoteFile(): FileRemoteEntity = Arb.fileRemoteEntity().next()
-
         private fun fileLocalDataSource(
             uri: FileUri,
             name: String = "file-${Arb.int().next()}.txt",

@@ -9,12 +9,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,10 +98,9 @@ class WebCardTest {
     }
 
     private companion object {
-        // 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
-        private fun title(): String = "제목-${Arb.string().next()}"
+        private fun title(): String = "제목-${Arb.nonBlankString().next()}"
 
-        private fun description(): String = "설명-${Arb.string().next()}"
+        private fun description(): String = "설명-${Arb.nonBlankString().next()}"
 
         private fun url(): String = "https://example.com/${Arb.int().next()}"
 

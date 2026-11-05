@@ -290,15 +290,13 @@ class AccountTagSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun tag(updatedAt: Instant = instant()): TagLocalEntity =
+        private fun tag(updatedAt: Instant = Arb.secondPrecisionInstant().next()): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

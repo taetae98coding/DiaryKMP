@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
@@ -19,6 +20,8 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUi
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -78,7 +81,7 @@ class WebDetailTagInputTest {
 
     @Test
     fun `TC-022191e8-945d-40bd-842b-8544e389db9b 태그를 연결해도 웹 페이지를 다시 불러오지 않는다`() {
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
         setWebDetailScreen(
             pageViewModel = pageViewModel,
             selectableTagList = listOf(webTestTag(title = SELECTABLE_TAG_TITLE)),
@@ -97,7 +100,7 @@ class WebDetailTagInputTest {
     @Test
     fun `TC-022191e8-945d-40bd-842b-8544e389db9b 태그를 해제해도 웹 페이지를 다시 불러오지 않는다`() {
         val linkedTag = webTestTag(title = LINKED_TAG_TITLE)
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
         val tagViewModel = detailTagScreenTestViewModel(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
         setWebDetailScreen(pageViewModel = pageViewModel, tagViewModel = tagViewModel, selectFormTab = false)
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)

@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -21,7 +22,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -75,7 +75,7 @@ class MemoAddTagViewModelTest : FunSpec() {
 
         test("TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allList = List(2) { tag() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageTagUseCase>()

@@ -25,6 +25,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.LONG_URL
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
@@ -34,6 +35,8 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUi
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -107,7 +110,7 @@ class WebDetailScreenTest {
 
     @Test
     fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
 
         setWebDetailScreen(pageViewModel = pageViewModel)
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
@@ -142,7 +145,7 @@ class WebDetailScreenTest {
 
     @Test
     fun `TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
-        setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage())))
+        setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next())))
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
 
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
@@ -225,7 +228,7 @@ class WebDetailScreenTest {
     fun `TC-26a8fc6b-6a03-477f-a070-e03027088d87 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
         val detail = testWebDetail()
         val webViewModel = webViewModel(uiState = testContentUiState(detail = detail))
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
 
         setWebDetailScreen(webViewModel = webViewModel, pageViewModel = pageViewModel)
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
@@ -478,7 +481,7 @@ class WebDetailScreenTest {
     @Test
     fun `TC-3dc63903-fbcb-4aef-9d9e-a811d56ff1ae 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
         val restorationTester = StateRestorationTester(composeRule)
-        val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
         val recreatedPageViewModel = pageViewModel()
         var pageViewModel = firstPageViewModel
 

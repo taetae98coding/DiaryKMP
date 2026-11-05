@@ -217,8 +217,8 @@ class AccountContactMemoFinishedPagingDaoTest :
         test("TC-23057b0d-8d8d-4ad7-a6fa-0a4d695be691 대상 연락처를 삭제하거나 즐겨찾기를 바꿔도 연결된 완료 메모는 계속 조회된다") {
             val changeList: List<(ContactLocalEntity) -> ContactLocalEntity> =
                 listOf(
-                    { contact -> contact.copy(isDeleted = true, updatedAt = instant()) },
-                    { contact -> contact.copy(isFavorite = !contact.isFavorite, updatedAt = instant()) },
+                    { contact -> contact.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) },
+                    { contact -> contact.copy(isFavorite = !contact.isFavorite, updatedAt = Arb.secondPrecisionInstant().next()) },
                 )
 
             changeList.forEach { change ->
@@ -378,12 +378,12 @@ class AccountContactMemoFinishedPagingDaoTest :
             activePagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
             }
 
             activePagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
 
-            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
@@ -397,10 +397,10 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
@@ -419,7 +419,7 @@ class AccountContactMemoFinishedPagingDaoTest :
                 isDeleted: Boolean,
                 change: suspend (updatedAt: Instant) -> Unit,
             ) {
-                val updatedAt = generateSequence { instant() }.first { value -> value != previousUpdatedAt }
+                val updatedAt = generateSequence { Arb.secondPrecisionInstant().next() }.first { value -> value != previousUpdatedAt }
 
                 change(updatedAt)
 
@@ -451,7 +451,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             val targetMemo = memo()
             insertContactMemo(accountId, target, targetMemo)
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
             activePagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
@@ -465,10 +465,10 @@ class AccountContactMemoFinishedPagingDaoTest :
             val storedContact = database.accountContactDao().find(accountId = accountId, contactId = target.id).first()
             val memoDao = database.accountMemoDao()
 
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
             database.accountContactDao().find(accountId = accountId, contactId = target.id).first() shouldBe storedContact
         }
@@ -482,7 +482,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
@@ -496,7 +496,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = instant())))
+                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -510,7 +510,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = instant())))
+                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -556,7 +556,7 @@ class AccountContactMemoFinishedPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -567,7 +567,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             isFinished: Boolean = true,
             isDeleted: Boolean = false,
             detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): MemoLocalEntity =
             Arb
                 .memoLocalEntity()
@@ -578,7 +578,7 @@ class AccountContactMemoFinishedPagingDaoTest :
                     isFinished = isFinished,
                     isDeleted = isDeleted,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun contact(isDeleted: Boolean = false): ContactLocalEntity =
@@ -587,8 +587,8 @@ class AccountContactMemoFinishedPagingDaoTest :
                 .next()
                 .copy(
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun memoContact(
@@ -603,11 +603,9 @@ class AccountContactMemoFinishedPagingDaoTest :
                     memoId = memoId,
                     contactId = contactId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,

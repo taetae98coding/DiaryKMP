@@ -78,7 +78,7 @@ class AccountChecklistTransactionImplTest :
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
             database.markChecklistUploaded(accountId = accountId)
             val detail = ChecklistDetailLocalEntity(title = "  ${Arb.string().next()}  ", description = "")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDetail(accountId = accountId, checklistId = checklist.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
@@ -97,7 +97,7 @@ class AccountChecklistTransactionImplTest :
                 val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
                 transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
                 database.markChecklistUploaded(accountId = accountId)
-                val updatedAt = instant()
+                val updatedAt = Arb.secondPrecisionInstant().next()
 
                 transaction.updateDeleted(accountId = accountId, checklistId = checklist.id, isDeleted = isDeleted, updatedAt = updatedAt) shouldBe 1
 
@@ -121,9 +121,9 @@ class AccountChecklistTransactionImplTest :
                 accountId = accountId,
                 checklistId = checklist.id,
                 detail = ChecklistDetailLocalEntity(title = "title", description = "description"),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
-            transaction.updateDeleted(accountId = accountId, checklistId = checklist.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = accountId, checklistId = checklist.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistList() shouldBe listOf(checklist)
             database.findAccountChecklistList() shouldBe
@@ -137,9 +137,9 @@ class AccountChecklistTransactionImplTest :
                 accountId = accountId,
                 checklistId = missingChecklistId,
                 detail = ChecklistDetailLocalEntity(title = "title", description = "description"),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
-            transaction.updateDeleted(accountId = accountId, checklistId = missingChecklistId, isDeleted = true, updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = accountId, checklistId = missingChecklistId, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             database.findChecklistList() shouldBe emptyList()
             database.findAccountChecklistList() shouldBe emptyList()
@@ -195,7 +195,7 @@ class AccountChecklistTransactionImplTest :
         test("TC-f48529a1-3a4b-459b-978e-79ed218d0b58 1ms씩 늦어지는 생성 시각으로 함께 저장한 체크 항목은 추가순으로 넣어 둔 순서대로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val itemList =
                 List(3) { index ->
                     val createdAt = now + index.milliseconds
@@ -237,16 +237,12 @@ class AccountChecklistTransactionImplTest :
             val checklist = Arb.localChecklist(isDeleted = true).next()
             transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
             val detail = ChecklistDetailLocalEntity(title = "title", description = "description")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDetail(accountId = accountId, checklistId = checklist.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
             database.findChecklistList() shouldBe listOf(checklist.copy(detail = detail, updatedAt = updatedAt))
         }
-    }) {
-    public companion object {
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-    }
-}
+    })
 
 private class ChecklistTestException : RuntimeException()

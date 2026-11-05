@@ -45,7 +45,6 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class SearchPagingDaoTest :
@@ -521,8 +520,8 @@ class SearchPagingDaoTest :
                     detail = Arb.memoDetailLocalEntity().next().copy(title = title, description = description),
                     isFinished = isFinished,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun tag(
@@ -543,8 +542,8 @@ class SearchPagingDaoTest :
                             .copy(emoji = emoji, title = title, description = description),
                     isFinished = isFinished,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun place(
@@ -563,8 +562,8 @@ class SearchPagingDaoTest :
                             .next()
                             .copy(title = title, description = description, address = address),
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun web(
@@ -586,8 +585,8 @@ class SearchPagingDaoTest :
                             headerList = headerList,
                         ),
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun PlaceLocalEntity.located(
@@ -606,10 +605,8 @@ class SearchPagingDaoTest :
                     memoId = memoId,
                     tagId = tagId,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

@@ -30,7 +30,6 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountChecklistLocalDataSourceImplTest :
@@ -226,7 +225,7 @@ class AccountChecklistLocalDataSourceImplTest :
             listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(b))) {
-                checklistTransaction.updateDeleted(accountId = accountId, checklistId = a.id, isDeleted = true, updatedAt = instant())
+                checklistTransaction.updateDeleted(accountId = accountId, checklistId = a.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
@@ -236,8 +235,8 @@ class AccountChecklistLocalDataSourceImplTest :
             val b = checklist(title = "b")
             val c = checklist(title = "c")
             listOf(a, b, c).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
-            checklistTransaction.updateDeleted(accountId = accountId, checklistId = b.id, isDeleted = true, updatedAt = instant())
-            val restoredAt = instant()
+            checklistTransaction.updateDeleted(accountId = accountId, checklistId = b.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(a), summary(b.copy(updatedAt = restoredAt)), summary(c))) {
                 checklistTransaction.updateDeleted(accountId = accountId, checklistId = b.id, isDeleted = false, updatedAt = restoredAt)
@@ -250,7 +249,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val b = checklist(title = "b")
             listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
             val detail = ChecklistDetailLocalEntity(title = "c", description = a.detail.description)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(b), summary(a.copy(detail = detail, updatedAt = updatedAt)))) {
                 checklistTransaction.updateDetail(accountId = accountId, checklistId = a.id, detail = detail, updatedAt = updatedAt)
@@ -268,10 +267,10 @@ class AccountChecklistLocalDataSourceImplTest :
                 itemTransaction.upsert(accountId = accountId, item = uncheckedItem)
             }
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(checklist, checkedCount = 2, totalCount = 2))) {
-                itemTransaction.updateChecked(accountId = accountId, itemId = uncheckedItem.id, isChecked = true, updatedAt = instant())
+                itemTransaction.updateChecked(accountId = accountId, itemId = uncheckedItem.id, isChecked = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(checklist, checkedCount = 1, totalCount = 1))) {
-                itemTransaction.updateDeleted(accountId = accountId, itemId = checkedItem.id, isDeleted = true, updatedAt = instant())
+                itemTransaction.updateDeleted(accountId = accountId, itemId = checkedItem.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
@@ -342,7 +341,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val checklist = checklist(title = "a")
             checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
             val detail = ChecklistDetailLocalEntity(title = "b", description = "description")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             dataSource.find(accountId = accountId, checklistId = checklist.id).test {
                 awaitItem() shouldBe checklist
@@ -353,7 +352,5 @@ class AccountChecklistLocalDataSourceImplTest :
     }) {
     public companion object {
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -130,7 +131,7 @@ class WebDetailScreenRestoreTest {
     @Test
     fun `TC-2c7098bf-a237-42c5-bcbb-eb55788d7132 응답을 받으면 응답 본문을 곧바로 보여 주고 다시 바꿨을 때 다시 요청하지 않는다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(page)
         SingletonDiaryWebSession.set(DiaryWebSession(isRestoring = true))

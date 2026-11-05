@@ -42,7 +42,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.Runs
@@ -316,15 +315,6 @@ class MemoDetailScreenBoundaryTest {
         private const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
         private val FEEDBACK_MESSAGE_LIST: List<String> =
             listOf(DEFAULT_UPDATE_SUCCEEDED_MESSAGE, DEFAULT_COPY_SUCCEEDED_MESSAGE, "Memo finished.", "Memo restarted.", "Memo deleted.", "Undo")
-        private const val COLOR_RGB_MASK = 0xFFFFFF
-        private const val COLOR_HEX_LENGTH = 6
-
-        private fun randomColorHex(): String =
-            "#" +
-                (Arb.int().next() and COLOR_RGB_MASK)
-                    .toString(radix = 16)
-                    .uppercase()
-                    .padStart(length = COLOR_HEX_LENGTH, padChar = '0')
 
         private fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
     }

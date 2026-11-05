@@ -18,9 +18,9 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -164,6 +164,6 @@ class WebDetailScreenMemoReturnTest {
         const val NEW_TIME_ZONE = "Etc/GMT+12"
         const val ENGLISH_DATE_PATTERN = "MMM d, yyyy"
 
-        fun memoTitle(prefix: String): String = "WebMemo$prefix${Arb.string().next().filter(Char::isLetterOrDigit)}"
+        fun memoTitle(prefix: String): String = Arb.alphanumericString(prefix = "WebMemo$prefix").next()
     }
 }

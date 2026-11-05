@@ -94,6 +94,10 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 `Arb.string()`은 약 1%가 빈 문자열이다. 비어 있지 않아야 판정이 성립하면 `Arb.nonBlankString()`을 쓰고, 빈 문자열 자체가 목적이면 직접 지정한다.
 
+다른 값의 일부로 찾거나 이어 붙이는 문자열(부분 문자열로 노드를 찾는 제목, 경로·식별자 조각)처럼 공백·줄바꿈·기호가 섞이면 탐색이나 해석이 값에 따라 달라지는 곳은 `Arb.alphanumericString()`으로 만든다. 이 규칙은 빈 문자열도 만들므로 어느 값인지 알아보는 접두사를 함께 넘긴다(`Arb.alphanumericString(prefix = "FinishedMemo").next()`). 화면에 보이는 값 전체로 노드를 찾는 글에 어느 필드인지 알아보는 접두사를 붙일 때는 `"제목-${Arb.nonBlankString().next()}"`처럼 쓴다.
+
+공용 규칙에서 값 하나를 꺼내기만 하는 래퍼(`fun instant(): Instant = Arb.secondPrecisionInstant().next()`)는 두지 않고 `Arb.secondPrecisionInstant().next()`를 직접 쓴다. 날짜와 시각도 `Arb.int().next().mod(...)`로 조립하지 않고 `Arb.kotlinxLocalDate()`·`Arb.localDateRange()`를 쓰며, 월·연도처럼 범위가 판정에 걸리면 `Arb.int(range)`로 그 범위를 드러낸다.
+
 `:core:testing`의 규칙은 `<타입 이름의 lowerCamel>()`로 이름 짓고, 도메인 패키지(`core.testing.memo` 등)에 계층별 파일(`MemoModelArb.kt`, `MemoLocalEntityArb.kt`, `MemoRemoteEntityArb.kt`)로 둔다. enum은 `Arb.enum<T>()`, object는 `Arb.constant(T)`를 그대로 쓰고 별도 규칙을 두지 않는다. sealed 타입은 하위 타입 규칙을 `Arb.choice`로 묶는다. 생성자가 private인 타입은 공개된 생성 경로로 만든다(`Arb.length()`).
 
 엔티티와 모델의 일부 필드를 고정한 규칙(`Arb.localTag(isFinished, isDeleted)` 등)은 `Arb`를 돌려주는 `Arb.Companion` 확장 함수로, 여러 조건을 나열하는 목록(`contactDetailCaseList()` 등)은 일반 함수로 `:core:testing`에 둔다. 무작위 기본값이 필요한 파라미터는 `title: String? = null`로 받아 `arbitrary` 안에서 `title ?: ...`로 채워, 같은 `Arb`에서 꺼낸 값마다 새로 만들어지게 한다. 두 모듈 이상의 테스트가 같은 타입을 만들면 그 규칙은 `:core:testing`으로 옮긴다. `:core:testing`이 의존할 수 없는 타입(feature·compose·domain·impl 모듈의 타입)은 그 타입을 쓰는 모듈의 `commonTest`에 `internal`로 둔다. 다만 그 모듈에 `jvmTest` 테스트가 없으면 `commonTest`의 소스만으로도 `jvmTest`가 테스트를 찾지 못해 실패하므로, 쓰는 소스셋(`androidHostTest`)에 둔다. `androidMain`에만 있는 타입도 `androidHostTest`에 둔다.

@@ -188,7 +188,7 @@ class AccountWebSyncTransactionImplTest :
                 val localWeb = web(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remoteWeb =
                     localWeb.copy(
-                        detail = detail(),
+                        detail = Arb.webDetailLocalEntity().next(),
                         updatedAt = remoteUpdatedAt,
                     )
                 insertWithSyncState(accountId, localWeb, isDirty = false)
@@ -237,7 +237,7 @@ class AccountWebSyncTransactionImplTest :
             val localWeb = web(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remoteWeb =
                 localWeb.copy(
-                    detail = detail(),
+                    detail = Arb.webDetailLocalEntity().next(),
                     updatedAt = Instant.fromEpochMilliseconds(1_000),
                 )
             insertWithSyncState(accountId, localWeb, isDirty = true)
@@ -257,7 +257,7 @@ class AccountWebSyncTransactionImplTest :
             test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = Arb.kotlinUuid().next()
                 val localWeb = web(updatedAt = Instant.fromEpochMilliseconds(2_000))
-                val remoteWeb = localWeb.copy(detail = detail(), updatedAt = remoteUpdatedAt)
+                val remoteWeb = localWeb.copy(detail = Arb.webDetailLocalEntity().next(), updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, localWeb, isDirty = true)
 
                 transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
@@ -315,20 +315,16 @@ class AccountWebSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun web(updatedAt: Instant = instant()): WebLocalEntity =
+        private fun web(updatedAt: Instant = Arb.secondPrecisionInstant().next()): WebLocalEntity =
             Arb
                 .webLocalEntity()
                 .next()
                 .copy(
-                    detail = detail(),
+                    detail = Arb.webDetailLocalEntity().next(),
                     isDeleted = false,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun detail(): WebDetailLocalEntity = Arb.webDetailLocalEntity().next()
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun SQLiteStatement.toWeb(): WebLocalEntity =
             WebLocalEntity(

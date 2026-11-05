@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -71,7 +72,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-73bd7b0a-5095-4950-a2da-08208ce8a52d 응답 본문은 응답을 받은 주소를 기준 주소로 넘긴다`() {
         val detail = testWebDetail(headerList = List(HEADER_COUNT) { testWebHeader() })
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase(page = page)),
@@ -87,7 +88,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-e58626cc-51a7-46d4-a321-aa44352da423 응답 본문은 스크립트를 실행하는 웹 표시 수단에 넘긴다`() {
         val detail = testWebDetail(headerList = List(HEADER_COUNT) { testWebHeader() })
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase(page = page)),
@@ -122,7 +123,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-bfc3e32b-068c-476e-b1db-204c02ba8aac 앱을 다시 실행해 진입하면 웹 페이지를 다시 불러온다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         // 앱을 다시 실행하면 화면의 ViewModel도 새로 만들어지므로, 실행마다 새 ViewModel을 넘긴다.
         val launchedWebViewModelList = List(LAUNCH_COUNT) { webViewModel(detail = detail) }
         val launchedPageViewModelList =
@@ -158,7 +159,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 URL 방식에서 화면이 재생성되면 저장된 URL을 처음부터 다시 연다`() {
         val detail = testWebDetail()
-        val fetchWebPageUseCase = fetchWebPageUseCase(page = testWebPage())
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = Arb.webPage().next())
         val webViewModel = webViewModel(detail = detail)
         val pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase)
         val restorationTester = StateRestorationTester(composeRule)
@@ -179,7 +180,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 응답 본문 방식에서 화면이 재생성되면 이미 받은 응답 본문을 처음부터 다시 그린다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
         val webViewModel = webViewModel(detail = detail)
         val pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase)
@@ -202,7 +203,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-14f16d67-3917-4aa8-9f7a-86c3f73f7a17 URL 방식에서 다른 탭에 다녀오면 저장된 URL을 처음부터 다시 연다`() {
         val detail = testWebDetail()
-        val fetchWebPageUseCase = fetchWebPageUseCase(page = testWebPage())
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = Arb.webPage().next())
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
@@ -222,7 +223,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-14f16d67-3917-4aa8-9f7a-86c3f73f7a17 응답 본문 방식에서 다른 탭에 다녀오면 이미 받은 응답 본문을 처음부터 다시 그린다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
@@ -244,7 +245,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-33f0130f-dc24-45c3-8e9b-2d0e9eb93202 불러오는 도중 URL 방식으로 바꾸면 URL 방식으로 표시하고 응답을 받은 뒤 돌아오면 그 결과를 보여 준다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val response = CompletableDeferred<Result<WebPage>>()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } coAnswers { response.await() }
@@ -274,7 +275,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-44066812-528e-4f8c-9740-8d9fa9d9eb7d 불러오기에 실패한 뒤 URL 방식에서 응답 본문 방식으로 돌아오면 다시 불러온다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
         coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
             listOf(Result.failure(IllegalStateException("fetch failed")), Result.success(page))

@@ -3,18 +3,20 @@ package io.github.taetae98coding.diary.feature.place.ui.form
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class PlaceFormStateTest :
     FunSpec({
         test("TC-c7e9ea0f-dde3-4b8a-9abf-d2c00ce0b516 지도에서 위치를 고르면 위도와 경도가 채워진다") {
-            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+            val state = placeAddFormState(initialMapCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
-            List(2) { mapCoordinateInFormPrecision() }.forEach { selectedCoordinate ->
+            List(2) { Arb.diaryMapCoordinateInFormPrecision().next() }.forEach { selectedCoordinate ->
                 state.clearCoordinate()
                 state.selectSpotOnMap(selectedCoordinate)
 
@@ -24,9 +26,9 @@ class PlaceFormStateTest :
         }
 
         test("TC-c28713da-07da-459e-bfeb-7a1e0acad043 지도에서 다른 위치를 고르면 좌표가 새 위치로 바뀌고 지점은 하나만 남는다") {
-            val firstCoordinate = mapCoordinateInFormPrecision()
-            val secondCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstCoordinate }
-            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+            val firstCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+            val secondCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != firstCoordinate }
+            val state = placeAddFormState(initialMapCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
             state.selectSpotOnMap(firstCoordinate)
             state.selectSpotOnMap(secondCoordinate)
@@ -37,11 +39,16 @@ class PlaceFormStateTest :
         }
 
         test("TC-4ed40457-9c12-4c4d-85a3-cacf681225eb 지도에서 고른 좌표를 이어서 직접 고칠 수 있다") {
-            val selectedCoordinate = mapCoordinateInFormPrecision()
+            val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
             val changedLatitude =
-                generateSequence { mapCoordinateInFormPrecision().latitude.toCoordinateText() }
-                    .first { latitude -> latitude != selectedCoordinate.latitude.toCoordinateText() }
-            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+                generateSequence {
+                    Arb
+                        .diaryMapCoordinateInFormPrecision()
+                        .next()
+                        .latitude
+                        .toCoordinateText()
+                }.first { latitude -> latitude != selectedCoordinate.latitude.toCoordinateText() }
+            val state = placeAddFormState(initialMapCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
             state.selectSpotOnMap(selectedCoordinate)
             state.latitudeState.setTextAndPlaceCursorAtEnd(changedLatitude)
@@ -51,13 +58,13 @@ class PlaceFormStateTest :
         }
 
         test("TC-caf684a1-2033-4e4a-b288-c6b69bbdd231 지도에서 고른 좌표는 항상 성립하는 좌표다") {
-            val state = placeAddFormState(initialMapCoordinate = mapCoordinateInFormPrecision())
+            val state = placeAddFormState(initialMapCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
             listOf(
                 DiaryMapCoordinate(latitude = 90.0, longitude = 180.0),
                 DiaryMapCoordinate(latitude = -90.0, longitude = -180.0),
                 DiaryMapCoordinate(latitude = 0.0, longitude = 0.0),
-                mapCoordinateInFormPrecision(),
+                Arb.diaryMapCoordinateInFormPrecision().next(),
             ).forEach { selectedCoordinate ->
                 state.selectSpotOnMap(selectedCoordinate)
 

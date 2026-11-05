@@ -6,9 +6,11 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
-import io.github.taetae98coding.diary.feature.search.ui.home.searchId
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -36,7 +38,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
 
         test("TC-52108144-1cad-4c1b-85da-0bca00128799 웹 항목을 삭제하면 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = searchId()
+                val id = Arb.kotlinUuid().next()
                 val environment = Environment()
 
                 environment.viewModel.effect.test {
@@ -51,7 +53,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
 
         test("TC-22b6f8ce-53f1-4b4f-844b-1a462721e10c 웹 항목 삭제가 저장되지 못하면 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = searchId()
+                val id = Arb.kotlinUuid().next()
                 val environment = Environment(result = Result.failure(IllegalStateException()))
 
                 environment.viewModel.effect.test {
@@ -65,7 +67,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
 
         test("TC-27470dd3-8e88-4047-bf84-f787c9bfd442 웹 항목 삭제를 실행 취소하면 복구를 요청하고 새 안내는 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = searchId()
+                val id = Arb.kotlinUuid().next()
                 val environment = Environment()
 
                 environment.viewModel.effect.test {

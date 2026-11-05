@@ -98,7 +98,7 @@ class AccountQrSyncTransactionImplTest :
             test("TC-9f59d662-8251-4eb6-85e1-8fd2875148cf ${label}한 QR은 계정의 업로드 대기로 기록된다") {
                 val accountId = Arb.kotlinUuid().next()
                 val qr = Arb.localQr(isDeleted = !isDeleted).next()
-                val updatedAt = instant()
+                val updatedAt = Arb.secondPrecisionInstant().next()
                 insertWithSyncState(accountId = accountId, qr = qr, isDirty = false)
 
                 AccountQrTransactionImpl(database = database).updateDeleted(
@@ -227,8 +227,4 @@ class AccountQrSyncTransactionImplTest :
                 .filter { kind -> kind != SyncKindLocalEntity.QR }
                 .forEach { kind -> syncCursorDataSource.read(accountId = accountId, kind = kind) shouldBe 0L }
         }
-    }) {
-    public companion object {
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-    }
-}
+    })

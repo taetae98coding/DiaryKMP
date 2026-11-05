@@ -16,12 +16,12 @@ import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 internal const val MEMO_TAB_LABEL: String = "Memo"
@@ -30,10 +30,9 @@ internal const val PLACE_TAB_LABEL: String = "Place"
 internal const val WEB_TAB_LABEL: String = "Web"
 internal const val RESULT_EMOJI: String = "✈️"
 
-// 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
-internal fun resultTitle(): String = "제목-${Arb.string().next()}"
+internal fun resultTitle(): String = "제목-${Arb.nonBlankString().next()}"
 
-internal fun resultAddress(): String = "주소-${Arb.string().next()}"
+internal fun resultAddress(): String = "주소-${Arb.nonBlankString().next()}"
 
 internal fun resultUrl(): String = "https://example.com/${Arb.string().next()}"
 
@@ -56,8 +55,8 @@ internal fun resultMemo(
         primaryTagId = null,
         isFinished = isFinished,
         isDeleted = false,
-        updatedAt = instant(),
-        createdAt = instant(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }
 
@@ -80,8 +79,8 @@ internal fun resultTag(
         detail = detail,
         isFinished = isFinished,
         isDeleted = false,
-        updatedAt = instant(),
-        createdAt = instant(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }
 
@@ -102,8 +101,8 @@ internal fun resultPlace(
         id = Uuid.random(),
         detail = detail,
         isDeleted = false,
-        updatedAt = instant(),
-        createdAt = instant(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }
 
@@ -124,8 +123,8 @@ internal fun resultWeb(
         id = Uuid.random(),
         detail = detail,
         isDeleted = false,
-        updatedAt = instant(),
-        createdAt = instant(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }
 
@@ -154,5 +153,3 @@ internal fun <T : Any> pagingDataOf(itemList: List<T>): PagingData<T> =
                 append = LoadState.NotLoading(endOfPaginationReached = true),
             ),
     )
-
-private fun instant(): Instant = Arb.secondPrecisionInstant().next()

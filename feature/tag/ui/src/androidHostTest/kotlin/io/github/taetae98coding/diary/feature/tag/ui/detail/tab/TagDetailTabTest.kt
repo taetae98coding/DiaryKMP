@@ -54,14 +54,16 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.toHexColorText
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
 import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_TAG_LINK_LABEL
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -477,7 +479,7 @@ class TagDetailTabScreenTest {
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
 
-        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.runOnIdle { detailIdState.value = Arb.kotlinUuid().next() }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()

@@ -26,7 +26,6 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDateTime
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountMemoTagLocalDataSourceImplTest :
@@ -74,7 +73,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memoId,
                 tagId = tag.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -104,7 +103,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
@@ -223,7 +222,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                     color = tag.detail.color.inv(),
                 )
 
-            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = instant())
+            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = Arb.secondPrecisionInstant().next())
 
             dataSource
                 .getTagList(accountId = accountId, memoId = memo.id)
@@ -259,7 +258,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                     memoId = memo.id,
                     tagId = changedTagId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 syncDataSource.readPendingList(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
@@ -320,7 +319,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource.readTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
@@ -447,7 +446,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource
@@ -634,8 +633,8 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun tag(): TagLocalEntity =
@@ -645,8 +644,8 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .copy(
                     isFinished = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun TagLocalEntity.withTitle(title: String): TagLocalEntity = copy(detail = detail.copy(title = title))
@@ -684,7 +683,5 @@ class AccountMemoTagLocalDataSourceImplTest :
 
             return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
         }
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

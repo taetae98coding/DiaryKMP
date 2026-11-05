@@ -84,7 +84,7 @@ class AccountMusicTransactionImplTest :
 
         test("TC-2a643d2a-9044-4be0-b647-f5d008f01fee TC-f0597753-436f-4f25-907b-21e0dd93d4d2 TC-9e545317-6c86-45ac-9268-965e60c49464 제목, 가수, 링크와 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val music =
                 music().copy(
                     detail =
@@ -110,7 +110,7 @@ class AccountMusicTransactionImplTest :
             transaction.upsert(accountId = accountId, musicList = listOf(music))
             markUploaded(database = database, accountId = accountId, musicId = music.id)
             val detail = Arb.musicDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
@@ -123,7 +123,7 @@ class AccountMusicTransactionImplTest :
             val music = music().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, musicList = listOf(music))
             markUploaded(database = database, accountId = accountId, musicId = music.id)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
 
@@ -136,7 +136,7 @@ class AccountMusicTransactionImplTest :
             val music = music().copy(isDeleted = true)
             transaction.upsert(accountId = accountId, musicList = listOf(music))
             markUploaded(database = database, accountId = accountId, musicId = music.id)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = false, updatedAt = updatedAt) shouldBe 1
 
@@ -154,9 +154,9 @@ class AccountMusicTransactionImplTest :
                 accountId = otherAccountId,
                 musicId = music.id,
                 detail = Arb.musicDetailLocalEntity().next(),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
-            transaction.updateDeleted(accountId = otherAccountId, musicId = music.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, musicId = music.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             findMusicList() shouldBe listOf(music)
         }
@@ -204,11 +204,9 @@ class AccountMusicTransactionImplTest :
                 .next()
                 .copy(
                     detail = Arb.musicDetailLocalEntity().next(),
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         // 수정과 삭제가 업로드 대기를 다시 세우는지 보려면 저장 직후의 대기 상태를 먼저 지워야 한다.
         private suspend fun markUploaded(

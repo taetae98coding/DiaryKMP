@@ -89,7 +89,7 @@ class AccountContactTransactionImplTest :
 
         test("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 이름, 설명과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val contact =
                 contact().copy(
                     detail = detail().copy(name = "name-${Arb.string().next()}", description = ""),
@@ -253,15 +253,15 @@ class AccountContactTransactionImplTest :
             val pending = listOf(AccountContactLocalEntity(accountId = accountId, contactId = contact.id, isDirty = true))
             val changeList: List<suspend () -> Unit> =
                 listOf(
-                    { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = instant()) },
-                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = instant()) },
-                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = instant()) },
+                    { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = Arb.secondPrecisionInstant().next()) },
+                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) },
+                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next()) },
                     {
                         transaction.updateFavorite(
                             accountId = accountId,
                             contactId = contact.id,
                             isFavorite = !contact.isFavorite,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     },
                 )
@@ -288,7 +288,7 @@ class AccountContactTransactionImplTest :
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = birthYear))
                 }
             val updatedDetail = contact.detail.copy(birthYear = birthYear + 1)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt)
@@ -299,7 +299,7 @@ class AccountContactTransactionImplTest :
         test("TC-f0aabb78-2348-41f2-8203-5ea73829103c 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = false, isDeleted = true)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt)
@@ -322,7 +322,7 @@ class AccountContactTransactionImplTest :
                 accountId = accountId,
                 contactId = contact.id,
                 detail = contact.detail.copy(phoneNumberList = phoneNumberList),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findContactList().single().detail.phoneNumberList shouldBe phoneNumberList
@@ -337,7 +337,7 @@ class AccountContactTransactionImplTest :
                 accountId = accountId,
                 contactId = contact.id,
                 detail = contact.detail.copy(phoneNumberList = emptyList()),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 1
 
             findContactList().single().detail.phoneNumberList shouldBe emptyList()
@@ -347,7 +347,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = true, isDeleted = true)
             val updatedDetail = detail().copy(name = "updated-${Arb.string().next()}")
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt) shouldBe 1
@@ -360,7 +360,7 @@ class AccountContactTransactionImplTest :
         test("TC-21d1c705-308e-4ddc-bb00-1dcffba5d805 즐겨찾기 변경은 즐겨찾기 여부와 수정 시각만 저장한다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = false)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt) shouldBe 1
@@ -371,7 +371,7 @@ class AccountContactTransactionImplTest :
         test("TC-9aaa0ba4-69e2-4de4-a225-3e64e1f24b30 삭제는 연락처와 계정 연결과 전화번호를 지우지 않고 삭제 여부와 수정 시각만 바꾼다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = true, isDeleted = false)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
@@ -392,11 +392,11 @@ class AccountContactTransactionImplTest :
                 accountId = otherAccountId,
                 contactId = contact.id,
                 detail = detail().copy(name = "updated-${Arb.string().next()}"),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             ) shouldBe 0
-            transaction.updateDeleted(accountId = otherAccountId, contactId = contact.id, isDeleted = true, updatedAt = instant()) shouldBe 0
-            transaction.updateFavorite(accountId = otherAccountId, contactId = contact.id, isFavorite = true, updatedAt = instant()) shouldBe 0
-            transaction.updateDetail(accountId = accountId, contactId = Arb.kotlinUuid().next(), detail = detail(), updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateFavorite(accountId = otherAccountId, contactId = contact.id, isFavorite = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
+            transaction.updateDetail(accountId = accountId, contactId = Arb.kotlinUuid().next(), detail = detail(), updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
 
             findContactList() shouldBe before
         }
@@ -411,13 +411,13 @@ class AccountContactTransactionImplTest :
             val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
 
             shouldThrow<IllegalStateException> {
-                failingTransaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = instant())
+                failingTransaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = Arb.secondPrecisionInstant().next())
             }.message shouldBe throwable.message
             shouldThrow<IllegalStateException> {
-                failingTransaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = instant())
+                failingTransaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }.message shouldBe throwable.message
             shouldThrow<IllegalStateException> {
-                failingTransaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = instant())
+                failingTransaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = Arb.secondPrecisionInstant().next())
             }.message shouldBe throwable.message
 
             findContactList() shouldBe listOf(contact)
@@ -446,8 +446,8 @@ class AccountContactTransactionImplTest :
                 detail = detail(),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun detail(): ContactDetailLocalEntity =
@@ -463,8 +463,6 @@ class AccountContactTransactionImplTest :
                 howWeMet = "how-we-met-${Arb.string().next()}",
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

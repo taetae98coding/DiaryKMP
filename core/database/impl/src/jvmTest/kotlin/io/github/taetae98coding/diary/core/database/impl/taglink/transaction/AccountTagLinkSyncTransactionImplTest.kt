@@ -97,14 +97,14 @@ class AccountTagLinkSyncTransactionImplTest :
                 fromTagId = linked.fromTagId,
                 toTagId = linked.toTagId,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
             linkTransaction.upsert(
                 accountId = accountId,
                 fromTagId = released.fromTagId,
                 toTagId = released.toTagId,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             syncDataSource
@@ -294,16 +294,14 @@ class AccountTagLinkSyncTransactionImplTest :
             fromTagId: Uuid = Arb.kotlinUuid().next(),
             toTagId: Uuid = Arb.kotlinUuid().next(),
             isDeleted: Boolean = false,
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): TagLinkLocalEntity =
             TagLinkLocalEntity(
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = isDeleted,
                 updatedAt = updatedAt,
-                createdAt = instant(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

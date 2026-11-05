@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.compose.map
 
 import androidx.compose.runtime.saveable.SaverScope
-import androidx.compose.ui.graphics.Color
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.map.provider.label
@@ -50,7 +49,7 @@ class DiaryMapStateTest :
                     DiaryMapPin(
                         id = Uuid.random(),
                         coordinate = Arb.diaryMapCoordinate().next(),
-                        color = Color(Arb.int().next()),
+                        color = Arb.color().next(),
                         label = "label-${Arb.string().next()}",
                     )
                 }
@@ -463,7 +462,7 @@ class DiaryMapStateTest :
             DiaryMapPin(
                 id = Arb.kotlinUuid().next(),
                 coordinate = Arb.diaryMapCoordinate().next(),
-                color = Color(Arb.int().next()),
+                color = Arb.color().next(),
                 label = "label-${Arb.string().next()}",
             )
 

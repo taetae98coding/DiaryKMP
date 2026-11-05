@@ -31,7 +31,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -50,9 +54,9 @@ class TagDetailNavigationTest {
 
     @Test
     fun `TC-c0fde30f-f541-42cc-b592-8b551e504abc 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 태그의 TagDetail로 돌아간다`() {
-        val tagId = fixtureId()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
-        setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to fixtureText(prefix = "Tag")))
+        setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to Arb.alphanumericString(prefix = "Tag").next()))
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
         composeRule.onNodeWithText(FINISHED_LIST_CONTENT).assertIsDisplayed()
@@ -66,8 +70,8 @@ class TagDetailNavigationTest {
 
     @Test
     fun `TC-7c9b0e0e-2c9c-4487-acce-d768a25e15e6 대상 태그가 완료되었거나 삭제되었어도 완료된 메모 목록으로 이동할 수 있다`() {
-        val tagId = fixtureId()
-        val title = fixtureText(prefix = "Tag")
+        val tagId = Arb.kotlinUuid().next()
+        val title = Arb.alphanumericString(prefix = "Tag").next()
         // 삭제된 태그는 상세 대상 태그로 조회되지 않으므로 태그를 불러오지 못한 상태로 둔다.
         val uiStateCases =
             listOf(
@@ -96,9 +100,9 @@ class TagDetailNavigationTest {
 
     @Test
     fun `TC-b532f962-adb3-401f-80ac-2e69664f439e 완료된 메모가 없어도 메모 탭의 완료된 메모 확인으로 같은 태그의 TagMemoFinishedList 화면으로 이동한다`() {
-        val tagId = fixtureId()
+        val tagId = Arb.kotlinUuid().next()
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
-        setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to fixtureText(prefix = "Tag")))
+        setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to Arb.alphanumericString(prefix = "Tag").next()))
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
@@ -110,9 +114,9 @@ class TagDetailNavigationTest {
 
     @Test
     fun `TC-bd0d9d82-488f-4cde-8dd0-fc6aaa6ebfbf 연결한 태그의 상세에서 뒤로 돌아오면 이전 태그의 상세가 고치던 제목을 유지한다`() {
-        val firstId = fixtureId()
-        val secondId = fixtureId()
-        val titleMap = mapOf(firstId to fixtureText(prefix = "FirstTag"), secondId to fixtureText(prefix = "SecondTag"))
+        val firstId = Arb.kotlinUuid().next()
+        val secondId = Arb.kotlinUuid().next()
+        val titleMap = mapOf(firstId to Arb.alphanumericString(prefix = "FirstTag").next(), secondId to Arb.alphanumericString(prefix = "SecondTag").next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = firstId))
         setTagNavDisplay(backStack = backStack, titleMap = titleMap)
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
@@ -128,9 +132,9 @@ class TagDetailNavigationTest {
 
     @Test
     fun `TC-f85a48d5-b69a-419e-9358-68a25040b4fb 연결이 순환해 같은 태그의 상세가 다시 열려도 새 화면이고 뒤로가면 거쳐 온 상세로 차례로 돌아간다`() {
-        val firstId = fixtureId()
-        val secondId = fixtureId()
-        val titleMap = mapOf(firstId to fixtureText(prefix = "FirstTag"), secondId to fixtureText(prefix = "SecondTag"))
+        val firstId = Arb.kotlinUuid().next()
+        val secondId = Arb.kotlinUuid().next()
+        val titleMap = mapOf(firstId to Arb.alphanumericString(prefix = "FirstTag").next(), secondId to Arb.alphanumericString(prefix = "SecondTag").next())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = firstId))
         setTagNavDisplay(backStack = backStack, titleMap = titleMap)
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)

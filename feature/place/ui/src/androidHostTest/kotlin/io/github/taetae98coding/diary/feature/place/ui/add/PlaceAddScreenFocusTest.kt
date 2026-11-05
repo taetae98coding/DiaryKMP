@@ -9,10 +9,12 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -93,7 +95,7 @@ class PlaceAddScreenFocusTest {
         }
 
         listOf(TITLE_INPUT_INDEX to TYPED_TITLE, ADDRESS_INDEX to TYPED_ADDRESS).forEach { (focusedIndex, typedText) ->
-            val coordinate = mapCoordinateInFormPrecision()
+            val coordinate = Arb.diaryMapCoordinateInFormPrecision().next()
             composeRule.onAllNodes(hasSetTextAction())[focusedIndex].performTextInput(typedText)
             composeRule.onAllNodes(hasSetTextAction())[focusedIndex].assertIsFocused()
 

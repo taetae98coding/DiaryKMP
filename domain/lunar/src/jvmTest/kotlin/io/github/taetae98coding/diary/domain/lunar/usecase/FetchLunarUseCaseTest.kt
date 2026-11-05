@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.lunar.usecase
 
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -16,16 +17,12 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.datetime.LocalDate
-
-private val MAX_SOLAR_DATE: LocalDate = LocalDate(2100, 1, 1)
 
 class FetchLunarUseCaseTest :
     BehaviorSpec({
@@ -103,7 +100,7 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
 
 private fun lunarDate(): LunarDate =
     LunarDate(
-        solar = LocalDate.fromEpochDays(Arb.long().next().mod(MAX_SOLAR_DATE.toEpochDays())),
+        solar = Arb.kotlinxLocalDate().next(),
         year = Arb.int().next(),
         month = Arb.int().next(),
         day = Arb.int().next(),

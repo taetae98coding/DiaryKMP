@@ -9,14 +9,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 internal fun tagMemo(
     title: String,
@@ -47,7 +44,3 @@ internal fun tagMemoPagingData(
     )
 
 internal fun allDayMemoDateTime(date: LocalDate): MemoDateTime.AllDay = MemoDateTime.AllDay(dateRange = date..date)
-
-internal fun fixtureText(prefix: String): String = prefix + Arb.string().next().filter(Char::isLetterOrDigit)
-
-internal fun fixtureId(): Uuid = Arb.kotlinUuid().next()

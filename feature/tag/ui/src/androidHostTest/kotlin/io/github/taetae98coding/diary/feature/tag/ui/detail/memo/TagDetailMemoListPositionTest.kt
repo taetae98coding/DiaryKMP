@@ -15,11 +15,13 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +62,7 @@ class TagDetailMemoListPositionTest {
         private const val SCROLLED_INDEX = 30
 
         fun memoList(): List<Memo> {
-            val titlePrefix = fixtureText(prefix = "TagDetailMemo")
+            val titlePrefix = Arb.alphanumericString(prefix = "TagDetailMemo").next()
             return List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
         }
     }

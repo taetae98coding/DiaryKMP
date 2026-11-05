@@ -23,7 +23,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class GetPlaceListUseCaseTest :
@@ -99,15 +98,13 @@ class GetPlaceListUseCaseTest :
     private companion object {
         private const val PLACE_COUNT = 3
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
                 detail = Arb.placeDetail().next(),
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun getAccountUseCase(account: Result<Account>): GetAccountUseCase {

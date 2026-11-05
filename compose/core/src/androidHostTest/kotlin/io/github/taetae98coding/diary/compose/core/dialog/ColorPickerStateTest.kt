@@ -6,10 +6,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import io.github.taetae98coding.diary.compose.core.opaqueColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toHexString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
@@ -25,8 +25,8 @@ class ColorPickerStateTest {
 
     @Test
     fun `animateColorTo가 완료되면 슬라이더가 목표 컬러의 채널 값이 된다`() {
-        val state = colorPickerState(initialColor = randomColor())
-        val newColor = randomColor()
+        val state = colorPickerState(initialColor = Arb.opaqueColor().next())
+        val newColor = Arb.opaqueColor().next()
 
         composeRule.setContent {
             LaunchedEffect(state) {
@@ -49,7 +49,5 @@ class ColorPickerStateTest {
                 hexTextFieldState = TextFieldState(initialText = initialColor.toHexString()),
             )
         }
-
-        private fun randomColor(): Color = Color(color = 0xFF000000.toInt() or (Arb.int().next() and 0xFFFFFF))
     }
 }

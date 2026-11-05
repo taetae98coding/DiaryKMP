@@ -45,7 +45,6 @@ import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountPlaceTagLocalDataSourceImplTest :
@@ -106,7 +105,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -120,7 +119,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -132,8 +131,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         suspend fun linkedTagList(
@@ -294,10 +293,10 @@ class AccountPlaceTagLocalDataSourceImplTest :
 
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
 
-            val deletedAt = instant()
+            val deletedAt = Arb.secondPrecisionInstant().next()
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
 
@@ -343,7 +342,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             insertTag(accountId, tag)
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             database
                 .placeTagDao()
@@ -351,7 +350,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 .single()
                 .isDeleted shouldBe false
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             database
                 .placeTagDao()
@@ -368,7 +367,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             insertTag(accountId, tag)
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
 
-            placeTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = instant())
+            placeTransaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
         }
@@ -387,7 +386,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 accountId = accountId,
                 placeId = place.id,
                 detail = Arb.placeDetailLocalEntity().next(),
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldContainExactlyInAnyOrder
@@ -433,7 +432,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 placeId = place.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
@@ -531,7 +530,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             insertPlace(accountId, place)
             insertTag(accountId, selectableTag, finishedTag)
             link(accountId = accountId, placeId = place.id, tagId = finishedTag.id)
-            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             selectableTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(selectableTag.id, finishedTag.id)
         }
@@ -543,7 +542,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             insertPlace(accountId, place)
             insertTag(accountId, finishedTag)
             link(accountId = accountId, placeId = place.id, tagId = finishedTag.id)
-            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             selectableTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(finishedTag.id)
 
@@ -573,7 +572,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             insertPlace(accountId, place)
             insertTag(accountId, thirdTag, finishedTag, firstTag)
             link(accountId = accountId, placeId = place.id, tagId = finishedTag.id)
-            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = finishedTag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             selectableTagIdList(accountId = accountId, placeId = place.id) shouldBe
                 listOf(firstTag.id, finishedTag.id, thirdTag.id)
@@ -636,8 +635,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
                             placeId = place.id,
                             tagId = value.id,
                             isDeleted = false,
-                            updatedAt = instant(),
-                            createdAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
                         )
                     },
             )
@@ -669,8 +668,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
                                 placeId = place.id,
                                 tagId = targetTag.id,
                                 isDeleted = false,
-                                updatedAt = instant(),
-                                createdAt = instant(),
+                                updatedAt = Arb.secondPrecisionInstant().next(),
+                                createdAt = Arb.secondPrecisionInstant().next(),
                             ),
                         ),
                 )
@@ -888,15 +887,13 @@ class AccountPlaceTagLocalDataSourceImplTest :
             longitude: Double,
         ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(title: String = "title-${Arb.string().next()}"): TagLocalEntity =
             Arb
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { tag ->
                     tag.copy(
                         detail = tag.detail.copy(title = title),
@@ -915,8 +912,8 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 .placeLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { place ->
                     place.copy(
                         detail = place.detail.copy(title = title),

@@ -11,19 +11,15 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
-import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
@@ -147,5 +143,3 @@ internal fun ComposeContentTestRule.setPlaceAddScaffoldState(): PlaceFormState {
 
     return state
 }
-
-internal fun mapCoordinateInFormPrecision(): DiaryMapCoordinate = Arb.coordinateInFormPrecision().next().toDiaryMapCoordinate()

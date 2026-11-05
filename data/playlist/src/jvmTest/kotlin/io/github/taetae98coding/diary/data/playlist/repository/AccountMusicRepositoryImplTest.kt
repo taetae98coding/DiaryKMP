@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountMusicRepositoryImplTest :
@@ -110,7 +109,7 @@ class AccountMusicRepositoryImplTest :
             val account = Arb.accountUser().next()
             val musicId = Uuid.random()
             val detail = Arb.musicDetail().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
             coEvery {
@@ -124,7 +123,7 @@ class AccountMusicRepositoryImplTest :
         test("TC-ada1aa84-9a6e-4ccb-b510-03a7a59bdf13 삭제는 삭제 여부와 수정 시각만 반영한다") {
             val account = Arb.accountUser().next()
             val musicId = Uuid.random()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
             coEvery {
@@ -152,7 +151,7 @@ class AccountMusicRepositoryImplTest :
                     account = account,
                     musicId = Uuid.random(),
                     detail = Arb.musicDetail().next(),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
@@ -177,8 +176,8 @@ class AccountMusicRepositoryImplTest :
                 .music()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun localMusic(): MusicLocalEntity =
@@ -186,11 +185,9 @@ class AccountMusicRepositoryImplTest :
                 .musicLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun pagingSource(musicList: List<MusicLocalEntity>): PagingSource<Int, MusicLocalEntity> =
             mockk(relaxed = true) {

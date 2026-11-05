@@ -411,7 +411,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     accountId = accountId,
                     memoId = targetMemo.id,
                     isFinished = false,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
 
@@ -436,7 +436,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     accountId = accountId,
                     memoId = targetMemo.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -459,7 +459,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     accountId = accountId,
                     memoId = targetMemo.id,
                     isFinished = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -483,7 +483,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     listOf(
                         relation.copy(
                             isDeleted = true,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         ),
                     ),
                 )
@@ -509,7 +509,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     listOf(
                         relation.copy(
                             isDeleted = false,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         ),
                     ),
                 )
@@ -565,7 +565,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -576,7 +576,7 @@ class AccountTagMemoFinishedPagingDaoTest :
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
             detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): MemoLocalEntity =
             Arb
                 .memoLocalEntity()
@@ -587,7 +587,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                     isFinished = isFinished,
                     isDeleted = isDeleted,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun tag(
@@ -600,8 +600,8 @@ class AccountTagMemoFinishedPagingDaoTest :
                 .copy(
                     isFinished = isFinished,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun memoTag(
@@ -616,11 +616,9 @@ class AccountTagMemoFinishedPagingDaoTest :
                     memoId = memoId,
                     tagId = tagId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,

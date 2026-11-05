@@ -40,7 +40,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountWebRepositoryImplTest :
@@ -135,7 +134,7 @@ class AccountWebRepositoryImplTest :
         test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 현재 계정 식별자와 함께 로컬 저장소에 반영한다") {
             val account = Arb.accountUser().next()
             val webId = Arb.kotlinUuid().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -154,7 +153,7 @@ class AccountWebRepositoryImplTest :
             val account = Arb.accountUser().next()
             val webId = Arb.kotlinUuid().next()
             val detail = web().detail
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -184,7 +183,7 @@ class AccountWebRepositoryImplTest :
                     account = account,
                     webId = Arb.kotlinUuid().next(),
                     detail = web().detail,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
@@ -204,7 +203,7 @@ class AccountWebRepositoryImplTest :
                     account = account,
                     webId = Arb.kotlinUuid().next(),
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
@@ -225,8 +224,8 @@ class AccountWebRepositoryImplTest :
                 .web()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun localWeb(): WebLocalEntity =
@@ -234,11 +233,9 @@ class AccountWebRepositoryImplTest :
                 .webLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun pagingSource(webList: List<WebLocalEntity>): PagingSource<Int, WebLocalEntity> =
             mockk(relaxed = true) {

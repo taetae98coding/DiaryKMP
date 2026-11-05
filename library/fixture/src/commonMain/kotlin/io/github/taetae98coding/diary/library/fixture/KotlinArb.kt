@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.library.fixture
 
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.Codepoint
+import io.kotest.property.arbitrary.alphanumeric
 import io.kotest.property.arbitrary.arbitrary
 import io.kotest.property.arbitrary.byte
 import io.kotest.property.arbitrary.filter
@@ -35,5 +37,13 @@ public fun Arb.Companion.secondPrecisionInstant(): Arb<Instant> = Arb.long(MIN_E
  * 직접 지정한다.
  */
 public fun Arb.Companion.nonBlankString(): Arb<String> = Arb.string(minSize = 1).filter { value -> value.isNotBlank() }
+
+/**
+ * 공백·줄바꿈·기호가 섞이면 화면 표시와 노드 탐색, 경로 해석이 값에 따라 달라지므로 화면에서 글자로 찾거나 경로·식별자에
+ * 이어 붙이는 문자열은 이 Arb를 쓴다. 비어 있을 수 있으므로 어느 값인지 알아보는 접두사를 받는 쪽을 주로 쓴다.
+ */
+public fun Arb.Companion.alphanumericString(): Arb<String> = Arb.string(codepoints = Codepoint.alphanumeric())
+
+public fun Arb.Companion.alphanumericString(prefix: String): Arb<String> = Arb.alphanumericString().map { suffix -> prefix + suffix }
 
 public fun Arb.Companion.randomByteArray(): Arb<ByteArray> = Arb.list(Arb.byte()).map { bytes -> bytes.toByteArray() }

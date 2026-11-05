@@ -176,7 +176,7 @@ class AccountTagLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val tag = selectableTag()
             val changedDetail = Arb.tagDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
 
             transaction.updateDetail(accountId = accountId, tagId = tag.id, detail = changedDetail, updatedAt = updatedAt)
@@ -195,7 +195,7 @@ class AccountTagLocalDataSourceImplTest :
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             dataSource.pagedTagList(accountId = accountId) shouldBe listOf(tag)
 
-            transaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            transaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             dataSource.pagedTagList(accountId = accountId).shouldBeEmpty()
         }
     }) {
@@ -224,8 +224,8 @@ class AccountTagLocalDataSourceImplTest :
                 .tagLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun selectableTag(): TagLocalEntity = tag().copy(isFinished = false, isDeleted = false)
@@ -237,7 +237,5 @@ class AccountTagLocalDataSourceImplTest :
             title: String,
             description: String,
         ): TagLocalEntity = copy(detail = detail.copy(emoji = emoji, title = title, description = description))
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

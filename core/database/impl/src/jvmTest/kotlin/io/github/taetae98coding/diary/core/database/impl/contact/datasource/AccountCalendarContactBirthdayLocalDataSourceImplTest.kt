@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountCalendarContactBirthdayLocalDataSourceImplTest :
@@ -516,8 +515,6 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
 
         private fun ContactLocalEntity.withHowWeMet(howWeMet: String): ContactLocalEntity = copy(detail = detail.copy(howWeMet = howWeMet))
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun contact(
             birthday: LocalDate?,
             name: String = Arb.string().next(),
@@ -528,8 +525,8 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 .contactLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 ).let { contact ->
                     contact.copy(
                         isDeleted = false,

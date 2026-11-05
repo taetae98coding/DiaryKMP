@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.randomText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
@@ -31,7 +32,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -56,7 +56,7 @@ class MemoAddScreenRecordTest {
 
     @Test
     fun `TC-af7316e3-b944-464f-af94-d5c98fb562ff 작성 도우미로 반영한 내용으로 메모 추가를 실행한다`() {
-        val start = LocalDate.fromEpochDays(Arb.int().next() and DAY_RANGE_MASK)
+        val start = LocalDate.fromEpochDays(Arb.int(0..MAX_EPOCH_DAY).next())
         val draft =
             MemoDraft(
                 title = randomText(prefix = TITLE_PREFIX),
@@ -191,7 +191,7 @@ class MemoAddScreenRecordTest {
 
     private companion object {
         // 1970년부터 약 90년 안의 날짜로 한정해 날짜 입력이 표현할 수 있는 범위를 벗어나지 않게 한다.
-        private const val DAY_RANGE_MASK = 0x7FFF
+        private const val MAX_EPOCH_DAY = 32_767
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
         private const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         private const val DEFAULT_PRIMARY_SET_DESCRIPTION = "Set as primary tag"
@@ -201,8 +201,5 @@ class MemoAddScreenRecordTest {
         private const val TITLE_PREFIX = "title-"
         private const val DESCRIPTION_PREFIX = "description-"
         private const val TAG_PREFIX = "tag-"
-
-        // 생성한 문자열은 비어 있을 수 있으므로 앞에 고정 문자열을 붙여 빈 값이 되지 않게 한다.
-        private fun randomText(prefix: String): String = prefix + Arb.string().next()
     }
 }

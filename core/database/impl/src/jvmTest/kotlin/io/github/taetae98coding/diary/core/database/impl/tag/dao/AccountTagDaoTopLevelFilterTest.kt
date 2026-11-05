@@ -65,7 +65,7 @@ class AccountTagDaoTopLevelFilterTest :
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -79,7 +79,7 @@ class AccountTagDaoTopLevelFilterTest :
                 fromTagId = fromTagId,
                 toTagId = toTagId,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
@@ -242,10 +242,10 @@ class AccountTagDaoTopLevelFilterTest :
             )
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = false, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
         }
 
@@ -346,8 +346,6 @@ class AccountTagDaoTopLevelFilterTest :
                 .data
                 .map { tag -> tag.id }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun tag(title: String): TagLocalEntity =
             Arb
                 .tagLocalEntity()
@@ -356,8 +354,8 @@ class AccountTagDaoTopLevelFilterTest :
                     detail = Arb.tagDetailLocalEntity().next().copy(title = title),
                     isFinished = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
     }
 }

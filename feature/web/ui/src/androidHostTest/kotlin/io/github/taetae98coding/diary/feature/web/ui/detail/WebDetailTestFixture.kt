@@ -28,10 +28,8 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
-import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
-import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -40,11 +38,11 @@ import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestView
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -130,10 +128,9 @@ private const val HEADER_VALUE_INPUT_INDEX = 4
 internal const val INPUT_COUNT_WITHOUT_HEADER = 3
 internal const val INPUT_COUNT_PER_HEADER = 2
 
-// 임의로 만든 문자열은 비어 있을 수 있으므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
 internal fun testWebDetail(
-    title: String = "제목-${Arb.string().next()}",
-    description: String = "설명-${Arb.string().next()}",
+    title: String = "제목-${Arb.nonBlankString().next()}",
+    description: String = "설명-${Arb.nonBlankString().next()}",
     url: String = "https://example.com/${Arb.int().next()}",
     headerList: List<WebHeader> = emptyList(),
 ): WebDetail =
@@ -145,8 +142,6 @@ internal fun testWebDetail(
     )
 
 internal fun testContentUiState(detail: WebDetail = testWebDetail()): WebDetailUiState.Content = WebDetailUiState.Content(id = Uuid.random(), detail = detail)
-
-internal fun testWebPage(): WebPage = Arb.webPage().next()
 
 internal fun ComposeContentTestRule.selectFormTab() {
     onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).performClick()

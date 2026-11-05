@@ -51,6 +51,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.add.emojiInput
 import io.github.taetae98coding.diary.feature.tag.ui.add.inputEmoji
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -81,7 +82,7 @@ class TagListDetailAddOpenedFromListTest {
 
     private val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey)
     private val linkViewModelList = mutableListOf<TagAddLinkViewModel>()
-    private val linkedTag: Tag = testTag(title = fixtureText(prefix = "tag"))
+    private val linkedTag: Tag = testTag(title = Arb.alphanumericString(prefix = "tag").next())
 
     @Before
     fun setUp() {
@@ -148,7 +149,7 @@ class TagListDetailAddOpenedFromListTest {
     }
 
     private fun fillPlaceholder(): AddInput {
-        val input = AddInput(emoji = EMOJI, title = fixtureText(prefix = "title"), description = fixtureText(prefix = "description"))
+        val input = AddInput(emoji = EMOJI, title = Arb.alphanumericString(prefix = "title").next(), description = Arb.alphanumericString(prefix = "description").next())
         composeRule.inputEmoji(input.emoji)
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(input.title)
         composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(input.description)

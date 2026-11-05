@@ -200,7 +200,7 @@ class AccountWebMemoPagingDaoTest :
         test("TC-e9b9b3ae-d13f-4311-ade2-0c8864b34850 웹 항목을 삭제하거나 내용을 고치거나 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
             mapOf<String, suspend (accountId: Uuid, web: WebLocalEntity) -> Unit>(
                 "삭제" to { accountId, web ->
-                    database.accountWebDao().updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+                    database.accountWebDao().updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
                 },
                 "내용 수정" to { accountId, web ->
                     val changed = Arb.webDetailLocalEntity().next()
@@ -211,7 +211,7 @@ class AccountWebMemoPagingDaoTest :
                         description = changed.description,
                         url = changed.url,
                         headerList = changed.headerList,
-                        updatedAt = instant(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
                     )
                 },
                 "태그 연결 변경" to { _, web ->
@@ -220,8 +220,8 @@ class AccountWebMemoPagingDaoTest :
                             webId = web.id,
                             tagId = Arb.kotlinUuid().next(),
                             isDeleted = false,
-                            updatedAt = instant(),
-                            createdAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
                         ),
                     )
                 },
@@ -349,14 +349,14 @@ class AccountWebMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, webId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            val finishedAt = instant()
+            val finishedAt = Arb.secondPrecisionInstant().next()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = emptyList()) {
                 database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = finishedAt)
             }
             database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to finishedAt)
             assertConnectionKept(memoId = targetMemo.id)
 
-            val restartedAt = instant()
+            val restartedAt = Arb.secondPrecisionInstant().next()
             database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = restartedAt)
 
             database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restartedAt)
@@ -372,14 +372,14 @@ class AccountWebMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, webId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            val deletedAt = instant()
+            val deletedAt = Arb.secondPrecisionInstant().next()
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = emptyList()) {
                 database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = deletedAt)
             }
             database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to deletedAt)
             assertConnectionKept(memoId = targetMemo.id)
 
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
             database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = restoredAt)
 
             database.memoDao().findUpdatedAt(listOf(targetMemo.id)) shouldBe mapOf(targetMemo.id to restoredAt)
@@ -397,7 +397,7 @@ class AccountWebMemoPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = emptyList()) {
-                database.memoWebDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = instant())))
+                database.memoWebDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -411,7 +411,7 @@ class AccountWebMemoPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, webId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.memoWebDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = instant())))
+                database.memoWebDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -457,7 +457,7 @@ class AccountWebMemoPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -468,7 +468,7 @@ class AccountWebMemoPagingDaoTest :
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
             detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): MemoLocalEntity =
             Arb
                 .memoLocalEntity()
@@ -479,7 +479,7 @@ class AccountWebMemoPagingDaoTest :
                     isFinished = isFinished,
                     isDeleted = isDeleted,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun web(isDeleted: Boolean = false): WebLocalEntity =
@@ -488,8 +488,8 @@ class AccountWebMemoPagingDaoTest :
                 .next()
                 .copy(
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun memoWeb(
@@ -504,11 +504,9 @@ class AccountWebMemoPagingDaoTest :
                     memoId = memoId,
                     webId = webId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,

@@ -15,14 +15,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.uuid.Uuid
 
 internal fun entityMemo(
     title: String,
@@ -43,10 +40,6 @@ internal fun entityMemoPagingData(
                 append = append,
             ),
     )
-
-internal fun fixtureText(prefix: String): String = prefix + Arb.string().next().filter(Char::isLetterOrDigit)
-
-internal fun fixtureId(): Uuid = Arb.kotlinUuid().next()
 
 // 화면에 보이는 목록은 하나이므로 당겨서 새로고침 영역 안의 스크롤 목록을 찾는다.
 internal fun SemanticsNodeInteractionsProvider.refreshableList(): SemanticsNodeInteraction = onNode(hasScrollToIndexAction() and hasAnyAncestor(hasTestTag(PULL_TO_REFRESH_TEST_TAG)))

@@ -14,14 +14,13 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.mockk.mockk
-import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
 class TagMemoNavigationTest :
@@ -57,13 +56,13 @@ class TagMemoNavigationTest :
         }
 
         test("MemoAdd ScreenNavKey를 저장하고 복원하면 초기 기간이 유지된다") {
-            val dayList = List(2) { Arb.int().next().mod(1_000_000) }.sorted()
+            val dateRange = Arb.localDateRange().next()
             val key: ScreenNavKey =
                 MemoAddNavKey(
                     initialDateRange =
                         MemoAddNavKey.InitialDateRange(
-                            start = LocalDate.fromEpochDays(dayList[0]),
-                            endInclusive = LocalDate.fromEpochDays(dayList[1]),
+                            start = dateRange.start,
+                            endInclusive = dateRange.endInclusive,
                         ),
                 )
 

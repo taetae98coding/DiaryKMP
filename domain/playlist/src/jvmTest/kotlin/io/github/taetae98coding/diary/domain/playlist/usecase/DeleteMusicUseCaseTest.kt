@@ -41,7 +41,7 @@ class DeleteMusicUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 useCase(
@@ -176,7 +176,5 @@ class DeleteMusicUseCaseTest :
 
             return useCase
         }
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

@@ -167,13 +167,13 @@ class AccountMusicLocalDataSourceImplTest :
             val otherMusic = music(title = MIDDLE_MUSIC_TITLE)
             musicTransaction.upsert(accountId = accountId, musicList = listOf(music, otherMusic))
             val detail = music.detail.copy(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             musicTransaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt)
 
             pagedMusics(accountId) shouldBe listOf(otherMusic, music.copy(detail = detail, updatedAt = updatedAt))
 
-            musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = instant())
+            musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedMusics(accountId) shouldBe listOf(otherMusic)
         }
@@ -184,9 +184,9 @@ class AccountMusicLocalDataSourceImplTest :
             val middleMusic = music(title = MIDDLE_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
             musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic))
-            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = instant())
+            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -236,10 +236,8 @@ class AccountMusicLocalDataSourceImplTest :
                 .copy(
                     detail = MusicDetailLocalEntity(link = link, title = title, artist = artist, thumbnail = thumbnail),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

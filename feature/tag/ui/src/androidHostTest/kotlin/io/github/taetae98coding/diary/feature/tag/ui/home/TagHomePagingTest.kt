@@ -13,9 +13,9 @@ import androidx.paging.testing.asPagingSourceFactory
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import org.junit.Before
@@ -94,7 +94,7 @@ class TagHomePagingTest {
         private const val TITLE_PREFIX_LENGTH = 12
 
         private fun sortedByTitleTagList(): List<Tag> {
-            val titlePrefix = fixtureText(prefix = "PagedTag").take(TITLE_PREFIX_LENGTH)
+            val titlePrefix = Arb.alphanumericString(prefix = "PagedTag").next().take(TITLE_PREFIX_LENGTH)
 
             return List(TAG_COUNT) { index -> Arb.tag(title = "${titlePrefix}Index${index.toString().padStart(length = 3, padChar = '0')}").next() }
         }

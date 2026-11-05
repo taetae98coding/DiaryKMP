@@ -207,7 +207,7 @@ class AccountPlaceMemoPagingDaoTest :
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
 
-            database.placeDao().upsert(listOf(target.copy(isDeleted = true, updatedAt = instant())))
+            database.placeDao().upsert(listOf(target.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())))
 
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
@@ -236,7 +236,7 @@ class AccountPlaceMemoPagingDaoTest :
                 listOf(
                     target.copy(
                         detail = target.detail.copy(latitude = -target.detail.latitude, longitude = -target.detail.longitude),
-                        updatedAt = instant(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
                     ),
                 ),
             )
@@ -259,8 +259,8 @@ class AccountPlaceMemoPagingDaoTest :
                         memoId = sameTagMemo.id,
                         tagId = tagId,
                         isDeleted = false,
-                        updatedAt = instant(),
-                        createdAt = instant(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
                     ),
                 ),
             )
@@ -379,8 +379,8 @@ class AccountPlaceMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, placeId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            val changedAt = instant()
-            val revertedAt = instant()
+            val changedAt = Arb.secondPrecisionInstant().next()
+            val revertedAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
                 database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = changedAt)
@@ -403,8 +403,8 @@ class AccountPlaceMemoPagingDaoTest :
             val pagingSource = pagingSource(accountId = accountId, placeId = target.id)
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
-            val changedAt = instant()
-            val revertedAt = instant()
+            val changedAt = Arb.secondPrecisionInstant().next()
+            val revertedAt = Arb.secondPrecisionInstant().next()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
                 database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = changedAt)
@@ -426,13 +426,13 @@ class AccountPlaceMemoPagingDaoTest :
             insertPlaceMemo(accountId, target, targetMemo)
             val memoDao = database.accountMemoDao()
 
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
             database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
             database.accountPlaceDao().find(accountId = accountId, placeId = target.id).first() shouldBe target
         }
 
@@ -446,7 +446,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = emptyList()) {
-                database.memoPlaceDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = instant())))
+                database.memoPlaceDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -460,7 +460,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, placeId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.memoPlaceDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = instant())))
+                database.memoPlaceDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
@@ -506,7 +506,7 @@ class AccountPlaceMemoPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
@@ -517,7 +517,7 @@ class AccountPlaceMemoPagingDaoTest :
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
             detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): MemoLocalEntity =
             Arb
                 .memoLocalEntity()
@@ -528,7 +528,7 @@ class AccountPlaceMemoPagingDaoTest :
                     isFinished = isFinished,
                     isDeleted = isDeleted,
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun place(isDeleted: Boolean = false): PlaceLocalEntity =
@@ -537,8 +537,8 @@ class AccountPlaceMemoPagingDaoTest :
                 .next()
                 .copy(
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun memoPlace(
@@ -553,8 +553,8 @@ class AccountPlaceMemoPagingDaoTest :
                     memoId = memoId,
                     placeId = placeId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun placeTag(
@@ -566,11 +566,9 @@ class AccountPlaceMemoPagingDaoTest :
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = isDeleted,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun detail(
             isAllDay: Boolean?,

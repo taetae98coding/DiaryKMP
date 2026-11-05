@@ -105,7 +105,7 @@ class AccountMemoTransactionImplTest :
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 TC-0ad50339-a92e-40c2-b05a-07ecf700ee28 메모 생성·수정·복사·이동·완료·다시 시작·삭제·실행 취소·대표 태그 지정과 해제는 업로드 대기 상태가 된다") {
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             assertPending(accountId = accountId, memoId = memo.id)
@@ -233,7 +233,7 @@ class AccountMemoTransactionImplTest :
                 accountId = accountId,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe tag.id
 
@@ -241,7 +241,7 @@ class AccountMemoTransactionImplTest :
                 accountId = accountId,
                 tagId = tag.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe tag.id
         }
@@ -252,13 +252,13 @@ class AccountMemoTransactionImplTest :
             val memo = memo().copy(primaryTagId = primaryTagId, isFinished = false, isDeleted = false)
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-            transaction.updateFinished(accountId, memo.id, isFinished = true, updatedAt = instant())
+            transaction.updateFinished(accountId, memo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe primaryTagId
 
-            transaction.updateFinished(accountId, memo.id, isFinished = false, updatedAt = instant())
+            transaction.updateFinished(accountId, memo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe primaryTagId
 
-            transaction.updateDeleted(accountId, memo.id, isDeleted = true, updatedAt = instant())
+            transaction.updateDeleted(accountId, memo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe primaryTagId
         }
 
@@ -267,7 +267,7 @@ class AccountMemoTransactionImplTest :
             val primaryTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = primaryTagId)
             val newDetail = Arb.memoDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
             transaction.updateDetail(
@@ -295,7 +295,7 @@ class AccountMemoTransactionImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     primaryTagId = newPrimaryTagId,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe newPrimaryTagId
@@ -315,7 +315,7 @@ class AccountMemoTransactionImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     primaryTagId = nextPrimaryTagId(Arb.kotlinUuid().next()),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 val stored = findMemo(accountId = accountId, memoId = memo.id)
@@ -395,13 +395,13 @@ class AccountMemoTransactionImplTest :
                 memoTagList = listOf(memoTag(memoId = memo.id, tagId = tag.id, memo = memo)),
             )
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = false, updatedAt = instant())
+            tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
         }
 
@@ -429,19 +429,19 @@ class AccountMemoTransactionImplTest :
                 findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
             }
 
-            var updatedAt = instant()
+            var updatedAt = Arb.secondPrecisionInstant().next()
             transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = false, updatedAt = updatedAt)
             assertStateChangedAndContentKept(isFinished = false, isDeleted = false, updatedAt = updatedAt)
 
-            updatedAt = instant()
+            updatedAt = Arb.secondPrecisionInstant().next()
             transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = updatedAt)
             assertStateChangedAndContentKept(isFinished = true, isDeleted = false, updatedAt = updatedAt)
 
-            updatedAt = instant()
+            updatedAt = Arb.secondPrecisionInstant().next()
             transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = updatedAt)
             assertStateChangedAndContentKept(isFinished = true, isDeleted = true, updatedAt = updatedAt)
 
-            updatedAt = instant()
+            updatedAt = Arb.secondPrecisionInstant().next()
             transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = false, updatedAt = updatedAt)
             assertStateChangedAndContentKept(isFinished = true, isDeleted = false, updatedAt = updatedAt)
         }
@@ -462,7 +462,7 @@ class AccountMemoTransactionImplTest :
                 accountId = accountId,
                 memoId = memo.id,
                 detail = updatedDetail,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findMemo(accountId = accountId, memoId = memo.id)?.detail shouldBe updatedDetail
@@ -493,7 +493,7 @@ class AccountMemoTransactionImplTest :
             val deletedMemoTag =
                 memoTag(memoId = memo.id, tagId = tagId, memo = memo).copy(
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             database.memoTagDao().upsert(listOf(deletedMemoTag))
             val restoredMemoTag = memoTag(memoId = memo.id, tagId = tagId, memo = memo)
@@ -534,7 +534,7 @@ class AccountMemoTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
-            val changedMemo = memo.copy(updatedAt = instant())
+            val changedMemo = memo.copy(updatedAt = Arb.secondPrecisionInstant().next())
 
             transaction.upsert(
                 accountId = accountId,
@@ -602,7 +602,7 @@ class AccountMemoTransactionImplTest :
             val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
             insertWithSyncState(accountId, memo, isDirty = false)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = updatedAt)
 
@@ -626,7 +626,7 @@ class AccountMemoTransactionImplTest :
             insertWithSyncState(accountId, memo, isDirty = false)
             val memoTagSyncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
 
-            memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = instant())
+            memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
             memoTagSyncDataSource
                 .readPendingList(accountId = accountId)
@@ -637,7 +637,7 @@ class AccountMemoTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
-            val createdAt = instant()
+            val createdAt = Arb.secondPrecisionInstant().next()
             insertWithSyncState(accountId, memo, isDirty = false)
             database.memoTagDao().upsert(
                 listOf(
@@ -645,12 +645,12 @@ class AccountMemoTransactionImplTest :
                         memoId = memo.id,
                         tagId = tagId,
                         isDeleted = true,
-                        updatedAt = instant(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
                         createdAt = createdAt,
                     ),
                 ),
             )
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = restoredAt)
 
@@ -672,8 +672,8 @@ class AccountMemoTransactionImplTest :
             val primaryTagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = primaryTagId)
             insertWithSyncState(accountId, memo, isDirty = false)
-            memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = instant())
-            val removedAt = instant()
+            memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
+            val removedAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = true, updatedAt = removedAt)
 
@@ -690,8 +690,8 @@ class AccountMemoTransactionImplTest :
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
-            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
-            val removedAt = instant()
+            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = Arb.secondPrecisionInstant().next())
+            val removedAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = true, updatedAt = removedAt)
 
@@ -712,7 +712,7 @@ class AccountMemoTransactionImplTest :
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
-            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
+            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = Arb.secondPrecisionInstant().next())
             val failingDatabase = spyk(database)
             every { failingDatabase.accountMemoDao() } throws AccountMemoTagTestException()
             val failingTagTransaction = AccountMemoTagTransactionImpl(database = failingDatabase)
@@ -723,7 +723,7 @@ class AccountMemoTransactionImplTest :
                     memoId = memo.id,
                     tagId = tagId,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
 
@@ -736,7 +736,7 @@ class AccountMemoTransactionImplTest :
             val tagId = Arb.kotlinUuid().next()
             val memo = memo().copy(primaryTagId = null)
             insertWithSyncState(accountId, memo, isDirty = false)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = updatedAt)
 
@@ -758,7 +758,7 @@ class AccountMemoTransactionImplTest :
                     accountId = accountId,
                     memoId = memo.id,
                     primaryTagId = tagId,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
 
@@ -771,8 +771,8 @@ class AccountMemoTransactionImplTest :
             val tagId = Arb.kotlinUuid().next()
             val memo = memo()
             insertWithSyncState(accountId, memo, isDirty = false)
-            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
-            val unsetAt = instant()
+            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = Arb.secondPrecisionInstant().next())
+            val unsetAt = Arb.secondPrecisionInstant().next()
 
             memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = null, updatedAt = unsetAt)
 
@@ -797,10 +797,10 @@ class AccountMemoTransactionImplTest :
                 val memo = memo().copy(primaryTagId = null)
                 insertWithSyncState(accountId, memo, isDirty = false)
                 if (needsPrimaryTag) {
-                    memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = instant())
+                    memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = tagId, updatedAt = Arb.secondPrecisionInstant().next())
                     insertWithSyncState(accountId, findMemo(accountId, memo.id)!!, isDirty = false)
                 }
-                val updatedAt = instant()
+                val updatedAt = Arb.secondPrecisionInstant().next()
 
                 action(accountId, memo.id, tagId, updatedAt)
 
@@ -815,8 +815,8 @@ class AccountMemoTransactionImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun tag(): TagLocalEntity =
@@ -825,11 +825,9 @@ class AccountMemoTransactionImplTest :
                 .next()
                 .copy(
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun memoTag(
             memoId: Uuid,

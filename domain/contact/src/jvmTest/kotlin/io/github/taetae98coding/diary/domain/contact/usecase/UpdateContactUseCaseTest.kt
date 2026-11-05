@@ -53,7 +53,7 @@ class UpdateContactUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 useCase(
@@ -462,16 +462,14 @@ class UpdateContactUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun contact(): Contact =
             Contact(
                 id = Uuid.random(),
                 detail = detail(name = "stored-${Arb.string().next()}"),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         @Suppress("LongParameterList")

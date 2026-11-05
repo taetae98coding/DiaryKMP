@@ -12,13 +12,13 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebU
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -72,7 +72,7 @@ class MemoAddWebViewModelTest : FunSpec() {
 
         test("TC-a3b2c5f7-4665-46a0-af16-1126dc013c17 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${Arb.string().next().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allList = List(2) { web() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageMemoSelectableWebUseCase>()

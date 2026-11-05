@@ -31,74 +31,72 @@ import kotlin.uuid.Uuid
 
 private typealias PendingWriter = suspend (DiaryDatabase, Uuid, Boolean) -> Unit
 
-private fun uuid(): Uuid = Arb.kotlinUuid().next()
-
 private val pendingWriterMap: Map<String, PendingWriter> =
     mapOf(
         "태그" to { database, accountId, isDirty ->
-            database.accountTagSyncDao().upsert(AccountTagLocalEntity(accountId = accountId, tagId = uuid(), isDirty = isDirty))
+            database.accountTagSyncDao().upsert(AccountTagLocalEntity(accountId = accountId, tagId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "장소" to { database, accountId, isDirty ->
-            database.accountPlaceSyncDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = uuid(), isDirty = isDirty))
+            database.accountPlaceSyncDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "웹 항목" to { database, accountId, isDirty ->
-            database.accountWebSyncDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = uuid(), isDirty = isDirty))
+            database.accountWebSyncDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "연락처" to { database, accountId, isDirty ->
-            database.accountContactSyncDao().upsert(AccountContactLocalEntity(accountId = accountId, contactId = uuid(), isDirty = isDirty))
+            database.accountContactSyncDao().upsert(AccountContactLocalEntity(accountId = accountId, contactId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "곡" to { database, accountId, isDirty ->
-            database.accountMusicSyncDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = uuid(), isDirty = isDirty))
+            database.accountMusicSyncDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "QR" to { database, accountId, isDirty ->
-            database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = uuid(), isDirty = isDirty))
+            database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "체크리스트" to { database, accountId, isDirty ->
             database.accountChecklistSyncDao().upsert(
-                AccountChecklistLocalEntity(accountId = accountId, checklistId = uuid(), isDirty = isDirty),
+                AccountChecklistLocalEntity(accountId = accountId, checklistId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "체크 항목" to { database, accountId, isDirty ->
             database.accountChecklistItemSyncDao().upsert(
-                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = uuid(), isDirty = isDirty),
+                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "메모" to { database, accountId, isDirty ->
-            database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = uuid(), isDirty = isDirty))
+            database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = Arb.kotlinUuid().next(), isDirty = isDirty))
         },
         "메모와 태그의 연결" to { database, accountId, isDirty ->
             database.accountMemoTagSyncDao().upsert(
-                AccountMemoTagLocalEntity(accountId = accountId, memoId = uuid(), tagId = uuid(), isDirty = isDirty),
+                AccountMemoTagLocalEntity(accountId = accountId, memoId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "메모와 장소의 연결" to { database, accountId, isDirty ->
             database.accountMemoPlaceSyncDao().upsert(
-                AccountMemoPlaceLocalEntity(accountId = accountId, memoId = uuid(), placeId = uuid(), isDirty = isDirty),
+                AccountMemoPlaceLocalEntity(accountId = accountId, memoId = Arb.kotlinUuid().next(), placeId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "메모와 웹 항목의 연결" to { database, accountId, isDirty ->
             database.accountMemoWebSyncDao().upsert(
-                AccountMemoWebLocalEntity(accountId = accountId, memoId = uuid(), webId = uuid(), isDirty = isDirty),
+                AccountMemoWebLocalEntity(accountId = accountId, memoId = Arb.kotlinUuid().next(), webId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "메모와 연락처의 연결" to { database, accountId, isDirty ->
             database.accountMemoContactSyncDao().upsert(
-                AccountMemoContactLocalEntity(accountId = accountId, memoId = uuid(), contactId = uuid(), isDirty = isDirty),
+                AccountMemoContactLocalEntity(accountId = accountId, memoId = Arb.kotlinUuid().next(), contactId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "태그와 태그의 연결" to { database, accountId, isDirty ->
             database.accountTagLinkSyncDao().upsert(
-                AccountTagLinkLocalEntity(accountId = accountId, fromTagId = uuid(), toTagId = uuid(), isDirty = isDirty),
+                AccountTagLinkLocalEntity(accountId = accountId, fromTagId = Arb.kotlinUuid().next(), toTagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "웹 항목과 태그의 연결" to { database, accountId, isDirty ->
             database.accountWebTagSyncDao().upsert(
-                AccountWebTagLocalEntity(accountId = accountId, webId = uuid(), tagId = uuid(), isDirty = isDirty),
+                AccountWebTagLocalEntity(accountId = accountId, webId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
         "장소와 태그의 연결" to { database, accountId, isDirty ->
             database.accountPlaceTagSyncDao().upsert(
-                AccountPlaceTagLocalEntity(accountId = accountId, placeId = uuid(), tagId = uuid(), isDirty = isDirty),
+                AccountPlaceTagLocalEntity(accountId = accountId, placeId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
     )
@@ -127,7 +125,7 @@ class SyncPendingLocalDataSourceImplTest :
 
         test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
-                val accountId = uuid()
+                val accountId = Arb.kotlinUuid().next()
 
                 write(database, accountId, true)
 
@@ -136,7 +134,7 @@ class SyncPendingLocalDataSourceImplTest :
         }
 
         test("모든 종류가 업로드 대기가 아니면 대기 항목이 없다고 알린다") {
-            val accountId = uuid()
+            val accountId = Arb.kotlinUuid().next()
 
             pendingWriterMap.forEach { (_, write) -> write(database, accountId, false) }
 
@@ -144,8 +142,8 @@ class SyncPendingLocalDataSourceImplTest :
         }
 
         test("다른 계정의 업로드 대기 항목은 대기 항목으로 보지 않는다") {
-            val accountId = uuid()
-            val otherAccountId = uuid()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
 
             pendingWriterMap.forEach { (_, write) -> write(database, otherAccountId, true) }
 
@@ -153,7 +151,7 @@ class SyncPendingLocalDataSourceImplTest :
         }
 
         test("아무 항목도 없으면 대기 항목이 없다고 알린다") {
-            dataSource.hasPending(accountId = uuid()).first() shouldBe false
+            dataSource.hasPending(accountId = Arb.kotlinUuid().next()).first() shouldBe false
         }
 
         test("TC-d6a9c2f7-0d4b-4475-ac62-dce3d62f6f20 데이터베이스를 닫고 다시 열어도 업로드 대기 상태가 그대로 조회된다") {
@@ -161,7 +159,7 @@ class SyncPendingLocalDataSourceImplTest :
 
             try {
                 pendingWriterMap.forEach { (kind, write) ->
-                    val accountId = uuid()
+                    val accountId = Arb.kotlinUuid().next()
                     val firstDatabase = fileDatabase(file)
                     write(firstDatabase, accountId, true)
                     firstDatabase.close()

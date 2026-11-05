@@ -191,10 +191,10 @@ class AccountMemoWebTransactionImplTest :
             val memoWeb = memoWeb(memoId = memo.id, webId = web.id, memo = memo)
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
-            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
+            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoWebList(memoId = memo.id) shouldBe listOf(memoWeb)
 
-            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
+            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoWebList(memoId = memo.id) shouldBe listOf(memoWeb)
         }
 
@@ -203,7 +203,7 @@ class AccountMemoWebTransactionImplTest :
             val memo = memo()
             val web = web()
             val newDetail = Arb.memoDetailLocalEntity().next()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
             memoTransaction.updateDetail(accountId = accountId, memoId = memo.id, detail = newDetail, updatedAt = updatedAt)
@@ -218,7 +218,7 @@ class AccountMemoWebTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
-            val changedWeb = web.copy(detail = webDetail(), updatedAt = instant())
+            val changedWeb = web.copy(detail = webDetail(), updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
             webTransaction.upsert(accountId = accountId, webList = listOf(changedWeb), webTagList = emptyList())
@@ -233,7 +233,7 @@ class AccountMemoWebTransactionImplTest :
             val memo = memo()
             val web = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
-            val removedAt = instant()
+            val removedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = true, updatedAt = removedAt)
 
@@ -254,7 +254,7 @@ class AccountMemoWebTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
-            val createdAt = instant()
+            val createdAt = Arb.secondPrecisionInstant().next()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             database.memoWebDao().upsert(
@@ -262,11 +262,11 @@ class AccountMemoWebTransactionImplTest :
                     memoId = memo.id,
                     webId = web.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                     createdAt = createdAt,
                 ),
             )
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -402,7 +402,7 @@ class AccountMemoWebTransactionImplTest :
                 memoId = memo.id,
                 webId = removedWeb.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingWebIdList(accountId = accountId) shouldBe listOf(removedWeb.id)
@@ -422,7 +422,7 @@ class AccountMemoWebTransactionImplTest :
                 memoId = memo.id,
                 webId = addedWeb.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingWebIdList(accountId = accountId) shouldBe listOf(addedWeb.id)
@@ -440,7 +440,7 @@ class AccountMemoWebTransactionImplTest :
 
         test("TC-5da8e195-c179-4192-b20d-cbb725e4706a 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val memo = memo().copy(updatedAt = now, createdAt = now)
             val web = web()
 
@@ -489,7 +489,7 @@ class AccountMemoWebTransactionImplTest :
         test("TC-cb209341-52cf-45ed-b471-8a5173e57284 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val changedMemo = memo.copy(updatedAt = instant())
+            val changedMemo = memo.copy(updatedAt = Arb.secondPrecisionInstant().next())
             val web = web()
 
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -514,7 +514,7 @@ class AccountMemoWebTransactionImplTest :
             val removedWeb = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(keptWeb, removedWeb))
 
-            accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = removedWeb.id, isDeleted = true, updatedAt = instant())
+            accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = removedWeb.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptWeb)
         }
@@ -525,7 +525,7 @@ class AccountMemoWebTransactionImplTest :
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = updatedAt)
 
@@ -549,9 +549,9 @@ class AccountMemoWebTransactionImplTest :
             val keptWeb = web()
             val removedWeb = web()
             insertMemoWithWebList(accountId = accountId, memo = source, webList = listOf(keptWeb, removedWeb))
-            accountMemoWebTransaction.upsert(accountId = accountId, memoId = source.id, webId = removedWeb.id, isDeleted = true, updatedAt = instant())
+            accountMemoWebTransaction.upsert(accountId = accountId, memoId = source.id, webId = removedWeb.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
-            val copiedAt = instant()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceWebIdSet =
                 dataSource
@@ -663,7 +663,7 @@ class AccountMemoWebTransactionImplTest :
                 webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
                 memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-                accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = instant())
+                accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
                 getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(web)
             }
@@ -675,8 +675,8 @@ class AccountMemoWebTransactionImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun web(): WebLocalEntity =
@@ -686,8 +686,8 @@ class AccountMemoWebTransactionImplTest :
                 .copy(
                     detail = webDetail(),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun webDetail(): WebDetailLocalEntity =
@@ -712,8 +712,8 @@ class AccountMemoWebTransactionImplTest :
                 .copy(
                     isFinished = false,
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun webTag(
@@ -724,16 +724,14 @@ class AccountMemoWebTransactionImplTest :
                 webId = webId,
                 tagId = tagId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
             load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
                 .data
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun memoWeb(
             memoId: Uuid,

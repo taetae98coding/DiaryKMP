@@ -10,10 +10,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
-import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.library.compose.ui.color.randomColor
-import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
@@ -31,5 +28,3 @@ internal fun placeAddFormState(initialMapCoordinate: DiaryMapCoordinate?): Place
         searchDialogState = DialogState(),
         tagPickerDialogState = DialogState(),
     )
-
-internal fun mapCoordinateInFormPrecision(): DiaryMapCoordinate = Arb.coordinateInFormPrecision().next().toDiaryMapCoordinate()

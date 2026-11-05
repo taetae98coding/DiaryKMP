@@ -48,7 +48,7 @@ class UpdateWebUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 useCase(
@@ -341,15 +341,13 @@ class UpdateWebUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
         private fun web(): Web =
             Web(
                 id = Uuid.random(),
                 detail = detail(),
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun detail(

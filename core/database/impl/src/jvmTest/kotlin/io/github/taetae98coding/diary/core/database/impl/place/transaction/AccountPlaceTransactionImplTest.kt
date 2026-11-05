@@ -91,21 +91,21 @@ class AccountPlaceTransactionImplTest :
             findAccountPlaceList() shouldBe pending
 
             database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
-            transaction.updateDetail(accountId = accountId, placeId = place.id, detail = placeDetail(), updatedAt = instant())
+            transaction.updateDetail(accountId = accountId, placeId = place.id, detail = placeDetail(), updatedAt = Arb.secondPrecisionInstant().next())
             findAccountPlaceList() shouldBe pending
 
             database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
-            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = instant())
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findAccountPlaceList() shouldBe pending
 
             database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
-            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = instant())
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
             findAccountPlaceList() shouldBe pending
         }
 
         test("TC-064634f6-5b7f-472c-86b4-753a09051180 TC-5a548f34-e80b-480e-a5d6-4d14e63aea09 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = Arb.kotlinUuid().next()
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val place =
                 place().copy(
                     detail =
@@ -161,7 +161,7 @@ class AccountPlaceTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
             val newDetail = placeDetail()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
             val count =
@@ -194,7 +194,7 @@ class AccountPlaceTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = true)
             val newDetail = placeDetail()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
             val count =
@@ -219,7 +219,7 @@ class AccountPlaceTransactionImplTest :
         test("TC-76611214-e640-4cba-a148-fcff540c273f 삭제는 삭제 여부와 수정 시각만 바꾼다") {
             val accountId = Arb.kotlinUuid().next()
             val place = place().copy(isDeleted = false)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
             val count =
@@ -251,7 +251,7 @@ class AccountPlaceTransactionImplTest :
                 accountId = accountId,
                 placeId = storedPlace.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPlaceList().single().detail.address shouldBe address
@@ -266,7 +266,7 @@ class AccountPlaceTransactionImplTest :
                 accountId = accountId,
                 placeId = place.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPlaceList().size shouldBe 1
@@ -291,14 +291,14 @@ class AccountPlaceTransactionImplTest :
                     accountId = otherAccountId,
                     placeId = place.id,
                     detail = placeDetail(),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             val deleteCount =
                 transaction.updateDeleted(
                     accountId = otherAccountId,
                     placeId = place.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
             updateCount shouldBe 0
@@ -316,14 +316,14 @@ class AccountPlaceTransactionImplTest :
                     accountId = accountId,
                     placeId = Arb.kotlinUuid().next(),
                     detail = placeDetail(),
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             val deleteCount =
                 transaction.updateDeleted(
                     accountId = accountId,
                     placeId = Arb.kotlinUuid().next(),
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
             updateCount shouldBe 0
@@ -339,7 +339,7 @@ class AccountPlaceTransactionImplTest :
                             accountId = accountId,
                             placeId = placeId,
                             detail = placeDetail(),
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     },
                     { failingTransaction, accountId, placeId ->
@@ -347,7 +347,7 @@ class AccountPlaceTransactionImplTest :
                             accountId = accountId,
                             placeId = placeId,
                             isDeleted = true,
-                            updatedAt = instant(),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
                         )
                     },
                 )
@@ -381,8 +381,8 @@ class AccountPlaceTransactionImplTest :
                 .next()
                 .copy(
                     detail = placeDetail(),
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun placeDetail(): PlaceDetailLocalEntity =
@@ -393,8 +393,6 @@ class AccountPlaceTransactionImplTest :
                     latitude = Arb.long().next() % 90 + 0.5,
                     longitude = Arb.long().next() % 180 + 0.5,
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

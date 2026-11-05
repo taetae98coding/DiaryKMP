@@ -381,7 +381,7 @@ class AccountPlaceLocalDataSourceImplTest :
                         accountId = accountId,
                         placeId = place.id,
                         detail = movedDetail,
-                        updatedAt = instant(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
                     )
 
                     awaitItem().shouldBeEmpty()
@@ -407,7 +407,7 @@ class AccountPlaceLocalDataSourceImplTest :
                     accountId = accountId,
                     placeId = place.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
                 awaitItem().shouldBeEmpty()
 
@@ -433,8 +433,8 @@ class AccountPlaceLocalDataSourceImplTest :
                 .copy(
                     detail = placeDetail(title = title, latitude = latitude, longitude = longitude),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun PlaceLocalEntity.withDetail(
@@ -455,7 +455,5 @@ class AccountPlaceLocalDataSourceImplTest :
                     latitude = latitude,
                     longitude = longitude,
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

@@ -27,11 +27,13 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -198,7 +200,7 @@ class TagDetailPlaceListPositionTest {
         private const val SCROLLED_INDEX = 30
 
         fun placeList(): List<Place> {
-            val titlePrefix = fixtureText(prefix = "TagDetailPlace")
+            val titlePrefix = Arb.alphanumericString(prefix = "TagDetailPlace").next()
             return List(PLACE_COUNT) { index -> tagPlace(title = "${titlePrefix}Index$index") }
         }
     }

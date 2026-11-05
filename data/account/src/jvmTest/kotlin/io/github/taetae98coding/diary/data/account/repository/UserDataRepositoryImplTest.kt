@@ -5,7 +5,6 @@ import io.github.taetae98coding.diary.core.file.api.ImageConverter
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.UserData
 import io.github.taetae98coding.diary.core.model.file.FileUri
-import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.profile.entity.ProfileImageRemoteEntity
@@ -74,7 +73,7 @@ class UserDataRepositoryImplTest :
             val repository =
                 repository(imageConverter = imageConverter, profileImageRemoteDataSource = profileImageRemoteDataSource)
 
-            shouldThrowAny { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
+            shouldThrowAny { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = Arb.imageCropRegion().next(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
 
             coVerify(exactly = 0) { profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any()) }
         }
@@ -101,7 +100,7 @@ class UserDataRepositoryImplTest :
                     profileImageRemoteDataSource = profileImageRemoteDataSource,
                 )
 
-            repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
+            repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = Arb.imageCropRegion().next(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
 
             mimeTypeSlot.captured shouldBe "image/jpeg"
             contentLengthSlot.captured shouldBe convertedBytes.size.toLong()
@@ -129,7 +128,7 @@ class UserDataRepositoryImplTest :
             repository.get().test {
                 awaitItem()?.profileImage shouldBe previousUser.profileImage
 
-                shouldThrowAny { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
+                shouldThrowAny { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = Arb.imageCropRegion().next(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
 
                 expectNoEvents()
             }
@@ -149,7 +148,7 @@ class UserDataRepositoryImplTest :
                         profileImageRemoteDataSource = profileImageRemoteDataSource,
                     )
 
-                runCatching { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
+                runCatching { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = Arb.imageCropRegion().next(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
 
                 coVerify(exactly = 1) { fileLocalDataSource.delete(uri = converted) }
             }
@@ -174,7 +173,7 @@ class UserDataRepositoryImplTest :
             repository.get().test {
                 awaitItem()?.profileImage shouldBe previousUser.profileImage
 
-                repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
+                repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = Arb.imageCropRegion().next(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
 
                 expectNoEvents()
                 coVerify(exactly = 0) { supabaseAuth.retrieveUserForCurrentSession() }
@@ -187,7 +186,7 @@ class UserDataRepositoryImplTest :
 
         test("고른 사진의 위치와 남길 영역을 그대로 이미지 변환에 전달한다") {
             val uri = fileUri()
-            val cropRegion = cropRegion()
+            val cropRegion = Arb.imageCropRegion().next()
             val converted = fileUri()
             val imageConverter = mockk<ImageConverter>()
             coEvery { imageConverter.convert(source = any(), format = any(), cropRegion = any(), maxSideLength = any(), quality = any()) } returns converted
@@ -251,8 +250,6 @@ class UserDataRepositoryImplTest :
         private const val QUALITY = 90
 
         private fun fileUri(): FileUri = FileUri("file://${Arb.string().next()}")
-
-        private fun cropRegion(): ImageCropRegion = Arb.imageCropRegion().next()
 
         private fun imageBytes(): ByteArray = "image-${Arb.string().next()}".encodeToByteArray()
 

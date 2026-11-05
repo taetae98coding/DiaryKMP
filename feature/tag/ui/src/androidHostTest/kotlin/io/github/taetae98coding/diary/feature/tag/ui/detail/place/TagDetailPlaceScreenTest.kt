@@ -27,14 +27,16 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -202,9 +204,9 @@ class TagDetailPlaceScreenTest {
     @Test
     fun `TC-615383bc-ac38-46f9-a7c1-0b71e54933ed 상세 대상이 다른 태그로 바뀌어도 지도 모드를 유지하고 목록만 새 태그의 장소로 바뀐다`() {
         val detailIdState = mutableStateOf(FIRST_TAG_ID)
-        val firstPlace = tagPlace(title = fixtureText(prefix = "FirstPlace"))
-        val secondPlace = tagPlace(title = fixtureText(prefix = "SecondPlace"))
-        val secondTagTitle = fixtureText(prefix = "SecondTag")
+        val firstPlace = tagPlace(title = Arb.alphanumericString(prefix = "FirstPlace").next())
+        val secondPlace = tagPlace(title = Arb.alphanumericString(prefix = "SecondPlace").next())
+        val secondTagTitle = Arb.alphanumericString(prefix = "SecondTag").next()
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
             detailIdState = detailIdState,
@@ -218,7 +220,7 @@ class TagDetailPlaceScreenTest {
 
         composeRule.runOnIdle {
             placePagingDataFlow.value = tagEntityPagingData(itemList = listOf(secondPlace))
-            detailIdState.value = fixtureId()
+            detailIdState.value = Arb.kotlinUuid().next()
         }
         composeRule.waitForIdle()
 

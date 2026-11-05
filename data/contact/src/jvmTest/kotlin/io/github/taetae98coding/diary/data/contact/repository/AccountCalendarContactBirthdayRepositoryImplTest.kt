@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.data.contact.repository
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
-import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.account.accountUser
@@ -25,7 +24,7 @@ class AccountCalendarContactBirthdayRepositoryImplTest :
         test("캘린더 생일 조회는 표시 대상 기간으로 로컬 저장소를 조회한다") {
             val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 6, 28), LocalDate(2026, 8, 8))
-            val localList = listOf(calendarContactBirthday(), calendarContactBirthday())
+            val localList = listOf(Arb.calendarContactBirthdayLocalEntity().next(), Arb.calendarContactBirthdayLocalEntity().next())
             val localDataSource = mockk<AccountCalendarContactBirthdayLocalDataSource>()
             every {
                 localDataSource.get(accountId = account.id, dateRange = dateRange)
@@ -38,7 +37,7 @@ class AccountCalendarContactBirthdayRepositoryImplTest :
         test("캘린더 생일 조회는 조회 결과의 순서를 그대로 유지한다") {
             val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
-            val localList = List(size = 5) { calendarContactBirthday() }
+            val localList = List(size = 5) { Arb.calendarContactBirthdayLocalEntity().next() }
             val localDataSource = mockk<AccountCalendarContactBirthdayLocalDataSource>()
             every {
                 localDataSource.get(accountId = account.id, dateRange = dateRange)
@@ -52,8 +51,8 @@ class AccountCalendarContactBirthdayRepositoryImplTest :
         test("캘린더 생일 조회는 로컬 저장소의 후속 변경도 도메인 모델로 반환한다") {
             val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
-            val localList = listOf(calendarContactBirthday())
-            val changedLocalList = listOf(calendarContactBirthday(), calendarContactBirthday())
+            val localList = listOf(Arb.calendarContactBirthdayLocalEntity().next())
+            val changedLocalList = listOf(Arb.calendarContactBirthdayLocalEntity().next(), Arb.calendarContactBirthdayLocalEntity().next())
             val localFlow = MutableStateFlow(localList)
             val localDataSource = mockk<AccountCalendarContactBirthdayLocalDataSource>()
             every {
@@ -101,8 +100,4 @@ class AccountCalendarContactBirthdayRepositoryImplTest :
                 cancelAndIgnoreRemainingEvents()
             }
         }
-    }) {
-    public companion object {
-        private fun calendarContactBirthday(): CalendarContactBirthdayLocalEntity = Arb.calendarContactBirthdayLocalEntity().next()
-    }
-}
+    })

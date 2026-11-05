@@ -36,12 +36,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.randomText
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -224,23 +224,11 @@ class MemoDetailScreenFormTest {
     private companion object {
         private const val DEFAULT_CONFIRM = "Confirm"
         private const val TITLE_LABEL = "Title"
-        private const val COLOR_RGB_MASK = 0xFFFFFF
-        private const val COLOR_HEX_LENGTH = 6
         private const val TITLE_PREFIX = "title-"
         private const val SAVED_PREFIX = "saved-"
         private const val DRAFT_PREFIX = "draft-"
         private const val DESCRIPTION_PREFIX = "description-"
         private const val EDITED_PREFIX = "edited-"
-
-        // 생성한 문자열은 비어 있을 수 있으므로 앞에 고정 문자열을 붙여 빈 값이 되지 않게 한다.
-        private fun randomText(prefix: String): String = prefix + Arb.string().next()
-
-        private fun randomColorHex(): String =
-            "#" +
-                (Arb.int().next() and COLOR_RGB_MASK)
-                    .toString(radix = 16)
-                    .uppercase()
-                    .padStart(length = COLOR_HEX_LENGTH, padChar = '0')
 
         private fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
     }

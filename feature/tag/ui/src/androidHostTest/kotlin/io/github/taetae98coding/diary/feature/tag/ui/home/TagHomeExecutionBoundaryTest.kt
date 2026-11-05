@@ -29,10 +29,10 @@ import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -264,7 +264,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     private fun tagList(): List<Tag> {
-        val titlePrefix = fixtureText(prefix = "TagHomeTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "TagHomeTag").next()
 
         return List(TAG_COUNT) { index -> tag(title = "${titlePrefix}Index$index") }
     }

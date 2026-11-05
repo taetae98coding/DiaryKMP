@@ -73,8 +73,8 @@ class CalendarHomeScaffoldStateTest :
     public companion object {
         private fun giveMeYearMonth(): YearMonth =
             YearMonth(
-                year = Arb.int().next().mod(9999) + 1,
-                month = Month(Arb.int().next().mod(12) + 1),
+                year = Arb.int(1..9999).next(),
+                month = Month(Arb.int(1..12).next()),
             )
     }
 }

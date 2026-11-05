@@ -46,7 +46,7 @@ class UpdateMusicUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 useCase(
@@ -328,8 +328,8 @@ class UpdateMusicUseCaseTest :
                 .next()
                 .copy(
                     detail = storedDetail(link = link),
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun storedDetail(link: String): MusicDetail =
@@ -349,7 +349,5 @@ class UpdateMusicUseCaseTest :
                 artist = artist,
                 link = link,
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

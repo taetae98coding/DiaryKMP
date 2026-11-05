@@ -18,9 +18,11 @@ import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,8 +43,8 @@ class PlaceAddMapDisplayedTest {
 
     @Test
     fun `TC-fe1090cf-43f0-43bd-8b14-41edb172d785 지도가 다른 위치와 확대 수준을 알려와도 입력한 좌표는 바뀌지 않는다`() {
-        val selectedCoordinate = mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val viewedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != selectedCoordinate }
         setPlaceAddScreen(uiState = MutableStateFlow(PlaceAddUiState(defaultProvider = MapProvider.NAVER)))
 
         composeRule.runOnIdle { checkNotNull(map.firstScope().onSpotClick).invoke(selectedCoordinate) }
@@ -79,7 +81,7 @@ class PlaceAddMapDisplayedTest {
 
     @Test
     fun `TC-baeab7b1-e21d-42dd-b491-17b9fc0d4559 메모리 정리 뒤 복원하면 지도가 보고 있던 위치와 확대 수준이 복원된다`() {
-        val viewedCoordinate = mapCoordinateInFormPrecision()
+        val viewedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val viewModel = placeAddViewModel(uiState = MutableStateFlow(PlaceAddUiState(defaultProvider = MapProvider.NAVER)))
         val tagViewModel = addTagScreenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)

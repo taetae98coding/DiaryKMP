@@ -34,7 +34,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
 private const val MIN_SOLAR_YEAR = 1_000
-private const val SOLAR_YEAR_SPAN = 9_000
+private const val MAX_SOLAR_YEAR = 9_999
 
 class LunarRepositoryImplTest :
     FunSpec({
@@ -301,7 +301,7 @@ private fun repository(
         lunarFetchedYearSet = LunarFetchedYearSet(),
     )
 
-private fun solarYear(): Int = Arb.int().next().mod(SOLAR_YEAR_SPAN) + MIN_SOLAR_YEAR
+private fun solarYear(): Int = Arb.int(MIN_SOLAR_YEAR..MAX_SOLAR_YEAR).next()
 
 private fun remoteLunarDate(
     year: Int,

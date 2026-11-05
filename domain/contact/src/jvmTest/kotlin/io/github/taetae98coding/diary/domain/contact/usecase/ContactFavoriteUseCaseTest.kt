@@ -42,7 +42,7 @@ class ContactFavoriteUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
 
             When("연락처를 즐겨찾기에 추가한다") {
@@ -204,7 +204,5 @@ class ContactFavoriteUseCaseTest :
         }
 
         private fun clock(now: Instant): Clock = mockk<Clock>().also { clock -> every { clock.now() } returns now }
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

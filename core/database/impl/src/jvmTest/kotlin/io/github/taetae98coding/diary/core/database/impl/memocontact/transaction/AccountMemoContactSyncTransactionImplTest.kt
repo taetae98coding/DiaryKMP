@@ -226,15 +226,13 @@ class AccountMemoContactSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private fun memoContact(updatedAt: Instant = instant()): MemoContactLocalEntity =
+        private fun memoContact(updatedAt: Instant = Arb.secondPrecisionInstant().next()): MemoContactLocalEntity =
             Arb
                 .memoContactLocalEntity()
                 .next()
                 .copy(
                     updatedAt = updatedAt,
-                    createdAt = instant(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

@@ -63,7 +63,7 @@ class SupabaseFunctionFileUploadTransportTest :
                 transport.upload(
                     name = fileName(),
                     title = title(),
-                    description = description(),
+                    description = Arb.string().next(),
                     mimeType = mimeType(),
                     contentLength = bytes.size.toLong(),
                     accountId = Arb.kotlinUuid().next(),
@@ -91,7 +91,7 @@ class SupabaseFunctionFileUploadTransportTest :
             transport.upload(
                 name = name,
                 title = title(),
-                description = description(),
+                description = Arb.string().next(),
                 mimeType = "application/pdf",
                 contentLength = 0,
                 accountId = Arb.kotlinUuid().next(),
@@ -156,7 +156,7 @@ class SupabaseFunctionFileUploadTransportTest :
             transport.upload(
                 name = fileName(),
                 title = title(),
-                description = description(),
+                description = Arb.string().next(),
                 mimeType = mimeType(),
                 contentLength = 0,
                 accountId = Arb.kotlinUuid().next(),
@@ -184,7 +184,7 @@ class SupabaseFunctionFileUploadTransportTest :
                 transport.upload(
                     name = fileName(),
                     title = title(),
-                    description = description(),
+                    description = Arb.string().next(),
                     mimeType = mimeType(),
                     contentLength = 0,
                     accountId = Arb.kotlinUuid().next(),
@@ -214,7 +214,7 @@ class SupabaseFunctionFileUploadTransportTest :
                         transport.upload(
                             name = fileName(),
                             title = title(),
-                            description = description(),
+                            description = Arb.string().next(),
                             mimeType = mimeType(),
                             contentLength = 0,
                             accountId = Arb.kotlinUuid().next(),
@@ -337,7 +337,5 @@ private fun contentBytes(): ByteArray =
 private fun fileName(): String = "file-${Arb.int().next()}.txt"
 
 private fun title(): String = "title-${Arb.string().next()}"
-
-private fun description(): String = Arb.string().next()
 
 private fun mimeType(): String = "application/x-${Arb.int().next().absoluteValue}"

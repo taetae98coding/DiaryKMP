@@ -17,9 +17,9 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -42,7 +42,7 @@ class TagFinishedListRestorationTest {
 
     @Test
     fun `TC-d3579151-f0ea-4f37-a0bb-39e6f3619e03 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedTag").next()
         val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         val viewModel = mockk<TagFinishedListViewModel>(relaxed = true)
@@ -83,7 +83,7 @@ class TagFinishedListRestorationTest {
 
     @Test
     fun `TC-354f10e9-ab88-4ec5-b855-246e6d4b0b0a 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedTag").next()
         val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
         var nextViewModel = sortableViewModel(tagList = tagList)
         val restorationTester = StateRestorationTester(composeRule)

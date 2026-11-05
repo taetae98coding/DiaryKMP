@@ -26,7 +26,6 @@ import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountMemoPlaceLocalDataSourceImplTest :
@@ -259,8 +258,8 @@ class AccountMemoPlaceLocalDataSourceImplTest :
                 .memoLocalEntity()
                 .next()
                 .copy(
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun place(title: String = "title-${Arb.string().next()}"): PlaceLocalEntity =
@@ -270,8 +269,8 @@ class AccountMemoPlaceLocalDataSourceImplTest :
                 .copy(
                     detail = placeDetail(title = title),
                     isDeleted = false,
-                    updatedAt = instant(),
-                    createdAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
 
         private fun placeDetail(title: String): PlaceDetailLocalEntity =
@@ -292,10 +291,8 @@ class AccountMemoPlaceLocalDataSourceImplTest :
                 memoId = memoId,
                 placeId = placeId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

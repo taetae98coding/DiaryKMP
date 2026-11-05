@@ -486,8 +486,8 @@ internal fun tag(): TagLocalEntity =
         .tagLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun memos(size: Int): List<MemoLocalEntity> = List(size) { memo() }
@@ -497,8 +497,8 @@ internal fun memo(): MemoLocalEntity =
         .memoLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 private fun TestContext.stubTransactions() {
@@ -578,8 +578,8 @@ internal fun place(): PlaceLocalEntity =
         .placeLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun webs(size: Int): List<WebLocalEntity> = List(size) { web() }
@@ -589,8 +589,8 @@ internal fun web(): WebLocalEntity =
         .webLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun contacts(size: Int): List<ContactLocalEntity> = List(size) { contact() }
@@ -600,8 +600,8 @@ internal fun contact(): ContactLocalEntity =
         .contactLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun contactPulls(usnList: List<Long>): List<ContactPullRemoteEntity> =
@@ -616,8 +616,8 @@ internal fun memoPlace(): MemoPlaceLocalEntity =
         .memoPlaceLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun memoWebs(size: Int): List<MemoWebLocalEntity> = List(size) { memoWeb() }
@@ -628,8 +628,8 @@ internal fun memoWeb(isDeleted: Boolean = Arb.boolean().next()): MemoWebLocalEnt
         .next()
         .copy(
             isDeleted = isDeleted,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun memoWebPulls(usnList: List<Long>): List<MemoWebPullRemoteEntity> =
@@ -645,8 +645,8 @@ internal fun memoContact(isDeleted: Boolean = Arb.boolean().next()): MemoContact
         .next()
         .copy(
             isDeleted = isDeleted,
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun memoContactPulls(usnList: List<Long>): List<MemoContactPullRemoteEntity> =
@@ -661,8 +661,8 @@ internal fun memoTag(): MemoTagLocalEntity =
         .memoTagLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun tagLinks(size: Int): List<TagLinkLocalEntity> = List(size) { tagLink() }
@@ -672,8 +672,8 @@ internal fun tagLink(): TagLinkLocalEntity =
         .tagLinkLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun tagLinkPulls(usnList: List<Long>): List<TagLinkPullRemoteEntity> =
@@ -727,8 +727,6 @@ internal fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     return reportList
 }
 
-private fun instant(): Instant = Arb.secondPrecisionInstant().next()
-
 internal fun webTags(size: Int): List<WebTagLocalEntity> = List(size) { webTag() }
 
 internal fun webTag(): WebTagLocalEntity =
@@ -736,8 +734,8 @@ internal fun webTag(): WebTagLocalEntity =
         .webTagLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun webTagPulls(usnList: List<Long>): List<WebTagPullRemoteEntity> =
@@ -752,8 +750,8 @@ internal fun placeTag(): PlaceTagLocalEntity =
         .placeTagLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun placeTagPulls(usnList: List<Long>): List<PlaceTagPullRemoteEntity> =
@@ -768,8 +766,8 @@ internal fun music(): MusicLocalEntity =
         .musicLocalEntity()
         .next()
         .copy(
-            updatedAt = instant(),
-            createdAt = instant(),
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
         )
 
 internal fun musicPulls(usnList: List<Long>): List<MusicPullRemoteEntity> =

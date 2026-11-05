@@ -264,16 +264,14 @@ class AccountPlaceTagSyncTransactionImplTest :
             placeId: Uuid = Arb.kotlinUuid().next(),
             tagId: Uuid = Arb.kotlinUuid().next(),
             isDeleted: Boolean = false,
-            updatedAt: Instant = instant(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): PlaceTagLocalEntity =
             PlaceTagLocalEntity(
                 placeId = placeId,
                 tagId = tagId,
                 isDeleted = isDeleted,
                 updatedAt = updatedAt,
-                createdAt = instant(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun instant(): Instant = Arb.secondPrecisionInstant().next()
     }
 }

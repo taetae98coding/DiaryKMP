@@ -23,9 +23,10 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
-import io.github.taetae98coding.diary.feature.place.ui.add.mapCoordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -49,10 +50,10 @@ class PlaceDetailMapDisplayedTest {
 
     @Test
     fun `TC-45f8be21-1996-4488-a977-965aae3321dc 저장된 좌표가 바뀌어도 지도가 보고 있던 위치와 확대 수준이 유지된다`() {
-        val savedCoordinate = mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != savedCoordinate }
+        val savedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val viewedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != savedCoordinate }
         val changedCoordinate =
-            generateSequence { mapCoordinateInFormPrecision() }
+            generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }
                 .first { coordinate -> coordinate != savedCoordinate && coordinate != viewedCoordinate }
         val id = Uuid.random()
         val detail = placeDetail(coordinate = Coordinate(latitude = savedCoordinate.latitude, longitude = savedCoordinate.longitude))
@@ -108,7 +109,7 @@ class PlaceDetailMapDisplayedTest {
 
     @Test
     fun `TC-744926fc-9b16-4d87-bd7e-6bd123f904d1 좌표가 성립하지 않는 채 수정을 실행해도 지도가 보고 있는 위치를 옮기지 않는다`() {
-        val savedCoordinate = mapCoordinateInFormPrecision()
+        val savedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val id = Uuid.random()
         val detail = placeDetail(coordinate = Coordinate(latitude = savedCoordinate.latitude, longitude = savedCoordinate.longitude))
         val uiState = MutableStateFlow<PlaceDetailUiState>(mapDisplayedContent(id = id, detail = detail))
@@ -145,7 +146,7 @@ class PlaceDetailMapDisplayedTest {
 
     @Test
     fun `TC-42d4d33b-e660-4a59-8bed-f3506a0c36fe 화면이 재생성되어도 지도가 보고 있던 위치와 확대 수준을 유지한다`() {
-        val viewedCoordinate = mapCoordinateInFormPrecision()
+        val viewedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val id = Uuid.random()
         val uiState = MutableStateFlow<PlaceDetailUiState>(mapDisplayedContent(id = id, detail = placeDetail()))
         val restorationTester = StateRestorationTester(composeRule)

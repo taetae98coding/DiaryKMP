@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.property.Arb
@@ -70,7 +71,7 @@ class WebDetailMemoPlaceholderTest {
     @Test
     fun `TC-a4f73f34-b55f-4105-8e4a-c67218eb9e83 자리 표시 상태의 메모는 선택하거나 완료·삭제를 요청하지 않는다`() {
         val eventList = mutableListOf<MemoListEvent>()
-        val loadedMemoTitle = "WebMemoLoaded${Arb.string().next().filter(Char::isLetterOrDigit)}"
+        val loadedMemoTitle = Arb.alphanumericString(prefix = "WebMemoLoaded").next()
         val memo = webMemo(title = loadedMemoTitle)
         val pagingDataFlow = loadedPlaceholderPagingDataFlow(item = MemoListItem.Content(memo = memo))
 
