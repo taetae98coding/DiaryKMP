@@ -50,7 +50,7 @@ class JvmDatabaseStorageTest :
 
                 val database = openDatabase(databaseDirectory)
                 try {
-                    AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
+                    AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
                 } finally {
                     database.close()
                 }
@@ -70,7 +70,7 @@ class JvmDatabaseStorageTest :
             val qr = Arb.localQr(isDeleted = false).next()
             val realDatabase = openDatabase(REAL_DIRECTORY)
             try {
-                AccountQrTransactionImpl(database = realDatabase).upsert(accountId = accountId, qrList = listOf(qr))
+                AccountQrTransactionImpl(database = realDatabase).upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             } finally {
                 realDatabase.close()
             }

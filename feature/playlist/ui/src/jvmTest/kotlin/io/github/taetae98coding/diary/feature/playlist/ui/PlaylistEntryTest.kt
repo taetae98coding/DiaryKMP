@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -18,28 +20,38 @@ import kotlin.uuid.Uuid
 class PlaylistEntryTest :
     FunSpec({
         test("TC-09f25274-a17e-4b6b-b5de-6df04bfed305 곡 목록에서 이어 진입한 곡 추가는 목록·상세 배치의 상세 pane이다") {
-            val backStack = listOf(OtherNavKey, PlaylistHomeNavKey, MusicAddNavKey)
+            val backStack = listOf(OtherNavKey, PlaylistHomeNavKey, MusicAddNavKey())
 
-            metadataOf(backStack = backStack, key = MusicAddNavKey).keys shouldBe detailPaneMetadataKeys
+            metadataOf(backStack = backStack, key = MusicAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
         test("TC-c6b26796-5b65-41e1-aa8b-0bbf85252b76 곡 목록에서 진입하지 않은 곡 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherNavKey, MusicAddNavKey),
-                    listOf(PlaylistHomeNavKey, OtherNavKey, MusicAddNavKey),
+                    listOf(OtherNavKey, MusicAddNavKey()),
+                    listOf(PlaylistHomeNavKey, OtherNavKey, MusicAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
-                metadataOf(backStack = backStack, key = MusicAddNavKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = MusicAddNavKey()).shouldBeEmpty()
             }
         }
 
         test("TC-1e99b003-a196-4b0e-8d8a-88ca31e05a65 곡 목록에서 이어 진입한 곡 상세는 목록·상세 배치의 상세 pane이다") {
             val key = MusicDetailNavKey(id = Uuid.random())
-            val backStack = listOf(OtherNavKey, PlaylistHomeNavKey, MusicAddNavKey, key)
+            val backStack = listOf(OtherNavKey, PlaylistHomeNavKey, MusicAddNavKey(), key)
 
             metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-449efded-bf75-4649-9bee-8eb24009b1ad TagDetail 곡 탭에서 이어진 곡 추가와 곡 상세는 목록·상세 배치에 참여하지 않는다") {
+            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
+            val addKey = MusicAddNavKey(initialTagId = tagDetailKey.id)
+            val detailKey = MusicDetailNavKey(id = Uuid.random())
+
+            metadataOf(backStack = tagDetailBackStack + addKey, key = addKey).shouldBeEmpty()
+            metadataOf(backStack = tagDetailBackStack + detailKey, key = detailKey).shouldBeEmpty()
         }
 
         test("PlaylistHome 화면은 목록·상세 배치의 목록 pane이다") {

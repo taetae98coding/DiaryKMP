@@ -23,6 +23,8 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.place.ui.sendTagAddedResult
@@ -287,7 +289,7 @@ class PlaceAddTagAddTest {
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(loadedTagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
         every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
-        val tagViewModel = PlaceAddTagViewModel(initialTagId = null, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
+        val tagViewModel = EntityAddTagViewModel(initialTagId = null, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
         var tagAddCount = 0
         setPlaceAddScreen(tagViewModel = tagViewModel, navigateToTagAdd = { tagAddCount += 1 })
 
@@ -310,7 +312,7 @@ class PlaceAddTagAddTest {
         tagPagingData: MutableStateFlow<PagingData<Tag>> = MutableStateFlow(loadedTagPagingDataOf(tagList)),
         navigateToTagAdd: () -> Unit = {},
         resultEventBus: ResultEventBus = ResultEventBus(),
-        tagViewModel: PlaceAddTagViewModel = selectionTagViewModel(tagList = tagList, tagPagingData = tagPagingData),
+        tagViewModel: EntityAddTagViewModel = selectionTagViewModel(tagList = tagList, tagPagingData = tagPagingData),
     ) {
         composeRule.setContent {
             PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
@@ -377,24 +379,24 @@ class PlaceAddTagAddTest {
         fun selectionTagViewModel(
             tagList: List<Tag>,
             tagPagingData: MutableStateFlow<PagingData<Tag>>,
-        ): PlaceAddTagViewModel {
-            val tagIdSet = MutableStateFlow(PlaceAddTagSelectionUiState())
+        ): EntityAddTagViewModel {
+            val tagIdSet = MutableStateFlow(EntityAddTagSelectionUiState())
             val uiState = MutableStateFlow(EntityTagInputUiState())
 
             fun reflect() {
                 uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value.tagIdSet })
             }
 
-            return mockk<PlaceAddTagViewModel>(relaxed = true).apply {
+            return mockk<EntityAddTagViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
                 every { this@apply.selectableTagPagingData } returns tagPagingData
                 every { this@apply.selectionUiState } returns tagIdSet
-                every { add(id = any()) } answers {
+                every { add(tagId = any()) } answers {
                     tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet + firstArg<Uuid>())
                     reflect()
                 }
-                every { remove(id = any()) } answers {
+                every { remove(tagId = any()) } answers {
                     tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet - firstArg<Uuid>())
                     reflect()
                 }

@@ -12,10 +12,14 @@ import kotlin.uuid.Uuid
 internal fun NavBackStack<ScreenNavKey>.navigateToMusicDetail(id: Uuid) {
     navigateToDetail(
         detailKey = MusicDetailNavKey(id = id),
-        isDetailPaneKey = { key -> key is MusicDetailNavKey || key == MusicAddNavKey },
+        isDetailPaneKey = { key -> key is MusicDetailNavKey || key is MusicAddNavKey },
     )
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateUpFromPlaylistHome() {
     navigateUpTo(homeKey = PlaylistHomeNavKey)
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToMusicAddFromHome() {
+    add(MusicAddNavKey())
 }

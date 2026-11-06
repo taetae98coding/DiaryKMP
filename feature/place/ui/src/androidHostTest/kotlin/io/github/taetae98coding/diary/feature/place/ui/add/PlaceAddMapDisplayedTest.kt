@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.TestDiaryMap
 import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
@@ -106,7 +107,7 @@ class PlaceAddMapDisplayedTest {
 
     private fun setPlaceAddScreen(
         uiState: MutableStateFlow<PlaceAddUiState>,
-        tagViewModel: PlaceAddTagViewModel = addTagScreenTestViewModel(),
+        tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
     ) {
         val viewModel = placeAddViewModel(uiState = uiState)
 
@@ -117,7 +118,7 @@ class PlaceAddMapDisplayedTest {
     @Composable
     private fun PlaceAddScreenContent(
         viewModel: PlaceAddViewModel,
-        tagViewModel: PlaceAddTagViewModel,
+        tagViewModel: EntityAddTagViewModel,
     ) {
         CompositionLocalProvider(LocalDiaryMapContentOverride provides map) {
             PlaceAddScreenTestTheme {

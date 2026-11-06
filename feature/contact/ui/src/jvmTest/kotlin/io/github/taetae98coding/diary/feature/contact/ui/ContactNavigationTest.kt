@@ -8,12 +8,22 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class ContactNavigationTest :
     FunSpec({
+        test("TC-14e615c4-29a1-419a-a590-ebca89aaad7b ContactHome에서 연락처 추가를 선택하면 초기 태그 없는 연락처 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(ContactHomeNavKey)
+
+            backStack.navigateToContactAddFromHome()
+
+            backStack shouldContainExactly listOf(ContactHomeNavKey, ContactAddNavKey())
+            (backStack.last() as ContactAddNavKey).initialTagId.shouldBeNull()
+        }
+
         test("TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 연락처 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(

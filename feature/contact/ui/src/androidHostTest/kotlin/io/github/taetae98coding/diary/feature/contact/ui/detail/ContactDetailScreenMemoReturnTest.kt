@@ -19,6 +19,8 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.navigateToContactDetail
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -125,7 +127,11 @@ class ContactDetailScreenMemoReturnTest {
                         navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                        viewModel = screenTestViewModel(MutableStateFlow(content())),
+                        contactViewModel = screenTestViewModel(MutableStateFlow(content())),
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }

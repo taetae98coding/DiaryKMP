@@ -6,10 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebAddFormState
-import io.github.taetae98coding.diary.feature.web.ui.tag.WebTagAddedResultEffect
 import kotlin.uuid.Uuid
 
 @Composable
@@ -21,7 +22,7 @@ internal fun WebAddScreen(
     addedResultRequestKey: Uuid?,
     componentVisibleProvider: () -> WebAddScaffoldComponentVisible,
     addViewModel: WebAddViewModel,
-    tagViewModel: WebAddTagViewModel,
+    tagViewModel: EntityAddTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val state = rememberWebAddFormState()
@@ -31,7 +32,7 @@ internal fun WebAddScreen(
     val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     DiaryTitleInputFocusEffect(state = state.titleState)
-    WebTagAddedResultEffect(
+    EntityTagAddedResultEffect(
         requestKey = tagAddRequestKey,
         onTagAdded = tagViewModel::add,
     )
@@ -49,7 +50,7 @@ internal fun WebAddScreen(
                 is WebAddScaffoldEvent.ClickAdd ->
                     addViewModel.add(
                         detail = state.detail,
-                        tagIdSet = tagViewModel.tagSelectionUiState.value.tagIdSet,
+                        tagIdSet = tagViewModel.selectionUiState.value.tagIdSet,
                     )
             }
         },
@@ -62,14 +63,7 @@ internal fun WebAddScreen(
                 navigateToTagDetail = navigateToTagDetail,
             )
         },
-        onTagPickerEvent = { event ->
-            when (event) {
-                is EntityTagPickerEvent.ClickAdd -> navigateToTagAdd()
-                is EntityTagPickerEvent.Add -> tagViewModel.add(id = event.id)
-                is EntityTagPickerEvent.Remove -> tagViewModel.remove(id = event.id)
-                is EntityTagPickerEvent.ChangeQuery -> tagViewModel.updateQuery(query = event.query)
-            }
-        },
+        onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
         modifier = modifier,
         state = state,
         tagPagingItems = tagPagingItems,

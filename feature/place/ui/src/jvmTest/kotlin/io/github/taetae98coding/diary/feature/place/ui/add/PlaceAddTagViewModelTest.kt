@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.core.spec.style.FunSpec
@@ -55,7 +56,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = PlaceAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+                val viewModel = EntityAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
 
                 val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
                 viewModel.viewModelScope.cancel()
@@ -81,13 +82,13 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val pageTagUseCase = pageTagUseCase()
                 val getSelectedTagUseCase = getSelectedTagUseCase(selectedTagList = listOf(tag))
                 val viewModel =
-                    PlaceAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = null,
                         pageTagUseCase = pageTagUseCase,
                         getSelectedTagUseCase = getSelectedTagUseCase,
                     )
 
-                viewModel.add(id = tag.id)
+                viewModel.add(tagId = tag.id)
                 advanceUntilIdle()
 
                 viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
@@ -113,9 +114,9 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val secondTag = tag()
                 val viewModel = viewModel(initialTagId = null)
 
-                viewModel.add(id = firstTag.id)
-                viewModel.add(id = secondTag.id)
-                viewModel.remove(id = firstTag.id)
+                viewModel.add(tagId = firstTag.id)
+                viewModel.add(tagId = secondTag.id)
+                viewModel.remove(tagId = firstTag.id)
                 advanceUntilIdle()
 
                 viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
@@ -158,7 +159,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
                 every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
                 val viewModel =
-                    PlaceAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = tag.id,
                         pageTagUseCase = pageTagUseCase(),
                         getSelectedTagUseCase = getSelectedTagUseCase,
@@ -187,7 +188,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 every { pageTagUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every { pageTagUseCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedTagList)))
                 val viewModel =
-                    PlaceAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = null,
                         pageTagUseCase = pageTagUseCase,
                         getSelectedTagUseCase = getSelectedTagUseCase(),
@@ -213,8 +214,8 @@ class PlaceAddTagViewModelTest : FunSpec() {
         initialTagId: Uuid?,
         selectedTagList: List<Tag> = emptyList(),
         selectableTagList: List<Tag> = emptyList(),
-    ): PlaceAddTagViewModel =
-        PlaceAddTagViewModel(
+    ): EntityAddTagViewModel =
+        EntityAddTagViewModel(
             initialTagId = initialTagId,
             pageTagUseCase = pageTagUseCase(selectableTagList = selectableTagList),
             getSelectedTagUseCase = getSelectedTagUseCase(selectedTagList = selectedTagList),

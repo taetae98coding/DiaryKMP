@@ -3,15 +3,16 @@ package io.github.taetae98coding.diary.core.database.impl.web.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -29,7 +30,7 @@ class AccountTagWebLocalDataSourceImplTest :
     FunSpec({
         lateinit var database: DiaryDatabase
         lateinit var dataSource: AccountTagWebLocalDataSourceImpl
-        lateinit var webTagTransaction: AccountWebTagTransactionImpl
+        lateinit var webTagTransaction: AccountEntityTagTransactionImpl
         lateinit var tagTransaction: AccountTagTransactionImpl
         lateinit var webTransaction: AccountWebTransactionImpl
 
@@ -40,7 +41,7 @@ class AccountTagWebLocalDataSourceImplTest :
                     .setDriver(BundledSQLiteDriver())
                     .build()
             dataSource = AccountTagWebLocalDataSourceImpl(database = database)
-            webTagTransaction = AccountWebTagTransactionImpl(database = database)
+            webTagTransaction = AccountEntityTagTransactionImpl(database = database)
             tagTransaction = AccountTagTransactionImpl(database = database)
             webTransaction = AccountWebTransactionImpl(database = database)
         }
@@ -71,7 +72,8 @@ class AccountTagWebLocalDataSourceImplTest :
         ) {
             webTagTransaction.upsert(
                 accountId = accountId,
-                webId = webId,
+                kind = EntityTagKindLocalEntity.WEB,
+                entityId = webId,
                 tagId = tagId,
                 isDeleted = isDeleted,
                 updatedAt = Arb.secondPrecisionInstant().next(),
@@ -261,8 +263,8 @@ class AccountTagWebLocalDataSourceImplTest :
                     webList = listOf(entity),
                     webTagList =
                         selectedTagList.map { value ->
-                            WebTagLocalEntity(
-                                webId = entity.id,
+                            EntityTagLocalEntity(
+                                entityId = entity.id,
                                 tagId = value.id,
                                 isDeleted = false,
                                 updatedAt = Arb.secondPrecisionInstant().next(),

@@ -190,7 +190,7 @@ class UpdateContactUseCaseTest :
                     coVerify(exactly = 0) {
                         accountContactRepository.updateDeleted(account = any(), contactId = any(), isDeleted = any(), updatedAt = any())
                     }
-                    coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
+                    coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-46698d03-f59c-4489-9bd6-b8911ff63fa5 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {

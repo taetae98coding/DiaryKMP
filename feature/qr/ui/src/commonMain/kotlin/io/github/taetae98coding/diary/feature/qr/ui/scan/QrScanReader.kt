@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.qr.ui.scan
 
-import io.github.taetae98coding.diary.feature.qr.ui.code.fitsInQrCode
+import io.github.taetae98coding.diary.compose.qr.fitsInQrCode
 
 internal class QrScanReader(
     private val onRead: (String) -> Unit,

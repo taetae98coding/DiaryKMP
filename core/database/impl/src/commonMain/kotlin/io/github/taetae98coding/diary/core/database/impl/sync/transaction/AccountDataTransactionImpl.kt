@@ -35,6 +35,18 @@ internal class AccountDataTransactionImpl(
             dao.deletePlaceTag(accountId = accountId)
             dao.deleteAccountPlaceTag(accountId = accountId)
 
+            dao.deleteContactTag(accountId = accountId)
+            dao.deleteAccountContactTag(accountId = accountId)
+
+            dao.deleteChecklistTag(accountId = accountId)
+            dao.deleteAccountChecklistTag(accountId = accountId)
+
+            dao.deleteMusicTag(accountId = accountId)
+            dao.deleteAccountMusicTag(accountId = accountId)
+
+            dao.deleteQrTag(accountId = accountId)
+            dao.deleteAccountQrTag(accountId = accountId)
+
             dao.deleteMemo(accountId = accountId)
             dao.deleteAccountMemo(accountId = accountId)
 

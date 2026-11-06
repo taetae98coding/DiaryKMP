@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.calendar)
+                implementation(projects.compose.contact)
                 implementation(projects.compose.timetable)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.holiday)

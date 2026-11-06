@@ -11,27 +11,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
+import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicDetailFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.music_detail_update_button_content_description
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun MusicDetailScaffold(
     onEvent: (MusicDetailScaffoldEvent) -> Unit,
+    onFormEvent: (MusicFormEvent) -> Unit,
+    onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: MusicFormState = rememberMusicDetailFormState(),
+    tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MusicDetailUiState = { MusicDetailUiState.Loading },
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     componentVisibleProvider: () -> MusicDetailScaffoldComponentVisible = { MusicDetailScaffoldComponentVisible() },
 ) {
     val isChanged by remember(state) {
@@ -64,14 +77,23 @@ internal fun MusicDetailScaffold(
     ) { paddingValues ->
         MusicDetailScaffoldContent(
             onFetchLinkClick = { onEvent(MusicDetailScaffoldEvent.ClickFetchLink) },
+            onFormEvent = onFormEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
             state = state,
             uiStateProvider = uiStateProvider,
+            tagUiStateProvider = tagUiStateProvider,
         )
     }
+
+    EntityTagPickerDialogHost(
+        dialogState = state.tagPickerDialogState,
+        onEvent = onTagPickerEvent,
+        tagPagingItems = tagPagingItems,
+        uiStateProvider = tagUiStateProvider,
+    )
 }
 
 private class MusicDetailUiStatePreviewParameter : PreviewParameterProvider<MusicDetailUiState> {
@@ -92,6 +114,8 @@ private fun MusicDetailScaffoldPreview(
     DiaryTheme {
         MusicDetailScaffold(
             onEvent = {},
+            onFormEvent = {},
+            onTagPickerEvent = {},
             state = rememberMusicDetailFormState(initialDetail = detail),
             uiStateProvider = { uiState },
         )

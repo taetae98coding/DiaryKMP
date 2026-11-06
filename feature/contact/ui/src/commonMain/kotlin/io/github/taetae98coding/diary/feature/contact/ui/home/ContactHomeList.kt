@@ -13,6 +13,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
+import io.github.taetae98coding.diary.compose.contact.SwipeContactCard
+import io.github.taetae98coding.diary.compose.contact.previewContact
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
@@ -24,13 +27,13 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import io.github.taetae98coding.diary.feature.contact.ui.previewContact
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 
 @Composable
 internal fun ContactHomeList(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
+    onContactListEvent: (ContactListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
@@ -76,9 +79,8 @@ internal fun ContactHomeList(
                 ) { index ->
                     val contact = contactPagingItems[index]
 
-                    SwipeToDeleteContactCard(
-                        onClick = { contact?.let { value -> onEvent(ContactHomeScaffoldEvent.ClickContact(id = value.contact.id)) } },
-                        onDelete = { contact?.let { value -> onEvent(ContactHomeScaffoldEvent.DeleteContact(id = value.contact.id)) } },
+                    SwipeContactCard(
+                        onEvent = onContactListEvent,
                         modifier =
                             Modifier
                                 .animateItem()
@@ -111,6 +113,7 @@ private fun ContactHomeListPreview() {
     DiaryTheme {
         ContactHomeList(
             onEvent = {},
+            onContactListEvent = {},
             modifier = Modifier.fillMaxSize(),
             contactPagingItems = contactPagingData.collectAsLazyPagingItems(),
         )

@@ -31,6 +31,7 @@ public interface AccountContactRepository {
     public suspend fun upsert(
         account: Account,
         contact: Contact,
+        tagIdSet: Set<Uuid>,
     )
 
     public suspend fun updateDetail(

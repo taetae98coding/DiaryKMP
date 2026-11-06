@@ -54,17 +54,17 @@ class ContactAddViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { completion.await() }
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 runCurrent()
 
-                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = firstDetail)) }
-                coVerify(exactly = 0) { useCase(AddContactUseCase.Parameter(detail = secondDetail)) }
+                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 0) { useCase(AddContactUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
                 completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
@@ -79,7 +79,7 @@ class ContactAddViewModelTest : FunSpec() {
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail())
+                    viewModel.add(detail = detail(), tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe ContactAddEffect.AddSucceeded(id = addedId)
@@ -99,7 +99,7 @@ class ContactAddViewModelTest : FunSpec() {
                     val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                     viewModel.effect.test {
-                        viewModel.add(detail = detail(name = blankName))
+                        viewModel.add(detail = detail(name = blankName), tagIdSet = emptySet())
                         advanceUntilIdle()
 
                         awaitItem() shouldBe ContactAddEffect.NameBlank
@@ -120,7 +120,7 @@ class ContactAddViewModelTest : FunSpec() {
                     val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                     viewModel.effect.test {
-                        viewModel.add(detail = detail().copy(phoneNumberList = listOf(ContactPhoneNumber(number = blankNumber))))
+                        viewModel.add(detail = detail().copy(phoneNumberList = listOf(ContactPhoneNumber(number = blankNumber))), tagIdSet = emptySet())
                         advanceUntilIdle()
 
                         awaitItem() shouldBe ContactAddEffect.PhoneNumberBlank
@@ -141,20 +141,20 @@ class ContactAddViewModelTest : FunSpec() {
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                     viewModel.uiState.value.isInProgress
                         .shouldBeFalse()
 
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 2) { useCase(AddContactUseCase.Parameter(detail = detail)) }
+                coVerify(exactly = 2) { useCase(AddContactUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
 
@@ -165,7 +165,7 @@ class ContactAddViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { completion.await() }
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
-                viewModel.add(detail = detail())
+                viewModel.add(detail = detail(), tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
@@ -179,26 +179,41 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-c7408895-4227-4d3e-b9ce-5293a99f8aa4 고른 태그를 새 연락처와 함께 추가하도록 넘긴다") {
+            runTest(mainDispatcher) {
+                val detail = detail()
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val useCase = mockk<AddContactUseCase>()
+                coEvery { useCase(any()) } returns Result.success(Arb.kotlinUuid().next())
+                val viewModel = ContactAddViewModel(addContactUseCase = useCase)
+
+                viewModel.add(detail = detail, tagIdSet = tagIdSet)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)) }
+            }
+        }
+
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val firstDetail = detail(name = "first-${Arb.string().next()}")
                 val secondDetail = detail(name = "second-${Arb.string().next()}")
                 val useCase = mockk<AddContactUseCase>()
-                coEvery { useCase(AddContactUseCase.Parameter(detail = firstDetail)) } throws CancellationException()
-                coEvery { useCase(AddContactUseCase.Parameter(detail = secondDetail)) } returns Result.success(Arb.kotlinUuid().next())
+                coEvery { useCase(AddContactUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } throws CancellationException()
+                coEvery { useCase(AddContactUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
 
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = firstDetail)) }
-                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = secondDetail)) }
+                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 1) { useCase(AddContactUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
     }

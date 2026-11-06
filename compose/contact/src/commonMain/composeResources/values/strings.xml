@@ -1,0 +1,9 @@
+<resources>
+    <string name="contact_name_with_qualifier">%1$s (%2$s)</string>
+    <string name="contact_card_birthday_lunar">Lunar %1$s</string>
+    <string name="contact_card_birth_year">Born %1$d</string>
+    <string name="contact_card_favorite_content_description">Favorite</string>
+    <string name="contact_list_deleted_message">Contact deleted.</string>
+    <string name="contact_list_undo_action">Undo</string>
+    <string name="contact_list_delete_content_description">Delete contact</string>
+</resources>

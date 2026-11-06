@@ -16,6 +16,9 @@ import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.contact.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -104,7 +107,7 @@ internal fun screenTestViewModel(
 internal fun effectViewModel(effect: ContactAddEffect): ContactAddViewModel {
     val channel = Channel<ContactAddEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = channel.receiveAsFlow())
-    every { viewModel.add(detail = any()) } answers { channel.trySend(effect).getOrThrow() }
+    every { viewModel.add(detail = any(), tagIdSet = any()) } answers { channel.trySend(effect).getOrThrow() }
     return viewModel
 }
 
@@ -113,6 +116,8 @@ internal fun ComposeContentTestRule.setContactAddScreen(
     navigateUp: () -> Unit = {},
     componentVisible: ContactAddScaffoldComponentVisible = ContactAddScaffoldComponentVisible(),
     resultEventBus: ResultEventBus = ResultEventBus(),
+    tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
+    navigateToTagAdd: () -> Unit = {},
 ) {
     setContent {
         ContactAddScreenTestTheme(resultEventBus = resultEventBus) {
@@ -120,7 +125,11 @@ internal fun ComposeContentTestRule.setContactAddScreen(
                 addedResultRequestKey = null,
                 navigateUp = navigateUp,
                 componentVisibleProvider = { componentVisible },
-                viewModel = viewModel,
+                addViewModel = viewModel,
+                navigateToTagAdd = navigateToTagAdd,
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = tagViewModel,
             )
         }
     }

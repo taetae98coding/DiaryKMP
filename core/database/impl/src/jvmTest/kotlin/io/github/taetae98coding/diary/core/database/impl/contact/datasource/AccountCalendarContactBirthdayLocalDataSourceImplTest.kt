@@ -51,7 +51,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
             accountId: Uuid,
             vararg contactList: ContactLocalEntity,
         ) {
-            transaction.upsert(accountId = accountId, contactList = contactList.toList())
+            transaction.upsert(accountId = accountId, contactList = contactList.toList(), contactTagList = emptyList())
         }
 
         suspend fun birthdayList(

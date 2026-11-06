@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
@@ -60,10 +61,12 @@ internal class AccountMusicRepositoryImpl(
     override suspend fun upsert(
         account: Account,
         music: Music,
+        tagIdSet: Set<Uuid>,
     ) {
         accountMusicTransaction.upsert(
             accountId = account.id,
             musicList = listOf(music.toLocal()),
+            musicTagList = tagIdSet.toEntityTagLocalList(entityId = music.id, updatedAt = music.updatedAt, createdAt = music.createdAt),
         )
     }
 

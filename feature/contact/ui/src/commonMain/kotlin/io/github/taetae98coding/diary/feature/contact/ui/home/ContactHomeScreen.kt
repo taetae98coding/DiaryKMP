@@ -7,13 +7,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
+import io.github.taetae98coding.diary.compose.contact.ContactListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
-import io.github.taetae98coding.diary.feature.contact.ui.Res
-import io.github.taetae98coding.diary.feature.contact.ui.contact_home_deleted_message
-import io.github.taetae98coding.diary.feature.contact.ui.contact_home_undo_action
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -34,14 +31,8 @@ internal fun ContactHomeScreen(
     val filterSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    UndoSnackbarEffect(
-        actionLabel = stringResource(Res.string.contact_home_undo_action),
-        message = stringResource(Res.string.contact_home_deleted_message),
-        onUndo = { value ->
-            when (value) {
-                is ContactHomeEffect.Deleted -> contactViewModel.restore(id = value.id)
-            }
-        },
+    ContactListUndoSnackbarEffect(
+        onRestore = { id -> contactViewModel.restore(id = id) },
         effect = contactViewModel.effect,
         snackbarHostState = snackbarHostState,
     )
@@ -58,8 +49,12 @@ internal fun ContactHomeScreen(
                 is ContactHomeScaffoldEvent.SetBirthYearExistence -> contactViewModel.setBirthYearExistence(existence = event.existence)
                 is ContactHomeScaffoldEvent.SetPhoneNumberExistence -> contactViewModel.setPhoneNumberExistence(existence = event.existence)
                 is ContactHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
-                is ContactHomeScaffoldEvent.ClickContact -> navigateToDetail(event.id)
-                is ContactHomeScaffoldEvent.DeleteContact -> contactViewModel.delete(id = event.id)
+            }
+        },
+        onContactListEvent = { event ->
+            when (event) {
+                is ContactListEvent.ClickContact -> navigateToDetail(event.id)
+                is ContactListEvent.SwipeDelete -> contactViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

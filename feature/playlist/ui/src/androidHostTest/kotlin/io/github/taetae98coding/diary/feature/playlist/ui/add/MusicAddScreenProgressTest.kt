@@ -4,7 +4,9 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,11 +66,15 @@ class MusicAddScreenProgressTest {
         every { viewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

@@ -48,7 +48,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
 
                     awaitItem() shouldBe ChecklistAddEffect.AddSucceeded
                     expectNoEvents()
@@ -71,7 +71,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe ChecklistAddUiState(isInProgress = false)
 
-                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                     awaitItem() shouldBe ChecklistAddUiState(isInProgress = true)
 
                     gate.complete(Unit)
@@ -88,7 +88,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -105,7 +105,7 @@ class ChecklistAddViewModelTest : FunSpec() {
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                    viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
 
                     awaitItem() shouldBe ChecklistAddEffect.TitleBlank
                     expectNoEvents()
@@ -124,13 +124,27 @@ class ChecklistAddViewModelTest : FunSpec() {
                 }
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
-                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                 runCurrent()
-                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                 gate.complete(Unit)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { addChecklistUseCase(parameter = any()) }
+            }
+        }
+
+        test("TC-3129cb06-b235-4b73-9eda-c22b94336451 고른 태그를 새 체크리스트와 함께 추가하도록 넘긴다") {
+            runTest(mainDispatcher) {
+                val parameter = parameter().copy(tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next()))
+                val addChecklistUseCase = mockk<AddChecklistUseCase>()
+                coEvery { addChecklistUseCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
+                val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
+
+                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = parameter.tagIdSet)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addChecklistUseCase(parameter = parameter) }
             }
         }
 
@@ -141,9 +155,9 @@ class ChecklistAddViewModelTest : FunSpec() {
                 coEvery { addChecklistUseCase(parameter = parameter) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = ChecklistAddViewModel(addChecklistUseCase = addChecklistUseCase)
 
-                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                 advanceUntilIdle()
-                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList)
+                viewModel.add(detail = parameter.detail, itemContentList = parameter.itemContentList, tagIdSet = emptySet())
                 advanceUntilIdle()
 
                 coVerify(exactly = 2) { addChecklistUseCase(parameter = parameter) }
@@ -158,6 +172,7 @@ class ChecklistAddViewModelTest : FunSpec() {
             AddChecklistUseCase.Parameter(
                 detail = Arb.checklistDetail().next(),
                 itemContentList = List(ITEM_COUNT) { index -> "item-$index-" + Arb.string().next() },
+                tagIdSet = emptySet(),
             )
     }
 }

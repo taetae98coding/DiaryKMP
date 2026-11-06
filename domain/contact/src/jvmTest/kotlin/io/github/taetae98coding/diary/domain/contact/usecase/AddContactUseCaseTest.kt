@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumbe
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -62,11 +63,11 @@ class AddContactUseCaseTest :
 
                 When("연락처를 추가한다") {
                     Then("TC-8e809ab1-a0cc-4a31-82da-db63c6090a87 이름 공백 예외로 실패하고 연락처를 저장하지 않는다") {
-                        val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(name = blankName)))
+                        val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(name = blankName), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<ContactNameBlankException>()
                         verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
-                        coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
+                        coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                     }
                 }
             }
@@ -95,11 +96,11 @@ class AddContactUseCaseTest :
                                 ContactPhoneNumber(number = blankNumber),
                             )
 
-                        val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList)))
+                        val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList), tagIdSet = emptySet()))
 
                         result.shouldBeFailure().shouldBeInstanceOf<ContactPhoneNumberBlankException>()
                         verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
-                        coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
+                        coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                     }
                 }
             }
@@ -120,7 +121,7 @@ class AddContactUseCaseTest :
                 Then("TC-d4cfda06-81f8-4fa0-8bb0-0273e6e18ce9 이름 공백 예외만 전달한다") {
                     val detail = detail(name = "", phoneNumberList = listOf(ContactPhoneNumber(number = "")))
 
-                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail))
+                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = emptySet()))
 
                     result.shouldBeFailure().shouldBeInstanceOf<ContactNameBlankException>()
                 }
@@ -133,7 +134,7 @@ class AddContactUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
-            coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot)) } just Runs
+            coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot), tagIdSet = any()) } just Runs
             val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
@@ -145,13 +146,46 @@ class AddContactUseCaseTest :
                     clock = clock,
                 )
 
+            When("연결할 태그를 골라 연락처를 추가한다") {
+                Then("TC-c1238327-db56-4e68-8db2-13bff6b592d4 TC-c7408895-4227-4d3e-b9ce-5293a99f8aa4 고른 태그를 그대로 새 연락처를의 연결로 넘긴다") {
+                    val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+                    val repository = mockk<AccountContactRepository>(relaxed = true)
+                    val taggedUseCase =
+                        AddContactUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase(),
+                            accountContactRepository = repository,
+                            clock = clock,
+                        )
+
+                    taggedUseCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = tagIdSet)).shouldBeSuccess()
+
+                    coVerify(exactly = 1) { repository.upsert(account = account, contact = any(), tagIdSet = tagIdSet) }
+                }
+
+                Then("TC-b0af8d90-eee2-48c8-9dca-1c7085eddbd5 태그를 하나도 고르지 않아도 추가하고 연결을 만들지 않는다") {
+                    val repository = mockk<AccountContactRepository>(relaxed = true)
+                    val tagLessUseCase =
+                        AddContactUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase(),
+                            accountContactRepository = repository,
+                            clock = clock,
+                        )
+
+                    tagLessUseCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
+
+                    coVerify(exactly = 1) { repository.upsert(account = account, contact = any(), tagIdSet = emptySet()) }
+                }
+            }
+
             When("공백이 아닌 이름으로 연락처를 추가한다") {
                 Then("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 현재 계정과 연결된 고유한 연락처로 저장한다") {
-                    val firstId = useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
-                    val secondId = useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    val firstId = useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
+                    val secondId = useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     firstId shouldNotBe secondId
-                    coVerify(exactly = 2) { accountContactRepository.upsert(account = account, contact = any()) }
+                    coVerify(exactly = 2) { accountContactRepository.upsert(account = account, contact = any(), tagIdSet = any()) }
                 }
 
                 Then("TC-c9cdb24c-2482-4dfc-a9c0-a872966eb095 이름만 앞뒤 공백을 지워 기록한다") {
@@ -162,7 +196,7 @@ class AddContactUseCaseTest :
                     ).forEach { (input, expected) ->
                         val detail = detail(name = input, description = "  메모  ", howWeMet = "  회사  ")
 
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail)).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.name shouldBe expected
                         contactSlot.captured.detail.description shouldBe "  메모  "
@@ -189,14 +223,14 @@ class AddContactUseCaseTest :
                                 ),
                         )
 
-                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = expected))
+                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = expected, tagIdSet = emptySet()))
 
                     result.shouldBeSuccess(contactSlot.captured.id)
                     contactSlot.captured.detail shouldBe expected
                 }
 
                 Then("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 미삭제 상태와 추가 시각을 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.isDeleted shouldBe false
                     contactSlot.captured.createdAt shouldBe now
@@ -204,13 +238,13 @@ class AddContactUseCaseTest :
                 }
 
                 Then("TC-4171dffb-3602-41d0-9431-eed5d61415b1 설명을 입력하지 않으면 빈 설명으로 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(description = ""))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(description = ""), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.description shouldBe ""
                 }
 
                 Then("TC-54d47d79-d19d-4b62-9477-2f87590574a5 설명과 전화번호가 비어 있어도 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(description = ""))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(description = ""), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.description shouldBe ""
                     contactSlot.captured.detail.phoneNumberList
@@ -225,13 +259,13 @@ class AddContactUseCaseTest :
                             ContactPhoneNumber(number = "010-1234-5678"),
                         )
 
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.phoneNumberList shouldBe phoneNumberList
                 }
 
                 Then("TC-8df70bbc-e460-4a06-916f-a72e1bfd665d 키, 신발 사이즈, 생일은 없는 값으로, 고향과 알게 된 경로는 비어 있는 값으로 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.height
                         .shouldBeNull()
@@ -247,7 +281,7 @@ class AddContactUseCaseTest :
 
                 Then("TC-c311e3f7-c458-47be-8b7a-f7372b578093 고향은 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
                     listOf("서울", "강원도 춘천시", "Seoul, Korea", "123-!@#", "  ").forEach { hometown ->
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(hometown = hometown))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(hometown = hometown), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.hometown shouldBe hometown
                     }
@@ -255,7 +289,7 @@ class AddContactUseCaseTest :
 
                 Then("TC-bc0696b9-e6f2-425d-9361-725d3973c366 알게 된 경로는 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
                     listOf("대학 동아리 신입생 환영회", "  ").forEach { howWeMet ->
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(howWeMet = howWeMet))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(howWeMet = howWeMet), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.howWeMet shouldBe howWeMet
                     }
@@ -266,7 +300,7 @@ class AddContactUseCaseTest :
                         0.1.centimeter to 1.millimeter,
                         999.9.centimeter to 999.millimeter,
                     ).forEach { (height, footSize) ->
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(height = height, footSize = footSize))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(height = height, footSize = footSize), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.height shouldBe height
                         contactSlot.captured.detail.footSize shouldBe footSize
@@ -277,7 +311,7 @@ class AddContactUseCaseTest :
                     listOf("123", "+82 10-1234-5678", "abc").forEach { number ->
                         val phoneNumberList = listOf(ContactPhoneNumber(number = number))
 
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(phoneNumberList = phoneNumberList), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.phoneNumberList shouldBe phoneNumberList
                     }
@@ -287,7 +321,7 @@ class AddContactUseCaseTest :
                     ContactBirthdayCalendar.entries.forEach { calendar ->
                         val birthday = ContactBirthday(date = LocalDate(year = 2999, month = 12, day = 31), calendar = calendar)
 
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.birthday shouldBe birthday
                         contactSlot.captured.detail.birthYear shouldBe 2999
@@ -295,7 +329,7 @@ class AddContactUseCaseTest :
                 }
 
                 Then("TC-f657c761-b6b2-4766-926b-d5371703eddf 새 연락처는 즐겨찾기가 아닌 상태로 저장된다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.isFavorite shouldBe false
                 }
@@ -304,7 +338,7 @@ class AddContactUseCaseTest :
                     ContactBirthdayCalendar.entries.forEach { calendar ->
                         val birthday = ContactBirthday(date = LocalDate(year = 1998, month = 5, day = 12), calendar = calendar)
 
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.birthday shouldBe birthday
                     }
@@ -314,14 +348,14 @@ class AddContactUseCaseTest :
                     val date = LocalDate(year = 1998, month = 5, day = 12)
                     val birthday = ContactBirthday(date = date, calendar = ContactBirthdayCalendar.LUNAR)
 
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.birthday
                         ?.date shouldBe date
                 }
 
                 Then("TC-48688c58-82fc-404e-893a-8190e37f70c1 생일 없이 입력한 태어난 연도를 그대로 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = 1990))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = 1990), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.birthYear shouldBe 1990
                     contactSlot.captured.detail.birthday
@@ -334,7 +368,7 @@ class AddContactUseCaseTest :
                         ContactBirthday(date = LocalDate(year = 1990, month = 12, day = 20), calendar = ContactBirthdayCalendar.LUNAR),
                     ).forEach { birthday ->
                         // 생일과 다른 연도가 함께 넘어와도 생일의 연도가 기록되는지 확인한다.
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday, birthYear = 1985))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday, birthYear = 1985), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.birthYear shouldBe 1990
                     }
@@ -342,14 +376,14 @@ class AddContactUseCaseTest :
 
                 Then("TC-c074e07c-8da6-4786-ad83-580d513d87eb 태어난 연도는 크기를 검사하지 않고 그대로 저장한다") {
                     listOf(2999, 990, 0).forEach { birthYear ->
-                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = birthYear))).shouldBeSuccess()
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = birthYear), tagIdSet = emptySet())).shouldBeSuccess()
 
                         contactSlot.captured.detail.birthYear shouldBe birthYear
                     }
                 }
 
                 Then("TC-c0766bfb-2a2e-4bf6-89b1-dc3092ffbc50 생일을 고르지 않으면 달력 구분도 없는 값으로 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = null))).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = null), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.detail.birthday
                         .shouldBeNull()
@@ -373,10 +407,10 @@ class AddContactUseCaseTest :
 
             When("연락처 추가에 성공한다") {
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-6dd12398-c5b0-4e7d-b36c-c8a61031b697 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     coVerifyOrder {
-                        accountContactRepository.upsert(account = account, contact = any())
+                        accountContactRepository.upsert(account = account, contact = any(), tagIdSet = any())
                         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
                     }
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -403,9 +437,9 @@ class AddContactUseCaseTest :
             When("공백이 아닌 이름으로 연락처를 추가한다") {
                 Then("TC-c2430dea-6fab-43a7-95a1-9e5a7d58909c 추가는 성공으로 전달되고 저장한 연락처를 되돌리지 않는다") {
                     val contactSlot = slot<Contact>()
-                    coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot)) } just Runs
+                    coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot), tagIdSet = any()) } just Runs
 
-                    val contactId = useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    val contactId = useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     contactSlot.captured.id shouldBe contactId
                     contactSlot.captured.isDeleted shouldBe false
@@ -429,9 +463,9 @@ class AddContactUseCaseTest :
 
             When("공백이 아닌 이름으로 연락처를 추가한다") {
                 Then("TC-4a5232dc-0a4d-4973-a88c-bf54c2ec94dd 게스트 계정으로 기기에 저장한다") {
-                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
-                    coVerify(exactly = 1) { accountContactRepository.upsert(account = Account.Guest, contact = any()) }
+                    coVerify(exactly = 1) { accountContactRepository.upsert(account = Account.Guest, contact = any(), tagIdSet = any()) }
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
@@ -452,10 +486,10 @@ class AddContactUseCaseTest :
 
             When("공백이 아닌 이름으로 연락처를 추가한다") {
                 Then("TC-cf596357-e696-4282-aebd-1d4001dc97ec 계정 조회 실패를 전달하고 연락처를 저장하지 않는다") {
-                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail()))
+                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
-                    coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
+                    coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any(), tagIdSet = any()) }
                 }
             }
         }
@@ -466,7 +500,7 @@ class AddContactUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
-            coEvery { accountContactRepository.upsert(account = account, contact = any()) } throws throwable
+            coEvery { accountContactRepository.upsert(account = account, contact = any(), tagIdSet = any()) } throws throwable
             val useCase =
                 AddContactUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -477,7 +511,7 @@ class AddContactUseCaseTest :
 
             When("공백이 아닌 이름으로 연락처를 추가한다") {
                 Then("TC-05a1f42a-bfb1-4a3d-b30b-7594415bdedf 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
-                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail()))
+                    val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
                 }

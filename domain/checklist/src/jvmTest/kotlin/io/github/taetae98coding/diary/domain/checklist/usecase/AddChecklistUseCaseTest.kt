@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistTitleB
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -40,7 +41,7 @@ class AddChecklistUseCaseTest :
             val contentList = listOf(itemContent(), " 충전기 ", itemContent())
 
             When("체크리스트 추가를 요청한다") {
-                val id = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = contentList)).shouldBeSuccess()
+                val id = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = contentList, tagIdSet = emptySet())).shouldBeSuccess()
 
                 Then("TC-e391624f-ed92-4843-b2d5-08238c87bcc6 TC-a9a5504d-447d-4be9-abd7-0ae41f4afc9c 제목과 설명을 입력한 그대로, 미삭제 상태와 같은 생성·수정 시각으로 기록한다") {
                     context.savedChecklistList.single() shouldBe
@@ -65,7 +66,7 @@ class AddChecklistUseCaseTest :
                 }
 
                 Then("TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 체크리스트와 체크 항목을 현재 계정으로 함께 저장한다") {
-                    coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any()) }
+                    coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any(), tagIdSet = any()) }
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-6bea336d-5773-4cdf-aae2-688bf1afbeaa TC-90561386-15a3-4139-9983-cb88f3fe4a47 기기에 저장한 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
@@ -87,13 +88,45 @@ class AddChecklistUseCaseTest :
                 When("체크리스트 추가를 요청한다") {
                     context
                         .useCase(
-                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(content, leftover)),
+                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(content, leftover), tagIdSet = emptySet()),
                         ).shouldBeSuccess()
 
                     Then("TC-af4f0edf-56d3-484e-afce-4391876a924a 비어 있지 않은 항목 입력만 맨 끝 항목으로 만든다") {
                         context.savedItemListList.single().map { item -> item.content } shouldBe expected
                         context.savedItemListList.single().map { item -> item.createdAt } shouldBe
                             expected.indices.map { index -> context.now + index.milliseconds }
+                    }
+                }
+            }
+        }
+
+        Given("연결할 태그를 골라 두었다") {
+            val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+
+            When("체크리스트 추가를 요청한다") {
+                Then("TC-9f688659-42f2-4c32-9e31-fea6de2793a3 TC-3129cb06-b235-4b73-9eda-c22b94336451 고른 태그를 그대로 새 체크리스트의 연결로 넘긴다") {
+                    val context = AddContext(account = Arb.accountUser().next())
+
+                    context
+                        .useCase(
+                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = emptyList(), tagIdSet = tagIdSet),
+                        ).shouldBeSuccess()
+
+                    coVerify(exactly = 1) {
+                        context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any(), tagIdSet = tagIdSet)
+                    }
+                }
+
+                Then("TC-ba22b474-0b9f-4763-beda-1afa7f7f51ef 태그를 하나도 고르지 않아도 추가하고 연결을 만들지 않는다") {
+                    val context = AddContext(account = Arb.accountUser().next())
+
+                    context
+                        .useCase(
+                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = emptyList(), tagIdSet = emptySet()),
+                        ).shouldBeSuccess()
+
+                    coVerify(exactly = 1) {
+                        context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any(), tagIdSet = emptySet())
                     }
                 }
             }
@@ -106,7 +139,7 @@ class AddChecklistUseCaseTest :
             When("체크리스트 추가를 요청한다") {
                 context
                     .useCase(
-                        parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = emptyList()),
+                        parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = emptyList(), tagIdSet = emptySet()),
                     ).shouldBeSuccess()
 
                 Then("TC-66d21b3c-6066-4406-9181-68d4c5371b29 빈 설명의 체크리스트를 체크 항목 없이 저장한다") {
@@ -118,7 +151,7 @@ class AddChecklistUseCaseTest :
 
         Given("같은 제목, 설명과 체크 항목으로 체크리스트를 이미 추가했다") {
             val context = AddContext(account = Arb.accountUser().next())
-            val parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent(), itemContent()))
+            val parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent(), itemContent()), tagIdSet = emptySet())
             val firstId = context.useCase(parameter = parameter).shouldBeSuccess()
 
             When("같은 내용으로 체크리스트 추가를 요청한다") {
@@ -139,7 +172,7 @@ class AddChecklistUseCaseTest :
                 When("체크리스트 추가를 요청한다") {
                     val result =
                         context.useCase(
-                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail(title = title).next(), itemContentList = listOf(itemContent())),
+                            parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail(title = title).next(), itemContentList = listOf(itemContent()), tagIdSet = emptySet()),
                         )
 
                     Then("TC-ec02fa4b-0f43-41f7-8e54-1433d90878f8 체크리스트와 체크 항목을 저장하지 않고 제목 미입력으로 거절한다") {
@@ -156,7 +189,7 @@ class AddChecklistUseCaseTest :
             val context = AddContext(account = null, accountFailure = throwable)
 
             When("체크리스트 추가를 요청한다") {
-                val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent())))
+                val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent()), tagIdSet = emptySet()))
 
                 Then("TC-e0ae504c-75f5-4e3d-9ea9-e3d8afdf1e73 체크리스트와 체크 항목을 저장하지 않고 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -169,10 +202,10 @@ class AddChecklistUseCaseTest :
             val context = AddContext(account = Arb.constant(Account.Guest).next())
 
             When("체크리스트 추가를 요청한다") {
-                context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent()))).shouldBeSuccess()
+                context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent()), tagIdSet = emptySet())).shouldBeSuccess()
 
                 Then("TC-3f8e323a-1b3f-4bc5-85a9-d54b08e6179a 게스트 계정 기준으로 기기에 저장한다") {
-                    coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any()) }
+                    coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any(), tagIdSet = any()) }
                 }
             }
         }
@@ -180,10 +213,10 @@ class AddChecklistUseCaseTest :
         Given("기기 저장이 실패하도록 설정되어 있다") {
             val throwable = IllegalStateException(Arb.string().next())
             val context = AddContext(account = Arb.accountUser().next())
-            coEvery { context.repository.upsert(account = any(), checklist = any(), itemList = any()) } throws throwable
+            coEvery { context.repository.upsert(account = any(), checklist = any(), itemList = any(), tagIdSet = any()) } throws throwable
 
             When("체크리스트 추가를 요청한다") {
-                val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent())))
+                val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = Arb.checklistDetail().next(), itemContentList = listOf(itemContent()), tagIdSet = emptySet()))
 
                 Then("TC-22a04f2e-eeb4-482f-b03a-23437e354955 추가를 성공으로 다루지 않고 동기화를 요청하지 않는다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -212,10 +245,10 @@ private class AddContext(
         )
 
     init {
-        coEvery { repository.upsert(account = any(), checklist = capture(savedChecklistList), itemList = capture(savedItemListList)) } just Runs
+        coEvery { repository.upsert(account = any(), checklist = capture(savedChecklistList), itemList = capture(savedItemListList), tagIdSet = any()) } just Runs
     }
 
     fun verifyNothingSaved() {
-        coVerify(exactly = 0) { repository.upsert(account = any(), checklist = any(), itemList = any()) }
+        coVerify(exactly = 0) { repository.upsert(account = any(), checklist = any(), itemList = any(), tagIdSet = any()) }
     }
 }

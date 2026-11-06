@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -296,6 +297,16 @@ class MemoNavigationTest :
 
             backStack shouldContainExactly listOf(MemoHomeNavKey, MemoAddNavKey(), WebAddNavKey(requestKey = requestKey))
             (backStack.last() as WebAddNavKey).initialTagId.shouldBeNull()
+        }
+
+        test("TC-14e615c4-29a1-419a-a590-ebca89aaad7b 메모 연락처 입력에서 연락처 추가를 선택하면 초기 태그 없는 연락처 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoAddNavKey())
+            val requestKey = Arb.kotlinUuid().next()
+
+            backStack.navigateToContactAddFromMemoContactInput(requestKey = requestKey)
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoAddNavKey(), ContactAddNavKey(requestKey = requestKey))
+            (backStack.last() as ContactAddNavKey).initialTagId.shouldBeNull()
         }
     })
 

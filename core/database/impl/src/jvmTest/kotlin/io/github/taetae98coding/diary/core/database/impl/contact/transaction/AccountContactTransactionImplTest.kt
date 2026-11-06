@@ -74,7 +74,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact()
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList() shouldBe listOf(contact)
             findAccountContactList() shouldBe
@@ -98,7 +98,7 @@ class AccountContactTransactionImplTest :
                     createdAt = now,
                 )
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList() shouldBe listOf(contact)
         }
@@ -113,7 +113,7 @@ class AccountContactTransactionImplTest :
                 )
             val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = phoneNumberList)) }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList().single().detail.phoneNumberList shouldBe phoneNumberList
         }
@@ -122,7 +122,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = emptyList())) }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList().single().detail.phoneNumberList shouldBe emptyList()
         }
@@ -134,7 +134,7 @@ class AccountContactTransactionImplTest :
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = Arb.kotlinxLocalDate().next().year))
                 }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList().single().detail shouldBe contact.detail
         }
@@ -153,7 +153,7 @@ class AccountContactTransactionImplTest :
                     )
                 }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             findContactList().single().detail shouldBe contact.detail
         }
@@ -172,7 +172,7 @@ class AccountContactTransactionImplTest :
                     )
                 }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             val stored = findContactList().single().detail
             stored.birthday shouldBe birthday
@@ -186,7 +186,7 @@ class AccountContactTransactionImplTest :
                     contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null))
                 }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             val stored = findContactList().single().detail
             stored.birthday.shouldBeNull()
@@ -208,7 +208,7 @@ class AccountContactTransactionImplTest :
                     )
                 }
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             val stored = findContactList().single().detail
             stored.heightCentimeter.shouldBeNull()
@@ -222,8 +222,8 @@ class AccountContactTransactionImplTest :
             val contact = contact()
             val changedContact = contact.copy(detail = detail())
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
-            transaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
+            transaction.upsert(accountId = accountId, contactList = listOf(changedContact), contactTagList = emptyList())
 
             findContactList() shouldBe listOf(changedContact)
             findAccountContactList() shouldBe
@@ -241,7 +241,7 @@ class AccountContactTransactionImplTest :
             val contactList = List(3) { contact() }.sortedBy { contact -> contact.id.toString() }
 
             contactList.forEach { contact ->
-                transaction.upsert(accountId = accountId, contactList = listOf(contact))
+                transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             }
 
             findContactList() shouldBe contactList
@@ -266,7 +266,7 @@ class AccountContactTransactionImplTest :
                     },
                 )
 
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             findAccountContactList() shouldBe pending
 
             changeList.forEach { change ->
@@ -289,7 +289,7 @@ class AccountContactTransactionImplTest :
                 }
             val updatedDetail = contact.detail.copy(birthYear = birthYear + 1)
             val updatedAt = Arb.secondPrecisionInstant().next()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt)
 
@@ -300,7 +300,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = false, isDeleted = true)
             val updatedAt = Arb.secondPrecisionInstant().next()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt)
 
@@ -316,7 +316,7 @@ class AccountContactTransactionImplTest :
                     ContactPhoneNumberLocalEntity(number = "010-1234-5678"),
                     ContactPhoneNumberLocalEntity(number = "031-555-6666"),
                 )
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDetail(
                 accountId = accountId,
@@ -331,7 +331,7 @@ class AccountContactTransactionImplTest :
         test("TC-1c371ce2-5734-4028-b428-301bc197ab5a 전화번호를 모두 지운 수정을 반영하면 전화번호가 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDetail(
                 accountId = accountId,
@@ -348,7 +348,7 @@ class AccountContactTransactionImplTest :
             val contact = contact().copy(isFavorite = true, isDeleted = true)
             val updatedDetail = detail().copy(name = "updated-${Arb.string().next()}")
             val updatedAt = Arb.secondPrecisionInstant().next()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt) shouldBe 1
 
@@ -361,7 +361,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = false)
             val updatedAt = Arb.secondPrecisionInstant().next()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt) shouldBe 1
 
@@ -372,7 +372,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact().copy(isFavorite = true, isDeleted = false)
             val updatedAt = Arb.secondPrecisionInstant().next()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
 
@@ -385,7 +385,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val contact = contact()
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             val before = findContactList()
 
             transaction.updateDetail(
@@ -405,7 +405,7 @@ class AccountContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val contact = contact()
             val throwable = IllegalStateException(Arb.string().next())
-            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            transaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             val failingDatabase = spyk(database)
             every { failingDatabase.accountContactDao() } throws throwable
             val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
@@ -432,7 +432,7 @@ class AccountContactTransactionImplTest :
             val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
 
             shouldThrow<IllegalStateException> {
-                failingTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+                failingTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             }.message shouldBe throwable.message
 
             findContactList().shouldBeEmpty()

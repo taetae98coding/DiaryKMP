@@ -14,10 +14,11 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.playlist.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -98,7 +99,7 @@ class PlaylistHomeDeleteTest {
         swipeFirstCardLeft()
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
 
-        environment.effectChannel.trySend(PlaylistHomeEffect.Deleted(id = environment.second.id)).getOrThrow()
+        environment.effectChannel.trySend(MusicListEffect.Deleted(id = environment.second.id)).getOrThrow()
         composeRule.waitForIdle()
 
         composeRule.onAllNodesWithText(DEFAULT_DELETED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -163,13 +164,13 @@ class PlaylistHomeDeleteTest {
     ): Environment {
         val first = testMusic(title = FIRST_TITLE)
         val second = testMusic(title = SECOND_TITLE)
-        val effectChannel = Channel<PlaylistHomeEffect>(capacity = Channel.BUFFERED)
+        val effectChannel = Channel<MusicListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<PlaylistHomeViewModel>()
         every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
         every { viewModel.musicPagingData } returns MutableStateFlow(musicPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
-            effectChannel.trySend(PlaylistHomeEffect.Deleted(id = firstArg())).getOrThrow()
+            effectChannel.trySend(MusicListEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
         val syncViewModel = mockk<SyncRefreshViewModel>()
@@ -204,7 +205,7 @@ class PlaylistHomeDeleteTest {
 
     private class Environment(
         val viewModel: PlaylistHomeViewModel,
-        val effectChannel: Channel<PlaylistHomeEffect>,
+        val effectChannel: Channel<MusicListEffect>,
         val first: Music,
         val second: Music,
     )

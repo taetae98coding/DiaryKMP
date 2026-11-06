@@ -15,6 +15,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
+import io.github.taetae98coding.diary.compose.checklist.SwipeChecklistCard
+import io.github.taetae98coding.diary.compose.checklist.previewChecklistSummary
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.ChecklistIcon
@@ -26,16 +29,15 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
-import io.github.taetae98coding.diary.feature.checklist.ui.card.SwipeToDeleteChecklistCard
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_home_empty_description
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_home_empty_title
-import io.github.taetae98coding.diary.feature.checklist.ui.previewChecklistSummary
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ChecklistHomeList(
     onEvent: (ChecklistHomeScaffoldEvent) -> Unit,
+    onChecklistListEvent: (ChecklistListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState(),
     checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
@@ -77,9 +79,8 @@ internal fun ChecklistHomeList(
                 ) { index ->
                     val summary = checklistPagingItems[index]
 
-                    SwipeToDeleteChecklistCard(
-                        onClick = { summary?.let { value -> onEvent(ChecklistHomeScaffoldEvent.ClickChecklist(id = value.checklist.id)) } },
-                        onDelete = { summary?.let { value -> onEvent(ChecklistHomeScaffoldEvent.DeleteChecklist(id = value.checklist.id)) } },
+                    SwipeChecklistCard(
+                        onEvent = onChecklistListEvent,
                         modifier =
                             Modifier
                                 .animateItem()
@@ -107,6 +108,7 @@ private fun ChecklistHomeListPreview() {
     DiaryTheme {
         ChecklistHomeList(
             onEvent = {},
+            onChecklistListEvent = {},
             modifier = Modifier.fillMaxSize(),
             checklistPagingItems = pagingData.collectAsLazyPagingItems(),
         )

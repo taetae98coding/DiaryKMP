@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.contact.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.compose.contact.ContactListEffect
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
@@ -274,7 +275,7 @@ class ContactHomeViewModelTest : FunSpec() {
                 viewModel.effect.test {
                     viewModel.delete(id = id)
 
-                    awaitItem() shouldBe ContactHomeEffect.Deleted(id = id)
+                    awaitItem() shouldBe ContactListEffect.Deleted(id = id)
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { deleteContactUseCase(parameter = id) }

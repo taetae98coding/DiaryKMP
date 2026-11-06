@@ -1,11 +1,13 @@
 package io.github.taetae98coding.diary.core.database.impl.music.transaction
 
 import androidx.room3.withWriteTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.transaction.AccountMusicTransaction
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.musictag.musicTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -17,6 +19,7 @@ internal class AccountMusicTransactionImpl(
     override suspend fun upsert(
         accountId: Uuid,
         musicList: List<MusicLocalEntity>,
+        musicTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.musicDao().upsert(musicList)
@@ -29,6 +32,7 @@ internal class AccountMusicTransactionImpl(
                     )
                 },
             )
+            database.musicTagTable().upsertPending(accountId = accountId, entityTagList = musicTagList)
         }
     }
 

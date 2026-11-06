@@ -13,7 +13,8 @@ public fun List<ScreenNavKey>.isQrListDetailPane(key: ScreenNavKey): Boolean =
 public fun List<ScreenNavKey>.isQrAddOnDetailPane(): Boolean {
     val key = lastOrNull() ?: return false
 
-    return key == QrHomeNavKey || (key == QrAddNavKey && isQrListDetailPane(key))
+    return key == QrHomeNavKey || (key is QrAddNavKey && isQrListDetailPane(key))
 }
 
-private fun ScreenNavKey.isQrDetailPaneKey(): Boolean = this is QrAddNavKey || this is QrDetailNavKey
+// 초기 태그가 있는 QrAdd는 TagDetail QR 탭에서 진입한 것이다.
+private fun ScreenNavKey.isQrDetailPaneKey(): Boolean = (this is QrAddNavKey && initialTagId == null) || this is QrDetailNavKey

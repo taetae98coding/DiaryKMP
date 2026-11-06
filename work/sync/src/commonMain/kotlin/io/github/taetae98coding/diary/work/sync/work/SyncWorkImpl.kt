@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -34,8 +35,7 @@ internal class SyncWorkImpl(
     private val memoWebSyncWork: MemoWebSyncWork,
     private val memoContactSyncWork: MemoContactSyncWork,
     private val tagLinkSyncWork: TagLinkSyncWork,
-    private val webTagSyncWork: WebTagSyncWork,
-    private val placeTagSyncWork: PlaceTagSyncWork,
+    private val entityTagSyncWork: EntityTagSyncWork,
     private val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
     private val clock: Clock,
 ) : SyncWork {
@@ -72,69 +72,104 @@ internal class SyncWorkImpl(
             val contact = async { contactSyncWork.push(accountId = accountId) }
             val music = async { musicSyncWork.push(accountId = accountId) }
             val qr = async { qrSyncWork.push(accountId = accountId) }
-            val checklist = pushChecklist(accountId = accountId)
+            val checklist = async { checklistSyncWork.push(accountId = accountId) }
+            val checklistItem =
+                async {
+                    checklist.await()
+                    checklistItemSyncWork.push(accountId = accountId)
+                }
             val memo =
                 async {
                     tag.await()
                     memoSyncWork.push(accountId = accountId)
                 }
-            val memoTag =
-                async {
-                    tag.await()
-                    memo.await()
-                    memoTagSyncWork.push(accountId = accountId)
-                }
-            val memoPlace =
-                async {
-                    place.await()
-                    memo.await()
-                    memoPlaceSyncWork.push(accountId = accountId)
-                }
-            val memoWeb =
-                async {
-                    web.await()
-                    memo.await()
-                    memoWebSyncWork.push(accountId = accountId)
-                }
-            val memoContact =
-                async {
-                    contact.await()
-                    memo.await()
-                    memoContactSyncWork.push(accountId = accountId)
-                }
+            val memoLinkList =
+                pushMemoLink(accountId = accountId, tag = tag, memo = memo, place = place, web = web, contact = contact)
             val tagLink =
                 async {
                     tag.await()
                     tagLinkSyncWork.push(accountId = accountId)
                 }
-            val webTag =
-                async {
-                    tag.await()
-                    web.await()
-                    webTagSyncWork.push(accountId = accountId)
-                }
-            val placeTag =
-                async {
-                    tag.await()
-                    place.await()
-                    placeTagSyncWork.push(accountId = accountId)
+            val entityTagList =
+                EntityTagKindLocalEntity.entries.map { kind ->
+                    val entity =
+                        when (kind) {
+                            EntityTagKindLocalEntity.WEB -> web
+                            EntityTagKindLocalEntity.PLACE -> place
+                            EntityTagKindLocalEntity.CONTACT -> contact
+                            EntityTagKindLocalEntity.CHECKLIST -> checklist
+                            EntityTagKindLocalEntity.MUSIC -> music
+                            EntityTagKindLocalEntity.QR -> qr
+                        }
+
+                    pushEntityTag(accountId = accountId, kind = kind, tag = tag, entity = entity)
                 }
 
-            (listOf(tag, place, web, contact, music, qr, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag) + checklist)
-                .awaitAllCatching()
+            (
+                listOf(
+                    tag,
+                    place,
+                    web,
+                    contact,
+                    music,
+                    qr,
+                    checklist,
+                    checklistItem,
+                    memo,
+                    tagLink,
+                ) + memoLinkList + entityTagList
+            ).awaitAllCatching()
         }
     }
 
-    private fun CoroutineScope.pushChecklist(accountId: Uuid): List<Deferred<Unit>> {
-        val checklist = async { checklistSyncWork.push(accountId = accountId) }
-        val checklistItem =
+    @Suppress("LongParameterList")
+    private fun CoroutineScope.pushMemoLink(
+        accountId: Uuid,
+        tag: Deferred<Unit>,
+        memo: Deferred<Unit>,
+        place: Deferred<Unit>,
+        web: Deferred<Unit>,
+        contact: Deferred<Unit>,
+    ): List<Deferred<Unit>> {
+        val memoTag =
             async {
-                checklist.await()
-                checklistItemSyncWork.push(accountId = accountId)
+                tag.await()
+                memo.await()
+                memoTagSyncWork.push(accountId = accountId)
+            }
+        val memoPlace =
+            async {
+                place.await()
+                memo.await()
+                memoPlaceSyncWork.push(accountId = accountId)
+            }
+        val memoWeb =
+            async {
+                web.await()
+                memo.await()
+                memoWebSyncWork.push(accountId = accountId)
+            }
+        val memoContact =
+            async {
+                contact.await()
+                memo.await()
+                memoContactSyncWork.push(accountId = accountId)
             }
 
-        return listOf(checklist, checklistItem)
+        return listOf(memoTag, memoPlace, memoWeb, memoContact)
     }
+
+    private fun CoroutineScope.pushEntityTag(
+        accountId: Uuid,
+        kind: EntityTagKindLocalEntity,
+        tag: Deferred<Unit>,
+        entity: Deferred<Unit>,
+    ): Deferred<Unit> =
+        async {
+            tag.await()
+            entity.await()
+            entityTagSyncWork.push(accountId = accountId, kind = kind)
+        }
 
     private suspend fun pull(accountId: Uuid) {
         supervisorScope {
@@ -153,8 +188,10 @@ internal class SyncWorkImpl(
                 async { memoWebSyncWork.pull(accountId = accountId) },
                 async { memoContactSyncWork.pull(accountId = accountId) },
                 async { tagLinkSyncWork.pull(accountId = accountId) },
-                async { webTagSyncWork.pull(accountId = accountId) },
-                async { placeTagSyncWork.pull(accountId = accountId) },
+            ).plus(
+                EntityTagKindLocalEntity.entries.map { kind ->
+                    async { entityTagSyncWork.pull(accountId = accountId, kind = kind) }
+                },
             ).awaitAllCatching()
         }
     }

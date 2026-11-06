@@ -9,6 +9,10 @@ import io.github.taetae98coding.diary.core.database.api.checklistitem.transactio
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactSyncTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.datasource.AccountEntityTagSyncLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.transaction.AccountEntityTagSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoSyncTransaction
@@ -30,9 +34,6 @@ import io.github.taetae98coding.diary.core.database.api.music.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.placetag.datasource.AccountPlaceTagSyncLocalDataSource
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.transaction.AccountPlaceTagSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrSyncTransaction
@@ -46,9 +47,6 @@ import io.github.taetae98coding.diary.core.database.api.taglink.transaction.Acco
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.webtag.datasource.AccountWebTagSyncLocalDataSource
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.transaction.AccountWebTagSyncTransaction
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.network.api.checklist.datasource.ChecklistRemoteDataSource
@@ -57,6 +55,8 @@ import io.github.taetae98coding.diary.core.network.api.checklistitem.datasource.
 import io.github.taetae98coding.diary.core.network.api.checklistitem.entity.ChecklistItemPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.contact.datasource.ContactRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPullRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.entitytag.datasource.EntityTagRemoteDataSource
+import io.github.taetae98coding.diary.core.network.api.entitytag.entity.EntityTagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memocontact.datasource.MemoContactRemoteDataSource
@@ -71,8 +71,6 @@ import io.github.taetae98coding.diary.core.network.api.music.datasource.MusicRem
 import io.github.taetae98coding.diary.core.network.api.music.entity.MusicPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.place.datasource.PlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.place.entity.PlacePullRemoteEntity
-import io.github.taetae98coding.diary.core.network.api.placetag.datasource.PlaceTagRemoteDataSource
-import io.github.taetae98coding.diary.core.network.api.placetag.entity.PlaceTagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.qr.datasource.QrRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
@@ -81,14 +79,13 @@ import io.github.taetae98coding.diary.core.network.api.taglink.datasource.TagLin
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
-import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
-import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.remoteChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.remoteChecklistItem
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
@@ -96,13 +93,11 @@ import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
-import io.github.taetae98coding.diary.core.testing.placetag.placeTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.core.testing.qr.remoteQr
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
-import io.github.taetae98coding.diary.core.testing.webtag.webTagLocalEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -146,8 +141,7 @@ internal data class TestContext(
     val memoWebSyncLocalDataSource: AccountMemoWebSyncLocalDataSource,
     val memoContactSyncLocalDataSource: AccountMemoContactSyncLocalDataSource,
     val tagLinkSyncLocalDataSource: AccountTagLinkSyncLocalDataSource,
-    val webTagSyncLocalDataSource: AccountWebTagSyncLocalDataSource,
-    val placeTagSyncLocalDataSource: AccountPlaceTagSyncLocalDataSource,
+    val entityTagSyncLocalDataSource: AccountEntityTagSyncLocalDataSource,
     val syncCursorLocalDataSource: SyncCursorLocalDataSource,
     val accountTagSyncTransaction: AccountTagSyncTransaction,
     val accountPlaceSyncTransaction: AccountPlaceSyncTransaction,
@@ -159,8 +153,7 @@ internal data class TestContext(
     val accountMemoWebSyncTransaction: AccountMemoWebSyncTransaction,
     val accountMemoContactSyncTransaction: AccountMemoContactSyncTransaction,
     val accountTagLinkSyncTransaction: AccountTagLinkSyncTransaction,
-    val accountWebTagSyncTransaction: AccountWebTagSyncTransaction,
-    val accountPlaceTagSyncTransaction: AccountPlaceTagSyncTransaction,
+    val accountEntityTagSyncTransaction: AccountEntityTagSyncTransaction,
     val accountMusicSyncTransaction: AccountMusicSyncTransaction,
     val accountQrSyncTransaction: AccountQrSyncTransaction,
     val accountChecklistSyncTransaction: AccountChecklistSyncTransaction,
@@ -175,8 +168,7 @@ internal data class TestContext(
     val memoWebRemoteDataSource: MemoWebRemoteDataSource,
     val memoContactRemoteDataSource: MemoContactRemoteDataSource,
     val tagLinkRemoteDataSource: TagLinkRemoteDataSource,
-    val webTagRemoteDataSource: WebTagRemoteDataSource,
-    val placeTagRemoteDataSource: PlaceTagRemoteDataSource,
+    val entityTagRemoteDataSource: EntityTagRemoteDataSource,
     val musicRemoteDataSource: MusicRemoteDataSource,
     val qrRemoteDataSource: QrRemoteDataSource,
     val checklistRemoteDataSource: ChecklistRemoteDataSource,
@@ -287,19 +279,12 @@ internal data class TestContext(
                     accountTagLinkSyncTransaction = accountTagLinkSyncTransaction,
                     tagLinkRemoteDataSource = tagLinkRemoteDataSource,
                 ),
-            webTagSyncWork =
-                WebTagSyncWork(
-                    accountWebTagSyncLocalDataSource = webTagSyncLocalDataSource,
+            entityTagSyncWork =
+                EntityTagSyncWork(
+                    accountEntityTagSyncLocalDataSource = entityTagSyncLocalDataSource,
                     syncCursorLocalDataSource = syncCursorLocalDataSource,
-                    accountWebTagSyncTransaction = accountWebTagSyncTransaction,
-                    webTagRemoteDataSource = webTagRemoteDataSource,
-                ),
-            placeTagSyncWork =
-                PlaceTagSyncWork(
-                    accountPlaceTagSyncLocalDataSource = placeTagSyncLocalDataSource,
-                    syncCursorLocalDataSource = syncCursorLocalDataSource,
-                    accountPlaceTagSyncTransaction = accountPlaceTagSyncTransaction,
-                    placeTagRemoteDataSource = placeTagRemoteDataSource,
+                    accountEntityTagSyncTransaction = accountEntityTagSyncTransaction,
+                    entityTagRemoteDataSource = entityTagRemoteDataSource,
                 ),
             accountSyncTimeLocalDataSource = accountSyncTimeLocalDataSource,
             clock = clock,
@@ -341,8 +326,7 @@ internal fun context(
     memoWebList: List<MemoWebLocalEntity> = emptyList(),
     memoContactList: List<MemoContactLocalEntity> = emptyList(),
     tagLinkList: List<TagLinkLocalEntity> = emptyList(),
-    webTagList: List<WebTagLocalEntity> = emptyList(),
-    placeTagList: List<PlaceTagLocalEntity> = emptyList(),
+    entityTagMap: Map<EntityTagKindLocalEntity, List<EntityTagLocalEntity>> = emptyMap(),
     musicList: List<MusicLocalEntity> = emptyList(),
     qrList: List<QrLocalEntity> = emptyList(),
     checklistList: List<ChecklistLocalEntity> = emptyList(),
@@ -361,8 +345,7 @@ internal fun context(
         memoWebList = memoWebList,
         memoContactList = memoContactList,
         tagLinkList = tagLinkList,
-        webTagList = webTagList,
-        placeTagList = placeTagList,
+        entityTagMap = entityTagMap,
         musicList = musicList,
         qrList = qrList,
         checklistList = checklistList,
@@ -401,8 +384,7 @@ private fun mockedTestContext(
         memoWebSyncLocalDataSource = mockk(),
         memoContactSyncLocalDataSource = mockk(),
         tagLinkSyncLocalDataSource = mockk(),
-        webTagSyncLocalDataSource = mockk(),
-        placeTagSyncLocalDataSource = mockk(),
+        entityTagSyncLocalDataSource = mockk(),
         syncCursorLocalDataSource = mockk(),
         accountTagSyncTransaction = mockk(),
         accountPlaceSyncTransaction = mockk(),
@@ -414,8 +396,7 @@ private fun mockedTestContext(
         accountMemoWebSyncTransaction = mockk(),
         accountMemoContactSyncTransaction = mockk(),
         accountTagLinkSyncTransaction = mockk(),
-        accountWebTagSyncTransaction = mockk(),
-        accountPlaceTagSyncTransaction = mockk(),
+        accountEntityTagSyncTransaction = mockk(),
         accountMusicSyncTransaction = mockk(),
         accountQrSyncTransaction = mockk(),
         accountChecklistSyncTransaction = mockk(),
@@ -430,8 +411,7 @@ private fun mockedTestContext(
         memoWebRemoteDataSource = mockk(),
         memoContactRemoteDataSource = mockk(),
         tagLinkRemoteDataSource = mockk(),
-        webTagRemoteDataSource = mockk(),
-        placeTagRemoteDataSource = mockk(),
+        entityTagRemoteDataSource = mockk(),
         musicRemoteDataSource = mockk(),
         qrRemoteDataSource = mockk(),
         checklistRemoteDataSource = mockk(),
@@ -453,8 +433,7 @@ private fun TestContext.stubPending(
     memoWebList: List<MemoWebLocalEntity>,
     memoContactList: List<MemoContactLocalEntity>,
     tagLinkList: List<TagLinkLocalEntity>,
-    webTagList: List<WebTagLocalEntity>,
-    placeTagList: List<PlaceTagLocalEntity>,
+    entityTagMap: Map<EntityTagKindLocalEntity, List<EntityTagLocalEntity>>,
     musicList: List<MusicLocalEntity>,
     qrList: List<QrLocalEntity>,
     checklistList: List<ChecklistLocalEntity>,
@@ -470,8 +449,11 @@ private fun TestContext.stubPending(
     coEvery { memoWebSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoWebList
     coEvery { memoContactSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoContactList
     coEvery { tagLinkSyncLocalDataSource.readPendingList(accountId = accountId) } returns tagLinkList
-    coEvery { webTagSyncLocalDataSource.readPendingList(accountId = accountId) } returns webTagList
-    coEvery { placeTagSyncLocalDataSource.readPendingList(accountId = accountId) } returns placeTagList
+    EntityTagKindLocalEntity.entries.forEach { kind ->
+        coEvery {
+            entityTagSyncLocalDataSource.readPendingList(accountId = accountId, kind = kind)
+        } returns entityTagMap[kind].orEmpty()
+    }
     coEvery { musicSyncLocalDataSource.readPendingList(accountId = accountId) } returns musicList
     coEvery { qrSyncLocalDataSource.readPendingList(accountId = accountId) } returns qrList
     coEvery { checklistSyncLocalDataSource.readPendingList(accountId = accountId) } returns checklistList
@@ -512,8 +494,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountMemoWebSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountMemoContactSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountTagLinkSyncTransaction.clearPending(any(), any()) } returns Unit
-    coEvery { accountWebTagSyncTransaction.clearPending(any(), any()) } returns Unit
-    coEvery { accountPlaceTagSyncTransaction.clearPending(any(), any()) } returns Unit
+    coEvery { accountEntityTagSyncTransaction.clearPending(any(), any(), any()) } returns Unit
     coEvery { accountMusicSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountQrSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountChecklistSyncTransaction.clearPending(any(), any()) } returns Unit
@@ -528,8 +509,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountMemoWebSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountMemoContactSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountTagLinkSyncTransaction.upsert(any(), any(), any()) } returns Unit
-    coEvery { accountWebTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
-    coEvery { accountPlaceTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountEntityTagSyncTransaction.upsert(any(), any(), any(), any()) } returns Unit
     coEvery { accountMusicSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountQrSyncTransaction.upsert(any(), any(), any()) } returns Unit
     coEvery { accountChecklistSyncTransaction.upsert(any(), any(), any()) } returns Unit
@@ -547,8 +527,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { memoWebRemoteDataSource.push(any()) } returns Unit
     coEvery { memoContactRemoteDataSource.push(any()) } returns Unit
     coEvery { tagLinkRemoteDataSource.push(any()) } returns Unit
-    coEvery { webTagRemoteDataSource.push(any()) } returns Unit
-    coEvery { placeTagRemoteDataSource.push(any()) } returns Unit
+    coEvery { entityTagRemoteDataSource.push(any(), any()) } returns Unit
     coEvery { musicRemoteDataSource.push(any()) } returns Unit
     coEvery { qrRemoteDataSource.push(any()) } returns Unit
     coEvery { checklistRemoteDataSource.push(any()) } returns Unit
@@ -563,8 +542,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { memoWebRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { memoContactRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { tagLinkRemoteDataSource.pull(any()) } returns emptyList()
-    coEvery { webTagRemoteDataSource.pull(any()) } returns emptyList()
-    coEvery { placeTagRemoteDataSource.pull(any()) } returns emptyList()
+    coEvery { entityTagRemoteDataSource.pull(any(), any()) } returns emptyList()
     coEvery { musicRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { qrRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { checklistRemoteDataSource.pull(any()) } returns emptyList()
@@ -727,36 +705,21 @@ internal fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     return reportList
 }
 
-internal fun webTags(size: Int): List<WebTagLocalEntity> = List(size) { webTag() }
+internal fun entityTags(size: Int): List<EntityTagLocalEntity> = List(size) { entityTag() }
 
-internal fun webTag(): WebTagLocalEntity =
+internal fun entityTag(isDeleted: Boolean = Arb.boolean().next()): EntityTagLocalEntity =
     Arb
-        .webTagLocalEntity()
+        .entityTagLocalEntity()
         .next()
         .copy(
+            isDeleted = isDeleted,
             updatedAt = Arb.secondPrecisionInstant().next(),
             createdAt = Arb.secondPrecisionInstant().next(),
         )
 
-internal fun webTagPulls(usnList: List<Long>): List<WebTagPullRemoteEntity> =
+internal fun entityTagPulls(usnList: List<Long>): List<EntityTagPullRemoteEntity> =
     usnList.map { usn ->
-        WebTagPullRemoteEntity(webTag = webTag().toRemote(), usn = usn)
-    }
-
-internal fun placeTags(size: Int): List<PlaceTagLocalEntity> = List(size) { placeTag() }
-
-internal fun placeTag(): PlaceTagLocalEntity =
-    Arb
-        .placeTagLocalEntity()
-        .next()
-        .copy(
-            updatedAt = Arb.secondPrecisionInstant().next(),
-            createdAt = Arb.secondPrecisionInstant().next(),
-        )
-
-internal fun placeTagPulls(usnList: List<Long>): List<PlaceTagPullRemoteEntity> =
-    usnList.map { usn ->
-        PlaceTagPullRemoteEntity(placeTag = placeTag().toRemote(), usn = usn)
+        EntityTagPullRemoteEntity(entityTag = entityTag().toRemote(), usn = usn)
     }
 
 internal fun musics(size: Int): List<MusicLocalEntity> = List(size) { music() }

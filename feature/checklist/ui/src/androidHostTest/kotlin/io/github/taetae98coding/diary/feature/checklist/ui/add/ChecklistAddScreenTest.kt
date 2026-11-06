@@ -29,15 +29,20 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistTitleBlankException
 import io.github.taetae98coding.diary.domain.checklist.usecase.AddChecklistUseCase
+import io.github.taetae98coding.diary.feature.checklist.ui.ChecklistTagTestTheme
+import io.github.taetae98coding.diary.feature.checklist.ui.DEFAULT_ENTITY_TAG_LABEL
+import io.github.taetae98coding.diary.feature.checklist.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.checklist.ui.actionNameList
+import io.github.taetae98coding.diary.feature.checklist.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.checklist.ui.editableText
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.checklist.ui.visibleTextList
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -100,7 +105,7 @@ class ChecklistAddScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-4e01a6c9-4a71-4a11-a11e-6455743b9833 화면에는 정해진 입력과 동작만 둔다`() {
+    fun `TC-6051f738-9365-4fb1-b112-8cecae0d3f63 화면에는 정해진 입력과 동작만 둔다`() {
         setScreen()
         addItem(PASSPORT)
 
@@ -109,6 +114,7 @@ class ChecklistAddScreenTest {
                 KOREAN_NAVIGATE_UP,
                 KOREAN_TITLE_LABEL,
                 KOREAN_DESCRIPTION_LABEL,
+                KOREAN_TAG_INPUT,
                 "$KOREAN_ITEM_REMOVE 1",
                 KOREAN_ITEM_LABEL,
                 KOREAN_ITEM_ADD,
@@ -197,7 +203,7 @@ class ChecklistAddScreenTest {
         composeRule.onNode(SemanticsMatcher.expectValue(SemanticsProperties.TestTag, DIARY_EMPTY_BOX_TEST_TAG)).assertDoesNotExist()
         composeRule.onNode(removeButtonMatcher()).assertDoesNotExist()
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder
-            listOf(DEFAULT_TITLE, DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_ITEMS_LABEL, DEFAULT_ITEM_LABEL)
+            listOf(DEFAULT_TITLE, DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_ITEMS_LABEL, DEFAULT_ITEM_LABEL, DEFAULT_ENTITY_TAG_LABEL)
     }
 
     @Test
@@ -217,6 +223,7 @@ class ChecklistAddScreenTest {
                     AddChecklistUseCase.Parameter(
                         detail = ChecklistDetail(title = TRIP, description = WEEKEND),
                         itemContentList = listOf(PASSPORT, UMBRELLA),
+                        tagIdSet = emptySet(),
                     ),
             )
         }
@@ -328,14 +335,26 @@ class ChecklistAddScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
-        verify(exactly = 0) { viewModel.add(detail = any(), itemContentList = any()) }
+        verify(exactly = 0) { viewModel.add(detail = any(), itemContentList = any(), tagIdSet = any()) }
     }
 
     @Test
     fun `TC-1bd9ee5c-493a-4a54-ab47-8ca6a7c118a7 화면이 재생성되거나 시스템이 되살려도 입력과 넣어 둔 항목을 유지한다`() {
         val stateRestorationTester = StateRestorationTester(composeRule)
         val viewModel = relaxedViewModel()
-        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) } }
+        stateRestorationTester.setContent {
+            ChecklistTagTestTheme {
+                ChecklistAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
+                )
+            }
+        }
         composeRule.waitForIdle()
         titleInput().performTextInput(TRIP)
         descriptionInput().performTextInput(WEEKEND)
@@ -358,7 +377,17 @@ class ChecklistAddScreenTest {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) }
+                ChecklistTagTestTheme {
+                    ChecklistAddScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
+                        addViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = addTagScreenTestViewModel(),
+                    )
+                }
             }
         }
         composeRule.waitForIdle()
@@ -395,7 +424,19 @@ class ChecklistAddScreenTest {
     ) {
         val stateRestorationTester = StateRestorationTester(composeRule)
         val viewModel = effectViewModel(effect = effect)
-        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) } }
+        stateRestorationTester.setContent {
+            ChecklistTagTestTheme {
+                ChecklistAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
+                )
+            }
+        }
         composeRule.waitForIdle()
         clickAdd()
         composeRule.onNodeWithText(message).assertExists()
@@ -417,7 +458,17 @@ class ChecklistAddScreenTest {
                         (if (launchCount == 0) effectViewModel(effect = ChecklistAddEffect.AddSucceeded) else relaxedViewModel()).also(viewModelList::add)
                     }
 
-                DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) }
+                ChecklistTagTestTheme {
+                    ChecklistAddScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
+                        addViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = addTagScreenTestViewModel(),
+                    )
+                }
             }
         }
         composeRule.waitForIdle()
@@ -467,7 +518,7 @@ class ChecklistAddScreenTest {
 
         clickAdd()
 
-        verify(exactly = 1) { viewModel.add(detail = any(), itemContentList = expected) }
+        verify(exactly = 1) { viewModel.add(detail = any(), itemContentList = expected, tagIdSet = emptySet()) }
     }
 
     @Test
@@ -484,19 +535,27 @@ class ChecklistAddScreenTest {
         }
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModel.add(detail = ChecklistDetail(title = TRIP, description = ""), itemContentList = emptyList()) }
+        verify(exactly = 1) { viewModel.add(detail = ChecklistDetail(title = TRIP, description = ""), itemContentList = emptyList(), tagIdSet = emptySet()) }
     }
 
     private fun setScreen(
         viewModel: ChecklistAddViewModel = relaxedViewModel(),
         navigateUp: () -> Unit = {},
+        tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
+        navigateToTagAdd: () -> Unit = {},
+        navigateToTagDetail: (Uuid) -> Unit = {},
+        resultEventBus: ResultEventBus = ResultEventBus(),
     ) {
         composeRule.setContent {
-            DiaryTheme {
+            ChecklistTagTestTheme(resultEventBus = resultEventBus) {
                 ChecklistAddScreen(
                     navigateUp = navigateUp,
                     componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = navigateToTagAdd,
+                    navigateToTagDetail = navigateToTagDetail,
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = tagViewModel,
                 )
             }
         }
@@ -547,7 +606,7 @@ class ChecklistAddScreenTest {
         return mockk<ChecklistAddViewModel>(relaxed = true).apply {
             every { uiState } returns MutableStateFlow(ChecklistAddUiState())
             every { this@apply.effect } returns channel.receiveAsFlow()
-            every { add(detail = any(), itemContentList = any()) } answers { channel.trySend(effect) }
+            every { add(detail = any(), itemContentList = any(), tagIdSet = any()) } answers { channel.trySend(effect) }
         }
     }
 
@@ -572,6 +631,7 @@ class ChecklistAddScreenTest {
         const val DEFAULT_DESCRIPTION_LABEL = "Description"
         const val KOREAN_TITLE_LABEL = "제목"
         const val KOREAN_DESCRIPTION_LABEL = "설명"
+        const val KOREAN_TAG_INPUT = "태그 선택"
         const val KOREAN_ADD_SUCCEEDED = "체크리스트가 추가되었습니다."
         const val DEFAULT_ADD_SUCCEEDED = "Checklist added."
         const val KOREAN_TITLE_BLANK = "제목을 입력해 주세요."

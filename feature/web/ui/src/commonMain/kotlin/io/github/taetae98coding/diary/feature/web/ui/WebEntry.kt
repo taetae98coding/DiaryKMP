@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -121,7 +122,7 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
             tagAddRequestKey = tagAddRequestKey,
             webViewModel = koinViewModel { parametersOf(key.id) },
             pageViewModel = koinViewModel { parametersOf(key.id) },
-            tagViewModel = koinViewModel { parametersOf(key.id) },
+            tagViewModel = koinViewModel { parametersOf(EntityTagKind.WEB, key.id) },
         )
     }
 }

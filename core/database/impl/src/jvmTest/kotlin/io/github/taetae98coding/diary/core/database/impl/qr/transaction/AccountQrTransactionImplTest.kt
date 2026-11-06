@@ -43,7 +43,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
 
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             database.findQrList() shouldBe listOf(qr)
             database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = true))
@@ -61,7 +61,7 @@ class AccountQrTransactionImplTest :
                         ),
                 )
 
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             database.findQrList() shouldBe listOf(qr)
         }
@@ -70,7 +70,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next().let { qr -> qr.copy(detail = qr.detail.copy(description = "", value = " ")) }
 
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             database.findQrList() shouldBe listOf(qr)
         }
@@ -79,9 +79,9 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val savedQr = Arb.localQr(isDeleted = false).next()
             val addedQr = Arb.localQr(isDeleted = false).next().copy(detail = savedQr.detail)
-            transaction.upsert(accountId = accountId, qrList = listOf(savedQr))
+            transaction.upsert(accountId = accountId, qrList = listOf(savedQr), qrTagList = emptyList())
 
-            transaction.upsert(accountId = accountId, qrList = listOf(addedQr))
+            transaction.upsert(accountId = accountId, qrList = listOf(addedQr), qrTagList = emptyList())
 
             database.findQrList() shouldBe listOf(savedQr, addedQr).sortedBy { qr -> qr.id.toString() }
         }
@@ -90,7 +90,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
             val otherQr = Arb.localQr(isDeleted = false).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr), qrTagList = emptyList())
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
             val updatedAt = Arb.secondPrecisionInstant().next()
@@ -109,7 +109,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = true).next()
             val otherQr = Arb.localQr(isDeleted = true).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr), qrTagList = emptyList())
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
             val updatedAt = Arb.secondPrecisionInstant().next()
@@ -128,7 +128,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
 
             transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
@@ -142,7 +142,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
             val otherQr = Arb.localQr(isDeleted = false).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr), qrTagList = emptyList())
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
             database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
             val detail = Arb.qrDetailLocalEntity().next()
@@ -161,7 +161,7 @@ class AccountQrTransactionImplTest :
         test("TC-2116508d-ce30-4d0f-81a7-1752dcff3081 삭제 상태인 QR을 수정해도 삭제 상태로 남는다") {
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = true).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             val detail = Arb.qrDetailLocalEntity().next()
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -174,7 +174,7 @@ class AccountQrTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
-            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            transaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             database.markQrUploaded(accountId = accountId, qrId = qr.id)
 
             transaction.updateDetail(accountId = otherAccountId, qrId = qr.id, detail = Arb.qrDetailLocalEntity().next(), updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
@@ -192,7 +192,7 @@ class AccountQrTransactionImplTest :
             val failingTransaction = AccountQrTransactionImpl(database = failingDatabase)
 
             shouldThrow<IllegalStateException> {
-                failingTransaction.upsert(accountId = accountId, qrList = listOf(Arb.localQr(isDeleted = false).next()))
+                failingTransaction.upsert(accountId = accountId, qrList = listOf(Arb.localQr(isDeleted = false).next()), qrTagList = emptyList())
             }.message shouldBe throwable.message
 
             database.findQrList().shouldBeEmpty()

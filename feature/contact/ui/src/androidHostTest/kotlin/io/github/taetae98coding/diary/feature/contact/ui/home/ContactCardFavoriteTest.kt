@@ -11,6 +11,8 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.kotest.matchers.shouldBe
@@ -64,18 +66,19 @@ class ContactCardFavoriteTest {
     @Test
     fun `TC-11eeaf7b-ac3a-40a6-b1a4-f7df68391030 즐겨찾기 표시를 눌러도 즐겨찾기는 바뀌지 않고 그 연락처를 선택한 이벤트만 전달한다`() {
         val favorite = testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)
-        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        val eventList = mutableListOf<ContactListEvent>()
 
-        setContactHomeList(contactList = listOf(favorite), onEvent = eventList::add)
+        setContactHomeList(contactList = listOf(favorite), onContactListEvent = eventList::add)
         composeRule.onNodeWithContentDescription(FAVORITE_CONTENT_DESCRIPTION).performClick()
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = favorite.contact.id))
+        eventList shouldBe listOf(ContactListEvent.ClickContact(id = favorite.contact.id))
         composeRule.onNodeWithContentDescription(FAVORITE_CONTENT_DESCRIPTION).assertExists()
     }
 
     private fun setContactHomeList(
         contactList: List<ContactListItem>,
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
+        onContactListEvent: (ContactListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(contactPagingDataOf(contactList))
 
@@ -83,6 +86,7 @@ class ContactCardFavoriteTest {
             DiaryTheme {
                 ContactHomeList(
                     onEvent = onEvent,
+                    onContactListEvent = onContactListEvent,
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }

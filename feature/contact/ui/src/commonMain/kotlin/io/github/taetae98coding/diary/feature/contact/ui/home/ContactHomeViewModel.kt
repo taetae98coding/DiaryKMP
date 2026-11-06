@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.compose.contact.ContactListEffect
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -46,8 +47,8 @@ internal class ContactHomeViewModel(
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<ContactHomeEffect>(Channel.BUFFERED)
-    val effect: Flow<ContactHomeEffect> = _effect.receiveAsFlow()
+    private val _effect = Channel<ContactListEffect>(Channel.BUFFERED)
+    val effect: Flow<ContactListEffect> = _effect.receiveAsFlow()
 
     private val deletingIdSet = mutableSetOf<Uuid>()
     private val restoringIdSet = mutableSetOf<Uuid>()
@@ -74,7 +75,7 @@ internal class ContactHomeViewModel(
         viewModelScope.launch {
             try {
                 deleteContactUseCase(parameter = id)
-                    .onSuccess { _effect.send(ContactHomeEffect.Deleted(id = id)) }
+                    .onSuccess { _effect.send(ContactListEffect.Deleted(id = id)) }
             } finally {
                 deletingIdSet.remove(id)
             }

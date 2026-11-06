@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.web.webPage
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
@@ -259,7 +260,7 @@ class WebDetailTagInputTest {
         navigateToTagAdd: () -> Unit = {},
         selectFormTab: Boolean = true,
         resultEventBus: ResultEventBus = ResultEventBus(),
-        tagViewModel: WebDetailTagViewModel =
+        tagViewModel: EntityDetailTagViewModel =
             detailTagScreenTestViewModel(
                 tagList = tagList,
                 selectableTagList = selectableTagList,

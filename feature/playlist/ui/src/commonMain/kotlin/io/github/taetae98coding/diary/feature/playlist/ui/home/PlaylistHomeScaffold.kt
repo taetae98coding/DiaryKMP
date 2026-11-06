@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
@@ -34,6 +35,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaylistHomeScaffold(
     onEvent: (PlaylistHomeScaffoldEvent) -> Unit,
+    onMusicListEvent: (MusicListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
@@ -76,6 +78,7 @@ internal fun PlaylistHomeScaffold(
 
             PlaylistHomeList(
                 onEvent = onEvent,
+                onMusicListEvent = onMusicListEvent,
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = musicPagingItems,
                 isRefreshingProvider = { syncUiStateProvider().isRefreshing },
@@ -96,6 +99,6 @@ internal fun PlaylistHomeScaffold(
 @Composable
 private fun PlaylistHomeScaffoldPreview() {
     DiaryTheme {
-        PlaylistHomeScaffold(onEvent = {})
+        PlaylistHomeScaffold(onEvent = {}, onMusicListEvent = {})
     }
 }

@@ -60,11 +60,12 @@ class AccountChecklistItemLocalDataSourceImplTest :
             val third = item(checklistId = checklist.id, isChecked = true, createdAtSeconds = 3)
             val deleted = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 0, isDeleted = true)
             val otherChecklistItem = item(checklistId = Arb.kotlinUuid().next(), isChecked = false, createdAtSeconds = 0)
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(third, deleted, first, second))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(third, deleted, first, second), checklistTagList = emptyList())
             checklistTransaction.upsert(
                 accountId = accountId,
                 checklist = Arb.localChecklist(isDeleted = false).next().copy(id = otherChecklistItem.checklistId),
                 itemList = listOf(otherChecklistItem),
+                checklistTagList = emptyList(),
             )
 
             dataSource.get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED).test {
@@ -79,7 +80,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
             val second = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 2)
             val third = item(checklistId = checklist.id, isChecked = true, createdAtSeconds = 3)
             val fourth = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 4)
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(first, second, third, fourth))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(first, second, third, fourth), checklistTagList = emptyList())
 
             dataSource.get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.UNCHECKED_FIRST).test {
                 awaitItem() shouldBe listOf(second, fourth, first, third)
@@ -91,7 +92,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val first = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 1)
             val second = item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 2)
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(first, second))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(first, second), checklistTagList = emptyList())
             val updatedAt = Arb.secondPrecisionInstant().next()
 
             dataSource.get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.UNCHECKED_FIRST).test {
@@ -110,6 +111,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
                 accountId = Arb.kotlinUuid().next(),
                 checklist = checklist,
                 itemList = listOf(item(checklistId = checklist.id, isChecked = false, createdAtSeconds = 1)),
+                checklistTagList = emptyList(),
             )
 
             dataSource.get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED).test {

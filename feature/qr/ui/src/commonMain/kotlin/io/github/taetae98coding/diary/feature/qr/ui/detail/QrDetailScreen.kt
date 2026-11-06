@@ -9,35 +9,52 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.result.ResultEventBus
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.permission.PermissionManager
+import io.github.taetae98coding.diary.domain.qr.content.QrAction
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrScannedResultEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.handleQrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.rememberQrScanStarter
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.rememberQrActionController
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun QrDetailScreen(
     navigateUp: () -> Unit,
     navigateToScan: () -> Unit,
+    navigateToTagAdd: () -> Unit,
+    navigateToTagDetail: (Uuid) -> Unit,
+    tagAddRequestKey: Uuid,
     permissionManager: PermissionManager,
     resultEventBus: ResultEventBus,
     componentVisibleProvider: () -> QrDetailScaffoldComponentVisible,
-    viewModel: QrDetailViewModel,
+    qrViewModel: QrDetailViewModel,
+    tagViewModel: EntityDetailTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by qrViewModel.uiState.collectAsStateWithLifecycle()
+    val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
+    val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? QrDetailUiState.Content
     val scanStarter = rememberQrScanStarter(permissionManager = permissionManager)
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
     val actionController = rememberQrActionController()
+
+    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add, resultEventBus = resultEventBus)
 
     key(content?.id) {
         val state =
@@ -48,7 +65,7 @@ internal fun QrDetailScreen(
 
         QrDetailScreenEffect(
             navigateUp = navigateUp,
-            effect = viewModel.effect,
+            effect = qrViewModel.effect,
             state = state,
         )
         val action by remember(state, actionController) {
@@ -64,37 +81,42 @@ internal fun QrDetailScreen(
 
         QrDetailScaffold(
             onEvent = { event ->
-                when (event) {
-                    is QrDetailScaffoldEvent.ClickNavigateUp -> {
-                        navigateUp()
-                    }
-
-                    is QrDetailScaffoldEvent.ClickAction -> {
-                        coroutineScope.launch { actionController.launch(action = event.action, snackbarHostState = state.snackbarHostState) }
-                    }
-
-                    is QrDetailScaffoldEvent.ClickUndo -> {
-                        state.undo()
-                    }
-
-                    is QrDetailScaffoldEvent.ClickScan -> {
-                        coroutineScope.launch { scanStarter.startIfIdle(onGranted = navigateToScan, onDenied = showPermissionDenied) }
-                    }
-
-                    is QrDetailScaffoldEvent.ClickDelete -> {
-                        viewModel.delete()
-                    }
-
-                    is QrDetailScaffoldEvent.ClickUpdate -> {
-                        viewModel.update(detail = state.detail)
-                    }
-                }
+                handleQrDetailScaffoldEvent(
+                    event = event,
+                    state = state,
+                    qrViewModel = qrViewModel,
+                    launchAction = { action -> coroutineScope.launch { actionController.launch(action = action, snackbarHostState = state.snackbarHostState) } },
+                    startScan = { coroutineScope.launch { scanStarter.startIfIdle(onGranted = navigateToScan, onDenied = showPermissionDenied) } },
+                    navigateUp = navigateUp,
+                )
             },
+            onFormEvent = { event -> handleQrFormEvent(event = event, state = state, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = state,
+            tagPagingItems = tagPagingItems,
             uiStateProvider = { uiState },
+            tagUiStateProvider = { tagUiState },
             actionProvider = { action },
             componentVisibleProvider = componentVisibleProvider,
         )
+    }
+}
+
+private fun handleQrDetailScaffoldEvent(
+    event: QrDetailScaffoldEvent,
+    state: QrAddFormState,
+    qrViewModel: QrDetailViewModel,
+    launchAction: (QrAction) -> Unit,
+    startScan: () -> Unit,
+    navigateUp: () -> Unit,
+) {
+    when (event) {
+        is QrDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
+        is QrDetailScaffoldEvent.ClickAction -> launchAction(event.action)
+        is QrDetailScaffoldEvent.ClickUndo -> state.undo()
+        is QrDetailScaffoldEvent.ClickScan -> startScan()
+        is QrDetailScaffoldEvent.ClickDelete -> qrViewModel.delete()
+        is QrDetailScaffoldEvent.ClickUpdate -> qrViewModel.update(detail = state.detail)
     }
 }

@@ -42,6 +42,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -56,15 +57,16 @@ import io.github.taetae98coding.diary.feature.playlist.ui.add.artistInput
 import io.github.taetae98coding.diary.feature.playlist.ui.add.linkInput
 import io.github.taetae98coding.diary.feature.playlist.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.titleInput
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
 import io.github.taetae98coding.diary.feature.playlist.ui.home.testMusic
-import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
@@ -121,7 +123,7 @@ class PlaylistListDetailNavigationTest {
         composeRule.fillPlaceholder()
         openAddOnDetail(music = music)
 
-        backStack.last() shouldBe MusicAddNavKey
+        backStack.last() shouldBe MusicAddNavKey()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(music.detail.title).assertExists()
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(3)
@@ -222,7 +224,7 @@ class PlaylistListDetailNavigationTest {
 
         openAddOnDetail(music = music)
 
-        backStack.last() shouldBe MusicAddNavKey
+        backStack.last() shouldBe MusicAddNavKey()
         composeRule.onNodeWithText(music.detail.title).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(3)
@@ -353,7 +355,7 @@ class PlaylistListDetailNavigationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey, MusicDetailNavKey(id = music.id), MusicAddNavKey)
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey, MusicDetailNavKey(id = music.id), MusicAddNavKey())
         waitUntilDisplayed(music)
         assertAddOnDetailPane()
         pressBack()
@@ -520,6 +522,8 @@ class PlaylistListDetailNavigationTest {
         detailTitle: String,
     ): Module =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))

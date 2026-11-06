@@ -204,7 +204,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                     viewModel.updateQuery(BLANK_QUERY)
                     runCurrent()
 
-                    currentUiState(viewModel).appliedQuery shouldBe BLANK_QUERY
+                    currentUiState(viewModel.uiState).appliedQuery shouldBe BLANK_QUERY
                     flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
 
                     cancelAndIgnoreRemainingEvents()

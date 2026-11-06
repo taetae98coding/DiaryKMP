@@ -5,10 +5,10 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string

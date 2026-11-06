@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.calendar.birthday.CalendarBirthdayText
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
+import io.github.taetae98coding.diary.compose.contact.contactDisplayName
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
-import io.github.taetae98coding.diary.feature.core.contact.contactDisplayName
 
 internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
     birthdayProvider: () -> List<CalendarContactBirthday>,

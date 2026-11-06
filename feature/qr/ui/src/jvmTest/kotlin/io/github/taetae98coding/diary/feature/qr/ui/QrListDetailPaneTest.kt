@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.isQrAddOnDetailPane
+import io.github.taetae98coding.diary.feature.qr.api.isQrListDetailPane
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -19,7 +20,7 @@ class QrListDetailPaneTest :
                 listOf(
                     listOf(QrHomeNavKey),
                     listOf(OtherScreenNavKey, QrHomeNavKey),
-                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey),
+                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
@@ -31,7 +32,7 @@ class QrListDetailPaneTest :
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, QrHomeNavKey, QrDetailNavKey(id = Arb.kotlinUuid().next())),
-                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey, QrDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey(), QrDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             backStackCases.forEach { backStack ->
@@ -44,13 +45,20 @@ class QrListDetailPaneTest :
                 listOf(
                     emptyList(),
                     listOf(OtherScreenNavKey),
-                    listOf(OtherScreenNavKey, QrAddNavKey),
-                    listOf(QrHomeNavKey, OtherScreenNavKey, QrAddNavKey),
+                    listOf(OtherScreenNavKey, QrAddNavKey()),
+                    listOf(QrHomeNavKey, OtherScreenNavKey, QrAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
                 backStack.isQrAddOnDetailPane() shouldBe false
             }
+        }
+
+        test("TagDetail QR 탭에서 진입한 QR 추가는 QR 목록 위에 있어도 상세 영역에 놓이지 않는다") {
+            val backStack = listOf(OtherScreenNavKey, QrHomeNavKey, QrAddNavKey(initialTagId = Uuid.random()))
+
+            backStack.isQrAddOnDetailPane() shouldBe false
+            backStack.isQrListDetailPane(backStack.last()) shouldBe false
         }
     })
 

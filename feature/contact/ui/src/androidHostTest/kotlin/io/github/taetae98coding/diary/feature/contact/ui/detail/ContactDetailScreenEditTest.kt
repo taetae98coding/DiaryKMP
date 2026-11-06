@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_PHONE_NUMBER_BLANK_MESSAGE
 import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
@@ -44,6 +45,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
 import io.github.taetae98coding.diary.feature.contact.ui.add.selectBirthday
 import io.github.taetae98coding.diary.feature.contact.ui.add.today
 import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -91,7 +93,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -120,7 +126,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -152,7 +162,11 @@ class ContactDetailScreenEditTest {
                         navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        contactViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -320,7 +334,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }

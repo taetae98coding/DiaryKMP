@@ -1,0 +1,5 @@
+<resources>
+    <string name="qr_list_deleted_message">QR code deleted.</string>
+    <string name="qr_list_undo_action">Undo</string>
+    <string name="qr_list_delete_content_description">Delete QR code</string>
+</resources>

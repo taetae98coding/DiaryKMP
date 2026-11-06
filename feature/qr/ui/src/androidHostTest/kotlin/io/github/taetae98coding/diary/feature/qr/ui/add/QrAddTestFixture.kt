@@ -18,9 +18,9 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
 import io.kotest.property.Arb
 import io.mockk.every
 import io.mockk.mockk
@@ -152,6 +152,6 @@ internal fun screenTestViewModel(
 internal fun effectViewModel(effect: QrAddEffect): QrAddViewModel {
     val channel = Channel<QrAddEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = channel.receiveAsFlow())
-    every { viewModel.add(detail = any()) } answers { channel.trySend(effect).getOrThrow() }
+    every { viewModel.add(detail = any(), tagIdSet = any()) } answers { channel.trySend(effect).getOrThrow() }
     return viewModel
 }

@@ -7,11 +7,13 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.list)
+                implementation(projects.compose.music)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.playlist)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.core)
                 implementation(projects.feature.playlist.api)
-
-                implementation(libs.coil.compose)
+                implementation(projects.feature.tag.api)
             }
         }
 

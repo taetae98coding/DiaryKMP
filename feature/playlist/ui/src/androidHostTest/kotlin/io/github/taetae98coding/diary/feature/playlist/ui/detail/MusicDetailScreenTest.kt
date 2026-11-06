@@ -28,8 +28,10 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -457,11 +459,15 @@ class MusicDetailScreenTest {
         val viewModel = detailViewModel(uiState = uiState)
 
         restorationTester.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicDetailScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    musicViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -486,12 +492,16 @@ class MusicDetailScreenTest {
         var isVisible by mutableStateOf(true)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 if (isVisible) {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -519,12 +529,16 @@ class MusicDetailScreenTest {
         val viewModel = detailViewModel(uiState = contentUiState())
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -589,7 +603,7 @@ class MusicDetailScreenTest {
         var launchCount by mutableIntStateOf(0)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 // 앱을 다시 실행하면 저장 상태 없이 같은 곡의 화면을 새 ViewModel로 다시 구성한다.
                 key(launchCount) {
                     val viewModel = remember { if (launchCount == 0) firstLaunchViewModel else detailViewModel(uiState = contentUiState(id = musicId)) }
@@ -597,7 +611,11 @@ class MusicDetailScreenTest {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -720,12 +738,16 @@ class MusicDetailScreenTest {
         val viewModel = detailViewModel(uiState = uiState, effect = effect)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                     MusicDetailScreen(
                         navigateUp = navigateUp,
                         componentVisibleProvider = { componentVisible },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }

@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.Res
@@ -28,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun QrHomeScaffold(
     onEvent: (QrHomeScaffoldEvent) -> Unit,
+    onQrListEvent: (QrListEvent) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
@@ -55,6 +57,7 @@ internal fun QrHomeScaffold(
     ) { paddingValues ->
         QrHomeList(
             onEvent = onEvent,
+            onQrListEvent = onQrListEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -70,6 +73,6 @@ internal fun QrHomeScaffold(
 @Composable
 private fun QrHomeScaffoldPreview() {
     DiaryTheme {
-        QrHomeScaffold(onEvent = {})
+        QrHomeScaffold(onEvent = {}, onQrListEvent = {})
     }
 }

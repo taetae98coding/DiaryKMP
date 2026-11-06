@@ -39,6 +39,7 @@ public class AddContactUseCase internal constructor(
         accountContactRepository.upsert(
             account = account,
             contact = contact,
+            tagIdSet = parameter.tagIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -55,5 +56,6 @@ public class AddContactUseCase internal constructor(
 
     public data class Parameter(
         val detail: ContactDetail,
+        val tagIdSet: Set<Uuid>,
     )
 }

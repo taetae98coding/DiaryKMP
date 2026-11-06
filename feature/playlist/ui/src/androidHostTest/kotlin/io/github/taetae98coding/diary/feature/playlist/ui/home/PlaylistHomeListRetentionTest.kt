@@ -37,6 +37,8 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -44,11 +46,12 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.screenTestViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
-import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.playlistEntry
 import io.github.taetae98coding.diary.feature.playlist.ui.refreshableList
 import io.github.taetae98coding.diary.feature.playlist.ui.resetAndroidUiDispatcher
@@ -102,6 +105,7 @@ class PlaylistHomeListRetentionTest {
             DiaryTheme {
                 PlaylistHomeList(
                     onEvent = {},
+                    onMusicListEvent = {},
                     musicPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -127,6 +131,7 @@ class PlaylistHomeListRetentionTest {
                 DiaryTheme {
                     PlaylistHomeList(
                         onEvent = {},
+                        onMusicListEvent = {},
                         musicPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     )
                 }
@@ -282,6 +287,8 @@ class PlaylistHomeListRetentionTest {
 
     private fun viewModelModule(musicList: List<Music>): Module =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))

@@ -491,6 +491,14 @@ class TagListDetailPlaceholderTest {
             navigateToWebDetail = {},
             navigateToPlaceAdd = {},
             navigateToPlaceDetail = {},
+            navigateToContactAdd = {},
+            navigateToContactDetail = {},
+            navigateToChecklistAdd = {},
+            navigateToChecklistDetail = {},
+            navigateToMusicAdd = {},
+            navigateToMusicDetail = {},
+            navigateToQrAdd = {},
+            navigateToQrDetail = {},
         )
     }
 

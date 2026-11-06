@@ -12,6 +12,8 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation3.runtime.result.LocalResultEventBus
+import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -28,18 +30,21 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.rememberContactDetailTabState
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -110,7 +115,10 @@ internal fun prepareContactDetailTabViewModels(
 }
 
 @Composable
-internal fun ContactDetailScreenTestHost(content: @Composable () -> Unit) {
+internal fun ContactDetailScreenTestHost(
+    resultEventBus: ResultEventBus = ResultEventBus(),
+    content: @Composable () -> Unit,
+) {
     // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
     // 테스트마다 새 소유자를 제공해 이전 테스트의 탭별 ViewModel이 재사용되지 않게 한다.
     val viewModelStoreOwner =
@@ -120,7 +128,7 @@ internal fun ContactDetailScreenTestHost(content: @Composable () -> Unit) {
             }
         }
 
-    CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+    CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner, LocalResultEventBus provides resultEventBus) {
         KoinApplication(configuration = koinConfiguration { modules(contactDetailTabViewModelModule) }) {
             DiaryTheme(content = content)
         }
@@ -150,11 +158,15 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
     navigateToMemoFinishedList: () -> Unit = {},
+    navigateToTagAdd: () -> Unit = {},
+    navigateToTagDetail: (Uuid) -> Unit = {},
+    tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
+    resultEventBus: ResultEventBus = ResultEventBus(),
 ) {
     prepareContactDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
 
     setContent {
-        ContactDetailScreenTestHost {
+        ContactDetailScreenTestHost(resultEventBus = resultEventBus) {
             ContactDetailScreen(
                 navigateUp = navigateUp,
                 navigateToMemoAdd = navigateToMemoAdd,
@@ -162,7 +174,11 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
                 navigateToMemoFinishedList = navigateToMemoFinishedList,
                 id = id,
                 componentVisibleProvider = { componentVisible },
-                viewModel = viewModel,
+                contactViewModel = viewModel,
+                navigateToTagAdd = navigateToTagAdd,
+                navigateToTagDetail = navigateToTagDetail,
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = tagViewModel,
             )
         }
     }
@@ -192,6 +208,7 @@ internal fun ContactDetailTestScaffold(
 
     ContactDetailScaffold(
         onEvent = onEvent,
+        onTagPickerEvent = {},
         modifier = modifier,
         state = state,
         tabState = tabState,
@@ -210,6 +227,7 @@ internal fun ContactDetailTestScaffold(
         when (tab) {
             ContactDetailTab.DETAIL ->
                 ContactDetailScaffoldContent(
+                    onFormEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     state = state,
                     uiStateProvider = uiStateProvider,

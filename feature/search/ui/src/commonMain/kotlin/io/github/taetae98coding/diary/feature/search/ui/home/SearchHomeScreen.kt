@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagCo
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebContent
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.uuid.Uuid
 
 @Composable
@@ -48,15 +49,20 @@ internal fun SearchHomeScreen(
     val tagPagingItems = tagViewModel.pagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.pagingData.collectAsLazyPagingItems()
     val webPagingItems = webViewModel.pagingData.collectAsLazyPagingItems()
-    val memoListState = rememberSearchHomeResultListState(viewModel = memoViewModel, pagingItems = memoPagingItems)
-    val tagListState = rememberSearchHomeResultListState(viewModel = tagViewModel, pagingItems = tagPagingItems)
-    val placeListState = rememberSearchHomeResultListState(viewModel = placeViewModel, pagingItems = placePagingItems)
-    val webListState = rememberSearchHomeResultListState(viewModel = webViewModel, pagingItems = webPagingItems)
+    val memoListState = rememberSearchHomeResultListState(uiState = memoViewModel.uiState, pagingItems = memoPagingItems)
+    val tagListState = rememberSearchHomeResultListState(uiState = tagViewModel.uiState, pagingItems = tagPagingItems)
+    val placeListState = rememberSearchHomeResultListState(uiState = placeViewModel.uiState, pagingItems = placePagingItems)
+    val webListState = rememberSearchHomeResultListState(uiState = webViewModel.uiState, pagingItems = webPagingItems)
 
     SearchHomeScreenEffect(
         state = state,
         snackbarHostState = snackbarHostState,
-        viewModelList = listOf(memoViewModel, tagViewModel, placeViewModel, webViewModel),
+        onQueryChange = { query ->
+            memoViewModel.updateQuery(query)
+            tagViewModel.updateQuery(query)
+            placeViewModel.updateQuery(query)
+            webViewModel.updateQuery(query)
+        },
     )
 
     SearchHomeScaffold(
@@ -80,7 +86,7 @@ internal fun SearchHomeScreen(
     }
 }
 
-private class SearchHomeTypeResult<T : Any, VM : SearchHomeResultViewModel<T>>(
+private class SearchHomeTypeResult<T : Any, VM : Any>(
     val viewModel: VM,
     val pagingItems: LazyPagingItems<T>,
     val listState: LazyListState,
@@ -143,24 +149,24 @@ private fun SearchHomeTypeContent(
 private fun SearchHomeScreenEffect(
     state: SearchHomeScaffoldState,
     snackbarHostState: SnackbarHostState,
-    viewModelList: List<SearchHomeResultViewModel<*>>,
+    onQueryChange: (String) -> Unit,
 ) {
     RequestFocusEffect(focusRequester = state.focusRequester)
     DismissUndoSnackbarEffect(keyProvider = { state.type }, hostState = snackbarHostState)
     SearchHomeQueryEffect(
         queryState = state.queryState,
-        onQueryChange = { query -> viewModelList.forEach { viewModel -> viewModel.updateQuery(query) } },
+        onQueryChange = onQueryChange,
     )
 }
 
 // 결과 영역은 보고 있는 유형만 구성하므로, 유형마다 보던 자리와 질의·정렬 변경에 따른 스크롤을 화면에서 둔다.
 @Composable
 private fun <T : Any> rememberSearchHomeResultListState(
-    viewModel: SearchHomeResultViewModel<T>,
+    uiState: StateFlow<SearchHomeResultUiState>,
     pagingItems: LazyPagingItems<T>,
 ): LazyListState {
     val listState = rememberLazyListState()
 
-    SearchHomeResultScrollEffect(viewModel = viewModel, pagingItems = pagingItems, listState = listState)
+    SearchHomeResultScrollEffect(uiState = uiState, pagingItems = pagingItems, listState = listState)
     return listState
 }

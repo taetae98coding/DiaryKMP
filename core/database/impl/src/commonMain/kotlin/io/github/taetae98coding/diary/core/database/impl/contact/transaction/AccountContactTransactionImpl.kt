@@ -4,8 +4,10 @@ import androidx.room3.withWriteTransaction
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.contacttag.contactTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -17,6 +19,7 @@ internal class AccountContactTransactionImpl(
     override suspend fun upsert(
         accountId: Uuid,
         contactList: List<ContactLocalEntity>,
+        contactTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.contactDao().upsert(contactList)
@@ -29,6 +32,7 @@ internal class AccountContactTransactionImpl(
                     )
                 },
             )
+            database.contactTagTable().upsertPending(accountId = accountId, entityTagList = contactTagList)
         }
     }
 

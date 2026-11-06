@@ -25,6 +25,8 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -113,7 +115,11 @@ class QrAddScreenRetentionTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -182,7 +188,11 @@ class QrAddScreenRetentionTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

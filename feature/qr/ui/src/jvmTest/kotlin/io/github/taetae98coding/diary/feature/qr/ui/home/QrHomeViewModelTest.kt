@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.qr.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
@@ -95,7 +96,7 @@ class QrHomeViewModelTest : FunSpec() {
                 viewModel.effect.test {
                     viewModel.delete(id = id)
 
-                    awaitItem() shouldBe QrHomeEffect.Deleted(id = id)
+                    awaitItem() shouldBe QrListEffect.Deleted(id = id)
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { deleteQrUseCase(parameter = id) }

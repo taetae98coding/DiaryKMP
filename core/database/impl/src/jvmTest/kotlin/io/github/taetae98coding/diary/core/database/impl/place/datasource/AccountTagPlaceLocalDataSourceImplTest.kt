@@ -3,15 +3,16 @@ package io.github.taetae98coding.diary.core.database.impl.place.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
@@ -33,7 +34,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
     FunSpec({
         lateinit var database: DiaryDatabase
         lateinit var dataSource: AccountTagPlaceLocalDataSourceImpl
-        lateinit var placeTagTransaction: AccountPlaceTagTransactionImpl
+        lateinit var placeTagTransaction: AccountEntityTagTransactionImpl
         lateinit var tagTransaction: AccountTagTransactionImpl
         lateinit var placeTransaction: AccountPlaceTransactionImpl
 
@@ -44,7 +45,7 @@ class AccountTagPlaceLocalDataSourceImplTest :
                     .setDriver(BundledSQLiteDriver())
                     .build()
             dataSource = AccountTagPlaceLocalDataSourceImpl(database = database)
-            placeTagTransaction = AccountPlaceTagTransactionImpl(database = database)
+            placeTagTransaction = AccountEntityTagTransactionImpl(database = database)
             tagTransaction = AccountTagTransactionImpl(database = database)
             placeTransaction = AccountPlaceTransactionImpl(database = database)
         }
@@ -75,7 +76,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
         ) {
             placeTagTransaction.upsert(
                 accountId = accountId,
-                placeId = placeId,
+                kind = EntityTagKindLocalEntity.PLACE,
+                entityId = placeId,
                 tagId = tagId,
                 isDeleted = isDeleted,
                 updatedAt = Arb.secondPrecisionInstant().next(),
@@ -345,8 +347,8 @@ class AccountTagPlaceLocalDataSourceImplTest :
                     placeList = listOf(entity),
                     placeTagList =
                         selectedTagList.map { value ->
-                            PlaceTagLocalEntity(
-                                placeId = entity.id,
+                            EntityTagLocalEntity(
+                                entityId = entity.id,
                                 tagId = value.id,
                                 isDeleted = false,
                                 updatedAt = Arb.secondPrecisionInstant().next(),

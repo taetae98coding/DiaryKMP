@@ -38,7 +38,7 @@ class EntityMemoFinishedListRestorationTest {
         val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
         val memoList = List(MEMO_COUNT) { index -> entityMemo(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState())
-        val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
+        val viewModel = mockk<EntityMemoFinishedListController>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
@@ -117,9 +117,9 @@ class EntityMemoFinishedListRestorationTest {
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
     }
 
-    private fun sortableViewModel(memoList: List<Memo>): EntityMemoFinishedListViewModel {
+    private fun sortableViewModel(memoList: List<Memo>): EntityMemoFinishedListController {
         val sortFlow = MutableStateFlow(ListSortUiState())
-        val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
+        val viewModel = mockk<EntityMemoFinishedListController>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }

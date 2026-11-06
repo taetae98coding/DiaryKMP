@@ -37,6 +37,7 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
@@ -44,7 +45,6 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNav
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
-import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
@@ -203,7 +203,7 @@ class PlaceNavDisplayTest {
         module {
             factory<PlaceDetailViewModel> { screenTestViewModel(uiState = MutableStateFlow<PlaceDetailUiState>(content(id = FIRST_PLACE_ID))) }
             factory<PlaceSearchViewModel> { searchScreenTestViewModel() }
-            factory<PlaceDetailTagViewModel> { detailTagScreenTestViewModel() }
+            factory<EntityDetailTagViewModel> { detailTagScreenTestViewModel() }
             factory {
                 mockk<PlaceDetailMemoViewModel>(relaxed = true).apply {
                     every { memoPagingData } returns flowOf(placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))))

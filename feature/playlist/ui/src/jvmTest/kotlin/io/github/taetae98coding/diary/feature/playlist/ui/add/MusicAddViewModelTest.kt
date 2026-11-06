@@ -60,25 +60,25 @@ class MusicAddViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { completion.await() }
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
-                viewModel.add(firstDetail)
+                viewModel.add(firstDetail, tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                viewModel.add(secondDetail)
+                viewModel.add(secondDetail, tagIdSet = emptySet())
                 runCurrent()
 
-                coVerify(exactly = 1) { useCase(firstDetail) }
-                coVerify(exactly = 0) { useCase(secondDetail) }
+                coVerify(exactly = 1) { useCase(AddMusicUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 0) { useCase(AddMusicUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
                 completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
-                viewModel.add(secondDetail)
+                viewModel.add(secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(secondDetail) }
+                coVerify(exactly = 1) { useCase(AddMusicUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
 
@@ -90,7 +90,7 @@ class MusicAddViewModelTest : FunSpec() {
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail)
+                    viewModel.add(detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MusicAddEffect.AddSucceeded
@@ -114,7 +114,7 @@ class MusicAddViewModelTest : FunSpec() {
                     val viewModel = viewModel(addMusicUseCase = useCase)
 
                     viewModel.effect.test {
-                        viewModel.add(detail)
+                        viewModel.add(detail, tagIdSet = emptySet())
                         advanceUntilIdle()
 
                         awaitItem() shouldBe expected
@@ -135,20 +135,20 @@ class MusicAddViewModelTest : FunSpec() {
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail)
+                    viewModel.add(detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                     viewModel.uiState.value.isInProgress
                         .shouldBeFalse()
 
-                    viewModel.add(detail)
+                    viewModel.add(detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 2) { useCase(detail) }
+                coVerify(exactly = 2) { useCase(AddMusicUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
 
@@ -160,7 +160,7 @@ class MusicAddViewModelTest : FunSpec() {
                 coEvery { useCase(any()) } coAnswers { completion.await() }
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
-                viewModel.add(detail)
+                viewModel.add(detail, tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
@@ -174,27 +174,42 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-22b0c5f3-6b9d-402d-a599-8140be1226e2 고른 태그를 새 곡과 함께 추가하도록 넘긴다") {
+            runTest(mainDispatcher) {
+                val detail = Arb.musicDetail().next()
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val useCase = mockk<AddMusicUseCase>()
+                coEvery { useCase(any()) } returns Result.success(Arb.kotlinUuid().next())
+                val viewModel = viewModel(addMusicUseCase = useCase)
+
+                viewModel.add(detail = detail, tagIdSet = tagIdSet)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(AddMusicUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)) }
+            }
+        }
+
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val firstDetail = Arb.musicDetail().next()
                 val secondDetail = Arb.musicDetail().next()
                 val useCase = mockk<AddMusicUseCase>()
-                coEvery { useCase(firstDetail) } throws CancellationException()
-                coEvery { useCase(secondDetail) } returns
+                coEvery { useCase(AddMusicUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } throws CancellationException()
+                coEvery { useCase(AddMusicUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns
                     Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMusicUseCase = useCase)
 
-                viewModel.add(firstDetail)
+                viewModel.add(firstDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
 
-                viewModel.add(secondDetail)
+                viewModel.add(secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(firstDetail) }
-                coVerify(exactly = 1) { useCase(secondDetail) }
+                coVerify(exactly = 1) { useCase(AddMusicUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 1) { useCase(AddMusicUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
 
@@ -326,7 +341,7 @@ class MusicAddViewModelTest : FunSpec() {
                     viewModel.fetchLink(YOUTUBE_LINK)
                     runCurrent()
 
-                    viewModel.add(Arb.musicDetail().next())
+                    viewModel.add(Arb.musicDetail().next(), tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MusicAddEffect.AddSucceeded

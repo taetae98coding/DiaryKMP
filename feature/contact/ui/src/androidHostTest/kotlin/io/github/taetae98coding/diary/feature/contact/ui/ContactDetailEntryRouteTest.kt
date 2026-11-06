@@ -128,6 +128,7 @@ class ContactDetailEntryRouteTest {
         memoTitle: String,
     ): Module =
         module {
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<ContactDetailViewModel>(relaxed = true).apply {
                     every { uiState } returns MutableStateFlow(ContactDetailUiState.Content(id = contactId, detail = testContactDetail()))

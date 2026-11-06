@@ -49,7 +49,7 @@ class AccountChecklistTransactionImplTest :
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val itemList = List(3) { Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next() }
 
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList, checklistTagList = emptyList())
 
             database.findChecklistList() shouldBe listOf(checklist)
             database.findChecklistItemList() shouldBe itemList.sortedBy { item -> item.id.toString() }
@@ -65,7 +65,7 @@ class AccountChecklistTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
 
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
 
             database.findChecklistList() shouldBe listOf(checklist)
             database.findChecklistItemList() shouldBe emptyList()
@@ -75,7 +75,7 @@ class AccountChecklistTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = accountId)
             val detail = ChecklistDetailLocalEntity(title = "  ${Arb.string().next()}  ", description = "")
             val updatedAt = Arb.secondPrecisionInstant().next()
@@ -95,7 +95,7 @@ class AccountChecklistTransactionImplTest :
                 val accountId = Arb.kotlinUuid().next()
                 val checklist = Arb.localChecklist(isDeleted = !isDeleted).next()
                 val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
-                transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
+                transaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
                 database.markChecklistUploaded(accountId = accountId)
                 val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -114,7 +114,7 @@ class AccountChecklistTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
-            transaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = emptyList())
+            transaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = otherAccountId)
 
             transaction.updateDetail(
@@ -150,7 +150,7 @@ class AccountChecklistTransactionImplTest :
             val detail = ChecklistDetailLocalEntity(title = " 여행 준비 ", description = "여름\n휴가 ")
             val checklist = Arb.localChecklist(isDeleted = false).next().copy(detail = detail)
 
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
 
             database.findChecklistList().map { saved -> saved.detail } shouldBe listOf(detail)
         }
@@ -159,7 +159,7 @@ class AccountChecklistTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val existing = Arb.localChecklist(isDeleted = false).next()
             val existingItem = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = existing.id).next()
-            transaction.upsert(accountId = accountId, checklist = existing, itemList = listOf(existingItem))
+            transaction.upsert(accountId = accountId, checklist = existing, itemList = listOf(existingItem), checklistTagList = emptyList())
             val added = Arb.localChecklist(isDeleted = false).next().copy(detail = existing.detail)
             val addedItem =
                 Arb
@@ -167,7 +167,7 @@ class AccountChecklistTransactionImplTest :
                     .next()
                     .copy(content = existingItem.content)
 
-            transaction.upsert(accountId = accountId, checklist = added, itemList = listOf(addedItem))
+            transaction.upsert(accountId = accountId, checklist = added, itemList = listOf(addedItem), checklistTagList = emptyList())
 
             database.findChecklistList() shouldBe listOf(existing, added).sortedBy { checklist -> checklist.id.toString() }
             database.findChecklistItemList() shouldBe listOf(existingItem, addedItem).sortedBy { item -> item.id.toString() }
@@ -184,7 +184,7 @@ class AccountChecklistTransactionImplTest :
                         .copy(createdAt = Instant.fromEpochSeconds(index.toLong()))
                 }
 
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList, checklistTagList = emptyList())
 
             AccountChecklistLocalDataSourceImpl(database = database).find(accountId = accountId, checklistId = checklist.id).first() shouldBe checklist
             AccountChecklistItemLocalDataSourceImpl(database = database)
@@ -206,7 +206,7 @@ class AccountChecklistTransactionImplTest :
                 }
 
             // 저장 순서가 아니라 생성 시각이 조회 순서를 정하는지 보도록 거꾸로 넘긴다.
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList.reversed())
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList.reversed(), checklistTagList = emptyList())
 
             AccountChecklistItemLocalDataSourceImpl(database = database)
                 .get(accountId = accountId, checklistId = checklist.id, sort = ChecklistItemSortLocalEntity.ADDED)
@@ -223,7 +223,7 @@ class AccountChecklistTransactionImplTest :
             val failingTransaction = AccountChecklistTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<ChecklistTestException> {
-                failingTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
+                failingTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList, checklistTagList = emptyList())
             }
 
             database.findChecklistList() shouldBe emptyList()
@@ -235,7 +235,7 @@ class AccountChecklistTransactionImplTest :
         test("TC-7c4b3430-9fee-4392-910d-658b3307c5a8 삭제 상태인 체크리스트를 수정해도 삭제 상태로 남는다") {
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = true).next()
-            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            transaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             val detail = ChecklistDetailLocalEntity(title = "title", description = "description")
             val updatedAt = Arb.secondPrecisionInstant().next()
 

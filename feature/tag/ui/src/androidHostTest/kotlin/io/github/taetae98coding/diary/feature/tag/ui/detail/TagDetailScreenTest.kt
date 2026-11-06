@@ -148,6 +148,14 @@ class TagDetailScreenTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -235,6 +243,14 @@ class TagDetailScreenTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -404,6 +420,14 @@ class TagDetailScreenUpdateTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -629,6 +653,14 @@ class TagDetailScreenActionTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -682,6 +714,14 @@ class TagDetailScreenMessageTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -722,6 +762,14 @@ class TagDetailScreenMessageTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }

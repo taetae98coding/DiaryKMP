@@ -67,8 +67,8 @@ class AccountMusicLocalDataSourceImplTest :
             val lastMusic = music(title = LAST_MUSIC_TITLE)
             val deletedMusic = music().copy(isDeleted = true)
             val otherAccountMusic = music()
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic, deletedMusic))
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(otherAccountMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic, deletedMusic), musicTagList = emptyList())
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(otherAccountMusic), musicTagList = emptyList())
 
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
@@ -77,7 +77,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE, artist = LAST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic), musicTagList = emptyList())
 
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
@@ -85,7 +85,7 @@ class AccountMusicLocalDataSourceImplTest :
         test("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 다른 계정의 곡만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()))
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()), musicTagList = emptyList())
 
             pagedMusics(accountId).shouldBeEmpty()
         }
@@ -93,7 +93,7 @@ class AccountMusicLocalDataSourceImplTest :
         test("TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val musicList = List(3) { index -> music(title = "$index-${Arb.string().next()}") }
-            musicTransaction.upsert(accountId = accountId, musicList = musicList)
+            musicTransaction.upsert(accountId = accountId, musicList = musicList, musicTagList = emptyList())
 
             val pagingSource = dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT)
             val firstPage =
@@ -132,13 +132,13 @@ class AccountMusicLocalDataSourceImplTest :
 
             pagedMusics(accountId).shouldBeEmpty()
             assertPageInvalidated(expected = listOf(music)) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             }
             assertPageInvalidated(expected = listOf(renamedMusic)) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic), musicTagList = emptyList())
             }
             assertPageInvalidated(expected = emptyList()) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic.copy(isDeleted = true)))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic.copy(isDeleted = true)), musicTagList = emptyList())
             }
         }
 
@@ -146,7 +146,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val music = music()
             val deletedMusic = music().copy(isDeleted = true)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, deletedMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, deletedMusic), musicTagList = emptyList())
 
             dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe music
             dataSource.find(accountId = accountId, musicId = deletedMusic.id).first() shouldBe deletedMusic
@@ -156,7 +156,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val music = music()
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music))
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music), musicTagList = emptyList())
 
             dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe null
         }
@@ -165,7 +165,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val music = music(title = FIRST_MUSIC_TITLE)
             val otherMusic = music(title = MIDDLE_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, otherMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, otherMusic), musicTagList = emptyList())
             val detail = music.detail.copy(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -183,7 +183,7 @@ class AccountMusicLocalDataSourceImplTest :
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val middleMusic = music(title = MIDDLE_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic), musicTagList = emptyList())
             musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
             val restoredAt = Arb.secondPrecisionInstant().next()
@@ -201,6 +201,7 @@ class AccountMusicLocalDataSourceImplTest :
             musicTransaction.upsert(
                 accountId = accountId,
                 musicList = listOf(sameUpdatedLastMusic, latestMusic, sameUpdatedFirstMusic),
+                musicTagList = emptyList(),
             )
 
             dataSource
@@ -212,7 +213,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic), musicTagList = emptyList())
 
             dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT).pagedMusics() shouldBe
                 dataSource.page(accountId = accountId, sort = ListSortLocalEntity.TITLE).pagedMusics()

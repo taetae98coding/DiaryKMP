@@ -11,13 +11,13 @@ import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.compose.calendar.weather.CalendarWeatherItem
+import io.github.taetae98coding.diary.compose.contact.contactDisplayName
 import io.github.taetae98coding.diary.compose.timetable.TimetableScope
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
-import io.github.taetae98coding.diary.feature.core.contact.contactDisplayName
 
 internal fun TimetableScope.calendarTimetableItems(
     memoProvider: () -> List<CalendarMemo>,

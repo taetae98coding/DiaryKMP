@@ -50,8 +50,8 @@ class AccountChecklistSyncTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val pending = Arb.localChecklist(isDeleted = false).next()
             val guest = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = pending, itemList = emptyList())
-            checklistTransaction.upsert(accountId = Uuid.NIL, checklist = guest, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = pending, itemList = emptyList(), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = Uuid.NIL, checklist = guest, itemList = emptyList(), checklistTagList = emptyList())
 
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(pending)
         }
@@ -60,8 +60,8 @@ class AccountChecklistSyncTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val unchanged = Arb.localChecklist(isDeleted = false).next()
             val changed = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = unchanged, itemList = emptyList())
-            checklistTransaction.upsert(accountId = accountId, checklist = changed, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = unchanged, itemList = emptyList(), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = changed, itemList = emptyList(), checklistTagList = emptyList())
             checklistTransaction.updateDeleted(
                 accountId = accountId,
                 checklistId = changed.id,
@@ -78,8 +78,8 @@ class AccountChecklistSyncTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val local = Arb.localChecklist(isDeleted = false).next()
             val newer = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList())
-            checklistTransaction.upsert(accountId = accountId, checklist = newer, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList(), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = newer, itemList = emptyList(), checklistTagList = emptyList())
             val pulledNewer = local.copy(isDeleted = true, updatedAt = local.updatedAt + 1.seconds)
             val pulledOlder = newer.copy(isDeleted = true, updatedAt = newer.updatedAt - 1.seconds)
             val cursor = Arb.long().next()
@@ -105,7 +105,7 @@ class AccountChecklistSyncTransactionImplTest :
         test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기와 같으면 서버 내용을 반영한다") {
             val accountId = Arb.kotlinUuid().next()
             val local = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList(), checklistTagList = emptyList())
             val pulled = local.copy(detail = ChecklistDetailLocalEntity(title = "title", description = "description"), isDeleted = true)
 
             transaction.upsert(accountId = accountId, checklistList = listOf(pulled), cursor = 5L)
@@ -121,7 +121,7 @@ class AccountChecklistSyncTransactionImplTest :
             test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = Arb.kotlinUuid().next()
                 val local = Arb.localChecklist(isDeleted = false).next()
-                checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList())
+                checklistTransaction.upsert(accountId = accountId, checklist = local, itemList = emptyList(), checklistTagList = emptyList())
                 val pulled = local.copy(isDeleted = true, updatedAt = local.updatedAt + offset)
 
                 transaction.upsert(accountId = accountId, checklistList = listOf(pulled), cursor = 5L)

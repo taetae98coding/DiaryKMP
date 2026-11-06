@@ -17,7 +17,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -103,10 +105,10 @@ internal fun ComposeContentTestRule.fillAllInput() {
     waitForIdle()
 }
 
-internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): WebAddTagViewModel {
-    val viewModel = mockk<WebAddTagViewModel>(relaxed = true)
+internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): EntityAddTagViewModel {
+    val viewModel = mockk<EntityAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.tagSelectionUiState } returns MutableStateFlow(WebAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
+    every { viewModel.selectionUiState } returns MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns flowOf(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns flowOf(PagingData.from(tagList))
     return viewModel
@@ -125,8 +127,8 @@ internal fun webTestTag(title: String): Tag =
 internal fun detailTagScreenTestViewModel(
     tagList: List<Tag> = emptyList(),
     selectableTagList: List<Tag> = emptyList(),
-): WebDetailTagViewModel {
-    val viewModel = mockk<WebDetailTagViewModel>(relaxed = true)
+): EntityDetailTagViewModel {
+    val viewModel = mockk<EntityDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))

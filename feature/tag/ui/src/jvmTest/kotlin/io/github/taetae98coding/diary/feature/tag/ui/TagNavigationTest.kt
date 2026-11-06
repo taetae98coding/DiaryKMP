@@ -3,9 +3,13 @@ package io.github.taetae98coding.diary.feature.tag.ui
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -140,6 +144,62 @@ class TagNavigationTest :
                     TagHomeNavKey,
                     TagDetailNavKey(id = tagId),
                     WebAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-18e828ae-0886-448b-b24f-9fc2c285bab8 TC-4492adc3-a539-4011-976d-6110ad007bc9 연락처 탭에서 시작한 연락처 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Uuid.random()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToContactAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    ContactAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-6f2de9f0-dab1-4775-a272-c5398d545222 TC-549fa0c3-c23b-4090-a33d-f4ac7438ae73 체크리스트 탭에서 시작한 체크리스트 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Uuid.random()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToChecklistAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    ChecklistAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-e8b290e8-acc4-4ed1-82dd-722b9df7d57d TC-81cf6143-995e-4791-9931-b490a0fdffc9 곡 탭에서 시작한 곡 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Uuid.random()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToMusicAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    MusicAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-83934ee5-9d2f-46ca-aebf-b614faa7cf58 TC-c9541eab-fc97-4840-a2e4-58762f86b7d4 QR 탭에서 시작한 QR 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Uuid.random()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToQrAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    QrAddNavKey(initialTagId = tagId),
                 )
         }
 

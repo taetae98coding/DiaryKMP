@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrContentFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrLocationMap
@@ -37,6 +38,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinate
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.WriteQrFieldsEffect
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrContentFormState
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -222,7 +224,11 @@ class QrAddLocationTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -238,7 +244,7 @@ class QrAddLocationTest {
         composeRule.onNodeWithContentDescription(ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = TYPED_TITLE, description = "", value = LOCATION_QR_VALUE)) }
+        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = TYPED_TITLE, description = "", value = LOCATION_QR_VALUE), tagIdSet = emptySet()) }
         composeRule.onNodeWithText(ADD_SUCCEEDED_MESSAGE).assertExists()
     }
 
@@ -261,6 +267,8 @@ class QrAddLocationTest {
             DiaryTheme {
                 CompositionLocalProvider(LocalDiaryMapContentOverride provides mapContent) {
                     QrAddScaffold(
+                        onFormEvent = {},
+                        onTagPickerEvent = {},
                         onEvent = {},
                         state = formState,
                         uiStateProvider = { QrAddUiState(defaultProvider = MapProvider.NAVER) },

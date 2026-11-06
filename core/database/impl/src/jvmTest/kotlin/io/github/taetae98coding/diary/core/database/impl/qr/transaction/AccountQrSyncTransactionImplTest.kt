@@ -86,7 +86,7 @@ class AccountQrSyncTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val qr = Arb.localQr(isDeleted = false).next()
 
-            AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
+            AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(qr)
         }

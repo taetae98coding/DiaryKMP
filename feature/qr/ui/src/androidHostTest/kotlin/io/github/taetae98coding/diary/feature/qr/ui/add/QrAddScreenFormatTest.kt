@@ -16,6 +16,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -96,7 +98,11 @@ class QrAddScreenFormatTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { resultEventBus },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

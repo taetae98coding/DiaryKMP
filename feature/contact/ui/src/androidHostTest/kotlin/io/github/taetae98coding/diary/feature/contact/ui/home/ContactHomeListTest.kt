@@ -12,6 +12,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
@@ -125,12 +127,12 @@ class ContactHomeListTest {
     @Test
     fun `TC-1703c8ae-d3c7-4acc-8d12-3bfc6838c2e1 연락처 카드를 누르면 그 연락처를 선택한 이벤트를 전달한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
-        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        val eventList = mutableListOf<ContactListEvent>()
 
-        setContactHomeList(contactList = listOf(contact), onEvent = eventList::add)
+        setContactHomeList(contactList = listOf(contact), onContactListEvent = eventList::add)
         composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = contact.contact.id))
+        eventList shouldBe listOf(ContactListEvent.ClickContact(id = contact.contact.id))
     }
 
     @Test
@@ -146,6 +148,7 @@ class ContactHomeListTest {
             DiaryTheme {
                 ContactHomeList(
                     onEvent = {},
+                    onContactListEvent = {},
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -186,6 +189,7 @@ class ContactHomeListTest {
         contactList: List<ContactListItem> = emptyList(),
         pagingData: PagingData<ContactListItem> = contactPagingDataOf(contactList),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
+        onContactListEvent: (ContactListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
@@ -193,6 +197,7 @@ class ContactHomeListTest {
             DiaryTheme {
                 ContactHomeList(
                     onEvent = onEvent,
+                    onContactListEvent = onContactListEvent,
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }

@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrTransaction
@@ -44,18 +45,42 @@ import kotlin.uuid.Uuid
 
 class AccountQrRepositoryImplTest :
     FunSpec({
+        test("TC-0b0983c1-4687-4d02-8d8a-fc02cbdf5e0b TC-07d1f9c2-d097-4df8-9d8e-ac0469c229d1 고른 태그와의 연결을 새 QR과 같은 저장 작업에 담는다") {
+            val account = Arb.accountUser().next()
+            val qr = Arb.qr(isDeleted = false).next()
+            val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+            val transaction = mockk<AccountQrTransaction>(relaxed = true)
+            val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = mockk(), accountQrTransaction = transaction)
+
+            repository.upsert(account = account, qr = qr, tagIdSet = tagIdSet)
+
+            val expected =
+                tagIdSet.map { tagId ->
+                    EntityTagLocalEntity(
+                        entityId = qr.id,
+                        tagId = tagId,
+                        isDeleted = false,
+                        updatedAt = qr.updatedAt,
+                        createdAt = qr.createdAt,
+                    )
+                }
+            coVerify(exactly = 1) {
+                transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal()), qrTagList = expected)
+            }
+        }
+
         test("TC-7221dee8-4896-4a4d-a339-46fd8892bcce QR을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = Arb.accountUser().next()
             val qr = Arb.qr(isDeleted = false).next()
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal())) } just Runs
+            coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal()), qrTagList = emptyList()) } just Runs
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = transaction)
 
-            repository.upsert(account = account, qr = qr)
+            repository.upsert(account = account, qr = qr, tagIdSet = emptySet())
 
             coVerify(exactly = 1) {
-                transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal()))
+                transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal()), qrTagList = emptyList())
             }
         }
 
@@ -65,11 +90,11 @@ class AccountQrRepositoryImplTest :
             val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountQrLocalDataSource>()
             val transaction = mockk<AccountQrTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal())) } throws throwable
+            coEvery { transaction.upsert(accountId = account.id, qrList = listOf(qr.toLocal()), qrTagList = emptyList()) } throws throwable
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = transaction)
 
             shouldThrow<IllegalStateException> {
-                repository.upsert(account = account, qr = qr)
+                repository.upsert(account = account, qr = qr, tagIdSet = emptySet())
             } shouldBeSameInstanceAs throwable
         }
 
@@ -104,7 +129,7 @@ class AccountQrRepositoryImplTest :
 
             repository.find(account = account, qrId = localQr.id).first()
 
-            coVerify(exactly = 0) { transaction.upsert(accountId = any(), qrList = any()) }
+            coVerify(exactly = 0) { transaction.upsert(accountId = any(), qrList = any(), qrTagList = any()) }
         }
 
         test("찾는 QR이 기기에 없으면 없음을 전달한다") {
@@ -144,7 +169,7 @@ class AccountQrRepositoryImplTest :
 
                 repository.updateDeleted(account = account, qrId = qrId, isDeleted = isDeleted, updatedAt = updatedAt) shouldBe updatedCount
 
-                coVerify(exactly = 0) { transaction.upsert(accountId = any(), qrList = any()) }
+                coVerify(exactly = 0) { transaction.upsert(accountId = any(), qrList = any(), qrTagList = any()) }
             }
         }
 

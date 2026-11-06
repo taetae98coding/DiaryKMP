@@ -61,7 +61,7 @@ class EntityMemoFinishedListScreenTest {
 
     @Test
     fun `TC-9e01404b-fd4a-4c29-a173-785dc7b22d51 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
-        val viewModel = mockk<EntityMemoFinishedListViewModel>()
+        val viewModel = mockk<EntityMemoFinishedListController>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(entityMemoPagingData(itemList = emptyList()))
         every { viewModel.effect } returns Channel<EntityMemoFinishedListEffect>(capacity = Channel.BUFFERED).receiveAsFlow()
@@ -249,7 +249,7 @@ class EntityMemoFinishedListScreenTest {
             val secondToday = Clock.System.todayIn(TimeZone.currentSystemDefault())
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
             val secondTodayMemo = entityMemo(title = Arb.alphanumericString(prefix = "SecondTodayMemo").next(), dateTime = MemoDateTime.AllDay(dateRange = secondToday..secondToday))
-            val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
+            val viewModel = mockk<EntityMemoFinishedListController>(relaxed = true)
             every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
             every { viewModel.memoPagingData } returns
@@ -307,7 +307,7 @@ class EntityMemoFinishedListScreenTest {
             .map { node -> node.config[SemanticsProperties.Text].joinToString { text -> text.text } }
 
     private fun setEntityMemoFinishedListScreen(
-        viewModel: EntityMemoFinishedListViewModel,
+        viewModel: EntityMemoFinishedListController,
         uiState: EntityMemoFinishedListUiState = EntityMemoFinishedListUiState(),
         navigateUp: () -> Unit = {},
         navigateToMemoDetail: (Uuid) -> Unit = {},
@@ -348,7 +348,7 @@ class EntityMemoFinishedListScreenTest {
                 entityMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
             )
         val effectChannel = Channel<EntityMemoFinishedListEffect>(capacity = Channel.BUFFERED)
-        val viewModel = mockk<EntityMemoFinishedListViewModel>()
+        val viewModel = mockk<EntityMemoFinishedListController>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
 
         every { viewModel.memoPagingData } returns pagingData
@@ -397,6 +397,6 @@ class EntityMemoFinishedListScreenTest {
 
 private data class ScreenTestEnvironment(
     val memo: Memo,
-    val viewModel: EntityMemoFinishedListViewModel,
+    val viewModel: EntityMemoFinishedListController,
     val effectChannel: Channel<EntityMemoFinishedListEffect>,
 )

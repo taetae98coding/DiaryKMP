@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -58,7 +59,6 @@ import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEADER
 import io.github.taetae98coding.diary.feature.web.ui.add.TYPED_URL
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddEffect
-import io.github.taetae98coding.diary.feature.web.ui.add.WebAddTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddUiState
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.clickAdd
@@ -341,13 +341,13 @@ class WebListDetailNavigationTest {
             }
         }
 
-    private fun addTagViewModel(): WebAddTagViewModel {
+    private fun addTagViewModel(): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
         every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
 
-        return WebAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = null,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,

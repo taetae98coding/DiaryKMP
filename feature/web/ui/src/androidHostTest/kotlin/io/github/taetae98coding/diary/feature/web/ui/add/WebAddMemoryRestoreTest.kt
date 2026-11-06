@@ -10,6 +10,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -64,7 +65,7 @@ class WebAddMemoryRestoreTest {
         expectedTitleListAfterRestore: List<String>,
     ) {
         val allTagList = listOfNotNull(initialTag, otherTag)
-        val tagViewModelList = mutableListOf<WebAddTagViewModel>()
+        val tagViewModelList = mutableListOf<EntityAddTagViewModel>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             // 메모리 정리 뒤에는 태그 선택을 들고 있던 객체도 새로 만들어지므로 복원할 때마다 진입 경로의 초기값으로 새로 만든다.
@@ -88,7 +89,7 @@ class WebAddMemoryRestoreTest {
         }
         composeRule.waitForIdle()
         composeRule.fillAllInput()
-        composeRule.runOnIdle { tagViewModelList.last().add(id = otherTag.id) }
+        composeRule.runOnIdle { tagViewModelList.last().add(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
 
@@ -108,14 +109,14 @@ class WebAddMemoryRestoreTest {
         composeRule.runOnIdle {
             tagViewModelList
                 .last()
-                .tagSelectionUiState.value.tagIdSet shouldBe setOfNotNull(initialTag?.id)
+                .selectionUiState.value.tagIdSet shouldBe setOfNotNull(initialTag?.id)
         }
     }
 
     private fun tagViewModel(
         initialTagId: Uuid?,
         allTagList: List<Tag>,
-    ): WebAddTagViewModel {
+    ): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(allTagList)))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -124,7 +125,7 @@ class WebAddMemoryRestoreTest {
             flowOf(Result.success(allTagList.filter { tag -> tag.id in idSet }))
         }
 
-        return WebAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = initialTagId,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,

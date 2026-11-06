@@ -188,7 +188,7 @@ class QrAddFormatTest {
             state = formState
 
             DiaryTheme {
-                QrAddScaffold(onEvent = {}, state = formState)
+                QrAddScaffold(onEvent = {}, onFormEvent = {}, onTagPickerEvent = {}, state = formState)
             }
         }
         composeRule.waitForIdle()

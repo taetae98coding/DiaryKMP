@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
@@ -132,6 +133,7 @@ class ContactHomeFilterTest {
             DiaryTheme {
                 ContactHomeScaffold(
                     onEvent = {},
+                    onContactListEvent = {},
                     filterUiStateProvider = { filterUiState },
                 )
             }
@@ -301,6 +303,7 @@ class ContactHomeFilterTest {
                             else -> Unit
                         }
                     },
+                    onContactListEvent = {},
                     filterSheetState = filterSheetState,
                     filterUiStateProvider = { filterUiState },
                 )

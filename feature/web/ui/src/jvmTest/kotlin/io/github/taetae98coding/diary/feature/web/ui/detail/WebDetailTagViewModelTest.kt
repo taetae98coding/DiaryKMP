@@ -8,10 +8,12 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
-import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
-import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
-import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageEntityTagSelectableTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -59,16 +61,17 @@ class WebDetailTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
                 val item = tag()
-                val parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")
-                val useCase = mockk<PageWebSelectableTagUseCase>()
+                val parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, query = "")
+                val useCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
                 val viewModel =
-                    WebDetailTagViewModel(
-                        id = id,
-                        pageWebSelectableTagUseCase = useCase,
-                        getWebTagUseCase = mockk(relaxed = true),
-                        addWebTagUseCase = mockk(relaxed = true),
-                        removeWebTagUseCase = mockk(relaxed = true),
+                    EntityDetailTagViewModel(
+                        kind = EntityTagKind.WEB,
+                        entityId = id,
+                        pageEntityTagSelectableTagUseCase = useCase,
+                        getEntityTagUseCase = mockk(relaxed = true),
+                        addEntityTagUseCase = mockk(relaxed = true),
+                        removeEntityTagUseCase = mockk(relaxed = true),
                     )
 
                 val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
@@ -118,15 +121,15 @@ class WebDetailTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
-                val addWebTagUseCase = mockk<AddWebTagUseCase>()
-                coEvery { addWebTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val viewModel = viewModel(id = id, addWebTagUseCase = addWebTagUseCase)
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel = viewModel(id = id, addEntityTagUseCase = addEntityTagUseCase)
 
                 viewModel.add(tagId = tagId)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = tagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = tagId))
                 }
             }
         }
@@ -135,15 +138,15 @@ class WebDetailTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
-                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
-                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val viewModel = viewModel(id = id, removeWebTagUseCase = removeWebTagUseCase)
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel = viewModel(id = id, removeEntityTagUseCase = removeEntityTagUseCase)
 
                 viewModel.remove(tagId = tagId)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = tagId))
+                    removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = tagId))
                 }
             }
         }
@@ -153,15 +156,15 @@ class WebDetailTagViewModelTest : FunSpec() {
                 val id = Arb.kotlinUuid().next()
                 val firstTagId = Arb.kotlinUuid().next()
                 val secondTagId = Arb.kotlinUuid().next()
-                val addWebTagUseCase = mockk<AddWebTagUseCase>()
-                coEvery { addWebTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
-                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel =
                     viewModel(
                         id = id,
-                        addWebTagUseCase = addWebTagUseCase,
-                        removeWebTagUseCase = removeWebTagUseCase,
+                        addEntityTagUseCase = addEntityTagUseCase,
+                        removeEntityTagUseCase = removeEntityTagUseCase,
                     )
 
                 viewModel.add(tagId = firstTagId)
@@ -170,14 +173,14 @@ class WebDetailTagViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = firstTagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = firstTagId))
                 }
                 coVerify(exactly = 1) {
-                    addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = secondTagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = secondTagId))
                 }
                 coVerify(exactly = 1) {
-                    removeWebTagUseCase(
-                        parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = firstTagId),
+                    removeEntityTagUseCase(
+                        parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = firstTagId),
                     )
                 }
             }
@@ -187,15 +190,15 @@ class WebDetailTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val id = Arb.kotlinUuid().next()
                 val tagId = Arb.kotlinUuid().next()
-                val addWebTagUseCase = mockk<AddWebTagUseCase>()
-                coEvery { addWebTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
-                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel =
                     viewModel(
                         id = id,
-                        addWebTagUseCase = addWebTagUseCase,
-                        removeWebTagUseCase = removeWebTagUseCase,
+                        addEntityTagUseCase = addEntityTagUseCase,
+                        removeEntityTagUseCase = removeEntityTagUseCase,
                     )
 
                 viewModel.add(tagId = tagId)
@@ -204,8 +207,8 @@ class WebDetailTagViewModelTest : FunSpec() {
                 viewModel.remove(tagId = tagId)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { addWebTagUseCase(parameter = any()) }
-                coVerify(exactly = 1) { removeWebTagUseCase(parameter = any()) }
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = any()) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = any()) }
             }
         }
 
@@ -214,16 +217,16 @@ class WebDetailTagViewModelTest : FunSpec() {
                 val id = Arb.kotlinUuid().next()
                 val storedTag = tag()
                 val newTagId = Arb.kotlinUuid().next()
-                val addWebTagUseCase = mockk<AddWebTagUseCase>()
-                coEvery { addWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("연결 저장 실패"))
-                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
-                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("해제 저장 실패"))
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("연결 저장 실패"))
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("해제 저장 실패"))
                 val viewModel =
                     viewModel(
                         id = id,
                         tagFlow = flowOf(Result.success(listOf(storedTag))),
-                        addWebTagUseCase = addWebTagUseCase,
-                        removeWebTagUseCase = removeWebTagUseCase,
+                        addEntityTagUseCase = addEntityTagUseCase,
+                        removeEntityTagUseCase = removeEntityTagUseCase,
                     )
 
                 viewModel.uiState.test {
@@ -241,10 +244,10 @@ class WebDetailTagViewModelTest : FunSpec() {
                     advanceUntilIdle()
 
                     coVerify(exactly = 2) {
-                        addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = newTagId))
+                        addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = newTagId))
                     }
                     coVerify(exactly = 1) {
-                        removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = storedTag.id))
+                        removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, tagId = storedTag.id))
                     }
                     cancelAndIgnoreRemainingEvents()
                 }
@@ -260,16 +263,16 @@ class WebDetailTagViewModelTest : FunSpec() {
                 val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
-                val pageWebSelectableTagUseCase = mockk<PageWebSelectableTagUseCase>()
+                val pageEntityTagSelectableTagUseCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every {
-                    pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = ""))
+                    pageEntityTagSelectableTagUseCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, query = ""))
                 } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every {
-                    pageWebSelectableTagUseCase(
-                        parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = SEARCH_QUERY),
+                    pageEntityTagSelectableTagUseCase(
+                        parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, query = SEARCH_QUERY),
                     )
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pageWebSelectableTagUseCase = pageWebSelectableTagUseCase)
+                val viewModel = viewModel(id = id, pageEntityTagSelectableTagUseCase = pageEntityTagSelectableTagUseCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe allTagList
@@ -310,14 +313,14 @@ class WebDetailTagViewModelTest : FunSpec() {
                 val query = Arb.alphanumericString(prefix = "Query").next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
-                val useCase = mockk<PageWebSelectableTagUseCase>()
+                val useCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every {
-                    useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = ""))
+                    useCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, query = ""))
                 } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every {
-                    useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = query))
+                    useCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id, query = query))
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pageWebSelectableTagUseCase = useCase)
+                val viewModel = viewModel(id = id, pageEntityTagSelectableTagUseCase = useCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe allTagList
@@ -338,22 +341,23 @@ class WebDetailTagViewModelTest : FunSpec() {
     private fun viewModel(
         id: Uuid,
         tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
-        addWebTagUseCase: AddWebTagUseCase = mockk(relaxed = true),
-        removeWebTagUseCase: RemoveWebTagUseCase = mockk(relaxed = true),
-        pageWebSelectableTagUseCase: PageWebSelectableTagUseCase =
-            mockk<PageWebSelectableTagUseCase>().apply {
+        addEntityTagUseCase: AddEntityTagUseCase = mockk(relaxed = true),
+        removeEntityTagUseCase: RemoveEntityTagUseCase = mockk(relaxed = true),
+        pageEntityTagSelectableTagUseCase: PageEntityTagSelectableTagUseCase =
+            mockk<PageEntityTagSelectableTagUseCase>().apply {
                 every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
             },
-    ): WebDetailTagViewModel {
-        val getWebTagUseCase = mockk<GetWebTagUseCase>()
-        every { getWebTagUseCase(parameter = id) } returns tagFlow
+    ): EntityDetailTagViewModel {
+        val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+        every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.WEB, entityId = id)) } returns tagFlow
 
-        return WebDetailTagViewModel(
-            id = id,
-            pageWebSelectableTagUseCase = pageWebSelectableTagUseCase,
-            getWebTagUseCase = getWebTagUseCase,
-            addWebTagUseCase = addWebTagUseCase,
-            removeWebTagUseCase = removeWebTagUseCase,
+        return EntityDetailTagViewModel(
+            kind = EntityTagKind.WEB,
+            entityId = id,
+            pageEntityTagSelectableTagUseCase = pageEntityTagSelectableTagUseCase,
+            getEntityTagUseCase = getEntityTagUseCase,
+            addEntityTagUseCase = addEntityTagUseCase,
+            removeEntityTagUseCase = removeEntityTagUseCase,
         )
     }
 

@@ -109,16 +109,16 @@ class AccountChecklistLocalDataSourceImplTest :
             val deleted = checklist(title = "0").copy(isDeleted = true)
             val other = checklist(title = "00")
             listOf(b, a, deleted).forEach { checklist ->
-                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             }
-            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = other, itemList = emptyList())
+            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = other, itemList = emptyList(), checklistTagList = emptyList())
 
             loaded(accountId) shouldBe listOf(summary(a), summary(b))
         }
 
         test("TC-5474c60f-6cdd-47da-9556-061c02a51d7a 다른 계정의 체크리스트만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
-            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = checklist(title = "title"), itemList = emptyList())
+            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = checklist(title = "title"), itemList = emptyList(), checklistTagList = emptyList())
 
             loaded(accountId).shouldBeEmpty()
         }
@@ -138,7 +138,7 @@ class AccountChecklistLocalDataSourceImplTest :
                         List(countList[1]) { item(checklistId = checklist.id, isChecked = false) } +
                         List(countList[2]) { item(checklistId = checklist.id, isChecked = true, isDeleted = true) } +
                         List(countList[3]) { item(checklistId = checklist.id, isChecked = false, isDeleted = true) }
-                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
+                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList, checklistTagList = emptyList())
 
                 loaded(accountId) shouldBe listOf(summary(checklist, checkedCount = expected.first, totalCount = expected.second))
             }
@@ -152,6 +152,7 @@ class AccountChecklistLocalDataSourceImplTest :
                 accountId = accountId,
                 checklist = checklist,
                 itemList = listOf(item(checklistId = checklist.id, isChecked = true), item(checklistId = checklist.id, isChecked = false)),
+                checklistTagList = emptyList(),
             )
             itemSyncTransaction.upsert(
                 accountId = otherAccountId,
@@ -167,12 +168,13 @@ class AccountChecklistLocalDataSourceImplTest :
             val a = checklist(title = "a")
             val b = checklist(title = "b")
             val c = checklist(title = "c")
-            checklistTransaction.upsert(accountId = accountId, checklist = c, itemList = emptyList())
-            checklistTransaction.upsert(accountId = accountId, checklist = a, itemList = listOf(item(checklistId = a.id, isChecked = false)))
+            checklistTransaction.upsert(accountId = accountId, checklist = c, itemList = emptyList(), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = a, itemList = listOf(item(checklistId = a.id, isChecked = false)), checklistTagList = emptyList())
             checklistTransaction.upsert(
                 accountId = accountId,
                 checklist = b,
                 itemList = List(3) { item(checklistId = b.id, isChecked = true) },
+                checklistTagList = emptyList(),
             )
 
             loaded(accountId) shouldBe
@@ -187,7 +189,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklistList = List(3) { index -> checklist(title = "$index-${Arb.string().next()}") }
             checklistList.forEach { checklist ->
-                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item(checklistId = checklist.id, isChecked = true)))
+                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item(checklistId = checklist.id, isChecked = true)), checklistTagList = emptyList())
             }
 
             val pagingSource = dataSource.page(accountId = accountId)
@@ -210,11 +212,11 @@ class AccountChecklistLocalDataSourceImplTest :
             val a = checklist(title = "a")
             val b = checklist(title = "b")
             val c = checklist(title = "c")
-            checklistTransaction.upsert(accountId = accountId, checklist = c, itemList = emptyList())
-            checklistTransaction.upsert(accountId = accountId, checklist = a, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = c, itemList = emptyList(), checklistTagList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = a, itemList = emptyList(), checklistTagList = emptyList())
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(a), summary(b), summary(c))) {
-                checklistTransaction.upsert(accountId = accountId, checklist = b, itemList = emptyList())
+                checklistTransaction.upsert(accountId = accountId, checklist = b, itemList = emptyList(), checklistTagList = emptyList())
             }
         }
 
@@ -222,7 +224,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
-            listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
+            listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList()) }
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(b))) {
                 checklistTransaction.updateDeleted(accountId = accountId, checklistId = a.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
@@ -234,7 +236,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val a = checklist(title = "a")
             val b = checklist(title = "b")
             val c = checklist(title = "c")
-            listOf(a, b, c).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
+            listOf(a, b, c).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList()) }
             checklistTransaction.updateDeleted(accountId = accountId, checklistId = b.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             val restoredAt = Arb.secondPrecisionInstant().next()
 
@@ -247,7 +249,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
-            listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
+            listOf(a, b).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList()) }
             val detail = ChecklistDetailLocalEntity(title = "c", description = a.detail.description)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -261,7 +263,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val checklist = checklist(title = "title")
             val checkedItem = item(checklistId = checklist.id, isChecked = true)
             val uncheckedItem = item(checklistId = checklist.id, isChecked = false)
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(checkedItem))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(checkedItem), checklistTagList = emptyList())
 
             assertPageInvalidated(accountId = accountId, expected = listOf(summary(checklist, checkedCount = 1, totalCount = 2))) {
                 itemTransaction.upsert(accountId = accountId, item = uncheckedItem)
@@ -278,7 +280,7 @@ class AccountChecklistLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val a = checklist(title = "a")
             val c = checklist(title = "c")
-            listOf(a, c).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList()) }
+            listOf(a, c).forEach { checklist -> checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList()) }
             val downloaded = checklist(title = "b")
             val downloadedDeleted = checklist(title = "0").copy(isDeleted = true)
             val downloadedItem = item(checklistId = a.id, isChecked = true)
@@ -297,7 +299,7 @@ class AccountChecklistLocalDataSourceImplTest :
         test("TC-d6355518-e072-4377-94c1-d1b18f25a912 체크리스트보다 먼저 내려받은 체크 항목은 체크리스트가 반영되어야 그 체크리스트에 나타난다") {
             val accountId = Arb.kotlinUuid().next()
             val existing = checklist(title = "a")
-            checklistTransaction.upsert(accountId = accountId, checklist = existing, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = existing, itemList = emptyList(), checklistTagList = emptyList())
             val downloaded = checklist(title = "b")
             val downloadedItem = item(checklistId = downloaded.id, isChecked = true)
 
@@ -319,7 +321,7 @@ class AccountChecklistLocalDataSourceImplTest :
         test("TC-3b75e95e-f535-4154-bfeb-5e95f65cdea4 상세 조회는 삭제 상태인 체크리스트도 현재 계정 기준으로 찾는다") {
             val accountId = Arb.kotlinUuid().next()
             val deleted = Arb.localChecklist(isDeleted = true).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = deleted, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = deleted, itemList = emptyList(), checklistTagList = emptyList())
 
             dataSource.find(accountId = accountId, checklistId = deleted.id).test {
                 awaitItem() shouldBe deleted
@@ -329,7 +331,7 @@ class AccountChecklistLocalDataSourceImplTest :
         test("TC-cd7f5929-faaf-4830-9230-c34621b1f7ab 현재 계정과 연결되지 않은 체크리스트는 찾지 못한다") {
             val accountId = Arb.kotlinUuid().next()
             val other = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = other, itemList = emptyList())
+            checklistTransaction.upsert(accountId = Arb.kotlinUuid().next(), checklist = other, itemList = emptyList(), checklistTagList = emptyList())
 
             dataSource.find(accountId = accountId, checklistId = other.id).test {
                 awaitItem().shouldBeNull()
@@ -339,7 +341,7 @@ class AccountChecklistLocalDataSourceImplTest :
         test("찾은 체크리스트는 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
             val accountId = Arb.kotlinUuid().next()
             val checklist = checklist(title = "a")
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             val detail = ChecklistDetailLocalEntity(title = "b", description = "description")
             val updatedAt = Arb.secondPrecisionInstant().next()
 

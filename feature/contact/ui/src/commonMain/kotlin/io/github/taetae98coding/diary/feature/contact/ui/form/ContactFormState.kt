@@ -6,6 +6,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryDescriptionInputState
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -22,6 +24,7 @@ internal class ContactFormState(
     val howWeMetState: TextFieldState,
     val phoneNumberState: ContactPhoneNumberInputState,
     val snackbarHostState: SnackbarHostState,
+    val tagPickerDialogState: DialogState,
 ) {
     val detail: ContactDetail
         get() =
@@ -75,8 +78,9 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             initialRowList = initialDetail.phoneNumberList.map { phoneNumber -> ContactPhoneNumberRowState(initialNumber = phoneNumber.number) },
         )
     val snackbarHostState = remember { SnackbarHostState() }
+    val tagPickerDialogState = rememberDialogState()
 
-    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, howWeMetState, phoneNumberState, snackbarHostState) {
+    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, howWeMetState, phoneNumberState, snackbarHostState, tagPickerDialogState) {
         ContactFormState(
             nameState = nameState,
             descriptionState = descriptionState,
@@ -87,6 +91,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             howWeMetState = howWeMetState,
             phoneNumberState = phoneNumberState,
             snackbarHostState = snackbarHostState,
+            tagPickerDialogState = tagPickerDialogState,
         )
     }
 }

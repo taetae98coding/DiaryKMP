@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.focus.FocusRequester
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -157,6 +158,7 @@ class MusicFormStateTest :
                         focusRequester = FocusRequester(),
                     ),
                 snackbarHostState = SnackbarHostState(),
+                tagPickerDialogState = DialogState(),
             )
     }
 }

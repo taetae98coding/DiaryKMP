@@ -48,9 +48,11 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.QR_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.descriptionInputText
@@ -65,7 +67,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
+import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
@@ -157,13 +159,15 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-c78bde66-c00f-42df-ae30-01628f3e911e 화면에는 정해진 탭, 입력과 동작만 둔다`() {
+    fun `TC-549da963-ebd8-467c-995f-f71e1836c83c 화면에는 정해진 탭, 입력과 동작만 둔다`() {
         setScreen(detail = Arb.qrDetail(description = Arb.nonBlankString().next(), value = HELLO).next())
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
-        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB) + INFO_INPUT_CONTROL_LIST
+        // 태그 입력의 추가 칩은 내용 설명 대신 글자로 이름을 드러내므로 이름 없는 버튼 하나로 센다.
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
+        composeRule.onNodeWithText(TAG_INPUT_LABEL).assertExists()
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.waitForIdle()
         composeRule.onNodeWithText(FORMAT_LABEL, useUnmergedTree = true).assertExists()
@@ -848,7 +852,11 @@ class QrDetailScreenTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    qrViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -909,6 +917,7 @@ class QrDetailScreenTest {
         const val URL_EMPTY = "URL을 입력해 주세요."
 
         // 제목 입력과 설명 입력이 각자 갖는 지우기 버튼과 설명 입력의 입력·미리보기 전환이다.
+        const val TAG_INPUT_LABEL = "태그 선택"
         val INFO_INPUT_CONTROL_LIST: List<String> = listOf("지우기", "지우기", "입력", "미리보기")
         const val SCROLLABLE_QUALIFIERS = "ko-w480dp-h480dp"
         const val PERMISSION_DENIED = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."

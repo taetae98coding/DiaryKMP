@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.api.qr.transaction
 
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import kotlin.time.Instant
@@ -9,6 +10,7 @@ public interface AccountQrTransaction {
     public suspend fun upsert(
         accountId: Uuid,
         qrList: List<QrLocalEntity>,
+        qrTagList: List<EntityTagLocalEntity>,
     )
 
     public suspend fun updateDetail(

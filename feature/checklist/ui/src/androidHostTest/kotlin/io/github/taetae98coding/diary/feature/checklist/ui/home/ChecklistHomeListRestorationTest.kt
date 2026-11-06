@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
@@ -46,6 +47,7 @@ class ChecklistHomeListRestorationTest {
             DiaryTheme {
                 ChecklistHomeList(
                     onEvent = {},
+                    onChecklistListEvent = {},
                     checklistPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -81,6 +83,7 @@ class ChecklistHomeListRestorationTest {
                 DiaryTheme {
                     ChecklistHomeList(
                         onEvent = {},
+                        onChecklistListEvent = {},
                         checklistPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     )
                 }

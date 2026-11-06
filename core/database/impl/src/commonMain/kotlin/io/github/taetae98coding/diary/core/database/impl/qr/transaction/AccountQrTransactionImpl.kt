@@ -1,11 +1,13 @@
 package io.github.taetae98coding.diary.core.database.impl.qr.transaction
 
 import androidx.room3.withWriteTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrTransaction
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qrtag.qrTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -17,6 +19,7 @@ internal class AccountQrTransactionImpl(
     override suspend fun upsert(
         accountId: Uuid,
         qrList: List<QrLocalEntity>,
+        qrTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.qrDao().upsert(qrList)
@@ -29,6 +32,7 @@ internal class AccountQrTransactionImpl(
                     )
                 },
             )
+            database.qrTagTable().upsertPending(accountId = accountId, entityTagList = qrTagList)
         }
     }
 

@@ -10,9 +10,11 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.tagContact
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tagMusic
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.github.taetae98coding.diary.library.fixture.alphanumericString
@@ -96,6 +98,46 @@ class TagDetailTargetChangeTest {
         composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-5f47e3f1-cfba-4195-9bb5-e1a03deab615 대상이 바뀌면 연락처 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
+        val titleList = titleList(prefix = "TargetContact")
+        setScreen()
+        contactPagingDataFlow.value = tagEntityPagingData(itemList = titleList.map { title -> tagContact(name = title) })
+        composeRule.selectTagDetailTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+
+        chooseSortAndScroll(
+            sortFlow = requireNotNull(contactViewModelRef).sortUiState,
+            chosenSort = ListSort.RECENTLY_UPDATED,
+            chosenLabel = DEFAULT_RECENTLY_UPDATED_LABEL,
+            titleList = titleList,
+        )
+        changeTarget()
+        composeRule.selectTagDetailTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_NAME_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-5f47e3f1-cfba-4195-9bb5-e1a03deab615 대상이 바뀌면 곡 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
+        val titleList = titleList(prefix = "TargetMusic")
+        setScreen()
+        musicPagingDataFlow.value = tagEntityPagingData(itemList = titleList.map { title -> tagMusic(title = title) })
+        composeRule.selectTagDetailTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+
+        chooseSortAndScroll(
+            sortFlow = requireNotNull(musicViewModelRef).sortUiState,
+            chosenSort = ListSort.RECENTLY_UPDATED,
+            chosenLabel = DEFAULT_RECENTLY_UPDATED_LABEL,
+            titleList = titleList,
+        )
+        changeTarget()
+        composeRule.selectTagDetailTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_TITLE_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.first()).assertIsDisplayed()
+    }
+
     // 정렬 선택은 목록의 상태 보관자가 가지므로, 사용자가 정렬을 고른 결과를 그 보관자에 반영한다.
     private fun chooseSortAndScroll(
         sortFlow: Any,
@@ -137,6 +179,7 @@ class TagDetailTargetChangeTest {
         const val SCROLLED_INDEX = 30
         const val DEFAULT_DEFAULT_LABEL = "Default"
         const val DEFAULT_TITLE_LABEL = "Title"
+        const val DEFAULT_NAME_LABEL = "Name"
         const val DEFAULT_RECENTLY_UPDATED_LABEL = "Recently updated"
         const val TITLE_PREFIX_LENGTH = 16
 

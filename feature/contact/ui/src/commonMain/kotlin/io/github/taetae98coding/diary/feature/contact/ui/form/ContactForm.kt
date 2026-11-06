@@ -8,11 +8,15 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 
 @Composable
 internal fun ContactForm(
+    onEvent: (ContactFormEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ContactFormState = rememberContactAddFormState(),
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
     DiaryInputColumn(modifier = modifier) {
         ContactNameInput(
@@ -51,6 +55,12 @@ internal fun ContactForm(
             state = state.phoneNumberState,
             modifier = Modifier.fillMaxWidth(),
         )
+        EntityTagInput(
+            onTagClick = { id -> onEvent(ContactFormEvent.ClickTag(id = id)) },
+            onAddClick = { onEvent(ContactFormEvent.ClickTagAdd) },
+            modifier = Modifier.fillMaxWidth(),
+            uiStateProvider = tagUiStateProvider,
+        )
     }
 }
 
@@ -59,7 +69,7 @@ internal fun ContactForm(
 private fun ContactFormPreview() {
     DiaryTheme {
         Surface {
-            ContactForm()
+            ContactForm(onEvent = {})
         }
     }
 }

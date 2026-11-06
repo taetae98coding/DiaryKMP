@@ -7,11 +7,15 @@ import androidx.room3.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistItemList
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistList
+import io.github.taetae98coding.diary.core.database.impl.entitytag.datasource.AccountEntityTagSyncLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
@@ -77,7 +81,7 @@ class DiaryDatabaseMigrationTest :
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 5).close()
+            helper.runMigrationsAndValidate(version = 6).close()
 
             val database =
                 Room
@@ -88,16 +92,42 @@ class DiaryDatabaseMigrationTest :
                 AccountMemoSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId) shouldBe listOf(memo)
                 SyncCursorLocalDataSourceImpl(database = database).read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe usn
 
-                AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
+                AccountQrTransactionImpl(database = database).upsert(
+                    accountId = accountId,
+                    qrList = listOf(qr),
+                    qrTagList = listOf(entityTag(entityId = qr.id)),
+                )
                 database.findQrList() shouldBe listOf(qr)
 
                 AccountChecklistTransactionImpl(database = database).upsert(
                     accountId = accountId,
                     checklist = checklist,
                     itemList = listOf(checklistItem),
+                    checklistTagList = listOf(entityTag(entityId = checklist.id)),
                 )
                 database.findChecklistList() shouldBe listOf(checklist)
                 database.findChecklistItemList() shouldBe listOf(checklistItem)
+
+                val entityTagTransaction = AccountEntityTagTransactionImpl(database = database)
+                listOf(EntityTagKindLocalEntity.CONTACT, EntityTagKindLocalEntity.MUSIC).forEach { kind ->
+                    entityTagTransaction.upsert(
+                        accountId = accountId,
+                        kind = kind,
+                        entityId = Arb.kotlinUuid().next(),
+                        tagId = Arb.kotlinUuid().next(),
+                        isDeleted = false,
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                    )
+                }
+                val entityTagSyncDataSource = AccountEntityTagSyncLocalDataSourceImpl(database = database)
+                listOf(
+                    EntityTagKindLocalEntity.CONTACT,
+                    EntityTagKindLocalEntity.CHECKLIST,
+                    EntityTagKindLocalEntity.MUSIC,
+                    EntityTagKindLocalEntity.QR,
+                ).forEach { kind ->
+                    entityTagSyncDataSource.readPendingList(accountId = accountId, kind = kind).size shouldBe 1
+                }
             } finally {
                 database.close()
             }
@@ -165,7 +195,7 @@ class DiaryDatabaseMigrationTest :
                 connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
                 connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
             }
-            helper.runMigrationsAndValidate(version = 5).close()
+            helper.runMigrationsAndValidate(version = 6).close()
 
             val database =
                 Room
@@ -202,6 +232,15 @@ class DiaryDatabaseMigrationTest :
             }
         }
     })
+
+private fun entityTag(entityId: Uuid): EntityTagLocalEntity =
+    EntityTagLocalEntity(
+        entityId = entityId,
+        tagId = Arb.kotlinUuid().next(),
+        isDeleted = false,
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
+    )
 
 private fun SQLiteConnection.readLong(
     sql: String,

@@ -17,9 +17,17 @@ import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -147,6 +155,14 @@ class TagFinishedListLayoutTest {
                 MemoAddNavKey(primaryTagId = listSelectedKey.id),
                 WebDetailNavKey(id = Arb.kotlinUuid().next()),
                 PlaceDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactDetailNavKey(id = Arb.kotlinUuid().next()),
+                ContactAddNavKey(initialTagId = listSelectedKey.id),
+                ChecklistDetailNavKey(id = Arb.kotlinUuid().next()),
+                ChecklistAddNavKey(initialTagId = listSelectedKey.id),
+                MusicDetailNavKey(id = Arb.kotlinUuid().next()),
+                MusicAddNavKey(initialTagId = listSelectedKey.id),
+                QrDetailNavKey(id = Arb.kotlinUuid().next()),
+                QrAddNavKey(initialTagId = listSelectedKey.id),
                 TagMemoFinishedListNavKey(tagId = listSelectedKey.id),
             )
         setAppNavDisplay(backStack = backStack)

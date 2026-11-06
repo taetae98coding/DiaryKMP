@@ -5,4 +5,8 @@ internal enum class TagDetailTab {
     MEMO,
     WEB,
     PLACE,
+    CONTACT,
+    CHECKLIST,
+    MUSIC,
+    QR,
 }

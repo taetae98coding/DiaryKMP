@@ -25,13 +25,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.add.actionNameList
 import io.github.taetae98coding.diary.feature.qr.ui.add.visibleTextList
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -125,14 +126,14 @@ class QrHomeScaffoldTest {
 
     @Test
     fun `TC-faf59225-fd29-4e65-a963-5f79e88347ee 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
-        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        val eventList = mutableListOf<QrListEvent>()
         val qrList = listOf(testQr(), testQr())
-        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onEvent = eventList::add)
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onQrListEvent = eventList::add)
 
         composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qrList.last().detail.title)).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickQr(id = qrList.last().id))
+        eventList shouldBe listOf(QrListEvent.ClickQr(id = qrList.last().id))
     }
 
     @Test
@@ -319,6 +320,7 @@ class QrHomeScaffoldTest {
     private fun setQrHomeScaffold(
         pagingData: PagingData<Qr> = qrPagingDataOf(emptyList()),
         onEvent: (QrHomeScaffoldEvent) -> Unit = {},
+        onQrListEvent: (QrListEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         componentVisible: QrHomeScaffoldComponentVisible = QrHomeScaffoldComponentVisible(),
@@ -329,6 +331,7 @@ class QrHomeScaffoldTest {
             DiaryTheme {
                 QrHomeScaffold(
                     onEvent = onEvent,
+                    onQrListEvent = onQrListEvent,
                     snackbarHostState = snackbarHostState,
                     qrPagingItems = qrPagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = uiStateProvider,

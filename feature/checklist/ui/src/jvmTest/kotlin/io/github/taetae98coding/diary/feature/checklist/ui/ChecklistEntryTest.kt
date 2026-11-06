@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
@@ -21,26 +23,26 @@ import kotlin.uuid.Uuid
 class ChecklistEntryTest :
     FunSpec({
         test("TC-320d4e24-62cc-4e2a-bc7c-8479b43a8971 체크리스트 목록에서 이어 진입한 체크리스트 추가는 목록·상세 배치의 상세 pane이다") {
-            val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey)
+            val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey())
 
-            metadataOf(backStack = backStack, key = ChecklistAddNavKey).keys shouldBe detailPaneMetadataKeys
+            metadataOf(backStack = backStack, key = ChecklistAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
         test("TC-2825146d-f2d4-4196-bdb0-b59a14efb2d9 체크리스트 목록에서 진입하지 않은 체크리스트 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherNavKey, ChecklistAddNavKey),
-                    listOf(ChecklistHomeNavKey, OtherNavKey, ChecklistAddNavKey),
+                    listOf(OtherNavKey, ChecklistAddNavKey()),
+                    listOf(ChecklistHomeNavKey, OtherNavKey, ChecklistAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
-                metadataOf(backStack = backStack, key = ChecklistAddNavKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = ChecklistAddNavKey()).shouldBeEmpty()
             }
         }
 
         test("TC-3943e3e4-b520-4a11-ad55-8b92ef622f9a 체크리스트 목록에서 이어 진입한 체크리스트 상세는 목록·상세 배치의 상세 pane이다") {
             val key = ChecklistDetailNavKey(id = Arb.kotlinUuid().next())
-            val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey, key)
+            val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey(), key)
 
             metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
         }
@@ -50,6 +52,16 @@ class ChecklistEntryTest :
             val backStack = listOf(ChecklistHomeNavKey, OtherNavKey, key)
 
             metadataOf(backStack = backStack, key = key).shouldBeEmpty()
+        }
+
+        test("TC-4c8d7524-8231-4a36-b5f7-fe2480e1a333 TagDetail 체크리스트 탭에서 이어진 체크리스트 추가와 체크리스트 상세는 목록·상세 배치에 참여하지 않는다") {
+            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
+            val addKey = ChecklistAddNavKey(initialTagId = tagDetailKey.id)
+            val detailKey = ChecklistDetailNavKey(id = Uuid.random())
+
+            metadataOf(backStack = tagDetailBackStack + addKey, key = addKey).shouldBeEmpty()
+            metadataOf(backStack = tagDetailBackStack + detailKey, key = detailKey).shouldBeEmpty()
         }
 
         test("ChecklistHome 화면은 목록·상세 배치의 목록 pane이다") {

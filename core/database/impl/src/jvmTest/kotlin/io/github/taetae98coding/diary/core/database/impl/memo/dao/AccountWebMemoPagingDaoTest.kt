@@ -4,17 +4,18 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.webtag.webTagTable
 import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
@@ -215,14 +216,17 @@ class AccountWebMemoPagingDaoTest :
                     )
                 },
                 "태그 연결 변경" to { _, web ->
-                    database.webTagDao().upsert(
-                        WebTagLocalEntity(
-                            webId = web.id,
-                            tagId = Arb.kotlinUuid().next(),
-                            isDeleted = false,
-                            updatedAt = Arb.secondPrecisionInstant().next(),
-                            createdAt = Arb.secondPrecisionInstant().next(),
-                        ),
+                    database.webTagTable().upsert(
+                        entityTagList =
+                            listOf(
+                                EntityTagLocalEntity(
+                                    entityId = web.id,
+                                    tagId = Arb.kotlinUuid().next(),
+                                    isDeleted = false,
+                                    updatedAt = Arb.secondPrecisionInstant().next(),
+                                    createdAt = Arb.secondPrecisionInstant().next(),
+                                ),
+                            ),
                     )
                 },
             ).values.forEach { change ->

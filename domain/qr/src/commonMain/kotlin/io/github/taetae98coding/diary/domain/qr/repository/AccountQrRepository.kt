@@ -19,6 +19,7 @@ public interface AccountQrRepository {
     public suspend fun upsert(
         account: Account,
         qr: Qr,
+        tagIdSet: Set<Uuid>,
     )
 
     public suspend fun updateDetail(

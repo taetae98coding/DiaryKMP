@@ -89,8 +89,8 @@ class AccountQrLocalDataSourceImplTest :
             val lastQr = qr(title = LAST_QR_TITLE)
             val deletedQr = qr().copy(isDeleted = true)
             val otherAccountQr = qr()
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr, deletedQr))
-            qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(otherAccountQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr, deletedQr), qrTagList = emptyList())
+            qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(otherAccountQr), qrTagList = emptyList())
 
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
@@ -99,7 +99,7 @@ class AccountQrLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE, description = LAST_QR_TITLE, value = LAST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE, description = FIRST_QR_TITLE, value = FIRST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr), qrTagList = emptyList())
 
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
@@ -108,7 +108,7 @@ class AccountQrLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val lastQr = qr(title = LAST_QR_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr), qrTagList = emptyList())
 
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
         }
@@ -116,7 +116,7 @@ class AccountQrLocalDataSourceImplTest :
         test("TC-58922c74-a4b9-435e-8f72-35840001e716 다른 계정의 QR만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
-            qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(qr()))
+            qrTransaction.upsert(accountId = otherAccountId, qrList = listOf(qr()), qrTagList = emptyList())
 
             pagedQrs(accountId).shouldBeEmpty()
         }
@@ -124,7 +124,7 @@ class AccountQrLocalDataSourceImplTest :
         test("TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             val qrList = List(3) { index -> qr(title = "$index-${Arb.string().next()}") }
-            qrTransaction.upsert(accountId = accountId, qrList = qrList)
+            qrTransaction.upsert(accountId = accountId, qrList = qrList, qrTagList = emptyList())
 
             val pagingSource = dataSource.page(accountId = accountId)
             val firstPage =
@@ -147,10 +147,10 @@ class AccountQrLocalDataSourceImplTest :
 
             pagedQrs(accountId).shouldBeEmpty()
             assertPageInvalidated(accountId = accountId, expected = listOf(qr)) {
-                qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+                qrTransaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             }
             assertPageInvalidated(accountId = accountId, expected = listOf(renamedQr)) {
-                qrTransaction.upsert(accountId = accountId, qrList = listOf(renamedQr))
+                qrTransaction.upsert(accountId = accountId, qrList = listOf(renamedQr), qrTagList = emptyList())
             }
             assertPageInvalidated(accountId = accountId, expected = emptyList()) {
                 qrTransaction.updateDeleted(accountId = accountId, qrId = qr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
@@ -162,10 +162,10 @@ class AccountQrLocalDataSourceImplTest :
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr), qrTagList = emptyList())
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, middleQr, lastQr)) {
-                qrTransaction.upsert(accountId = accountId, qrList = listOf(middleQr))
+                qrTransaction.upsert(accountId = accountId, qrList = listOf(middleQr), qrTagList = emptyList())
             }
         }
 
@@ -174,7 +174,7 @@ class AccountQrLocalDataSourceImplTest :
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr), qrTagList = emptyList())
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, lastQr)) {
                 qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
@@ -185,7 +185,7 @@ class AccountQrLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstQr = qr(title = FIRST_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, firstQr), qrTagList = emptyList())
             val downloadedQr = qr(title = MIDDLE_QR_TITLE)
             val downloadedDeletedQr = qr().copy(isDeleted = true)
 
@@ -199,7 +199,7 @@ class AccountQrLocalDataSourceImplTest :
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr), qrTagList = emptyList())
             qrTransaction.updateDeleted(accountId = accountId, qrId = middleQr.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             pagedQrs(accountId) shouldBe listOf(firstQr, lastQr)
             val restoredAt = Arb.secondPrecisionInstant().next()
@@ -214,7 +214,7 @@ class AccountQrLocalDataSourceImplTest :
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr), qrTagList = emptyList())
             val detail = firstQr.detail.copy(title = "${LAST_QR_TITLE}2")
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -228,7 +228,7 @@ class AccountQrLocalDataSourceImplTest :
             val firstQr = qr(title = FIRST_QR_TITLE)
             val middleQr = qr(title = MIDDLE_QR_TITLE)
             val lastQr = qr(title = LAST_QR_TITLE)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr), qrTagList = emptyList())
             val detail = middleQr.detail.copy(value = "changed-${Arb.string().next()}")
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -240,7 +240,7 @@ class AccountQrLocalDataSourceImplTest :
         test("TC-4734c4ca-1393-4615-9e81-d80193fa4a00 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
             val accountId = Arb.kotlinUuid().next()
             val qr = qr().copy(isDeleted = true)
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             dataSource.find(accountId = accountId, qrId = qr.id).first() shouldBe qr
         }
@@ -248,7 +248,7 @@ class AccountQrLocalDataSourceImplTest :
         test("현재 계정과 연결되지 않은 QR은 찾지 못한다") {
             val accountId = Arb.kotlinUuid().next()
             val qr = qr()
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
 
             dataSource.find(accountId = Arb.kotlinUuid().next(), qrId = qr.id).first().shouldBeNull()
         }
@@ -256,7 +256,7 @@ class AccountQrLocalDataSourceImplTest :
         test("TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 찾은 QR은 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
             val accountId = Arb.kotlinUuid().next()
             val qr = qr()
-            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
             val detail = Arb.qrDetailLocalEntity().next()
             val updatedAt = Arb.secondPrecisionInstant().next()
 

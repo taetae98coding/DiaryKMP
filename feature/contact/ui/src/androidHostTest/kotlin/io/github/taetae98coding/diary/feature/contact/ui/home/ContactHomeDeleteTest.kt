@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -100,7 +102,7 @@ class ContactHomeDeleteTest {
         swipeFirstCardLeft()
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
 
-        environment.effectChannel.trySend(ContactHomeEffect.Deleted(id = environment.second.contact.id)).getOrThrow()
+        environment.effectChannel.trySend(ContactListEffect.Deleted(id = environment.second.contact.id)).getOrThrow()
         composeRule.waitForIdle()
 
         composeRule.onAllNodesWithText(DEFAULT_DELETED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -175,14 +177,14 @@ class ContactHomeDeleteTest {
     ): Environment {
         val first = testContact(name = FIRST_NAME)
         val second = testContact(name = SECOND_NAME)
-        val effectChannel = Channel<ContactHomeEffect>(capacity = Channel.BUFFERED)
+        val effectChannel = Channel<ContactListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<ContactHomeViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
         every { viewModel.filterUiState } returns MutableStateFlow(ContactHomeFilterUiState())
         every { viewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
-            effectChannel.trySend(ContactHomeEffect.Deleted(id = firstArg())).getOrThrow()
+            effectChannel.trySend(ContactListEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
         val syncViewModel = mockk<SyncRefreshViewModel>()
@@ -212,7 +214,7 @@ class ContactHomeDeleteTest {
 
     private class Environment(
         val viewModel: ContactHomeViewModel,
-        val effectChannel: Channel<ContactHomeEffect>,
+        val effectChannel: Channel<ContactListEffect>,
         val first: ContactListItem,
         val second: ContactListItem,
     )

@@ -6,6 +6,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
@@ -14,7 +15,6 @@ import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLo
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
@@ -22,12 +22,12 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
@@ -36,17 +36,16 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
@@ -54,12 +53,10 @@ import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoweb.memoWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
-import io.github.taetae98coding.diary.core.testing.placetag.placeTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
-import io.github.taetae98coding.diary.core.testing.webtag.webTagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -88,6 +85,10 @@ private val ACCOUNT_TABLE_LIST =
         "account_tag_link",
         "account_web_tag",
         "account_place_tag",
+        "account_contact_tag",
+        "account_checklist_tag",
+        "account_music_tag",
+        "account_qr_tag",
         "tag_filter",
         "memo_filter_tag",
         "calendar_filter_tag",
@@ -112,6 +113,10 @@ private val ENTITY_TABLE_LIST =
         "tag_link",
         "web_tag",
         "place_tag",
+        "contact_tag",
+        "checklist_tag",
+        "music_tag",
+        "qr_tag",
     )
 
 private data class FilledEntity(
@@ -291,19 +296,29 @@ class AccountDataTransactionImplTest :
                 ),
             )
 
-            database.webTagDao().upsert(
-                Arb.webTagLocalEntity().next().copy(webId = entity.webId, tagId = entity.tagId),
-            )
-            database.accountWebTagDao().upsert(
-                AccountWebTagLocalEntity(accountId = accountId, webId = entity.webId, tagId = entity.tagId, isDirty = isDirty),
-            )
+            EntityTagKindLocalEntity.entries.forEach { kind ->
+                val entityTag =
+                    Arb.entityTagLocalEntity().next().copy(
+                        entityId =
+                            when (kind) {
+                                EntityTagKindLocalEntity.WEB -> entity.webId
+                                EntityTagKindLocalEntity.PLACE -> entity.placeId
+                                EntityTagKindLocalEntity.CONTACT -> entity.contactId
+                                EntityTagKindLocalEntity.CHECKLIST -> entity.checklistId
+                                EntityTagKindLocalEntity.MUSIC -> entity.musicId
+                                EntityTagKindLocalEntity.QR -> entity.qrId
+                            },
+                        tagId = entity.tagId,
+                    )
+                val table = database.entityTagTable(kind = kind)
 
-            database.placeTagDao().upsert(
-                Arb.placeTagLocalEntity().next().copy(placeId = entity.placeId, tagId = entity.tagId),
-            )
-            database.accountPlaceTagDao().upsert(
-                AccountPlaceTagLocalEntity(accountId = accountId, placeId = entity.placeId, tagId = entity.tagId, isDirty = isDirty),
-            )
+                table.upsert(entityTagList = listOf(entityTag))
+                if (isDirty) {
+                    table.upsertAccountPending(accountId = accountId, entityTagList = listOf(entityTag))
+                } else {
+                    table.insertIgnoreAccountSynced(accountId = accountId, entityTagList = listOf(entityTag))
+                }
+            }
         }
 
         suspend fun fillAccountState(
@@ -395,7 +410,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 열여섯 종류가 모두 기본 커서로 조회된다") {
+        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 스무 종류가 모두 기본 커서로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 

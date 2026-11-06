@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.isPlaylistAddOnDetailPane
+import io.github.taetae98coding.diary.feature.playlist.api.isPlaylistListDetailPane
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlin.uuid.Uuid
@@ -16,7 +17,7 @@ class PlaylistListDetailPaneTest :
                 listOf(
                     listOf(PlaylistHomeNavKey),
                     listOf(OtherScreenNavKey, PlaylistHomeNavKey),
-                    listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicAddNavKey),
+                    listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
@@ -28,7 +29,7 @@ class PlaylistListDetailPaneTest :
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = Uuid.random())),
-                    listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicAddNavKey, MusicDetailNavKey(id = Uuid.random())),
+                    listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicAddNavKey(), MusicDetailNavKey(id = Uuid.random())),
                 )
 
             backStackCases.forEach { backStack ->
@@ -41,13 +42,20 @@ class PlaylistListDetailPaneTest :
                 listOf(
                     emptyList(),
                     listOf(OtherScreenNavKey),
-                    listOf(OtherScreenNavKey, MusicAddNavKey),
-                    listOf(PlaylistHomeNavKey, OtherScreenNavKey, MusicAddNavKey),
+                    listOf(OtherScreenNavKey, MusicAddNavKey()),
+                    listOf(PlaylistHomeNavKey, OtherScreenNavKey, MusicAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
                 backStack.isPlaylistAddOnDetailPane() shouldBe false
             }
+        }
+
+        test("TagDetail 곡 탭에서 진입한 곡 추가는 곡 목록 위에 있어도 상세 영역에 놓이지 않는다") {
+            val backStack = listOf(OtherScreenNavKey, PlaylistHomeNavKey, MusicAddNavKey(initialTagId = Uuid.random()))
+
+            backStack.isPlaylistAddOnDetailPane() shouldBe false
+            backStack.isPlaylistListDetailPane(backStack.last()) shouldBe false
         }
     })
 

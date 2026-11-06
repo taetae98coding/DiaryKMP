@@ -295,11 +295,11 @@ class AccountTagDaoTopLevelFilterTest :
                 .pagedTagIdList() shouldBe listOf(toTag.id)
             database
                 .accountWebTagDao()
-                .pageSelectableTag(accountId = accountId, webId = Arb.kotlinUuid().next(), query = "")
+                .pageSelectableTag(accountId = accountId, entityId = Arb.kotlinUuid().next(), query = "")
                 .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountPlaceTagDao()
-                .pageSelectableTag(accountId = accountId, placeId = Arb.kotlinUuid().next(), query = "")
+                .pageSelectableTag(accountId = accountId, entityId = Arb.kotlinUuid().next(), query = "")
                 .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountTagDao()

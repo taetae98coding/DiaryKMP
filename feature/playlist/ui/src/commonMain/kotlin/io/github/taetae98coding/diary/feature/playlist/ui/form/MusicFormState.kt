@@ -6,6 +6,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryTitleInputState
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
@@ -17,6 +19,7 @@ internal class MusicFormState(
     val artistState: MusicArtistInputState,
     val linkState: MusicLinkInputState,
     val snackbarHostState: SnackbarHostState,
+    val tagPickerDialogState: DialogState,
 ) {
     // 링크는 글자마다 바뀌지만 썸네일은 영상 ID가 바뀔 때만 바뀌므로 파생 값으로 줄인다.
     val thumbnail: String by derivedStateOf { link.toYoutubeVideoThumbnailOrNull().orEmpty() }
@@ -62,13 +65,15 @@ private fun rememberMusicFormState(initialDetail: MusicDetail): MusicFormState {
     val artistState = rememberMusicArtistInputState(initialText = initialDetail.artist)
     val linkState = rememberMusicLinkInputState(initialText = initialDetail.link)
     val snackbarHostState = remember { SnackbarHostState() }
+    val tagPickerDialogState = rememberDialogState()
 
-    return remember(titleState, artistState, linkState, snackbarHostState) {
+    return remember(titleState, artistState, linkState, snackbarHostState, tagPickerDialogState) {
         MusicFormState(
             titleState = titleState,
             artistState = artistState,
             linkState = linkState,
             snackbarHostState = snackbarHostState,
+            tagPickerDialogState = tagPickerDialogState,
         )
     }
 }

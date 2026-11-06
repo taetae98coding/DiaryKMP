@@ -19,4 +19,8 @@ public enum class SyncKindLocalEntity(
     TAG_LINK("tag_link"),
     WEB_TAG("web_tag"),
     PLACE_TAG("place_tag"),
+    CONTACT_TAG("contact_tag"),
+    CHECKLIST_TAG("checklist_tag"),
+    MUSIC_TAG("music_tag"),
+    QR_TAG("qr_tag"),
 }

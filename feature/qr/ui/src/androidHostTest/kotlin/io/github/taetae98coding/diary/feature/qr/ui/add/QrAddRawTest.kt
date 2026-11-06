@@ -27,9 +27,11 @@ import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.format
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -300,7 +302,7 @@ class QrAddRawTest {
         composeRule.waitForIdle()
 
         val value = listOf("BEGIN:VCARD", "VERSION:3.0", "N:", "FN:", "TEL:010", "END:VCARD").joinToString(separator = "\r\n")
-        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = "회사", description = "", value = value)) }
+        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = "회사", description = "", value = value), tagIdSet = emptySet()) }
     }
 
     @Test
@@ -458,7 +460,7 @@ class QrAddRawTest {
             state = formState
 
             DiaryTheme {
-                QrAddScaffold(onEvent = {}, state = formState)
+                QrAddScaffold(onEvent = {}, onFormEvent = {}, onTagPickerEvent = {}, state = formState)
             }
         }
         composeRule.waitForIdle()
@@ -485,7 +487,11 @@ class QrAddRawTest {
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = resultEventBus,
                 componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                viewModel = viewModel,
+                addViewModel = viewModel,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = addTagScreenTestViewModel(),
             )
         }
     }

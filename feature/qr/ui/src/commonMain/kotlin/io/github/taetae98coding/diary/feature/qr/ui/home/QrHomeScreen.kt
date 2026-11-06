@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
+import io.github.taetae98coding.diary.compose.qr.QrListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
@@ -24,7 +26,7 @@ internal fun QrHomeScreen(
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    DeleteUndoSnackbarEffect(
+    QrListUndoSnackbarEffect(
         onRestore = qrViewModel::restore,
         effect = qrViewModel.effect,
         snackbarHostState = snackbarHostState,
@@ -36,8 +38,12 @@ internal fun QrHomeScreen(
                 is QrHomeScaffoldEvent.ClickNavigateUp -> navigateUp()
                 is QrHomeScaffoldEvent.ClickAdd -> navigateToAdd()
                 is QrHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
-                is QrHomeScaffoldEvent.ClickQr -> navigateToDetail(event.id)
-                is QrHomeScaffoldEvent.DeleteQr -> qrViewModel.delete(id = event.id)
+            }
+        },
+        onQrListEvent = { event ->
+            when (event) {
+                is QrListEvent.ClickQr -> navigateToDetail(event.id)
+                is QrListEvent.SwipeDelete -> qrViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

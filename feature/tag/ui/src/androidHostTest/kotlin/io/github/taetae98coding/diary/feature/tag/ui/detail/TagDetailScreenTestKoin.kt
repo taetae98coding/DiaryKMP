@@ -8,23 +8,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
+import io.github.taetae98coding.diary.compose.contact.ContactListEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.map.PlatformDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
+import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.compose.web.WebListEffect
+import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -32,12 +41,16 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceListUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
@@ -62,6 +75,14 @@ internal val placePagingDataFlow = MutableStateFlow(PagingData.empty<Place>())
 internal val placeListUiStateFlow = MutableStateFlow(TagDetailPlaceListUiState())
 internal val placeEffectFlow = MutableSharedFlow<PlaceListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val placeMapUiStateFlow = MutableStateFlow<TagDetailPlaceUiState>(TagDetailPlaceUiState.Loading)
+internal val contactPagingDataFlow = MutableStateFlow(PagingData.empty<ContactListItem>())
+internal val contactEffectFlow = MutableSharedFlow<ContactListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
+internal val checklistPagingDataFlow = MutableStateFlow(PagingData.empty<ChecklistSummary>())
+internal val checklistEffectFlow = MutableSharedFlow<ChecklistListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
+internal val musicPagingDataFlow = MutableStateFlow(PagingData.empty<Music>())
+internal val musicEffectFlow = MutableSharedFlow<MusicListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
+internal val qrPagingDataFlow = MutableStateFlow(PagingData.empty<Qr>())
+internal val qrEffectFlow = MutableSharedFlow<QrListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val syncUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 
 // 탭이 Koin으로 얻는 ViewModel은 호출 검증을 위해 테스트가 참조할 수 있어야 한다.
@@ -76,6 +97,18 @@ internal val memoSyncViewModelRef: SyncRefreshViewModel?
     get() = syncViewModelRef
 
 internal var webViewModelRef: TagDetailWebViewModel? = null
+    private set
+
+internal var contactViewModelRef: TagDetailContactViewModel? = null
+    private set
+
+internal var checklistViewModelRef: TagDetailChecklistViewModel? = null
+    private set
+
+internal var musicViewModelRef: TagDetailMusicViewModel? = null
+    private set
+
+internal var qrViewModelRef: TagDetailQrViewModel? = null
     private set
 
 internal var placeViewModelRef: TagDetailPlaceViewModel? = null
@@ -128,6 +161,40 @@ internal val tagDetailTabViewModelModule =
                 }.also { placeViewModelRef = it }
         }
         factory {
+            mockk<TagDetailContactViewModel>(relaxed = true)
+                .apply {
+                    every { contactPagingData } returns contactPagingDataFlow
+                    every { effect } returns contactEffectFlow
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
+                }.also { contactViewModelRef = it }
+        }
+        factory {
+            mockk<TagDetailChecklistViewModel>(relaxed = true)
+                .apply {
+                    every { checklistPagingData } returns checklistPagingDataFlow
+                    every { effect } returns checklistEffectFlow
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
+                }.also { checklistViewModelRef = it }
+        }
+        factory {
+            mockk<TagDetailMusicViewModel>(relaxed = true)
+                .apply {
+                    every { musicPagingData } returns musicPagingDataFlow
+                    every { effect } returns musicEffectFlow
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
+                }.also { musicViewModelRef = it }
+        }
+        factory {
+            mockk<TagDetailQrViewModel>(relaxed = true)
+                .apply {
+                    every { qrPagingData } returns qrPagingDataFlow
+                    every { effect } returns qrEffectFlow
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
+                }.also { qrViewModelRef = it }
+        }
+        factory {
             mockk<TagDetailPlaceMapViewModel>(relaxed = true)
                 .apply { every { uiState } returns placeMapUiStateFlow }
                 .also { placeMapViewModelRef = it }
@@ -153,6 +220,10 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     webPagingData: PagingData<Web> = PagingData.empty(),
     placePagingData: PagingData<Place> = PagingData.empty(),
+    contactPagingData: PagingData<ContactListItem> = PagingData.empty(),
+    checklistPagingData: PagingData<ChecklistSummary> = PagingData.empty(),
+    musicPagingData: PagingData<Music> = PagingData.empty(),
+    qrPagingData: PagingData<Qr> = PagingData.empty(),
     componentVisible: TagDetailScaffoldComponentVisible = TagDetailScaffoldComponentVisible(),
     navigateUp: () -> Unit = {},
     navigateToDetail: (Uuid) -> Unit = {},
@@ -163,6 +234,14 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     navigateToWebDetail: (Uuid) -> Unit = {},
     navigateToPlaceAdd: (Coordinate?) -> Unit = {},
     navigateToPlaceDetail: (Uuid) -> Unit = {},
+    navigateToContactAdd: () -> Unit = {},
+    navigateToContactDetail: (Uuid) -> Unit = {},
+    navigateToChecklistAdd: () -> Unit = {},
+    navigateToChecklistDetail: (Uuid) -> Unit = {},
+    navigateToMusicAdd: () -> Unit = {},
+    navigateToMusicDetail: (Uuid) -> Unit = {},
+    navigateToQrAdd: () -> Unit = {},
+    navigateToQrDetail: (Uuid) -> Unit = {},
     mapContentOverride: DiaryMapContentOverride = PlatformDiaryMapContentOverride,
 ) {
     prepareTagDetailTabViewModels(
@@ -172,6 +251,10 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
         memoListUiState = memoListUiState,
         webPagingData = webPagingData,
         placePagingData = placePagingData,
+        contactPagingData = contactPagingData,
+        checklistPagingData = checklistPagingData,
+        musicPagingData = musicPagingData,
+        qrPagingData = qrPagingData,
     )
 
     setContent {
@@ -194,6 +277,14 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
                 navigateToWebDetail = navigateToWebDetail,
                 navigateToPlaceAdd = navigateToPlaceAdd,
                 navigateToPlaceDetail = navigateToPlaceDetail,
+                navigateToContactAdd = navigateToContactAdd,
+                navigateToContactDetail = navigateToContactDetail,
+                navigateToChecklistAdd = navigateToChecklistAdd,
+                navigateToChecklistDetail = navigateToChecklistDetail,
+                navigateToMusicAdd = navigateToMusicAdd,
+                navigateToMusicDetail = navigateToMusicDetail,
+                navigateToQrAdd = navigateToQrAdd,
+                navigateToQrDetail = navigateToQrDetail,
             )
         }
     }
@@ -207,6 +298,10 @@ internal fun prepareTagDetailTabViewModels(
     memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     webPagingData: PagingData<Web> = PagingData.empty(),
     placePagingData: PagingData<Place> = PagingData.empty(),
+    contactPagingData: PagingData<ContactListItem> = PagingData.empty(),
+    checklistPagingData: PagingData<ChecklistSummary> = PagingData.empty(),
+    musicPagingData: PagingData<Music> = PagingData.empty(),
+    qrPagingData: PagingData<Qr> = PagingData.empty(),
     isRefreshing: Boolean = false,
 ) {
     linkUiStateFlow.value = linkUiState
@@ -214,6 +309,10 @@ internal fun prepareTagDetailTabViewModels(
     memoPagingDataFlow.value = memoPagingData
     webPagingDataFlow.value = webPagingData
     placePagingDataFlow.value = placePagingData
+    contactPagingDataFlow.value = contactPagingData
+    checklistPagingDataFlow.value = checklistPagingData
+    musicPagingDataFlow.value = musicPagingData
+    qrPagingDataFlow.value = qrPagingData
     placeListUiStateFlow.value = TagDetailPlaceListUiState()
     placeMapUiStateFlow.value = TagDetailPlaceUiState.Loading
     syncUiStateFlow.value = if (isRefreshing) SyncRefreshUiState(isRefreshing = true) else memoListUiState
@@ -221,6 +320,10 @@ internal fun prepareTagDetailTabViewModels(
     memoViewModelRef = null
     webViewModelRef = null
     placeViewModelRef = null
+    contactViewModelRef = null
+    checklistViewModelRef = null
+    musicViewModelRef = null
+    qrViewModelRef = null
     placeMapViewModelRef = null
     syncViewModelRef = null
 }
@@ -252,6 +355,7 @@ internal fun TagDetailScreenTestHost(
 }
 
 internal fun ComposeContentTestRule.selectTagDetailTab(contentDescription: String) {
-    onNodeWithContentDescription(contentDescription).performClick()
+    // 탭 행은 가로로 스크롤되므로 창 밖에 놓인 탭도 누를 수 있게 먼저 보이는 자리로 옮긴다.
+    onNodeWithContentDescription(contentDescription).performScrollTo().performClick()
     waitForIdle()
 }

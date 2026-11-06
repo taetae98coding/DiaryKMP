@@ -66,7 +66,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             memo: MemoLocalEntity,
             contactList: List<ContactLocalEntity>,
         ) {
-            contactTransaction.upsert(accountId = accountId, contactList = contactList)
+            contactTransaction.upsert(accountId = accountId, contactList = contactList, contactTagList = emptyList())
             memoTransaction.upsert(
                 accountId = accountId,
                 memoList = listOf(memo),
@@ -120,7 +120,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val contact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)), contactTagList = emptyList())
 
             dataSource
                 .getContactList(accountId = accountId, memoId = memo.id)
@@ -179,7 +179,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val missingMemoId = Arb.kotlinUuid().next()
             val contact = contact()
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             syncTransaction.upsert(
                 accountId = accountId,
@@ -199,7 +199,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact()
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id)),
@@ -239,7 +239,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             val otherAccountContact = contact()
-            contactTransaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountContact))
+            contactTransaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountContact), contactTagList = emptyList())
 
             memoTransaction.upsert(
                 accountId = accountId,
@@ -261,7 +261,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val memo = memo()
             val contact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)), contactTagList = emptyList())
             dataSource
                 .getContactList(accountId = accountId, memoId = memo.id)
                 .contacts()
@@ -283,8 +283,8 @@ class AccountMemoContactLocalDataSourceImplTest :
             val selectableContact = contact()
             val deletedContact = contact().copy(isDeleted = true)
             val otherAccountContact = contact()
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(selectableContact, deletedContact))
-            contactTransaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(selectableContact, deletedContact), contactTagList = emptyList())
+            contactTransaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountContact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(selectableContact)
         }
@@ -293,7 +293,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val lastContact = contact(name = LAST_CONTACT_NAME)
             val firstContact = contact(name = FIRST_CONTACT_NAME)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastContact, firstContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastContact, firstContact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastContact)
         }
@@ -302,7 +302,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val lastFavoriteContact = contact(name = LAST_CONTACT_NAME).copy(isFavorite = true)
             val firstContact = contact(name = FIRST_CONTACT_NAME)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastFavoriteContact, firstContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastFavoriteContact, firstContact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastFavoriteContact)
         }
@@ -311,7 +311,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val lastContact = contact(name = LAST_CONTACT_NAME).copy(updatedAt = Instant.fromEpochMilliseconds(2_000_000_000))
             val firstContact = contact(name = FIRST_CONTACT_NAME).copy(updatedAt = Instant.fromEpochMilliseconds(1_000_000_000))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastContact, firstContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(lastContact, firstContact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastContact)
         }
@@ -323,7 +323,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val deletedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(keptContact, deletedContact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(keptContact)
         }
@@ -350,6 +350,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             contactTransaction.upsert(
                 accountId = accountId,
                 contactList = listOf(nameMatchedContact, descriptionMatchedContact, phoneNumberMatchedContact, hometownMatchedContact, howWeMetMatchedContact),
+                contactTagList = emptyList(),
             )
 
             loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedContact, nameMatchedContact)
@@ -359,7 +360,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             val lastContact = contact(name = LAST_CONTACT_NAME)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact, lastContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact, lastContact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId, query = "") shouldBe listOf(firstContact, lastContact)
         }
@@ -382,7 +383,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                     contact(name = "Contact-${index.toString().padStart(length = 3, padChar = '0')}")
                 }.reversed()
             val expected = contactList.sortedBy { contact -> contact.detail.name }
-            contactTransaction.upsert(accountId = accountId, contactList = contactList)
+            contactTransaction.upsert(accountId = accountId, contactList = contactList, contactTagList = emptyList())
 
             val firstPage = dataSource.pageSelectableContact(accountId = accountId, query = "").loadPage(loadSize = SMALL_PAGE_SIZE)
 
@@ -400,11 +401,11 @@ class AccountMemoContactLocalDataSourceImplTest :
         test("TC-fb167467-8ef1-4575-bb94-2d086a298a3d 연락처가 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
             val accountId = Arb.kotlinUuid().next()
             val firstContact = contact(name = FIRST_CONTACT_NAME)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact), contactTagList = emptyList())
             val addedContact = contact(name = LAST_CONTACT_NAME)
 
             awaitSelectableContactInvalidated(accountId = accountId) {
-                contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact))
+                contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact), contactTagList = emptyList())
             }
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, addedContact)
@@ -421,7 +422,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 awaitItem() shouldBe listOf(contact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
-                    contactTransaction.upsert(accountId = accountId, contactList = listOf(renamedContact))
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(renamedContact), contactTagList = emptyList())
                 }
 
                 awaitItem() shouldBe listOf(renamedContact)
@@ -442,7 +443,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 awaitItem() shouldBe listOf(contact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
-                    contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact), contactTagList = emptyList())
                 }
 
                 awaitItem() shouldBe listOf(changedContact)
@@ -462,7 +463,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 awaitItem() shouldBe listOf(contact, otherContact)
 
                 awaitSelectableContactInvalidated(accountId = accountId) {
-                    contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)), contactTagList = emptyList())
                 }
 
                 awaitItem() shouldBe listOf(otherContact)
@@ -498,19 +499,19 @@ class AccountMemoContactLocalDataSourceImplTest :
                     awaitItem() shouldBe ""
 
                     awaitSelectableContactInvalidated(accountId = accountId) {
-                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact))
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact), contactTagList = emptyList())
                     }
                     awaitItem() shouldBe howWeMet
                     selectableQualifier() shouldBe howWeMet
 
                     awaitSelectableContactInvalidated(accountId = accountId) {
-                        contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(detail = contact.detail.copy(howWeMet = changedHowWeMet))))
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(detail = contact.detail.copy(howWeMet = changedHowWeMet))), contactTagList = emptyList())
                     }
                     awaitItem() shouldBe changedHowWeMet
                     selectableQualifier() shouldBe changedHowWeMet
 
                     awaitSelectableContactInvalidated(accountId = accountId) {
-                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact.copy(isDeleted = true)))
+                        contactTransaction.upsert(accountId = accountId, contactList = listOf(sameNameContact.copy(isDeleted = true)), contactTagList = emptyList())
                     }
                     awaitItem() shouldBe ""
                     selectableQualifier() shouldBe ""
@@ -520,7 +521,7 @@ class AccountMemoContactLocalDataSourceImplTest :
         test("검색어의 대소문자는 판정에 영향을 주지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val contact = contact(name = "AndroidDeveloper")
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
 
             loadSelectableContact(accountId = accountId, query = "androidDEVELOPER") shouldBe listOf(contact)
         }

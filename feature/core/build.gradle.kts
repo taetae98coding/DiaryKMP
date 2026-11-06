@@ -8,8 +8,11 @@ kotlin {
             dependencies {
                 implementation(projects.compose.list)
                 api(projects.compose.memo)
+                api(projects.compose.tag)
                 api(projects.domain.memo)
                 api(projects.domain.sync)
+                api(projects.domain.tag)
+                implementation(projects.feature.tag.api)
             }
         }
 

@@ -11,7 +11,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.Flow
@@ -161,11 +163,15 @@ class MusicDetailScreenProgressTest {
         val viewModel = detailViewModel(uiState = uiState, effect = effect)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicDetailScreen(
                     navigateUp = navigateUp,
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    musicViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }

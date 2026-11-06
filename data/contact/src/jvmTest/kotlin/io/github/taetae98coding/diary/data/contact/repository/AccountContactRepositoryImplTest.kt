@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBi
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
@@ -54,16 +55,40 @@ import kotlin.uuid.Uuid
 
 class AccountContactRepositoryImplTest :
     FunSpec({
+        test("TC-ce9f762e-bfe4-4400-8d48-5421eecf6c8f TC-4f993cd9-514f-4951-8974-917a56fb157c 고른 태그와의 연결을 새 연락처와 같은 저장 작업에 담는다") {
+            val account = Arb.accountUser().next()
+            val contact = contact()
+            val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+            val transaction = mockk<AccountContactTransaction>(relaxed = true)
+            val repository = repository(transaction = transaction)
+
+            repository.upsert(account = account, contact = contact, tagIdSet = tagIdSet)
+
+            val expected =
+                tagIdSet.map { tagId ->
+                    EntityTagLocalEntity(
+                        entityId = contact.id,
+                        tagId = tagId,
+                        isDeleted = false,
+                        updatedAt = contact.updatedAt,
+                        createdAt = contact.createdAt,
+                    )
+                }
+            coVerify(exactly = 1) {
+                transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal()), contactTagList = expected)
+            }
+        }
+
         test("TC-7e927777-fb91-4305-91d6-2edf09cea62d 연락처를 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = Arb.accountUser().next()
             val contact = contact()
             val transaction = mockk<AccountContactTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) } just Runs
+            coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal()), contactTagList = emptyList()) } just Runs
             val repository = repository(transaction = transaction)
 
-            repository.upsert(account = account, contact = contact)
+            repository.upsert(account = account, contact = contact, tagIdSet = emptySet())
 
-            coVerify(exactly = 1) { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) }
+            coVerify(exactly = 1) { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal()), contactTagList = emptyList()) }
         }
 
         test("TC-2395f8c2-2d07-437e-883f-9baa369e0049 전화번호는 배치한 순서 그대로 로컬 모델로 변환된다") {
@@ -76,12 +101,12 @@ class AccountContactRepositoryImplTest :
                 )
             val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = phoneNumberList)) }
             val transaction = mockk<AccountContactTransaction>()
-            coEvery { transaction.upsert(accountId = any(), contactList = any()) } just Runs
+            coEvery { transaction.upsert(accountId = any(), contactList = any(), contactTagList = any()) } just Runs
             val repository = repository(transaction = transaction)
 
-            repository.upsert(account = account, contact = contact)
+            repository.upsert(account = account, contact = contact, tagIdSet = emptySet())
 
-            coVerify(exactly = 1) { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) }
+            coVerify(exactly = 1) { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal()), contactTagList = emptyList()) }
         }
 
         test("TC-6d5440d1-b27b-4ea5-b95a-2af5219ae2cb 연락처 목록 페이지 조회는 현재 계정의 로컬 연락처를 도메인 모델로 변환해 전달한다") {
@@ -208,7 +233,7 @@ class AccountContactRepositoryImplTest :
 
             repository.find(account = account, contactId = local.id).first()
 
-            coVerify(exactly = 0) { transaction.upsert(accountId = any(), contactList = any()) }
+            coVerify(exactly = 0) { transaction.upsert(accountId = any(), contactList = any(), contactTagList = any()) }
         }
 
         test("TC-1c371ce2-5734-4028-b428-301bc197ab5a 전화번호를 모두 지운 수정을 반영하면 전화번호가 하나도 남지 않는다") {
@@ -445,11 +470,11 @@ class AccountContactRepositoryImplTest :
             val contact = contact()
             val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountContactTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal())) } throws throwable
+            coEvery { transaction.upsert(accountId = account.id, contactList = listOf(contact.toLocal()), contactTagList = emptyList()) } throws throwable
             val repository = repository(transaction = transaction)
 
             shouldThrow<IllegalStateException> {
-                repository.upsert(account = account, contact = contact)
+                repository.upsert(account = account, contact = contact, tagIdSet = emptySet())
             } shouldBeSameInstanceAs throwable
         }
     }) {

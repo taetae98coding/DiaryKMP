@@ -22,6 +22,7 @@ public interface AccountChecklistRepository {
         account: Account,
         checklist: Checklist,
         itemList: List<ChecklistItem>,
+        tagIdSet: Set<Uuid>,
     )
 
     public suspend fun updateDetail(

@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.playlist.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
@@ -180,7 +181,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
                 viewModel.effect.test {
                     viewModel.delete(id = id)
 
-                    awaitItem() shouldBe PlaylistHomeEffect.Deleted(id = id)
+                    awaitItem() shouldBe MusicListEffect.Deleted(id = id)
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { deleteMusicUseCase(parameter = id) }

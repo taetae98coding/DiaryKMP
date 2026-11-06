@@ -19,6 +19,10 @@ internal fun Modifier.tagDetailTabShortcut(
     onMemoAdd: () -> Unit,
     onWebAdd: () -> Unit,
     onPlaceAdd: () -> Unit,
+    onContactAdd: () -> Unit,
+    onChecklistAdd: () -> Unit,
+    onMusicAdd: () -> Unit,
+    onQrAdd: () -> Unit,
     state: TagDetailTabState = rememberTagDetailTabState(),
     isUpdateEnabledProvider: () -> Boolean = { false },
 ): Modifier {
@@ -48,6 +52,14 @@ internal fun Modifier.tagDetailTabShortcut(
                 TagDetailTab.WEB -> keyEvent.handleAddShortcut(onAdd = onWebAdd)
 
                 TagDetailTab.PLACE -> keyEvent.handleAddShortcut(onAdd = onPlaceAdd)
+
+                TagDetailTab.CONTACT -> keyEvent.handleAddShortcut(onAdd = onContactAdd)
+
+                TagDetailTab.CHECKLIST -> keyEvent.handleAddShortcut(onAdd = onChecklistAdd)
+
+                TagDetailTab.MUSIC -> keyEvent.handleAddShortcut(onAdd = onMusicAdd)
+
+                TagDetailTab.QR -> keyEvent.handleAddShortcut(onAdd = onQrAdd)
             }
         }
 }

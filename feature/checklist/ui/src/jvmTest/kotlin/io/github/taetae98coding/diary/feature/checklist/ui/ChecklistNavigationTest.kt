@@ -8,19 +8,29 @@ import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class ChecklistNavigationTest :
     FunSpec({
+        test("TC-b5a0d2f8-c3a4-46bb-9c36-b2e814e5bc9b ChecklistHome에서 체크리스트 추가를 선택하면 초기 태그 없는 체크리스트 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(ChecklistHomeNavKey)
+
+            backStack.navigateToChecklistAddFromHome()
+
+            backStack shouldContainExactly listOf(ChecklistHomeNavKey, ChecklistAddNavKey())
+            (backStack.last() as ChecklistAddNavKey).initialTagId.shouldBeNull()
+        }
+
         test("TC-f68665b5-f231-47dc-bf9d-9b13e5ededfc 체크리스트 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
-                    listOf(ChecklistAddNavKey),
+                    listOf(ChecklistAddNavKey()),
                     listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next())),
-                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey()),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -45,8 +55,8 @@ class ChecklistNavigationTest :
         test("TC-e8f2bdec-251b-44ec-88fd-d14a59ff7dba 목록에서 체크리스트를 선택하면 목록 위에 쌓인 상세와 체크리스트 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
-                    listOf(ChecklistAddNavKey),
-                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey),
+                    listOf(ChecklistAddNavKey()),
+                    listOf(ChecklistDetailNavKey(id = Arb.kotlinUuid().next()), ChecklistAddNavKey()),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -69,7 +79,7 @@ class ChecklistNavigationTest :
         }
 
         test("체크리스트 목록이 없는 전환 이력에서는 체크리스트 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ChecklistAddNavKey)
+            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ChecklistAddNavKey())
             val expected = backStack.toList()
 
             backStack.navigateUpFromChecklistHome()

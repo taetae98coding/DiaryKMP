@@ -28,6 +28,7 @@ internal class ChecklistDetailFormState(
     val snackbarHostState: SnackbarHostState,
     val sortSheetState: DialogState,
     val resetDialogState: DialogState,
+    val tagPickerDialogState: DialogState,
 ) {
     val detail: ChecklistDetail
         get() =
@@ -58,8 +59,8 @@ internal class ChecklistDetailFormState(
     }
 
     private companion object {
-        // 제목과 설명 입력 뒤에 정렬 줄과 체크 항목이 놓인다.
-        const val ITEM_LIST_INDEX = 2
+        // 제목, 설명과 태그 입력 뒤에 정렬 줄과 체크 항목이 놓인다.
+        const val ITEM_LIST_INDEX = 3
     }
 }
 
@@ -73,8 +74,9 @@ internal fun rememberChecklistDetailFormState(initialDetail: ChecklistDetail = C
     val sortSheetState = rememberDialogState()
     // rememberSaveable과 달리 retain은 프로세스가 정리되면 값을 버린다.
     val resetDialogState = retain { DialogState() }
+    val tagPickerDialogState = rememberDialogState()
 
-    return remember(titleState, descriptionState, itemInputState, listState, snackbarHostState, sortSheetState, resetDialogState) {
+    return remember(titleState, descriptionState, itemInputState, listState, snackbarHostState, sortSheetState, resetDialogState, tagPickerDialogState) {
         ChecklistDetailFormState(
             titleState = titleState,
             descriptionState = descriptionState,
@@ -83,6 +85,7 @@ internal fun rememberChecklistDetailFormState(initialDetail: ChecklistDetail = C
             snackbarHostState = snackbarHostState,
             sortSheetState = sortSheetState,
             resetDialogState = resetDialogState,
+            tagPickerDialogState = tagPickerDialogState,
         )
     }
 }

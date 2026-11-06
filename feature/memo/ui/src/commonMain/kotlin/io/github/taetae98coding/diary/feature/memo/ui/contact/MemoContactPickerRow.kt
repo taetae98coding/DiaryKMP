@@ -4,11 +4,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import io.github.taetae98coding.diary.compose.contact.displayName
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerRow
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
-import io.github.taetae98coding.diary.feature.core.contact.displayName
 import io.github.taetae98coding.diary.feature.memo.ui.previewContact
 
 @Composable

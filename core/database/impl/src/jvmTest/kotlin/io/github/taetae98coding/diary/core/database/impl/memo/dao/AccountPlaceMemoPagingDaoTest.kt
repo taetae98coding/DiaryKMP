@@ -4,17 +4,18 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.placetag.placeTagTable
 import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memoplace.memoPlaceLocalEntity
@@ -219,10 +220,10 @@ class AccountPlaceMemoPagingDaoTest :
             val tagId = Arb.kotlinUuid().next()
             insertPlaceMemo(accountId, target, targetMemo)
 
-            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
+            database.placeTagTable().upsert(entityTagList = listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
 
-            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = true)))
+            database.placeTagTable().upsert(entityTagList = listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = true)))
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
@@ -252,7 +253,7 @@ class AccountPlaceMemoPagingDaoTest :
             val tagId = Arb.kotlinUuid().next()
             insertPlaceMemo(accountId, target, linkedMemo)
             insertMemo(accountId, sameTagMemo)
-            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
+            database.placeTagTable().upsert(entityTagList = listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
             database.memoTagDao().upsert(
                 listOf(
                     MemoTagLocalEntity(
@@ -561,9 +562,9 @@ class AccountPlaceMemoPagingDaoTest :
             placeId: Uuid,
             tagId: Uuid,
             isDeleted: Boolean,
-        ): PlaceTagLocalEntity =
-            PlaceTagLocalEntity(
-                placeId = placeId,
+        ): EntityTagLocalEntity =
+            EntityTagLocalEntity(
+                entityId = placeId,
                 tagId = tagId,
                 isDeleted = isDeleted,
                 updatedAt = Arb.secondPrecisionInstant().next(),

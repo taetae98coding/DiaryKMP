@@ -8,9 +8,12 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
+import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
+import io.github.taetae98coding.diary.feature.checklist.ui.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.every
@@ -25,7 +28,12 @@ internal class ChecklistDetailTestEnvironment(
     itemList: List<ChecklistItem> = emptyList(),
     isLoaded: Boolean = true,
     val id: Uuid = Uuid.random(),
+    val tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
 ) {
+    val resultEventBus: ResultEventBus = ResultEventBus()
+    var tagAddCount: Int = 0
+    val navigatedTagIdList: MutableList<Uuid> = mutableListOf()
+
     val uiState: MutableStateFlow<ChecklistDetailUiState> = MutableStateFlow(ChecklistDetailUiState.Content(id = id, detail = detail))
     val itemUiState: MutableStateFlow<ChecklistDetailItemUiState> = MutableStateFlow(ChecklistDetailItemUiState(itemList = itemList, isLoaded = isLoaded))
     val effect: Channel<ChecklistDetailEffect> = Channel(Channel.BUFFERED)

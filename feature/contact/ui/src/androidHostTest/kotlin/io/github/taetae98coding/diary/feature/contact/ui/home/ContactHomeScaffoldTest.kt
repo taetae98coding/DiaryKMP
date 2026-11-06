@@ -14,6 +14,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactListItem
@@ -218,6 +220,7 @@ class ContactHomeScaffoldTest {
             DiaryTheme {
                 ContactHomeScaffold(
                     onEvent = onEvent,
+                    onContactListEvent = {},
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
                     componentVisibleProvider = { componentVisible },
                 )

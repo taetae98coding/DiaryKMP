@@ -8,17 +8,27 @@ import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class PlaylistNavigationTest :
     FunSpec({
+        test("TC-d113c69d-c978-40b0-8d56-d1f53e85cda1 PlaylistHome에서 곡 추가를 선택하면 초기 태그 없는 곡 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(PlaylistHomeNavKey)
+
+            backStack.navigateToMusicAddFromHome()
+
+            backStack shouldContainExactly listOf(PlaylistHomeNavKey, MusicAddNavKey())
+            (backStack.last() as MusicAddNavKey).initialTagId.shouldBeNull()
+        }
+
         test("TC-4f4be13e-7d7d-4f0f-9a92-592307a5fa81 곡 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
-                    listOf(MusicAddNavKey),
+                    listOf(MusicAddNavKey()),
                     listOf(MusicDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
@@ -44,8 +54,8 @@ class PlaylistNavigationTest :
         test("TC-c41335b9-dce4-40f5-8581-5930af99d5e3 목록에서 곡을 선택하면 목록 위에 쌓인 상세와 곡 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
-                    listOf(MusicAddNavKey),
-                    listOf(MusicDetailNavKey(id = Uuid.random()), MusicAddNavKey),
+                    listOf(MusicAddNavKey()),
+                    listOf(MusicDetailNavKey(id = Uuid.random()), MusicAddNavKey()),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -68,7 +78,7 @@ class PlaylistNavigationTest :
         }
 
         test("곡 목록이 없는 전환 이력에서는 곡 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, MusicAddNavKey)
+            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, MusicAddNavKey())
             val expected = backStack.toList()
 
             backStack.navigateUpFromPlaylistHome()

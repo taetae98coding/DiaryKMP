@@ -16,7 +16,6 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
-import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -137,7 +136,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
             navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
+            navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
@@ -180,7 +179,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
             navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
+            navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
@@ -248,7 +247,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
         navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
         navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-        navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
+        navigateToContactAdd = { backStack.navigateToContactAddFromMemoContactInput(requestKey = addRequestKey) },
         navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
         navigateToPlaceAdd = { coordinate ->
             backStack.add(

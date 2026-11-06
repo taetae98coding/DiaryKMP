@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.impl.tag.dao
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -10,16 +11,27 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.checklist.datasource.AccountTagChecklistLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountTagContactLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.music.datasource.AccountTagMusicLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountTagQrLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagTransactionImpl
+import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
+import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
@@ -51,9 +63,9 @@ class AccountTagScopeDaoTest :
         lateinit var memoTransaction: AccountMemoTransactionImpl
         lateinit var memoTagTransaction: AccountMemoTagTransactionImpl
         lateinit var webTransaction: AccountWebTransactionImpl
-        lateinit var webTagTransaction: AccountWebTagTransactionImpl
+        lateinit var webTagTransaction: AccountEntityTagTransactionImpl
         lateinit var placeTransaction: AccountPlaceTransactionImpl
-        lateinit var placeTagTransaction: AccountPlaceTagTransactionImpl
+        lateinit var placeTagTransaction: AccountEntityTagTransactionImpl
 
         beforeTest {
             database =
@@ -66,9 +78,9 @@ class AccountTagScopeDaoTest :
             memoTransaction = AccountMemoTransactionImpl(database = database)
             memoTagTransaction = AccountMemoTagTransactionImpl(database = database)
             webTransaction = AccountWebTransactionImpl(database = database)
-            webTagTransaction = AccountWebTagTransactionImpl(database = database)
+            webTagTransaction = AccountEntityTagTransactionImpl(database = database)
             placeTransaction = AccountPlaceTransactionImpl(database = database)
-            placeTagTransaction = AccountPlaceTagTransactionImpl(database = database)
+            placeTagTransaction = AccountEntityTagTransactionImpl(database = database)
         }
 
         afterTest {
@@ -122,7 +134,8 @@ class AccountTagScopeDaoTest :
             tagIdList.forEach { tagId ->
                 webTagTransaction.upsert(
                     accountId = accountId,
-                    webId = web.id,
+                    kind = EntityTagKindLocalEntity.WEB,
+                    entityId = web.id,
                     tagId = tagId,
                     isDeleted = false,
                     updatedAt = Arb.secondPrecisionInstant().next(),
@@ -139,12 +152,74 @@ class AccountTagScopeDaoTest :
             tagIdList.forEach { tagId ->
                 placeTagTransaction.upsert(
                     accountId = accountId,
-                    placeId = place.id,
+                    kind = EntityTagKindLocalEntity.PLACE,
+                    entityId = place.id,
                     tagId = tagId,
                     isDeleted = false,
                     updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
+        }
+
+        suspend fun linkEntity(
+            accountId: Uuid,
+            kind: EntityTagKindLocalEntity,
+            entityId: Uuid,
+            tagId: Uuid,
+        ) {
+            AccountEntityTagTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                kind = kind,
+                entityId = entityId,
+                tagId = tagId,
+                isDeleted = false,
+                updatedAt = Arb.secondPrecisionInstant().next(),
+            )
+        }
+
+        suspend fun insertContact(
+            accountId: Uuid,
+            tagId: Uuid,
+        ): Uuid {
+            val contact = Arb.contactLocalEntity().next().copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+            AccountContactTransactionImpl(database = database).upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
+            linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.CONTACT, entityId = contact.id, tagId = tagId)
+            return contact.id
+        }
+
+        suspend fun insertChecklist(
+            accountId: Uuid,
+            tagId: Uuid,
+        ): Uuid {
+            val checklist = Arb.checklistLocalEntity().next().copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+            AccountChecklistTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                checklist = checklist,
+                itemList = emptyList(),
+                checklistTagList = emptyList(),
+            )
+            linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.CHECKLIST, entityId = checklist.id, tagId = tagId)
+            return checklist.id
+        }
+
+        suspend fun insertMusic(
+            accountId: Uuid,
+            tagId: Uuid,
+        ): Uuid {
+            val music = Arb.musicLocalEntity().next().copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+            AccountMusicTransactionImpl(database = database).upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
+            linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.MUSIC, entityId = music.id, tagId = tagId)
+            return music.id
+        }
+
+        suspend fun insertQr(
+            accountId: Uuid,
+            tagId: Uuid,
+        ): Uuid {
+            val qr = Arb.qrLocalEntity().next().copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+            AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr), qrTagList = emptyList())
+            linkEntity(accountId = accountId, kind = EntityTagKindLocalEntity.QR, entityId = qr.id, tagId = tagId)
+            return qr.id
         }
 
         suspend fun memoIdList(
@@ -220,7 +295,7 @@ class AccountTagScopeDaoTest :
                 ).first()
                 .map { place -> place.id }
 
-        test("TC-5a247ffc-c974-4880-9f26-ce05e62af7e0 표시 범위에 따라 세 목록에 담기는 태그가 달라진다") {
+        test("TC-5a247ffc-c974-4880-9f26-ce05e62af7e0 표시 범위에 따라 메모, 웹, 장소 목록 탭에 담기는 태그가 달라진다") {
             val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
@@ -297,7 +372,7 @@ class AccountTagScopeDaoTest :
             boundsPlaceIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(sharedPlace.id)
         }
 
-        test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 세 목록 조회가 갱신된다") {
+        test("TC-6144a5a4-353e-49c8-8d51-574bae7c4114 화면이 열려 있는 동안 태그 연결이 바뀌면 목록 탭이 갱신된다") {
             val accountId = Arb.kotlinUuid().next()
             val rootTag = tag()
             val childTag = tag()
@@ -309,6 +384,10 @@ class AccountTagScopeDaoTest :
             insertMemo(accountId, childMemo, childTag.id)
             insertWeb(accountId, childWeb, childTag.id)
             insertPlace(accountId, childPlace, childTag.id)
+            val childContactId = insertContact(accountId = accountId, tagId = childTag.id)
+            val childChecklistId = insertChecklist(accountId = accountId, tagId = childTag.id)
+            val childMusicId = insertMusic(accountId = accountId, tagId = childTag.id)
+            val childQrId = insertQr(accountId = accountId, tagId = childTag.id)
 
             val memoPagingSource =
                 database.accountTagMemoDao().page(
@@ -331,30 +410,69 @@ class AccountTagScopeDaoTest :
                     scope = TagScopeLocalEntity.CHILD.queryValue,
                     sort = ListSortLocalEntity.TITLE.queryValue,
                 )
+            val contactPagingSource =
+                AccountTagContactLocalDataSourceImpl(database = database).page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD,
+                    sort = ListSortLocalEntity.NAME,
+                )
+            val checklistPagingSource =
+                AccountTagChecklistLocalDataSourceImpl(database = database).page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD,
+                )
+            val musicPagingSource =
+                AccountTagMusicLocalDataSourceImpl(database = database).page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD,
+                    sort = ListSortLocalEntity.TITLE,
+                )
+            val qrPagingSource =
+                AccountTagQrLocalDataSourceImpl(database = database).page(
+                    accountId = accountId,
+                    tagId = rootTag.id,
+                    scope = TagScopeLocalEntity.CHILD,
+                )
             memoPagingSource.pagedIdList { memo -> memo.id }.shouldBeEmpty()
             webPagingSource.pagedIdList { web -> web.id }.shouldBeEmpty()
             placePagingSource.pagedIdList { place -> place.id }.shouldBeEmpty()
+            contactPagingSource.pagedIdList { item -> item.contact.id }.shouldBeEmpty()
+            checklistPagingSource.pagedIdList { summary -> summary.checklist.id }.shouldBeEmpty()
+            musicPagingSource.pagedIdList { music -> music.id }.shouldBeEmpty()
+            qrPagingSource.pagedIdList { qr -> qr.id }.shouldBeEmpty()
 
-            val memoInvalidated = CompletableDeferred<Unit>()
-            val webInvalidated = CompletableDeferred<Unit>()
-            val placeInvalidated = CompletableDeferred<Unit>()
-            memoPagingSource.registerInvalidatedCallback { memoInvalidated.complete(Unit) }
-            webPagingSource.registerInvalidatedCallback { webInvalidated.complete(Unit) }
-            placePagingSource.registerInvalidatedCallback { placeInvalidated.complete(Unit) }
+            val pagingSourceList: List<PagingSource<Int, *>> =
+                listOf(memoPagingSource, webPagingSource, placePagingSource, contactPagingSource, checklistPagingSource, musicPagingSource, qrPagingSource)
+
+            val invalidatedList =
+                pagingSourceList.map { pagingSource ->
+                    CompletableDeferred<Unit>().also { invalidated -> pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) } }
+                }
 
             link(accountId = accountId, fromTagId = rootTag.id, toTagId = childTag.id)
 
             withTimeout(INVALIDATION_TIMEOUT_MILLIS) {
-                memoInvalidated.await()
-                webInvalidated.await()
-                placeInvalidated.await()
+                invalidatedList.forEach { invalidated -> invalidated.await() }
             }
-            memoPagingSource.invalid shouldBe true
-            webPagingSource.invalid shouldBe true
-            placePagingSource.invalid shouldBe true
+            pagingSourceList.forEach { pagingSource -> pagingSource.invalid shouldBe true }
             memoIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childMemo.id)
             webIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childWeb.id)
             placeIdList(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD) shouldBe listOf(childPlace.id)
+            AccountTagContactLocalDataSourceImpl(database = database)
+                .page(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD, sort = ListSortLocalEntity.NAME)
+                .pagedIdList { item -> item.contact.id } shouldBe listOf(childContactId)
+            AccountTagChecklistLocalDataSourceImpl(database = database)
+                .page(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD)
+                .pagedIdList { summary -> summary.checklist.id } shouldBe listOf(childChecklistId)
+            AccountTagMusicLocalDataSourceImpl(database = database)
+                .page(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD, sort = ListSortLocalEntity.TITLE)
+                .pagedIdList { music -> music.id } shouldBe listOf(childMusicId)
+            AccountTagQrLocalDataSourceImpl(database = database)
+                .page(accountId = accountId, tagId = rootTag.id, scope = TagScopeLocalEntity.CHILD)
+                .pagedIdList { qr -> qr.id } shouldBe listOf(childQrId)
         }
 
         test("TC-11a748b2-3712-4bb6-b382-9f0c78449aab 표시 범위를 넓혀도 각 탭의 나머지 노출 기준은 유지된다") {

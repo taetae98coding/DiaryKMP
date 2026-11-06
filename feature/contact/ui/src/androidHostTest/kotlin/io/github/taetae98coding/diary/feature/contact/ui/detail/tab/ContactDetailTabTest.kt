@@ -24,6 +24,7 @@ import androidx.compose.ui.test.swipeRight
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.detail.CONTACT_DETAIL_PAGER_TEST_TAG
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScreen
@@ -43,6 +44,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.screenTestViewMo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.setContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.detail.testContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -170,7 +172,11 @@ class ContactDetailTabTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                    contactViewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -211,7 +217,11 @@ class ContactDetailTabTest {
                         navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                        viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                        contactViewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -241,7 +251,11 @@ class ContactDetailTabTest {
                     navigateToMemoFinishedList = {},
                     id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                    contactViewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }

@@ -56,6 +56,7 @@ public class AddChecklistUseCase internal constructor(
             account = account,
             checklist = checklist,
             itemList = itemList,
+            tagIdSet = parameter.tagIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -66,5 +67,6 @@ public class AddChecklistUseCase internal constructor(
     public data class Parameter(
         val detail: ChecklistDetail,
         val itemContentList: List<String>,
+        val tagIdSet: Set<Uuid>,
     )
 }

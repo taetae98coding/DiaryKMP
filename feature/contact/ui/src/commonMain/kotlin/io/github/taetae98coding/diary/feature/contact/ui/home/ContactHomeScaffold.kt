@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
@@ -44,6 +45,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun ContactHomeScaffold(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
+    onContactListEvent: (ContactListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     filterSheetState: DialogState = rememberDialogState(),
@@ -87,6 +89,7 @@ internal fun ContactHomeScaffold(
 
             ContactHomeList(
                 onEvent = onEvent,
+                onContactListEvent = onContactListEvent,
                 modifier = Modifier.fillMaxSize(),
                 contactPagingItems = contactPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -149,6 +152,7 @@ private fun ContactHomeScaffoldPreview(
     DiaryTheme {
         ContactHomeScaffold(
             onEvent = {},
+            onContactListEvent = {},
             filterUiStateProvider = { filterUiState },
         )
     }

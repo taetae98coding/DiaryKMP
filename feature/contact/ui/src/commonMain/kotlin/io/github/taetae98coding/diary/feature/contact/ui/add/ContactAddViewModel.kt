@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class ContactAddViewModel(
@@ -25,13 +26,16 @@ internal class ContactAddViewModel(
     private val _effect = Channel<ContactAddEffect>(Channel.BUFFERED)
     val effect: Flow<ContactAddEffect> = _effect.receiveAsFlow()
 
-    fun add(detail: ContactDetail) {
+    fun add(
+        detail: ContactDetail,
+        tagIdSet: Set<Uuid>,
+    ) {
         if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
             uiState.update { value -> value.copy(isInProgress = true) }
             try {
-                addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail))
+                addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail, tagIdSet = tagIdSet))
                     .onSuccess { id -> _effect.send(ContactAddEffect.AddSucceeded(id = id)) }
                     .onFailure { throwable ->
                         when (throwable) {

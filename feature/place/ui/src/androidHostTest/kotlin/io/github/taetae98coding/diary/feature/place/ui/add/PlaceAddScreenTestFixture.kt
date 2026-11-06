@@ -15,6 +15,8 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
@@ -87,10 +89,10 @@ internal fun ComposeContentTestRule.currentColorHex(): String =
         .config[SemanticsProperties.Text]
         .firstNotNullOf { text -> hexRegex.find(text.text)?.value }
 
-internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): PlaceAddTagViewModel {
-    val viewModel = mockk<PlaceAddTagViewModel>(relaxed = true)
+internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): EntityAddTagViewModel {
+    val viewModel = mockk<EntityAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.selectionUiState } returns MutableStateFlow(PlaceAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
+    every { viewModel.selectionUiState } returns MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
@@ -111,7 +113,7 @@ internal fun ComposeContentTestRule.setPlaceAddScreen(
     navigateUp: () -> Unit = {},
     navigateToTagDetail: (Uuid) -> Unit = {},
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
-    tagViewModel: PlaceAddTagViewModel = addTagScreenTestViewModel(),
+    tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
     initialCoordinate: Coordinate? = null,
 ) {
     setContent {

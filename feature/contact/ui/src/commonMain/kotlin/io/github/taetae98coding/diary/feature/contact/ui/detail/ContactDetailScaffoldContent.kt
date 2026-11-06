@@ -9,15 +9,19 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactForm
+import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormEvent
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 
 @Composable
 internal fun ContactDetailScaffoldContent(
+    onFormEvent: (ContactFormEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ContactFormState = rememberContactDetailFormState(),
     uiStateProvider: () -> ContactDetailUiState = { ContactDetailUiState.Loading },
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
     DiaryCrossfade(
         targetState = uiStateProvider() is ContactDetailUiState.Content,
@@ -25,8 +29,10 @@ internal fun ContactDetailScaffoldContent(
     ) { isContent ->
         if (isContent) {
             ContactForm(
+                onEvent = onFormEvent,
                 modifier = Modifier.fillMaxSize(),
                 state = state,
+                tagUiStateProvider = tagUiStateProvider,
             )
         } else {
             Box(
@@ -43,6 +49,6 @@ internal fun ContactDetailScaffoldContent(
 @Composable
 private fun ContactDetailScaffoldContentPreview() {
     DiaryTheme {
-        ContactDetailScaffoldContent(modifier = Modifier.fillMaxSize())
+        ContactDetailScaffoldContent(onFormEvent = {}, modifier = Modifier.fillMaxSize())
     }
 }

@@ -14,8 +14,11 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.ContactTagTestTheme
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -114,7 +117,7 @@ class ContactDetailScreenTest {
         val restorationTester = StateRestorationTester(composeRule)
 
         restorationTester.setContent {
-            DiaryTheme {
+            ContactTagTestTheme {
                 ContactDetailScreen(
                     navigateUp = {},
                     navigateToMemoAdd = {},
@@ -122,7 +125,11 @@ class ContactDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel(uiState = uiState),
+                    contactViewModel = viewModel(uiState = uiState),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -178,7 +185,7 @@ class ContactDetailScreenTest {
         navigateUp: () -> Unit = {},
     ) {
         composeRule.setContent {
-            DiaryTheme {
+            ContactTagTestTheme {
                 ContactDetailScreen(
                     navigateUp = navigateUp,
                     navigateToMemoAdd = {},
@@ -186,7 +193,11 @@ class ContactDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel(uiState = uiState, effect = effect),
+                    contactViewModel = viewModel(uiState = uiState, effect = effect),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }

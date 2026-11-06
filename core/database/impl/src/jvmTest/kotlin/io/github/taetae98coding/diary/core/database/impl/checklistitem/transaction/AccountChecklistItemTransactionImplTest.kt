@@ -49,7 +49,7 @@ class AccountChecklistItemTransactionImplTest :
         test("TC-93f77e96-7b62-406b-8564-b3ddc37fbbfb TC-a0aea019-81b3-42f1-a8fc-133ba9b26542 TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 현재 계정과 연결된 체크리스트에 체크 항목을 넣으면 항목과 계정 연결을 업로드 대기로 저장하고 체크리스트는 바꾸지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
 
             database.markChecklistUploaded(accountId = accountId)
@@ -68,7 +68,7 @@ class AccountChecklistItemTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = emptyList())
+            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
 
             transaction.upsert(accountId = accountId, item = item) shouldBe 0
@@ -83,7 +83,7 @@ class AccountChecklistItemTransactionImplTest :
                 val checklist = Arb.localChecklist(isDeleted = false).next()
                 val item = Arb.localChecklistItem(isChecked = !isChecked, isDeleted = false, checklistId = checklist.id).next()
                 val otherItem = Arb.localChecklistItem(isChecked = !isChecked, isDeleted = false, checklistId = checklist.id).next()
-                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item, otherItem))
+                checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item, otherItem), checklistTagList = emptyList())
                 database.markChecklistUploaded(accountId = accountId)
                 val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -104,7 +104,7 @@ class AccountChecklistItemTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = accountId)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -121,7 +121,7 @@ class AccountChecklistItemTransactionImplTest :
             val otherAccountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
-            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item))
+            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
 
             transaction.updateChecked(accountId = accountId, itemId = item.id, isChecked = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
             transaction.updateDeleted(accountId = accountId, itemId = item.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
@@ -135,7 +135,7 @@ class AccountChecklistItemTransactionImplTest :
             val otherAccountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
-            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item))
+            checklistTransaction.upsert(accountId = otherAccountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = otherAccountId)
 
             transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
@@ -157,8 +157,9 @@ class AccountChecklistItemTransactionImplTest :
                 accountId = accountId,
                 checklist = checklist,
                 itemList = checkedItemList + uncheckedItem + deletedCheckedItem,
+                checklistTagList = emptyList(),
             )
-            checklistTransaction.upsert(accountId = accountId, checklist = otherChecklist, itemList = listOf(otherChecklistItem))
+            checklistTransaction.upsert(accountId = accountId, checklist = otherChecklist, itemList = listOf(otherChecklistItem), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = accountId)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -182,7 +183,7 @@ class AccountChecklistItemTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item), checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = accountId)
 
             transaction.updateAllChecked(accountId = accountId, checklistId = checklist.id, isChecked = false, updatedAt = Arb.secondPrecisionInstant().next()) shouldBe 0
@@ -208,7 +209,7 @@ class AccountChecklistItemTransactionImplTest :
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val content = Arb.string().next()
             val existing = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next().copy(content = content)
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(existing))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(existing), checklistTagList = emptyList())
             val added = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next().copy(content = content)
 
             transaction.upsert(accountId = accountId, item = added) shouldBe 1
@@ -221,7 +222,7 @@ class AccountChecklistItemTransactionImplTest :
             val checklist = Arb.localChecklist(isDeleted = true).next()
             val item = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
             val otherItem = Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item, otherItem))
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = listOf(item, otherItem), checklistTagList = emptyList())
 
             transaction.upsert(
                 accountId = accountId,
@@ -237,7 +238,7 @@ class AccountChecklistItemTransactionImplTest :
         test("TC-a0aea019-81b3-42f1-a8fc-133ba9b26542 항목 넣기의 저장이 실패하면 새 항목과 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList())
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = emptyList(), checklistTagList = emptyList())
             val failingDatabase = spyk(database)
             every { failingDatabase.accountChecklistItemDao() } throws ChecklistItemTestException()
             val failingTransaction = AccountChecklistItemTransactionImpl(database = failingDatabase)
@@ -257,7 +258,7 @@ class AccountChecklistItemTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val checklist = Arb.localChecklist(isDeleted = false).next()
             val itemList = List(3) { Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id).next() }
-            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList)
+            checklistTransaction.upsert(accountId = accountId, checklist = checklist, itemList = itemList, checklistTagList = emptyList())
             database.markChecklistUploaded(accountId = accountId)
             val failingDao = spyk(database.accountChecklistItemDao())
             coEvery { failingDao.markPending(accountId = any(), itemIdList = any()) } throws ChecklistItemTestException()

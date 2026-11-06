@@ -89,7 +89,7 @@ class AccountMemoContactTransactionImplTest :
             memo: MemoLocalEntity,
             contactList: List<ContactLocalEntity>,
         ) {
-            contactTransaction.upsert(accountId = accountId, contactList = contactList)
+            contactTransaction.upsert(accountId = accountId, contactList = contactList, contactTagList = emptyList())
             memoTransaction.upsert(
                 accountId = accountId,
                 memoList = listOf(memo),
@@ -185,7 +185,7 @@ class AccountMemoContactTransactionImplTest :
             val contact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)), contactTagList = emptyList())
 
             findMemoContactList(memoId = memo.id) shouldBe
                 listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo))
@@ -228,7 +228,7 @@ class AccountMemoContactTransactionImplTest :
             val changedContact = contact.copy(detail = contactDetail(), updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact), contactTagList = emptyList())
 
             findMemoContactList(memoId = memo.id) shouldBe
                 listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo))
@@ -242,7 +242,7 @@ class AccountMemoContactTransactionImplTest :
             val changedContact = contact.copy(isFavorite = !contact.isFavorite, updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact), contactTagList = emptyList())
 
             findMemoContactList(memoId = memo.id) shouldBe
                 listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo))
@@ -276,7 +276,7 @@ class AccountMemoContactTransactionImplTest :
             val memo = memo()
             val contact = contact()
             val createdAt = Arb.secondPrecisionInstant().next()
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             database.memoContactDao().upsert(
                 MemoContactLocalEntity(
@@ -311,7 +311,7 @@ class AccountMemoContactTransactionImplTest :
             val deletedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(keptContact, deletedContact))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)), contactTagList = emptyList())
 
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptContact)
         }
@@ -371,7 +371,7 @@ class AccountMemoContactTransactionImplTest :
                 val linkedContact = contact().withName(name = linkedTitle)
                 val unlinkedContact = contact().withName(name = unlinkedTitle)
                 insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(linkedContact))
-                contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact))
+                contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact), contactTagList = emptyList())
 
                 val contactList =
                     database
@@ -389,7 +389,7 @@ class AccountMemoContactTransactionImplTest :
             val linkedContact = contact().withName(name = "AAA").withBirthday(date = BIRTHDAY_DATE)
             val unlinkedContact = contact().withName(name = "BBB").withBirthday(date = BIRTHDAY_DATE)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(linkedContact))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact), contactTagList = emptyList())
 
             val birthdayList =
                 AccountCalendarContactBirthdayLocalDataSourceImpl(database = database)
@@ -488,7 +488,7 @@ class AccountMemoContactTransactionImplTest :
             val keptContact = contact()
             val addedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(keptContact))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact), contactTagList = emptyList())
             clearAllPending(accountId = accountId)
 
             accountMemoContactTransaction.upsert(
@@ -601,7 +601,7 @@ class AccountMemoContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact()
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -669,7 +669,7 @@ class AccountMemoContactTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val contact = contact().copy(isFavorite = true)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
             accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
@@ -683,7 +683,7 @@ class AccountMemoContactTransactionImplTest :
             val source = memo()
             val deletedContact = contact()
             insertMemoWithContactList(accountId = accountId, memo = source, contactList = listOf(deletedContact))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(deletedContact.copy(isDeleted = true)), contactTagList = emptyList())
 
             val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
@@ -750,7 +750,7 @@ class AccountMemoContactTransactionImplTest :
                 val accountId = Arb.kotlinUuid().next()
                 val memo = change(memo())
                 val contact = contact()
-                contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+                contactTransaction.upsert(accountId = accountId, contactList = listOf(contact), contactTagList = emptyList())
                 memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
                 accountMemoContactTransaction.upsert(accountId = accountId, memoId = memo.id, contactId = contact.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())

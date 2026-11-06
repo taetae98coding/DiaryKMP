@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.QR_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.actionNameList
@@ -35,6 +36,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
+import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.withClue
@@ -293,7 +295,11 @@ class QrDetailActionTest {
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
                 componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
-                viewModel = viewModel,
+                qrViewModel = viewModel,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = detailTagScreenTestViewModel(),
             )
         }
     }

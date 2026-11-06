@@ -30,6 +30,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
@@ -55,7 +56,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailEffect
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailUiState
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
@@ -125,7 +125,7 @@ class QrNavDisplayTest {
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.qrCodeValue() shouldBe URL
         composeRule.onQrFieldInput("URL").editableText() shouldBe URL
@@ -141,7 +141,7 @@ class QrNavDisplayTest {
         composeRule.runOnIdle { backStack.navigateUpWithQrScannedValue(resultEventBus = resultEventBus, value = scannedValue) }
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
         composeRule.qrTextInputText() shouldBe scannedValue
         composeRule.qrCodeValue() shouldBe scannedValue
@@ -159,7 +159,7 @@ class QrNavDisplayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertDoesNotExist()
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.qrTextInputText() shouldBe scannedValue
     }
 
@@ -181,7 +181,7 @@ class QrNavDisplayTest {
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.titleInputText() shouldBe ""
         composeRule.descriptionInputText() shouldBe ""
@@ -189,7 +189,7 @@ class QrNavDisplayTest {
         composeRule.onNode(hasText(DEFAULT_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe "Text"
         composeRule.qrTextInputText() shouldBe ""
         composeRule.qrCodeValue() shouldBe ""
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any(), tagIdSet = any()) } }
     }
 
     @Test
@@ -426,6 +426,8 @@ class QrNavDisplayTest {
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun navDisplayViewModelModule() =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<QrHomeViewModel>(relaxed = true).apply {
                     every { qrPagingData } returns MutableStateFlow(qrPagingDataOf(homeQrList))

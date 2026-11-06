@@ -3,13 +3,13 @@ package io.github.taetae98coding.diary.data.place.repository
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceTransaction
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
@@ -79,16 +79,7 @@ internal class AccountPlaceRepositoryImpl(
         accountPlaceTransaction.upsert(
             accountId = account.id,
             placeList = listOf(place.toLocal()),
-            placeTagList =
-                tagIdSet.map { tagId ->
-                    PlaceTagLocalEntity(
-                        placeId = place.id,
-                        tagId = tagId,
-                        isDeleted = false,
-                        updatedAt = place.updatedAt,
-                        createdAt = place.createdAt,
-                    )
-                },
+            placeTagList = tagIdSet.toEntityTagLocalList(entityId = place.id, updatedAt = place.updatedAt, createdAt = place.createdAt),
         )
     }
 

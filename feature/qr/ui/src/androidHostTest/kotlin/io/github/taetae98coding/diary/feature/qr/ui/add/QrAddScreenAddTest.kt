@@ -19,6 +19,8 @@ import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -92,7 +94,7 @@ class QrAddScreenAddTest {
 
         clickAdd()
 
-        coVerify(exactly = 2) { useCase(parameter = detail) }
+        coVerify(exactly = 2) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
     }
 
     @Test
@@ -119,7 +121,7 @@ class QrAddScreenAddTest {
 
         clickAdd()
 
-        verify(exactly = 1) { viewModel.add(detail = detail) }
+        verify(exactly = 1) { viewModel.add(detail = detail, tagIdSet = emptySet()) }
     }
 
     @Test
@@ -170,7 +172,7 @@ class QrAddScreenAddTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(KOREAN_ADD_SUCCEEDED_MESSAGE).assertExists()
-        coVerify(exactly = 1) { useCase(parameter = detail) }
+        coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
     }
 
     private fun assertInputRetained(
@@ -222,7 +224,11 @@ class QrAddScreenAddTest {
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
                 componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                viewModel = viewModel,
+                addViewModel = viewModel,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = addTagScreenTestViewModel(),
             )
         }
     }

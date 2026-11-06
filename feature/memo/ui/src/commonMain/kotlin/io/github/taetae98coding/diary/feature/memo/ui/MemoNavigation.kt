@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
@@ -34,4 +35,8 @@ internal fun NavBackStack<ScreenNavKey>.navigateToCopiedMemo(id: Uuid) {
 
 internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromMemoWebInput(requestKey: Uuid) {
     add(WebAddNavKey(requestKey = requestKey))
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToContactAddFromMemoContactInput(requestKey: Uuid) {
+    add(ContactAddNavKey(requestKey = requestKey))
 }

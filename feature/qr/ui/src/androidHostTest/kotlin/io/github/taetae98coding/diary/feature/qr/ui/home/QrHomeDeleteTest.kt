@@ -15,12 +15,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -107,7 +108,7 @@ class QrHomeDeleteTest {
         swipeCardLeft(qr = environment.first)
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
 
-        environment.effectChannel.trySend(QrHomeEffect.Deleted(id = environment.second.id)).getOrThrow()
+        environment.effectChannel.trySend(QrListEffect.Deleted(id = environment.second.id)).getOrThrow()
         composeRule.waitForIdle()
 
         composeRule.onAllNodesWithText(DEFAULT_DELETED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -204,12 +205,12 @@ class QrHomeDeleteTest {
     ): Environment {
         val first = testQr()
         val second = testQr()
-        val effectChannel = Channel<QrHomeEffect>(capacity = Channel.BUFFERED)
+        val effectChannel = Channel<QrListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<QrHomeViewModel>()
         every { viewModel.qrPagingData } returns MutableStateFlow(qrPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
-            effectChannel.trySend(QrHomeEffect.Deleted(id = firstArg())).getOrThrow()
+            effectChannel.trySend(QrListEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
 
@@ -259,7 +260,7 @@ class QrHomeDeleteTest {
 
     private class Environment(
         val viewModel: QrHomeViewModel,
-        val effectChannel: Channel<QrHomeEffect>,
+        val effectChannel: Channel<QrListEffect>,
         val first: Qr,
         val second: Qr,
     )

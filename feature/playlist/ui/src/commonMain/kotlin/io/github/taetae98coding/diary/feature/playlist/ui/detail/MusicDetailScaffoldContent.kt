@@ -9,16 +9,20 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicForm
+import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormEvent
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicDetailFormState
 
 @Composable
 internal fun MusicDetailScaffoldContent(
     onFetchLinkClick: () -> Unit,
+    onFormEvent: (MusicFormEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: MusicFormState = rememberMusicDetailFormState(),
     uiStateProvider: () -> MusicDetailUiState = { MusicDetailUiState.Loading },
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
     DiaryCrossfade(
         targetState = uiStateProvider() is MusicDetailUiState.Content,
@@ -27,9 +31,11 @@ internal fun MusicDetailScaffoldContent(
         if (isContent) {
             MusicForm(
                 onFetchLinkClick = onFetchLinkClick,
+                onEvent = onFormEvent,
                 modifier = Modifier.fillMaxSize(),
                 state = state,
                 isFetchInProgressProvider = { (uiStateProvider() as? MusicDetailUiState.Content)?.isLinkFetchInProgress == true },
+                tagUiStateProvider = tagUiStateProvider,
             )
         } else {
             Box(
@@ -48,6 +54,7 @@ private fun MusicDetailScaffoldContentPreview() {
     DiaryTheme {
         MusicDetailScaffoldContent(
             onFetchLinkClick = {},
+            onFormEvent = {},
             modifier = Modifier.fillMaxSize(),
         )
     }

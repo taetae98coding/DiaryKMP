@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInputState
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryDescriptionInputState
@@ -28,6 +30,7 @@ internal class QrAddFormState(
     val contentState: QrContentFormState,
     val scrollState: ScrollState,
     val snackbarHostState: SnackbarHostState,
+    val tagPickerDialogState: DialogState,
 ) {
     var tab: QrAddTab by tabState
 
@@ -67,8 +70,9 @@ internal fun rememberQrAddFormState(
     val contentState = rememberQrContentFormState(initialValue = initialDetail.value, defaultProvider = defaultProvider)
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val tagPickerDialogState = rememberDialogState()
 
-    return remember(tabState, titleState, descriptionState, contentState, scrollState, snackbarHostState) {
+    return remember(tabState, titleState, descriptionState, contentState, scrollState, snackbarHostState, tagPickerDialogState) {
         QrAddFormState(
             tabState = tabState,
             titleState = titleState,
@@ -76,6 +80,7 @@ internal fun rememberQrAddFormState(
             contentState = contentState,
             scrollState = scrollState,
             snackbarHostState = snackbarHostState,
+            tagPickerDialogState = tagPickerDialogState,
         )
     }
 }

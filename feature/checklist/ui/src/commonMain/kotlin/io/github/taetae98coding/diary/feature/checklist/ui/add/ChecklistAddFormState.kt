@@ -11,6 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInputState
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryDescriptionInputState
@@ -28,6 +30,7 @@ internal class ChecklistAddFormState(
     val itemInputBringIntoViewRequester: BringIntoViewRequester,
     val scrollState: ScrollState,
     val snackbarHostState: SnackbarHostState,
+    val tagPickerDialogState: DialogState,
     private val itemStateList: SnapshotStateList<ChecklistAddItem>,
 ) {
     val itemList: List<ChecklistAddItem>
@@ -75,9 +78,10 @@ internal fun rememberChecklistAddFormState(initialItemList: List<ChecklistAddIte
     val itemInputBringIntoViewRequester = remember { BringIntoViewRequester() }
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val tagPickerDialogState = rememberDialogState()
     val itemStateList = rememberSaveable(saver = ChecklistAddItemListSaver) { mutableStateListOf(*initialItemList.toTypedArray()) }
 
-    return remember(titleState, descriptionState, itemInputState, itemInputBringIntoViewRequester, scrollState, snackbarHostState, itemStateList) {
+    return remember(titleState, descriptionState, itemInputState, itemInputBringIntoViewRequester, scrollState, snackbarHostState, tagPickerDialogState, itemStateList) {
         ChecklistAddFormState(
             titleState = titleState,
             descriptionState = descriptionState,
@@ -85,6 +89,7 @@ internal fun rememberChecklistAddFormState(initialItemList: List<ChecklistAddIte
             itemInputBringIntoViewRequester = itemInputBringIntoViewRequester,
             scrollState = scrollState,
             snackbarHostState = snackbarHostState,
+            tagPickerDialogState = tagPickerDialogState,
             itemStateList = itemStateList,
         )
     }

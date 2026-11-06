@@ -7,10 +7,12 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
@@ -30,6 +32,8 @@ import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinis
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -44,13 +48,13 @@ internal fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackSta
 internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactHomeNavKey>(
         clazzContentKey = { CONTACT_HOME_CONTENT_KEY },
-        metadata = contactHomeListPaneMetadata(),
+        metadata = contactHomeListPaneMetadata(backStack = backStack),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
         ContactHomeScreen(
             navigateUp = backStack::navigateUpFromContactHome,
-            navigateToAdd = { backStack.add(ContactAddNavKey()) },
+            navigateToAdd = backStack::navigateToContactAddFromHome,
             navigateToDetail = { id -> backStack.navigateToContactDetail(id) },
             componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
             contactViewModel = koinViewModel(),
@@ -61,16 +65,22 @@ internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBac
 
 internal const val CONTACT_HOME_CONTENT_KEY: String = "ContactHomeNavKey"
 
-internal fun contactHomeListPaneMetadata(): Map<String, Any> =
+internal fun contactHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<String, Any> =
     ListDetailSceneStrategy.listPane(
         sceneKey = ContactHomeNavKey,
         detailPlaceholder = {
             ListDetailPlaceholderStateProvider(listContentKey = CONTACT_HOME_CONTENT_KEY) {
+                val tagAddRequestKey = rememberResultRequestKey()
+
                 ContactAddScreen(
                     navigateUp = {},
+                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    tagAddRequestKey = tagAddRequestKey,
                     addedResultRequestKey = null,
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    viewModel = koinViewModel(),
+                    addViewModel = koinViewModel(),
+                    tagViewModel = koinViewModel { parametersOf(null) },
                 )
             }
         },
@@ -81,12 +91,17 @@ internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBack
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+        val tagAddRequestKey = rememberResultRequestKey()
 
         ContactAddScreen(
             navigateUp = backStack::removeLastOrNull,
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            tagAddRequestKey = tagAddRequestKey,
             addedResultRequestKey = key.requestKey,
             componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            viewModel = koinViewModel(),
+            addViewModel = koinViewModel(),
+            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
         )
     }
 }
@@ -96,15 +111,20 @@ internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavB
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+        val tagAddRequestKey = rememberResultRequestKey()
 
         ContactDetailScreen(
             navigateUp = backStack::removeLastOrNull,
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialContactId = key.id)) },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
             navigateToMemoFinishedList = { backStack.add(ContactMemoFinishedListNavKey(contactId = key.id)) },
             id = key.id,
+            tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            viewModel = koinViewModel { parametersOf(key.id) },
+            contactViewModel = koinViewModel { parametersOf(key.id) },
+            tagViewModel = koinViewModel { parametersOf(EntityTagKind.CONTACT, key.id) },
         )
     }
 }

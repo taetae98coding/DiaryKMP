@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.core.testing.playlist.music
 import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
 import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -43,18 +45,42 @@ import kotlin.uuid.Uuid
 
 class AccountMusicRepositoryImplTest :
     FunSpec({
+        test("TC-9e2caabc-7aa9-4a87-9a2e-56b004a54b92 TC-1bf49291-9657-4a44-827b-0aac90193924 고른 태그와의 연결을 새 곡과 같은 저장 작업에 담는다") {
+            val account = Arb.accountUser().next()
+            val music = music()
+            val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+            val transaction = mockk<AccountMusicTransaction>(relaxed = true)
+            val repository = AccountMusicRepositoryImpl(accountMusicLocalDataSource = mockk(), accountMusicTransaction = transaction)
+
+            repository.upsert(account = account, music = music, tagIdSet = tagIdSet)
+
+            val expected =
+                tagIdSet.map { tagId ->
+                    EntityTagLocalEntity(
+                        entityId = music.id,
+                        tagId = tagId,
+                        isDeleted = false,
+                        updatedAt = music.updatedAt,
+                        createdAt = music.createdAt,
+                    )
+                }
+            coVerify(exactly = 1) {
+                transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal()), musicTagList = expected)
+            }
+        }
+
         test("TC-ac78be66-5451-4c54-931a-4eea0f82ea47 곡을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = Arb.accountUser().next()
             val music = music()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal())) } just Runs
+            coEvery { transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal()), musicTagList = emptyList()) } just Runs
             val repository = AccountMusicRepositoryImpl(accountMusicLocalDataSource = localDataSource, accountMusicTransaction = transaction)
 
-            repository.upsert(account = account, music = music)
+            repository.upsert(account = account, music = music, tagIdSet = emptySet())
 
             coVerify(exactly = 1) {
-                transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal()))
+                transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal()), musicTagList = emptyList())
             }
         }
 
@@ -64,11 +90,11 @@ class AccountMusicRepositoryImplTest :
             val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountMusicLocalDataSource>()
             val transaction = mockk<AccountMusicTransaction>()
-            coEvery { transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal())) } throws throwable
+            coEvery { transaction.upsert(accountId = account.id, musicList = listOf(music.toLocal()), musicTagList = emptyList()) } throws throwable
             val repository = AccountMusicRepositoryImpl(accountMusicLocalDataSource = localDataSource, accountMusicTransaction = transaction)
 
             shouldThrow<IllegalStateException> {
-                repository.upsert(account = account, music = music)
+                repository.upsert(account = account, music = music, tagIdSet = emptySet())
             } shouldBeSameInstanceAs throwable
         }
 
@@ -133,7 +159,7 @@ class AccountMusicRepositoryImplTest :
 
             repository.updateDeleted(account = account, musicId = musicId, isDeleted = true, updatedAt = updatedAt) shouldBe 1
 
-            coVerify(exactly = 0) { transaction.upsert(accountId = any(), musicList = any()) }
+            coVerify(exactly = 0) { transaction.upsert(accountId = any(), musicList = any(), musicTagList = any()) }
         }
 
         test("TC-f54d0402-0b9e-4aa6-973f-29ef980b4e07 로컬 수정이 실패하면 실패를 그대로 전파한다") {

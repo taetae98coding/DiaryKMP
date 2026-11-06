@@ -13,14 +13,19 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CONTACT_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffold
@@ -126,8 +131,12 @@ class TagDetailScopeTest {
             DEFAULT_MEMO_TAB_DESCRIPTION,
             DEFAULT_WEB_TAB_DESCRIPTION,
             DEFAULT_PLACE_TAB_DESCRIPTION,
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
-            composeRule.onNodeWithContentDescription(tabDescription).performClick()
+            composeRule.onNodeWithContentDescription(tabDescription).performScrollTo().performClick()
             composeRule.waitForIdle()
 
             composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()

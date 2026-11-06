@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.data.contact.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
@@ -66,10 +67,12 @@ internal class AccountContactRepositoryImpl(
     override suspend fun upsert(
         account: Account,
         contact: Contact,
+        tagIdSet: Set<Uuid>,
     ) {
         accountContactTransaction.upsert(
             accountId = account.id,
             contactList = listOf(contact.toLocal()),
+            contactTagList = tagIdSet.toEntityTagLocalList(entityId = contact.id, updatedAt = contact.updatedAt, createdAt = contact.createdAt),
         )
     }
 

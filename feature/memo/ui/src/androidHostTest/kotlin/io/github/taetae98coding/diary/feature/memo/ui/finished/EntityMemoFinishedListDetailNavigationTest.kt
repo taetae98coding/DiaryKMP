@@ -39,10 +39,10 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListController
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
-import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListViewModel
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
@@ -364,8 +364,8 @@ class EntityMemoFinishedListDetailNavigationTest {
         }
     }
 
-    private fun entityMemoFinishedListViewModel(): EntityMemoFinishedListViewModel =
-        mockk<EntityMemoFinishedListViewModel>(relaxed = true) {
+    private fun entityMemoFinishedListViewModel(): EntityMemoFinishedListController =
+        mockk<EntityMemoFinishedListController>(relaxed = true) {
             every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
             every { sortUiState } returns MutableStateFlow(ListSortUiState())
             every { memoPagingData } returns finishedPagingData

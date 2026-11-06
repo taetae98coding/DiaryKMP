@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.feature.checklist.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
@@ -115,7 +116,7 @@ class ChecklistHomeViewModelTest : FunSpec() {
                 viewModel.effect.test {
                     viewModel.delete(id = id)
 
-                    awaitItem() shouldBe ChecklistHomeEffect.Deleted(id = id)
+                    awaitItem() shouldBe ChecklistListEffect.Deleted(id = id)
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { deleteChecklistUseCase(parameter = id) }

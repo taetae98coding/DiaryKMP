@@ -23,6 +23,9 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoContent
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoFloatingActionButton
@@ -35,7 +38,6 @@ import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailF
 import io.github.taetae98coding.diary.feature.place.ui.place_coordinate_invalid_message
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_open_external_map_failed_message
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
-import io.github.taetae98coding.diary.feature.place.ui.tag.PlaceTagAddedResultEffect
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -52,7 +54,7 @@ internal fun PlaceDetailScreen(
     tagAddRequestKey: Uuid,
     detailViewModel: PlaceDetailViewModel,
     searchViewModel: PlaceSearchViewModel,
-    tagViewModel: PlaceDetailTagViewModel,
+    tagViewModel: EntityDetailTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val tabState = key(id) { rememberPlaceDetailTabState() }
@@ -67,7 +69,7 @@ internal fun PlaceDetailScreen(
     val isUpdateEnabled by rememberIsUpdateEnabled(scaffoldState = scaffoldState, uiStateProvider = { uiState })
     val openExternalMap = rememberOpenExternalMap(scaffoldState = scaffoldState, savedTitleProvider = { content?.detail?.title.orEmpty() })
 
-    PlaceTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     PlaceDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
 
@@ -75,7 +77,7 @@ internal fun PlaceDetailScreen(
         state = scaffoldState,
         onEvent = { event -> handlePlaceDetailScaffoldEvent(event = event, detailViewModel = detailViewModel, scaffoldState = scaffoldState, openExternalMap = openExternalMap, navigateUp = navigateUp) },
         onSearchEvent = { event -> searchViewModel.handleSearchEvent(event = event, scaffoldState = scaffoldState) },
-        onTagPickerEvent = { event -> tagViewModel.handleTagPickerEvent(event = event, navigateToTagAdd = navigateToTagAdd) },
+        onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
         modifier =
             modifier.placeDetailTabShortcut(
                 onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },

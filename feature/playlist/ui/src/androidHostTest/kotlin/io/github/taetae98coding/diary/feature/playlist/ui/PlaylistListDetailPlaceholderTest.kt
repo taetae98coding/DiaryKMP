@@ -39,6 +39,8 @@ import io.github.taetae98coding.diary.feature.playlist.ui.add.artistInput
 import io.github.taetae98coding.diary.feature.playlist.ui.add.linkInput
 import io.github.taetae98coding.diary.feature.playlist.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.titleInput
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -127,7 +129,7 @@ class PlaylistListDetailPlaceholderTest {
                                 entry<MoreNavKey> { Text(text = MORE_CONTENT) }
                                 entry<PlaylistHomeNavKey>(
                                     clazzContentKey = { PLAYLIST_HOME_CONTENT_KEY },
-                                    metadata = playlistHomeListPaneMetadata(),
+                                    metadata = playlistHomeListPaneMetadata(backStack = backStack),
                                 ) { Text(text = PLAYLIST_HOME_CONTENT) }
                                 entry<MusicDetailNavKey>(
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = PlaylistHomeNavKey),
@@ -164,6 +166,8 @@ class PlaylistListDetailPlaceholderTest {
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓰고, 만들어진 인스턴스를 세어 저장 범위를 확인한다.
     private fun placeholderViewModelModule() =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory { screenTestViewModel().also { viewModel -> viewModelList += viewModel } }
         }
 

@@ -83,7 +83,7 @@ class UpdateMusicUseCaseTest :
                     coVerify(exactly = 0) {
                         accountMusicRepository.updateDeleted(account = any(), musicId = any(), isDeleted = any(), updatedAt = any())
                     }
-                    coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
+                    coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any(), tagIdSet = any()) }
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-5244b211-1fe9-414b-a74c-5e5544ce300d 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {

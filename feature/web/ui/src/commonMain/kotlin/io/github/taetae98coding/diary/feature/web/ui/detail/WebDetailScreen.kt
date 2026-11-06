@@ -13,14 +13,15 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.core.uri.tryOpenUri
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
-import io.github.taetae98coding.diary.feature.web.ui.tag.WebTagAddedResultEffect
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_open_failed_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -38,7 +39,7 @@ internal fun WebDetailScreen(
     tagAddRequestKey: Uuid,
     webViewModel: WebDetailViewModel,
     pageViewModel: WebDetailPageViewModel,
-    tagViewModel: WebDetailTagViewModel,
+    tagViewModel: EntityDetailTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val viewModelStoreProvider = rememberViewModelStoreProvider()
@@ -52,7 +53,7 @@ internal fun WebDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val openFailedMessage = stringResource(Res.string.web_detail_open_failed_message)
 
-    WebTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
+    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
     val scaffoldState = key(id) { rememberWebDetailScaffoldState() }
 
@@ -92,7 +93,7 @@ internal fun WebDetailScreen(
                 }
             },
             onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
-            onTagPickerEvent = { event -> handleWebDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
+            onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = scaffoldState,
             formState = formState,
@@ -110,18 +111,5 @@ internal fun WebDetailScreen(
                 snackbarHostState = formState.snackbarHostState,
             )
         }
-    }
-}
-
-private fun handleWebDetailTagPickerEvent(
-    event: EntityTagPickerEvent,
-    tagViewModel: WebDetailTagViewModel,
-    navigateToTagAdd: () -> Unit,
-) {
-    when (event) {
-        is EntityTagPickerEvent.ClickAdd -> navigateToTagAdd()
-        is EntityTagPickerEvent.Add -> tagViewModel.add(tagId = event.id)
-        is EntityTagPickerEvent.Remove -> tagViewModel.remove(tagId = event.id)
-        is EntityTagPickerEvent.ChangeQuery -> tagViewModel.updateQuery(query = event.query)
     }
 }

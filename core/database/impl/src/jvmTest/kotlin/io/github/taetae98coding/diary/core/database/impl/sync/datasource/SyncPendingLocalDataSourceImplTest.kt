@@ -5,16 +5,20 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.entity.AccountChecklistTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.AccountContactTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.musictag.entity.AccountMusicTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.AccountQrTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
@@ -99,12 +103,32 @@ private val pendingWriterMap: Map<String, PendingWriter> =
                 AccountPlaceTagLocalEntity(accountId = accountId, placeId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
+        "연락처와 태그의 연결" to { database, accountId, isDirty ->
+            database.accountContactTagSyncDao().upsert(
+                AccountContactTagLocalEntity(accountId = accountId, contactId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "체크리스트와 태그의 연결" to { database, accountId, isDirty ->
+            database.accountChecklistTagSyncDao().upsert(
+                AccountChecklistTagLocalEntity(accountId = accountId, checklistId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "곡과 태그의 연결" to { database, accountId, isDirty ->
+            database.accountMusicTagSyncDao().upsert(
+                AccountMusicTagLocalEntity(accountId = accountId, musicId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "QR과 태그의 연결" to { database, accountId, isDirty ->
+            database.accountQrTagSyncDao().upsert(
+                AccountQrTagLocalEntity(accountId = accountId, qrId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
     )
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 열여섯 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 16
+        test("업로드 대기 확인이 동기화 대상 스무 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 20
         }
 
         lateinit var database: DiaryDatabase
@@ -123,7 +147,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 스무 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = Arb.kotlinUuid().next()
 

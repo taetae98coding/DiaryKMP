@@ -13,7 +13,8 @@ public fun List<ScreenNavKey>.isChecklistListDetailPane(key: ScreenNavKey): Bool
 public fun List<ScreenNavKey>.isChecklistAddOnDetailPane(): Boolean {
     val key = lastOrNull() ?: return false
 
-    return key == ChecklistHomeNavKey || (key == ChecklistAddNavKey && isChecklistListDetailPane(key))
+    return key == ChecklistHomeNavKey || (key is ChecklistAddNavKey && isChecklistListDetailPane(key))
 }
 
-private fun ScreenNavKey.isChecklistDetailPaneKey(): Boolean = this is ChecklistAddNavKey || this is ChecklistDetailNavKey
+// 초기 태그가 있는 ChecklistAdd는 TagDetail 체크리스트 탭에서 진입한 것이다.
+private fun ScreenNavKey.isChecklistDetailPaneKey(): Boolean = (this is ChecklistAddNavKey && initialTagId == null) || this is ChecklistDetailNavKey

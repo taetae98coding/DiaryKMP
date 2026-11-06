@@ -1,0 +1,5 @@
+<resources>
+    <string name="music_list_deleted_message">Song deleted.</string>
+    <string name="music_list_undo_action">Undo</string>
+    <string name="music_list_delete_content_description">Delete song</string>
+</resources>

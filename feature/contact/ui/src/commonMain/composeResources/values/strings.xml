@@ -39,9 +39,6 @@
     <string name="contact_add_succeeded_message">Contact added.</string>
     <string name="contact_add_name_blank_message">Please enter a name.</string>
     <string name="contact_add_phone_number_blank_message">Please enter a phone number.</string>
-    <string name="contact_home_birthday_lunar">Lunar %1$s</string>
-    <string name="contact_home_birth_year">Born %1$d</string>
-    <string name="contact_home_favorite_content_description">Favorite</string>
     <string name="contact_detail_favorite_button_content_description">Add to favorites</string>
     <string name="contact_detail_unfavorite_button_content_description">Remove from favorites</string>
     <string name="contact_detail_delete_button_content_description">Delete contact</string>
@@ -52,8 +49,5 @@
     <string name="contact_detail_memo_add_button_content_description">Add memo</string>
     <string name="contact_detail_memo_empty_title">No memos linked to this contact</string>
     <string name="contact_detail_memo_empty_description">Use the add button to create a memo.</string>
-    <string name="contact_home_deleted_message">Contact deleted.</string>
-    <string name="contact_home_undo_action">Undo</string>
-    <string name="contact_home_delete_content_description">Delete contact</string>
     <string name="contact_memo_finished_list_empty_title">No finished memos for this contact</string>
 </resources>

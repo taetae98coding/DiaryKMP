@@ -2,10 +2,10 @@ package io.github.taetae98coding.diary.feature.qr.ui.add.form
 
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
+import io.github.taetae98coding.diary.compose.qr.fitsInQrCode
 import io.github.taetae98coding.diary.domain.qr.content.QrContent
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.content.patch
-import io.github.taetae98coding.diary.feature.qr.ui.code.fitsInQrCode
 
 internal class QrFieldInputTransformation(
     private val field: QrTextField,

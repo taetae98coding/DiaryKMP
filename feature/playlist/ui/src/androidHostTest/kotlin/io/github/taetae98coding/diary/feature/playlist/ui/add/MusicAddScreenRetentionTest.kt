@@ -9,7 +9,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -27,11 +29,15 @@ class MusicAddScreenRetentionTest {
     fun `TC-c1c4e40e-ab7f-48ee-aacc-6d65f93511c5 화면이 재생성되어도 작성 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = fetchEffectViewModel(fetchedEffect()),
+                    addViewModel = fetchEffectViewModel(fetchedEffect()),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -55,11 +61,15 @@ class MusicAddScreenRetentionTest {
             // 메모리 정리 뒤에는 화면 상태를 들고 있던 객체도 새로 만들어지므로 복원할 때마다 새 인스턴스를 쓴다.
             val viewModel = remember { screenTestViewModel() }
 
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -83,11 +93,15 @@ class MusicAddScreenRetentionTest {
             key(launchCount) {
                 val viewModel = remember { screenTestViewModel().also(viewModelList::add) }
 
-                DiaryTheme {
+                MusicTagTestTheme {
                     MusicAddScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        addViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = addTagScreenTestViewModel(),
                     )
                 }
             }

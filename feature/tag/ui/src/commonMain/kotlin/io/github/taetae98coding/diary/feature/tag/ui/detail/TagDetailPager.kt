@@ -9,8 +9,12 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.Res
+import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTabState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.rememberTagDetailTabState
@@ -46,6 +50,10 @@ private fun TagDetailPagerPreview() {
                 TagDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title), emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.WEB -> TagDetailWebTab(onEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.PLACE -> TagDetailPlaceTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.CONTACT -> TagDetailContactTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.CHECKLIST -> TagDetailChecklistTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.MUSIC -> TagDetailMusicTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.QR -> TagDetailQrTab(onEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
     }

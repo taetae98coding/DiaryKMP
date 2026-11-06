@@ -33,6 +33,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
@@ -193,8 +194,8 @@ internal fun ComposeContentTestRule.input(index: Int): SemanticsNodeInteraction 
 internal fun detailTagScreenTestViewModel(
     tagList: List<Tag> = emptyList(),
     selectableTagList: List<Tag> = emptyList(),
-): PlaceDetailTagViewModel {
-    val viewModel = mockk<PlaceDetailTagViewModel>(relaxed = true)
+): EntityDetailTagViewModel {
+    val viewModel = mockk<EntityDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
@@ -212,7 +213,7 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
     memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
-    tagViewModel: PlaceDetailTagViewModel = detailTagScreenTestViewModel(),
+    tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     uriHandler: UriHandler = mockk(relaxed = true),
 ) {
     preparePlaceDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)

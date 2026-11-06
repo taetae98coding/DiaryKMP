@@ -41,10 +41,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
+import io.github.taetae98coding.diary.feature.checklist.ui.ChecklistTagTestTheme
+import io.github.taetae98coding.diary.feature.checklist.ui.DEFAULT_ENTITY_TAG_LABEL
+import io.github.taetae98coding.diary.feature.checklist.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.checklist.ui.actionNameList
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailTestEnvironment.Companion.CHARGER
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailTestEnvironment.Companion.PASSPORT
@@ -108,7 +110,7 @@ class ChecklistDetailScreenTest {
     }
 
     @Test
-    fun `TC-dfe51071-5833-4a21-896e-c2af08120f69 화면에는 정해진 입력과 동작만 둔다`() {
+    fun `TC-dadbe912-cbe4-4b40-9037-0110c66a15d4 화면에는 정해진 입력과 동작만 둔다`() {
         val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
         setScreen(environment)
         composeRule.titleInput().performTextInput("2")
@@ -121,6 +123,7 @@ class ChecklistDetailScreenTest {
                 DEFAULT_DELETE,
                 DEFAULT_TITLE_LABEL,
                 DEFAULT_DESCRIPTION_LABEL,
+                DEFAULT_ENTITY_TAG_LABEL,
                 DEFAULT_UPDATE,
                 DEFAULT_SORT,
                 PASSPORT,
@@ -1083,12 +1086,16 @@ class ChecklistDetailScreenTest {
         environment: ChecklistDetailTestEnvironment,
         navigateUp: () -> Unit = {},
     ) {
-        DiaryTheme {
+        ChecklistTagTestTheme(resultEventBus = environment.resultEventBus) {
             ChecklistDetailScreen(
                 navigateUp = navigateUp,
+                navigateToTagAdd = { environment.tagAddCount += 1 },
+                navigateToTagDetail = environment.navigatedTagIdList::add,
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 componentVisibleProvider = { ChecklistDetailScaffoldComponentVisible() },
                 checklistViewModel = environment.checklistViewModel,
                 itemViewModel = environment.itemViewModel,
+                tagViewModel = environment.tagViewModel,
             )
         }
     }

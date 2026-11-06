@@ -19,8 +19,6 @@ import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.core.testing.web.webDetail
-import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
-import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultViewModel
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
@@ -28,6 +26,7 @@ import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -94,11 +93,11 @@ internal fun searchWeb(title: String): Web =
         )
 
 // uiState는 구독하는 동안에만 갱신되므로, 잠시 구독해 지금 값을 읽는다.
-internal fun TestScope.currentUiState(viewModel: SearchHomeResultViewModel<*>): SearchHomeResultUiState {
-    val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+internal fun TestScope.currentUiState(uiState: StateFlow<SearchHomeResultUiState>): SearchHomeResultUiState {
+    val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { uiState.collect {} }
     advanceUntilIdle()
-    val uiState = viewModel.uiState.value
+    val value = uiState.value
     job.cancel()
 
-    return uiState
+    return value
 }

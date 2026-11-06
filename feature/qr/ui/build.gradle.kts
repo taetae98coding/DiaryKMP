@@ -8,12 +8,15 @@ kotlin {
             dependencies {
                 implementation(projects.compose.permission)
                 implementation(projects.compose.place)
+                implementation(projects.compose.qr)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.qr)
                 implementation(projects.domain.setting)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.core)
                 implementation(projects.feature.qr.api)
+                implementation(projects.feature.tag.api)
                 implementation(projects.library.kotlin)
-                implementation(libs.qrose)
             }
         }
 

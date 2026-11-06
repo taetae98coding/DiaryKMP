@@ -69,7 +69,7 @@ class AccountMusicTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val music = music()
 
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
 
             findMusicList() shouldBe listOf(music)
             findAccountMusicList() shouldBe
@@ -99,7 +99,7 @@ class AccountMusicTransactionImplTest :
                     createdAt = now,
                 )
 
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
 
             findMusicList() shouldBe listOf(music)
         }
@@ -107,7 +107,7 @@ class AccountMusicTransactionImplTest :
         test("TC-393c5421-cb22-450f-b102-c98a17e85378 TC-5244b211-1fe9-414b-a74c-5e5544ce300d TC-771d2727-6089-43b8-a3c4-2b6862717fbc TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
             val accountId = Arb.kotlinUuid().next()
             val music = music()
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             markUploaded(database = database, accountId = accountId, musicId = music.id)
             val detail = Arb.musicDetailLocalEntity().next()
             val updatedAt = Arb.secondPrecisionInstant().next()
@@ -121,7 +121,7 @@ class AccountMusicTransactionImplTest :
         test("TC-7e5891e2-ca05-4152-8ec5-3bf1da163337 TC-ada1aa84-9a6e-4ccb-b510-03a7a59bdf13 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남기며 업로드 대기로 기록한다") {
             val accountId = Arb.kotlinUuid().next()
             val music = music().copy(isDeleted = false)
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             markUploaded(database = database, accountId = accountId, musicId = music.id)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -134,7 +134,7 @@ class AccountMusicTransactionImplTest :
         test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 삭제의 실행 취소는 삭제 여부를 미삭제로 되돌리고 업로드 대기로 기록한다") {
             val accountId = Arb.kotlinUuid().next()
             val music = music().copy(isDeleted = true)
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             markUploaded(database = database, accountId = accountId, musicId = music.id)
             val updatedAt = Arb.secondPrecisionInstant().next()
 
@@ -148,7 +148,7 @@ class AccountMusicTransactionImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherAccountId = Arb.kotlinUuid().next()
             val music = music()
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            transaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
 
             transaction.updateDetail(
                 accountId = otherAccountId,
@@ -174,9 +174,9 @@ class AccountMusicTransactionImplTest :
                             thumbnail = savedMusic.detail.thumbnail,
                         ),
                 )
-            transaction.upsert(accountId = accountId, musicList = listOf(savedMusic))
+            transaction.upsert(accountId = accountId, musicList = listOf(savedMusic), musicTagList = emptyList())
 
-            transaction.upsert(accountId = accountId, musicList = listOf(addedMusic))
+            transaction.upsert(accountId = accountId, musicList = listOf(addedMusic), musicTagList = emptyList())
 
             findMusicList() shouldBe listOf(savedMusic, addedMusic).sortedBy { music -> music.id.toString() }
         }
@@ -190,7 +190,7 @@ class AccountMusicTransactionImplTest :
             val failingTransaction = AccountMusicTransactionImpl(database = failingDatabase)
 
             shouldThrow<IllegalStateException> {
-                failingTransaction.upsert(accountId = accountId, musicList = listOf(music))
+                failingTransaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             }.message shouldBe throwable.message
 
             findMusicList().shouldBeEmpty()

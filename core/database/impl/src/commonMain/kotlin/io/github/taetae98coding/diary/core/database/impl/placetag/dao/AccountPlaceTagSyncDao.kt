@@ -2,14 +2,14 @@ package io.github.taetae98coding.diary.core.database.impl.placetag.dao
 
 import androidx.room3.Dao
 import androidx.room3.Query
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.AccountEntityTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
-import io.github.taetae98coding.diary.library.room3.dao.RoomDao
+import io.github.taetae98coding.diary.core.database.impl.placetag.entity.PlaceTagLocalEntity
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Dao
-internal interface AccountPlaceTagSyncDao : RoomDao<AccountPlaceTagLocalEntity> {
+internal interface AccountPlaceTagSyncDao : AccountEntityTagSyncDao<PlaceTagLocalEntity, AccountPlaceTagLocalEntity> {
     @Query(
         """
         SELECT place_tag.*
@@ -21,23 +21,23 @@ internal interface AccountPlaceTagSyncDao : RoomDao<AccountPlaceTagLocalEntity> 
         WHERE account_place_tag.is_dirty = 1
         """,
     )
-    suspend fun findPending(accountId: Uuid): List<PlaceTagLocalEntity>
+    override suspend fun findPending(accountId: Uuid): List<PlaceTagLocalEntity>
 
     @Query(
         """
         UPDATE account_place_tag
         SET is_dirty = 0
-        WHERE account_id = :accountId AND place_id = :placeId AND tag_id = :tagId
+        WHERE account_id = :accountId AND place_id = :entityId AND tag_id = :tagId
             AND EXISTS(
                 SELECT 1
                 FROM place_tag
-                WHERE place_tag.place_id = :placeId AND place_tag.tag_id = :tagId AND place_tag.updated_at = :updatedAt
+                WHERE place_tag.place_id = :entityId AND place_tag.tag_id = :tagId AND place_tag.updated_at = :updatedAt
             )
         """,
     )
-    suspend fun clearPending(
+    override suspend fun clearPending(
         accountId: Uuid,
-        placeId: Uuid,
+        entityId: Uuid,
         tagId: Uuid,
         updatedAt: Instant,
     ): Int

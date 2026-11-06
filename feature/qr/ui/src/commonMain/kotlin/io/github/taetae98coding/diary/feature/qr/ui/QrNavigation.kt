@@ -14,8 +14,12 @@ import kotlin.uuid.Uuid
 internal fun NavBackStack<ScreenNavKey>.navigateToQrDetail(id: Uuid) {
     navigateToDetail(
         detailKey = QrDetailNavKey(id = id),
-        isDetailPaneKey = { key -> key is QrDetailNavKey || key == QrAddNavKey },
+        isDetailPaneKey = { key -> key is QrDetailNavKey || key is QrAddNavKey },
     )
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToQrAddFromHome() {
+    add(QrAddNavKey())
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateUpFromQrHome() {

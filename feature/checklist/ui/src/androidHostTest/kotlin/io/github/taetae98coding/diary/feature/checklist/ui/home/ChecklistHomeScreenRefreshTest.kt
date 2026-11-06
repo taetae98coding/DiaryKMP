@@ -4,11 +4,11 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
-import io.github.taetae98coding.diary.feature.checklist.ui.card.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -75,7 +76,7 @@ private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(backStack: NavBack
             tagAddRequestKey = tagAddRequestKey,
             detailViewModel = koinViewModel { parametersOf(key.id) },
             searchViewModel = koinViewModel(),
-            tagViewModel = koinViewModel { parametersOf(key.id) },
+            tagViewModel = koinViewModel { parametersOf(EntityTagKind.PLACE, key.id) },
         )
     }
 }

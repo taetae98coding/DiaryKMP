@@ -6,13 +6,17 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.contact)
                 implementation(projects.compose.list)
                 implementation(projects.compose.memo)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.memo)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
+                implementation(projects.feature.tag.api)
             }
         }
 

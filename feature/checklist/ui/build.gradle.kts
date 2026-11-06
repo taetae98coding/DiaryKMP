@@ -6,10 +6,14 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.checklist)
                 implementation(projects.compose.list)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.checklist)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.checklist.api)
                 implementation(projects.feature.core)
+                implementation(projects.feature.tag.api)
             }
         }
 

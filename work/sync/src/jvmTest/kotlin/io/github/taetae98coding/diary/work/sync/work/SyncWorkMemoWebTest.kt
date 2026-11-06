@@ -52,7 +52,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoPlaceRemoteDataSource.push(any()) }
-            coVerify(exactly = 0) { context.webTagRemoteDataSource.push(any()) }
+            coVerify(exactly = 0) { context.entityTagRemoteDataSource.push(any(), any()) }
         }
 
         listOf(

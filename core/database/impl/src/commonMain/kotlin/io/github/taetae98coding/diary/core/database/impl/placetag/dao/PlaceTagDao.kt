@@ -2,31 +2,31 @@ package io.github.taetae98coding.diary.core.database.impl.placetag.dao
 
 import androidx.room3.Dao
 import androidx.room3.Query
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
-import io.github.taetae98coding.diary.library.room3.dao.RoomDao
+import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.EntityTagDao
+import io.github.taetae98coding.diary.core.database.impl.placetag.entity.PlaceTagLocalEntity
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Dao
-internal interface PlaceTagDao : RoomDao<PlaceTagLocalEntity> {
+internal interface PlaceTagDao : EntityTagDao<PlaceTagLocalEntity> {
     @Query(
         """
         SELECT *
         FROM place_tag
-        WHERE place_id IN (:placeIdList)
+        WHERE place_id IN (:entityIdList)
         """,
     )
-    suspend fun findByPlaceIdList(placeIdList: List<Uuid>): List<PlaceTagLocalEntity>
+    override suspend fun findByEntityIdList(entityIdList: List<Uuid>): List<PlaceTagLocalEntity>
 
     @Query(
         """
         UPDATE place_tag
         SET is_deleted = :isDeleted, updated_at = :updatedAt
-        WHERE place_id = :placeId AND tag_id = :tagId
+        WHERE place_id = :entityId AND tag_id = :tagId
         """,
     )
-    suspend fun updateDeleted(
-        placeId: Uuid,
+    override suspend fun updateDeleted(
+        entityId: Uuid,
         tagId: Uuid,
         isDeleted: Boolean,
         updatedAt: Instant,

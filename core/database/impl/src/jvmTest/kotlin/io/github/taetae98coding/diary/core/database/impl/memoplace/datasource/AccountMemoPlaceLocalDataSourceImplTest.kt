@@ -2,12 +2,12 @@ package io.github.taetae98coding.diary.core.database.impl.memoplace.datasource
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memoplace.transaction.AccountMemoPlaceSyncTransactionImpl
@@ -204,8 +204,8 @@ class AccountMemoPlaceLocalDataSourceImplTest :
                 placeList = listOf(place),
                 placeTagList =
                     listOf(
-                        PlaceTagLocalEntity(
-                            placeId = place.id,
+                        EntityTagLocalEntity(
+                            entityId = place.id,
                             tagId = tagId,
                             isDeleted = false,
                             updatedAt = place.updatedAt,

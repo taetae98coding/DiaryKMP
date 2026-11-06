@@ -5,13 +5,13 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
@@ -581,8 +581,8 @@ class AccountMemoPlaceTransactionImplTest :
                 placeList = listOf(place),
                 placeTagList =
                     listOf(
-                        PlaceTagLocalEntity(
-                            placeId = place.id,
+                        EntityTagLocalEntity(
+                            entityId = place.id,
                             tagId = tag.id,
                             isDeleted = false,
                             updatedAt = Arb.secondPrecisionInstant().next(),

@@ -16,8 +16,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.core.model.playlist.Music
-import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -109,6 +110,7 @@ class PlaylistHomeEmptyTest {
             DiaryTheme {
                 PlaylistHomeScaffold(
                     onEvent = onEvent,
+                    onMusicListEvent = {},
                     musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
                     snackbarHostState = snackbarHostState,
                 )

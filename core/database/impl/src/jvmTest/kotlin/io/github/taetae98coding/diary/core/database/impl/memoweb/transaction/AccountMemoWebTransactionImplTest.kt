@@ -5,6 +5,7 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
@@ -14,7 +15,6 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
@@ -719,9 +719,9 @@ class AccountMemoWebTransactionImplTest :
         private fun webTag(
             webId: Uuid,
             tagId: Uuid,
-        ): WebTagLocalEntity =
-            WebTagLocalEntity(
-                webId = webId,
+        ): EntityTagLocalEntity =
+            EntityTagLocalEntity(
+                entityId = webId,
                 tagId = tagId,
                 isDeleted = false,
                 updatedAt = Arb.secondPrecisionInstant().next(),

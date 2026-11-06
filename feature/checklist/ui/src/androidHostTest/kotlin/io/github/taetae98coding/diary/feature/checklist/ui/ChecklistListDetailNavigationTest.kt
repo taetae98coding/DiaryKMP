@@ -45,11 +45,11 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
@@ -62,7 +62,6 @@ import io.github.taetae98coding.diary.feature.checklist.api.checklistNavKeys
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddEffect
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddUiState
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddViewModel
-import io.github.taetae98coding.diary.feature.checklist.ui.card.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailEffect
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailItemUiState
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailItemViewModel
@@ -232,7 +231,7 @@ class ChecklistListDetailNavigationTest {
 
         openAddOnDetail(summary)
 
-        backStack.last() shouldBe ChecklistAddNavKey
+        backStack.last() shouldBe ChecklistAddNavKey()
         composeRule.onNode(card(summary)).assertExists()
         assertAddOnDetailPane()
     }
@@ -258,7 +257,7 @@ class ChecklistListDetailNavigationTest {
 
         openAddOnDetail(summary)
 
-        backStack.last() shouldBe ChecklistAddNavKey
+        backStack.last() shouldBe ChecklistAddNavKey()
         assertAddInputEmpty()
     }
 
@@ -553,7 +552,7 @@ class ChecklistListDetailNavigationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        restoredBackStack.toList() shouldBe listOf(ChecklistHomeNavKey, ChecklistDetailNavKey(id = summary.checklist.id), ChecklistAddNavKey)
+        restoredBackStack.toList() shouldBe listOf(ChecklistHomeNavKey, ChecklistDetailNavKey(id = summary.checklist.id), ChecklistAddNavKey())
         waitUntilDisplayed(summary)
         assertAddOnDetailPane()
         pressBack()
@@ -730,7 +729,7 @@ class ChecklistListDetailNavigationTest {
 
         CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
             KoinApplication(configuration = koinConfiguration { modules(module) }) {
-                DiaryTheme(content = content)
+                ChecklistTagTestTheme(content = content)
             }
         }
     }
@@ -744,9 +743,16 @@ class ChecklistListDetailNavigationTest {
         homePagingData.value = checklistPagingDataOf(homeSummaryList)
     }
 
+    private fun tagViewModelModule(): Module =
+        module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
+        }
+
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun viewModelModule(): Module =
         module {
+            includes(tagViewModelModule())
             factory {
                 mockk<ChecklistHomeViewModel>(relaxed = true)
                     .apply {
@@ -797,7 +803,7 @@ class ChecklistListDetailNavigationTest {
                     every { uiState } returns MutableStateFlow(ChecklistAddUiState())
                     every { effect } returns effectChannel.receiveAsFlow()
                     // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 체크리스트를 목록 조회 결과에 더한다.
-                    every { add(detail = any(), itemContentList = any()) } answers {
+                    every { add(detail = any(), itemContentList = any(), tagIdSet = any()) } answers {
                         val added = testChecklistSummary().let { summary -> summary.copy(checklist = summary.checklist.copy(detail = firstArg<ChecklistDetail>())) }
                         homeSummaryList = homeSummaryList + added
                         homePagingData.value = checklistPagingDataOf(homeSummaryList)

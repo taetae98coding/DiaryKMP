@@ -45,6 +45,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
@@ -88,7 +89,6 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
-import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
@@ -736,7 +736,7 @@ class ContactListDetailPlaceholderTest {
             homeEntry = {
                 entry<ContactHomeNavKey>(
                     clazzContentKey = { CONTACT_HOME_CONTENT_KEY },
-                    metadata = contactHomeListPaneMetadata(),
+                    metadata = contactHomeListPaneMetadata(backStack = backStack),
                 ) { Text(text = CONTACT_HOME_CONTENT) }
             },
         )
@@ -829,6 +829,8 @@ class ContactListDetailPlaceholderTest {
     private fun placeholderViewModelModule() =
         module {
             factory { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } }
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory {
                 val filterState = MutableStateFlow(ContactHomeFilterUiState())
                 mockk<ContactHomeViewModel>(relaxed = true)

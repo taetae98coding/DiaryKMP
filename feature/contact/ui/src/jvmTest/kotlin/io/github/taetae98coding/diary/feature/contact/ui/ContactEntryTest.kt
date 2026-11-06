@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -60,6 +62,16 @@ class ContactEntryTest :
             val backStack = listOf(ContactHomeNavKey, ContactAddNavKey(), detailKey)
 
             metadataOf(backStack = backStack, key = detailKey).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-4677f599-dfa0-4aef-b4c7-d23c8a9527a5 TagDetail 연락처 탭에서 이어진 연락처 추가와 연락처 상세는 목록·상세 배치에 참여하지 않는다") {
+            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
+            val addKey = ContactAddNavKey(initialTagId = tagDetailKey.id)
+            val detailKey = ContactDetailNavKey(id = Uuid.random())
+
+            metadataOf(backStack = tagDetailBackStack + addKey, key = addKey).shouldBeEmpty()
+            metadataOf(backStack = tagDetailBackStack + detailKey, key = detailKey).shouldBeEmpty()
         }
 
         test("ContactHome 화면은 목록·상세 배치의 목록 pane이다") {

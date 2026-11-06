@@ -7,14 +7,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchEvent
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
-import io.github.taetae98coding.diary.feature.place.ui.tag.PlaceTagAddedResultEffect
 import kotlin.uuid.Uuid
 
 @Composable
@@ -27,7 +28,7 @@ internal fun PlaceAddScreen(
     initialCoordinate: Coordinate?,
     addViewModel: PlaceAddViewModel,
     searchViewModel: PlaceSearchViewModel,
-    tagViewModel: PlaceAddTagViewModel,
+    tagViewModel: EntityAddTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
@@ -42,7 +43,7 @@ internal fun PlaceAddScreen(
         )
 
     DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
-    PlaceTagAddedResultEffect(
+    EntityTagAddedResultEffect(
         requestKey = tagAddRequestKey,
         onTagAdded = tagViewModel::add,
     )
@@ -80,7 +81,7 @@ internal fun PlaceAddScreen(
             searchViewModel.handlePlaceAddSearchEvent(event = event, scaffoldState = scaffoldState)
         },
         onTagPickerEvent = { event ->
-            handlePlaceAddTagPickerEvent(
+            handleEntityTagPickerEvent(
                 event = event,
                 tagViewModel = tagViewModel,
                 navigateToTagAdd = navigateToTagAdd,
@@ -93,7 +94,7 @@ internal fun PlaceAddScreen(
 private fun handlePlaceAddScaffoldEvent(
     event: PlaceAddScaffoldEvent,
     addViewModel: PlaceAddViewModel,
-    tagViewModel: PlaceAddTagViewModel,
+    tagViewModel: EntityAddTagViewModel,
     scaffoldState: PlaceFormState,
     navigateUp: () -> Unit,
 ) {
@@ -118,18 +119,5 @@ private fun PlaceSearchViewModel.handlePlaceAddSearchEvent(
         is PlaceSearchEvent.Search -> search(request = event.request)
         is PlaceSearchEvent.ClearSearch -> clear()
         is PlaceSearchEvent.Select -> scaffoldState.applySearchedPlace(event.place)
-    }
-}
-
-private fun handlePlaceAddTagPickerEvent(
-    event: EntityTagPickerEvent,
-    tagViewModel: PlaceAddTagViewModel,
-    navigateToTagAdd: () -> Unit,
-) {
-    when (event) {
-        is EntityTagPickerEvent.ClickAdd -> navigateToTagAdd()
-        is EntityTagPickerEvent.Add -> tagViewModel.add(id = event.id)
-        is EntityTagPickerEvent.Remove -> tagViewModel.remove(id = event.id)
-        is EntityTagPickerEvent.ChangeQuery -> tagViewModel.updateQuery(query = event.query)
     }
 }

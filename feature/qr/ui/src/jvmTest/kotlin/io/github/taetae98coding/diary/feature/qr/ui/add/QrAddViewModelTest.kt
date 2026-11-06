@@ -61,24 +61,24 @@ class QrAddViewModelTest : FunSpec() {
                 val secondDetail = Arb.qrDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = firstDetail) } coAnswers { completion.await() }
-                coEvery { useCase(parameter = secondDetail) } returns Result.success(Arb.kotlinUuid().next())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } coAnswers { completion.await() }
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 runCurrent()
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 runCurrent()
 
-                coVerify(exactly = 1) { useCase(parameter = firstDetail) }
-                coVerify(exactly = 0) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 0) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
                 completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
 
@@ -86,11 +86,11 @@ class QrAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.success(Arb.kotlinUuid().next())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.AddSucceeded
@@ -102,15 +102,30 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 새 QR과 함께 추가하도록 넘긴다") {
+            runTest(mainDispatcher) {
+                val detail = Arb.qrDetail().next()
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val useCase = mockk<AddQrUseCase>()
+                coEvery { useCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
+                val viewModel = viewModel(addQrUseCase = useCase)
+
+                viewModel.add(detail = detail, tagIdSet = tagIdSet)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)) }
+            }
+        }
+
         test("TC-1a5e7fb5-df16-4fd9-8bef-df01b624f7e9 제목 조건이 성립하지 않으면 제목 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(QrTitleBlankException())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(QrTitleBlankException())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.TitleBlank
@@ -126,11 +141,11 @@ class QrAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(QrValueEmptyException())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(QrValueEmptyException())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.ValueEmpty
@@ -146,24 +161,24 @@ class QrAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                     viewModel.uiState.value.isInProgress
                         .shouldBeFalse()
 
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 2) { useCase(parameter = detail) }
+                coVerify(exactly = 2) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
 
@@ -172,10 +187,10 @@ class QrAddViewModelTest : FunSpec() {
                 val detail = Arb.qrDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } coAnswers { completion.await() }
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } coAnswers { completion.await() }
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = detail)
+                viewModel.add(detail = detail, tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
@@ -241,20 +256,20 @@ class QrAddViewModelTest : FunSpec() {
                 val firstDetail = Arb.qrDetail().next()
                 val secondDetail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = firstDetail) } throws CancellationException()
-                coEvery { useCase(parameter = secondDetail) } returns Result.success(Arb.kotlinUuid().next())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } throws CancellationException()
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
 
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
     }

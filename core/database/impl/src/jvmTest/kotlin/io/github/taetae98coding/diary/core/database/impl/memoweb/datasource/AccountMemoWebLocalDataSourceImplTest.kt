@@ -4,13 +4,13 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memoweb.transaction.AccountMemoWebSyncTransactionImpl
@@ -228,8 +228,8 @@ class AccountMemoWebLocalDataSourceImplTest :
                 webList = listOf(web),
                 webTagList =
                     listOf(
-                        WebTagLocalEntity(
-                            webId = web.id,
+                        EntityTagLocalEntity(
+                            entityId = web.id,
                             tagId = tagId,
                             isDeleted = false,
                             updatedAt = web.updatedAt,

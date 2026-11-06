@@ -5,7 +5,9 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,11 +89,15 @@ class MusicAddScreenFeedbackTest {
 
     private fun setMusicAddScreen(viewModel: MusicAddViewModel) {
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

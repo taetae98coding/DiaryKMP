@@ -78,7 +78,7 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val favorite = contact(name = LAST_NAME, isFavorite = true, updatedAt = OLD_INSTANT)
             val other = contact(name = FIRST_NAME, isFavorite = false, updatedAt = NEW_INSTANT)
-            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other))
+            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other), contactTagList = emptyList())
 
             ListSortLocalEntity.entries.forEach { sort ->
                 page(accountId = accountId, sort = sort) shouldBe listOf(favorite, other)
@@ -91,7 +91,7 @@ class AccountContactLocalDataSourceImplTest :
             val oldFavorite = contact(name = FIRST_NAME, isFavorite = true, updatedAt = OLD_INSTANT)
             val recentOther = contact(name = MIDDLE_NAME, isFavorite = false, updatedAt = NEW_INSTANT)
             val oldOther = contact(name = ANOTHER_NAME, isFavorite = false, updatedAt = OLD_INSTANT)
-            transaction.upsert(accountId = accountId, contactList = listOf(recentFavorite, oldFavorite, recentOther, oldOther))
+            transaction.upsert(accountId = accountId, contactList = listOf(recentFavorite, oldFavorite, recentOther, oldOther), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe
                 listOf(oldFavorite, recentFavorite, oldOther, recentOther)
@@ -108,8 +108,8 @@ class AccountContactLocalDataSourceImplTest :
             val deletedOther = contact(name = LAST_NAME).copy(isDeleted = true)
             val otherAccountFavorite = contact(name = "EContact", isFavorite = true)
             val otherAccountOther = contact(name = "FContact")
-            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite, deletedOther))
-            transaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountFavorite, otherAccountOther))
+            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite, deletedOther), contactTagList = emptyList())
+            transaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountFavorite, otherAccountOther), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite, other)
             page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(favorite, other)
@@ -120,7 +120,7 @@ class AccountContactLocalDataSourceImplTest :
             val favorite = contact(name = LAST_NAME, isFavorite = true)
             val other = contact(name = FIRST_NAME)
             val deletedFavorite = contact(name = MIDDLE_NAME, isFavorite = true).copy(isDeleted = true)
-            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite))
+            transaction.upsert(accountId = accountId, contactList = listOf(favorite, other, deletedFavorite), contactTagList = emptyList())
 
             ListSortLocalEntity.entries.forEach { sort ->
                 page(accountId = accountId, sort = sort).toSet() shouldBe setOf(favorite, other)
@@ -138,7 +138,7 @@ class AccountContactLocalDataSourceImplTest :
             val sameNameFirst = contact(name = FIRST_NAME).withHowWeMet("Z")
             val sameNameSecond = contact(name = FIRST_NAME).withHowWeMet("Z")
             val longerName = contact(name = "${FIRST_NAME}1").withHowWeMet("")
-            transaction.upsert(accountId = accountId, contactList = listOf(longerName, sameNameFirst, sameNameSecond))
+            transaction.upsert(accountId = accountId, contactList = listOf(longerName, sameNameFirst, sameNameSecond), contactTagList = emptyList())
 
             val items = pageItems(accountId = accountId, sort = ListSortLocalEntity.NAME)
 
@@ -156,6 +156,7 @@ class AccountContactLocalDataSourceImplTest :
             transaction.upsert(
                 accountId = accountId,
                 contactList = listOf(shownFavorite, restoredFavorite, shownOther, anotherShownOther, restoredOther),
+                contactTagList = emptyList(),
             )
             transaction.updateDeleted(accountId = accountId, contactId = restoredFavorite.id, isDeleted = true, updatedAt = NEW_INSTANT)
             transaction.updateDeleted(accountId = accountId, contactId = restoredOther.id, isDeleted = true, updatedAt = NEW_INSTANT)
@@ -176,10 +177,10 @@ class AccountContactLocalDataSourceImplTest :
             val first = contact(name = FIRST_NAME)
             val last = contact(name = LAST_NAME)
             val added = contact(name = MIDDLE_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(first, last))
+            transaction.upsert(accountId = accountId, contactList = listOf(first, last), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(first, last)
 
-            transaction.upsert(accountId = accountId, contactList = listOf(added))
+            transaction.upsert(accountId = accountId, contactList = listOf(added), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME).map { item -> item.id } shouldBe listOf(first.id, added.id, last.id)
 
             transaction.updateDetail(accountId = accountId, contactId = last.id, detail = last.detail.copy(name = "0Contact"), updatedAt = NEW_INSTANT)
@@ -209,7 +210,7 @@ class AccountContactLocalDataSourceImplTest :
                             ),
                     )
                 }
-            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+            transaction.upsert(accountId = accountId, contactList = listOf(stored), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(stored)
         }
@@ -218,7 +219,7 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val otherList = List(PAGE_SIZE) { index -> contact(name = "A-${index.toString().padStart(length = 2, padChar = '0')}") }
             val favorite = contact(name = LAST_NAME, isFavorite = true)
-            transaction.upsert(accountId = accountId, contactList = otherList + favorite)
+            transaction.upsert(accountId = accountId, contactList = otherList + favorite, contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite) + otherList.dropLast(1)
         }
@@ -229,7 +230,7 @@ class AccountContactLocalDataSourceImplTest :
             val another = contact(name = ANOTHER_NAME)
             val middle = contact(name = MIDDLE_NAME)
             val last = contact(name = LAST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first, another))
+            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first, another), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(first, another, middle, last)
         }
@@ -239,7 +240,7 @@ class AccountContactLocalDataSourceImplTest :
             val recent = contact(name = LAST_NAME, updatedAt = NEW_INSTANT)
             val oldFirst = contact(name = FIRST_NAME, updatedAt = OLD_INSTANT)
             val oldAnother = contact(name = ANOTHER_NAME, updatedAt = OLD_INSTANT)
-            transaction.upsert(accountId = accountId, contactList = listOf(oldAnother, oldFirst, recent))
+            transaction.upsert(accountId = accountId, contactList = listOf(oldAnother, oldFirst, recent), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(recent, oldFirst, oldAnother)
         }
@@ -248,7 +249,7 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val nameFirst = contact(name = FIRST_NAME, updatedAt = OLD_INSTANT)
             val nameLast = contact(name = LAST_NAME, updatedAt = NEW_INSTANT)
-            transaction.upsert(accountId = accountId, contactList = listOf(nameLast, nameFirst))
+            transaction.upsert(accountId = accountId, contactList = listOf(nameLast, nameFirst), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(nameFirst, nameLast)
             page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(nameLast, nameFirst)
@@ -259,7 +260,7 @@ class AccountContactLocalDataSourceImplTest :
             val first = contact(name = FIRST_NAME)
             val middle = contact(name = MIDDLE_NAME, isFavorite = true, updatedAt = NEW_INSTANT)
             val last = contact(name = LAST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first))
+            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first), contactTagList = emptyList())
 
             dataSource
                 .get(accountId = accountId, contactIdSet = linkedSetOf(last.id, first.id, middle.id))
@@ -273,7 +274,7 @@ class AccountContactLocalDataSourceImplTest :
             val lunarBirthday = contact(name = ANOTHER_NAME, phoneNumberList = emptyList()).withBirthday(calendar = ContactBirthdayCalendarLocalEntity.LUNAR)
             val birthYearOnly = contact(name = MIDDLE_NAME, phoneNumberList = listOf(phoneNumber())).let { contact -> contact.copy(detail = contact.detail.copy(birthYear = Arb.int().next())) }
             val multiplePhoneNumber = contact(name = LAST_NAME, phoneNumberList = listOf(phoneNumber(), phoneNumber()))
-            transaction.upsert(accountId = accountId, contactList = listOf(solarBirthday, lunarBirthday, birthYearOnly, multiplePhoneNumber))
+            transaction.upsert(accountId = accountId, contactList = listOf(solarBirthday, lunarBirthday, birthYearOnly, multiplePhoneNumber), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(solarBirthday, lunarBirthday)
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(birthYearOnly, multiplePhoneNumber)
@@ -293,7 +294,7 @@ class AccountContactLocalDataSourceImplTest :
                 }
             val phoneNumberOnly = contact(name = LAST_NAME, phoneNumberList = listOf(phoneNumber()))
             val neither = contact(name = FIRST_NAME, phoneNumberList = emptyList())
-            transaction.upsert(accountId = accountId, contactList = listOf(both, birthdayOnly, birthYearOnly, phoneNumberOnly, neither))
+            transaction.upsert(accountId = accountId, contactList = listOf(both, birthdayOnly, birthYearOnly, phoneNumberOnly, neither), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true, hasPhoneNumber = false) shouldBe listOf(birthdayOnly)
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false, hasBirthYear = true) shouldBe listOf(birthYearOnly)
@@ -307,7 +308,7 @@ class AccountContactLocalDataSourceImplTest :
             val recentOther = contact(name = MIDDLE_NAME, updatedAt = NEW_INSTANT)
             val oldOther = contact(name = ANOTHER_NAME, updatedAt = OLD_INSTANT)
             val withoutPhoneNumber = contact(name = FIRST_NAME, isFavorite = true, updatedAt = NEW_INSTANT, phoneNumberList = emptyList())
-            transaction.upsert(accountId = accountId, contactList = listOf(recentFavorite, oldFavorite, recentOther, oldOther, withoutPhoneNumber))
+            transaction.upsert(accountId = accountId, contactList = listOf(recentFavorite, oldFavorite, recentOther, oldOther, withoutPhoneNumber), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe
                 listOf(oldFavorite, recentFavorite, oldOther, recentOther)
@@ -319,12 +320,12 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val withPhoneNumber = contact(name = FIRST_NAME)
             val withoutPhoneNumber = contact(name = LAST_NAME, phoneNumberList = emptyList())
-            transaction.upsert(accountId = accountId, contactList = listOf(withPhoneNumber, withoutPhoneNumber))
+            transaction.upsert(accountId = accountId, contactList = listOf(withPhoneNumber, withoutPhoneNumber), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe listOf(withPhoneNumber)
 
             val cleared = withPhoneNumber.copy(detail = withPhoneNumber.detail.copy(phoneNumberList = emptyList()))
             val added = withoutPhoneNumber.copy(detail = withoutPhoneNumber.detail.copy(phoneNumberList = listOf(phoneNumber())))
-            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe listOf(added)
         }
@@ -333,12 +334,12 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val withBirthday = contact(name = FIRST_NAME).withBirthday()
             val withoutBirthday = contact(name = LAST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday))
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(withBirthday)
 
             val cleared = withBirthday.copy(detail = withBirthday.detail.copy(birthday = null, birthdayCalendar = null, birthYear = null))
             val added = withoutBirthday.withBirthday()
-            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(added)
         }
@@ -347,12 +348,12 @@ class AccountContactLocalDataSourceImplTest :
             val accountId = Arb.kotlinUuid().next()
             val withBirthYear = contact(name = FIRST_NAME).let { contact -> contact.copy(detail = contact.detail.copy(birthYear = Arb.int().next())) }
             val withoutBirthYear = contact(name = LAST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(withBirthYear, withoutBirthYear))
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthYear, withoutBirthYear), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = true) shouldBe listOf(withBirthYear)
 
             val cleared = withBirthYear.copy(detail = withBirthYear.detail.copy(birthYear = null))
             val added = withoutBirthYear.copy(detail = withoutBirthYear.detail.copy(birthYear = Arb.int().next()))
-            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = true) shouldBe listOf(added)
         }
@@ -360,12 +361,12 @@ class AccountContactLocalDataSourceImplTest :
         test("TC-2d15ffea-2441-4291-bf5d-4be0e7380d4c 필터를 적용한 동안 조건에 맞지 않는 연락처를 저장하면 목록에 나타나지 않는다") {
             val accountId = Arb.kotlinUuid().next()
             val shown = contact(name = FIRST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(shown))
+            transaction.upsert(accountId = accountId, contactList = listOf(shown), contactTagList = emptyList())
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(shown)
 
             val withBirthday = contact(name = MIDDLE_NAME).withBirthday()
             val withoutBirthday = contact(name = LAST_NAME)
-            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday))
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(shown, withoutBirthday)
         }
@@ -376,7 +377,7 @@ class AccountContactLocalDataSourceImplTest :
                 contact(name = FIRST_NAME, isFavorite = false).let { contact ->
                     contact.copy(detail = contact.detail.copy(hometown = HOMETOWN))
                 }
-            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+            transaction.upsert(accountId = accountId, contactList = listOf(stored), contactTagList = emptyList())
 
             val loaded = page(accountId = accountId, sort = ListSortLocalEntity.NAME).single()
 
@@ -390,7 +391,7 @@ class AccountContactLocalDataSourceImplTest :
                 contact(name = FIRST_NAME).let { contact ->
                     contact.copy(detail = contact.detail.copy(hometown = ""))
                 }
-            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+            transaction.upsert(accountId = accountId, contactList = listOf(stored), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME)
                 .single()
@@ -404,7 +405,7 @@ class AccountContactLocalDataSourceImplTest :
                 contact(name = FIRST_NAME).let { contact ->
                     contact.copy(detail = contact.detail.copy(howWeMet = howWeMet))
                 }
-            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+            transaction.upsert(accountId = accountId, contactList = listOf(stored), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(stored)
         }
@@ -415,7 +416,7 @@ class AccountContactLocalDataSourceImplTest :
                 contact(name = FIRST_NAME).let { contact ->
                     contact.copy(detail = contact.detail.copy(howWeMet = ""))
                 }
-            transaction.upsert(accountId = accountId, contactList = listOf(stored))
+            transaction.upsert(accountId = accountId, contactList = listOf(stored), contactTagList = emptyList())
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME)
                 .single()
@@ -439,8 +440,8 @@ class AccountContactLocalDataSourceImplTest :
                 val accountId = Arb.kotlinUuid().next()
                 val target = contact(name = sameName).withHowWeMet(howWeMet)
                 val other = contact(name = case.name).copy(isDeleted = case.isDeleted)
-                transaction.upsert(accountId = accountId, contactList = listOf(target))
-                transaction.upsert(accountId = if (case.isOtherAccount) Arb.kotlinUuid().next() else accountId, contactList = listOf(other))
+                transaction.upsert(accountId = accountId, contactList = listOf(target), contactTagList = emptyList())
+                transaction.upsert(accountId = if (case.isOtherAccount) Arb.kotlinUuid().next() else accountId, contactList = listOf(other), contactTagList = emptyList())
 
                 pageItems(accountId = accountId, sort = ListSortLocalEntity.NAME)
                     .single { item -> item.contact.id == target.id }
@@ -460,7 +461,7 @@ class AccountContactLocalDataSourceImplTest :
             howWeMetList.forEach { howWeMet ->
                 val accountId = Arb.kotlinUuid().next()
                 val target = contact(name = sameName).withHowWeMet(howWeMet)
-                transaction.upsert(accountId = accountId, contactList = listOf(target, contact(name = sameName)))
+                transaction.upsert(accountId = accountId, contactList = listOf(target, contact(name = sameName)), contactTagList = emptyList())
 
                 dataSource
                     .get(accountId = accountId, contactIdSet = setOf(target.id))
@@ -477,7 +478,7 @@ class AccountContactLocalDataSourceImplTest :
             val changedHowWeMet = "changed-$howWeMet"
             val target = contact(name = sameName).withHowWeMet(howWeMet)
             val other = contact(name = sameName)
-            transaction.upsert(accountId = accountId, contactList = listOf(target))
+            transaction.upsert(accountId = accountId, contactList = listOf(target), contactTagList = emptyList())
 
             dataSource
                 .get(accountId = accountId, contactIdSet = setOf(target.id))
@@ -486,7 +487,7 @@ class AccountContactLocalDataSourceImplTest :
                 .test {
                     awaitItem() shouldBe ""
 
-                    transaction.upsert(accountId = accountId, contactList = listOf(other))
+                    transaction.upsert(accountId = accountId, contactList = listOf(other), contactTagList = emptyList())
                     awaitItem() shouldBe howWeMet
 
                     transaction.updateDetail(accountId = accountId, contactId = target.id, detail = target.detail.copy(howWeMet = changedHowWeMet), updatedAt = NEW_INSTANT)

@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.database.api.checklist.transaction.Ac
 import io.github.taetae98coding.diary.core.database.api.checklistitem.datasource.AccountChecklistItemLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.transaction.AccountChecklistItemTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.testing.account.accountUser
@@ -46,18 +47,42 @@ import kotlin.uuid.Uuid
 
 class ChecklistRepositoryImplTest :
     FunSpec({
+        test("TC-a388b486-45c1-4ad0-bec2-ea1d46d75d3b TC-6850ed94-74b1-4a12-a215-a2f09c22f682 고른 태그와의 연결을 새 체크리스트와 같은 저장 작업에 담는다") {
+            val account = Arb.accountUser().next()
+            val checklist = Arb.checklist(isDeleted = false).next()
+            val tagIdSet = List(2) { Arb.kotlinUuid().next() }.toSet()
+            val transaction = mockk<AccountChecklistTransaction>(relaxed = true)
+            val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
+
+            repository.upsert(account = account, checklist = checklist, itemList = emptyList(), tagIdSet = tagIdSet)
+
+            val expected =
+                tagIdSet.map { tagId ->
+                    EntityTagLocalEntity(
+                        entityId = checklist.id,
+                        tagId = tagId,
+                        isDeleted = false,
+                        updatedAt = checklist.updatedAt,
+                        createdAt = checklist.createdAt,
+                    )
+                }
+            coVerify(exactly = 1) {
+                transaction.upsert(accountId = account.id, checklist = checklist.toLocal(), itemList = emptyList(), checklistTagList = expected)
+            }
+        }
+
         test("TC-e0a4bfe4-2f96-43c3-82ba-b5596d4c80c5 TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 체크리스트와 체크 항목을 현재 계정 식별자와 로컬 모델로 바꿔 함께 저장한다") {
             val account = Arb.accountUser().next()
             val checklist = Arb.checklist(isDeleted = false).next()
             val itemList = List(2) { Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next() }
             val transaction = mockk<AccountChecklistTransaction>()
-            coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any()) } just Runs
+            coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any(), checklistTagList = any()) } just Runs
             val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
 
-            repository.upsert(account = account, checklist = checklist, itemList = itemList)
+            repository.upsert(account = account, checklist = checklist, itemList = itemList, tagIdSet = emptySet())
 
             coVerify(exactly = 1) {
-                transaction.upsert(accountId = account.id, checklist = checklist.toLocal(), itemList = itemList.map { item -> item.toLocal() })
+                transaction.upsert(accountId = account.id, checklist = checklist.toLocal(), itemList = itemList.map { item -> item.toLocal() }, checklistTagList = emptyList())
             }
         }
 
@@ -126,7 +151,7 @@ class ChecklistRepositoryImplTest :
         test("TC-22a04f2e-eeb4-482f-b03a-23437e354955 체크리스트 추가의 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val throwable = IllegalStateException(Arb.string().next())
             val transaction = mockk<AccountChecklistTransaction>()
-            coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any()) } throws throwable
+            coEvery { transaction.upsert(accountId = any(), checklist = any(), itemList = any(), checklistTagList = any()) } throws throwable
             val repository = AccountChecklistRepositoryImpl(accountChecklistLocalDataSource = mockk(), accountChecklistTransaction = transaction)
 
             shouldThrow<IllegalStateException> {
@@ -134,6 +159,7 @@ class ChecklistRepositoryImplTest :
                     account = Arb.accountUser().next(),
                     checklist = Arb.checklist(isDeleted = false).next(),
                     itemList = listOf(Arb.checklistItem(isChecked = false, isDeleted = false).next()),
+                    tagIdSet = emptySet(),
                 )
             } shouldBeSameInstanceAs throwable
         }

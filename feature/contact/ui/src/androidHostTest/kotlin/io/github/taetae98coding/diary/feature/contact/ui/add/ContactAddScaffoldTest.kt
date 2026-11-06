@@ -52,6 +52,8 @@ class ContactAddScaffoldTest {
             DiaryTheme {
                 ContactAddScaffold(
                     onEvent = onEvent,
+                    onFormEvent = {},
+                    onTagPickerEvent = {},
                     uiStateProvider = { uiState },
                 )
             }
