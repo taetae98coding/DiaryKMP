@@ -140,6 +140,30 @@ verify_jwt = true
 [functions.v1-sync-pull-checklist-item]
 verify_jwt = true
 
+[functions.v1-sync-push-contact-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-contact-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-checklist-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-checklist-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-music-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-music-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-qr-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-qr-tag]
+verify_jwt = true
+
 [functions.v1-profile-upload]
 verify_jwt = true
 
