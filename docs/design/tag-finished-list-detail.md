@@ -12,7 +12,7 @@
 
 상세 영역의 TagDetail 화면에서 연결 입력으로 연 TagAdd 화면과 연결한 태그의 TagDetail 화면은 상세 영역에 표시하고, 뒤로가기 버튼 표시는 [TagAdd 화면 디자인](./tag-add.md)과 [TagDetail 화면 디자인](./tag-detail.md)의 상단 바 기준을 따른다. 이는 [Tag 목록·상세 배치 디자인](./tag-list-detail.md)에서 상세 영역에 TagDetail 화면이 놓였을 때와 같다.
 
-상세 영역의 TagDetail 화면에서 메모·웹·장소 탭으로 연 화면과 TagMemoFinishedList 화면은 이 배치에 두지 않으며, 그 표시는 각 탭 디자인과 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다.
+상세 영역의 TagDetail 화면에서 목록 탭으로 연 화면과 TagMemoFinishedList 화면은 이 배치에 두지 않으며, 그 표시는 각 탭 디자인과 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다.
 
 각 상태에서 사용할 화면과 뒤로가기 결과, 공통 내비게이션 제공 여부는 기준 스펙과 각 화면 스펙을 따른다.
 

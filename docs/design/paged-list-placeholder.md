@@ -12,6 +12,10 @@
 | [TagFinishedList 화면](./tag-finished-list.md) | 태그 카드 |
 | [TagDetail 메모 탭](./tag-detail-memo.md) | 메모 카드 |
 | [TagDetail 웹 탭](./tag-detail-web.md) | 웹 카드 |
+| [TagDetail 연락처 탭](./tag-detail-contact.md) | 연락처 카드 |
+| [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 체크리스트 카드 |
+| [TagDetail 곡 탭](./tag-detail-music.md) | 곡 카드 |
+| [TagDetail QR 탭](./tag-detail-qr.md) | QR 카드 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 메모 카드 |
 | [항목 상세 메모 탭 공통](./entity-detail-memo.md) | 메모 카드 |
 | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 메모 카드 |

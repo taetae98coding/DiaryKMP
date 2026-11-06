@@ -42,10 +42,10 @@
 | SearchHome 태그 결과 | 미완료 태그는 `태그 완료`, 완료된 태그는 `태그 다시 시작` | `태그 삭제` |
 | WebHome, TagDetail 웹 탭, SearchHome 웹 결과 | 없음 | `웹 삭제` |
 | PlaceHome, TagDetail 장소 탭, SearchHome 장소 결과 | 없음 | `장소 삭제` |
-| ContactHome | 없음 | `연락처 삭제` |
-| PlaylistHome | 없음 | `곡 삭제` |
-| QrHome | 없음 | `QR 삭제` |
-| ChecklistHome | 없음 | `체크리스트 삭제` |
+| ContactHome, TagDetail 연락처 탭 | 없음 | `연락처 삭제` |
+| PlaylistHome, TagDetail 곡 탭 | 없음 | `곡 삭제` |
+| QrHome, TagDetail QR 탭 | 없음 | `QR 삭제` |
+| ChecklistHome, TagDetail 체크리스트 탭 | 없음 | `체크리스트 삭제` |
 
 그 외 기본 환경에서는 `Finish memo`, `Restart memo`, `Delete memo`, `Finish tag`, `Restart tag`, `Delete tag`, `Delete web`, `Delete place`, `Delete contact`, `Delete song`, `Delete QR code`, `Delete checklist`를 쓴다.
 

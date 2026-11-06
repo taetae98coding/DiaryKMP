@@ -76,6 +76,10 @@
 | TagDetail 웹 탭의 태그별 웹 목록 | 웹 아이콘 |
 | TagDetail 장소 탭 목록 모드의 태그별 장소 목록 | 장소 아이콘 |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 지도 아이콘 |
+| TagDetail 연락처 탭의 태그별 연락처 목록 | 연락처 아이콘 |
+| TagDetail 체크리스트 탭의 태그별 체크리스트 목록 | 체크리스트 아이콘 |
+| TagDetail 곡 탭의 태그별 곡 목록 | 플레이리스트 아이콘 |
+| TagDetail QR 탭의 태그별 QR 목록 | QR 아이콘 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 완료 아이콘 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 메모 아이콘 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 메모 아이콘 |
@@ -125,6 +129,14 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | TagDetail 장소 탭 목록 모드의 태그별 장소 목록 | 보조 | `추가 버튼으로 새 장소를 만들 수 있습니다` | `Use the add button to create a place.` |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 제목 | `이 지역에 장소가 없습니다` | `No places in this area` |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 보조 | `지도를 옮기면 다른 장소를 볼 수 있습니다` | `Move the map to see other places.` |
+| TagDetail 연락처 탭의 태그별 연락처 목록 | 제목 | `이 태그에 연결된 연락처가 없습니다` | `No contacts linked to this tag` |
+| TagDetail 연락처 탭의 태그별 연락처 목록 | 보조 | `추가 버튼으로 새 연락처를 만들 수 있습니다` | `Use the add button to create a contact.` |
+| TagDetail 체크리스트 탭의 태그별 체크리스트 목록 | 제목 | `이 태그에 연결된 체크리스트가 없습니다` | `No checklists linked to this tag` |
+| TagDetail 체크리스트 탭의 태그별 체크리스트 목록 | 보조 | `추가 버튼으로 새 체크리스트를 만들 수 있습니다` | `Use the add button to create a checklist.` |
+| TagDetail 곡 탭의 태그별 곡 목록 | 제목 | `이 태그에 연결된 곡이 없습니다` | `No songs linked to this tag` |
+| TagDetail 곡 탭의 태그별 곡 목록 | 보조 | `추가 버튼으로 새 곡을 만들 수 있습니다` | `Use the add button to add a song.` |
+| TagDetail QR 탭의 태그별 QR 목록 | 제목 | `이 태그에 연결된 QR이 없습니다` | `No QR codes linked to this tag` |
+| TagDetail QR 탭의 태그별 QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 제목 | `이 태그에서 완료한 메모가 없습니다` | `No finished memos for this tag` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 제목 | `이 연락처에 연결된 메모가 없습니다` | `No memos linked to this contact` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |

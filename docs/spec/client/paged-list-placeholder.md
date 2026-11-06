@@ -13,6 +13,10 @@
 | [TagDetail 메모 탭](./tag-detail-memo.md) | 태그별 메모 목록 |
 | [TagDetail 웹 탭](./tag-detail-web.md) | 태그별 웹 목록 |
 | [TagDetail 장소 탭](./tag-detail-place.md) | 목록 모드의 태그별 장소 목록 |
+| [TagDetail 연락처 탭](./tag-detail-contact.md) | 태그별 연락처 목록 |
+| [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 태그별 체크리스트 목록 |
+| [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 |
+| [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
