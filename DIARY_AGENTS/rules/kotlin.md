@@ -72,6 +72,67 @@ private const val QUALITY_PERCENT = 90
 userDataRepository.updateProfileImage(..., maxSideLength = MAX_SIDE_LENGTH_PX, quality = QUALITY_PERCENT)
 ```
 
+## 상속 대신 합성
+
+**프로젝트 클래스는 상속 계층을 만들지 않는다.** 공통 로직은 일반 클래스로 뽑아 `private` 필드로 합성하고, 플랫폼이나 종류마다 달라지는 부분은 인터페이스로 두어 생성자로 받는다. 추상 클래스에 공통 절차를 두고 하위 클래스가 빈 자리를 채우는 템플릿 메서드, 상수 하나를 고정하려는 하위 클래스, 모듈마다 다른 싱글턴 타입을 얻으려는 빈 하위 클래스가 모두 해당한다. 상속하면 한 동작이 여러 파일에 흩어지고, 부모를 바꾸면 모든 자식에 전파되며, 테스트가 계층 전체를 알아야 한다. ViewModel은 [viewmodel.md](viewmodel.md)의 `ViewModel 상속 대신 합성`이 같은 기준을 둔다.
+
+상속을 그대로 두는 것은 다음뿐이다.
+
+- 라이브러리가 요구하는 부모. androidx `ViewModel`, `RoomDatabase`, `CoroutineWorker`, `PagingSource`, `GlanceAppWidget` 등. 인터페이스가 인터페이스를 확장하는 것(`RoomDao<T>`를 확장하는 DAO 등)은 상속 계층이 아니므로 이 규칙의 대상이 아니다
+- `Throwable` 계층. 예외는 상속으로만 분류할 수 있으므로 `sealed class`로 하위 종류를 닫는다. 부모 예외 자체를 범용 실패로 직접 던지면서 하위 종류도 두는 경우(`AppleCredentialsException`과 `AppleCredentialsUserCancelException`)는 `open class`로 둔다
+- Swift가 Kotlin 인터페이스를 구현하기 위해 함께 상속해야 하는 빈 `open class`
+- `:domain:core`의 `UseCase`·`FlowUseCase`. `Result` 래핑과 `CancellationException` 통과, 실패 로깅을 하위 클래스가 빠뜨릴 수 없게 강제하고, `UseCase<Uuid, *>`처럼 타입으로 묶어 넘길 수 있어 유지한다
+
+Kotest에서 여러 구현이 같은 시나리오를 확인하는 테스트는 추상 스펙을 상속하지 않고 `funSpec { }`으로 만든 `TestFactory`를 각 테스트가 `include`한다. 구현마다 다른 부분은 인터페이스로 두고 테스트 파일이 `object`로 구현한다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+public abstract class PermissionManager {
+    public suspend fun request(permission: Permission): PermissionResult { ... requestPermission(permission) ... }
+
+    protected abstract suspend fun requestPermission(permission: Permission): PermissionResult
+}
+
+public class IosPermissionManager : PermissionManager() { ... }
+
+// 모듈마다 다른 싱글턴 타입을 얻으려고 빈 하위 클래스를 둔다.
+@Single
+internal class LunarFetchedYearSet : FetchedKeySet<Int>()
+
+internal abstract class TagEntityTabLocalDataSourceSpec(case: TagTabCase) : FunSpec({ ... })
+
+internal class AccountTagQrLocalDataSourceImplTest : TagEntityTabLocalDataSourceSpec(case = QrTagTabCase)
+```
+
+✅ 권장 예시:
+
+```kotlin
+public interface PermissionPlatform {
+    public suspend fun requestPermission(permission: Permission): PermissionResult
+}
+
+public class PermissionManager(private val platform: PermissionPlatform) {
+    public suspend fun request(permission: Permission): PermissionResult { ... platform.requestPermission(permission) ... }
+}
+
+public class IosPermissionPlatform : PermissionPlatform { ... }
+
+@Single
+internal class LunarFetchedYearSet {
+    private val keySet = FetchedKeySet<Int>()
+
+    suspend fun <T> fetchOnce(key: Int, cached: suspend () -> T, fetch: suspend () -> T): T = keySet.fetchOnce(key = key, cached = cached, fetch = fetch)
+}
+
+internal fun tagEntityTabLocalDataSourceTests(case: TagTabCase): TestFactory = funSpec { ... }
+
+internal class AccountTagQrLocalDataSourceImplTest :
+    FunSpec({
+        include(tagEntityTabLocalDataSourceTests(case = QrTagTabCase))
+    })
+```
+
 ## 실험적 API Opt-in
 
 실험적 API 사용을 위해 `@OptIn(...)`을 선언할 때는 클래스나 함수에 선언하지 않고, 해당 API를 사용하는 Kotlin 파일 상단에 `@file:OptIn(...)`으로 선언한다.
