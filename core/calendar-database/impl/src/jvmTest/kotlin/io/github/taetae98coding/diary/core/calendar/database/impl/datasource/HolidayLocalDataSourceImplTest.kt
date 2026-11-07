@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.core.calendar.database.impl.datasource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
@@ -12,16 +10,16 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabaseModule
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.HolidayTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import java.io.File
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidayLocalDataSourceImplTest :
     FunSpec({
@@ -56,7 +54,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).first() shouldBe listOf(holiday)
         }
 
-        test("TC-bd7df080-ec07-4b40-b929-2eaf93fec5ed 조회 중인 연도의 캐시가 변경되면 새 목록을 제공한다") {
+        test("TC-bd7df080-ec07-4b40-b929-2eaf93fec5ed 조회 중인 연도의 저장된 공휴일이 바뀌면 새 목록을 제공한다") {
             val holiday = holiday()
 
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).test {
@@ -96,7 +94,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA)).first().shouldBeEmpty()
         }
 
-        test("TC-e77daefd-b7ea-45b4-9c89-3c85a0e7176c 어느 연도의 캐시든 바뀌면 전체 조회 결과를 갱신한다") {
+        test("TC-e77daefd-b7ea-45b4-9c89-3c85a0e7176c 어느 연도의 저장된 공휴일이든 바뀌면 전체 조회 결과를 갱신한다") {
             val holiday = holiday(name = "가")
             val otherHoliday = holiday(year = OTHER_YEAR, name = "나")
             val replacementHoliday = holiday(name = "가")
@@ -118,7 +116,7 @@ class HolidayLocalDataSourceImplTest :
             }
         }
 
-        test("TC-4aa76f93-d08b-48d6-a0ce-e8b0531d4274 전체 조회는 이름 오름차순으로 공휴일을 반환한다") {
+        test("TC-4aa76f93-d08b-48d6-a0ce-e8b0531d4274 전체 조회는 이름 순으로 공휴일을 반환한다") {
             val firstByName =
                 holiday(
                     year = OTHER_YEAR,
@@ -185,7 +183,7 @@ class HolidayLocalDataSourceImplTest :
         }
 
         test("TC-6f84d6b0-2bcf-4b9a-b5be-cebe4455f2a4 시작일·종료일·이름이 같으면 국가 순으로 반환한다") {
-            val name: String = fixtureMonkey.giveMeOne()
+            val name: String = Arb.string().next()
             val korea = holiday(country = KOREA, name = name)
             val unitedStates = holiday(country = UNITED_STATES, name = name)
             transaction.upsert(country = UNITED_STATES, year = YEAR, holidayList = listOf(unitedStates))
@@ -195,7 +193,7 @@ class HolidayLocalDataSourceImplTest :
         }
 
         test("TC-d24196af-c7b4-4a13-bbbf-7961f5363942 전체 조회에서 이름이 같으면 한국, 미국 순으로 반환한다") {
-            val name: String = fixtureMonkey.giveMeOne()
+            val name: String = Arb.string().next()
             val unitedStates = holiday(country = UNITED_STATES, year = YEAR, name = name, start = LocalDate(2026, 1, 1))
             val korea = holiday(country = KOREA, year = OTHER_YEAR, name = name, start = LocalDate(2027, 12, 31))
             transaction.upsert(country = UNITED_STATES, year = YEAR, holidayList = listOf(unitedStates))
@@ -241,8 +239,8 @@ class HolidayLocalDataSourceImplTest :
         private fun holiday(
             country: HolidayCountryLocalEntity = KOREA,
             year: Int = YEAR,
-            name: String = fixtureMonkey.giveMeOne(),
-            isHoliday: Boolean = fixtureMonkey.giveMeOne(),
+            name: String = Arb.string().next(),
+            isHoliday: Boolean = Arb.boolean().next(),
             start: LocalDate = LocalDate(2026, 1, 1),
             endInclusive: LocalDate = start,
         ): HolidayLocalEntity =

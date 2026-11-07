@@ -1,22 +1,26 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeDateTime
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDateTime
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
 class MemoDetailMapperTest :
     FunSpec({
         test("domain to local") {
-            val domain = fixtureMonkey.giveMeOne<MemoDetail>()
-            val allDay = fixtureMonkey.giveMeOne<MemoDateTime.AllDay>()
-            val dateTime = fixtureMonkey.giveMeOne<MemoDateTime.DateTime>()
+            val domain = Arb.memoDetail().next()
+            val allDay = Arb.memoDateTimeAllDay().next()
+            val dateTime = Arb.memoDateTimeDateTime().next()
 
             listOf(
                 domain.copy(dateTime = allDay) to
@@ -43,11 +47,12 @@ class MemoDetailMapperTest :
         }
 
         test("local to domain") {
-            val start = fixtureMonkey.giveMeOne<LocalDateTime>()
-            val endInclusive = fixtureMonkey.giveMeOne<LocalDateTime>()
+            val start = Arb.kotlinxLocalDateTime().next()
+            val endInclusive = Arb.kotlinxLocalDateTime().next()
             val local =
-                fixtureMonkey
-                    .giveMeOne<MemoDetailLocalEntity>()
+                Arb
+                    .memoDetailLocalEntity()
+                    .next()
                     .copy(start = start, endInclusive = endInclusive)
 
             listOf(
@@ -65,11 +70,11 @@ class MemoDetailMapperTest :
         }
 
         test("domain to local to domain") {
-            val domain = fixtureMonkey.giveMeOne<MemoDetail>()
+            val domain = Arb.memoDetail().next()
 
             listOf(
-                fixtureMonkey.giveMeOne<MemoDateTime.AllDay>(),
-                fixtureMonkey.giveMeOne<MemoDateTime.DateTime>(),
+                Arb.memoDateTimeAllDay().next(),
+                Arb.memoDateTimeDateTime().next(),
                 null,
             ).forEach { dateTime ->
                 val expected = domain.copy(dateTime = dateTime)
@@ -78,9 +83,6 @@ class MemoDetailMapperTest :
             }
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 private val Midnight = LocalTime(hour = 0, minute = 0)
 

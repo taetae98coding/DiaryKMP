@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
+import io.github.taetae98coding.diary.core.testing.taglink.tagLinkRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 
 class TagLinkRemoteMapperTest :
@@ -59,21 +60,22 @@ class TagLinkRemoteMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun localTagLink(isDeleted: Boolean): TagLinkLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<TagLinkLocalEntity>()
-        .setExp(TagLinkLocalEntity::isDeleted, isDeleted)
-        .setExp(TagLinkLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(TagLinkLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .tagLinkLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun remoteTagLink(isDeleted: Boolean): TagLinkRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<TagLinkRemoteEntity>()
-        .setExp(TagLinkRemoteEntity::isDeleted, isDeleted)
-        .setExp(TagLinkRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(TagLinkRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .tagLinkRemoteEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )

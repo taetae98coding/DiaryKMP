@@ -7,20 +7,21 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -74,7 +75,7 @@ class MemoAddTagViewModelTest : FunSpec() {
 
         test("TC-683dd7b5-f406-48c0-8263-6e0243e4ec8c 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allList = List(2) { tag() }
                 val matchedList = listOf(allList.first())
                 val useCase = mockk<PageTagUseCase>()
@@ -387,6 +388,37 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
+        listOf(
+            "대표가 아닌 태그만" to { nonPrimary: Tag, _: Tag -> listOf(nonPrimary) },
+            "대표 태그만" to { _: Tag, primary: Tag -> listOf(primary) },
+            "선택한 태그가 모두 없는 목록" to { _: Tag, _: Tag -> emptyList() },
+        ).forEach { (label, remainingOf) ->
+            test("TC-a7830318-9349-45fc-83e0-918b42687e70 표시 기준이 $label 포함하면 그 밖의 태그는 선택에서 제외되고 대표 지정은 대표 태그가 남은 때만 유지된다") {
+                runTest(mainDispatcher) {
+                    val nonPrimaryTag = tag()
+                    val primaryTag = tag()
+                    val tagListFlow = MutableStateFlow(Result.success(listOf(nonPrimaryTag, primaryTag)))
+                    val viewModel = viewModel(tagListFlow = tagListFlow)
+                    viewModel.selectTag(id = nonPrimaryTag.id)
+                    viewModel.selectPrimaryTag(id = primaryTag.id)
+
+                    viewModel.uiState.test {
+                        advanceUntilIdle()
+                        expectMostRecentItem().selectedTagList shouldBe listOf(nonPrimaryTag, primaryTag)
+
+                        val remainingList = remainingOf(nonPrimaryTag, primaryTag)
+                        tagListFlow.value = Result.success(remainingList)
+                        advanceUntilIdle()
+
+                        val uiState = expectMostRecentItem()
+                        uiState.selectedTagList shouldBe remainingList
+                        uiState.primaryTagId shouldBe primaryTag.id.takeIf { primaryTag in remainingList }
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
         test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 선택할 수 있는 태그에 없는 태그와 대표 지정도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
@@ -413,22 +445,37 @@ class MemoAddTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val tagA = tag()
                 val tagB = tag()
-                val viewModel =
-                    viewModel(
-                        initialPrimaryTagId = tagA.id,
-                        tagListFlow = flowOf(Result.success(listOf(tagA, tagB))),
+                val rowList =
+                    listOf<Triple<(MemoAddTagViewModel) -> Unit, Set<Uuid>, Uuid>>(
+                        Triple({ }, setOf(tagA.id), tagA.id),
+                        Triple({ viewModel -> viewModel.selectPrimaryTag(id = tagB.id) }, setOf(tagA.id, tagB.id), tagB.id),
+                        Triple(
+                            { viewModel ->
+                                viewModel.selectPrimaryTag(id = tagB.id)
+                                viewModel.unselectTag(id = tagA.id)
+                            },
+                            setOf(tagB.id),
+                            tagB.id,
+                        ),
                     )
 
-                viewModel.uiState.test {
-                    advanceUntilIdle()
+                rowList.forEach { (change, expectedTagIdSet, expectedPrimaryTagId) ->
+                    val viewModel =
+                        viewModel(
+                            initialPrimaryTagId = tagA.id,
+                            tagListFlow = flowOf(Result.success(listOf(tagA, tagB))),
+                        )
 
-                    viewModel.selectPrimaryTag(id = tagB.id)
-                    viewModel.unselectTag(id = tagA.id)
-                    advanceUntilIdle()
-                    cancelAndIgnoreRemainingEvents()
+                    viewModel.uiState.test {
+                        advanceUntilIdle()
+
+                        change(viewModel)
+                        advanceUntilIdle()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = expectedTagIdSet, primaryTagId = expectedPrimaryTagId)
                 }
-
-                viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = setOf(tagB.id), primaryTagId = tagB.id)
             }
         }
 
@@ -598,17 +645,17 @@ class MemoAddTagViewModelTest : FunSpec() {
 
     private companion object {
         private const val SEARCH_QUERY = "Travel"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isFinished, false)
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
             initialPrimaryTagId: Uuid? = null,

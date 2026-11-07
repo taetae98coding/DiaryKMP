@@ -49,11 +49,12 @@
 | 모든 Kotlin 코드 | [kotlin.md](DIARY_AGENTS/rules/kotlin.md) |
 | Composable, UI Event·Effect, 레이아웃 | [compose.md](DIARY_AGENTS/rules/compose.md) |
 | ViewModel | [viewmodel.md](DIARY_AGENTS/rules/viewmodel.md) |
+| `NavKey`, 딥링크 매처·`AppDeepLink` | [navigation.md](DIARY_AGENTS/rules/navigation.md) |
 | `:domain:*`의 UseCase와 Repository 인터페이스 | [domain.md](DIARY_AGENTS/rules/domain.md) |
 | `:core:*`, `:data:*`, `:work:*`의 DataSource·Repository 구현·매퍼 | [data.md](DIARY_AGENTS/rules/data.md) |
 | Room Entity, DAO, `@Query` | [room.md](DIARY_AGENTS/rules/room.md) |
 | `CoroutineWorker`·`WorkRequest`, `BGTaskScheduler`, 코루틴 예약기 | [work.md](DIARY_AGENTS/rules/work.md) |
-| `withContext`, `CoroutineDispatcher` 주입, 블로킹 작업(파일·프로세스·이미지·큰 계산·동기 시스템 호출) | [main-safety.md](DIARY_AGENTS/rules/main-safety.md) |
+| `withContext`, `CoroutineDispatcher`·`CoroutineScope` 주입, 블로킹 작업(파일·프로세스·이미지·큰 계산·동기 시스템 호출) | [main-safety.md](DIARY_AGENTS/rules/main-safety.md) |
 | `build.gradle.kts`와 버전 카탈로그 | [gradle.md](DIARY_AGENTS/rules/gradle.md) |
 | `supabase/migrations`, `supabase/functions` | [supabase.md](DIARY_AGENTS/rules/supabase.md) |
 

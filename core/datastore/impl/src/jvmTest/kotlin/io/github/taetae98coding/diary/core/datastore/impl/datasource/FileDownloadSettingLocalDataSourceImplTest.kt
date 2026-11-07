@@ -3,16 +3,16 @@ package io.github.taetae98coding.diary.core.datastore.impl.datasource
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.FileDownloadDirectoryLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.FileDownloadSettingData
 import io.github.taetae98coding.diary.core.datastore.impl.FileDownloadSettingSerializer
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -25,9 +25,6 @@ import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import java.nio.file.Files
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FileDownloadSettingLocalDataSourceImplTest :
     FunSpec({
@@ -43,7 +40,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
             runTest {
                 val path = tempSettingPath()
                 val directory =
-                    FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = fixtureMonkey.nonBlankString())
+                    FileDownloadDirectoryLocalEntity(uri = Arb.nonBlankString().next(), name = Arb.string().next(), bookmark = Arb.nonBlankString().next())
 
                 withDataStore(path = path) { dataStore ->
                     FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).upsertDirectory(directory = directory)
@@ -58,7 +55,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
         test("TC-786bc68f-5f47-40d0-975b-a7463878d6d4 북마크가 비어 있는 폴더도 저장소를 다시 열면 비어 있는 북마크로 유지된다") {
             runTest {
                 val path = tempSettingPath()
-                val directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = "")
+                val directory = FileDownloadDirectoryLocalEntity(uri = Arb.nonBlankString().next(), name = Arb.string().next(), bookmark = "")
 
                 withDataStore(path = path) { dataStore ->
                     FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore).upsertDirectory(directory = directory)
@@ -75,7 +72,7 @@ class FileDownloadSettingLocalDataSourceImplTest :
                 withDataStore(path = tempSettingPath()) { dataStore ->
                     val dataSource = FileDownloadSettingLocalDataSourceImpl(dataStore = dataStore)
 
-                    dataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = fixtureMonkey.nonBlankString(), name = fixtureMonkey.giveMeOne<String>(), bookmark = fixtureMonkey.nonBlankString()))
+                    dataSource.upsertDirectory(directory = FileDownloadDirectoryLocalEntity(uri = Arb.nonBlankString().next(), name = Arb.string().next(), bookmark = Arb.nonBlankString().next()))
                     dataSource.upsertDirectory(directory = null)
 
                     dataSource.getDirectory().first() shouldBe null

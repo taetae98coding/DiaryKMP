@@ -4,15 +4,15 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -20,6 +20,9 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -86,7 +89,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-da2dec7b-ef85-460b-a158-bb9d8cb0d119 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectableTag = tag(isFinished = false, isDeleted = false)
             val finishedTag = tag(isFinished = true, isDeleted = false)
             val deletedTag = tag(isFinished = false, isDeleted = true)
@@ -107,8 +110,8 @@ class AccountTagDaoTest :
         }
 
         test("TC-daa97b1f-1a15-472a-8952-366f3475156d TC-6dee2cd4-bf0c-4819-81fe-98a80a9fc8c1 현재 계정과 연결된 미완료·미삭제 태그만 목록에서 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val activeTag = tag(isFinished = false, isDeleted = false)
             val finishedTag = tag(isFinished = true, isDeleted = false)
             val deletedTag = tag(isFinished = false, isDeleted = true)
@@ -120,7 +123,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-16258722-4d03-4f43-9111-209e8391f2fc TC-6dee2cd4-bf0c-4819-81fe-98a80a9fc8c1 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val bravoTag =
                 tag(
                     title = "Bravo",
@@ -149,8 +152,23 @@ class AccountTagDaoTest :
                 )
         }
 
+        test("TC-e96dcf85-437b-44ae-9997-45014436b86d 최근 수정순은 수정 시각 내림차순으로 정렬하고 같으면 제목 오름차순으로 정렬한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val newestTag = tag(title = "Charlie", updatedAt = Instant.fromEpochMilliseconds(3_000))
+            val sameTimeBravoTag = tag(title = "Bravo", updatedAt = Instant.fromEpochMilliseconds(2_000))
+            val sameTimeAlphaTag = tag(title = "Alpha", updatedAt = Instant.fromEpochMilliseconds(2_000))
+            insert(accountId, sameTimeAlphaTag, newestTag, sameTimeBravoTag)
+
+            database
+                .accountTagDao()
+                .page(accountId = accountId, query = "", sort = ListSortLocalEntity.RECENTLY_UPDATED.queryValue)
+                .loadPage()
+                .data
+                .map { tag -> tag.id } shouldBe listOf(newestTag.id, sameTimeAlphaTag.id, sameTimeBravoTag.id)
+        }
+
         test("TC-3a0822a3-3298-4643-ac93-19c1a0c7268e 이모지는 목록 정렬에 영향을 주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val alphaTag = tag(title = "Alpha", emoji = "\uD83E\uDD8A")
             val bravoTag = tag(title = "Bravo", emoji = "\uD83C\uDF4E")
             val charlieTag = tag(title = "Charlie", emoji = "")
@@ -165,7 +183,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 태그 추가는 페이지를 무효화하고 목록에 새 정렬로 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val initialTag = tag(title = "Bravo")
             val addedTag = tag(title = "Alpha")
             insert(accountId, initialTag)
@@ -182,7 +200,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 제목 변경은 페이지를 무효화하고 태그를 변경된 정렬 위치로 옮긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val anchorTag = tag(title = "Bravo")
             val movingTag = tag(title = "Alpha")
             insert(accountId, anchorTag, movingTag)
@@ -199,7 +217,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 완료는 페이지를 무효화하고 태그를 목록에서 제외한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val remainingTag = tag(title = "Alpha")
             val finishingTag = tag(title = "Bravo")
             insert(accountId, remainingTag, finishingTag)
@@ -221,7 +239,7 @@ class AccountTagDaoTest :
         }
 
         test("TC-2494c80a-80ea-42d8-91d6-e2efd58aced2 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val expectedTagList =
                 List(TAG_COUNT) { index ->
                     tag(title = "Tag-${index.toString().padStart(length = 3, padChar = '0')}")
@@ -244,8 +262,8 @@ class AccountTagDaoTest :
         }
 
         test("단일 태그 조회는 해당 계정과 연결된 태그만 반환한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag()
             insert(accountId, tag)
 
@@ -260,14 +278,14 @@ class AccountTagDaoTest :
                 .shouldBeNull()
             database
                 .accountTagDao()
-                .find(accountId = accountId, tagId = fixtureMonkey.giveMeOne<Uuid>())
+                .find(accountId = accountId, tagId = Arb.kotlinUuid().next())
                 .first()
                 .shouldBeNull()
         }
 
         test("완료 갱신은 해당 계정과 연결된 태그에만 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag(isFinished = false)
             insert(accountId, tag)
 
@@ -291,8 +309,8 @@ class AccountTagDaoTest :
         }
 
         test("삭제 갱신은 해당 계정과 연결된 태그에만 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag(isDeleted = false)
             insert(accountId, tag)
 
@@ -316,7 +334,7 @@ class AccountTagDaoTest :
         }
 
         test("완료를 되돌리면 태그가 제목에 해당하는 자리에서 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "Alpha", updatedAt = Instant.fromEpochMilliseconds(1_000))
             val secondTag = tag(title = "Bravo", isFinished = true, updatedAt = Instant.fromEpochMilliseconds(2_000))
             insert(accountId, firstTag, secondTag)
@@ -332,7 +350,7 @@ class AccountTagDaoTest :
         }
 
         test("삭제를 되돌리면 태그가 제목에 해당하는 자리에서 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "Bravo", updatedAt = Instant.fromEpochMilliseconds(1_000))
             val secondTag = tag(title = "Alpha", isDeleted = true, updatedAt = Instant.fromEpochMilliseconds(2_000))
             insert(accountId, firstTag, secondTag)
@@ -348,11 +366,11 @@ class AccountTagDaoTest :
         }
 
         test("TC-04559128-3d87-4938-b162-ac671aa75a3e 상세 갱신은 해당 계정의 태그 이모지, 제목, 설명, 컬러, 수정 시각만 바꾸고 완료·삭제 여부, 생성 시각과 계정 연결은 유지한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             insert(accountId, tag)
-            val newDetail = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val newDetail = Arb.tagDetailLocalEntity().next()
 
             database.accountTagDao().updateDetail(
                 accountId = otherAccountId,
@@ -391,12 +409,12 @@ class AccountTagDaoTest :
         }
 
         test("여러 계정과 연결된 태그는 같은 내용을 공유한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
             insert(accountId, tag)
             insert(otherAccountId, tag)
-            val newDetail = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val newDetail = Arb.tagDetailLocalEntity().next()
             val updatedAt = Instant.fromEpochMilliseconds(2_000)
 
             database.accountTagDao().updateDetail(
@@ -419,9 +437,6 @@ class AccountTagDaoTest :
         private const val PAGE_SIZE: Int = 10
         private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private suspend fun PagingSource<Int, TagLocalEntity>.loadPage(
             key: Int? = null,
             loadSize: Int = 100,
@@ -437,22 +452,24 @@ class AccountTagDaoTest :
         }
 
         private fun tag(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            id: Uuid = Arb.kotlinUuid().next(),
+            title: String = Arb.string().next(),
             emoji: String = "",
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
-            createdAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
+            createdAt: Instant = Arb.secondPrecisionInstant().next(),
         ): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::id, id)
-                .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>().copy(emoji = emoji, title = title))
-                .setExp(TagLocalEntity::isFinished, isFinished)
-                .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, updatedAt)
-                .setExp(TagLocalEntity::createdAt, createdAt)
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    id = id,
+                    detail = Arb.tagDetailLocalEntity().next().copy(emoji = emoji, title = title),
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = updatedAt,
+                    createdAt = createdAt,
+                )
     }
 }

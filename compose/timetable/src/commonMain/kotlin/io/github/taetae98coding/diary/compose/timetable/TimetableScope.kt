@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.timetable
 
 import androidx.compose.runtime.Composable
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime
 
@@ -15,6 +16,11 @@ public interface TimetableScope {
     public fun allDayItem(
         dateRange: LocalDateRange,
         key: Any,
+        content: @Composable () -> Unit,
+    )
+
+    public fun dateInfo(
+        date: LocalDate,
         content: @Composable () -> Unit,
     )
 }
@@ -35,6 +41,7 @@ internal data class TimetableAllDayItem(
 internal class TimetableScopeImpl : TimetableScope {
     val timeItemList = mutableListOf<TimetableTimeItem>()
     val allDayItemList = mutableListOf<TimetableAllDayItem>()
+    val dateInfoMap = mutableMapOf<LocalDate, @Composable () -> Unit>()
 
     override fun timeItem(
         start: LocalDateTime,
@@ -51,5 +58,12 @@ internal class TimetableScopeImpl : TimetableScope {
         content: @Composable () -> Unit,
     ) {
         allDayItemList += TimetableAllDayItem(dateRange = dateRange, key = key, content = content)
+    }
+
+    override fun dateInfo(
+        date: LocalDate,
+        content: @Composable () -> Unit,
+    ) {
+        dateInfoMap[date] = content
     }
 }

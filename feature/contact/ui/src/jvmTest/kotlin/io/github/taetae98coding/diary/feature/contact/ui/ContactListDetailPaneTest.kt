@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.isContactAddOnDetailPane
+import io.github.taetae98coding.diary.feature.contact.api.isContactListDetailPane
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlin.uuid.Uuid
@@ -48,6 +49,13 @@ class ContactListDetailPaneTest :
             backStackCases.forEach { backStack ->
                 backStack.isContactAddOnDetailPane() shouldBe false
             }
+        }
+
+        test("TagDetail 연락처 탭에서 진입한 연락처 추가는 연락처 목록 위에 있어도 상세 영역에 놓이지 않는다") {
+            val backStack = listOf(OtherScreenNavKey, ContactHomeNavKey, ContactAddNavKey(initialTagId = Uuid.random()))
+
+            backStack.isContactAddOnDetailPane() shouldBe false
+            backStack.isContactListDetailPane(backStack.last()) shouldBe false
         }
     })
 

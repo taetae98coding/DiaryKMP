@@ -4,9 +4,11 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.playlist.usecase.AddMusicUseCase
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -28,11 +30,15 @@ class MusicAddScreenFailureTest {
         coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
         val viewModel = MusicAddViewModel(addMusicUseCase = useCase, fetchYoutubeVideoUseCase = mockk(relaxed = true))
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -50,7 +56,7 @@ class MusicAddScreenFailureTest {
 
         composeRule.clickAdd()
 
-        coVerify(exactly = 2) { useCase(MusicDetail(title = TYPED_TITLE, artist = TYPED_ARTIST, link = TYPED_LINK)) }
+        coVerify(exactly = 2) { useCase(AddMusicUseCase.Parameter(detail = MusicDetail(title = TYPED_TITLE, artist = TYPED_ARTIST, link = TYPED_LINK), tagIdSet = emptySet())) }
     }
 
     private companion object {

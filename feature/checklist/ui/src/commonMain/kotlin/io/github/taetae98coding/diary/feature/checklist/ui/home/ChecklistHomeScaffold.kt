@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -28,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun ChecklistHomeScaffold(
     onEvent: (ChecklistHomeScaffoldEvent) -> Unit,
+    onChecklistListEvent: (ChecklistListEvent) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
@@ -55,6 +57,7 @@ internal fun ChecklistHomeScaffold(
     ) { paddingValues ->
         ChecklistHomeList(
             onEvent = onEvent,
+            onChecklistListEvent = onChecklistListEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -70,6 +73,6 @@ internal fun ChecklistHomeScaffold(
 @Composable
 private fun ChecklistHomeScaffoldPreview() {
     DiaryTheme {
-        ChecklistHomeScaffold(onEvent = {})
+        ChecklistHomeScaffold(onEvent = {}, onChecklistListEvent = {})
     }
 }

@@ -13,9 +13,6 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
@@ -23,9 +20,14 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.home.loadingMemoPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -76,7 +78,7 @@ class MemoFinishedListEmptyTest {
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
                     itemList = emptyList(),
-                    refresh = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    refresh = LoadState.Error(IllegalStateException(Arb.string().next())),
                 ),
             ),
         )
@@ -92,7 +94,7 @@ class MemoFinishedListEmptyTest {
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
                     itemList = listOf(MemoListItem.Content(memo = memo(title = MEMO_TITLE))),
-                    append = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    append = LoadState.Error(IllegalStateException(Arb.string().next())),
                 ),
             ),
         )
@@ -147,17 +149,16 @@ class MemoFinishedListEmptyTest {
         private const val DEFAULT_RETRY_TEXT = "Retry"
         private const val TIMEOUT_MILLIS = 5_000L
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(title: String): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
-                .setExp(Memo::isFinished, true)
-                .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = title, dateTime = null),
+                    isFinished = true,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

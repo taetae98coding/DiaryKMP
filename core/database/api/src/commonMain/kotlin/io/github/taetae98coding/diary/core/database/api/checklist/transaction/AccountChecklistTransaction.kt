@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.api.checklist.transaction
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -11,6 +12,7 @@ public interface AccountChecklistTransaction {
         accountId: Uuid,
         checklist: ChecklistLocalEntity,
         itemList: List<ChecklistItemLocalEntity>,
+        checklistTagList: List<EntityTagLocalEntity>,
     )
 
     public suspend fun updateDetail(

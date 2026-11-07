@@ -1,15 +1,17 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
 import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,8 +29,8 @@ class PrepareSyncUseCaseTest :
             Triple("31일 전이다", 31.days, true),
         ).forEach { (label, elapsed, isReset) ->
             Given("인증된 사용자 계정의 마지막 동기화 시각이 $label") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val now = fixtureMonkey.giveMeOne<Instant>()
+                val account = Arb.accountUser().next()
+                val now = Arb.secondPrecisionInstant().next()
                 val clock = mockk<Clock>()
                 every { clock.now() } returns now
 
@@ -56,9 +58,9 @@ class PrepareSyncUseCaseTest :
         }
 
         Given("한 기기에 마지막 동기화 시각이 29일 전인 계정과 31일 전인 계정이 기록되어 있다") {
-            val recentAccount = fixtureMonkey.giveMeOne<Account.User>()
-            val staleAccount = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val recentAccount = Arb.accountUser().next()
+            val staleAccount = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val accountSyncTimeRepository = mockk<AccountSyncTimeRepository>(relaxed = true)
@@ -85,8 +87,8 @@ class PrepareSyncUseCaseTest :
         }
 
         Given("마지막 동기화 시각이 31일 전인 계정이 강제 전체 재동기화로 기기 데이터를 한 번 지웠다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val firstTriggeredAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val firstTriggeredAt = Arb.secondPrecisionInstant().next()
 
             When("30일이 지나기 전에 같은 계정의 동기화를 다시 시작한다") {
                 Then("TC-453cd1d7-cbf5-46d3-ac55-21aaa4237bde 기기 데이터를 다시 지우지 않는다") {
@@ -116,9 +118,9 @@ class PrepareSyncUseCaseTest :
         }
 
         Given("마지막 동기화 시각이 31일 전인 계정의 기기 데이터 삭제가 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
+            val throwable = IllegalStateException(Arb.string().next())
 
             When("동기화를 시작하기 전에 판단한다") {
                 Then("실패를 전달하고 마지막 동기화 시각을 갱신하지 않는다") {
@@ -141,9 +143,4 @@ class PrepareSyncUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

@@ -184,7 +184,7 @@ class TimetableTest {
     fun `TC-3615b3eb-deb8-477c-9994-a9cd2509e779 현재 시각의 날짜가 표시되면 현재 시각 위치를 표시한다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23), now = TEN_O_CLOCK_ON_23)
 
-        composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -259,6 +259,152 @@ class TimetableTest {
         composeRule.onNodeWithText(MEETING).assertIsDisplayed()
         composeRule.onNodeWithText(PAST).assertDoesNotExist()
         composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-591d6120-c0f0-4c51-b31d-9f1d76c2dda7 종일 영역은 모든 종일 아이템을 보여 준다`() {
+        val titleList = listOf("A", "B", "C", "D", "E")
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            titleList.forEach { title ->
+                allDayItem(dateRange = september(day = 23)..september(day = 23), key = title) { Text(text = title) }
+            }
+        }
+
+        scrollToTop()
+
+        titleList.forEach { title -> composeRule.onNodeWithText(title).assertIsDisplayed() }
+    }
+
+    @Test
+    fun `TC-f2d73079-3340-4946-b96c-ed9081f5e137 종일 영역은 시간대와 함께 스크롤되고 날짜 안내는 계속 보인다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            allDayItem(dateRange = september(day = 23)..september(day = 23), key = VACATION) { Text(text = VACATION) }
+        }
+
+        scrollToTop()
+        composeRule.onNodeWithText(VACATION).assertIsDisplayed()
+        composeRule.onNodeWithText(ALL_DAY_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).performScrollTo()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(VACATION).assertIsNotDisplayed()
+        composeRule.onNodeWithText("Wed").assertIsDisplayed()
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-bd8314fe-a48c-45fa-93b8-299ff8c2b732 종일 영역을 보다가 넘기면 맨 위부터 보인다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            allDayItem(dateRange = september(day = 23)..september(day = 23), key = VACATION) { Text(text = VACATION) }
+            allDayItem(dateRange = september(day = 24)..september(day = 24), key = TRIP) { Text(text = TRIP) }
+        }
+        scrollToTop()
+        composeRule.onNodeWithText(VACATION).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText(TRIP).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-f5744f96-086b-47fa-8354-33e120850444 종일 영역 높이가 달라도 보던 시각부터 이어서 본다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            listOf("A", "B", "C").forEach { title ->
+                allDayItem(dateRange = september(day = 23)..september(day = 23), key = title) { Text(text = title) }
+            }
+        }
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).performScrollTo()
+        composeRule.waitForIdle()
+        val elevenPmY = hourLineY(label = LAST_HOUR_LABEL)
+
+        swipePageLeft()
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+        abs(hourLineY(label = LAST_HOUR_LABEL) - elevenPmY) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+
+        swipePageRight()
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+        abs(hourLineY(label = LAST_HOUR_LABEL) - elevenPmY) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+    }
+
+    @Test
+    fun `TC-35b511f6-1288-478d-ad03-3aeab4e83115 지정한 날짜 정보를 날짜 안내와 함께 보여 준다`() {
+        setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
+            dateInfo(date = september(day = 22)) { Text(text = SUNNY) }
+        }
+
+        composeRule.onAllNodesWithText(SUNNY).assertCountEquals(1)
+        val sunnyX =
+            composeRule
+                .onNodeWithText(SUNNY)
+                .assertIsDisplayed()
+                .fetchSemanticsNode()
+                .boundsInRoot.center.x
+        val dayX =
+            composeRule
+                .onNodeWithText("22")
+                .fetchSemanticsNode()
+                .boundsInRoot.center.x
+
+        abs(sunnyX - dayX) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+        val textList =
+            composeRule
+                .onAllNodes(hasText("", substring = true), useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .flatMap { node ->
+                    node.config
+                        .getOrNull(SemanticsProperties.Text)
+                        .orEmpty()
+                        .map { it.text }
+                }
+        val headerTextSet = WEEKDAY_TITLE_LIST.toSet() + WEEK_DAY_LIST.map { day -> day.toString() } + SUNNY
+
+        textList.filter { text -> text in headerTextSet || (!text.endsWith("AM") && !text.endsWith("PM")) }.toSet() shouldBe headerTextSet
+    }
+
+    @Test
+    fun `TC-142d375c-8f3e-4b92-be0d-d72e0c384764 날짜 정보 지정이 바뀌면 표시가 갱신된다`() {
+        var hasDateInfo by mutableStateOf(false)
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            if (hasDateInfo) dateInfo(date = september(day = 23)) { Text(text = SUNNY) }
+        }
+        composeRule.onNodeWithText(SUNNY).assertDoesNotExist()
+
+        composeRule.runOnIdle { hasDateInfo = true }
+
+        composeRule.onNodeWithText(SUNNY).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-8350a927-1dac-4be1-8c57-15219b022624 시간대를 스크롤해도 날짜 정보는 계속 보인다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            dateInfo(date = september(day = 23)) { Text(text = SUNNY) }
+        }
+
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).performScrollTo()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(SUNNY).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-1a46b192-a5c1-4b22-afc7-915873d3cffe 좌우로 넘기면 날짜 정보가 날짜 안내와 함께 이동한다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
+            dateInfo(date = september(day = 23)) { Text(text = SUNNY) }
+            dateInfo(date = september(day = 24)) { Text(text = CLOUDY) }
+        }
+        composeRule.onNodeWithText(SUNNY).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText(CLOUDY).assertIsDisplayed()
+        composeRule.onNodeWithText(SUNNY).assertDoesNotExist()
     }
 
     @Test
@@ -339,7 +485,12 @@ class TimetableTest {
                 Text(text = VACATION, modifier = Modifier.clickable { clickCount += 1 })
             }
         }
-        val bounds = composeRule.onNodeWithText(VACATION).fetchSemanticsNode().boundsInRoot
+        val bounds =
+            composeRule
+                .onNodeWithText(VACATION)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot
         val firstDayX =
             composeRule
                 .onNodeWithText("21")
@@ -593,6 +744,11 @@ class TimetableTest {
         abs(minuteFrom(hourLabel = TEN_AM_LABEL, y = nowIndicatorCenterY())) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
     }
 
+    private fun scrollToTop() {
+        composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).performScrollTo()
+        composeRule.waitForIdle()
+    }
+
     private fun swipePageLeft() {
         composeRule.onRoot().performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
@@ -638,6 +794,10 @@ private const val THURSDAY_TITLE = "Thu"
 private const val COLUMN_ALIGNMENT_TOLERANCE_PX = 1F
 
 private const val MEETING = "Meeting"
+private const val SUNNY = "Sunny"
+private const val CLOUDY = "Cloudy"
+private const val TRIP = "Trip"
+private const val ALL_DAY_LABEL = "All day"
 private const val NIGHT = "Night"
 private const val VACATION = "Vacation"
 private const val PAST = "Past"

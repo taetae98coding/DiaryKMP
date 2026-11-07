@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.data.weather.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.weather.Weather
+import io.github.taetae98coding.diary.core.testing.weather.weather
 import io.github.taetae98coding.diary.data.weather.cache.WeatherReportCache
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlin.time.Duration.Companion.hours
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class StoredWeatherMapperTest :
     FunSpec({
@@ -21,8 +19,8 @@ class StoredWeatherMapperTest :
         }
 
         test("가장 이른 시각부터 가장 늦은 시각에 예보 간격을 더한 시각까지를 구간으로 둔다") {
-            val weatherList = List(3) { fixtureMonkey.giveMeOne<Weather>() }
-            val stored = WeatherReportCache.StoredWeather(weatherList = weatherList, locationName = fixtureMonkey.giveMeOne())
+            val weatherList = List(3) { Arb.weather().next() }
+            val stored = WeatherReportCache.StoredWeather(weatherList = weatherList, locationName = Arb.string().next())
 
             val report = stored.toWeatherReport(forecastInterval = 3.hours).shouldNotBeNull()
 

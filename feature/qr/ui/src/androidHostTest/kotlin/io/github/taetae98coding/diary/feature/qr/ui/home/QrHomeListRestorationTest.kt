@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
@@ -44,6 +45,7 @@ class QrHomeListRestorationTest {
             DiaryTheme {
                 QrHomeList(
                     onEvent = {},
+                    onQrListEvent = {},
                     qrPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -69,6 +71,7 @@ class QrHomeListRestorationTest {
                 DiaryTheme {
                     QrHomeList(
                         onEvent = {},
+                        onQrListEvent = {},
                         qrPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     )
                 }

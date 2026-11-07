@@ -1,11 +1,15 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isOff
+import androidx.compose.ui.test.isOn
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
@@ -23,6 +27,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_SEARCH_EMPTY_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_UNSET_DESCRIPTION
@@ -129,6 +135,8 @@ class MemoAddScreenTagTest {
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
         composeRule.awaitTagPickerRows()
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
         composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION)[1].performClick()
         composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION)[0].performClick()
         composeRule.closeDialogByBack()
@@ -136,6 +144,7 @@ class MemoAddScreenTagTest {
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
+        composeRule.onNode(hasPrimaryTagState()).assert(hasText(WORK_TAG_TITLE))
     }
 
     @Test
@@ -291,6 +300,10 @@ class MemoAddScreenTagPickerOpenTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.onAllNodes(isToggleable() and isOff() and hasAnyAncestor(isDialog())).assertCountEquals(2)
+        composeRule.onAllNodes(isOn() and hasAnyAncestor(isDialog())).assertCountEquals(0)
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_SET_DESCRIPTION).assertCountEquals(2)
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_UNSET_DESCRIPTION).assertCountEquals(0)
         tagAddCount shouldBe 0
     }
 
@@ -385,6 +398,8 @@ class MemoAddScreenTagPickerOpenTest {
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun setMemoAddScreen(

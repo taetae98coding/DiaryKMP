@@ -1,33 +1,35 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
+import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class GetPlaceListUseCaseTest :
     BehaviorSpec({
         Given("계정이 조회되고 저장소가 영역 안의 장소를 제공한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+            val account = Arb.accountUser().next()
+            val bounds = Arb.coordinateBounds().next()
             val placeList = List(PLACE_COUNT) { place() }
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             val useCase =
@@ -50,7 +52,7 @@ class GetPlaceListUseCaseTest :
         }
 
         Given("현재 계정을 확인할 수 없다") {
-            val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+            val bounds = Arb.coordinateBounds().next()
             val throwable = IllegalStateException("account unavailable")
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             val useCase =
@@ -72,8 +74,8 @@ class GetPlaceListUseCaseTest :
         }
 
         Given("저장소 조회가 실패한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+            val account = Arb.accountUser().next()
+            val bounds = Arb.coordinateBounds().next()
             val throwable = IllegalStateException("query error")
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             val useCase =
@@ -96,18 +98,13 @@ class GetPlaceListUseCaseTest :
     private companion object {
         private const val PLACE_COUNT = 3
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
-
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
-                detail = fixtureMonkey.giveMeOne<PlaceDetail>(),
+                detail = Arb.placeDetail().next(),
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun getAccountUseCase(account: Result<Account>): GetAccountUseCase {

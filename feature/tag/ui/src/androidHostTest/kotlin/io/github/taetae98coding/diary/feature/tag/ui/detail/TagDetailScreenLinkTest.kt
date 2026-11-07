@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -7,6 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_PICKER_TITLE
@@ -77,9 +81,13 @@ class TagDetailScreenLinkTest {
     }
 
     @Test
-    fun `TC-2f0ac0b1-7f1e-42c1-9724-f2b684cc9601 연결이 바뀌어도 수정 반영 동작을 제공하지 않는다`() {
+    fun `TC-2f0ac0b1-7f1e-42c1-9724-f2b684cc9601 연결과 해제는 수정 반영 동작을 제공하지 않고 입력 내용을 바꾸지 않는다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
-        setTagDetailScreen(selectableTagList = listOf(tag))
+        val storedDetail = tagDetail(title = TAG_TITLE, emoji = STORED_EMOJI, description = STORED_DESCRIPTION)
+        setTagDetailScreen(
+            uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = storedDetail)),
+            selectableTagList = listOf(tag),
+        )
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.awaitTagLinkPickerRows()
@@ -87,7 +95,13 @@ class TagDetailScreenLinkTest {
         linkUiStateFlow.value = TagLinkInputUiState(linkedTagList = listOf(tag))
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        assertUpdateIsNotProvidedAndInputIsUnchanged(storedDetail = storedDetail)
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        linkUiStateFlow.value = TagLinkInputUiState()
+        composeRule.waitForIdle()
+
+        assertUpdateIsNotProvidedAndInputIsUnchanged(storedDetail = storedDetail)
     }
 
     @Test
@@ -279,10 +293,19 @@ class TagDetailScreenLinkTest {
         )
     }
 
+    private fun assertUpdateIsNotProvidedAndInputIsUnchanged(storedDetail: TagDetail) {
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.emojiInput().assert(hasText(storedDetail.emoji))
+        composeRule.onNodeWithText(storedDetail.title).assertExists()
+        composeRule.onNode(hasSetTextAction() and hasText(storedDetail.description)).assertExists()
+    }
+
     private fun linkViewModel(): TagDetailLinkViewModel = requireNotNull(linkViewModelRef)
 
     public companion object {
         private const val LINKED_TAG_COUNT: Int = 5
+        private const val STORED_EMOJI: String = "\uD83C\uDFC3"
+        private const val STORED_DESCRIPTION: String = "TagDetailLinkDescription"
         private const val LINKED_TAG_TITLE_PREFIX: String = "TagDetailLinked"
         private val SECOND_TAG_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000002")
     }

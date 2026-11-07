@@ -1,16 +1,16 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountCalendarMemoLocalDataSource
-import io.github.taetae98coding.diary.core.database.api.memo.entity.CalendarMemoLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.calendarMemoLocalEntity
 import io.github.taetae98coding.diary.data.memo.mapper.toDomain
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,16 +22,16 @@ import kotlinx.datetime.LocalDateTime
 class AccountCalendarMemoRepositoryImplTest :
     FunSpec({
         test("TC-a989343d-428a-4940-a47a-948f1e83a032 메모에 기록된 기간 형태를 그대로 유지한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
             val allDayMemo =
-                calendarMemo().copy(
+                Arb.calendarMemoLocalEntity().next().copy(
                     isAllDay = true,
                     start = LocalDateTime(2026, 7, 6, 0, 0),
                     endInclusive = LocalDateTime(2026, 7, 7, 0, 0),
                 )
             val dateTimeMemo =
-                calendarMemo().copy(
+                Arb.calendarMemoLocalEntity().next().copy(
                     isAllDay = false,
                     start = LocalDateTime(2026, 7, 8, 13, 30),
                     endInclusive = LocalDateTime(2026, 7, 9, 9, 0),
@@ -54,9 +54,9 @@ class AccountCalendarMemoRepositoryImplTest :
         }
 
         test("캘린더 메모 조회는 표시 대상 기간으로 로컬 저장소를 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 6, 29), LocalDate(2026, 8, 9))
-            val localList = listOf(calendarMemo(), calendarMemo())
+            val localList = listOf(Arb.calendarMemoLocalEntity().next(), Arb.calendarMemoLocalEntity().next())
             val localDataSource = mockk<AccountCalendarMemoLocalDataSource>()
             every {
                 localDataSource.get(accountId = account.id, dateRange = dateRange)
@@ -67,9 +67,9 @@ class AccountCalendarMemoRepositoryImplTest :
         }
 
         test("캘린더 메모 조회는 조회 결과의 순서를 그대로 유지한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
-            val localList = List(size = 5) { calendarMemo() }
+            val localList = List(size = 5) { Arb.calendarMemoLocalEntity().next() }
             val localDataSource = mockk<AccountCalendarMemoLocalDataSource>()
             every {
                 localDataSource.get(accountId = account.id, dateRange = dateRange)
@@ -81,10 +81,10 @@ class AccountCalendarMemoRepositoryImplTest :
         }
 
         test("캘린더 메모 조회는 로컬 저장소의 후속 변경도 도메인 모델로 반환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
-            val localList = listOf(calendarMemo())
-            val changedLocalList = listOf(calendarMemo(), calendarMemo())
+            val localList = listOf(Arb.calendarMemoLocalEntity().next())
+            val changedLocalList = listOf(Arb.calendarMemoLocalEntity().next(), Arb.calendarMemoLocalEntity().next())
             val localFlow = MutableStateFlow(localList)
             val localDataSource = mockk<AccountCalendarMemoLocalDataSource>()
             every {
@@ -103,7 +103,7 @@ class AccountCalendarMemoRepositoryImplTest :
         }
 
         test("표시 대상 기간과 겹치는 메모가 없으면 빈 목록을 반환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
             val localDataSource = mockk<AccountCalendarMemoLocalDataSource>()
             every {
@@ -113,11 +113,4 @@ class AccountCalendarMemoRepositoryImplTest :
 
             repository.get(account = account, dateRange = dateRange).first() shouldBe emptyList()
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun calendarMemo(): CalendarMemoLocalEntity = fixtureMonkey.giveMeOne<CalendarMemoLocalEntity>()
-    }
-}
+    })

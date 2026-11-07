@@ -28,4 +28,10 @@ internal class AccountSyncTimeLocalDataSourceImpl(
             syncTime.copy(syncedAtMap = syncTime.syncedAtMap + (accountId to syncedAt))
         }
     }
+
+    override suspend fun delete(accountId: Uuid) {
+        dataStore.updateData { syncTime ->
+            syncTime.copy(syncedAtMap = syncTime.syncedAtMap - accountId)
+        }
+    }
 }

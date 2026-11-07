@@ -23,8 +23,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -47,8 +45,11 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -100,12 +101,12 @@ class ContactDetailEntryRouteTest {
 
     @Test
     fun `TC-d1672a7e-7824-469d-bfb3-4efaa25c310e 메모 상세의 연락처 입력에서 진입한 ContactDetail 화면에서도 메모 탭을 제공한다`() {
-        assertMemoTabProvided(previousRouteList = listOf(MemoHomeStandInNavKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+        assertMemoTabProvided(previousRouteList = listOf(MemoHomeStandInNavKey, MemoDetailNavKey(id = Arb.kotlinUuid().next())))
     }
 
     private fun assertMemoTabProvided(previousRouteList: List<ScreenNavKey>) {
-        val contactId = fixtureMonkey.giveMeOne<Uuid>()
-        val memoTitle = "ContactMemo-${fixtureMonkey.giveMeOne<Int>()}"
+        val contactId = Arb.kotlinUuid().next()
+        val memoTitle = "ContactMemo-${Arb.int().next()}"
         val backStack = NavBackStack<ScreenNavKey>(*previousRouteList.toTypedArray())
         setNavDisplay(backStack = backStack, contactId = contactId, memoTitle = memoTitle)
 
@@ -127,6 +128,7 @@ class ContactDetailEntryRouteTest {
         memoTitle: String,
     ): Module =
         module {
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<ContactDetailViewModel>(relaxed = true).apply {
                     every { uiState } returns MutableStateFlow(ContactDetailUiState.Content(id = contactId, detail = testContactDetail()))
@@ -204,7 +206,6 @@ class ContactDetailEntryRouteTest {
     private companion object {
         const val PREVIOUS_ROUTE_CONTENT = "PreviousRouteContent"
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }
 

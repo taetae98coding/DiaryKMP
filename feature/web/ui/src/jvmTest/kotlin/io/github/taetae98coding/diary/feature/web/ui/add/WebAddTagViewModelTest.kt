@@ -6,17 +6,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -54,7 +55,7 @@ class WebAddTagViewModelTest : FunSpec() {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = WebAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+                val viewModel = EntityAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
 
                 val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
                 viewModel.viewModelScope.cancel()
@@ -69,7 +70,7 @@ class WebAddTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(initialTagId = null)
 
-                viewModel.tagSelectionUiState.value.tagIdSet
+                viewModel.selectionUiState.value.tagIdSet
                     .shouldBeEmpty()
             }
         }
@@ -79,10 +80,10 @@ class WebAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = null, selectedTagList = listOf(tag))
 
-                viewModel.add(id = tag.id)
+                viewModel.add(tagId = tag.id)
                 advanceUntilIdle()
 
-                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     expectMostRecentItem().tagList shouldBe listOf(tag)
@@ -97,12 +98,12 @@ class WebAddTagViewModelTest : FunSpec() {
                 val secondTag = tag()
                 val viewModel = viewModel(initialTagId = null)
 
-                viewModel.add(id = firstTag.id)
-                viewModel.add(id = secondTag.id)
-                viewModel.remove(id = firstTag.id)
+                viewModel.add(tagId = firstTag.id)
+                viewModel.add(tagId = secondTag.id)
+                viewModel.remove(tagId = firstTag.id)
                 advanceUntilIdle()
 
-                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
             }
         }
 
@@ -111,12 +112,20 @@ class WebAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = listOf(tag))
 
-                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
 
                 viewModel.uiState.test {
                     awaitItem().tagList.shouldBeEmpty()
                     awaitItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
                 }
+
+                val otherTag = tag()
+                viewModel.add(tagId = otherTag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id, otherTag.id)
+
+                viewModel.remove(tagId = tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(otherTag.id)
             }
         }
 
@@ -125,7 +134,7 @@ class WebAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = emptyList())
 
-                viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()
@@ -151,14 +160,14 @@ class WebAddTagViewModelTest : FunSpec() {
                         }
                     }
                     val viewModel =
-                        WebAddTagViewModel(
+                        EntityAddTagViewModel(
                             initialTagId = null,
                             pageTagUseCase = mockk(relaxed = true),
                             getSelectedTagUseCase = getSelectedTagUseCase,
                         )
 
                     viewModel.uiState.test {
-                        viewModel.add(id = tag.id)
+                        viewModel.add(tagId = tag.id)
                         advanceUntilIdle()
                         expectMostRecentItem().tagList shouldBe listOf(tag)
 
@@ -168,21 +177,50 @@ class WebAddTagViewModelTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
 
-                    viewModel.tagSelectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                    viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                 }
+            }
+        }
+
+        test("TC-71d58634-9629-4149-805c-c8482f8d3e5c 표시 기준에서 빠졌던 태그가 다시 표시 기준을 만족하면 유지되어 있던 선택이 다시 나타난다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Tag>())))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val viewModel =
+                    EntityAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase,
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+
+                    selectedTagFlow.value = Result.success(listOf(tag))
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
             }
         }
 
         test("TC-600fa417-a608-4189-bd8c-409ea8506e2e 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageTagUseCase = mockk<PageTagUseCase>()
                 every { pageTagUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every { pageTagUseCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedTagList)))
                 val viewModel =
-                    WebAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = null,
                         pageTagUseCase = pageTagUseCase,
                         getSelectedTagUseCase = mockk(relaxed = true),
@@ -208,13 +246,13 @@ class WebAddTagViewModelTest : FunSpec() {
         initialTagId: Uuid?,
         selectedTagList: List<Tag> = emptyList(),
         selectableTagList: List<Tag> = emptyList(),
-    ): WebAddTagViewModel {
+    ): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(selectableTagList)))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
         every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(selectedTagList))
 
-        return WebAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = initialTagId,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,
@@ -222,14 +260,13 @@ class WebAddTagViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isFinished, false)
-                .setExp(Tag::isDeleted, false)
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                )
     }
 }

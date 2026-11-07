@@ -11,7 +11,9 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -20,18 +22,26 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CONTACT_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_UPDATE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.EDIT_SUFFIX
 import io.github.taetae98coding.diary.feature.tag.ui.detail.FIRST_TAG_ID
+import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_CHECKLIST_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_CONTACT_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_MEMO_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_PLACE_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_QR_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_DETAIL_PAGER_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
@@ -53,13 +63,21 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
+import io.github.taetae98coding.diary.feature.tag.ui.detail.toHexColorText
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_TAG_LINK_LABEL
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
+import io.github.taetae98coding.diary.feature.tag.ui.tagContact
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tagMusic
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
+import io.github.taetae98coding.diary.feature.tag.ui.tagQr
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -76,10 +94,21 @@ class TagDetailTabTest {
 
     @Test
     fun `TC-29341416-bb37-4ba2-a21a-5a267cdedb15 화면에 처음 진입하면 태그 디테일 탭이 선택된다`() {
-        setTagDetailScaffold()
+        val storedDetail =
+            tagDetail(
+                title = TAG_TITLE,
+                emoji = STORED_EMOJI,
+                description = STORED_DESCRIPTION,
+                color = STORED_COLOR,
+            )
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = storedDetail) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.titleInput().assertExists()
+        composeRule.emojiInput().assert(hasText(STORED_EMOJI))
+        composeRule.titleInput().assert(hasText(TAG_TITLE))
+        composeRule.descriptionInput().assert(hasText(STORED_DESCRIPTION))
+        composeRule.colorHexText() shouldBe STORED_COLOR.toHexColorText()
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).assertExists()
         composeRule.refreshableList().assertDoesNotExist()
     }
 
@@ -92,6 +121,43 @@ class TagDetailTabTest {
         composeRule.onNodeWithContentDescription(KOREAN_MEMO_TAB_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(KOREAN_WEB_TAB_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(KOREAN_PLACE_TAB_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(KOREAN_CONTACT_TAB_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(KOREAN_CHECKLIST_TAB_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(KOREAN_MUSIC_TAB_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(KOREAN_QR_TAB_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-b0b32237-2208-49a9-8108-e6028692e8e5 여덟 탭이 정해진 순서로 놓인다`() {
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
+
+        val leftList =
+            ALL_TAB_DESCRIPTION_LIST.map { tabDescription ->
+                composeRule
+                    .onNodeWithContentDescription(tabDescription)
+                    .fetchSemanticsNode()
+                    .positionInRoot.x
+            }
+
+        leftList.size shouldBe 8
+        leftList.zipWithNext().forEach { (left, right) -> (left < right) shouldBe true }
+    }
+
+    @Test
+    fun `탭 행은 창 밖의 탭을 고르면 그 탭이 보이도록 스크롤한다`() {
+        setTagDetailScaffold()
+        val rootWidth =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width
+
+        repeat(ALL_TAB_DESCRIPTION_LIST.size - 1) { swipePager { swipeLeft() } }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
+        val qrTab = composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).fetchSemanticsNode()
+        (qrTab.positionInRoot.x >= 0F) shouldBe true
+        (qrTab.positionInRoot.x + qrTab.size.width <= rootWidth) shouldBe true
     }
 
     @Test
@@ -165,6 +231,66 @@ class TagDetailTabTest {
     }
 
     @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭에서 연락처 탭을 선택하면 연락처 목록을 표시한다`() {
+        setTagDetailScaffold()
+
+        selectTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(CONTACT_NAME).assertExists()
+        composeRule.titleInput().assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭에서 체크리스트 탭을 선택하면 체크리스트 목록을 표시한다`() {
+        setTagDetailScaffold()
+
+        selectTab(DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(CHECKLIST_TITLE).assertExists()
+        composeRule.titleInput().assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭에서 곡 탭을 선택하면 곡 목록을 표시한다`() {
+        setTagDetailScaffold()
+
+        selectTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(MUSIC_TITLE).assertExists()
+        composeRule.titleInput().assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭에서 QR 탭을 선택하면 QR 목록을 표시한다`() {
+        setTagDetailScaffold()
+
+        selectTab(DEFAULT_QR_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(QR_TITLE).assertExists()
+        composeRule.titleInput().assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 QR 탭에서 메모 탭으로 전환하면 메모 목록을 표시한다`() {
+        setTagDetailScaffold()
+        selectTab(DEFAULT_QR_TAB_DESCRIPTION)
+
+        selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(QR_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 왼쪽으로 밀면 다음 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
 
@@ -176,12 +302,36 @@ class TagDetailTabTest {
 
         swipePager { swipeLeft() }
         composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeLeft() }
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeLeft() }
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeLeft() }
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeLeft() }
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
     }
 
     @Test
     fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 오른쪽으로 밀면 이전 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
-        selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
+        selectTab(DEFAULT_QR_TAB_DESCRIPTION)
+
+        swipePager { swipeRight() }
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeRight() }
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeRight() }
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_TAB_DESCRIPTION).assertIsSelected()
+
+        swipePager { swipeRight() }
+        composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
 
         swipePager { swipeRight() }
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsSelected()
@@ -224,6 +374,23 @@ class TagDetailTabTest {
     }
 
     @Test
+    fun `TC-fc703af2-be5d-4d72-b6e0-6075a5fc5baa 조회 중에도 연락처 체크리스트 곡 QR 탭을 전환할 수 있다`() {
+        setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
+
+        listOf(
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
+            selectTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+            composeRule.refreshableList().assertExists()
+        }
+    }
+
+    @Test
     fun `TC-fa505082-18a6-4588-ad57-e2f8909d83cd 탭을 전환해도 수정 중이던 내용이 유지된다`() {
         val storedDetail =
             tagDetail(
@@ -242,6 +409,10 @@ class TagDetailTabTest {
             DEFAULT_MEMO_TAB_DESCRIPTION,
             DEFAULT_WEB_TAB_DESCRIPTION,
             DEFAULT_PLACE_TAB_DESCRIPTION,
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
             selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
@@ -262,6 +433,10 @@ class TagDetailTabTest {
             DEFAULT_MEMO_TAB_DESCRIPTION,
             DEFAULT_WEB_TAB_DESCRIPTION,
             DEFAULT_PLACE_TAB_DESCRIPTION,
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
 
@@ -271,13 +446,17 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-da819417-0703-492e-aa50-7454b09eb9b2 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
+    fun `TC-da819417-0703-492e-aa50-7454b09eb9b2 완료된 태그의 TagDetail 화면에서도 여덟 탭을 모두 사용할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
         listOf(
             DEFAULT_MEMO_TAB_DESCRIPTION,
             DEFAULT_WEB_TAB_DESCRIPTION,
             DEFAULT_PLACE_TAB_DESCRIPTION,
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
             selectTab(tabDescription)
 
@@ -292,7 +471,7 @@ class TagDetailTabTest {
     }
 
     private fun selectTab(contentDescription: String) {
-        composeRule.onNodeWithContentDescription(contentDescription).performClick()
+        composeRule.onNodeWithContentDescription(contentDescription).performScrollTo().performClick()
         composeRule.waitForIdle()
     }
 
@@ -312,6 +491,18 @@ class TagDetailTabTest {
             val placePagingItems =
                 remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE)))) }
                     .collectAsLazyPagingItems()
+            val contactPagingItems =
+                remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagContact(name = CONTACT_NAME)))) }
+                    .collectAsLazyPagingItems()
+            val checklistPagingItems =
+                remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagChecklist(title = CHECKLIST_TITLE)))) }
+                    .collectAsLazyPagingItems()
+            val musicPagingItems =
+                remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagMusic(title = MUSIC_TITLE)))) }
+                    .collectAsLazyPagingItems()
+            val qrPagingItems =
+                remember { MutableStateFlow(tagEntityPagingData(itemList = listOf(tagQr(title = QR_TITLE)))) }
+                    .collectAsLazyPagingItems()
 
             DiaryTheme {
                 TagDetailScaffold(
@@ -326,6 +517,10 @@ class TagDetailTabTest {
                         state = formState,
                         webPagingItems = webPagingItems,
                         placePagingItems = placePagingItems,
+                        contactPagingItems = contactPagingItems,
+                        checklistPagingItems = checklistPagingItems,
+                        musicPagingItems = musicPagingItems,
+                        qrPagingItems = qrPagingItems,
                     )
                 }
             }
@@ -335,6 +530,21 @@ class TagDetailTabTest {
     private companion object {
         const val WEB_TITLE = "TagDetailTabWeb"
         const val PLACE_TITLE = "TagDetailTabPlace"
+        const val CONTACT_NAME = "TagDetailTabContact"
+        const val CHECKLIST_TITLE = "TagDetailTabChecklist"
+        const val MUSIC_TITLE = "TagDetailTabMusic"
+        const val QR_TITLE = "TagDetailTabQr"
+        val ALL_TAB_DESCRIPTION_LIST =
+            listOf(
+                DEFAULT_DETAIL_TAB_DESCRIPTION,
+                DEFAULT_MEMO_TAB_DESCRIPTION,
+                DEFAULT_WEB_TAB_DESCRIPTION,
+                DEFAULT_PLACE_TAB_DESCRIPTION,
+                DEFAULT_CONTACT_TAB_DESCRIPTION,
+                DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+                DEFAULT_MUSIC_TAB_DESCRIPTION,
+                DEFAULT_QR_TAB_DESCRIPTION,
+            )
     }
 }
 
@@ -371,6 +581,28 @@ class TagDetailTabScreenTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_PLACE_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+
+        composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 수정 반영 동작은 연락처 체크리스트 곡 QR 탭에서 제공되지 않는다`() {
+        setTagDetailScreen()
+        composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+
+        listOf(
+            DEFAULT_CONTACT_TAB_DESCRIPTION to DEFAULT_CONTACT_ADD_BUTTON_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION to DEFAULT_CHECKLIST_ADD_BUTTON_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION to DEFAULT_MUSIC_ADD_BUTTON_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION to DEFAULT_QR_ADD_BUTTON_DESCRIPTION,
+        ).forEach { (tabDescription, addButtonDescription) ->
+            composeRule.selectTagDetailTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+            composeRule.onNodeWithContentDescription(addButtonDescription).assert(hasClickAction())
+        }
 
         composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
@@ -419,6 +651,46 @@ class TagDetailTabScreenTest {
         assertNavigateUpKeepsTab(tabDescription = DEFAULT_PLACE_TAB_DESCRIPTION)
     }
 
+    @Test
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 연락처 탭이 유지된다`() {
+        assertSelectedTabIsRestored(tabDescription = DEFAULT_CONTACT_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 체크리스트 탭이 유지된다`() {
+        assertSelectedTabIsRestored(tabDescription = DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 곡 탭이 유지된다`() {
+        assertSelectedTabIsRestored(tabDescription = DEFAULT_MUSIC_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 QR 탭이 유지된다`() {
+        assertSelectedTabIsRestored(tabDescription = DEFAULT_QR_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 연락처 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+        assertNavigateUpKeepsTab(tabDescription = DEFAULT_CONTACT_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 체크리스트 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+        assertNavigateUpKeepsTab(tabDescription = DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 곡 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+        assertNavigateUpKeepsTab(tabDescription = DEFAULT_MUSIC_TAB_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 QR 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+        assertNavigateUpKeepsTab(tabDescription = DEFAULT_QR_TAB_DESCRIPTION)
+    }
+
     private fun assertSelectedTabIsRestored(tabDescription: String) {
         val restorationTester = StateRestorationTester(composeRule)
         prepareTagDetailTabViewModels()
@@ -440,6 +712,14 @@ class TagDetailTabScreenTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -464,7 +744,7 @@ class TagDetailTabScreenTest {
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
 
-        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.runOnIdle { detailIdState.value = Arb.kotlinUuid().next() }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
@@ -481,8 +761,12 @@ class TagDetailTabScreenTest {
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
 
-        composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.selectTagDetailTab(DEFAULT_QR_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun assertNavigateUpKeepsTab(tabDescription: String) {
@@ -509,6 +793,10 @@ class TagDetailTabScreenTest {
         const val DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION = "Add memo"
         const val DEFAULT_WEB_ADD_BUTTON_DESCRIPTION = "Add web"
         const val DEFAULT_PLACE_ADD_BUTTON_DESCRIPTION = "Add place"
+        const val DEFAULT_CONTACT_ADD_BUTTON_DESCRIPTION = "Add contact"
+        const val DEFAULT_CHECKLIST_ADD_BUTTON_DESCRIPTION = "Add checklist"
+        const val DEFAULT_MUSIC_ADD_BUTTON_DESCRIPTION = "Add music"
+        const val DEFAULT_QR_ADD_BUTTON_DESCRIPTION = "Add QR code"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }

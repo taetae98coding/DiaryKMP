@@ -6,7 +6,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -65,11 +65,11 @@ internal fun screenTestViewModel(
     uiState: MemoAddUiState = MemoAddUiState(),
     tagList: List<Tag> = emptyList(),
     webList: List<Web> = emptyList(),
-    contactList: List<Contact> = emptyList(),
+    contactList: List<ContactListItem> = emptyList(),
     placeList: List<Place> = emptyList(),
     tagPagingData: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(tagList)),
     webPagingData: Flow<PagingData<Web>> = MutableStateFlow(webPagingDataOf(webList)),
-    contactPagingData: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(contactList)),
+    contactPagingData: Flow<PagingData<ContactListItem>> = MutableStateFlow(contactPagingDataOf(contactList)),
     placePagingData: Flow<PagingData<Place>> = MutableStateFlow(placePagingDataOf(placeList)),
 ): MemoAddScreenViewModels {
     val viewModel = mockk<MemoAddViewModel>()
@@ -120,11 +120,11 @@ internal fun screenTestRealViewModel(
     initialWebId: Uuid? = null,
     tagList: List<Tag> = emptyList(),
     webList: List<Web> = emptyList(),
-    contactList: List<Contact> = emptyList(),
+    contactList: List<ContactListItem> = emptyList(),
     placeList: List<Place> = emptyList(),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(tagList)),
     webPagingDataFlow: Flow<PagingData<Web>> = MutableStateFlow(webPagingDataOf(webList)),
-    contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(contactList)),
+    contactPagingDataFlow: Flow<PagingData<ContactListItem>> = MutableStateFlow(contactPagingDataOf(contactList)),
     placePagingDataFlow: Flow<PagingData<Place>> = MutableStateFlow(placePagingDataOf(placeList)),
     addMemoUseCase: AddMemoUseCase = mockk(),
 ): MemoAddScreenViewModels {
@@ -144,7 +144,7 @@ internal fun screenTestRealViewModel(
     every { pageMemoSelectableContactUseCase(parameter = any()) } returns contactPagingDataFlow.map { pagingData -> Result.success(pagingData) }
 
     val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
-    every { getSelectedContactUseCase(parameter = any()) } answers { selectedFlowOf(list = contactList, idOf = Contact::id, idSet = firstArg()) }
+    every { getSelectedContactUseCase(parameter = any()) } answers { selectedFlowOf(list = contactList, idOf = { item -> item.contact.id }, idSet = firstArg()) }
 
     val pagePlaceUseCase = mockk<PagePlaceUseCase>()
     every { pagePlaceUseCase(parameter = any()) } returns placePagingDataFlow.map { pagingData -> Result.success(pagingData) }

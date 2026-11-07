@@ -8,8 +8,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -20,7 +18,10 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -88,7 +89,7 @@ class MemoHomeFilterScrollTest {
 
     @Test
     fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택되어 있지 않은 태그를 선택하면 목록을 처음부터 다시 본다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val environment = setScrolledMemoHome()
 
         changeQuery(environment = environment, filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
@@ -98,8 +99,8 @@ class MemoHomeFilterScrollTest {
 
     @Test
     fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택되어 있는 태그의 선택을 해제하면 목록을 처음부터 다시 본다`() {
-        val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
-        val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
+        val firstTagId = Arb.kotlinUuid().next()
+        val secondTagId = Arb.kotlinUuid().next()
         val environment =
             setScrolledMemoHome(
                 filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(firstTagId, secondTagId), storedTagIdSet = setOf(firstTagId, secondTagId)),
@@ -112,7 +113,7 @@ class MemoHomeFilterScrollTest {
 
     @Test
     fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택을 전체 해제하면 목록을 처음부터 다시 본다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         val environment = setScrolledMemoHome(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
 
         changeQuery(environment = environment, filterUiState = MemoHomeScaffoldFilterUiState())
@@ -183,7 +184,7 @@ class MemoHomeFilterScrollTest {
         assertPositionKept(environment)
     }
 
-    private fun addedMemo(): Memo = fixtureMonkey.memo(title = "$TITLE_PREFIX${fixtureMonkey.giveMeOne<Int>()}Added")
+    private fun addedMemo(): Memo = Arb.memo(title = "$TITLE_PREFIX${Arb.int().next()}Added").next()
 
     private fun assertPositionKept(environment: Environment) {
         composeRule.onNodeWithText(environment.memoList[SCROLLED_INDEX].detail.title).assertIsDisplayed()
@@ -196,7 +197,7 @@ class MemoHomeFilterScrollTest {
     }
 
     private fun setScrolledMemoHome(filterUiState: MemoHomeScaffoldFilterUiState = MemoHomeScaffoldFilterUiState()): Environment {
-        val memoList = List(MEMO_COUNT) { index -> fixtureMonkey.memo(title = "$TITLE_PREFIX${fixtureMonkey.giveMeOne<Int>()}Index$index") }
+        val memoList = List(MEMO_COUNT) { index -> Arb.memo(title = "$TITLE_PREFIX${Arb.int().next()}Index$index").next() }
         val filterUiStateFlow = MutableStateFlow(filterUiState)
         val pagingDataFlow = MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         val viewModel = mockk<MemoHomeViewModel>(relaxed = true)
@@ -274,8 +275,5 @@ class MemoHomeFilterScrollTest {
         private const val SCROLLED_INDEX = 50
         private const val TIMEOUT_MILLIS = 5_000L
         private const val TITLE_PREFIX = "FilterScrollMemo"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

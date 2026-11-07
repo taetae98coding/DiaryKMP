@@ -63,6 +63,7 @@ kotlin {
                 implementation(projects.domain.integrity)
                 implementation(projects.domain.location)
                 implementation(projects.domain.lunar)
+                implementation(projects.domain.mcp)
                 implementation(projects.domain.memo)
                 implementation(projects.domain.place)
                 implementation(projects.domain.playlist)
@@ -86,6 +87,9 @@ kotlin {
                 implementation(projects.feature.file.ui)
                 implementation(projects.feature.holiday.api)
                 implementation(projects.feature.holiday.ui)
+                implementation(projects.compose.credential)
+                implementation(projects.feature.account.api)
+                implementation(projects.feature.account.ui)
                 implementation(projects.feature.login.api)
                 implementation(projects.feature.login.ui)
                 implementation(projects.feature.memo.api)
@@ -106,10 +110,13 @@ kotlin {
                 implementation(projects.feature.setting.ui)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.tag.ui)
+                implementation(projects.feature.timetable.api)
+                implementation(projects.feature.timetable.ui)
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
                 implementation(projects.work.fileUpload)
+                implementation(projects.work.mcp)
                 implementation(projects.work.sync)
                 implementation(projects.logger.analytics.impl)
                 implementation(projects.logger.console.impl)
@@ -122,6 +129,12 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel)
 
                 runtimeOnly(libs.coil.network.ktor3)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
 
@@ -292,6 +305,13 @@ buildkonfig {
                 const = true,
             )
             buildConfigField(
+                type = FieldSpec.Type.INT,
+                name = "MCP_SERVER_PORT",
+                value = "38451",
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
                 type = FieldSpec.Type.STRING,
                 name = "GOOGLE_CREDENTIALS_CLIENT_ID",
                 value = localProperties.getProperty("dev.jvm.googleCredentialsClientId"),
@@ -327,6 +347,13 @@ buildkonfig {
                 type = FieldSpec.Type.STRING,
                 name = "APP_DIRECTORY",
                 value = "Diary",
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
+                type = FieldSpec.Type.INT,
+                name = "MCP_SERVER_PORT",
+                value = "38450",
                 nullable = false,
                 const = true,
             )

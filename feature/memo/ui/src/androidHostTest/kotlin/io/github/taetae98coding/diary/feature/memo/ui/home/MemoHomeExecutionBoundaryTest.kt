@@ -23,8 +23,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -40,8 +38,10 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -294,9 +294,9 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     private fun memoList(): List<Memo> {
-        val titlePrefix = "MemoHomeMemo${fixtureMonkey.giveMeOne<Int>()}"
+        val titlePrefix = "MemoHomeMemo${Arb.int().next()}"
 
-        return List(MEMO_COUNT) { index -> fixtureMonkey.memo(title = "${titlePrefix}Index$index") }
+        return List(MEMO_COUNT) { index -> Arb.memo(title = "${titlePrefix}Index$index").next() }
     }
 
     private companion object {
@@ -311,8 +311,5 @@ class MemoHomeExecutionBoundaryTest {
         private const val DEFAULT_DEFAULT_SORT = "Default"
         private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

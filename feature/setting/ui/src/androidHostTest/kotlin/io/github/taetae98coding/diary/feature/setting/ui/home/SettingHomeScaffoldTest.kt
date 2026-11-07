@@ -62,6 +62,7 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText("지도").assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText("파일").assertExists()
+        composeRule.onNodeWithText(DEFAULT_MCP_ITEM_LABEL).assertDoesNotExist()
     }
 
     @Test
@@ -72,16 +73,18 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_MCP_ITEM_LABEL).assertDoesNotExist()
     }
 
     @Test
     fun `TC-1fe41076-3740-428d-b240-224b26682451 각 설정 항목을 선택할 수 있다`() {
-        setSettingHomeScaffold()
+        setSettingHomeScaffold(uiState = SettingHomeUiState.Content(itemList = settingHomeItemList))
 
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assert(hasClickAction())
+        composeRule.onNodeWithText(DEFAULT_MCP_ITEM_LABEL).assert(hasClickAction())
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe CLICKABLE_NODE_COUNT
     }
 
@@ -94,12 +97,27 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-b229f1d1-84b1-4b8c-9994-3e063807175a 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
+    fun `TC-e9af706e-728b-4f16-ae34-5f73e606809e MCP 항목을 제공하면 마지막에 표시한다`() {
+        setSettingHomeScaffold(uiState = SettingHomeUiState.Content(itemList = settingHomeItemList))
+
+        displayedItemLabels() shouldBe
+            listOf(
+                DEFAULT_HOLIDAY_ITEM_LABEL,
+                DEFAULT_MAP_ITEM_LABEL,
+                DEFAULT_GEMINI_ITEM_LABEL,
+                DEFAULT_FILE_ITEM_LABEL,
+                DEFAULT_MCP_ITEM_LABEL,
+            )
+    }
+
+    @Test
+    fun `TC-b229f1d1-84b1-4b8c-9994-3e063807175a 파일과 MCP 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
-            uiState = SettingHomeUiState.Content(itemList = settingHomeItemList - SettingHomeItem.FILE),
+            uiState = SettingHomeUiState.Content(itemList = settingHomeItemList - SettingHomeItem.FILE - SettingHomeItem.MCP),
         )
 
         composeRule.onNodeWithText(DEFAULT_FILE_ITEM_LABEL).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_MCP_ITEM_LABEL).assertDoesNotExist()
         displayedItemLabels() shouldBe
             listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL)
     }
@@ -114,7 +132,7 @@ class SettingHomeScaffoldTest {
     }
 
     private fun setSettingHomeScaffold(
-        uiState: SettingHomeUiState = SettingHomeUiState.Content(itemList = settingHomeItemList),
+        uiState: SettingHomeUiState = SettingHomeUiState.Content(itemList = settingHomeItemList - SettingHomeItem.MCP),
         onEvent: (SettingHomeScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {
@@ -141,9 +159,10 @@ class SettingHomeScaffoldTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_FILE_ITEM_LABEL = "Files"
+        private const val DEFAULT_MCP_ITEM_LABEL = "MCP"
 
         private const val NAVIGATE_UP_CLICKABLE_COUNT = 1
-        private const val SETTING_ITEM_CLICKABLE_COUNT = 4
+        private const val SETTING_ITEM_CLICKABLE_COUNT = 5
         private const val CLICKABLE_NODE_COUNT = NAVIGATE_UP_CLICKABLE_COUNT + SETTING_ITEM_CLICKABLE_COUNT
     }
 }

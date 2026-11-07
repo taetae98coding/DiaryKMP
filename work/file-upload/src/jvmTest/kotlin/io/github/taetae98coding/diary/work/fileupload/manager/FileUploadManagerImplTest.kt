@@ -1,20 +1,22 @@
 package io.github.taetae98coding.diary.work.fileupload.manager
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.scheduler.FileUploadWorkScheduler
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -25,8 +27,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class FileUploadManagerImplTest :
     BehaviorSpec({
         Given("올리는 중인 파일이 없다") {
@@ -34,8 +34,8 @@ class FileUploadManagerImplTest :
                 Then("TC-7b857317-8b88-407f-b455-1e794c6f039b 고른 파일을 읽을 권한을 붙든 뒤 제목과 설명을 담아 올리기를 맡긴다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
-                        val content = fixtureMonkey.fileUploadContent()
-                        val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                        val content = Arb.fileUploadContent().next()
+                        val accountId = Arb.kotlinUuid().next()
 
                         fixture.manager.requestUpload(content = content, accountId = accountId)
 
@@ -53,10 +53,10 @@ class FileUploadManagerImplTest :
                 Then("TC-5069ce91-e029-4818-9c79-b22c81a188bb 올리기를 맡기지 않고 실패를 전달한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
-                        val content = fixtureMonkey.fileUploadContent()
-                        coEvery { fixture.fileRepository.addUploadSource(uri = content.uri) } throws SecurityException(fixtureMonkey.giveMeOne<String>())
+                        val content = Arb.fileUploadContent().next()
+                        coEvery { fixture.fileRepository.addUploadSource(uri = content.uri) } throws SecurityException(Arb.string().next())
 
-                        shouldThrow<SecurityException> { fixture.manager.requestUpload(content = content, accountId = fixtureMonkey.giveMeOne<Uuid>()) }
+                        shouldThrow<SecurityException> { fixture.manager.requestUpload(content = content, accountId = Arb.kotlinUuid().next()) }
 
                         coVerify(exactly = 0) { fixture.scheduler.upload(request = any()) }
                     }
@@ -70,7 +70,7 @@ class FileUploadManagerImplTest :
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
 
-                        fixture.manager.requestUpload(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+                        fixture.manager.requestUpload(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
 
                         coVerify(exactly = 0) { fixture.fileRepository.addUploadSource(uri = any()) }
                         coVerify(exactly = 0) { fixture.scheduler.upload(request = any()) }
@@ -84,8 +84,8 @@ class FileUploadManagerImplTest :
                 Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 다른 계정의 올리기도 취소한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
-                        val uri = fixtureMonkey.fileUri()
-                        val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+                        val uri = Arb.fileUri().next()
+                        val exceptAccountId = Arb.kotlinUuid().next()
                         coEvery { fixture.scheduler.cancel(exceptAccountId = exceptAccountId) } returns listOf(uri)
 
                         fixture.manager.cancelUpload(exceptAccountId = exceptAccountId)
@@ -102,9 +102,9 @@ class FileUploadManagerImplTest :
             When("상태와 결과를 받는다") {
                 Then("올리기 수단의 상태와 화면에 전달할 결과를 그대로 전달한다") {
                     runTest {
-                        val state = FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())
+                        val state = FileUploadState.Uploading(percent = Arb.int().next())
                         val fixture = ManagerFixture(isUploading = false, state = state)
-                        val event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())
+                        val event = FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())
 
                         fixture.manager.state.first() shouldBe state
                         fixture.manager.event.test {

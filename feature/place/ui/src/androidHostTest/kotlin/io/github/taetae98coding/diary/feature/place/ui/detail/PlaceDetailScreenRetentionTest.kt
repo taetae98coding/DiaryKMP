@@ -8,6 +8,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -28,7 +29,7 @@ class PlaceDetailScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-d260b8ab-6630-4e27-b226-a84dbe6339fd 화면이 재생성되어도 수정 중인 제목 설명 좌표를 유지한다`() {
+    fun `TC-d260b8ab-6630-4e27-b226-a84dbe6339fd 화면이 재생성되어도 수정 중인 제목 설명 주소 좌표 컬러를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = placeDetail())))
         restorationTester.setContent {
@@ -54,7 +55,7 @@ class PlaceDetailScreenRetentionTest {
         composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
         composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
         composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
-        composeRule.waitForIdle()
+        composeRule.changeColor()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
@@ -64,6 +65,7 @@ class PlaceDetailScreenRetentionTest {
         composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
         composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
         composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
     }
 
     @Test
@@ -93,7 +95,10 @@ class PlaceDetailScreenRetentionTest {
         }
 
         composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
-        composeRule.waitForIdle()
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.changeColor()
 
         composeRule.runOnIdle { isDisplayed = false }
         composeRule.waitForIdle()
@@ -102,6 +107,10 @@ class PlaceDetailScreenRetentionTest {
 
         composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(detail.description))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(detail.address))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+        composeRule.onNodeWithText(SAVED_COLOR_HEX).assertExists()
     }
 
     @Test

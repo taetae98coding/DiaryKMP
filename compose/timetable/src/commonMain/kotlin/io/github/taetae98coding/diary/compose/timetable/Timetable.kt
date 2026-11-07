@@ -64,7 +64,8 @@ private fun TimetablePage(
     val density = LocalDensity.current
 
     Column(modifier = modifier) {
-        Column(
+        TimetableHeader(
+            dateRange = dateRange,
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -79,28 +80,14 @@ private fun TimetablePage(
                             onEvent = onEvent,
                         )
                     },
-        ) {
-            TimetableHeader(
-                dateRange = dateRange,
-                modifier = Modifier.fillMaxWidth(),
-                type = state.type,
-                selectState = state.selectState,
-                nowProvider = nowProvider,
-                holidayProvider = holidayProvider,
-                colors = colors,
-            )
-            HorizontalDivider()
-            if (allDayItemList.isNotEmpty()) {
-                TimetableAllDay(
-                    dateRange = dateRange,
-                    modifier = Modifier.fillMaxWidth(),
-                    type = state.type,
-                    selectState = state.selectState,
-                    itemList = allDayItemList,
-                )
-                HorizontalDivider()
-            }
-        }
+            type = state.type,
+            selectState = state.selectState,
+            nowProvider = nowProvider,
+            holidayProvider = holidayProvider,
+            dateInfoMap = scope.dateInfoMap,
+            colors = colors,
+        )
+        HorizontalDivider()
         TimetableGrid(
             page = page,
             dateRange = dateRange,
@@ -112,6 +99,7 @@ private fun TimetablePage(
             onEvent = onEvent,
             nowProvider = nowProvider,
             timeItemList = scope.timeItemList,
+            allDayItemList = allDayItemList,
         )
     }
 }
@@ -129,6 +117,7 @@ private fun TimetablePreview() {
                 nowProvider = { LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 30)) },
             ) {
                 allDayItem(dateRange = date..date, key = "휴가") { Text(text = "휴가") }
+                dateInfo(date = date) { Text(text = "Sunny") }
                 timeItem(start = LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 0)), endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 10, minute = 30)), key = "회의") {
                     Text(text = "회의")
                 }

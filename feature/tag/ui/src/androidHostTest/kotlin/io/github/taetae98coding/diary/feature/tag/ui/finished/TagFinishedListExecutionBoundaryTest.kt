@@ -17,22 +17,24 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.tag.usecase.PageFinishedTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -65,7 +67,7 @@ class TagFinishedListExecutionBoundaryTest {
         setFinishedListNavDisplay(tagList = tagList())
 
         openFinishedList()
-        composeRule.runOnIdle { backStack.add(TagDetailNavKey(id = fixtureMonkey.giveMeOne())) }
+        composeRule.runOnIdle { backStack.add(TagDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { backStack.removeLastOrNull() }
         composeRule.waitForIdle()
@@ -193,20 +195,22 @@ class TagFinishedListExecutionBoundaryTest {
     }
 
     private fun tagList(): List<Tag> {
-        val titlePrefix = fixtureText(prefix = "FinishedTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedTag").next()
 
         return List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
     }
 
     private fun finishedTag(title: String): Tag =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Tag>()
-            .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-            .setExp(Tag::isFinished, true)
-            .setExp(Tag::isDeleted, false)
-            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .tag()
+            .next()
+            .copy(
+                detail = Arb.tagDetail().next().copy(emoji = "", title = title),
+                isFinished = true,
+                isDeleted = false,
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private companion object {
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
@@ -218,8 +222,5 @@ class TagFinishedListExecutionBoundaryTest {
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"
         private const val DEFAULT_TITLE_SORT = "Title"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

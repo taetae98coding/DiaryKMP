@@ -1,0 +1,5 @@
+<resources>
+    <string name="music_list_deleted_message">곡이 삭제되었습니다.</string>
+    <string name="music_list_undo_action">실행 취소</string>
+    <string name="music_list_delete_content_description">곡 삭제</string>
+</resources>

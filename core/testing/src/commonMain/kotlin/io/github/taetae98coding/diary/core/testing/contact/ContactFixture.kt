@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.core.testing.contact
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
@@ -17,8 +15,15 @@ import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactBir
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactDetailRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPhoneNumberRemoteEntity
 import io.github.taetae98coding.diary.core.testing.favoriteAndDeletedCaseList
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.datetime.LocalDate
-import kotlin.uuid.Uuid
 
 // 달력 구분은 계층마다 별도 타입이라 매퍼가 아니라 이 짝이 대응을 소유한다.
 public data class ContactBirthdayCalendarCase(
@@ -46,14 +51,14 @@ public data class ContactDetailCase(
 )
 
 // 전화번호 목록은 비어 있을 수 있고 같은 번호도 합치지 않으므로 순서와 중복을 함께 확인한다.
-public fun FixtureMonkey.contactPhoneNumberCaseList(): List<List<String>> =
+public fun contactPhoneNumberCaseList(): List<List<String>> =
     listOf(
         emptyList(),
         listOf(phoneNumber()),
         phoneNumber().let { duplicated -> listOf(duplicated, phoneNumber(), duplicated) },
     )
 
-public fun FixtureMonkey.contactDetailCaseList(): List<ContactDetailCase> =
+public fun contactDetailCaseList(): List<ContactDetailCase> =
     contactBirthdayCalendarCaseList.flatMap { calendarCase ->
         contactPhoneNumberCaseList().flatMap { numberList ->
             contactMeasureCaseList.map { hasMeasure ->
@@ -64,25 +69,25 @@ public fun FixtureMonkey.contactDetailCaseList(): List<ContactDetailCase> =
 
 // 날짜와 달력 구분이 서로 다른 컬럼이라 날짜만 있고 구분이 비어 있는 로컬 값이 남아 있을 수 있다.
 // 모델과 원격은 이 조건을 만들지 않으므로 local이 출발점인 방향에만 더한다. 기준을 양력 짝으로 잡아 기대값이 스펙의 기본값과 같다.
-public fun FixtureMonkey.contactDetailCaseWithoutBirthdayCalendar(): ContactDetailCase {
+public fun contactDetailCaseWithoutBirthdayCalendar(): ContactDetailCase {
     val solarCase = contactDetailCase(numberList = emptyList(), calendarCase = contactBirthdayCalendarCaseList.first(), hasMeasure = true)
 
     return solarCase.copy(local = solarCase.local.copy(birthdayCalendar = null))
 }
 
-public fun FixtureMonkey.contactDetailCase(
+public fun contactDetailCase(
     numberList: List<String>,
     calendarCase: ContactBirthdayCalendarCase?,
     hasMeasure: Boolean,
 ): ContactDetailCase {
-    val name = "name-${giveMeOne<String>()}"
-    val description = "description-${giveMeOne<String>()}"
-    val hometown = if (hasMeasure) "hometown-${giveMeOne<String>()}" else ""
-    val howWeMet = if (hasMeasure) "how-we-met-${giveMeOne<String>()}" else ""
+    val name = "name-${Arb.string().next()}"
+    val description = "description-${Arb.string().next()}"
+    val hometown = if (hasMeasure) "hometown-${Arb.string().next()}" else ""
+    val howWeMet = if (hasMeasure) "how-we-met-${Arb.string().next()}" else ""
     // 키는 센티미터와 밀리미터를 오가며 저장하므로, 왕복에서 부동소수점 오차가 끼지 않도록 소수점 아래 한 자리 값으로 만든다.
     val heightCentimeter = if (hasMeasure) randomInt(bound = 2000) / 10.0 else null
     val footSizeMillimeter = if (hasMeasure) randomInt(bound = 500) else null
-    val birthday = calendarCase?.let { date() }
+    val birthday = calendarCase?.let { Arb.kotlinxLocalDate().next() }
     // 생일이 있으면 태어난 연도는 그 생일의 연도이고, 생일이 없으면 다른 선택 값과 함께 태어난 연도만 있는 경우를 만든다.
     val birthYear = birthday?.year ?: if (hasMeasure) randomInt(bound = 3000) else null
 
@@ -128,71 +133,68 @@ public fun FixtureMonkey.contactDetailCase(
     )
 }
 
-public fun FixtureMonkey.contactCaseList(): List<Contact> =
+public fun contactCaseList(): List<Contact> =
     contactPhoneNumberCaseList().flatMap { numberList ->
         contactMeasureCaseList.flatMap { hasMeasure ->
             favoriteAndDeletedCaseList.map { (isFavorite, isDeleted) ->
-                contact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted)
+                Arb.contact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted).next()
             }
         }
     }
 
-public fun FixtureMonkey.localContactCaseList(): List<ContactLocalEntity> =
+public fun localContactCaseList(): List<ContactLocalEntity> =
     contactPhoneNumberCaseList().flatMap { numberList ->
         contactMeasureCaseList.flatMap { hasMeasure ->
             favoriteAndDeletedCaseList.map { (isFavorite, isDeleted) ->
-                localContact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted)
+                Arb.localContact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted).next()
             }
         }
     }
 
-public fun FixtureMonkey.contact(
+public fun Arb.Companion.contact(
     numberList: List<String>,
     hasMeasure: Boolean,
     isFavorite: Boolean,
     isDeleted: Boolean,
-): Contact =
-    Contact(
-        id = giveMeOne<Uuid>(),
-        detail =
-            contactDetailCase(
-                numberList = numberList,
-                calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
-                hasMeasure = hasMeasure,
-            ).domain,
-        isFavorite = isFavorite,
-        isDeleted = isDeleted,
-        updatedAt = giveMeOne(),
-        createdAt = giveMeOne(),
-    )
+): Arb<Contact> =
+    arbitrary {
+        Contact(
+            id = Arb.kotlinUuid().bind(),
+            detail =
+                contactDetailCase(
+                    numberList = numberList,
+                    calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
+                    hasMeasure = hasMeasure,
+                ).domain,
+            isFavorite = isFavorite,
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().bind(),
+            createdAt = Arb.secondPrecisionInstant().bind(),
+        )
+    }
 
-public fun FixtureMonkey.localContact(
+public fun Arb.Companion.localContact(
     numberList: List<String>,
     hasMeasure: Boolean,
     isFavorite: Boolean,
     isDeleted: Boolean,
-): ContactLocalEntity =
-    ContactLocalEntity(
-        id = giveMeOne<Uuid>(),
-        detail =
-            contactDetailCase(
-                numberList = numberList,
-                calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
-                hasMeasure = hasMeasure,
-            ).local,
-        isFavorite = isFavorite,
-        isDeleted = isDeleted,
-        updatedAt = giveMeOne(),
-        createdAt = giveMeOne(),
-    )
+): Arb<ContactLocalEntity> =
+    arbitrary {
+        ContactLocalEntity(
+            id = Arb.kotlinUuid().bind(),
+            detail =
+                contactDetailCase(
+                    numberList = numberList,
+                    calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
+                    hasMeasure = hasMeasure,
+                ).local,
+            isFavorite = isFavorite,
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().bind(),
+            createdAt = Arb.secondPrecisionInstant().bind(),
+        )
+    }
 
-private fun FixtureMonkey.phoneNumber(): String = "number-${giveMeOne<String>()}"
+private fun phoneNumber(): String = "number-${Arb.string().next()}"
 
-private fun FixtureMonkey.date(): LocalDate =
-    LocalDate(
-        year = 1900 + randomInt(bound = 200),
-        month = 1 + randomInt(bound = 12),
-        day = 1 + randomInt(bound = 28),
-    )
-
-private fun FixtureMonkey.randomInt(bound: Int): Int = (giveMeOne<Int>().toUInt() % bound.toUInt()).toInt()
+private fun randomInt(bound: Int): Int = Arb.int(0 until bound).next()

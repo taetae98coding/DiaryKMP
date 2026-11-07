@@ -27,12 +27,16 @@ import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.format
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
@@ -150,7 +154,7 @@ class QrAddRawTest {
 
     @Test
     fun `TC-5231fb92-6399-4ed2-a001-7a5abccdd430 되돌리기를 선택하면 마지막으로 기록한 QR 값과 포맷 한 단계로만 돌아간다`() {
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         setQrAddScreen()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
@@ -176,7 +180,7 @@ class QrAddRawTest {
 
     @Test
     fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QrScan 화면에서 QR을 읽어 돌아오면 QR 값을 바꾸고 알아본 포맷을 보여 준다`() {
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         val resultEventBus = ResultEventBus()
         setQrAddScreen(resultEventBus = resultEventBus)
         composeRule.onTitleInput().performTextInput(detail.title)
@@ -225,7 +229,7 @@ class QrAddRawTest {
 
     @Test
     fun `TC-ecf6d6e7-2584-4a88-95da-386d199767dc 추가에 성공하면 정보 탭으로 돌아가 QR 값과 되돌릴 기록을 비우고 선택한 포맷은 유지한다`() {
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.AddSucceeded))
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
@@ -298,7 +302,19 @@ class QrAddRawTest {
         composeRule.waitForIdle()
 
         val value = listOf("BEGIN:VCARD", "VERSION:3.0", "N:", "FN:", "TEL:010", "END:VCARD").joinToString(separator = "\r\n")
-        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = "회사", description = "", value = value)) }
+        verify(exactly = 1) { viewModel.add(detail = QrDetail(title = "회사", description = "", value = value), tagIdSet = emptySet()) }
+    }
+
+    @Test
+    fun `TC-6aa4b433-7bef-4734-b260-313ec9f23d22 포맷 입력을 고치는 동안에는 입력한 글자를 그대로 둔다`() {
+        setQrAddScreen()
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = "URL")
+
+        composeRule.onQrFieldInput("URL").performTextInput(" a.com ")
+        composeRule.waitForIdle()
+
+        composeRule.onQrFieldInput("URL").editableText() shouldBe " a.com "
+        composeRule.qrCodeValue() shouldBe "a.com"
     }
 
     @Test
@@ -444,7 +460,7 @@ class QrAddRawTest {
             state = formState
 
             DiaryTheme {
-                QrAddScaffold(onEvent = {}, state = formState)
+                QrAddScaffold(onEvent = {}, onFormEvent = {}, onTagPickerEvent = {}, state = formState)
             }
         }
         composeRule.waitForIdle()
@@ -471,7 +487,11 @@ class QrAddRawTest {
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = resultEventBus,
                 componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                viewModel = viewModel,
+                addViewModel = viewModel,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = addTagScreenTestViewModel(),
             )
         }
     }

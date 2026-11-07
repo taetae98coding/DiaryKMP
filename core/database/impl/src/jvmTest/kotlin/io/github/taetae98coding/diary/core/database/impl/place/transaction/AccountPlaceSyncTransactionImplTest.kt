@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.place.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -13,13 +10,18 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.datasource.AccountPlaceSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -82,8 +84,8 @@ class AccountPlaceSyncTransactionImplTest :
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { place -> place.id == placeId }
 
         test("TC-290f5f48-48fa-40f0-ae35-16679be6895d 현재 계정의 업로드 대기 장소만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val firstPendingPlace = place()
             val secondPendingPlace = place()
             val syncedPlace = place()
@@ -98,8 +100,17 @@ class AccountPlaceSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingPlace, secondPendingPlace)
         }
 
-        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+        test("TC-290f5f48-48fa-40f0-ae35-16679be6895d 장소를 추가하면 그 계정의 업로드 대기 장소로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val place = place()
+
+            accountTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(place)
+        }
+
+        test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
             val guestEntity = place()
             val accountEntity = place()
             insertWithSyncState(accountId = Uuid.NIL, place = guestEntity, isDirty = true)
@@ -109,7 +120,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             insertWithSyncState(accountId, place, isDirty = true)
 
@@ -119,7 +130,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 장소는 업로드 대기로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val pushedPlace = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changedPlace = pushedPlace.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
             insertWithSyncState(accountId, changedPlace, isDirty = true)
@@ -130,7 +141,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-9a613623-4f22-4e1e-bd07-c68c13af1c0d 장소가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val cursor = 7L
             transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = cursor)
@@ -147,7 +158,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-e4322045-cda0-47a9-a446-deb2016075f6 장소를 삭제하면 업로드 대기가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 3L)
 
@@ -162,7 +173,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-85437a34-b1a2-4fa0-ae7a-ec766c5b8952 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstCursor = 3L
             val secondCursor = 11L
 
@@ -174,8 +185,8 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 기록된 순번이 없으면 기본 커서를 사용한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             transaction.upsert(accountId = otherAccountId, placeList = listOf(place()), cursor = 9L)
 
             syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe 0L
@@ -186,7 +197,7 @@ class AccountPlaceSyncTransactionImplTest :
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remotePlace =
                     localPlace.copy(
@@ -202,7 +213,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remotePlace =
                 localPlace.copy(
@@ -224,7 +235,7 @@ class AccountPlaceSyncTransactionImplTest :
             "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val localPlace = place(updatedAt = Instant.fromEpochMilliseconds(2_000))
                 val remotePlace = localPlace.copy(detail = detail(), updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, localPlace, isDirty = true)
@@ -236,7 +247,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 장소는 새로 저장되고 동기화 완료로 기록된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val remotePlace = place()
 
             transaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
@@ -246,7 +257,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 장소와 커서가 모두 반영되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val remotePlace = place()
             val failingDatabase = spyk(database)
             every { failingDatabase.syncCursorDao() } throws PlaceSyncTestException()
@@ -261,7 +272,7 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("TC-a748604b-2b82-4ee6-a15a-2185c71e18a0 업로드한 장소가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val place = place()
             insertWithSyncState(accountId, place, isDirty = false)
 
@@ -271,8 +282,8 @@ class AccountPlaceSyncTransactionImplTest :
         }
 
         test("대기 해제는 요청한 계정의 연결만 바꾼다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val place = place()
             insertWithSyncState(accountId, place, isDirty = true)
             insertWithSyncState(otherAccountId, place, isDirty = true)
@@ -284,25 +295,24 @@ class AccountPlaceSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun place(updatedAt: Instant = instant()): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::detail, detail())
-                .setExp(PlaceLocalEntity::isDeleted, false)
-                .setExp(PlaceLocalEntity::updatedAt, updatedAt)
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
+        private fun place(updatedAt: Instant = Arb.secondPrecisionInstant().next()): PlaceLocalEntity =
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    detail = detail(),
+                    isDeleted = false,
+                    updatedAt = updatedAt,
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun detail(): PlaceDetailLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceDetailLocalEntity>()
-                .setExp(PlaceDetailLocalEntity::latitude, 37.5)
-                .setExp(PlaceDetailLocalEntity::longitude, 127.0)
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .placeDetailLocalEntity()
+                .next()
+                .copy(
+                    latitude = 37.5,
+                    longitude = 127.0,
+                )
     }
 }

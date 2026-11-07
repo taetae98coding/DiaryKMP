@@ -96,6 +96,50 @@ internal class BackgroundSessionFileUploadTransport(
 }
 ```
 
+## 그 밖의 작업은 `suspend`로 내보내고 호출자가 scope를 정한다
+
+**위 절에 해당하지 않는 보조 class는 `CoroutineScope`를 생성자로 받지 않고 `suspend` 함수를 내보낸다.** 어디까지 살아야 하는지는 호출자가 안다. Composable은 진입이 계기면 `LaunchedEffect`, 사용자 조작이 계기면 `rememberCoroutineScope().launch`로 부르고, ViewModel은 `viewModelScope`에서 부른다. 호출자의 scope가 취소되면 작업도 함께 끝나고, 실행 중인지 판단하는 가드는 `Job` 대신 `Boolean`과 `try`·`finally`로 둔다.
+
+⚠️ 비권장 예시 — 보조 class가 `rememberCoroutineScope()`를 받아 안에서 `launch`한다:
+
+```kotlin
+public class CalendarSearchOpener(
+    private val uriHandler: UriHandler,
+    private val coroutineScope: CoroutineScope,
+    private val snackbarHostState: SnackbarHostState,
+) {
+    public fun openHolidaySearch(name: String) {
+        if (!uriHandler.tryOpenUri(holidaySearchUri(name))) {
+            coroutineScope.launch { snackbarHostState.showImmediate(message = failedMessage) }
+        }
+    }
+}
+```
+
+✅ 권장 예시 — `suspend`로 내보내고 조작한 Composable이 scope를 정한다:
+
+```kotlin
+public class CalendarSearchOpener(
+    private val uriHandler: UriHandler,
+    private val snackbarHostState: SnackbarHostState,
+) {
+    public suspend fun openHolidaySearch(name: String) {
+        if (!uriHandler.tryOpenUri(holidaySearchUri(name))) {
+            snackbarHostState.showImmediate(message = failedMessage)
+        }
+    }
+}
+
+val coroutineScope = rememberCoroutineScope()
+onHolidayClick = { holiday -> coroutineScope.launch { searchOpener.openHolidaySearch(name = holiday.name) } }
+```
+
+다음은 scope를 받는 것이 맞는 경우다. 그래도 `GlobalScope`나 클래스 안에서 만든 scope는 쓰지 않는다.
+
+- Paging의 `cachedIn(scope)`처럼 라이브러리가 scope를 요구하는 호출. ViewModel이 `viewModelScope`를 넘긴다([viewmodel.md](viewmodel.md)).
+- `approachLayout`의 배치 단계 콜백처럼 코루틴 밖에서 애니메이션을 시작해야 하는 Modifier. `rememberCoroutineScope()`를 넘기고, `Modifier.Node`로 만들면 노드의 `coroutineScope`를 쓴다.
+- 스펙이 요구해 공통 계약이 `suspend`가 아닌 콜백형(`FilePicker.open()`처럼 선택 도구가 열린 동안 화면이 재생성돼도 결과를 받아야 하는 경우)이고 플랫폼 구현이 블로킹 대화상자를 띄우는 보조 class. 그 플랫폼 소스셋의 class나 `rememberXxx()` 팩토리가 `rememberCoroutineScope()`로 콜백을 잇는다.
+
 ## Dispatcher 주입
 
 **`Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** Composable이 만드는 보조 class는 qualifier를 public으로 두고 앱 모듈의 플랫폼 Koin 모듈이 공급하며, 그 class를 만드는 `rememberXxx()` 팩토리가 `koinInject`로 받아 생성자에 넘긴다. 컴포넌트가 만드는 보조 class는 그 컴포넌트가 주입받은 dispatcher를 그대로 넘긴다.

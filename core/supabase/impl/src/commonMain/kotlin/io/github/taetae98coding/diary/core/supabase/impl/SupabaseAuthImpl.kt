@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.core.supabase.impl
 
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
@@ -45,8 +44,10 @@ internal class SupabaseAuthImpl(
         client.auth.retrieveUserForCurrentSession(updateSession = true)
     }
 
+    // 인증 제공자의 signOut은 범위와 관계없이 서버에 세션 폐기를 먼저 요청하고, 그 요청이 연결 오류로 실패하면
+    // 기기의 세션을 지우지 않은 채 예외를 던진다. 그래서 signOut 대신 기기의 세션만 지운다.
     override suspend fun signOut() {
-        client.auth.signOut(scope = SignOutScope.LOCAL)
+        client.auth.clearSession()
     }
 
     private suspend fun loadStoredUser(): SupabaseUser? =

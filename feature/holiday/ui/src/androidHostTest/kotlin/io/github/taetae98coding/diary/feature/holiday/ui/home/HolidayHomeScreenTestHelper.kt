@@ -13,8 +13,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
@@ -25,7 +23,9 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHoliday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -38,9 +38,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import kotlin.time.Clock
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal const val THIS_YEAR_PERIOD: String = "Feb 5 ~ Feb 8"
 internal const val NEXT_YEAR_PERIOD: String = "Feb 5 ~ Feb 7"
@@ -59,7 +56,7 @@ internal fun previousYearFailFetchHolidayUseCase(): FetchHolidayUseCase =
     mockk<FetchHolidayUseCase>().also { useCase ->
         coEvery { useCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { useCase(parameter = YEAR - 1) } returns
-            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            Result.failure(IllegalStateException(Arb.string().next()))
     }
 
 internal fun thisYearNotProvidedFetchHolidayUseCase(): FetchHolidayUseCase =

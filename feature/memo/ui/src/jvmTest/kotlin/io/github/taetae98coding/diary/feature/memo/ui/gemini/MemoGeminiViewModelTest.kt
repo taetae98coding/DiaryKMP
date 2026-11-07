@@ -4,21 +4,23 @@ package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
+import io.github.taetae98coding.diary.core.testing.memo.memoDateTimeAllDay
+import io.github.taetae98coding.diary.core.testing.memo.memoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -43,39 +45,27 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 
-private val COMPLETE_SETTING =
-    GeminiSetting(
-        apiKey = "testApiKey",
-        model = "models/gemini-flash",
-        systemPrompt = "testSystemPrompt",
-    )
-
-private val DRAFT =
-    MemoDraft(
-        title = "주간 회고 정리",
-        description = "## 이번 주",
-        dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 9, 21)..LocalDate(2026, 9, 22)),
-    )
-
-private val PARAMETER =
-    FetchMemoDraftUseCase.Parameter(
-        prompt = "회고를 써 줘",
-        title = "",
-        description = "",
-        dateTime = null,
-    )
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 private const val PROGRESS_COUNT = 3
 
 class MemoGeminiViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
+    private lateinit var completeSetting: GeminiSetting
+    private lateinit var generatedDraft: MemoDraft
+    private lateinit var parameter: FetchMemoDraftUseCase.Parameter
 
     init {
         beforeTest {
             mainDispatcher = StandardTestDispatcher()
             Dispatchers.setMain(mainDispatcher)
+            completeSetting = Arb.geminiSetting().next().copy(apiKey = Arb.nonBlankString().next(), model = Arb.nonBlankString().next())
+            generatedDraft = MemoDraft(title = Arb.nonBlankString().next(), description = Arb.nonBlankString().next(), dateTime = Arb.memoDateTimeAllDay().next())
+            parameter =
+                FetchMemoDraftUseCase.Parameter(
+                    prompt = Arb.nonBlankString().next(),
+                    title = "",
+                    description = "",
+                    dateTime = null,
+                )
         }
 
         afterTest {
@@ -102,8 +92,8 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-061303d8-59e2-40eb-aec4-eca114a536e4 설정이 갖춰지지 않으면 열지 않고 설정 화면 이동을 요청한다") {
             listOf(
-                COMPLETE_SETTING.copy(apiKey = ""),
-                COMPLETE_SETTING.copy(model = ""),
+                completeSetting.copy(apiKey = ""),
+                completeSetting.copy(model = ""),
                 GeminiSetting.EMPTY,
             ).forEach { setting ->
                 runTest(mainDispatcher) {
@@ -143,10 +133,10 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-6be65451-4f00-4dcf-bbb9-42443bb9ffbd 인증 정보와 모델이 모두 있어야 시작할 수 있다") {
             listOf(
-                COMPLETE_SETTING to MemoGeminiStep.PROMPT,
-                COMPLETE_SETTING.copy(systemPrompt = "") to MemoGeminiStep.PROMPT,
-                COMPLETE_SETTING.copy(apiKey = "") to MemoGeminiStep.CLOSED,
-                COMPLETE_SETTING.copy(model = "") to MemoGeminiStep.CLOSED,
+                completeSetting to MemoGeminiStep.PROMPT,
+                completeSetting.copy(systemPrompt = "") to MemoGeminiStep.PROMPT,
+                completeSetting.copy(apiKey = "") to MemoGeminiStep.CLOSED,
+                completeSetting.copy(model = "") to MemoGeminiStep.CLOSED,
                 GeminiSetting.EMPTY to MemoGeminiStep.CLOSED,
             ).forEach { (setting, expected) ->
                 runTest(mainDispatcher) {
@@ -164,16 +154,16 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-634c4200-23c0-46b4-93ed-0627f341002f 프롬프트가 비어 있어도 생성을 실행한다") {
             runTest(mainDispatcher) {
-                val parameter = PARAMETER.copy(prompt = "")
+                val emptyPromptParameter = parameter.copy(prompt = "")
                 val fetchMemoDraftUseCase = createFetchUseCase()
                 val viewModel = createViewModel(fetchMemoDraftUseCase = fetchMemoDraftUseCase)
                 advanceUntilIdle()
 
                 viewModel.open()
-                viewModel.generate(parameter = parameter)
+                viewModel.generate(parameter = emptyPromptParameter)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchMemoDraftUseCase(match { sent -> sent.copy(onProgress = parameter.onProgress) == parameter }) }
+                coVerify(exactly = 1) { fetchMemoDraftUseCase(match { sent -> sent.copy(onProgress = emptyPromptParameter.onProgress) == emptyPromptParameter }) }
             }
         }
 
@@ -194,12 +184,12 @@ class MemoGeminiViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem().step shouldBe MemoGeminiStep.PROMPT
 
-                    viewModel.generate(parameter = PARAMETER)
+                    viewModel.generate(parameter = parameter)
                     advanceUntilIdle()
 
                     awaitItem().step shouldBe MemoGeminiStep.GENERATING
 
-                    completion.complete(Result.success(DRAFT))
+                    completion.complete(Result.success(generatedDraft))
                     advanceUntilIdle()
 
                     awaitItem().step shouldBe MemoGeminiStep.RESULT
@@ -217,8 +207,8 @@ class MemoGeminiViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { fetchMemoDraftUseCase(any()) }
@@ -231,13 +221,13 @@ class MemoGeminiViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
 
                 uiState.step shouldBe MemoGeminiStep.RESULT
-                uiState.draft shouldBe DRAFT
+                uiState.draft shouldBe generatedDraft
                 uiState.hasDraft shouldBe true
                 uiState.appliedFieldSet shouldBe emptySet()
             }
@@ -249,7 +239,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -272,11 +262,11 @@ class MemoGeminiViewModelTest : FunSpec() {
                     )
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 viewModel.cancel()
-                completion.complete(Result.success(DRAFT))
+                completion.complete(Result.success(generatedDraft))
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -292,7 +282,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val answers =
                     mutableListOf<suspend () -> Result<MemoDraft>>(
                         { completion.await() },
-                        { Result.success(DRAFT) },
+                        { Result.success(generatedDraft) },
                     )
                 val fetchMemoDraftUseCase =
                     mockk<FetchMemoDraftUseCase> {
@@ -302,12 +292,12 @@ class MemoGeminiViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
                 viewModel.cancel()
                 advanceUntilIdle()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 coVerify(exactly = 2) { fetchMemoDraftUseCase(any()) }
@@ -333,7 +323,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     viewModel.open()
 
-                    viewModel.generate(parameter = PARAMETER)
+                    viewModel.generate(parameter = parameter)
                     advanceUntilIdle()
 
                     val uiState = viewModel.uiState.value
@@ -347,12 +337,12 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-da9bb546-e1b1-4d67-a91e-42cf5e0ae8c3 그 밖의 실패에서 Gemini가 돌려준 설명을 함께 알린다") {
             runTest(mainDispatcher) {
-                val description = fixtureMonkey.nonBlankString()
+                val description = Arb.nonBlankString().next()
                 val viewModel = failingViewModel(GeminiRequestException.Other(description = description, cause = null))
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -375,10 +365,10 @@ class MemoGeminiViewModelTest : FunSpec() {
                     )
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
-                List(PROGRESS_COUNT) { fixtureMonkey.giveMeOne<MemoDraftProgress>() }.forEach { progress ->
+                List(PROGRESS_COUNT) { Arb.memoDraftProgress().next() }.forEach { progress ->
                     parameterSlot.captured.onProgress(progress)
                     advanceUntilIdle()
 
@@ -386,7 +376,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                     viewModel.uiState.value.progress shouldBe progress
                 }
 
-                completion.complete(Result.success(DRAFT))
+                completion.complete(Result.success(generatedDraft))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.step shouldBe MemoGeminiStep.RESULT
@@ -407,9 +397,9 @@ class MemoGeminiViewModelTest : FunSpec() {
                     )
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
-                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                parameterSlot.captured.onProgress(Arb.memoDraftProgress().next())
                 advanceUntilIdle()
 
                 completion.complete(Result.failure(GeminiRequestException.Network(cause = null)))
@@ -436,9 +426,9 @@ class MemoGeminiViewModelTest : FunSpec() {
                     )
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
-                parameterSlot.captured.onProgress(fixtureMonkey.giveMeOne<MemoDraftProgress>())
+                parameterSlot.captured.onProgress(Arb.memoDraftProgress().next())
                 advanceUntilIdle()
 
                 viewModel.cancel()
@@ -456,16 +446,16 @@ class MemoGeminiViewModelTest : FunSpec() {
                     createViewModel(
                         fetchMemoDraftUseCase =
                             mockk {
-                                coEvery { this@mockk(capture(parameterSlot)) } returns Result.success(DRAFT)
+                                coEvery { this@mockk(capture(parameterSlot)) } returns Result.success(generatedDraft)
                             },
                     )
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
-                parameterSlot.captured.copy(onProgress = PARAMETER.onProgress) shouldBe PARAMETER
+                parameterSlot.captured.copy(onProgress = parameter.onProgress) shouldBe parameter
             }
         }
 
@@ -474,7 +464,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val results =
                     mutableListOf(
                         Result.failure<MemoDraft>(IllegalStateException("generate failed")),
-                        Result.success(DRAFT),
+                        Result.success(generatedDraft),
                     )
                 val viewModel =
                     createViewModel(
@@ -486,11 +476,11 @@ class MemoGeminiViewModelTest : FunSpec() {
                 advanceUntilIdle()
                 viewModel.open()
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
                 viewModel.uiState.value.failure shouldBe MemoGeminiFailure.UNKNOWN
 
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 viewModel.uiState.value.failure shouldBe null
@@ -502,7 +492,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 viewModel.markApplied(field = MemoGeminiField.TITLE)
@@ -511,7 +501,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val uiState = viewModel.uiState.value
 
                 uiState.step shouldBe MemoGeminiStep.RESULT
-                uiState.draft shouldBe DRAFT
+                uiState.draft shouldBe generatedDraft
                 uiState.appliedFieldSet shouldBe setOf(MemoGeminiField.TITLE)
             }
         }
@@ -521,7 +511,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
                 viewModel.markApplied(field = MemoGeminiField.TITLE)
                 advanceUntilIdle()
@@ -544,14 +534,14 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val viewModel = createViewModel()
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
                 viewModel.markApplied(field = MemoGeminiField.TITLE)
                 advanceUntilIdle()
 
                 viewModel.close()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -563,7 +553,7 @@ class MemoGeminiViewModelTest : FunSpec() {
 
         test("TC-0ec6cbee-1d11-4ba6-821f-d497a54fa715 다른 화면에서 저장한 설정으로 다음 시작을 판정한다") {
             runTest(mainDispatcher) {
-                val settingFlow = MutableStateFlow(Result.success(COMPLETE_SETTING.copy(apiKey = "")))
+                val settingFlow = MutableStateFlow(Result.success(completeSetting.copy(apiKey = "")))
                 val viewModel = createViewModel(settingFlow = settingFlow)
                 advanceUntilIdle()
 
@@ -572,7 +562,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoGeminiEffect.SettingRequired
 
-                    settingFlow.value = Result.success(COMPLETE_SETTING)
+                    settingFlow.value = Result.success(completeSetting)
                     advanceUntilIdle()
                     viewModel.open()
                     advanceUntilIdle()
@@ -596,11 +586,11 @@ class MemoGeminiViewModelTest : FunSpec() {
                     )
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 viewModel.close()
-                completion.complete(Result.success(DRAFT))
+                completion.complete(Result.success(generatedDraft))
                 advanceUntilIdle()
 
                 val uiState = viewModel.uiState.value
@@ -631,7 +621,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                 val store = ViewModelStore().apply { put(key = "MemoGemini", viewModel = viewModel) }
                 advanceUntilIdle()
                 viewModel.open()
-                viewModel.generate(parameter = PARAMETER)
+                viewModel.generate(parameter = parameter)
                 advanceUntilIdle()
 
                 store.clear()
@@ -648,7 +638,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                     awaitItem()
                     advanceUntilIdle()
                     viewModel.open()
-                    viewModel.generate(parameter = PARAMETER)
+                    viewModel.generate(parameter = parameter)
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
@@ -660,7 +650,7 @@ class MemoGeminiViewModelTest : FunSpec() {
                     val uiState = expectMostRecentItem()
 
                     uiState.step shouldBe MemoGeminiStep.RESULT
-                    uiState.draft shouldBe DRAFT
+                    uiState.draft shouldBe generatedDraft
                 }
             }
         }
@@ -679,13 +669,13 @@ class MemoGeminiViewModelTest : FunSpec() {
                     awaitItem()
                     advanceUntilIdle()
                     viewModel.open()
-                    viewModel.generate(parameter = PARAMETER)
+                    viewModel.generate(parameter = parameter)
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
 
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
-                completion.complete(Result.success(DRAFT))
+                completion.complete(Result.success(generatedDraft))
                 advanceUntilIdle()
 
                 viewModel.uiState.test {
@@ -693,59 +683,91 @@ class MemoGeminiViewModelTest : FunSpec() {
                     val uiState = expectMostRecentItem()
 
                     uiState.step shouldBe MemoGeminiStep.RESULT
-                    uiState.draft shouldBe DRAFT
+                    uiState.draft shouldBe generatedDraft
+                }
+            }
+        }
+
+        test("TC-413877af-8f8e-48a4-b75f-b6700974d8fd 다른 앱에 가 있는 동안 생성이 실패하면 돌아왔을 때 실패 이유가 보인다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<MemoDraft>>()
+                val viewModel =
+                    createUnsubscribedViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(any()) } coAnswers { completion.await() }
+                            },
+                    )
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    viewModel.open()
+                    viewModel.generate(parameter = parameter)
+                    advanceUntilIdle()
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
+                completion.complete(Result.failure(GeminiRequestException.Network(cause = null)))
+                advanceUntilIdle()
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    val uiState = expectMostRecentItem()
+
+                    uiState.step shouldBe MemoGeminiStep.PROMPT
+                    uiState.failure shouldBe MemoGeminiFailure.NETWORK
+                    uiState.draft shouldBe MemoDraft.EMPTY
                 }
             }
         }
     }
 
-    private companion object {
-        private fun createFetchUseCase(draft: MemoDraft = DRAFT): FetchMemoDraftUseCase =
-            mockk {
-                coEvery { this@mockk(any()) } returns Result.success(draft)
-            }
-    }
-}
-
-// 다른 앱에 다녀오는 동안 화면이 구독을 멈추는 경계를 재현하려고 구독을 시작하지 않은 채로 만든다.
-private fun createUnsubscribedViewModel(fetchMemoDraftUseCase: FetchMemoDraftUseCase): MemoGeminiViewModel =
-    MemoGeminiViewModel(
-        getGeminiSettingUseCase =
-            mockk {
-                every { this@mockk(Unit) } returns flowOf(Result.success(COMPLETE_SETTING))
-            },
-        fetchMemoDraftUseCase = fetchMemoDraftUseCase,
-    )
-
-private fun TestScope.failingViewModel(throwable: Throwable): MemoGeminiViewModel =
-    createViewModel(
-        fetchMemoDraftUseCase =
-            mockk {
-                coEvery { this@mockk(any()) } returns Result.failure(throwable)
-            },
-    )
-
-// 화면이 늘 상태를 구독하므로, 테스트도 같은 조건에서 관찰하도록 구독을 먼저 시작한다.
-private fun TestScope.createViewModel(
-    setting: GeminiSetting = COMPLETE_SETTING,
-    settingResult: Result<GeminiSetting> = Result.success(setting),
-    settingFlow: Flow<Result<GeminiSetting>> = flowOf(settingResult),
-    draft: MemoDraft = DRAFT,
-    fetchMemoDraftUseCase: FetchMemoDraftUseCase =
+    private fun createFetchUseCase(draft: MemoDraft = generatedDraft): FetchMemoDraftUseCase =
         mockk {
             coEvery { this@mockk(any()) } returns Result.success(draft)
-        },
-): MemoGeminiViewModel {
-    val viewModel =
+        }
+
+    // 다른 앱에 다녀오는 동안 화면이 구독을 멈추는 경계를 재현하려고 구독을 시작하지 않은 채로 만든다.
+    private fun createUnsubscribedViewModel(fetchMemoDraftUseCase: FetchMemoDraftUseCase): MemoGeminiViewModel =
         MemoGeminiViewModel(
             getGeminiSettingUseCase =
                 mockk {
-                    every { this@mockk(Unit) } returns settingFlow
+                    every { this@mockk(Unit) } returns flowOf(Result.success(completeSetting))
                 },
             fetchMemoDraftUseCase = fetchMemoDraftUseCase,
         )
 
-    backgroundScope.launch { viewModel.uiState.collect { } }
+    private fun TestScope.failingViewModel(throwable: Throwable): MemoGeminiViewModel =
+        createViewModel(
+            fetchMemoDraftUseCase =
+                mockk {
+                    coEvery { this@mockk(any()) } returns Result.failure(throwable)
+                },
+        )
 
-    return viewModel
+    // 화면이 늘 상태를 구독하므로, 테스트도 같은 조건에서 관찰하도록 구독을 먼저 시작한다.
+    private fun TestScope.createViewModel(
+        setting: GeminiSetting = completeSetting,
+        settingResult: Result<GeminiSetting> = Result.success(setting),
+        settingFlow: Flow<Result<GeminiSetting>> = flowOf(settingResult),
+        draft: MemoDraft = generatedDraft,
+        fetchMemoDraftUseCase: FetchMemoDraftUseCase =
+            mockk {
+                coEvery { this@mockk(any()) } returns Result.success(draft)
+            },
+    ): MemoGeminiViewModel {
+        val viewModel =
+            MemoGeminiViewModel(
+                getGeminiSettingUseCase =
+                    mockk {
+                        every { this@mockk(Unit) } returns settingFlow
+                    },
+                fetchMemoDraftUseCase = fetchMemoDraftUseCase,
+            )
+
+        backgroundScope.launch { viewModel.uiState.collect { } }
+
+        return viewModel
+    }
 }

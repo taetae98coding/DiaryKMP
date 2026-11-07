@@ -22,22 +22,24 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.add.actionNameList
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.visibleTextList
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -110,10 +112,11 @@ class QrHomeScaffoldTest {
     @Test
     fun `TC-64ee7ec8-6cfa-441f-87b7-641b9230840d QR의 설명과 QR 값의 글자는 목록에 표시하지 않는다`() {
         val qr =
-            qrTestFixtureMonkey.qr(
-                isDeleted = false,
-                detail = qrTestFixtureMonkey.qrDetail(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}"),
-            )
+            Arb
+                .qr(
+                    isDeleted = false,
+                    detail = Arb.qrDetail(description = "description-${Arb.string().next()}").next(),
+                ).next()
         setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(qr)))
 
         composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qr.detail.title)).assertExists()
@@ -123,14 +126,14 @@ class QrHomeScaffoldTest {
 
     @Test
     fun `TC-faf59225-fd29-4e65-a963-5f79e88347ee 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
-        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        val eventList = mutableListOf<QrListEvent>()
         val qrList = listOf(testQr(), testQr())
-        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onEvent = eventList::add)
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onQrListEvent = eventList::add)
 
         composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qrList.last().detail.title)).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickQr(id = qrList.last().id))
+        eventList shouldBe listOf(QrListEvent.ClickQr(id = qrList.last().id))
     }
 
     @Test
@@ -317,6 +320,7 @@ class QrHomeScaffoldTest {
     private fun setQrHomeScaffold(
         pagingData: PagingData<Qr> = qrPagingDataOf(emptyList()),
         onEvent: (QrHomeScaffoldEvent) -> Unit = {},
+        onQrListEvent: (QrListEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         componentVisible: QrHomeScaffoldComponentVisible = QrHomeScaffoldComponentVisible(),
@@ -327,6 +331,7 @@ class QrHomeScaffoldTest {
             DiaryTheme {
                 QrHomeScaffold(
                     onEvent = onEvent,
+                    onQrListEvent = onQrListEvent,
                     snackbarHostState = snackbarHostState,
                     qrPagingItems = qrPagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = uiStateProvider,

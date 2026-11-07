@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.impl.SyncTimeData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -21,12 +22,12 @@ class AccountSyncTimeLocalDataSourceImplTest :
         test("기록이 없는 계정은 마지막 동기화 시각이 없다") {
             val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
 
-            dataSource.read(accountId = fixtureMonkey.giveMeOne()).shouldBeNull()
+            dataSource.read(accountId = Arb.kotlinUuid().next()).shouldBeNull()
         }
 
         test("기록한 계정의 마지막 동기화 시각을 그대로 제공한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val syncedAt = fixtureMonkey.giveMeOne<Instant>()
+            val accountId = Arb.kotlinUuid().next()
+            val syncedAt = Arb.secondPrecisionInstant().next()
             val dataStore = mockDataStore(MutableStateFlow(SyncTimeData()))
             val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = dataStore)
 
@@ -37,33 +38,42 @@ class AccountSyncTimeLocalDataSourceImplTest :
         }
 
         test("같은 계정을 다시 기록하면 마지막 동기화 시각을 대체한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val syncedAt = fixtureMonkey.giveMeOne<Instant>()
+            val accountId = Arb.kotlinUuid().next()
+            val syncedAt = Arb.secondPrecisionInstant().next()
             val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
 
-            dataSource.upsert(accountId = accountId, syncedAt = fixtureMonkey.giveMeOne())
+            dataSource.upsert(accountId = accountId, syncedAt = Arb.secondPrecisionInstant().next())
             dataSource.upsert(accountId = accountId, syncedAt = syncedAt)
 
             dataSource.read(accountId = accountId) shouldBe syncedAt
         }
 
         test("한 계정을 기록해도 다른 계정의 마지막 동기화 시각은 그대로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherSyncedAt = fixtureMonkey.giveMeOne<Instant>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val otherSyncedAt = Arb.secondPrecisionInstant().next()
             val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
 
             dataSource.upsert(accountId = otherAccountId, syncedAt = otherSyncedAt)
-            dataSource.upsert(accountId = accountId, syncedAt = fixtureMonkey.giveMeOne())
+            dataSource.upsert(accountId = accountId, syncedAt = Arb.secondPrecisionInstant().next())
 
             dataSource.read(accountId = otherAccountId) shouldBe otherSyncedAt
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+
+        test("TC-e64cb655-d2fc-4b69-942a-20e3ad112f67 한 계정의 기록을 지우면 그 계정만 지워지고 다른 계정은 남는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val otherSyncedAt = Arb.secondPrecisionInstant().next()
+            val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
+
+            dataSource.upsert(accountId = accountId, syncedAt = Arb.secondPrecisionInstant().next())
+            dataSource.upsert(accountId = otherAccountId, syncedAt = otherSyncedAt)
+            dataSource.delete(accountId = accountId)
+
+            dataSource.read(accountId = accountId).shouldBeNull()
+            dataSource.read(accountId = otherAccountId) shouldBe otherSyncedAt
+        }
+    })
 
 private fun mockDataStore(syncTimeFlow: MutableStateFlow<SyncTimeData>): DataStore<SyncTimeData> =
     mockk<DataStore<SyncTimeData>>().also { dataStore ->

@@ -19,6 +19,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +50,7 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-e4f88643-3b7d-466c-a843-8fea115445c4 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
+    fun `TC-886380e2-7470-46ba-95b8-6c822dc21dac 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
@@ -56,6 +58,7 @@ class QrAddScaffoldTest {
             tabList = KOREAN_TAB_LIST,
             titleLabel = KOREAN_TITLE_LABEL,
             descriptionLabel = KOREAN_DESCRIPTION_LABEL,
+            tagLabel = KOREAN_TAG_LABEL,
             descriptionTabList = KOREAN_DESCRIPTION_TAB_LIST,
             formatLabel = KOREAN_FORMAT_LABEL,
             textLabel = KOREAN_TEXT_LABEL,
@@ -66,7 +69,7 @@ class QrAddScaffoldTest {
     }
 
     @Test
-    fun `TC-e4f88643-3b7d-466c-a843-8fea115445c4 기본 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
+    fun `TC-886380e2-7470-46ba-95b8-6c822dc21dac 기본 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
@@ -74,6 +77,7 @@ class QrAddScaffoldTest {
             tabList = DEFAULT_TAB_LIST,
             titleLabel = DEFAULT_TITLE_LABEL,
             descriptionLabel = DEFAULT_DESCRIPTION_LABEL,
+            tagLabel = DEFAULT_TAG_LABEL,
             descriptionTabList = DEFAULT_DESCRIPTION_TAB_LIST,
             formatLabel = DEFAULT_FORMAT_LABEL,
             textLabel = DEFAULT_TEXT_LABEL,
@@ -97,7 +101,7 @@ class QrAddScaffoldTest {
     fun `TC-bfb56275-7384-491d-a09b-c1bf4377f542 값을 입력하면 그 값을 담은 QR을 바로 그린다`() {
         setQrAddScaffold()
 
-        listOf(qrTestFixtureMonkey.qrDetail().value, "안녕하세요", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->
+        listOf(Arb.qrDetail().next().value, "안녕하세요", "${Arb.qrDetail().next().value}\n${Arb.qrDetail().next().value}").forEach { value ->
             composeRule.onQrTextInput().performTextClearance()
 
             composeRule.onQrTextInput().performTextInput(value)
@@ -110,8 +114,8 @@ class QrAddScaffoldTest {
 
     @Test
     fun `TC-39f9d57b-c600-4107-8ee3-1e3296b33877 값을 바꾸면 바뀐 값을 담은 QR로 다시 그린다`() {
-        val firstValue = qrTestFixtureMonkey.qrDetail().value
-        val addedValue = qrTestFixtureMonkey.qrDetail().value
+        val firstValue = Arb.qrDetail().next().value
+        val addedValue = Arb.qrDetail().next().value
         setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput(firstValue)
         composeRule.waitForIdle()
@@ -126,7 +130,7 @@ class QrAddScaffoldTest {
     @Config(qualifiers = "ko")
     fun `TC-0fe19b1a-609f-4105-8b4f-a09a65faf9ec 값을 모두 지우면 QR을 그리지 않는다`() {
         setQrAddScaffold()
-        composeRule.onQrTextInput().performTextInput(qrTestFixtureMonkey.qrDetail().value)
+        composeRule.onQrTextInput().performTextInput(Arb.qrDetail().next().value)
         composeRule.waitForIdle()
 
         composeRule.onQrTextInput().performTextClearance()
@@ -154,13 +158,13 @@ class QrAddScaffoldTest {
 
     @Test
     fun `TC-e28f3f6f-aed6-4cb6-92ba-8d177302be0a 제목과 설명을 바꿔도 QR 그림은 QR 값만 담는다`() {
-        val value = qrTestFixtureMonkey.qrDetail().value
+        val value = Arb.qrDetail().next().value
         setQrAddScaffold()
         composeRule.onQrTextInput().performTextInput(value)
         composeRule.waitForIdle()
 
-        composeRule.onTitleInput().performTextInput(qrTestFixtureMonkey.qrDetail().title)
-        composeRule.onDescriptionInput().performTextInput(qrTestFixtureMonkey.qrDetail().description)
+        composeRule.onTitleInput().performTextInput(Arb.qrDetail().next().title)
+        composeRule.onDescriptionInput().performTextInput(Arb.qrDetail().next().description)
         composeRule.waitForIdle()
 
         composeRule.qrCodeValue() shouldBe value
@@ -188,7 +192,7 @@ class QrAddScaffoldTest {
     fun `TC-639ee2a4-0392-423b-856b-4c66fee8d786 줄바꿈과 앞뒤 공백을 그대로 담는다`() {
         setQrAddScaffold()
 
-        listOf("  ${qrTestFixtureMonkey.qrDetail().value}  ", " ", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->
+        listOf("  ${Arb.qrDetail().next().value}  ", " ", "${Arb.qrDetail().next().value}\n${Arb.qrDetail().next().value}").forEach { value ->
             composeRule.onQrTextInput().performTextClearance()
 
             composeRule.onQrTextInput().performTextInput(value)
@@ -257,6 +261,8 @@ class QrAddScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 QrAddScaffold(
+                    onFormEvent = {},
+                    onTagPickerEvent = {},
                     onEvent = onEvent,
                     uiStateProvider = { uiState },
                 )
@@ -269,6 +275,7 @@ class QrAddScaffoldTest {
         tabList: List<String>,
         titleLabel: String,
         descriptionLabel: String,
+        tagLabel: String,
         descriptionTabList: List<String>,
         formatLabel: String,
         textLabel: String,
@@ -282,7 +289,7 @@ class QrAddScaffoldTest {
         composeRule.waitForIdle()
         composeRule.onNode(hasSetTextAction() and hasText(titleLabel)).assertExists()
         composeRule.onNode(hasSetTextAction() and hasText(descriptionLabel)).assertExists()
-        composeRule.actionNameList() shouldContainExactlyInAnyOrder commonActionList + listOf(titleLabel, descriptionLabel) + descriptionTabList
+        composeRule.actionNameList() shouldContainExactlyInAnyOrder commonActionList + listOf(titleLabel, descriptionLabel, tagLabel) + descriptionTabList
 
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.waitForIdle()
@@ -298,6 +305,8 @@ class QrAddScaffoldTest {
         private const val KOREAN_TITLE_LABEL = "제목"
         private const val DEFAULT_TITLE_LABEL = "Title"
         private const val KOREAN_DESCRIPTION_LABEL = "설명"
+        private const val KOREAN_TAG_LABEL = "태그 선택"
+        private const val DEFAULT_TAG_LABEL = "Select tag"
         private const val DEFAULT_DESCRIPTION_LABEL = "Description"
         private const val KOREAN_FORMAT_LABEL = "포맷"
         private const val DEFAULT_FORMAT_LABEL = "Format"

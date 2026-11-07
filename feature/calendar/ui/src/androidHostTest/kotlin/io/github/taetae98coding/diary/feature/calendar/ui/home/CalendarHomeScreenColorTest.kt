@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -14,9 +15,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
+import io.github.taetae98coding.diary.compose.calendar.CalendarItemDefaults
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -26,9 +26,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,8 +49,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -78,6 +78,23 @@ class CalendarHomeScreenColorTest {
     }
 
     @Test
+    fun `TC-dae42d51-1a51-4948-8484-6a6bc4ceb177 공휴일이 준비되면 조작 없이 이름과 날짜 강조가 반영된다`() {
+        var holidayColor = Color.Unspecified
+        val holidayListFlow = MutableStateFlow(emptyList<Holiday>())
+        setCalendarHomeScreen(holidayListFlow = holidayListFlow) { holidayColor = CalendarDefaults.colors().sundayAndHolidayColor }
+        composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertDoesNotExist()
+        holidayColoredDateCount(day = 17, holidayColor = holidayColor) shouldBe 0
+
+        composeRule.runOnIdle {
+            holidayListFlow.value = listOf(holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, start = july(day = 17)))
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+        holidayColoredDateCount(day = 17, holidayColor = holidayColor) shouldBe 1
+    }
+
+    @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `공휴일 이름은 쉬는 날 여부에 따라 서로 다르게 표현된다`() {
         var holidayColor = Color.Unspecified
@@ -90,7 +107,7 @@ class CalendarHomeScreenColorTest {
                 ),
         ) {
             holidayColor = CalendarDefaults.colors().sundayAndHolidayColor
-            nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+            nonHolidayNameColor = CalendarItemDefaults.nonHolidayNameColor()
         }
 
         holidayColor shouldNotBe nonHolidayNameColor
@@ -153,6 +170,7 @@ class CalendarHomeScreenColorTest {
 
     private fun setCalendarHomeScreen(
         holidayList: List<Holiday> = emptyList(),
+        holidayListFlow: StateFlow<List<Holiday>> = MutableStateFlow(holidayList),
         memoListFlow: StateFlow<List<CalendarMemo>> = MutableStateFlow(emptyList()),
         onTheme: @Composable () -> Unit = {},
     ) {
@@ -180,7 +198,7 @@ class CalendarHomeScreenColorTest {
                     navigateToFilter = {},
                     navigateToTimetable = {},
                     state = state,
-                    holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
+                    holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
@@ -263,7 +281,7 @@ class CalendarHomeScreenColorTest {
         endInclusive: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = fixtureMonkey.giveMeOne<Uuid>(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = color,
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
@@ -275,7 +293,7 @@ class CalendarHomeScreenColorTest {
         date: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = fixtureMonkey.giveMeOne<Uuid>(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = color,
             dateTime = singleDayDateTime(date = date),

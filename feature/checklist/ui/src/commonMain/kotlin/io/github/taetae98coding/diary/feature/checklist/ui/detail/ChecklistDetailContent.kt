@@ -22,15 +22,19 @@ import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderD
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryChecklistItemSortBarHost
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.checklist.ui.Res
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_empty_description
 import io.github.taetae98coding.diary.feature.checklist.ui.checklist_detail_empty_title
 import io.github.taetae98coding.diary.feature.checklist.ui.item.ChecklistItemInputRow
 import io.github.taetae98coding.diary.feature.checklist.ui.previewChecklistItem
+import io.github.taetae98coding.diary.feature.checklist.ui.tag.ChecklistTagInputEvent
 import org.jetbrains.compose.resources.stringResource
 
 private const val TITLE_KEY = "title"
 private const val DESCRIPTION_KEY = "description"
+private const val TAG_KEY = "tag"
 private const val SORT_KEY = "sort"
 private const val EMPTY_KEY = "empty"
 private const val INPUT_KEY = "input"
@@ -38,9 +42,11 @@ private const val INPUT_KEY = "input"
 @Composable
 internal fun ChecklistDetailContent(
     onEvent: (ChecklistDetailScaffoldEvent) -> Unit,
+    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
     itemUiStateProvider: () -> ChecklistDetailItemUiState = { ChecklistDetailItemUiState() },
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
     val itemUiState = itemUiStateProvider()
     val horizontalPadding = DiaryTheme.dimens.screenHorizontalPadding
@@ -56,7 +62,9 @@ internal fun ChecklistDetailContent(
             ),
     ) {
         formInputs(
+            onTagInputEvent = onTagInputEvent,
             state = state,
+            tagUiStateProvider = tagUiStateProvider,
             horizontalPadding = horizontalPadding,
             componentSpacing = componentSpacing,
         )
@@ -82,7 +90,9 @@ internal fun ChecklistDetailContent(
 }
 
 private fun LazyListScope.formInputs(
+    onTagInputEvent: (ChecklistTagInputEvent) -> Unit,
     state: ChecklistDetailFormState,
+    tagUiStateProvider: () -> EntityTagInputUiState,
     horizontalPadding: Dp,
     componentSpacing: Dp,
 ) {
@@ -103,6 +113,18 @@ private fun LazyListScope.formInputs(
                     .fillMaxWidth()
                     .padding(horizontal = horizontalPadding)
                     .padding(top = componentSpacing),
+        )
+    }
+    item(key = TAG_KEY) {
+        EntityTagInput(
+            onTagClick = { id -> onTagInputEvent(ChecklistTagInputEvent.ClickTag(id = id)) },
+            onAddClick = { onTagInputEvent(ChecklistTagInputEvent.ClickTagAdd) },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding)
+                    .padding(top = componentSpacing),
+            uiStateProvider = tagUiStateProvider,
         )
     }
 }
@@ -178,6 +200,7 @@ private fun ChecklistDetailContentPreview(
         Surface {
             ChecklistDetailContent(
                 onEvent = {},
+                onTagInputEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 itemUiStateProvider = { itemUiState },
             )

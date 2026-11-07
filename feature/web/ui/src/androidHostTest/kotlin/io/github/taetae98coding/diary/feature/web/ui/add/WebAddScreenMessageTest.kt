@@ -5,18 +5,16 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -26,13 +24,13 @@ class WebAddScreenMessageTest {
 
     @Test
     fun `TC-4ac55fda-94a5-47c5-95f9-02b1174ebe39 기본 환경 추가 성공 안내`() {
-        assertMessage(effect = WebAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
+        assertMessage(effect = WebAddEffect.AddSucceeded(id = Arb.kotlinUuid().next()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
     fun `TC-4ac55fda-94a5-47c5-95f9-02b1174ebe39 한국어 추가 성공 안내`() {
-        assertMessage(effect = WebAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
+        assertMessage(effect = WebAddEffect.AddSucceeded(id = Arb.kotlinUuid().next()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test

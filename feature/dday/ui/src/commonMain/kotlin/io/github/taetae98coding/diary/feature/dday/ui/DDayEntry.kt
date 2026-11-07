@@ -6,7 +6,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.dday.ui.home.DDayHomeScreen
 
-public fun EntryProviderScope<ScreenNavKey>.dDayEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.dDayEntry(backStack: NavBackStack<ScreenNavKey>) {
     dDayHomeEntry(backStack = backStack)
 }
 

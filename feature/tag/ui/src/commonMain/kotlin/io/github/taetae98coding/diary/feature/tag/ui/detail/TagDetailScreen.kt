@@ -19,15 +19,23 @@ import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarE
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistFloatingActionButton
+import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoFloatingActionButton
+import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTargetHost
+import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.rememberTagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -51,6 +59,14 @@ internal fun TagDetailScreen(
     navigateToWebDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
+    navigateToContactAdd: () -> Unit,
+    navigateToContactDetail: (Uuid) -> Unit,
+    navigateToChecklistAdd: () -> Unit,
+    navigateToChecklistDetail: (Uuid) -> Unit,
+    navigateToMusicAdd: () -> Unit,
+    navigateToMusicDetail: (Uuid) -> Unit,
+    navigateToQrAdd: () -> Unit,
+    navigateToQrDetail: (Uuid) -> Unit,
     id: Uuid,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
@@ -75,6 +91,14 @@ internal fun TagDetailScreen(
                     navigateToWebDetail = navigateToWebDetail,
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
+                    navigateToContactAdd = navigateToContactAdd,
+                    navigateToContactDetail = navigateToContactDetail,
+                    navigateToChecklistAdd = navigateToChecklistAdd,
+                    navigateToChecklistDetail = navigateToChecklistDetail,
+                    navigateToMusicAdd = navigateToMusicAdd,
+                    navigateToMusicDetail = navigateToMusicDetail,
+                    navigateToQrAdd = navigateToQrAdd,
+                    navigateToQrDetail = navigateToQrDetail,
                 ),
             id = id,
             tagAddRequestKey = tagAddRequestKey,
@@ -121,6 +145,10 @@ private fun TagDetailScreenContent(
                 onMemoAdd = navigation.navigateToMemoAdd,
                 onWebAdd = navigation.navigateToWebAdd,
                 onPlaceAdd = { navigation.navigateToPlaceAdd(placeState.addCoordinate) },
+                onContactAdd = navigation.navigateToContactAdd,
+                onChecklistAdd = navigation.navigateToChecklistAdd,
+                onMusicAdd = navigation.navigateToMusicAdd,
+                onQrAdd = navigation.navigateToQrAdd,
                 state = tabState,
                 isUpdateEnabledProvider = { isUpdateEnabled },
             ),
@@ -132,9 +160,8 @@ private fun TagDetailScreenContent(
         tabFloatingActionButton = { tab ->
             TabFloatingActionButton(
                 tab = tab,
+                navigation = navigation,
                 onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
-                onMemoAdd = navigation.navigateToMemoAdd,
-                onWebAdd = navigation.navigateToWebAdd,
                 onPlaceAdd = { navigation.navigateToPlaceAdd(placeState.addCoordinate) },
                 isUpdateVisible = isUpdateEnabled,
                 isUpdateInProgressProvider = { content?.isInProgress == true },
@@ -172,9 +199,8 @@ private fun rememberIsUpdateEnabled(
 @Composable
 private fun TabFloatingActionButton(
     tab: TagDetailTab,
+    navigation: TagDetailNavigation,
     onUpdate: () -> Unit,
-    onMemoAdd: () -> Unit,
-    onWebAdd: () -> Unit,
     onPlaceAdd: () -> Unit,
     isUpdateVisible: Boolean = false,
     isUpdateInProgressProvider: () -> Boolean = { false },
@@ -195,9 +221,13 @@ private fun TabFloatingActionButton(
 
         DiaryScaleVisibility(visible = tab != TagDetailTab.DETAIL) {
             when (addTab) {
-                TagDetailTab.DETAIL, TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = onMemoAdd)
-                TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = onWebAdd)
+                TagDetailTab.DETAIL, TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = navigation.navigateToMemoAdd)
+                TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = navigation.navigateToWebAdd)
                 TagDetailTab.PLACE -> TagDetailPlaceFloatingActionButton(onClick = onPlaceAdd)
+                TagDetailTab.CONTACT -> TagDetailContactFloatingActionButton(onClick = navigation.navigateToContactAdd)
+                TagDetailTab.CHECKLIST -> TagDetailChecklistFloatingActionButton(onClick = navigation.navigateToChecklistAdd)
+                TagDetailTab.MUSIC -> TagDetailMusicFloatingActionButton(onClick = navigation.navigateToMusicAdd)
+                TagDetailTab.QR -> TagDetailQrFloatingActionButton(onClick = navigation.navigateToQrAdd)
             }
         }
     }
@@ -263,5 +293,13 @@ private fun TabContent(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHostState = state.snackbarHostState,
             )
+
+        TagDetailTab.CONTACT -> TagDetailContactContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToContactDetail = navigation.navigateToContactDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
+
+        TagDetailTab.CHECKLIST -> TagDetailChecklistContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToChecklistDetail = navigation.navigateToChecklistDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
+
+        TagDetailTab.MUSIC -> TagDetailMusicContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToMusicDetail = navigation.navigateToMusicDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
+
+        TagDetailTab.QR -> TagDetailQrContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToQrDetail = navigation.navigateToQrDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
     }
 }

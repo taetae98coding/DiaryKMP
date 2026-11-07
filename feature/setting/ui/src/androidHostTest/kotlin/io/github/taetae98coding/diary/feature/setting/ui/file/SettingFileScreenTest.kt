@@ -1,15 +1,17 @@
 package io.github.taetae98coding.diary.feature.setting.ui.file
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
 import io.github.taetae98coding.diary.feature.setting.ui.file.picker.DirectoryPicker
 import io.github.taetae98coding.diary.feature.setting.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,9 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko")
@@ -51,7 +50,7 @@ class SettingFileScreenTest {
 
     @Test
     fun `TC-cef9e1ad-cca8-4668-b96c-e2124fbc09d7 기본 위치로 되돌리기를 실행하면 되돌리기를 요청한다`() {
-        val viewModel = viewModel(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>())
+        val viewModel = viewModel(directory = Arb.fileDownloadDirectory().next())
         setSettingFileScreen(viewModel = viewModel)
 
         composeRule.onNodeWithText("기본 위치로 되돌리기").performClick()
@@ -67,14 +66,29 @@ class SettingFileScreenTest {
         composeRule.onNodeWithText("다운로드 위치를 바꾸지 못했습니다.").assertExists()
     }
 
+    @Test
+    fun `TC-816e8b89-d6dc-49d7-a87f-47342ad9d4e5 뒤로가기 동작을 선택하면 이전 화면으로 돌아가고 설정은 바뀌지 않는다`() {
+        var navigateUpCount = 0
+        val viewModel = viewModel(directory = Arb.fileDownloadDirectory().next())
+        setSettingFileScreen(viewModel = viewModel, navigateUp = { navigateUpCount += 1 })
+
+        composeRule.onNodeWithContentDescription("뒤로가기").performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 1
+        verify(exactly = 0) { viewModel.setDirectory(uri = any()) }
+        verify(exactly = 0) { viewModel.unsetDirectory() }
+    }
+
     private fun setSettingFileScreen(
         viewModel: SettingFileViewModel,
         directoryPicker: DirectoryPicker = mockk(relaxed = true),
+        navigateUp: () -> Unit = {},
     ) {
         composeRule.setContent {
             DiaryTheme {
                 SettingFileScreen(
-                    navigateUp = {},
+                    navigateUp = navigateUp,
                     componentVisibleProvider = { SettingFileScaffoldComponentVisible() },
                     directoryPicker = directoryPicker,
                     viewModel = viewModel,

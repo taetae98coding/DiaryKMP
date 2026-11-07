@@ -23,9 +23,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -38,14 +35,18 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -183,19 +184,20 @@ class MemoHomeDestinationReturnTest {
         const val DEFAULT_SORT_LABEL = "Default"
         const val TITLE_SORT_LABEL = "Title"
         const val FILTER_APPLIED_STATE_DESCRIPTION = "Filter applied"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun memoTitle(index: Int): String = "MemoHomeDestinationReturnTitle$index"
 
         fun memoItemList(): List<MemoListItem> =
             List(MEMO_COUNT) { index ->
                 val memo =
-                    fixtureMonkey
-                        .giveMeKotlinBuilder<Memo>()
-                        .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = memoTitle(index = index)))
-                        .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                        .sample()
+                    Arb
+                        .memo()
+                        .next()
+                        .copy(
+                            detail = Arb.memoDetail().next().copy(title = memoTitle(index = index)),
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                            createdAt = Arb.secondPrecisionInstant().next(),
+                        )
 
                 MemoListItem.Content(memo = memo)
             }

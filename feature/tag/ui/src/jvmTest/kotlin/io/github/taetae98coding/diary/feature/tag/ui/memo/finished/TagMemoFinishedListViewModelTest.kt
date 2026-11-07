@@ -7,15 +7,16 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedTagMemoUseCase
@@ -23,10 +24,14 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -49,9 +54,6 @@ import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class TagMemoFinishedListViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -67,7 +69,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-13388ef2-d0eb-4e06-b53c-4c0c12428706 태그별 완료 메모 paging에 주입된 태그 ID를 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
                 every { pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns
@@ -110,7 +112,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
                 Result.failure(IllegalStateException()),
             ).forEach { result ->
                 runTest(mainDispatcher) {
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val tagId = Arb.kotlinUuid().next()
                     val findTagUseCase = mockk<FindTagUseCase>()
                     every { findTagUseCase(parameter = tagId) } returns flowOf(result)
                     val viewModel = viewModel(tagId = tagId, findTagUseCase = findTagUseCase)
@@ -174,7 +176,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
                 every { pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns
                     flowOf(Result.failure<PagingData<Memo>>(IllegalStateException()))
@@ -194,7 +196,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
                 every { pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns
@@ -212,7 +214,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-42496419-842a-4b68-9aa6-0ff6f578a011 태그별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
                 val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
@@ -236,7 +238,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-4ff545fd-dc92-439d-b2a5-90942a03e819 메모 다시 시작에 성공하면 다시 시작 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -255,7 +257,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-82349e81-70b6-4d7d-859c-4832bb63094c 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -271,7 +273,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 다시 시작 실행 취소는 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -289,7 +291,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-7d012eef-54c2-404e-82a1-fd4e2a9f1977 메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -308,7 +310,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-82349e81-70b6-4d7d-859c-4832bb63094c 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -324,7 +326,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
         test("TC-4dd19bb3-4b69-42aa-90d9-e6ae455930b0 삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -342,7 +344,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
     }
 
     private fun viewModel(
-        tagId: Uuid = fixtureMonkey.giveMeOne(),
+        tagId: Uuid = Arb.kotlinUuid().next(),
         pageFinishedTagMemoUseCase: PageFinishedTagMemoUseCase =
             mockk {
                 every { this@mockk(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns emptyFlow()
@@ -369,31 +371,31 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
     private fun tagDetail(
         emoji: String,
         title: String,
-    ): TagDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title)
+    ): TagDetail = Arb.tagDetail().next().copy(emoji = emoji, title = title)
 
     private fun tag(
         isFinished: Boolean,
         isDeleted: Boolean,
     ): Tag =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Tag>()
-            .setExp(Tag::isFinished, isFinished)
-            .setExp(Tag::isDeleted, isDeleted)
-            // 이모지와 제목이 모두 비면 화면 상태가 초깃값과 같아져 새 상태가 전달되지 않는다.
-            .setExp(Tag::detail, tagDetail(emoji = fixtureMonkey.giveMeOne(), title = fixtureMonkey.nonBlankString()))
-            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .tag()
+            .next()
+            .copy(
+                // 이모지와 제목이 모두 비면 화면 상태가 초깃값과 같아져 새 상태가 전달되지 않는다.
+                detail = tagDetail(emoji = Arb.string().next(), title = Arb.nonBlankString().next()),
+                isFinished = isFinished,
+                isDeleted = isDeleted,
+            )
 
     private fun memo(): Memo =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Memo>()
-            .setExp(
-                Memo::detail,
-                fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .memo()
+            .next()
+            .copy(
+                detail = Arb.memoDetail().next().copy(dateTime = null),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private companion object {
         const val TAG_EMOJI = "📌"

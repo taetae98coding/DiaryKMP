@@ -1,18 +1,20 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,7 +28,7 @@ import kotlin.uuid.Uuid
 class DeletePlaceUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 장소가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val id = Uuid.random()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
@@ -41,7 +43,7 @@ class DeletePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -70,7 +72,7 @@ class DeletePlaceUseCaseTest :
         }
 
         Given("삭제는 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val id = Uuid.random()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
@@ -85,12 +87,12 @@ class DeletePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
-                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                Result.failure(IllegalStateException(Arb.string().next()))
             val useCase =
                 DeletePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -118,7 +120,7 @@ class DeletePlaceUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
@@ -148,8 +150,8 @@ class DeletePlaceUseCaseTest :
         }
 
         Given("삭제 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
@@ -179,9 +181,6 @@ class DeletePlaceUseCaseTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun requestSyncUseCase(): RequestSyncUseCase = mockk(relaxed = true)
     }
 }

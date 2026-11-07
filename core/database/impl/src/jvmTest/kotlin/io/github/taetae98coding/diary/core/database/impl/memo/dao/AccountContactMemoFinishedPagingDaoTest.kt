@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
@@ -17,21 +14,26 @@ import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountC
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountContactMemoFinishedPagingDaoTest :
     FunSpec({
@@ -182,8 +184,8 @@ class AccountContactMemoFinishedPagingDaoTest :
             "TC-04a10882-eabb-4dc0-a848-eda2ed47ff40 TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f " +
                 "현재 계정의 대상 연락처와 활성 연결을 가진 완료·미삭제 메모만 조회한다",
         ) {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val target = contact()
             val other = contact()
             val finishedMemo = memo(isFinished = true, isDeleted = false)
@@ -203,11 +205,11 @@ class AccountContactMemoFinishedPagingDaoTest :
         }
 
         test("TC-53603dea-4027-4100-b4b0-238877598359 MemoHome의 태그 필터를 골라 두어도 대상 연락처의 완료 메모는 그대로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val finishedMemo = memo()
             insertContactMemo(accountId, target, finishedMemo)
-            database.memoFilterTagDao().upsert(entity = MemoFilterTagLocalEntity(accountId = accountId, tagId = fixtureMonkey.giveMeOne<Uuid>()))
+            database.memoFilterTagDao().upsert(entity = MemoFilterTagLocalEntity(accountId = accountId, tagId = Arb.kotlinUuid().next()))
 
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(finishedMemo.id)
         }
@@ -215,12 +217,12 @@ class AccountContactMemoFinishedPagingDaoTest :
         test("TC-23057b0d-8d8d-4ad7-a6fa-0a4d695be691 대상 연락처를 삭제하거나 즐겨찾기를 바꿔도 연결된 완료 메모는 계속 조회된다") {
             val changeList: List<(ContactLocalEntity) -> ContactLocalEntity> =
                 listOf(
-                    { contact -> contact.copy(isDeleted = true, updatedAt = instant()) },
-                    { contact -> contact.copy(isFavorite = !contact.isFavorite, updatedAt = instant()) },
+                    { contact -> contact.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next()) },
+                    { contact -> contact.copy(isFavorite = !contact.isFavorite, updatedAt = Arb.secondPrecisionInstant().next()) },
                 )
 
             changeList.forEach { change ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val target = contact()
                 val targetMemo = memo()
                 insertContactMemo(accountId, target, targetMemo)
@@ -232,7 +234,7 @@ class AccountContactMemoFinishedPagingDaoTest :
         }
 
         test("TC-ec85fc8e-d63c-4b35-a381-f4fda3bc12a3 완료된 연락처별 메모는 기간 없음, 시작 날짜, 종일 여부, 시작 시각, 종료 시점, 제목 순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
@@ -335,7 +337,7 @@ class AccountContactMemoFinishedPagingDaoTest :
         }
 
         test("TC-10bd10fb-996c-4f1a-90ce-b51ef68fd097 완료한 시점은 목록 순서에 영향을 주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val earlyStartMemo =
                 memo(
@@ -367,7 +369,7 @@ class AccountContactMemoFinishedPagingDaoTest :
             "TC-3dcf65cb-40a3-42be-a251-b759b2e322d2 TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c TC-235ef526-ec6e-465b-a139-06d9cb2573a4 " +
                 "메모를 다시 시작하면 완료 목록에서 사라지고 연결이 유지되어 같은 연락처의 메모 탭 목록에 나타난다",
         ) {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             insertContactMemo(accountId, target, targetMemo)
@@ -376,18 +378,18 @@ class AccountContactMemoFinishedPagingDaoTest :
             activePagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
             }
 
             activePagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
 
-            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+            database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 
         test("TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c TC-235ef526-ec6e-465b-a139-06d9cb2573a4 메모를 삭제하면 완료 목록에서 사라지고 복구하면 연결이 유지되어 다시 나타난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             insertContactMemo(accountId, target, targetMemo)
@@ -395,16 +397,16 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+                database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
         }
 
         test("TC-235ef526-ec6e-465b-a139-06d9cb2573a4 다시 시작·삭제와 각 실행 취소는 메모 상태와 수정 시각을 바꾸고 연락처 연결은 그대로 둔다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo(isFinished = true, isDeleted = false)
             insertContactMemo(accountId, target, targetMemo)
@@ -417,7 +419,7 @@ class AccountContactMemoFinishedPagingDaoTest :
                 isDeleted: Boolean,
                 change: suspend (updatedAt: Instant) -> Unit,
             ) {
-                val updatedAt = generateSequence { instant() }.first { value -> value != previousUpdatedAt }
+                val updatedAt = generateSequence { Arb.secondPrecisionInstant().next() }.first { value -> value != previousUpdatedAt }
 
                 change(updatedAt)
 
@@ -444,35 +446,35 @@ class AccountContactMemoFinishedPagingDaoTest :
         }
 
         test("TC-91a11878-ec7e-4518-864b-df647754913e 삭제한 메모는 완료 목록과 메모 탭 목록 어디에도 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             insertContactMemo(accountId, target, targetMemo)
 
-            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
+            database.accountMemoDao().updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             pagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
             activePagedIds(accountId = accountId, contactId = target.id).shouldBeEmpty()
         }
 
         test("TC-8d945960-ec43-4753-86d7-2a7716a55880 다시 시작·삭제·실행 취소는 상세 대상 연락처를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             insertContactMemo(accountId, target, targetMemo)
             val storedContact = database.accountContactDao().find(accountId = accountId, contactId = target.id).first()
             val memoDao = database.accountMemoDao()
 
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = instant())
-            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = instant())
-            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = instant())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = false, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
+            memoDao.updateDeleted(accountId = accountId, memoId = targetMemo.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
             database.accountContactDao().find(accountId = accountId, contactId = target.id).first() shouldBe storedContact
         }
 
         test("TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c 미완료 메모를 완료하면 페이지를 무효화하고 완료 목록에 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo(isFinished = false)
             insertContactMemo(accountId, target, targetMemo)
@@ -480,12 +482,12 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = instant())
+                database.accountMemoDao().updateFinished(accountId = accountId, memoId = targetMemo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             }
         }
 
         test("TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c 연결 해제는 페이지를 무효화하고 메모를 완료 목록에서 제외한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             val relation = memoContact(memoId = targetMemo.id, contactId = target.id)
@@ -494,12 +496,12 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds() shouldBe listOf(targetMemo.id)
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = emptyList()) {
-                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = instant())))
+                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
         test("TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c 연결 복구는 페이지를 무효화하고 메모를 완료 목록에 다시 포함한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val targetMemo = memo()
             val relation = memoContact(memoId = targetMemo.id, contactId = target.id, isDeleted = true)
@@ -508,12 +510,12 @@ class AccountContactMemoFinishedPagingDaoTest :
             pagingSource.pagedIds().shouldBeEmpty()
 
             assertPageInvalidated(pagingSource = pagingSource, accountId = accountId, contactId = target.id, expectedIds = listOf(targetMemo.id)) {
-                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = instant())))
+                database.memoContactDao().upsert(listOf(relation.copy(isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())))
             }
         }
 
         test("TC-98a51fa0-cf14-4a72-b098-a2100f0e3f0c 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val target = contact()
             val movingMemo =
                 memo(
@@ -554,61 +556,66 @@ class AccountContactMemoFinishedPagingDaoTest :
                     isAllDay = movedDetail.isAllDay,
                     start = movedDetail.start,
                     endInclusive = movedDetail.endInclusive,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             }
         }
     }) {
     public companion object {
         private fun memo(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             isFinished: Boolean = true,
             isDeleted: Boolean = false,
-            detail: MemoDetailLocalEntity = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
-            updatedAt: Instant = instant(),
+            detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::id, id)
-                .setExp(MemoLocalEntity::detail, detail)
-                .setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, updatedAt)
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    id = id,
+                    detail = detail,
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = updatedAt,
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun contact(isDeleted: Boolean = false): ContactLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<ContactLocalEntity>()
-                .setExp(ContactLocalEntity::isDeleted, isDeleted)
-                .setExp(ContactLocalEntity::updatedAt, instant())
-                .setExp(ContactLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .contactLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun memoContact(
             memoId: Uuid,
             contactId: Uuid,
             isDeleted: Boolean = false,
         ): MemoContactLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoContactLocalEntity>()
-                .setExp(MemoContactLocalEntity::memoId, memoId)
-                .setExp(MemoContactLocalEntity::contactId, contactId)
-                .setExp(MemoContactLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoContactLocalEntity::updatedAt, instant())
-                .setExp(MemoContactLocalEntity::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .memoContactLocalEntity()
+                .next()
+                .copy(
+                    memoId = memoId,
+                    contactId = contactId,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun detail(
             isAllDay: Boolean?,
             start: LocalDateTime?,
             endInclusive: LocalDateTime?,
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
         ): MemoDetailLocalEntity =
-            fixtureMonkey
-                .giveMeOne<MemoDetailLocalEntity>()
+            Arb
+                .memoDetailLocalEntity()
+                .next()
                 .copy(
                     title = title,
                     isAllDay = isAllDay,

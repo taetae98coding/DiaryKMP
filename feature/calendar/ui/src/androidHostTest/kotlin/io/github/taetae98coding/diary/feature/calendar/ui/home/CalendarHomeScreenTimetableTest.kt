@@ -11,9 +11,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.search.holidaySearchUri
+import io.github.taetae98coding.diary.compose.calendar.search.weatherSearchUri
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -23,14 +23,15 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
-import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.holidaySearchUri
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.weatherSearchUri
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -46,8 +47,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -98,16 +97,17 @@ class CalendarHomeScreenTimetableTest {
 
     @Test
     fun `TC-7dac7195-3ff7-4635-8620-e0b3f3e55a4e 아이템을 누르면 시간표를 열지 않고 아이템의 선택 결과가 실행된다`() {
-        val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE)
-        val birthday = CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = september(day = 22))
+        val memo = Arb.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE).next()
+        val birthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = september(day = 22))
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
         // 날씨는 이름 아이템보다 위 줄을 차지하므로 다른 주에 두어 작은 화면에서도 모든 아이템이 한 번에 보이게 한다.
         val weather =
-            calendarWeather(
-                date = september(day = 29),
-                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                descriptionList = listOf("clear sky"),
-            )
+            Arb
+                .calendarWeather(
+                    date = september(day = 29),
+                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                    descriptionList = listOf("clear sky"),
+                ).next()
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         val memoIdList = mutableListOf<Uuid>()
@@ -155,7 +155,7 @@ class CalendarHomeScreenTimetableTest {
 
     @Test
     fun `TC-5c5d2c48-a94c-4b81-bb7b-dc4e1748fb2d 메모 제목을 길게 눌러 옮기면 시간표를 열지 않는다`() {
-        val memo = fixtureMonkey.calendarMemo(dateTime = allDay(day = 23), title = MEETING_TITLE)
+        val memo = Arb.calendarMemo(dateTime = allDay(day = 23), title = MEETING_TITLE).next()
         val memoViewModel = memoViewModel(memoList = listOf(memo))
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         setCalendarHomeScreen(

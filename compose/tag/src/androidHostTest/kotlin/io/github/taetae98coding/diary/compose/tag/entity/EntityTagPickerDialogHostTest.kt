@@ -22,6 +22,7 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.resetAndroidUiDispatcher
@@ -174,7 +175,7 @@ class EntityTagPickerDialogHostTest {
         composeRule.awaitEntityTagPickerRows()
 
         composeRule
-            .onAllNodes(hasClickAction() and hasAnyAncestor(hasTestTag(ENTITY_TAG_PICKER_LIST_TEST_TAG)))
+            .onAllNodes(hasClickAction() and hasAnyAncestor(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)))
             .assertCountEquals(tagList.size)
         composeRule
             .onAllNodes(isToggleable() and hasAnyAncestor(isDialog()))

@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -26,20 +23,29 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class SearchPagingDaoTest :
     FunSpec({
@@ -191,7 +197,7 @@ class SearchPagingDaoTest :
                 .map { web -> web.id }
 
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 메모는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val titleMatched = memo(title = "$QUERY 계획")
             val descriptionMatched = memo(description = "$QUERY 준비물")
             val unmatched = memo()
@@ -201,7 +207,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 태그는 이모지, 제목, 설명 중 하나가 질의를 포함하면 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val emojiMatched = tag(emoji = QUERY)
             val titleMatched = tag(title = "$QUERY 태그")
             val descriptionMatched = tag(description = "$QUERY 기록")
@@ -213,7 +219,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 장소는 제목, 설명, 주소 중 하나가 질의를 포함하면 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val titleMatched = place(title = "$QUERY 숙소")
             val descriptionMatched = place(description = "$QUERY 후보")
             val addressMatched = place(address = "$QUERY 로 12")
@@ -225,7 +231,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 웹 항목은 제목, 설명, URL 중 하나가 질의를 포함하면 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val titleMatched = web(title = "$QUERY 준비")
             val descriptionMatched = web(description = "$QUERY 정보")
             val urlMatched = web(url = "https://example.com/$QUERY")
@@ -237,7 +243,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-5aa4a76d-2c8d-4107-b957-ea606797d8fd 웹 항목의 요청 헤더만 질의를 포함하면 결과가 되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val headerMatched =
                 web(
                     headerList =
@@ -251,7 +257,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-8612b422-528c-4e41-a851-b278b1a8449e 값 전체가 질의와 같지 않아도 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo(title = "여름 $QUERY 계획")
             insertMemo(accountId, memo)
 
@@ -259,7 +265,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-48bc994f-728d-4d74-a8bc-6f61c8516199 ASCII 영문자는 대소문자를 구분하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo(title = "Travel")
             insertMemo(accountId, memo)
 
@@ -267,7 +273,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-b4a06a31-5f7d-417f-a3f1-42efa5a4c66e ASCII 밖의 글자는 대소문자를 맞추지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo(title = "Café")
             insertMemo(accountId, memo)
 
@@ -275,7 +281,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-ea4292ca-1646-4d09-b29a-33653c5e14d9 연결된 태그의 제목만 질의를 포함하면 메모는 결과가 되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag(title = "$QUERY 태그")
             insertMemo(accountId, memo)
@@ -290,7 +296,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-51e82cb9-b34f-47f6-8f80-7ec533eaa72e 삭제된 항목은 어느 유형에서도 결과가 되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             insertMemo(accountId, memo(title = QUERY, isDeleted = true))
             insertTag(accountId, tag(title = QUERY, isDeleted = true))
             insertPlace(accountId, place(title = QUERY, isDeleted = true))
@@ -303,7 +309,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-ab2e0d4c-f761-4de6-b44c-6ed7de86c7f9 완료된 메모와 완료된 태그도 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val finishedMemo = memo(title = QUERY, isFinished = true)
             val finishedTag = tag(title = QUERY, isFinished = true)
             insertMemo(accountId, finishedMemo)
@@ -314,7 +320,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-609e4786-9dfc-48eb-a035-4bf76058601e 네 유형의 결과를 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val secondMemo = memo(title = "나 $QUERY")
             val firstMemo = memo(title = "가 $QUERY")
             val thirdMemo = memo(title = "다 $QUERY")
@@ -339,7 +345,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-dbb63bc4-ee53-4d78-ac07-f920773ca782 한 유형을 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memoList = List(ITEM_COUNT) { index -> memo(title = "$QUERY-${index.pad()}") }
             val tagList = List(ITEM_COUNT) { index -> tag(title = "$QUERY-${index.pad()}") }
             insertMemo(accountId, *memoList.toTypedArray())
@@ -362,7 +368,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-55b41830-5dd2-442f-ad02-4fb73a8e0e4f 저장된 항목이 바뀌면 결과가 갱신된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val savedMemo = memo(title = "가 $QUERY")
             insertMemo(accountId, savedMemo)
             val pagingSource = database.searchMemoDao().page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
@@ -381,12 +387,12 @@ class SearchPagingDaoTest :
         test("TC-5f357cf5-11d8-4dcf-898a-46e6d9bb2cf1 질의를 만족하지 않게 바뀌거나 삭제된 항목은 결과에서 사라진다") {
             val changeList: List<(MemoLocalEntity) -> MemoLocalEntity> =
                 listOf(
-                    { memo -> memo.copy(detail = memo.detail.copy(title = "변경-${fixtureMonkey.giveMeOne<Int>()}", description = "")) },
+                    { memo -> memo.copy(detail = memo.detail.copy(title = "변경-${Arb.int().next()}", description = "")) },
                     { memo -> memo.copy(isDeleted = true) },
                 )
 
             changeList.forEach { change ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val savedMemo = memo(title = "가 $QUERY", description = "")
                 insertMemo(accountId, savedMemo)
                 val pagingSource = database.searchMemoDao().page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
@@ -403,8 +409,8 @@ class SearchPagingDaoTest :
         }
 
         test("TC-e7eb7b80-8ee7-4906-ae52-8081df9ff769 다른 계정과 연결된 항목은 어느 유형에서도 결과가 되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             insertMemo(otherAccountId, memo(title = QUERY))
             insertTag(otherAccountId, tag(title = QUERY))
             insertPlace(otherAccountId, place(title = QUERY))
@@ -417,7 +423,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-1d910620-bfc0-4ea1-871c-f17561570aaf MemoHome에 걸어 둔 필터는 메모 결과를 좁히지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val filterTag = tag()
             val filterTagMemo = memo(title = "$QUERY 태그 있음")
             val untaggedMemo = memo(title = "$QUERY 태그 없음")
@@ -434,7 +440,7 @@ class SearchPagingDaoTest :
         }
 
         test("TC-3675cf4a-13d8-4607-b7db-80f39b09fafb 서로 멀리 떨어진 장소도 위치와 관계없이 모두 결과가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val seoulPlace = place(title = "$QUERY 서울").located(latitude = SEOUL_LATITUDE, longitude = SEOUL_LONGITUDE)
             val parisPlace = place(title = "$QUERY 파리").located(latitude = PARIS_LATITUDE, longitude = PARIS_LONGITUDE)
             insertPlace(accountId, seoulPlace, parisPlace)
@@ -443,7 +449,7 @@ class SearchPagingDaoTest :
         }
 
         test("질의의 SQL 와일드카드 문자는 패턴이 아니라 문자 그대로 판정한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val literalMemo = memo(title = "10% 할인")
             val patternMemo = memo(title = "10 할인")
             insertMemo(accountId, literalMemo, patternMemo)
@@ -502,81 +508,86 @@ class SearchPagingDaoTest :
             }
 
         private fun memo(
-            title: String = fixtureMonkey.giveMeOne<String>(),
-            description: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
+            description: String = Arb.string().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(
-                    MemoLocalEntity::detail,
-                    fixtureMonkey.giveMeOne<MemoDetailLocalEntity>().copy(title = title, description = description),
-                ).setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    detail = Arb.memoDetailLocalEntity().next().copy(title = title, description = description),
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun tag(
             emoji: String = "",
-            title: String = fixtureMonkey.giveMeOne<String>(),
-            description: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
+            description: String = Arb.string().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
         ): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(
-                    TagLocalEntity::detail,
-                    fixtureMonkey
-                        .giveMeOne<TagDetailLocalEntity>()
-                        .copy(emoji = emoji, title = title, description = description),
-                ).setExp(TagLocalEntity::isFinished, isFinished)
-                .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    detail =
+                        Arb
+                            .tagDetailLocalEntity()
+                            .next()
+                            .copy(emoji = emoji, title = title, description = description),
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun place(
-            title: String = fixtureMonkey.giveMeOne<String>(),
-            description: String = fixtureMonkey.giveMeOne<String>(),
-            address: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
+            description: String = Arb.string().next(),
+            address: String = Arb.string().next(),
             isDeleted: Boolean = false,
         ): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(
-                    PlaceLocalEntity::detail,
-                    fixtureMonkey
-                        .giveMeOne<PlaceDetailLocalEntity>()
-                        .copy(title = title, description = description, address = address),
-                ).setExp(PlaceLocalEntity::isDeleted, isDeleted)
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    detail =
+                        Arb
+                            .placeDetailLocalEntity()
+                            .next()
+                            .copy(title = title, description = description, address = address),
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun web(
-            title: String = fixtureMonkey.giveMeOne<String>(),
-            description: String = fixtureMonkey.giveMeOne<String>(),
-            url: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
+            description: String = Arb.string().next(),
+            url: String = Arb.string().next(),
             headerList: List<WebHeaderLocalEntity> = emptyList(),
             isDeleted: Boolean = false,
         ): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(
-                    WebLocalEntity::detail,
-                    WebDetailLocalEntity(
-                        title = title,
-                        description = description,
-                        url = url,
-                        headerList = headerList,
-                    ),
-                ).setExp(WebLocalEntity::isDeleted, isDeleted)
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    detail =
+                        WebDetailLocalEntity(
+                            title = title,
+                            description = description,
+                            url = url,
+                            headerList = headerList,
+                        ),
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun PlaceLocalEntity.located(
             latitude: Double,
@@ -587,15 +598,15 @@ class SearchPagingDaoTest :
             memoId: Uuid,
             tagId: Uuid,
         ): MemoTagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoTagLocalEntity>()
-                .setExp(MemoTagLocalEntity::memoId, memoId)
-                .setExp(MemoTagLocalEntity::tagId, tagId)
-                .setExp(MemoTagLocalEntity::isDeleted, false)
-                .setExp(MemoTagLocalEntity::updatedAt, instant())
-                .setExp(MemoTagLocalEntity::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .memoTagLocalEntity()
+                .next()
+                .copy(
+                    memoId = memoId,
+                    tagId = tagId,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

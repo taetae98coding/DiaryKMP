@@ -1,15 +1,19 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.music.entity.MusicRemoteEntity
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.time.Instant
@@ -84,7 +88,7 @@ class SyncWorkMusicTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 곡 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(musicList = musics(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.musicRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -102,7 +106,7 @@ class SyncWorkMusicTest :
                     tagList = tags(size = 1),
                     musicList = musics(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -141,8 +145,8 @@ class SyncWorkMusicTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 곡만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.musicSyncLocalDataSource.readPendingList(accountId = otherAccountId)
@@ -161,11 +165,13 @@ class SyncWorkMusicTest :
     }) {
     public companion object {
         private fun music(isDeleted: Boolean): MusicLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MusicLocalEntity>()
-                .setExp(MusicLocalEntity::isDeleted, isDeleted)
-                .setExp(MusicLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(MusicLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .musicLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

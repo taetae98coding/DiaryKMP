@@ -24,7 +24,13 @@
 
 모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
 
+iOS에서 시스템 표현으로 그리는 공통 컴포넌트의 목록은 [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)가 소유한다. 각 컴포넌트의 iOS 표현은 그 컴포넌트를 소유하는 문서가 정하고, 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3로 그린다.
+
+화면 본문 위에 떠 있는 공통 동작 버튼과 메뉴 버튼이 플랫폼마다 그려지는 표현은 [떠 있는 동작 버튼](./floating-action-button.md)이 소유한다. 각 화면 문서는 그 화면에 두는 버튼과 자리, 조건과 접근성 이름만 남긴다.
+
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
+
+이름이 같은 연락처를 알게 된 경로와 함께 표시하는 글의 형식은 [연락처 표시 이름](./contact-name.md)이 소유한다. 각 문서는 그 글을 두는 자리만 남긴다.
 
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
 
@@ -94,6 +100,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [항목 완료 메모 목록 화면](./entity-memo-finished-list.md)
 - [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md)
 - [Contact 목록·상세 배치](./contact-list-detail.md)
+- [연락처 표시 이름](./contact-name.md)
 - [DDayHome 화면](./dday-home.md)
 - [기기 설정 화면 공통](./device-setting.md)
 - [설명 입력 컴포넌트](./description-input.md)
@@ -103,6 +110,8 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [공통 여백과 간격](./dimens.md)
 - [공통 스타일](./styles.md)
 - [필터 Bottom Sheet](./filter-bottom-sheet.md)
+- [플랫폼별 컴포넌트 표현 범위](./platform-presentation.md)
+- [떠 있는 동작 버튼](./floating-action-button.md)
 - [FileAdd 화면](./file-add.md)
 - [FileDetail 화면](./file-detail.md)
 - [FileHome 화면](./file-home.md)
@@ -143,7 +152,9 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [장소 검색 다이얼로그](./place-search-dialog.md)
 - [PlaylistHome 화면](./playlist-home.md)
 - [Playlist 목록·상세 배치](./playlist-list-detail.md)
+- [Profile 화면](./profile.md)
 - [ProfileImageEdit 화면](./profile-image-edit.md)
+- [ProfileImageViewer 화면](./profile-image-viewer.md)
 - [QrAdd 화면](./qr-add.md)
 - [QrDetail 화면](./qr-detail.md)
 - [QrHome 화면](./qr-home.md)
@@ -161,6 +172,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [SettingHome 화면](./setting-home.md)
 - [Setting 목록·상세 배치](./setting-list-detail.md)
 - [SettingMap 화면](./setting-map.md)
+- [SettingMcp 화면](./setting-mcp.md)
 - [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md)
 - [새로고침](./sync-refresh.md)
 - [태그 필터](./tag-filter.md)
@@ -169,6 +181,10 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [TagDetail 메모 탭](./tag-detail-memo.md)
 - [TagDetail 웹 탭](./tag-detail-web.md)
 - [TagDetail 장소 탭](./tag-detail-place.md)
+- [TagDetail 연락처 탭](./tag-detail-contact.md)
+- [TagDetail 체크리스트 탭](./tag-detail-checklist.md)
+- [TagDetail 곡 탭](./tag-detail-music.md)
+- [TagDetail QR 탭](./tag-detail-qr.md)
 - [태그 이모지 입력 컴포넌트](./tag-emoji-input.md)
 - [TagFinishedList 화면](./tag-finished-list.md)
 - [TagFinishedList 목록·상세 배치](./tag-finished-list-detail.md)

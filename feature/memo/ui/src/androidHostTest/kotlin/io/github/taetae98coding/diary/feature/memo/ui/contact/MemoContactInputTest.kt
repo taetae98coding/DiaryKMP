@@ -44,7 +44,7 @@ class MemoContactInputTest {
     @Test
     fun `TC-459572fb-8453-45c6-b229-f667e13a93ce 선택한 연락처의 이름이 바뀌면 연락처 칩에 반영된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
-        val renamedContact = contact.copy(detail = contact.detail.copy(name = RENAMED_CONTACT_TITLE))
+        val renamedContact = contact.copy(contact = contact.contact.copy(detail = contact.contact.detail.copy(name = RENAMED_CONTACT_TITLE)))
         val selectContactList = composeRule.setMemoContactInputWithSelection()
 
         selectContactList(listOf(contact))
@@ -79,7 +79,12 @@ class MemoContactInputTest {
 
         selectContactList(contactList)
 
-        composeRule.onNodeWithText(contactList.last().detail.name).assertExists()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .last()
+                    .contact.detail.name,
+            ).assertExists()
         composeRule.memoContactInputHeight() shouldBeGreaterThan emptyHeight
     }
 
@@ -116,6 +121,7 @@ class MemoContactInputTest {
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performClick()
 
         addClickCount shouldBe 0
+        composeRule.onNodeWithText(FIRST_CONTACT_NAME).assertExists()
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
     }
 
@@ -195,7 +201,7 @@ class MemoContactInputNavigationTest {
         composeRule.onNodeWithText(SECOND_CONTACT_NAME).performClick()
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performClick()
 
-        clickedContactIdList shouldBe listOf(docsContact.id, wikiContact.id)
+        clickedContactIdList shouldBe listOf(docsContact.contact.id, wikiContact.contact.id)
     }
 
     @Test

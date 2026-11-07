@@ -1,18 +1,19 @@
 package io.github.taetae98coding.diary.core.database.impl.converter
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumberLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webHeaderLocalEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.take
 
 class JsonListColumnTypeConverterTest :
     FunSpec({
         test("웹 헤더 목록은 저장 문자열로 바꿨다가 되돌리면 같은 목록이 된다") {
             val converter = WebHeaderListColumnTypeConverter()
-            val headerList = fixtureMonkey.giveMe<WebHeaderLocalEntity>(3)
+            val headerList = Arb.webHeaderLocalEntity().take(3).toList()
 
             converter.textToHeaderList(converter.headerListToText(headerList)) shouldBe headerList
         }
@@ -28,7 +29,7 @@ class JsonListColumnTypeConverterTest :
 
         test("전화번호 목록은 저장 문자열로 바꿨다가 되돌리면 같은 목록이 된다") {
             val converter = ContactPhoneNumberListColumnTypeConverter()
-            val phoneNumberList = fixtureMonkey.giveMe<ContactPhoneNumberLocalEntity>(3)
+            val phoneNumberList = Arb.contactPhoneNumberLocalEntity().take(3).toList()
 
             converter.textToPhoneNumberList(converter.phoneNumberListToText(phoneNumberList)) shouldBe phoneNumberList
         }
@@ -49,6 +50,3 @@ class JsonListColumnTypeConverterTest :
             converter.textToHeaderList("[]") shouldBe emptyList()
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

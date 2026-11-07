@@ -21,7 +21,7 @@ import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScreen
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.routineEntry(
+internal fun EntryProviderScope<ScreenNavKey>.routineEntry(
     backStack: NavBackStack<ScreenNavKey>,
     homeReselectEvent: Flow<Unit>,
 ) {

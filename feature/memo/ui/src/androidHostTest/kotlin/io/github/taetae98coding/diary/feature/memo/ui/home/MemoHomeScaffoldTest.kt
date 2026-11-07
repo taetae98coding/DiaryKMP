@@ -21,9 +21,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
@@ -34,9 +31,14 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -163,7 +165,7 @@ class MemoHomeScaffoldTest {
 
     @Test
     fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 태그를 하나 이상 선택하면 필터 버튼이 적용 상태를 알린다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
 
         filterButtonStateDescription() shouldBe DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION
@@ -171,7 +173,7 @@ class MemoHomeScaffoldTest {
 
     @Test
     fun `TC-cf89f176-5f89-4618-9aa7-39e00908eb49 선택한 태그가 모두 판정에서 무시되고 있으면 필터 버튼이 적용 상태를 알리지 않는다`() {
-        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = emptySet(), storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())))
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = emptySet(), storedTagIdSet = setOf(Arb.kotlinUuid().next())))
 
         filterButtonStateDescription() shouldBe null
     }
@@ -282,19 +284,19 @@ class MemoHomeScaffoldTest {
         private const val DEFAULT_DATE_TIME_HEADER = "Jul 21, 2026"
         private const val KOREAN_ALL_DAY_HEADER = "2026. 7. 19."
         private const val KOREAN_DATE_TIME_HEADER = "2026. 7. 21."
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun memo(
             title: String,
             dateTime: MemoDateTime? = null,
         ): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime))
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = title, dateTime = dateTime),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun dateHeaderMemoItemList(): List<MemoListItem> =
             listOf(

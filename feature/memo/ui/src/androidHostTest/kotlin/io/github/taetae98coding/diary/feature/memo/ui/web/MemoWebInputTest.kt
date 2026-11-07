@@ -116,6 +116,7 @@ class MemoWebInputTest {
         composeRule.onNodeWithText(WIKI_WEB_TITLE).performClick()
 
         addClickCount shouldBe 0
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
     }
 

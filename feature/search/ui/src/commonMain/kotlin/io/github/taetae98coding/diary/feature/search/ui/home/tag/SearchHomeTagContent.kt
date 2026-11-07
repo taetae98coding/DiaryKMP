@@ -23,7 +23,7 @@ internal fun SearchHomeTagContent(
     modifier: Modifier = Modifier,
 ) {
     SearchHomeResultContent(
-        viewModel = viewModel,
+        uiState = viewModel.uiState,
         pagingItems = pagingItems,
         listState = listState,
     ) { state ->

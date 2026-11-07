@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.domain.file.usecase.ReadFileDownloadDirectorySupportUseCase
+import io.github.taetae98coding.diary.domain.mcp.usecase.ReadMcpServerSupportUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -21,7 +22,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
-private val fullItemList =
+private val fileOnlyItemList =
     listOf(
         SettingHomeItem.HOLIDAY,
         SettingHomeItem.MAP,
@@ -42,9 +43,13 @@ class SettingHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-26463de7-89f3-4930-ba91-c3c650a71ea0 TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7 파일 항목을 제공하는 환경에서는 네 항목을 선언된 순서로 제공한다") {
+        test("TC-26463de7-89f3-4930-ba91-c3c650a71ea0 TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7 파일만 제공하면 네 항목을 선언된 순서로 제공한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(fileUseCase = fileUseCase(Result.success(true)))
+                val viewModel =
+                    viewModel(
+                        fileUseCase = fileUseCase(Result.success(true)),
+                        mcpUseCase = mcpSupportUseCase(Result.success(false)),
+                    )
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
@@ -62,13 +67,45 @@ class SettingHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-b229f1d1-84b1-4b8c-9994-3e063807175a 파일 항목을 제공하지 않는 환경에서는 그 항목을 빼고 같은 순서로 제공한다") {
+        test("TC-1fe41076-3740-428d-b240-224b26682451 TC-e9af706e-728b-4f16-ae34-5f73e606809e 파일과 MCP를 제공하면 MCP를 마지막에 둔 다섯 항목을 제공한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(fileUseCase = fileUseCase(Result.success(false)))
+                val viewModel =
+                    viewModel(
+                        fileUseCase = fileUseCase(Result.success(true)),
+                        mcpUseCase = mcpSupportUseCase(Result.success(true)),
+                    )
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.FILE)
+                    awaitItem() shouldBe
+                        SettingHomeUiState.Content(
+                            itemList =
+                                listOf(
+                                    SettingHomeItem.HOLIDAY,
+                                    SettingHomeItem.MAP,
+                                    SettingHomeItem.GEMINI,
+                                    SettingHomeItem.FILE,
+                                    SettingHomeItem.MCP,
+                                ),
+                        )
+                }
+            }
+        }
+
+        test("TC-b229f1d1-84b1-4b8c-9994-3e063807175a 파일과 MCP를 제공하지 않으면 그 항목을 빼고 같은 순서로 제공한다") {
+            runTest(mainDispatcher) {
+                val viewModel =
+                    viewModel(
+                        fileUseCase = fileUseCase(Result.success(false)),
+                        mcpUseCase = mcpSupportUseCase(Result.success(false)),
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    awaitItem() shouldBe
+                        SettingHomeUiState.Content(
+                            itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI),
+                        )
                 }
             }
         }
@@ -88,15 +125,55 @@ class SettingHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-65478d8f-82d4-4a82-9f7d-31b0e7885809 제공 여부를 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-1d05e6d2-8452-43cb-b3a4-2eb757fbb510 MCP 제공 여부를 확인하기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(fileUseCase = fileUseCase(Result.failure(IllegalStateException("read error"))))
+                val pending = CompletableDeferred<Result<Boolean>>()
+                val readUseCase = mockk<ReadMcpServerSupportUseCase>()
+                coEvery { readUseCase(Unit) } coAnswers { pending.await() }
+                val viewModel = viewModel(fileUseCase = fileUseCase(Result.success(true)), mcpUseCase = readUseCase)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     advanceUntilIdle()
                     expectNoEvents()
                 }
+            }
+        }
+
+        test("TC-65478d8f-82d4-4a82-9f7d-31b0e7885809 파일 또는 MCP 제공 여부를 읽지 못하면 확인 중 상태를 유지한다") {
+            val failure = Result.failure<Boolean>(IllegalStateException("read error"))
+            listOf(
+                failure to Result.success(true),
+                Result.success(true) to failure,
+            ).forEach { (fileResult, mcpResult) ->
+                runTest(mainDispatcher) {
+                    val viewModel = viewModel(fileUseCase = fileUseCase(fileResult), mcpUseCase = mcpSupportUseCase(mcpResult))
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe SettingHomeUiState.Loading
+                        advanceUntilIdle()
+                        expectNoEvents()
+                    }
+                }
+            }
+        }
+
+        test("TC-f9d774f7-c64b-4f6c-af2b-188c19a37b09 제공 여부를 읽지 못한 뒤 화면을 떠났다가 다시 들어오면 다시 확인한다") {
+            runTest(mainDispatcher) {
+                val readUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
+                coEvery { readUseCase(Unit) } returnsMany listOf(Result.failure(IllegalStateException("read error")), Result.success(true))
+
+                viewModel(fileUseCase = readUseCase).uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                viewModel(fileUseCase = readUseCase).uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
+                }
+                coVerify(exactly = 2) { readUseCase(Unit) }
             }
         }
 
@@ -107,7 +184,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                     advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
                     advanceUntilIdle()
                     expectNoEvents()
@@ -121,12 +198,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel(fileUseCase = readUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
 
                 viewModel(fileUseCase = readUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.FILE)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList - SettingHomeItem.FILE)
                 }
                 coVerify(exactly = 2) { readUseCase(Unit) }
             }
@@ -139,13 +216,13 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.FILE)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList - SettingHomeItem.FILE)
                 }
             }
         }
@@ -157,12 +234,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -177,12 +254,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -197,13 +274,13 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.FILE)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList - SettingHomeItem.FILE)
                 }
             }
         }
@@ -215,7 +292,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fileOnlyItemList)
                     advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
                     advanceUntilIdle()
                     expectNoEvents()
@@ -240,5 +317,18 @@ class SettingHomeViewModelTest : FunSpec() {
         return fileUseCase
     }
 
-    private fun viewModel(fileUseCase: ReadFileDownloadDirectorySupportUseCase): SettingHomeViewModel = SettingHomeViewModel(readFileDownloadDirectorySupportUseCase = fileUseCase)
+    private fun mcpSupportUseCase(result: Result<Boolean>): ReadMcpServerSupportUseCase {
+        val mcpUseCase = mockk<ReadMcpServerSupportUseCase>()
+        coEvery { mcpUseCase(Unit) } returns result
+        return mcpUseCase
+    }
+
+    private fun viewModel(
+        fileUseCase: ReadFileDownloadDirectorySupportUseCase,
+        mcpUseCase: ReadMcpServerSupportUseCase = mcpSupportUseCase(Result.success(false)),
+    ): SettingHomeViewModel =
+        SettingHomeViewModel(
+            readFileDownloadDirectorySupportUseCase = fileUseCase,
+            readMcpServerSupportUseCase = mcpUseCase,
+        )
 }

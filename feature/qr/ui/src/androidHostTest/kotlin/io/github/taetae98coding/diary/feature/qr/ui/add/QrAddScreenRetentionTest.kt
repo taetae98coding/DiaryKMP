@@ -25,7 +25,11 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.spyk
 import org.junit.Rule
@@ -55,7 +59,7 @@ class QrAddScreenRetentionTest {
 
     @Test
     fun `TC-f905e970-9b7c-43e5-8fb6-529fcf695138 앱이 백그라운드에 다녀와도 입력한 내용을 유지한다`() {
-        val (title, description, value) = qrTestFixtureMonkey.qrDetail()
+        val (title, description, value) = Arb.qrDetail().next()
         val viewModel = screenTestViewModel()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         composeRule.setContent {
@@ -99,7 +103,7 @@ class QrAddScreenRetentionTest {
     }
 
     private fun assertInputRetained(viewModelFactory: () -> QrAddViewModel) {
-        val (title, description, value) = qrTestFixtureMonkey.qrDetail()
+        val (title, description, value) = Arb.qrDetail().next()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             val viewModel = remember { viewModelFactory() }
@@ -111,7 +115,11 @@ class QrAddScreenRetentionTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -135,7 +143,7 @@ class QrAddScreenRetentionTest {
         message: String,
         showMessage: () -> Unit,
     ) {
-        val (title, description, value) = qrTestFixtureMonkey.qrDetail()
+        val (title, description, value) = Arb.qrDetail().next()
         val registry = deniedRegistry()
         var launchCount by mutableIntStateOf(0)
         composeRule.setContent {
@@ -180,7 +188,11 @@ class QrAddScreenRetentionTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

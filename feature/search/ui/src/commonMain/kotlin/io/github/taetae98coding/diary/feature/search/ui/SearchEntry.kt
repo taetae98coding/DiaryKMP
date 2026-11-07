@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.searchEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.searchEntry(backStack: NavBackStack<ScreenNavKey>) {
     searchHomeEntry(backStack = backStack)
 }
 

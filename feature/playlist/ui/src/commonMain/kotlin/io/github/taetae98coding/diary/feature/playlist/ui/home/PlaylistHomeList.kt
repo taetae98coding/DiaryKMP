@@ -25,10 +25,11 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.music.SwipeMusicCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
-import io.github.taetae98coding.diary.feature.playlist.ui.music.SwipeToDeleteMusicCard
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_empty_description
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_empty_title
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
@@ -38,6 +39,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PlaylistHomeList(
     onEvent: (PlaylistHomeScaffoldEvent) -> Unit,
+    onMusicListEvent: (MusicListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
@@ -87,9 +89,8 @@ internal fun PlaylistHomeList(
                 ) { index ->
                     val music = musicPagingItems[index]
 
-                    SwipeToDeleteMusicCard(
-                        onClick = { music?.let { value -> onEvent(PlaylistHomeScaffoldEvent.ClickMusic(id = value.id)) } },
-                        onDelete = { music?.let { value -> onEvent(PlaylistHomeScaffoldEvent.DeleteMusic(id = value.id)) } },
+                    SwipeMusicCard(
+                        onEvent = onMusicListEvent,
                         modifier =
                             Modifier
                                 .animateItem()
@@ -117,6 +118,7 @@ private fun PlaylistHomeListPreview() {
     DiaryTheme {
         PlaylistHomeList(
             onEvent = {},
+            onMusicListEvent = {},
             modifier = Modifier.fillMaxSize(),
             musicPagingItems = musicPagingData.collectAsLazyPagingItems(),
         )

@@ -26,8 +26,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
@@ -40,9 +38,11 @@ import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_ME
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SEARCH_HOME_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SEARCH_HOME_TAG_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SEARCH_HOME_WEB_LIST_TEST_TAG
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
@@ -51,8 +51,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
 class SearchHomeScreenTest {
@@ -60,9 +58,10 @@ class SearchHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `조회 결과가 없으면 네 유형의 결과에 카드가 하나도 없다`() {
+    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 네 유형의 결과에 카드가 하나도 없다`() {
         composeRule.setSearchHomeScreen()
 
+        queryInputText() shouldBe ""
         assertResultCardCount(testTag = MEMO_CARD_TEST_TAG, count = 0)
 
         listOf(
@@ -135,8 +134,18 @@ class SearchHomeScreenTest {
     @Test
     fun `TC-81dbea76-4318-43e8-a5b1-c48cd824b574 시작 유형이 아니어도 다른 유형의 결과를 채운다`() {
         val memo = resultMemo()
+        val tag = resultTag()
+        val place = resultPlace()
+        val web = resultWeb()
 
-        composeRule.setSearchHomeScreen(memoList = listOf(memo), initialType = SearchHomeType.WEB)
+        composeRule.setSearchHomeScreen(
+            memoList = listOf(memo),
+            tagList = listOf(tag),
+            placeList = listOf(place),
+            webList = listOf(web),
+            initialType = SearchHomeType.WEB,
+        )
+        inputQuery()
         composeRule.selectSearchHomeTab(MEMO_TAB_LABEL)
 
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
@@ -304,7 +313,7 @@ class SearchHomeScreenTest {
     @Test
     fun `TC-5ba18e02-61f0-43c9-9907-aab1af80dc42 질의를 고쳤다가 반영되기 전에 원래 검색어로 되돌리면 보던 자리를 유지한다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
-        val extraText = "추가-${fixtureMonkey.giveMeOne<String>()}"
+        val extraText = "추가-${Arb.string().next()}"
 
         composeRule.setSearchHomeScreen(memoList = memoList)
         inputQuery()
@@ -351,6 +360,35 @@ class SearchHomeScreenTest {
     }
 
     @Test
+    fun `TC-23a5a27a-c358-46a0-b89e-bd14c1dab6ab 웹 결과를 선택해 WebDetail에 다녀와도 보던 자리를 유지한다`() {
+        val webList = List(RESULT_COUNT) { resultWeb() }
+        var isShown by mutableStateOf(true)
+        val navigatedIdList = mutableListOf<Uuid>()
+
+        composeRule.setSearchHomeScreen(
+            webList = webList,
+            initialType = SearchHomeType.WEB,
+            navigateToWebDetail = { id ->
+                navigatedIdList.add(id)
+                isShown = false
+            },
+            isShownProvider = { isShown },
+        )
+        inputQuery()
+        composeRule.onNodeWithTag(SEARCH_HOME_WEB_LIST_TEST_TAG).performScrollToIndex(RESULT_COUNT - 1)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(webList.last().detail.title).performClick()
+        composeRule.waitForIdle()
+        navigatedIdList shouldBe listOf(webList.last().id)
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(webList.last().detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(webList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-d7d17ab4-2d4a-4d77-9ede-15770879555d 고친 질의가 반영된 뒤 원래 검색어로 되돌리면 처음부터 본다`() {
         val memoList = List(RESULT_COUNT) { resultMemo() }
 
@@ -360,7 +398,7 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
 
-        composeRule.onNode(hasSetTextAction()).performTextInput("추가-${fixtureMonkey.giveMeOne<String>()}")
+        composeRule.onNode(hasSetTextAction()).performTextInput("추가-${Arb.string().next()}")
         composeRule.waitForIdle()
         composeRule.onNode(hasSetTextAction()).performTextReplacement(QUERY)
         composeRule.waitForIdle()

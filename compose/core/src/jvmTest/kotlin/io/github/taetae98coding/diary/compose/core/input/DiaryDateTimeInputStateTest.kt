@@ -1,13 +1,15 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.runtime.saveable.SaverScope
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.DateTimeUnit
@@ -202,7 +204,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
                 )
 
             testDataList.forEach { testData ->
-                val date = anyDate()
+                val date = Arb.kotlinxLocalDate().next()
                 val state =
                     allDayState(
                         start = date,
@@ -237,7 +239,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-7783fe65-315a-4546-afca-6d56c1c53a33 종일로 전환한 뒤 다시 해제하면 시간이 기본 시각에서 다시 시작한다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 DiaryDateTimeInputState(
                     hasDateTime = true,
@@ -255,7 +257,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-36897fc9-097e-4bae-8a79-f149f0110c2c 시간이 흐른 뒤 종일을 해제하면 그 시점의 기본 시각을 사용한다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 allDayState(
                     start = date,
@@ -276,7 +278,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 이전 기간보다 앞선 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 DiaryDateTimeInputState(
                     hasDateTime = true,
@@ -296,7 +298,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 이전 기간보다 뒤인 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 DiaryDateTimeInputState(
                     hasDateTime = true,
@@ -316,7 +318,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-67797178-0d5e-491e-a0a9-d6ebc78ed564 기간을 사용하지 않는 종일 상태에 날짜·시간 기간을 넣으면 기본 시각이 끼어들지 않는다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 allDayState(
                     start = date,
@@ -386,7 +388,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("시작 시간을 종료보다 뒤로 선택하면 종료가 시작으로 보정된다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 DiaryDateTimeInputState(
                     hasDateTime = true,
@@ -419,7 +421,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("종료 시간을 시작보다 앞으로 선택하면 시작이 종료로 보정된다") {
-            val date = anyDate()
+            val date = Arb.kotlinxLocalDate().next()
             val state =
                 DiaryDateTimeInputState(
                     hasDateTime = true,
@@ -435,7 +437,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-100445a4-5154-4302-ab94-c8bd236938e3 종일 아님에서 시작일만 바꿔 종료보다 뒤가 되면 종료가 시작의 날짜와 시각에 맞춰진다") {
-            val startDate = anyDate()
+            val startDate = Arb.kotlinxLocalDate().next()
             val endDate = startDate.plus(1, DateTimeUnit.DAY)
             val (endTime, startTime) = anyOrderedTimePair()
             val state =
@@ -453,7 +455,7 @@ class DiaryDateTimeInputStateTest : FunSpec() {
         }
 
         test("TC-366a967c-d2ff-45b3-8b70-2093910bfd17 종일 아님에서 종료일만 바꿔 시작보다 앞이 되면 시작이 종료의 날짜와 시각에 맞춰진다") {
-            val startDate = anyDate()
+            val startDate = Arb.kotlinxLocalDate().next()
             val endDate = startDate.plus(1, DateTimeUnit.DAY)
             val (endTime, startTime) = anyOrderedTimePair()
             val state =
@@ -491,8 +493,8 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             val (start, endInclusive) = anyPeriod()
             val state =
                 DiaryDateTimeInputState(
-                    hasDateTime = fixtureMonkey.giveMeOne<Boolean>(),
-                    isAllDay = fixtureMonkey.giveMeOne<Boolean>(),
+                    hasDateTime = Arb.boolean().next(),
+                    isAllDay = Arb.boolean().next(),
                     start = start,
                     endInclusive = endInclusive,
                 )
@@ -538,33 +540,28 @@ class DiaryDateTimeInputStateTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun midnight(): LocalTime = LocalTime(hour = 0, minute = 0)
-
-        private fun anyDate(): LocalDate = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Int>().mod(40_000).toLong())
 
         private fun anyTime(): LocalTime =
             LocalTime(
-                hour = fixtureMonkey.giveMeOne<Int>().mod(24),
-                minute = fixtureMonkey.giveMeOne<Int>().mod(59) + 1,
+                hour = Arb.int(0..23).next(),
+                minute = Arb.int(1..59).next(),
             )
 
         private fun anyOrderedTimePair(): Pair<LocalTime, LocalTime> {
-            val earlier = LocalTime(hour = fixtureMonkey.giveMeOne<Int>().mod(23), minute = fixtureMonkey.giveMeOne<Int>().mod(60))
+            val earlier = LocalTime(hour = Arb.int(0..22).next(), minute = Arb.int(0..59).next())
             val later =
                 LocalTime(
-                    hour = earlier.hour + 1 + fixtureMonkey.giveMeOne<Int>().mod(23 - earlier.hour),
-                    minute = fixtureMonkey.giveMeOne<Int>().mod(60),
+                    hour = Arb.int(earlier.hour + 1..23).next(),
+                    minute = Arb.int(0..59).next(),
                 )
 
             return earlier to later
         }
 
         private fun anyPeriod(): Pair<LocalDateTime, LocalDateTime> {
-            val first = LocalDateTime(date = anyDate(), time = anyTime())
-            val second = LocalDateTime(date = first.date.plus(fixtureMonkey.giveMeOne<Int>().mod(30) + 1, DateTimeUnit.DAY), time = anyTime())
+            val first = LocalDateTime(date = Arb.kotlinxLocalDate().next(), time = anyTime())
+            val second = LocalDateTime(date = first.date.plus(Arb.int(1..30).next(), DateTimeUnit.DAY), time = anyTime())
 
             return first to second
         }

@@ -4,12 +4,13 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.focus.FocusRequester
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 private const val FETCHED_TITLE: String = "FetchedMusicTitle"
 private const val FETCHED_ARTIST: String = "FetchedMusicArtist"
@@ -18,9 +19,6 @@ private const val YOUTUBE_THUMBNAIL: String = "https://i.ytimg.com/vi/dQw4w9WgXc
 private const val OTHER_YOUTUBE_LINK: String = "https://youtu.be/ArmDp-zijuc"
 private const val OTHER_YOUTUBE_THUMBNAIL: String = "https://i.ytimg.com/vi/ArmDp-zijuc/hqdefault.jpg"
 private const val YOUTUBE_CHANNEL_LINK: String = "https://www.youtube.com/@channel"
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class MusicFormStateTest :
     FunSpec({
@@ -52,8 +50,8 @@ class MusicFormStateTest :
         test("TC-5fbb9304-2bfd-4802-886c-94d9edbc25ba 이미 채워진 제목과 가수도 불러온 값으로 덮어쓴다") {
             val state =
                 formState(
-                    title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                    artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
+                    title = "title-${Arb.string().next()}",
+                    artist = "artist-${Arb.string().next()}",
                 )
 
             state.fill(link = state.link, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
@@ -67,8 +65,8 @@ class MusicFormStateTest :
             "" to "지운",
         ).forEach { (changedLink, label) ->
             test("TC-2f3d4436-86e6-49ae-9eeb-497d06a6f11d TC-35fea53e-49a6-47cc-94eb-3ebdf5fc59ed 불러오는 동안 링크를 $label 뒤 도착한 결과는 채우지 않는다") {
-                val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-                val artist = "artist-${fixtureMonkey.giveMeOne<String>()}"
+                val title = "title-${Arb.string().next()}"
+                val artist = "artist-${Arb.string().next()}"
                 val state = formState(title = title, artist = artist, link = YOUTUBE_LINK)
                 state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(changedLink)
 
@@ -124,8 +122,8 @@ class MusicFormStateTest :
         test("TC-8409ba94-326c-4496-af30-d829c0731afa 작성 내용을 비우면 썸네일도 함께 사라진다") {
             val state =
                 formState(
-                    title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                    artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
+                    title = "title-${Arb.string().next()}",
+                    artist = "artist-${Arb.string().next()}",
                     link = YOUTUBE_LINK,
                 )
 
@@ -160,6 +158,7 @@ class MusicFormStateTest :
                         focusRequester = FocusRequester(),
                     ),
                 snackbarHostState = SnackbarHostState(),
+                tagPickerDialogState = DialogState(),
             )
     }
 }

@@ -9,16 +9,17 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.text.FileUploadText
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -39,8 +40,6 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -120,7 +119,7 @@ class AndroidFileUploadWorkSchedulerTest {
     @Test
     fun `TC-da0150d5-c73e-4076-a78f-514a8d001593 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝나 올리는 파일이 없는 상태가 된다`() {
         runTest(testDispatcher) {
-            coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } throws IOException(fixtureMonkey.giveMeOne<String>())
+            coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } throws IOException(Arb.string().next())
             val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
 
             scheduler.upload(request = request())
@@ -151,7 +150,7 @@ class AndroidFileUploadWorkSchedulerTest {
     @Test
     fun `TC-042ef401-f527-4521-ae60-76c65320e5ef 게스트나 다른 계정이 확인되면 올리는 중인 올리기를 취소하고 붙들고 있던 파일을 돌려준다`() {
         runTest(testDispatcher) {
-            listOf<Uuid?>(null, fixtureMonkey.giveMeOne<Uuid>()).forEach { exceptAccountId ->
+            listOf<Uuid?>(null, Arb.kotlinUuid().next()).forEach { exceptAccountId ->
                 coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { awaitCancellation() }
                 val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
                 val request = request()
@@ -193,7 +192,7 @@ class AndroidFileUploadWorkSchedulerTest {
     @Test
     fun `TC-afd19178-519c-4dcd-976a-ba6c32a376a9 다시 올릴 예정인 올리기는 게스트나 다른 계정이 확인되면 실행되지 않고 취소된다`() {
         runTest(testDispatcher) {
-            listOf<Uuid?>(null, fixtureMonkey.giveMeOne<Uuid>()).forEach { exceptAccountId ->
+            listOf<Uuid?>(null, Arb.kotlinUuid().next()).forEach { exceptAccountId ->
                 val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context, dispatcher = testDispatcher))
                 val request = request()
                 enqueueDelayedWork(request = request, accountTag = request.accountId.toFileUploadAccountTag())
@@ -276,7 +275,7 @@ class AndroidFileUploadWorkSchedulerTest {
             .get()
     }
 
-    private fun request(): FileUploadRequest = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+    private fun request(): FileUploadRequest = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
 
     private fun textFileList(): List<File> = File(context.noBackupFilesDir, "file-upload-text").listFiles().orEmpty().toList()
 

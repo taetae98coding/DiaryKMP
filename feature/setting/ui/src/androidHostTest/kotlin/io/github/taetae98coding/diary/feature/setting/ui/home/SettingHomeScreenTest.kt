@@ -52,6 +52,11 @@ class SettingHomeScreenTest {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_FILE_ITEM_LABEL, expected = SettingHomeItem.FILE)
     }
 
+    @Test
+    fun `TC-d8581a07-6c17-45ad-952c-177a9a70871f MCP 항목을 선택하면 SettingMcp 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_MCP_ITEM_LABEL, expected = SettingHomeItem.MCP)
+    }
+
     private fun assertNavigatesOnlyTo(
         itemLabel: String,
         expected: SettingHomeItem,
@@ -62,6 +67,7 @@ class SettingHomeScreenTest {
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
             navigateToFile = { navigatedItemList += SettingHomeItem.FILE },
+            navigateToMcp = { navigatedItemList += SettingHomeItem.MCP },
         )
 
         composeRule.onNodeWithText(itemLabel).performClick()
@@ -76,6 +82,7 @@ class SettingHomeScreenTest {
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
         navigateToFile: () -> Unit = {},
+        navigateToMcp: () -> Unit = {},
         viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Content(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
@@ -86,6 +93,7 @@ class SettingHomeScreenTest {
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
                     navigateToFile = navigateToFile,
+                    navigateToMcp = navigateToMcp,
                     viewModel = viewModel,
                 )
             }
@@ -98,6 +106,7 @@ class SettingHomeScreenTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_FILE_ITEM_LABEL = "Files"
+        private const val DEFAULT_MCP_ITEM_LABEL = "MCP"
 
         private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {
             val viewModel = mockk<SettingHomeViewModel>()

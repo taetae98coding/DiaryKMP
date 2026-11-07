@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.data.lunar.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.LunarLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.LunarDateLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
@@ -10,12 +8,16 @@ import io.github.taetae98coding.diary.core.calendar.network.api.entity.LunarDate
 import io.github.taetae98coding.diary.data.lunar.cache.LunarFetchedYearSet
 import io.github.taetae98coding.diary.data.lunar.mapper.toDomain
 import io.github.taetae98coding.diary.data.lunar.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.andThenJust
 import io.mockk.coEvery
@@ -32,10 +34,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
 private const val MIN_SOLAR_YEAR = 1_000
-private const val SOLAR_YEAR_SPAN = 9_000
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+private const val MAX_SOLAR_YEAR = 9_999
 
 class LunarRepositoryImplTest :
     FunSpec({
@@ -71,7 +70,7 @@ class LunarRepositoryImplTest :
 
         test("TC-bb5e708d-6bdc-4f75-8de8-e595ef74089c 원격 조회가 실패하면 기존 캐시를 유지한다") {
             val year = solarYear()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val remoteDataSource = mockk<LunarRemoteDataSource>()
             coEvery { remoteDataSource.get(year = year) } throws failure
             val transaction = mockk<LunarTransaction>(relaxed = true)
@@ -85,7 +84,7 @@ class LunarRepositoryImplTest :
 
         test("TC-b51289c8-284c-4230-9b59-888fffa5251e 기기 저장이 실패하면 동기화가 실패로 끝난다") {
             val year = solarYear()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
             coEvery { remoteDataSource.get(year = year) } returns remoteList
@@ -135,7 +134,7 @@ class LunarRepositoryImplTest :
 
         test("TC-5adc31f5-980a-44e7-a704-261fa601dc5c 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
             val year = solarYear()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
@@ -153,7 +152,7 @@ class LunarRepositoryImplTest :
 
         test("TC-5adc31f5-980a-44e7-a704-261fa601dc5c 로컬 캐시 교체 실패 후 다시 요청하면 다시 원격 조회한다") {
             val year = solarYear()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
@@ -248,7 +247,7 @@ class LunarRepositoryImplTest :
                 val second = async { repository.fetch(year = year) }
                 runCurrent()
 
-                response.completeExceptionally(TestException(fixtureMonkey.giveMeOne()))
+                response.completeExceptionally(TestException(Arb.string().next()))
 
                 first.await().shouldBeFailure<TestException>()
                 second.await() shouldBe localList.map { local -> local.toDomain() }
@@ -302,7 +301,7 @@ private fun repository(
         lunarFetchedYearSet = LunarFetchedYearSet(),
     )
 
-private fun solarYear(): Int = fixtureMonkey.giveMeOne<Int>().mod(SOLAR_YEAR_SPAN) + MIN_SOLAR_YEAR
+private fun solarYear(): Int = Arb.int(MIN_SOLAR_YEAR..MAX_SOLAR_YEAR).next()
 
 private fun remoteLunarDate(
     year: Int,
@@ -310,20 +309,20 @@ private fun remoteLunarDate(
 ): LunarDateRemoteEntity =
     LunarDateRemoteEntity(
         solar = LocalDate(year, 1, day),
-        year = fixtureMonkey.giveMeOne(),
-        month = fixtureMonkey.giveMeOne(),
-        day = fixtureMonkey.giveMeOne(),
-        isLeapMonth = fixtureMonkey.giveMeOne(),
+        year = Arb.int().next(),
+        month = Arb.int().next(),
+        day = Arb.int().next(),
+        isLeapMonth = Arb.boolean().next(),
     )
 
 private fun localLunarDate(solar: LocalDate): LunarDateLocalEntity =
     LunarDateLocalEntity(
         solar = solar,
         solarYear = solar.year,
-        lunarYear = fixtureMonkey.giveMeOne(),
-        lunarMonth = fixtureMonkey.giveMeOne(),
-        lunarDay = fixtureMonkey.giveMeOne(),
-        isLeapMonth = fixtureMonkey.giveMeOne(),
+        lunarYear = Arb.int().next(),
+        lunarMonth = Arb.int().next(),
+        lunarDay = Arb.int().next(),
+        isLeapMonth = Arb.boolean().next(),
     )
 
 private class TestException(

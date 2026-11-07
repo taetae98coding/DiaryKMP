@@ -2,21 +2,18 @@ package io.github.taetae98coding.diary.data.core.paging
 
 import androidx.paging.testing.asPagingSourceFactory
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.test.runTest
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class PagingFlowTest :
     FunSpec({
         test("읽은 항목을 순서대로 변환해 제공한다") {
             runTest {
-                val localList = List(PAGE_SIZE * 5 + 1) { fixtureMonkey.giveMeOne<Int>() }
+                val localList = List(PAGE_SIZE * 5 + 1) { Arb.int().next() }
 
                 val snapshot =
                     pagingFlow(

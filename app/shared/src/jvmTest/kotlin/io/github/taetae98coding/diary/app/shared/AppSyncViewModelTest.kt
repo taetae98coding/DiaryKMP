@@ -3,15 +3,15 @@
 package io.github.taetae98coding.diary.app.shared
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -51,7 +51,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-af82710e-9473-4894-91e3-02519717ffbc 인증된 계정이 확인되면 동기화 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
                 viewModel.uiState.authenticatedAccountId().test {
@@ -63,7 +63,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c 게스트에서 인증된 계정으로 바뀌면 동기화 계기가 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -78,7 +78,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c TC-f7816008-73c9-4079-a740-e4e695b0de94 로그아웃한 뒤 같은 계정으로 다시 로그인하면 동기화 계기가 다시 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -96,7 +96,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-18021dfc-a467-4701-8427-e1b209a39732 로그인 세션의 인증 여부가 확인되기 전에는 동기화 계기가 발생하지 않고 확인된 뒤 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+                val account = Arb.accountUser().next().copy(isSessionValid = false)
                 val refreshedAccount = account.copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
@@ -112,8 +112,8 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-0f0f8ffa-4099-4703-8ba1-c92e9067b591 확인된 계정이 다른 계정으로 바뀌면 동기화 계기가 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-                val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
+                val otherAccount = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -128,7 +128,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-2955e9e5-fbe9-45b3-9e8e-21f927fbeba7 같은 계정이 다시 확인되기만 하면 동기화 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableSharedFlow<Account>(replay = 1)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -144,7 +144,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-bce9da35-2f00-4bb6-9621-28916b11bd49 TC-f7816008-73c9-4079-a740-e4e695b0de94 같은 계정의 로그인 세션이 인증되지 않은 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -166,7 +166,7 @@ class AppSyncViewModelTest : FunSpec() {
         ).forEach { (label, change) ->
             test("TC-04bdc4e1-af0a-4d7f-811b-66189e9dce96 같은 계정의 $label 만 바뀌면 동기화 계기가 발생하지 않는다") {
                 runTest(mainDispatcher) {
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                    val account = Arb.accountUser().next().copy(isSessionValid = true)
                     val accountFlow = MutableStateFlow<Account>(account)
                     val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -181,7 +181,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("계정 확인에 실패하면 동기화 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow(Result.failure<Account>(IllegalStateException("account error")))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
@@ -196,7 +196,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("TC-c016ece6-0cdf-4afc-a776-f3fe741d3821 관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
@@ -216,7 +216,7 @@ class AppSyncViewModelTest : FunSpec() {
 
         test("계정을 확인하기 전에는 확인 중이고 인증된 계정이 아니면 인증되지 않은 상태다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow(Result.failure<Account>(IllegalStateException("account error")))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
@@ -269,9 +269,6 @@ class AppSyncViewModelTest : FunSpec() {
 
     public companion object {
         private const val STOP_TIMEOUT_ELAPSED_MILLIS = 10_000L
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun viewModel(
             accountFlow: Flow<Result<Account>> = flowOf(Result.success(Account.Guest)),

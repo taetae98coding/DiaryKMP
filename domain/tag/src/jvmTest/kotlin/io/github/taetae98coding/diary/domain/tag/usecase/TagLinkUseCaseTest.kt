@@ -1,22 +1,25 @@
 package io.github.taetae98coding.diary.domain.tag.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.tag.exception.TagLinkSelfException
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagLinkRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -31,8 +34,8 @@ import kotlin.uuid.Uuid
 class TagLinkUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -43,8 +46,8 @@ class TagLinkUseCaseTest :
 
             When("다른 태그를 향하는 연결을 만든다") {
                 Then("TC-df08c8b2-3439-4471-aa23-c53541766209 현재 계정의 연결로 저장한다") {
-                    val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
-                    val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val fromTagId = Arb.kotlinUuid().next()
+                    val toTagId = Arb.kotlinUuid().next()
                     val useCase =
                         AddTagLinkUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -68,8 +71,8 @@ class TagLinkUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-42163cbe-4de0-46d3-874d-f2e722114fb9 저장한 뒤 동기화를 한 번 요청한다") {
-                    val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
-                    val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val fromTagId = Arb.kotlinUuid().next()
+                    val toTagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
                     val useCase =
                         AddTagLinkUseCase(
@@ -97,8 +100,8 @@ class TagLinkUseCaseTest :
 
             When("연결을 해제한다") {
                 Then("TC-bae78258-0c5d-41fd-8f75-f063da049013 현재 계정의 연결을 해제 상태로 저장한다") {
-                    val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
-                    val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val fromTagId = Arb.kotlinUuid().next()
+                    val toTagId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveTagLinkUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -122,8 +125,8 @@ class TagLinkUseCaseTest :
                 }
 
                 Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-42163cbe-4de0-46d3-874d-f2e722114fb9 해제를 저장한 뒤 동기화를 한 번 요청한다") {
-                    val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
-                    val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val fromTagId = Arb.kotlinUuid().next()
+                    val toTagId = Arb.kotlinUuid().next()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
                     val useCase =
                         RemoveTagLinkUseCase(
@@ -151,7 +154,7 @@ class TagLinkUseCaseTest :
 
             When("같은 태그를 출발 태그와 도착 태그로 지정해 연결을 만든다") {
                 Then("TC-0123392a-ca34-4bb3-a837-483bfcc59218 실패로 끝나고 저장하지 않는다") {
-                    val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val tagId = Arb.kotlinUuid().next()
                     val selfLinkRepository = mockk<AccountTagLinkRepository>(relaxed = true)
                     val selfLinkSyncUseCase = mockk<RequestSyncUseCase>()
                     val useCase =
@@ -180,7 +183,7 @@ class TagLinkUseCaseTest :
 
             When("연결된 태그를 조회한다") {
                 Then("TC-26ce9486-6caf-4eb7-82f3-13bcb4eafdd3 현재 계정의 연결된 태그를 그대로 전달한다") {
-                    val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
+                    val fromTagId = Arb.kotlinUuid().next()
                     val tagList = List(2) { tag() }
                     every {
                         accountTagLinkRepository.getTagList(account = account, fromTagId = fromTagId)
@@ -197,7 +200,7 @@ class TagLinkUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -218,8 +221,8 @@ class TagLinkUseCaseTest :
                         useCase(
                             parameter =
                                 AddTagLinkUseCase.Parameter(
-                                    fromTagId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    toTagId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    fromTagId = Arb.kotlinUuid().next(),
+                                    toTagId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -245,7 +248,7 @@ class TagLinkUseCaseTest :
                             accountTagLinkRepository = accountTagLinkRepository,
                         )
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -254,14 +257,13 @@ class TagLinkUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

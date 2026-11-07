@@ -55,6 +55,12 @@ internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingData> =
         defaultValue = GeminiSettingData(),
     )
 
+internal val LoginProviderSerializer: SettingSerializer<LoginProviderData> =
+    SettingSerializer(
+        serializer = LoginProviderData.serializer(),
+        defaultValue = LoginProviderData(),
+    )
+
 internal val WebLoginSerializer: SettingSerializer<WebLoginData> =
     SettingSerializer(
         serializer = WebLoginData.serializer(),
@@ -65,4 +71,10 @@ internal val FileDownloadSettingSerializer: SettingSerializer<FileDownloadSettin
     SettingSerializer(
         serializer = FileDownloadSettingData.serializer(),
         defaultValue = FileDownloadSettingData(),
+    )
+
+internal val McpSettingSerializer: SettingSerializer<McpSettingData> =
+    SettingSerializer(
+        serializer = McpSettingData.serializer(),
+        defaultValue = McpSettingData(),
     )

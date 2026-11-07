@@ -19,6 +19,7 @@ internal fun List<LunarContactBirthday>.toCalendarContactBirthdayList(lunarDateL
                 CalendarContactBirthday(
                     contactId = birthday.contactId,
                     name = birthday.name,
+                    nameQualifier = birthday.nameQualifier,
                     date = lunarDate.solar,
                 )
             }

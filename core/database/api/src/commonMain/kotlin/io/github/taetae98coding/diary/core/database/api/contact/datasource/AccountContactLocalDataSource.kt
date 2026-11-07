@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.core.database.api.contact.datasource
 
 import androidx.paging.PagingSource
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import kotlinx.coroutines.flow.Flow
@@ -13,12 +14,12 @@ public interface AccountContactLocalDataSource {
         hasBirthday: Boolean?,
         hasBirthYear: Boolean?,
         hasPhoneNumber: Boolean?,
-    ): PagingSource<Int, ContactLocalEntity>
+    ): PagingSource<Int, ContactListItemLocalEntity>
 
     public fun get(
         accountId: Uuid,
         contactIdSet: Set<Uuid>,
-    ): Flow<List<ContactLocalEntity>>
+    ): Flow<List<ContactListItemLocalEntity>>
 
     public fun find(
         accountId: Uuid,

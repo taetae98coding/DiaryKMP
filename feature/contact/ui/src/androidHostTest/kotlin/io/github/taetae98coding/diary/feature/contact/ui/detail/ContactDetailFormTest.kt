@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -26,7 +27,13 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.howWeMetInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.kotest.matchers.shouldBe
@@ -55,17 +62,23 @@ class ContactDetailFormTest {
                 birthday = ContactBirthday(date = LocalDate(1994, 3, 21), calendar = ContactBirthdayCalendar.LUNAR),
                 hometown = CONTACT_HOMETOWN,
                 howWeMet = CONTACT_HOW_WE_MET,
+                phoneNumberList = listOf(FIRST_PHONE_NUMBER, SECOND_PHONE_NUMBER),
             )
 
         setContactDetailScaffold(detail = detail)
 
         // 설명은 입력과 미리보기에 함께 나타나므로 편집할 수 있는 입력 노드를 지목한다.
+        composeRule.nameInput().assert(hasText(CONTACT_NAME))
         composeRule.onNode(hasText(CONTACT_DESCRIPTION) and hasSetTextAction()).assertExists()
         composeRule.onNodeWithText(HEIGHT_TEXT).assertExists()
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
+        composeRule.onNodeWithText(BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
+        composeRule.onNodeWithText(BIRTHDAY_CALENDAR_SOLAR).assertIsNotSelected()
         composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
         composeRule.onNode(hasText(CONTACT_HOW_WE_MET) and hasSetTextAction()).assertExists()
+        composeRule.phoneNumberInput(row = 0).assert(hasText(FIRST_PHONE_NUMBER))
+        composeRule.phoneNumberInput(row = 1).assert(hasText(SECOND_PHONE_NUMBER))
     }
 
     @Test
@@ -212,10 +225,11 @@ class ContactDetailFormTest {
 
         setContactDetailScaffold(detail = detail)
 
-        composeRule.onNodeWithText(FIRST_PHONE_NUMBER).assertExists()
-        composeRule.onNodeWithText(SECOND_PHONE_NUMBER).assertExists()
+        composeRule.phoneNumberInput(row = 0).assert(hasText(FIRST_PHONE_NUMBER))
+        composeRule.phoneNumberInput(row = 1).assert(hasText(SECOND_PHONE_NUMBER))
         composeRule.onAllNodesWithContentDescription(FIRST_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 1)
         composeRule.onAllNodesWithContentDescription(SECOND_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 1)
+        composeRule.onAllNodesWithContentDescription(THIRD_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 0)
     }
 
     @Test
@@ -253,10 +267,13 @@ class ContactDetailFormTest {
 
         setContactDetailScaffold(detail = detail)
 
+        composeRule.descriptionInput().assert(hasText(""))
+        composeRule.heightInput().assert(hasText(""))
+        composeRule.footSizeInput().assert(hasText(""))
+        composeRule.hometownInput().assert(hasText(""))
+        composeRule.howWeMetInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onAllNodesWithContentDescription(FIRST_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 0)
-        composeRule.onNode(hasText(HOMETOWN_LABEL) and hasSetTextAction()).assertExists()
-        composeRule.onNode(hasText(HOW_WE_MET_LABEL) and hasSetTextAction()).assertExists()
     }
 
     @Test
@@ -264,6 +281,7 @@ class ContactDetailFormTest {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME))
 
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).assertIsNotFocused()
+        composeRule.onAllNodes(isFocused()).assertCountEquals(expectedSize = 0)
     }
 
     @Test

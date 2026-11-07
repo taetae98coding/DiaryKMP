@@ -12,7 +12,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
@@ -20,7 +19,13 @@ import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -51,7 +56,7 @@ class QrAddScreenAddTest {
     @Test
     @Config(qualifiers = "ko")
     fun `TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 제목, 설명, 값이 모두 있으면 추가에 성공하고 성공 피드백을 제공한다`() {
-        assertAddSucceededMessage(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
+        assertAddSucceededMessage(description = "description-${Arb.string().next()}")
     }
 
     @Test
@@ -72,8 +77,8 @@ class QrAddScreenAddTest {
     @Test
     fun `TC-018763b3-6a0e-4132-b201-64d8ed5b8b6d 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
         val useCase = mockk<AddQrUseCase>()
-        val detail = qrTestFixtureMonkey.qrDetail()
-        coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(qrTestFixtureMonkey.giveMeOne<String>()))
+        val detail = Arb.qrDetail().next()
+        coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
         fillInput(title = detail.title, description = detail.description, value = detail.value)
 
@@ -89,17 +94,17 @@ class QrAddScreenAddTest {
 
         clickAdd()
 
-        coVerify(exactly = 2) { useCase(parameter = detail) }
+        coVerify(exactly = 2) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
     }
 
     @Test
     fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf 제목이 공백이면 작성 내용은 유지된다`() {
-        assertInputRetained(title = " ", description = qrTestFixtureMonkey.qrDetail().description, value = qrTestFixtureMonkey.qrDetail().value, exception = QrTitleBlankException())
+        assertInputRetained(title = " ", description = Arb.qrDetail().next().description, value = Arb.qrDetail().next().value, exception = QrTitleBlankException())
     }
 
     @Test
     fun `TC-5f937b99-9ad9-40b8-9ef5-7bec5e9cfadf 값이 비어 있으면 작성 내용은 유지된다`() {
-        assertInputRetained(title = qrTestFixtureMonkey.qrDetail().title, description = qrTestFixtureMonkey.qrDetail().description, value = "", exception = QrValueEmptyException())
+        assertInputRetained(title = Arb.qrDetail().next().title, description = Arb.qrDetail().next().description, value = "", exception = QrValueEmptyException())
     }
 
     @Test
@@ -108,21 +113,21 @@ class QrAddScreenAddTest {
         setQrAddScreen(viewModel = viewModel)
         val detail =
             QrDetail(
-                title = "  ${qrTestFixtureMonkey.qrDetail().title}  ",
-                description = " ${qrTestFixtureMonkey.qrDetail().description}\n",
-                value = " ${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value} ",
+                title = "  ${Arb.qrDetail().next().title}  ",
+                description = " ${Arb.qrDetail().next().description}\n",
+                value = " ${Arb.qrDetail().next().value}\n${Arb.qrDetail().next().value} ",
             )
         fillInput(title = detail.title, description = detail.description, value = detail.value)
 
         clickAdd()
 
-        verify(exactly = 1) { viewModel.add(detail = detail) }
+        verify(exactly = 1) { viewModel.add(detail = detail, tagIdSet = emptySet()) }
     }
 
     @Test
     @Config(qualifiers = "ko")
     fun `TC-cdefd908-e5c4-4fd9-9633-93186422b2df 화면이 재생성되면 표시 중이던 추가 성공 피드백을 다시 표시하지 않는다`() {
-        assertFeedbackNotShownAfterRestore(result = Result.success(qrTestFixtureMonkey.giveMeOne<Uuid>()), message = KOREAN_ADD_SUCCEEDED_MESSAGE)
+        assertFeedbackNotShownAfterRestore(result = Result.success(Arb.kotlinUuid().next()), message = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
@@ -158,8 +163,8 @@ class QrAddScreenAddTest {
 
     private fun assertAddSucceededMessage(description: String) {
         val useCase = mockk<AddQrUseCase>()
-        val detail = qrTestFixtureMonkey.qrDetail(description = description)
-        coEvery { useCase(parameter = any()) } returns Result.success(qrTestFixtureMonkey.giveMeOne<Uuid>())
+        val detail = Arb.qrDetail(description = description).next()
+        coEvery { useCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
         setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
         fillInput(title = detail.title, description = detail.description, value = detail.value)
 
@@ -167,7 +172,7 @@ class QrAddScreenAddTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(KOREAN_ADD_SUCCEEDED_MESSAGE).assertExists()
-        coVerify(exactly = 1) { useCase(parameter = detail) }
+        coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
     }
 
     private fun assertInputRetained(
@@ -219,7 +224,11 @@ class QrAddScreenAddTest {
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
                 componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                viewModel = viewModel,
+                addViewModel = viewModel,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                tagViewModel = addTagScreenTestViewModel(),
             )
         }
     }

@@ -14,9 +14,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +56,19 @@ class ContactHomeScaffoldTest {
     fun `TC-3473625a-040f-4672-9180-69705b7c05ca 목록이 비어 있어도 연락처 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-3473625a-040f-4672-9180-69705b7c05ca 연락처가 있어도 연락처 추가를 선택할 수 있다`() {
+        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        setContactHomeScaffold(contactList = listOf(testContact(name = CONTACT_NAME)), onEvent = eventList::add)
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(CONTACT_NAME).fetchSemanticsNodes().isNotEmpty()
+        }
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
 
@@ -195,7 +210,7 @@ class ContactHomeScaffoldTest {
     }
 
     private fun setContactHomeScaffold(
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
         componentVisible: ContactHomeScaffoldComponentVisible = ContactHomeScaffoldComponentVisible(),
     ) {
@@ -205,6 +220,7 @@ class ContactHomeScaffoldTest {
             DiaryTheme {
                 ContactHomeScaffold(
                     onEvent = onEvent,
+                    onContactListEvent = {},
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
                     componentVisibleProvider = { componentVisible },
                 )

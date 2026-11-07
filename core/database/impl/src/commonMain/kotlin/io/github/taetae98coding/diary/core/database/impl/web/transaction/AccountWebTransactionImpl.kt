@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.core.database.impl.web.transaction
 
 import androidx.room3.withWriteTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebTransaction
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.webtag.webTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -19,7 +19,7 @@ internal class AccountWebTransactionImpl(
     override suspend fun upsert(
         accountId: Uuid,
         webList: List<WebLocalEntity>,
-        webTagList: List<WebTagLocalEntity>,
+        webTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.webDao().upsert(webList)
@@ -32,17 +32,7 @@ internal class AccountWebTransactionImpl(
                     )
                 },
             )
-            database.webTagDao().upsert(webTagList)
-            database.accountWebTagDao().upsert(
-                webTagList.map { webTag ->
-                    AccountWebTagLocalEntity(
-                        accountId = accountId,
-                        webId = webTag.webId,
-                        tagId = webTag.tagId,
-                        isDirty = true,
-                    )
-                },
-            )
+            database.webTagTable().upsertPending(accountId = accountId, entityTagList = webTagList)
         }
     }
 

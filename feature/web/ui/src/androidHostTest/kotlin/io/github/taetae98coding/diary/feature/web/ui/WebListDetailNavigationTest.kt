@@ -32,8 +32,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -50,6 +48,7 @@ import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -60,7 +59,6 @@ import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEADER
 import io.github.taetae98coding.diary.feature.web.ui.add.TYPED_URL
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddEffect
-import io.github.taetae98coding.diary.feature.web.ui.add.WebAddTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddUiState
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.clickAdd
@@ -76,9 +74,12 @@ import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
 import io.github.taetae98coding.diary.feature.web.ui.home.webPagingDataOf
 import io.github.taetae98coding.diary.feature.web.ui.memo.finished.WebMemoFinishedListViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -340,13 +341,13 @@ class WebListDetailNavigationTest {
             }
         }
 
-    private fun addTagViewModel(): WebAddTagViewModel {
+    private fun addTagViewModel(): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
         every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
 
-        return WebAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = null,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,
@@ -363,13 +364,12 @@ class WebListDetailNavigationTest {
         const val POSITION_WEB_COUNT = 60
         const val POSITION_SCROLL_INDEX = 50
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun webCard(web: Web): SemanticsMatcher = hasTestTag(WEB_CARD_TEST_TAG) and hasText(web.detail.title)
 
-        fun listedWeb(): Web = testWeb(title = "list-${fixtureMonkey.giveMeOne<String>()}")
+        fun listedWeb(): Web = testWeb(title = "list-${Arb.string().next()}")
 
-        fun positionWebList(): List<Web> = List(POSITION_WEB_COUNT) { index -> testWeb(title = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}") }
+        fun positionWebList(): List<Web> = List(POSITION_WEB_COUNT) { index -> testWeb(title = "position-${index.toString().padStart(length = 2, padChar = '0')}-${Arb.int().next()}") }
     }
 }
 

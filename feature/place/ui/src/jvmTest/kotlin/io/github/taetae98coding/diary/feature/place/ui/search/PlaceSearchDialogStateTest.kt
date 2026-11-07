@@ -2,17 +2,15 @@ package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.focus.FocusRequester
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 
 class PlaceSearchDialogStateTest : FunSpec() {
     init {
@@ -96,9 +94,9 @@ class PlaceSearchDialogStateTest : FunSpec() {
 
         // 서로 겹치지 않는 영역이어야 가운데 판정이 성립하므로, 임의의 기준 위치에서 위도만 간격을 두고 떨어뜨린다.
         private fun boundsList(): List<DiaryMapBounds> {
-            val south = BASE_SOUTH_MIN + fixtureMonkey.giveMeOne<Int>().mod(BASE_SOUTH_RANGE)
-            val west = BASE_WEST_MIN + fixtureMonkey.giveMeOne<Int>().mod(BASE_WEST_RANGE)
-            val span = (fixtureMonkey.giveMeOne<Int>().mod(SPAN_STEPS) + 1) * SPAN_UNIT
+            val south = BASE_SOUTH_MIN + Arb.int().next().mod(BASE_SOUTH_RANGE)
+            val west = BASE_WEST_MIN + Arb.int().next().mod(BASE_WEST_RANGE)
+            val span = (Arb.int().next().mod(SPAN_STEPS) + 1) * SPAN_UNIT
 
             return List(BOUNDS_COUNT) { index ->
                 val shiftedSouth = south + index * BOUNDS_GAP

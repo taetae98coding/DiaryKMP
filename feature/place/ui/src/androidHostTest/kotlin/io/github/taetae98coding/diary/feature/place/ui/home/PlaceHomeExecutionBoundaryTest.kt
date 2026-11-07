@@ -13,8 +13,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -22,6 +20,7 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
@@ -32,9 +31,10 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.rememberPlaceHomeMapState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -56,7 +56,7 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-a09ee357-336c-4a05-80e8-69a21423fe5b 화면이 회전하거나 창 크기가 바뀌어도 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -70,7 +70,7 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-a09ee357-336c-4a05-80e8-69a21423fe5b 앱이 종료되지 않은 채 백그라운드에 갔다가 복귀해도 현재 위치를 다시 확인하지 않는다`() {
-        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val fetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val mapViewModel = mapViewModel(fetch)
         composeRule.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         composeRule.waitForIdle()
@@ -82,7 +82,7 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
-        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
+        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(Arb.coordinate().next()))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         selectListMode()
@@ -95,12 +95,12 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 시스템이 앱을 종료했다가 같은 화면으로 되살려도 바꿔 둔 보기 모드를 유지한다`() {
-        var mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
+        var mapViewModel = mapViewModel(fetchCurrentLocationUseCase(Arb.coordinate().next()))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         selectListMode()
 
-        mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
+        mapViewModel = mapViewModel(fetchCurrentLocationUseCase(Arb.coordinate().next()))
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
@@ -109,7 +109,7 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 앱의 백그라운드 진입 후 복귀해도 바꿔 둔 보기 모드를 유지한다`() {
-        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
+        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(Arb.coordinate().next()))
         composeRule.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         selectListMode()
 
@@ -120,7 +120,7 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 바꿔 둔 보기 모드를 유지한다`() {
-        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
+        val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(Arb.coordinate().next()))
         var isPlaceHomeOnTop by mutableStateOf(true)
         composeRule.setContent {
             // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관하는 것을 그대로 따른다.
@@ -147,8 +147,8 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 지도 모드로 되살아나면 즉시 현재 위치를 다시 확인한다`() {
-        val beforeFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
-        val afterFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val beforeFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val afterFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val restorationTester = StateRestorationTester(composeRule)
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -164,8 +164,8 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 목록 모드로 되살아나도 즉시 현재 위치를 다시 확인하고 지도 모드로 바꿀 때는 다시 확인하지 않는다`() {
-        val beforeFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
-        val afterFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val beforeFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
+        val afterFetch = fetchCurrentLocationUseCase(Arb.coordinate().next())
         val restorationTester = StateRestorationTester(composeRule)
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -187,26 +187,26 @@ class PlaceHomeExecutionBoundaryTest {
 
     @Test
     fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 다른 위치를 확인해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
-        assertMovedMapIsRestored(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+        assertMovedMapIsRestored(beforeCoordinate = Arb.coordinate().next(), afterCoordinate = Arb.coordinate().next())
     }
 
     @Test
     fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
-        val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val coordinate = Arb.coordinate().next()
 
         assertMovedMapIsRestored(beforeCoordinate = coordinate, afterCoordinate = coordinate)
     }
 
     @Test
     fun `TC-752ac300-a1b8-4bfd-93f6-41a00e83e0e7 되살아난 뒤 위치를 확인하지 못해도 옮겨 두었던 지도 제공자와 위치를 이어서 보여 준다`() {
-        assertMovedMapIsRestored(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = null)
+        assertMovedMapIsRestored(beforeCoordinate = Arb.coordinate().next(), afterCoordinate = null)
     }
 
     private fun assertMovedMapIsRestored(
         beforeCoordinate: Coordinate?,
         afterCoordinate: Coordinate?,
     ) {
-        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val movedCoordinate = Arb.coordinate().next()
         val restorationTester = StateRestorationTester(composeRule)
         var uiState by mutableStateOf(loaded(beforeCoordinate))
         lateinit var mapState: DiaryMapState
@@ -256,9 +256,6 @@ class PlaceHomeExecutionBoundaryTest {
 
     private companion object {
         private const val PLACE_HOME_ENTRY_KEY = "PlaceHome"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun loaded(coordinate: Coordinate?): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
 

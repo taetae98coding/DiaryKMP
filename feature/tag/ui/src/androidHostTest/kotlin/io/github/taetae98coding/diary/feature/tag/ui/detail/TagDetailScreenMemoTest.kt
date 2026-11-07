@@ -37,13 +37,15 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoViewModel
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -402,7 +404,7 @@ class TagDetailScreenMemoTest {
 
     @Test
     fun `TC-562529ec-dbb5-4d50-ab75-b62556022499 대상 태그를 조회하지 못해도 범위를 넓히면 하위 태그의 메모가 메모 탭에 표시된다`() {
-        val childMemo = tagMemo(title = fixtureText(prefix = "ChildTagMemo"))
+        val childMemo = tagMemo(title = Arb.alphanumericString(prefix = "ChildTagMemo").next())
         composeRule.setTagDetailScreen(viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)))
 
         // 메모 탭이 목록을 받은 뒤에 바뀐 페이지는 화면 스레드의 공용 디스패처를 거쳐야 도착하는데, Robolectric이 테스트 사이에
@@ -456,7 +458,7 @@ class TagDetailScreenMemoTest {
         composeRule.onNodeWithText(DEFAULT_DESCENDANT_SCOPE_LABEL).performClick()
         composeRule.waitForIdle()
 
-        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.runOnIdle { detailIdState.value = Arb.kotlinUuid().next() }
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
 

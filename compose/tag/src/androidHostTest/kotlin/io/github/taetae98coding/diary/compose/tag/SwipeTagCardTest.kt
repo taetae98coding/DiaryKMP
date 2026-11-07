@@ -10,23 +10,20 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -36,7 +33,7 @@ class SwipeTagCardTest {
 
     @Test
     fun `TC-02c58564-cd30-479e-9e3e-950f995c6271 미완료 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
-        val tag = fixtureMonkey.tag(title = TAG_TITLE)
+        val tag = Arb.tag(title = TAG_TITLE).next()
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add)
 
@@ -48,7 +45,7 @@ class SwipeTagCardTest {
 
     @Test
     fun `TC-fe0bcdbb-5c59-4d18-8578-a78189114664 완료된 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 다시 시작을 한 번 전달한다`() {
-        val tag = fixtureMonkey.tag(title = TAG_TITLE)
+        val tag = Arb.tag(title = TAG_TITLE).next()
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add, finishAction = SwipeFinishAction.RESTART)
 
@@ -80,7 +77,7 @@ class SwipeTagCardTest {
 
     @Test
     fun `TC-958b9fa4-e244-4be6-86d5-865a55ca9637 TC-fec2ef31-7a95-4eed-9548-357ed77d928c 태그 카드를 누르면 그 태그의 선택을 한 번 전달한다`() {
-        val tag = fixtureMonkey.tag(title = TAG_TITLE)
+        val tag = Arb.tag(title = TAG_TITLE).next()
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add)
 
@@ -124,7 +121,7 @@ class SwipeTagCardTest {
     }
 
     private fun assertDeleteSent(finishAction: SwipeFinishAction) {
-        val tag = fixtureMonkey.tag(title = TAG_TITLE)
+        val tag = Arb.tag(title = TAG_TITLE).next()
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add, finishAction = finishAction)
 
@@ -159,7 +156,7 @@ class SwipeTagCardTest {
         shownDescription: String,
         finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
     ) {
-        setSwipeTagCard(tag = fixtureMonkey.tag(title = TAG_TITLE), onEvent = {}, finishAction = finishAction)
+        setSwipeTagCard(tag = Arb.tag(title = TAG_TITLE).next(), onEvent = {}, finishAction = finishAction)
 
         composeRule.onNodeWithTag(TAG_CARD_TEST_TAG).performTouchInput {
             down(center)

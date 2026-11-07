@@ -12,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
@@ -22,8 +21,9 @@ import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -184,8 +184,8 @@ class TagFinishedListSwipeTest {
         isShownProvider: () -> Boolean = { true },
         navigateToDetail: (Uuid) -> Unit = {},
     ): Environment {
-        val first = fixtureMonkey.tag(title = FIRST_TITLE, isFinished = true)
-        val second = fixtureMonkey.tag(title = SECOND_TITLE, isFinished = true)
+        val first = Arb.tag(title = FIRST_TITLE, isFinished = true).next()
+        val second = Arb.tag(title = SECOND_TITLE, isFinished = true).next()
         val effectChannel = Channel<TagListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
@@ -237,6 +237,5 @@ class TagFinishedListSwipeTest {
         const val KOREAN_UNDO_ACTION = "실행 취소"
         const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

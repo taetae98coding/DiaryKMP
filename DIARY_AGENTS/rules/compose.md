@@ -373,6 +373,22 @@ private fun SignInEffect(
 }
 ```
 
+## 생명주기는 호출자가 소유한다
+
+**`Lifecycle`·`LifecycleOwner`·`lifecycleScope`는 Composable 안에서 `LocalLifecycleOwner.current`로 읽는다. 일반 class, ViewModel, state 홀더는 이들을 생성자로 받지 않는다.** 어느 생명주기를 따를지는 호스트(Activity, `ComposeUIViewController`, `NavDisplay`의 entry)가 CompositionLocal로 정하고, 테스트는 `CompositionLocalProvider(LocalLifecycleOwner provides TestLifecycleOwner(...))`로 바꿔 끼운다. 생명주기 외의 작업을 어디서 시작하는지는 [main-safety.md](main-safety.md)의 `그 밖의 작업은 suspend로 내보내고 호출자가 scope를 정한다`가 소유한다.
+
+관찰 수단은 계기에 따라 고른다.
+
+| 계기 | 수단 |
+| --- | --- |
+| ViewModel의 UI state | `collectAsStateWithLifecycle` |
+| ViewModel의 one-shot Effect·트리거 Flow | `CollectEffect` (`UI Effect 수집`) |
+| Flow가 아닌 반복(타이머 등)을 활성 상태에서만 | `repeatOnLifecycle` |
+| 화면 진입·이탈 자체 | `LifecycleEventEffect`, key가 필요하면 `LifecycleStartEffect`·`LifecycleResumeEffect` |
+| 플랫폼 View의 생명주기 전달(지도 등) | `DisposableEffect(lifecycle, view)` 안에서 `LifecycleEventObserver`를 붙이고 `onDispose`에서 뗀다 |
+
+CameraX의 `bindToLifecycle(owner, ...)`처럼 플랫폼 API가 `LifecycleOwner`를 요구하면 Composable이 읽은 값을 private 함수의 인자로 넘기기만 한다. 그 함수가 owner를 저장하거나 observer를 스스로 붙이지 않는다.
+
 ## Preview
 
 **UI를 그리는 컴포저블에는 Preview를 하나 이상 둔다.**
@@ -505,7 +521,8 @@ internal fun PlaceHomeScreen(permissionManager: PermissionManager) {
 
 1. 검증할 규칙을 담은 부분을 의도가 드러나는 이름의 컴포저블이나 함수로 분리하고 그것을 직접 테스트한다. 기다림, 재실행 판정, 조건 분기처럼 표현이 아닌 규칙은 Effect 컴포저블로 분리한다.
 2. 분리한 조각을 `internal`로 두어 같은 모듈의 테스트가 직접 구성하게 한다. 파라미터를 늘리지 않는다.
-3. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다.
+3. 지도, 웹 표시 수단, 카메라 미리보기처럼 플랫폼 표시 요소를 그리는 부분 때문에 화면을 구성할 수 없으면, 그 부분이 `플랫폼별 표현은 Override로 바꿔 끼운다`의 Override로 그려지는지 확인하고 테스트에서 그 CompositionLocal에 대체 구현을 넣는다. Override는 운영에서 플랫폼별 구현을 바꿔 끼우는 경계라 테스트를 위한 슬롯이 아니다. 대체 구현으로 판정하는 것은 그 경계 바깥의 결과뿐이며, 경계 안쪽(실제 렌더링, 플랫폼 입력 처리, 플랫폼이 정하는 생명주기)의 결과는 대체 구현으로 판정하지 않는다.
+4. 그래도 결정적으로 자동화할 수 없으면 자동화하지 않는다. 테스트 케이스 문서에 `작성하지 않는 이유`를 남기고, 통과시키려고 운영 코드의 구조를 바꾸지 않는다. 테스트만을 위해 새 Override를 만들지 않는다.
 
 ⚠️ 비권장 예시:
 
@@ -516,6 +533,47 @@ internal fun PlaceSearchDialog(
     // 운영 호출자는 하나뿐이고 항상 기본값을 쓴다. 테스트에서 지도를 빈 Box로 바꾸려고 연 슬롯이다.
     map: @Composable () -> Unit = { PlaceSearchMap(state = state) },
 )
+```
+
+✅ 권장 예시:
+
+```kotlin
+// 지도는 운영에서 플랫폼 구현을 바꿔 끼우는 LocalDiaryMapContentOverride로 그려지므로, 테스트는 파라미터를 열지 않고 그 경계에 대체 구현을 넣는다.
+composeRule.setContent {
+    CompositionLocalProvider(LocalDiaryMapContentOverride provides testMap) {
+        PlaceSearchDialog(state = state)
+    }
+}
+```
+
+## 플랫폼별 표현은 Override로 바꿔 끼운다
+
+**플랫폼마다 다른 표현으로 그리는 공통 컴포넌트와 플랫폼 표시 요소를 그리는 컴포넌트는 Material3의 Component Override API와 같은 모양으로 둔다.** `expect`/`actual`이나 전역 레지스트리로 갈라 두면 첫 composition 전에 세팅되었는지에 기대게 되고, 테스트와 Preview에서 바꿔 끼울 수 없다.
+
+- `commonMain`에 `XxxOverride` 인터페이스(`@Composable fun XxxOverrideScope.Xxx()`)와 `XxxOverrideScope`(`internal constructor`), 기본 구현 `object`, `staticCompositionLocalOf`로 만든 `LocalXxxOverride`를 같은 패키지에 둔다. 기본 구현은 Android·데스크톱·웹의 표현(`MaterialXxxOverride`)이나 실제 플랫폼 구현(`PlatformXxxOverride`)이다.
+- 공개 컴포저블은 받은 파라미터로 Scope를 만들어 `with(LocalXxxOverride.current) { scope.Xxx() }`로 그리고, 그 밖의 일은 하지 않는다.
+- iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
+- Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
+- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니며 `expect`/`actual`을 쓴다.
+- 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록(떠 있는 동작 버튼, 상단 바의 뒤로가기 버튼·동작 버튼·검색 입력)에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
+
+✅ 권장 예시:
+
+```kotlin
+public interface DiaryFloatingActionButtonOverride {
+    @Composable
+    public fun DiaryFloatingActionButtonOverrideScope.FloatingActionButton()
+}
+
+public val LocalDiaryFloatingActionButtonOverride: ProvidableCompositionLocal<DiaryFloatingActionButtonOverride> =
+    staticCompositionLocalOf { MaterialDiaryFloatingActionButtonOverride }
+
+@Composable
+internal fun DiaryFloatingActionButton(onClick: () -> Unit, /* ... */ modifier: Modifier = Modifier) {
+    val scope = DiaryFloatingActionButtonOverrideScope(onClick = onClick, /* ... */ modifier = modifier)
+
+    with(LocalDiaryFloatingActionButtonOverride.current) { scope.FloatingActionButton() }
+}
 ```
 
 ## Recomposition Loop (Cyclic Phase Dependency) 금지

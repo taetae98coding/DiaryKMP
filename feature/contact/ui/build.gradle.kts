@@ -6,13 +6,23 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.contact)
                 implementation(projects.compose.list)
                 implementation(projects.compose.memo)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.memo)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
+                implementation(projects.feature.tag.api)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
 
@@ -20,14 +30,12 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
-                implementation(projects.core.testing)
             }
         }
 
         jvmTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
-                implementation(projects.core.testing)
             }
         }
     }

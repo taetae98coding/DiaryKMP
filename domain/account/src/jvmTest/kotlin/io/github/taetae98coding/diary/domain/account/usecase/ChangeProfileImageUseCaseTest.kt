@@ -1,15 +1,15 @@
 package io.github.taetae98coding.diary.domain.account.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import io.github.taetae98coding.diary.core.testing.image.imageCropRegion
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
@@ -59,13 +59,10 @@ class ChangeProfileImageUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun parameter(): ChangeProfileImageUseCase.Parameter =
             ChangeProfileImageUseCase.Parameter(
-                uri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}"),
-                cropRegion = fixtureMonkey.imageCropRegion(),
+                uri = FileUri("content://photo/${Arb.string().next()}"),
+                cropRegion = Arb.imageCropRegion().next(),
             )
     }
 }

@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
@@ -19,11 +17,15 @@ import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayCountryOptionUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -37,9 +39,6 @@ import org.koin.core.Koin
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class HolidayCountryDataTest :
     FunSpec({
         test("TC-7182d3ff-07ce-496b-aa7d-3030eb9ad9e6 한 국가가 실패해도 다른 국가의 저장된 공휴일은 원격 공휴일로 교체되고 연도 동기화는 실패한다") {
@@ -47,7 +46,7 @@ class HolidayCountryDataTest :
             val unitedStatesRemoteList = listOf(remoteHoliday(year = year), remoteHoliday(year = year))
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
             coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
-                IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                IllegalStateException(Arb.string().next())
             coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns unitedStatesRemoteList
 
             context.koin
@@ -68,7 +67,7 @@ class HolidayCountryDataTest :
             val year = randomYear()
             val context = holidayCountryDataTestContext(optionSet = BOTH_OPTION_SET)
             coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } throws
-                IllegalStateException(fixtureMonkey.giveMeOne<String>()) andThen listOf(remoteHoliday(year = year))
+                IllegalStateException(Arb.string().next()) andThen listOf(remoteHoliday(year = year))
             coEvery { context.remoteDataSource.get(country = HolidayCountryRemoteEntity.UNITED_STATES, year = year) } returns listOf(remoteHoliday(year = year))
             every { context.localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.UNITED_STATES), year = year) } returns
                 MutableStateFlow(listOf(localHoliday(year = year, country = HolidayCountryLocalEntity.UNITED_STATES)))
@@ -153,8 +152,8 @@ private fun remoteHoliday(year: Int): HolidayRemoteEntity {
     val start = randomDate(year = year)
 
     return HolidayRemoteEntity(
-        name = fixtureMonkey.giveMeOne(),
-        isHoliday = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
+        isHoliday = Arb.boolean().next(),
         start = start,
         endInclusive = start,
     )
@@ -169,8 +168,8 @@ private fun localHoliday(
     return HolidayLocalEntity(
         country = country,
         year = year,
-        name = fixtureMonkey.giveMeOne(),
-        isHoliday = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
+        isHoliday = Arb.boolean().next(),
         start = start,
         endInclusive = start,
     )
@@ -179,8 +178,8 @@ private fun localHoliday(
 private fun randomDate(year: Int): LocalDate =
     LocalDate(
         year = year,
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )
 
-private fun randomYear(): Int = 2_000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 1_000u).toInt()
+private fun randomYear(): Int = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt()

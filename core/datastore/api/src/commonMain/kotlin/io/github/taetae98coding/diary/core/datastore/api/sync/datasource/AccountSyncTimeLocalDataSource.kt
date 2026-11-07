@@ -10,4 +10,6 @@ public interface AccountSyncTimeLocalDataSource {
         accountId: Uuid,
         syncedAt: Instant,
     )
+
+    public suspend fun delete(accountId: Uuid)
 }

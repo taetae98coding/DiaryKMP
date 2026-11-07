@@ -1,0 +1,141 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package io.github.taetae98coding.diary.feature.contact.ui.add
+
+import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
+
+class ContactAddTagViewModelTest : FunSpec() {
+    private lateinit var mainDispatcher: TestDispatcher
+
+    init {
+        beforeTest {
+            mainDispatcher = StandardTestDispatcher()
+            Dispatchers.setMain(mainDispatcher)
+        }
+
+        afterTest {
+            Dispatchers.resetMain()
+        }
+
+        test("TC-14e615c4-29a1-419a-a590-ebca89aaad7b 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(initialTagId = null)
+
+                viewModel.selectionUiState.value.tagIdSet
+                    .shouldBeEmpty()
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-62ccae79-3991-4672-b850-5612b871eabb 초기 태그가 있으면 그 태그만 고른 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val viewModel = viewModel(initialTagId = tag.id, selectedTagList = listOf(tag))
+
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-7363f1df-65aa-42bc-a6b3-890868995701 고른 태그는 선택 상태로만 반영되고 해제하면 선택에서 빠진다") {
+            runTest(mainDispatcher) {
+                val firstTag = tag()
+                val secondTag = tag()
+                val viewModel = viewModel(initialTagId = null, selectedTagList = listOf(firstTag, secondTag))
+
+                viewModel.add(tagId = firstTag.id)
+                viewModel.add(tagId = secondTag.id)
+                advanceUntilIdle()
+
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(firstTag.id, secondTag.id)
+
+                viewModel.remove(tagId = firstTag.id)
+                advanceUntilIdle()
+
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
+            }
+        }
+
+        test("TC-72b6ebc6-93c3-4a80-b245-d49d8f4f9c34 완료·삭제된 대상 태그는 선택으로 보이지 않지만 선택은 남는다") {
+            listOf<(Tag) -> Tag>(
+                { value -> value.copy(isFinished = true) },
+                { value -> value.copy(isDeleted = true) },
+            ).forEach { change ->
+                runTest(mainDispatcher) {
+                    val tag = change(tag())
+                    val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                    every { getSelectedTagUseCase(parameter = any()) } answers {
+                        val idSet = firstArg<Set<Uuid>>()
+                        flowOf(Result.success(listOf(tag).filter { value -> value.id in idSet && !value.isFinished && !value.isDeleted }))
+                    }
+                    val viewModel =
+                        EntityAddTagViewModel(
+                            initialTagId = tag.id,
+                            pageTagUseCase = mockk<PageTagUseCase>(relaxed = true),
+                            getSelectedTagUseCase = getSelectedTagUseCase,
+                        )
+
+                    viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                    viewModel.uiState.test {
+                        advanceUntilIdle()
+                        expectMostRecentItem().tagList.shouldBeEmpty()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+                }
+            }
+        }
+    }
+
+    private fun viewModel(
+        initialTagId: Uuid?,
+        selectedTagList: List<Tag> = emptyList(),
+    ): EntityAddTagViewModel {
+        val pageTagUseCase = mockk<PageTagUseCase>(relaxed = true)
+        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+        every { getSelectedTagUseCase(parameter = any()) } answers {
+            val idSet = firstArg<Set<Uuid>>()
+            flowOf(Result.success(selectedTagList.filter { tag -> tag.id in idSet }))
+        }
+
+        return EntityAddTagViewModel(
+            initialTagId = initialTagId,
+            pageTagUseCase = pageTagUseCase,
+            getSelectedTagUseCase = getSelectedTagUseCase,
+        )
+    }
+
+    private companion object {
+        fun tag(): Tag = Arb.tag().next().copy(isDeleted = false)
+    }
+}

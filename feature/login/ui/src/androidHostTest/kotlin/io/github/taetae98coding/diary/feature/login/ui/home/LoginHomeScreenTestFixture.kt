@@ -4,15 +4,15 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsManager
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsException
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsManager
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -32,9 +32,6 @@ internal const val KOREAN_GOOGLE_BUTTON_DESCRIPTION: String = "Google로 로그�
 internal const val KOREAN_APPLE_BUTTON_DESCRIPTION: String = "Apple로 로그인"
 internal const val KOREAN_SIGN_IN_FAILED_MESSAGE: String = "로그인에 실패했습니다."
 
-internal val screenTestFixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun screenTestViewModel(
     effect: Flow<LoginHomeEffect> = emptyFlow(),
     uiState: MutableStateFlow<LoginHomeUiState> = MutableStateFlow(LoginHomeUiState()),
@@ -45,17 +42,9 @@ internal fun screenTestViewModel(
     return viewModel
 }
 
-internal fun mockGoogleCredentialsManager(isSignInEndDetectable: Boolean = true): GoogleCredentialsManager {
-    val manager = mockk<GoogleCredentialsManager>()
-    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
-    return manager
-}
+internal fun mockGoogleCredentialsManager(): GoogleCredentialsManager = mockk()
 
-internal fun mockAppleCredentialsManager(isSignInEndDetectable: Boolean = true): AppleCredentialsManager {
-    val manager = mockk<AppleCredentialsManager>()
-    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
-    return manager
-}
+internal fun mockAppleCredentialsManager(): AppleCredentialsManager = mockk()
 
 internal fun ComposeContentTestRule.setLoginHomeScreen(
     viewModel: LoginHomeViewModel,
@@ -113,7 +102,7 @@ internal fun ComposeContentTestRule.assertAppSignInFailureMessage(
     buttonDescription: String,
     expectedMessage: String,
 ) {
-    val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+    val credential = Arb.googleCredentialIdToken().next()
     val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
     val googleCredentialsManager = mockGoogleCredentialsManager()

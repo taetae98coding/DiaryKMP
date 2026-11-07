@@ -3,17 +3,19 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.page
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -49,7 +51,7 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-be0b371e-cba7-4075-80dc-9745d8a16755 저장된 URL과 요청 헤더로 웹 페이지를 한 번 불러온다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
 
                 viewModel.load()
@@ -66,7 +68,7 @@ class WebDetailPageViewModelTest : FunSpec() {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(null))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
 
                 viewModel.load()
@@ -86,7 +88,7 @@ class WebDetailPageViewModelTest : FunSpec() {
 
         test("TC-371f5358-32db-4580-a22e-17a0533b7eed TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오는 동안 진행 상태를 유지하고 성공하면 받은 웹 페이지를 노출한다") {
             runTest(mainDispatcher) {
-                val webPage = webPage()
+                val webPage = Arb.webPage().next()
                 val response = CompletableDeferred<Result<WebPage>>()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } coAnswers { response.await() }
@@ -123,7 +125,7 @@ class WebDetailPageViewModelTest : FunSpec() {
 
         test("TC-04087944-e03c-4f27-a985-1fd686cb0d0b TC-971bac07-ae1d-4a33-8b69-f0ce47d67854 다시 시도하면 같은 URL과 요청 헤더로 다시 불러온다") {
             runTest(mainDispatcher) {
-                val webPage = webPage()
+                val webPage = Arb.webPage().next()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
                     listOf(Result.failure(IllegalStateException()), Result.success(webPage))
@@ -162,6 +164,29 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-44066812-528e-4f8c-9740-8d9fa9d9eb7d 불러오기에 실패한 상태에서만 응답 본문 방식으로 돌아올 때 다시 불러온다") {
+            runTest(mainDispatcher) {
+                val webPage = Arb.webPage().next()
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
+                    listOf(Result.failure(IllegalStateException()), Result.success(webPage))
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
+
+                viewModel.load()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Failure
+
+                viewModel.reloadIfFailed()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
+
+                viewModel.reloadIfFailed()
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
+                coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-6d2cd3ce-0709-4540-830a-47fa35713946 불러오는 동안 전달된 다시 시도 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val response = CompletableDeferred<Result<WebPage>>()
@@ -188,7 +213,7 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("코루틴이 실행되기 전에 다시 시도가 이어져도 중복 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
 
                 viewModel.load()
@@ -204,7 +229,7 @@ class WebDetailPageViewModelTest : FunSpec() {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
 
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL))
@@ -225,12 +250,12 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-e174e111-11cd-479b-a1df-d6c7dff55e22 응답 본문 방식에서 불러온 뒤 URL 방식으로 되돌렸으면 수정으로 바뀐 URL로 곧바로 한 번 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
-                val reloadedPage = webPage()
+                val reloadedPage = Arb.webPage().next()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = URL, headerList = HEADER_LIST))
-                } returns Result.success(webPage())
+                } returns Result.success(Arb.webPage().next())
                 coEvery {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
                 } returns Result.success(reloadedPage)
@@ -257,13 +282,13 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-7c727b40-2b54-4988-9a89-0629343f8fce 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌면 새 값으로 다시 불러온다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
-                val reloadedPage = webPage()
-                val changedHeaderList = HEADER_LIST + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())
+                val reloadedPage = Arb.webPage().next()
+                val changedHeaderList = HEADER_LIST + WebHeader(name = "header-${Arb.string().next()}", value = Arb.string().next())
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = URL, headerList = HEADER_LIST))
-                } returns Result.success(webPage())
+                } returns Result.success(Arb.webPage().next())
                 coEvery {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedHeaderList))
                 } returns Result.success(reloadedPage)
@@ -295,7 +320,7 @@ class WebDetailPageViewModelTest : FunSpec() {
 
         test("TC-a2c71837-5d51-4d47-986b-1aeffc65e620 TC-6f63c6a1-5218-42f2-8910-ff66d9bbc2a0 TC-729f3b16-d41f-495c-9073-6c52554ab482 TC-8b030e9d-b400-494a-b80d-348edf2757f5 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
-                val webPage = webPage()
+                val webPage = Arb.webPage().next()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage)
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
@@ -316,7 +341,7 @@ class WebDetailPageViewModelTest : FunSpec() {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
                 val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
 
                 viewModel.load()
@@ -329,8 +354,8 @@ class WebDetailPageViewModelTest : FunSpec() {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
                 }
 
-                val addedHeaderName = "header-${fixtureMonkey.giveMeOne<String>()}"
-                val changedHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "value-${fixtureMonkey.giveMeOne<String>()}")
+                val addedHeaderName = "header-${Arb.string().next()}"
+                val changedHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "value-${Arb.string().next()}")
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedHeaderList))
                 advanceUntilIdle()
 
@@ -338,7 +363,7 @@ class WebDetailPageViewModelTest : FunSpec() {
                     fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = changedHeaderList))
                 }
 
-                val changedValueHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "changed-${fixtureMonkey.giveMeOne<String>()}")
+                val changedValueHeaderList = HEADER_LIST + WebHeader(name = addedHeaderName, value = "changed-${Arb.string().next()}")
                 webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = changedValueHeaderList))
                 advanceUntilIdle()
 
@@ -352,7 +377,7 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-63504c0a-256e-4d9c-a1c6-b84bb7fbe880 TC-2dca5f1d-a3f1-476a-adc6-da1875c04dbe 수정이나 다른 경로로 제목이나 설명만 바뀌면 다시 불러오지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
-                val webPage = webPage()
+                val webPage = Arb.webPage().next()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage)
@@ -373,8 +398,8 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-80a9be81-29bd-420f-baf7-0cee45d95556 불러오는 동안 수정으로 URL이 바뀌면 진행 중이던 불러오기를 대체한다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
-                val firstPage = webPage()
-                val secondPage = webPage()
+                val firstPage = Arb.webPage().next()
+                val secondPage = Arb.webPage().next()
                 val firstResponse = CompletableDeferred<Result<WebPage>>()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -405,7 +430,7 @@ class WebDetailPageViewModelTest : FunSpec() {
         test("TC-75700e2a-da51-4a61-b90d-83072dd5076e 다시 진입한 화면은 이전에 받은 웹 페이지 없이 시작하고 응답 본문 방식이 되면 다시 요청한다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
-                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(Arb.webPage().next())
 
                 val first = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
                 first.load()
@@ -433,9 +458,6 @@ class WebDetailPageViewModelTest : FunSpec() {
                 WebHeader(name = "X-Diary", value = "second"),
             )
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             fetchWebPageUseCase: FetchWebPageUseCase,
             id: Uuid = Uuid.random(),
@@ -460,16 +482,14 @@ class WebDetailPageViewModelTest : FunSpec() {
                 id = id,
                 detail =
                     WebDetail(
-                        title = "제목-${fixtureMonkey.giveMeOne<String>()}",
-                        description = fixtureMonkey.giveMeOne<String>(),
+                        title = "제목-${Arb.string().next()}",
+                        description = Arb.string().next(),
                         url = url,
                         headerList = headerList,
                     ),
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
-
-        private fun webPage(): WebPage = fixtureMonkey.giveMeOne<WebPage>()
     }
 }

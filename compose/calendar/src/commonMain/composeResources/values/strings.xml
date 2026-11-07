@@ -24,4 +24,22 @@
     </string-array>
     <string name="calendar_date_content_description">%1$s %2$d</string>
     <string name="calendar_week_content_description">Week of %1$s %2$d</string>
+    <string name="calendar_home_year_month_title">%2$s %1$s</string>
+    <string name="calendar_home_birthday_text">🎂 %1$s</string>
+    <string name="calendar_home_birthday_content_description">%1$s's birthday</string>
+    <string-array name="calendar_home_month_titles">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <string name="calendar_search_open_failed_message">Couldn't open the search results.</string>
 </resources>

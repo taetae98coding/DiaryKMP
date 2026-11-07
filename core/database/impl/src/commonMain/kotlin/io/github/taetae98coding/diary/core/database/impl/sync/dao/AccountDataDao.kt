@@ -307,6 +307,90 @@ internal interface AccountDataDao {
     @Query("DELETE FROM account_place_tag WHERE account_id = :accountId")
     suspend fun deleteAccountPlaceTag(accountId: Uuid)
 
+    @Query(
+        """
+        DELETE FROM contact_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_contact_tag
+            WHERE account_contact_tag.contact_id = contact_tag.contact_id
+                AND account_contact_tag.tag_id = contact_tag.tag_id
+                AND account_contact_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_contact_tag
+            WHERE account_contact_tag.contact_id = contact_tag.contact_id
+                AND account_contact_tag.tag_id = contact_tag.tag_id
+                AND account_contact_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteContactTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_contact_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountContactTag(accountId: Uuid)
+
+    @Query(
+        """
+        DELETE FROM checklist_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_checklist_tag
+            WHERE account_checklist_tag.checklist_id = checklist_tag.checklist_id
+                AND account_checklist_tag.tag_id = checklist_tag.tag_id
+                AND account_checklist_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_checklist_tag
+            WHERE account_checklist_tag.checklist_id = checklist_tag.checklist_id
+                AND account_checklist_tag.tag_id = checklist_tag.tag_id
+                AND account_checklist_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteChecklistTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_checklist_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountChecklistTag(accountId: Uuid)
+
+    @Query(
+        """
+        DELETE FROM music_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_music_tag
+            WHERE account_music_tag.music_id = music_tag.music_id
+                AND account_music_tag.tag_id = music_tag.tag_id
+                AND account_music_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_music_tag
+            WHERE account_music_tag.music_id = music_tag.music_id
+                AND account_music_tag.tag_id = music_tag.tag_id
+                AND account_music_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteMusicTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_music_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountMusicTag(accountId: Uuid)
+
+    @Query(
+        """
+        DELETE FROM qr_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_qr_tag
+            WHERE account_qr_tag.qr_id = qr_tag.qr_id
+                AND account_qr_tag.tag_id = qr_tag.tag_id
+                AND account_qr_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_qr_tag
+            WHERE account_qr_tag.qr_id = qr_tag.qr_id
+                AND account_qr_tag.tag_id = qr_tag.tag_id
+                AND account_qr_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteQrTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_qr_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountQrTag(accountId: Uuid)
+
     @Query("DELETE FROM tag_filter WHERE account_id = :accountId")
     suspend fun deleteTagFilter(accountId: Uuid)
 

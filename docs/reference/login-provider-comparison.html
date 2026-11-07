@@ -149,7 +149,7 @@
           <tr>
             <td>브라우저를 쓰는 플랫폼</td>
             <td>JVM(시스템 브라우저 + 로컬 루프백), wasm(GIS 팝업)</td>
-            <td>Android(Custom Tab), JVM(시스템 브라우저 + 로컬 루프백), wasm(팝업)</td>
+            <td>Android(Auth Tab), JVM(시스템 브라우저 + 로컬 루프백), wasm(팝업)</td>
           </tr>
           <tr>
             <td>IdP가 응답을 보내는 곳</td>
@@ -174,11 +174,11 @@
           <tr>
             <td>사용자 취소 판정</td>
             <td>Android <code>GetCredentialCancellationException</code>, iOS <code>kGIDSignInErrorCodeCanceled</code>, JVM <code>access_denied</code> 문자열, wasm <code>popup_closed</code></td>
-            <td>iOS <code>ASAuthorizationErrorCanceled</code>, 웹 흐름 공통 <code>user_cancelled_authorize</code>, Android는 브라우저 탭을 닫고 돌아오면 취소, wasm은 팝업 닫힘 감시</td>
+            <td>iOS <code>ASAuthorizationErrorCanceled</code>, 웹 흐름 공통 <code>user_cancelled_authorize</code>, Android는 Auth Tab이 <code>RESULT_CANCELED</code>를 돌려주면 취소, wasm은 팝업 닫힘 감시</td>
           </tr>
           <tr>
-            <td>흐름의 끝을 알 수 있는지(<code>isSignInEndDetectable</code>)</td>
-            <td colspan="2"><span class="tag common">공통</span> Android·iOS·wasm은 <code>true</code>, JVM은 <code>false</code>. JVM은 브라우저 창을 응답 없이 닫아도 앱이 알 수 없어서, 진행 표시로 버튼을 막지 않고 다시 선택하면 새 흐름을 연다.</td>
+            <td>흐름의 끝을 알 수 있는지</td>
+            <td colspan="2"><span class="tag common">공통</span> Android·iOS·wasm은 알 수 있고 JVM은 브라우저 창을 응답 없이 닫아도 알 수 없다. 모든 플랫폼에서 플랫폼 흐름 동안 진행 표시로 버튼을 막지 않고, 다시 선택하면 새 흐름을 연다.</td>
           </tr>
           <tr>
             <td>CSRF·재전송 방어</td>
@@ -201,15 +201,15 @@
         <tbody>
           <tr>
             <td><code>commonMain</code></td>
-            <td><code>GoogleCredentialsManager</code>(<code>isSignInEndDetectable</code>, <code>signIn()</code> + expect 팩토리), <code>GoogleCredentialsException</code>, <code>GoogleCredentialsUserCancelException</code></td>
-            <td><code>AppleCredentialsManager</code>(<code>isSignInEndDetectable</code>, <code>signIn()</code> + expect 팩토리), <code>AppleCredentialsException</code>(+ <code>toAppleCredentialsFailure</code>), <code>AppleCredentialsUserCancelException</code>,
+            <td><code>GoogleCredentialsManager</code>(<code>signIn()</code> + expect 팩토리), <code>GoogleCredentialsException</code>, <code>GoogleCredentialsUserCancelException</code></td>
+            <td><code>AppleCredentialsManager</code>(<code>signIn()</code> + expect 팩토리), <code>AppleCredentialsException</code>(+ <code>toAppleCredentialsFailure</code>), <code>AppleCredentialsUserCancelException</code>,
               <b>웹 흐름 공통</b>: <code>AppleCredentialsConfig</code>, <code>AppleWebSignInRequestFactory</code>, <code>AppleWebSignInRequest</code>, <code>AppleWebSignInResponse</code>, <code>AppleWebSignInState</code>, <code>UrlQueryComponentEncoding</code></td>
           </tr>
           <tr>
             <td>공유</td>
             <td colspan="2"><span class="tag common">공통</span> <code>CredentialsNonce</code>(SHA-256 hex) — 두 수단이 같은 nonce 해시를 쓴다. 화면 배선은 <code>LoginHomeScreen</code>의 <code>requestGoogleSignIn</code> / <code>requestAppleSignIn</code>이 같은 모양으로 예외를 취소·실패로 나눈다.
-              두 요청은 <code>LoginPlatformSignInState</code>를 함께 거친다. 끝을 알 수 있는 흐름이면 진행 중 표시(<code>isInProgress</code>)를 켜고 그동안의 새 요청을 받지 않으며, 끝을 알 수 없는 흐름(JVM)이면 다시 선택하면 진행 중이던 흐름을 취소하고 가장 최근 흐름의 결과만 받는다.
-              <code>LoginHomeScaffold</code>는 앱 로그인 처리 중이거나 이 진행 중 표시가 켜져 있으면 로딩을, 아니면 <code>LoginSignInButtonRow</code>(두 버튼)를 보인다.</td>
+              두 요청은 <code>PlatformSignInState</code>를 함께 거친다. 다시 선택하면 진행 중이던 흐름을 취소하고 가장 최근 흐름의 결과만 받는다.
+              <code>LoginHomeScaffold</code>는 앱 로그인 처리 중이면 로딩을, 아니면 <code>LoginSignInButtonRow</code>(두 버튼)를 보인다.</td>
           </tr>
           <tr>
             <td><code>androidMain</code></td>
@@ -278,7 +278,7 @@
           <tr>
             <td>Android</td>
             <td><code>androidx.credentials:credentials-play-services-auth</code>, <code>com.google.android.libraries.identity.googleid:googleid</code></td>
-            <td><code>androidx.browser:browser</code>(Custom Tabs). 그 외는 플랫폼 API(<code>Activity</code>, <code>Uri</code>, <code>Lifecycle.currentStateFlow</code>)</td>
+            <td><code>androidx.browser:browser</code>(Auth Tab), <code>androidx.activity:activity-compose</code>(<code>rememberLauncherForActivityResult</code>)</td>
           </tr>
           <tr>
             <td>iOS</td>
@@ -331,17 +331,17 @@
       <div class="step app"><b>앱</b><code>GoogleIdTokenCredential.createFrom</code> → <code>GoogleCredential.IdToken(idToken, nonce)</code></div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-google-id-token</b></div>
     </div>
-    <h4><span class="tag apple">Apple</span> Custom Tab → 서버 콜백 → 앱 링크</h4>
+    <h4><span class="tag apple">Apple</span> Auth Tab → 서버 콜백 → Auth Tab 결과</h4>
     <div class="flow">
       <div class="step app"><b>앱</b>nonce·state 생성, 복귀 주소 <code>&lt;applicationId&gt;://apple-sign-in</code>을 state에 담아 인가 URL 조립</div><div class="arrow">→</div>
-      <div class="step os"><b>Custom Tab</b><code>CustomTabsIntent.launchUrl</code></div><div class="arrow">→</div>
+      <div class="step os"><b>Auth Tab</b><code>AuthTabIntent.launch</code>(redirect scheme = <code>&lt;applicationId&gt;</code>)</div><div class="arrow">→</div>
       <div class="step idp apple"><b>Apple</b>로그인·동의 후 <code>form_post</code>로 <code>id_token</code>+<code>state</code></div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-apple-callback</b>state의 복귀 주소가 허용 목록이면 <code>303</code>으로 넘김</div><div class="arrow">→</div>
-      <div class="step os"><b>Android</b>scheme 인텐트 → <code>AppleSignInRedirectActivity</code></div><div class="arrow">→</div>
-      <div class="step app"><b>앱</b><code>AppleSignInRedirectRelay</code>가 대기 중 코루틴에 전달, state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
+      <div class="step os"><b>Auth Tab</b>복귀 주소를 가로채 <code>RESULT_OK</code>와 URI를 ActivityResult로 반환</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b>대기 중 코루틴에 결과 전달, state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-apple-id-token</b></div>
     </div>
-    <p class="note">취소 감지: 앱이 <code>Lifecycle</code>이 RESUMED에서 벗어났다가 돌아오는 것을 관찰한다. 돌아온 뒤 1초 안에 앱 링크가 오지 않으면 브라우저 탭을 닫은 것으로 보고 취소 처리한다.</p>
+    <p class="note">취소 감지: 탭을 닫으면 Auth Tab이 <code>RESULT_CANCELED</code>를 돌려준다. Auth Tab을 지원하지 않는 브라우저에서는 일반 Custom Tab으로 대체되어 복귀 주소가 앱으로 돌아오지 않으므로 로그인을 완료할 수 없고, 탭을 닫으면 취소로 끝난다.</p>
 
     <div class="platform">iOS</div>
     <h4><span class="tag google">Google</span> GoogleSignIn SDK → <code>idToken</code></h4>
@@ -380,7 +380,7 @@
       <div class="step app"><b>앱</b>결과 페이지 응답 후 state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-apple-id-token</b></div>
     </div>
-    <p class="note">Google은 code를 서버가 client secret으로 교환해야 하므로 서버에 비밀이 있고, Apple은 <code>id_token</code>을 앱이 직접 받아 서버에 비밀이 없다. 두 수단 모두 브라우저 창을 응답 없이 닫으면 취소를 감지하지 못하므로(스펙이 허용하는 예외) <code>isSignInEndDetectable = false</code>로 두어, 버튼을 막지 않고 먼저 도착한 결과 하나만 받는다.</p>
+    <p class="note">Google은 code를 서버가 client secret으로 교환해야 하므로 서버에 비밀이 있고, Apple은 <code>id_token</code>을 앱이 직접 받아 서버에 비밀이 없다. 두 수단 모두 브라우저 창을 응답 없이 닫으면 취소를 감지하지 못한다(스펙이 허용하는 예외). 버튼을 막지 않으므로 사용자는 다시 선택해 새 흐름을 열 수 있다.</p>
 
     <div class="platform">wasmJs</div>
     <h4><span class="tag google">Google</span> GIS 팝업 → authorization code</h4>
@@ -460,9 +460,9 @@
           <tr><td>요청 조립</td><td><code>GooglePkceTest</code>(TC-4fe3aba3-1c08-4273-b7a3-3275cf4c0212, TC-43b5296f-b1dd-4296-b038-a4a0f0bb9b36, RFC 7636 벡터)</td><td><code>AppleWebSignInRequestFactoryTest</code>(TC-d0a6a2b3-9ae1-4ea7-9318-976bb99e0020, TC-8863804f-e996-4934-9845-5dbb496a9704)</td></tr>
           <tr><td>응답 판정</td><td><code>GoogleAuthorizationCodeTest</code>(TC-53bacbe8-7629-4e72-9f61-53a1e7468bdb, JVM·wasm 인가 코드 응답)</td><td><code>AppleWebSignInRequestTest</code>(TC-0b76b517-494f-45d4-9d15-e0d090eda980, TC-974c8aaa-a635-4c47-9a84-c8eb3bcf973d)</td></tr>
           <tr><td>수신기</td><td colspan="2"><span class="tag common">공통</span> <code>LoopbackRedirectReceiverTest</code>(TC-3b0309cb-52e6-4c3b-9873-659955f314c5, TC-918b515f-895e-404c-b961-0519c08dfaab, TC-a0e45890-762c-4fa3-b70b-dc7f4f623d9e, TC-bc491e20-5986-4a32-a558-8752e1e9a095, 실제 HTTP 요청)</td></tr>
-          <tr><td>취소 감지</td><td>SDK 예외 매핑 — <code>LoginHomeScreenTest</code>가 화면 수준에서 검증</td><td><code>AndroidAppleCredentialsManagerTest</code>(TC-86dee46f-aeb7-420e-9d67-28230edc8116, TC-9d7843cf-9a4c-40b6-86fb-1c2408dfa172, <code>TestLifecycleOwner</code>)</td></tr>
+          <tr><td>취소 감지</td><td>SDK 예외 매핑 — <code>LoginHomeScreenTest</code>가 화면 수준에서 검증</td><td><code>AndroidAppleCredentialsManagerTest</code>(TC-86dee46f-aeb7-420e-9d67-28230edc8116, TC-9d7843cf-9a4c-40b6-86fb-1c2408dfa172)</td></tr>
           <tr><td>화면·ViewModel·Repository</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenTest</code>, <code>LoginHomeViewModelTest</code>, <code>SessionRepositoryImplTest</code>, <code>SignInWith…UseCaseTest</code>가 두 수단을 테스트 데이터로 함께 순회한다.</td></tr>
-          <tr><td>진행 중 막기·최근 흐름만 받기</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomePlatformSignInScreenTest</code>(TC-bf35c0ee-ee31-4ebd-8b72-937d90ccccda, TC-786d7f2a-ae85-4403-b473-23cf0d90648c, TC-1bee417a-0be2-4aab-8c92-0ca2dca49254, TC-f0710c82-73ec-469f-b025-d677731d900a, TC-6244d246-78da-4803-9a83-38d4785949d9, TC-1950bb16-007e-49e7-8799-945c0c0f8f8a)가 두 <code>isSignInEndDetectable</code> 값으로 화면 수준을, <code>LoginPlatformSignInStateTest</code>(구현 계약, TC ID 없음)가 상태 객체를 검증한다.</td></tr>
+          <tr><td>진행 중 막기·최근 흐름만 받기</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomePlatformSignInScreenTest</code>(TC-bf35c0ee-ee31-4ebd-8b72-937d90ccccda, TC-f0710c82-73ec-469f-b025-d677731d900a, TC-6244d246-78da-4803-9a83-38d4785949d9, TC-1950bb16-007e-49e7-8799-945c0c0f8f8a)가 화면 수준을, <code>PlatformSignInStateTest</code>(구현 계약, TC ID 없음)가 상태 객체를 검증한다.</td></tr>
           <tr><td>경계·실패 안내·배치</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenBoundaryTest</code>(TC-0599fd8a-8e41-4262-869a-ae93c4a8b472, TC-d67168e5-76ef-4d03-bf1e-5dfa0686cf02, TC-84d2c033-2bdf-4bca-a0ea-f172644c5e7e, TC-bc91f0c6-4bba-4e54-b547-f3db93b94fbf, 재생성·오류 보고), <code>LoginHomeSignInFailureScreenTest</code>(TC-e25cdd42-eedf-4fd9-a9fe-4f36e37e3ecb, TC-25a9711e-e27a-46be-8344-3a37971e6f26), <code>LoginHomeScaffoldTest</code>(TC-56edd934-9a22-4d83-b348-176f7027fb87, TC-6151a49c-575b-4e8a-80f7-c4fc2b073328)</td></tr>
         </tbody>
       </table>

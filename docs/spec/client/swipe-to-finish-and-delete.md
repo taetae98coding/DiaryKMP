@@ -26,6 +26,10 @@
 | [TagDetail 웹 탭](./tag-detail-web.md) | 태그별 웹 목록 | 없음 |
 | [PlaceHome 화면](./place-home.md) | 장소 목록과 지도 옆 장소 목록 | 없음 |
 | [TagDetail 장소 탭](./tag-detail-place.md) | 태그별 장소 목록과 지도 옆 장소 목록 | 없음 |
+| [TagDetail 연락처 탭](./tag-detail-contact.md) | 태그별 연락처 목록 | 없음 |
+| [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 태그별 체크리스트 목록 | 없음 |
+| [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 | 없음 |
+| [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 | 없음 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 | 없음 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 | 없음 |
 | [QrHome 화면](./qr-home.md) | QR 목록 | 없음 |

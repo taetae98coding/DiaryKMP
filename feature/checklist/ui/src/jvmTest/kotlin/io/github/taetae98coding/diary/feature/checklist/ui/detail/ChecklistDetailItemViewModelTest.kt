@@ -3,8 +3,6 @@
 package io.github.taetae98coding.diary.feature.checklist.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
@@ -14,10 +12,13 @@ import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistIt
 import io.github.taetae98coding.diary.domain.checklist.usecase.GetChecklistItemUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.ResetChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UncheckChecklistItemUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -90,7 +91,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-931c50e0-f873-486a-96a9-7ba8a3d655cd 처음 정렬은 추가순이고 체크 안 된 항목 우선으로 바꾸면 그 정렬로 조회한 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val addedList = itemList(checklistId = checklistId)
                 val uncheckedFirstList = addedList.sortedBy(ChecklistItem::isChecked)
                 val viewModel =
@@ -117,7 +118,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-a4312274-e3e0-4f1a-86d0-c510baefba8c TC-546a404f-b57e-4a88-9208-f2208d629640 정렬을 바꾼 뒤 새로 만든 화면 상태는 추가순으로 시작한다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val addedList = itemList(checklistId = checklistId)
                 val itemListBySort =
                     mapOf(
@@ -143,9 +144,9 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-b1fba11a-2793-40a4-b7df-24d0e36b311f 다른 경로에서 바뀐 체크 항목을 조작 없이 노출한다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val before = itemList(checklistId = checklistId)
-                val added = before + fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId)
+                val added = before + Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId).next()
                 val removed = added.drop(1)
                 val toggled = removed.map { item -> item.copy(isChecked = !item.isChecked) }
                 val itemListFlow = MutableStateFlow(Result.success(before))
@@ -165,14 +166,14 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
         }
 
         test("TC-5ab08f6f-bc21-44ac-b28b-5f555cc7b256 체크된 항목이 하나라도 있을 때만 리셋을 실행할 수 있다") {
-            val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+            val checklistId = Arb.kotlinUuid().next()
             val expectedByItemList =
                 listOf(
                     listOf(
-                        fixtureMonkey.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId),
-                        fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId),
+                        Arb.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next(),
+                        Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId).next(),
                     ) to true,
-                    List(ITEM_COUNT) { fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId) } to false,
+                    List(ITEM_COUNT) { Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId).next() } to false,
                     emptyList<ChecklistItem>() to false,
                 )
 
@@ -183,8 +184,8 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-91c04294-1047-4551-ac4e-49792a4ffa10 체크 안 된 항목을 선택하면 체크를, 체크된 항목을 선택하면 체크 해제를 한 번 요청한다") {
             runTest(mainDispatcher) {
-                val unchecked = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
-                val checked = fixtureMonkey.checklistItem(isChecked = true, isDeleted = false)
+                val unchecked = Arb.checklistItem(isChecked = false, isDeleted = false).next()
+                val checked = Arb.checklistItem(isChecked = true, isDeleted = false).next()
                 val checkChecklistItemUseCase = mockk<CheckChecklistItemUseCase>()
                 coEvery { checkChecklistItemUseCase(parameter = unchecked.id) } returns Result.success(1)
                 val uncheckChecklistItemUseCase = mockk<UncheckChecklistItemUseCase>()
@@ -206,9 +207,9 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-1338f2e3-c194-4674-94c8-1080d348f33e 체크 변경을 저장하지 못하면 안내 없이 다시 선택할 수 있다") {
             runTest(mainDispatcher) {
-                val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
+                val item = Arb.checklistItem(isChecked = false, isDeleted = false).next()
                 val checkChecklistItemUseCase = mockk<CheckChecklistItemUseCase>()
-                coEvery { checkChecklistItemUseCase(parameter = item.id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { checkChecklistItemUseCase(parameter = item.id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(checkChecklistItemUseCase = checkChecklistItemUseCase)
 
                 viewModel.effect.test {
@@ -225,8 +226,8 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-24f673e1-181e-4255-830d-ed71b458017d 항목 넣기에 성공하면 대상 체크리스트에 그 내용으로 넣기를 한 번 요청하고 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
-                val content = fixtureMonkey.nonBlankString()
+                val checklistId = Arb.kotlinUuid().next()
+                val content = Arb.nonBlankString().next()
                 val parameter = AddChecklistItemUseCase.Parameter(checklistId = checklistId, content = content)
                 val addChecklistItemUseCase = mockk<AddChecklistItemUseCase>()
                 coEvery { addChecklistItemUseCase(parameter = parameter) } returns Result.success(1)
@@ -245,11 +246,11 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
         test("TC-3909f080-7f22-4bc3-b8b2-ac3c67c7cd3f 항목 넣기를 저장하지 못하면 성공을 알리지 않는다") {
             runTest(mainDispatcher) {
                 val addChecklistItemUseCase = mockk<AddChecklistItemUseCase>()
-                coEvery { addChecklistItemUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { addChecklistItemUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(addChecklistItemUseCase = addChecklistItemUseCase)
 
                 viewModel.effect.test {
-                    viewModel.add(content = fixtureMonkey.nonBlankString())
+                    viewModel.add(content = Arb.nonBlankString().next())
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -260,7 +261,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-1ffe5e8c-f3fa-47c8-99fe-09c4183e2269 항목을 빼면 그 항목의 빼기를 한 번 요청한다") {
             runTest(mainDispatcher) {
-                val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
+                val item = Arb.checklistItem(isChecked = false, isDeleted = false).next()
                 val deleteChecklistItemUseCase = mockk<DeleteChecklistItemUseCase>()
                 coEvery { deleteChecklistItemUseCase(parameter = item.id) } returns Result.success(1)
                 val viewModel = viewModel(deleteChecklistItemUseCase = deleteChecklistItemUseCase)
@@ -274,9 +275,9 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-e2a22549-de97-4584-b123-e360ac322a56 항목 빼기를 저장하지 못하면 안내 없이 다시 뺄 수 있다") {
             runTest(mainDispatcher) {
-                val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
+                val item = Arb.checklistItem(isChecked = false, isDeleted = false).next()
                 val deleteChecklistItemUseCase = mockk<DeleteChecklistItemUseCase>()
-                coEvery { deleteChecklistItemUseCase(parameter = item.id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteChecklistItemUseCase(parameter = item.id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(deleteChecklistItemUseCase = deleteChecklistItemUseCase)
 
                 viewModel.effect.test {
@@ -293,7 +294,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 리셋을 확정하면 대상 체크리스트의 리셋을 한 번 요청한다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
                 coEvery { resetChecklistUseCase(parameter = checklistId) } returns Result.success(1)
                 val viewModel = viewModel(checklistId = checklistId, resetChecklistUseCase = resetChecklistUseCase)
@@ -350,7 +351,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
                     skipItems(1)
                     awaitItem().isAddInProgress shouldBe false
 
-                    viewModel.add(content = fixtureMonkey.nonBlankString())
+                    viewModel.add(content = Arb.nonBlankString().next())
                     awaitItem().isAddInProgress shouldBe true
 
                     gate.complete(Unit)
@@ -361,7 +362,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-7884b5f4-c64b-4bb7-8b16-00b41bcbfcdc 정렬을 고른 뒤 항목이 모두 없어졌다가 다시 생겨도 고른 정렬로 조회한다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val restored = itemList(checklistId = checklistId).sortedBy(ChecklistItem::isChecked)
                 val uncheckedFirstFlow = MutableStateFlow(Result.success(restored))
                 val viewModel =
@@ -393,9 +394,9 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-0a0cf3fa-afb8-48dd-9d97-5cca495ff251 리셋을 저장하지 못하면 안내 없이 진행 상태만 해제하고 다시 리셋할 수 있다") {
             runTest(mainDispatcher) {
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val checklistId = Arb.kotlinUuid().next()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
-                coEvery { resetChecklistUseCase(parameter = checklistId) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { resetChecklistUseCase(parameter = checklistId) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(checklistId = checklistId, resetChecklistUseCase = resetChecklistUseCase)
 
                 viewModel.effect.test {
@@ -429,9 +430,9 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
                 viewModel.reset()
                 runCurrent()
                 viewModel.reset()
-                viewModel.add(content = fixtureMonkey.nonBlankString())
+                viewModel.add(content = Arb.nonBlankString().next())
                 runCurrent()
-                viewModel.add(content = fixtureMonkey.nonBlankString())
+                viewModel.add(content = Arb.nonBlankString().next())
                 gate.complete(Unit)
                 advanceUntilIdle()
 
@@ -442,8 +443,8 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
 
         test("TC-dbb55974-a5c4-4272-b99b-52ecb3c30bf0 한 항목의 체크 변경과 빼기는 그 항목에만 제한하고 다른 항목은 요청한다") {
             runTest(mainDispatcher) {
-                val first = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
-                val second = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
+                val first = Arb.checklistItem(isChecked = false, isDeleted = false).next()
+                val second = Arb.checklistItem(isChecked = false, isDeleted = false).next()
                 val gate = CompletableDeferred<Unit>()
                 val checkChecklistItemUseCase = mockk<CheckChecklistItemUseCase>()
                 coEvery { checkChecklistItemUseCase(parameter = any()) } coAnswers {
@@ -475,20 +476,17 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
     }
 }
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private const val ITEM_COUNT = 3
 
 private fun itemList(checklistId: Uuid): List<ChecklistItem> =
     listOf(
-        fixtureMonkey.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId),
-        fixtureMonkey.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId),
-        fixtureMonkey.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId),
+        Arb.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next(),
+        Arb.checklistItem(isChecked = false, isDeleted = false, checklistId = checklistId).next(),
+        Arb.checklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next(),
     )
 
 private fun viewModel(
-    checklistId: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+    checklistId: Uuid = Arb.kotlinUuid().next(),
     itemListBySort: Map<ChecklistItemSort, Flow<Result<List<ChecklistItem>>>> = emptyMap(),
     addChecklistItemUseCase: AddChecklistItemUseCase = mockk(),
     checkChecklistItemUseCase: CheckChecklistItemUseCase = mockk(),

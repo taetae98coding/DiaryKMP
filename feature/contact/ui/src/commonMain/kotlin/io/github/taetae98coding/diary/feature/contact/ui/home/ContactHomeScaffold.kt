@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
@@ -26,9 +27,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.nameListSortList
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_add_button_content_description
@@ -44,11 +45,12 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun ContactHomeScaffold(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
+    onContactListEvent: (ContactListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     filterSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
+    contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.NAME },
     filterUiStateProvider: () -> ContactHomeFilterUiState = { ContactHomeFilterUiState() },
@@ -87,6 +89,7 @@ internal fun ContactHomeScaffold(
 
             ContactHomeList(
                 onEvent = onEvent,
+                onContactListEvent = onContactListEvent,
                 modifier = Modifier.fillMaxSize(),
                 contactPagingItems = contactPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -149,6 +152,7 @@ private fun ContactHomeScaffoldPreview(
     DiaryTheme {
         ContactHomeScaffold(
             onEvent = {},
+            onContactListEvent = {},
             filterUiStateProvider = { filterUiState },
         )
     }

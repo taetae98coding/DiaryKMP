@@ -24,9 +24,10 @@ import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderD
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QrListEvent
+import io.github.taetae98coding.diary.compose.qr.SwipeQrCard
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.feature.qr.ui.Res
-import io.github.taetae98coding.diary.feature.qr.ui.card.SwipeToDeleteQrCard
 import io.github.taetae98coding.diary.feature.qr.ui.previewQr
 import io.github.taetae98coding.diary.feature.qr.ui.qr_home_empty_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_home_empty_title
@@ -36,6 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun QrHomeList(
     onEvent: (QrHomeScaffoldEvent) -> Unit,
+    onQrListEvent: (QrListEvent) -> Unit,
     modifier: Modifier = Modifier,
     gridState: LazyGridState = rememberLazyGridState(),
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
@@ -77,9 +79,8 @@ internal fun QrHomeList(
                 ) { index ->
                     val qr = qrPagingItems[index]
 
-                    SwipeToDeleteQrCard(
-                        onClick = { qr?.let { value -> onEvent(QrHomeScaffoldEvent.ClickQr(id = value.id)) } },
-                        onDelete = { qr?.let { value -> onEvent(QrHomeScaffoldEvent.DeleteQr(id = value.id)) } },
+                    SwipeQrCard(
+                        onEvent = onQrListEvent,
                         modifier =
                             Modifier
                                 .animateItem()
@@ -107,6 +108,7 @@ private fun QrHomeListPreview() {
     DiaryTheme {
         QrHomeList(
             onEvent = {},
+            onQrListEvent = {},
             modifier = Modifier.fillMaxSize(),
             qrPagingItems = qrPagingData.collectAsLazyPagingItems(),
         )

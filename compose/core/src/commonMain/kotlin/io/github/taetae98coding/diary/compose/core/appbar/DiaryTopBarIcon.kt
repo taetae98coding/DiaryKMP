@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.compose.core.icon.Delete
 import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
 import io.github.taetae98coding.diary.compose.core.icon.Download
 import io.github.taetae98coding.diary.compose.core.icon.FilterList
+import io.github.taetae98coding.diary.compose.core.icon.Key
 import io.github.taetae98coding.diary.compose.core.icon.List
 import io.github.taetae98coding.diary.compose.core.icon.Mail
 import io.github.taetae98coding.diary.compose.core.icon.Map
@@ -34,6 +35,7 @@ public enum class DiaryTopBarIcon {
     DOWNLOAD,
     FILTER,
     FINISH,
+    KEY,
     LIST,
     MAIL,
     MAP,
@@ -61,6 +63,7 @@ internal val DiaryTopBarIcon.imageVector: ImageVector
             DiaryTopBarIcon.DOWNLOAD -> DiaryIcons.Download
             DiaryTopBarIcon.FILTER -> DiaryIcons.FilterList
             DiaryTopBarIcon.FINISH -> DiaryIcons.Verified
+            DiaryTopBarIcon.KEY -> DiaryIcons.Key
             DiaryTopBarIcon.LIST -> DiaryIcons.List
             DiaryTopBarIcon.MAIL -> DiaryIcons.Mail
             DiaryTopBarIcon.MAP -> DiaryIcons.Map

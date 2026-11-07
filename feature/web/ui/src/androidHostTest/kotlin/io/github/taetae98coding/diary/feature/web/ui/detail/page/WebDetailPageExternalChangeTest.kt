@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
@@ -28,9 +26,12 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailVi
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
@@ -38,8 +39,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -72,7 +71,7 @@ class WebDetailPageExternalChangeTest {
         shadowOf(findWebView()).lastLoadedUrl shouldBe INITIAL_URL
 
         composeRule.runOnIdle {
-            uiState = initial.copy(detail = initial.detail.copy(url = CHANGED_URL, headerList = initial.detail.headerList + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())))
+            uiState = initial.copy(detail = initial.detail.copy(url = CHANGED_URL, headerList = initial.detail.headerList + WebHeader(name = "header-${Arb.string().next()}", value = Arb.string().next())))
         }
         composeRule.waitForIdle()
 
@@ -110,6 +109,43 @@ class WebDetailPageExternalChangeTest {
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-8e6cfe9b-b844-467e-8d6b-5706ed948407 URL 방식에서 저장된 요청 헤더만 바뀌면 웹 표시 수단은 문서 안에서 이동한 주소를 유지한다`() {
+        val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
+        var uiState: WebDetailUiState by mutableStateOf(initial)
+        composeRule.setContent {
+            DiaryTheme {
+                val state = rememberWebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
+
+                WebDetailScaffold(
+                    onEvent = {},
+                    state = state,
+                    formState = rememberWebDetailFormState(initialDetail = initial.detail),
+                    uiStateProvider = { uiState },
+                    pageUiStateProvider = { WebDetailPageUiState.Loading },
+                    onFormEvent = {},
+                    onTagPickerEvent = {},
+                ) {
+                    EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        val webView = findWebView()
+        // 문서 안의 링크 이동은 앱을 거치지 않고 웹 표시 수단 안에서 일어나므로, 웹 표시 수단을 직접 다른 주소로 옮긴다.
+        composeRule.runOnUiThread { webView.loadUrl(NAVIGATED_URL) }
+        composeRule.waitForIdle()
+        shadowOf(webView).lastLoadedUrl shouldBe NAVIGATED_URL
+
+        composeRule.runOnIdle {
+            uiState = initial.copy(detail = initial.detail.copy(headerList = initial.detail.headerList + WebHeader(name = "header-${Arb.string().next()}", value = Arb.string().next())))
+        }
+        composeRule.waitForIdle()
+
+        findWebView() shouldBeSameInstanceAs webView
+        shadowOf(findWebView()).lastLoadedUrl shouldBe NAVIGATED_URL
+    }
+
     private fun findWebView(): WebView =
         composeRule.activity.window.decorView
             .findWebView()
@@ -125,5 +161,6 @@ class WebDetailPageExternalChangeTest {
     private companion object {
         const val INITIAL_URL = "https://developer.android.com/"
         const val CHANGED_URL = "https://kotlinlang.org/"
+        const val NAVIGATED_URL = "https://github.com/"
     }
 }

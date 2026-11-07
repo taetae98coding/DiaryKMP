@@ -1,7 +1,11 @@
 package io.github.taetae98coding.diary.feature.web.ui.home
 
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
@@ -49,8 +53,8 @@ class WebHomeSortTest {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
-        composeRule.onAllNodesWithText(DEFAULT_TITLE_SORT).onLast().assertExists()
-        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        composeRule.onNode(hasText(DEFAULT_TITLE_SORT) and isSelectable()).assertIsSelected()
+        composeRule.onNode(hasText(DEFAULT_RECENTLY_UPDATED_SORT) and isSelectable()).assertIsNotSelected()
         composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertDoesNotExist()
     }
 

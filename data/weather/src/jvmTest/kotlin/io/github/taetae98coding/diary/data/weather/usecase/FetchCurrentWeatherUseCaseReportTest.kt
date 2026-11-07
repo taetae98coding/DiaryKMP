@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.data.weather.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
+import io.github.taetae98coding.diary.core.testing.ip.ipRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -15,6 +16,9 @@ import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,19 +30,16 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchCurrentWeatherUseCaseReportTest :
     BehaviorSpec({
         Given("오류 보고 기록 수단이 등록되어 있고 위치 확인과 현재 날씨·시간대별 예보 조회는 성공하며 지역명 조회만 실패하도록 제어되어 있다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws
-                FetchCurrentWeatherUseCaseReportTestException(fixtureMonkey.giveMeOne())
+                FetchCurrentWeatherUseCaseReportTestException(Arb.string().next())
             val useCase =
                 useCase(
                     weatherRemoteDataSource = weatherRemoteDataSource,
-                    clock = clock { fixtureMonkey.giveMeOne<Instant>() },
+                    clock = clock { Arb.secondPrecisionInstant().next() },
                 )
             val reportList = recordCrashlyticsLog()
 
@@ -54,7 +55,7 @@ class FetchCurrentWeatherUseCaseReportTest :
 
         Given("오류 보고 기록 수단이 등록되어 있고 날씨 동기화가 성공한 뒤 아직 1시간이 지나지 않았다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            var now = Arb.secondPrecisionInstant().next()
             val useCase =
                 useCase(
                     weatherRemoteDataSource = weatherRemoteDataSource,
@@ -88,7 +89,7 @@ private fun useCase(
     val locationProvider = mockk<LocationProvider>()
     coEvery { locationProvider.getCurrentLocation() } returns null
     val ipRemoteDataSource = mockk<IpRemoteDataSource>()
-    coEvery { ipRemoteDataSource.get() } returns fixtureMonkey.giveMeOne()
+    coEvery { ipRemoteDataSource.get() } returns Arb.ipRemoteEntity().next()
 
     return koinApplication<WeatherDataTestKoinApplication> {
         modules(
@@ -106,8 +107,8 @@ private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
         coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
-        coEvery { dataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.getCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
+        coEvery { dataSource.getForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
     }
 
 private fun clock(now: () -> Instant): Clock =

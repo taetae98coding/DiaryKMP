@@ -9,19 +9,24 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.file)
                 implementation(projects.feature.file.api)
+                implementation(projects.feature.more.api)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
 
         jvmTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(libs.androidx.paging.testing)
             }
         }
 
         androidHostTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
         }

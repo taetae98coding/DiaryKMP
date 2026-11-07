@@ -85,3 +85,7 @@
 - [QrHome 화면 디자인](./qr-home.md)
 - [WebHome 화면 디자인](./web-home.md)
 - [TagDetail 웹 탭 디자인](./tag-detail-web.md): 삭제 스와이프만 따른다
+- [TagDetail 연락처 탭 디자인](./tag-detail-contact.md): 삭제 스와이프만 따른다
+- [TagDetail 체크리스트 탭 디자인](./tag-detail-checklist.md): 삭제 스와이프만 따른다
+- [TagDetail 곡 탭 디자인](./tag-detail-music.md): 삭제 스와이프만 따른다
+- [TagDetail QR 탭 디자인](./tag-detail-qr.md): 삭제 스와이프만 따른다

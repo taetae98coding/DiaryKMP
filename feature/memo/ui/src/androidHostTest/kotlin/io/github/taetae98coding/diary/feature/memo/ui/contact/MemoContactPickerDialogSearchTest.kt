@@ -85,7 +85,7 @@ class MemoContactPickerDialogSearchTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
         composeRule.waitForIdle()
 
-        selectedIdList shouldBe listOf(contact.id)
+        selectedIdList shouldBe listOf(contact.contact.id)
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
     }
 
@@ -128,7 +128,7 @@ class MemoContactPickerDialogSearchTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
         composeRule.waitForIdle()
 
-        unselectedIdList shouldBe listOf(contact.id)
+        unselectedIdList shouldBe listOf(contact.contact.id)
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
     }
 

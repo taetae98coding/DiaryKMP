@@ -42,6 +42,49 @@ internal class MemoHomeSyncViewModel(
 ) : ViewModel()
 ```
 
+## ViewModel 상속 대신 합성
+
+**ViewModel은 androidx `ViewModel`만 상속한다.** 여러 ViewModel이 함께 쓰는 로직은 추상·open ViewModel로 올리지 않고, 필요한 UseCase를 생성자로 받는 일반 상태 홀더 클래스로 뽑아 각 ViewModel이 `private` 필드로 합성한다. ViewModel은 화면에 필요한 값과 함수만 홀더에 위임해 노출한다. 상속하면 한 화면의 동작이 부모와 자식 여러 파일에 흩어지고, 부모를 바꾸면 모든 자식에 전파되며, 테스트가 계층 전체를 알아야 한다.
+
+**홀더는 `CoroutineScope`를 받지 않는다.** Flow 변환과 `suspend` 함수만 내보내고, `launch`·`stateIn`·`cachedIn`은 ViewModel이 `viewModelScope`로 적용한다([main-safety.md](main-safety.md)의 `그 밖의 작업은 suspend로 내보내고 호출자가 scope를 정한다`). 홀더의 `suspend` 함수에 둔 `UseCase 호출 가드`는 함수 첫 줄에서 판단하고 `try`·`finally`로 해제한다.
+
+**구성 차이가 상수 하나면 하위 클래스를 만들지 않고 `@InjectedParam` 파라미터로 넘긴다.** 여러 화면이 같은 ViewModel 타입을 받아야 하면 공통 인터페이스를 두고 각 ViewModel이 구현한다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+public abstract class EntityDetailTagViewModel(private val kind: EntityTagKind, ...) : ViewModel()
+
+// 종류 상수 하나를 고정하려고 하위 클래스를 둔다.
+@KoinViewModel
+internal class ContactDetailTagViewModel(@InjectedParam id: Uuid, ...) : EntityDetailTagViewModel(kind = EntityTagKind.CONTACT, ...)
+```
+
+✅ 권장 예시:
+
+```kotlin
+public class MemoListState(pageMemo: (ListSort) -> Flow<Result<PagingData<Memo>>>) {
+    public val memoPagingData: Flow<PagingData<MemoListItem>> = ...
+}
+
+@KoinViewModel
+internal class MemoFinishedListViewModel(pageFinishedMemoUseCase: PageFinishedMemoUseCase, ...) : ViewModel() {
+    private val memoListState = MemoListState(pageMemo = { sort -> pageFinishedMemoUseCase(parameter = sort) })
+    private val memoActions = ListItemActions(...)
+
+    val memoPagingData: Flow<PagingData<MemoListItem>> = memoListState.memoPagingData.cachedIn(viewModelScope)
+
+    fun finish(id: Uuid) {
+        viewModelScope.launch { memoActions.finish(id = id) }
+    }
+}
+
+@KoinViewModel
+public class EntityDetailTagViewModel(@InjectedParam private val kind: EntityTagKind, @InjectedParam private val entityId: Uuid, ...) : ViewModel()
+
+koinViewModel<EntityDetailTagViewModel> { parametersOf(EntityTagKind.CONTACT, key.id) }
+```
+
 ## UiState 소유
 
 **UiState를 만드는 것은 ViewModel의 일이다.** ViewModel은 UseCase가 주는 값을 조합해 `StateFlow<XxxUiState>`로 노출하고, 컴포저블은 그 UiState를 받아 표시만 한다. 컴포저블에 `Boolean`이나 도메인 모델을 그대로 넘겨 화면이 UiState를 다시 만들게 하지 않는다. 표시 여부 판단(`isMapDisplayed = provider != null` 같은 것)이 UiState 밖으로 새면 화면마다 흩어진다.

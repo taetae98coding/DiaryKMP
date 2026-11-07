@@ -15,9 +15,11 @@ let package = Package(
   dependencies: [
     .package(path: "subpackages/_app_ios"),
     .package(path: "subpackages/_app_shared"),
+    .package(path: "subpackages/_compose_credential"),
     .package(path: "subpackages/_compose_map"),
     .package(path: "subpackages/_compose_place"),
     .package(path: "subpackages/_core_fcm_impl"),
+    .package(path: "subpackages/_feature_account_ui"),
     .package(path: "subpackages/_feature_login_ui"),
     .package(path: "subpackages/_feature_memo_ui"),
     .package(path: "subpackages/_feature_place_ui"),
@@ -33,9 +35,11 @@ let package = Package(
       dependencies: [
         .product(name: "_app_ios", package: "_app_ios"),
         .product(name: "_app_shared", package: "_app_shared"),
+        .product(name: "_compose_credential", package: "_compose_credential"),
         .product(name: "_compose_map", package: "_compose_map"),
         .product(name: "_compose_place", package: "_compose_place"),
         .product(name: "_core_fcm_impl", package: "_core_fcm_impl"),
+        .product(name: "_feature_account_ui", package: "_feature_account_ui"),
         .product(name: "_feature_login_ui", package: "_feature_login_ui"),
         .product(name: "_feature_memo_ui", package: "_feature_memo_ui"),
         .product(name: "_feature_place_ui", package: "_feature_place_ui"),

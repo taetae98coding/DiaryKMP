@@ -136,6 +136,24 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
+    fun `TC-1c05a6a8-a058-4892-8625-16983715e4d0 검색어로 좁힌 목록에서도 선택 해제를 전달한다`() {
+        val workTag = testTag(title = WORK_TAG_TITLE)
+        val unselectedIdList = mutableListOf<Uuid>()
+        composeRule.setMemoTagPickerDialog(
+            tagList = listOf(workTag),
+            query = WORK_TAG_QUERY,
+            uiState = MemoTagInputUiState(selectedTagList = listOf(workTag)),
+            onTagUnselect = unselectedIdList::add,
+        )
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        unselectedIdList shouldBe listOf(workTag.id)
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-7530070e-27db-4fd9-af72-19a6ad9028d1 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),

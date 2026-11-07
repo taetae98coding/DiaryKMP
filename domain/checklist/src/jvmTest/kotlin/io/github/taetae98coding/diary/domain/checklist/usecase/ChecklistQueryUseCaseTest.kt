@@ -2,19 +2,23 @@ package io.github.taetae98coding.diary.domain.checklist.usecase
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistItem
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistItemRepository
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistRepository
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,9 +29,9 @@ import kotlin.uuid.Uuid
 class ChecklistQueryUseCaseTest :
     BehaviorSpec({
         Given("현재 계정의 체크리스트와 진행 정도가 기기에 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val summaryList =
-                List(2) { ChecklistSummary(checklist = fixtureMonkey.checklist(isDeleted = false), checkedCount = 1, totalCount = 2) }
+                List(2) { ChecklistSummary(checklist = Arb.checklist(isDeleted = false).next(), checkedCount = 1, totalCount = 2) }
             val repository = mockk<AccountChecklistRepository>()
             every { repository.page(account = account) } returns flowOf(PagingData.from(summaryList))
 
@@ -42,7 +46,7 @@ class ChecklistQueryUseCaseTest :
         }
 
         Given("현재 계정 조회가 실패하도록 설정되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val checklistRepository = mockk<AccountChecklistRepository>()
             val itemRepository = mockk<AccountChecklistItemRepository>()
 
@@ -56,7 +60,7 @@ class ChecklistQueryUseCaseTest :
             }
 
             When("체크리스트 하나를 조회한다") {
-                val result = FindChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)(parameter = fixtureMonkey.giveMeOne()).first()
+                val result = FindChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)(parameter = Arb.kotlinUuid().next()).first()
 
                 Then("TC-cd7f5929-faaf-4830-9230-c34621b1f7ab 계정 조회 실패를 그대로 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
@@ -66,7 +70,7 @@ class ChecklistQueryUseCaseTest :
             When("체크 항목을 조회한다") {
                 val result =
                     GetChecklistItemUseCase(failingGetAccountUseCase(throwable), itemRepository)(
-                        parameter = GetChecklistItemUseCase.Parameter(checklistId = fixtureMonkey.giveMeOne(), sort = ChecklistItemSort.ADDED),
+                        parameter = GetChecklistItemUseCase.Parameter(checklistId = Arb.kotlinUuid().next(), sort = ChecklistItemSort.ADDED),
                     ).first()
 
                 Then("계정 조회 실패를 그대로 전달한다") {
@@ -76,8 +80,8 @@ class ChecklistQueryUseCaseTest :
         }
 
         Given("현재 계정과 연결된 체크리스트가 삭제 상태로 저장되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val checklist = fixtureMonkey.checklist(isDeleted = true)
+            val account = Arb.accountUser().next()
+            val checklist = Arb.checklist(isDeleted = true).next()
             val repository = mockk<AccountChecklistRepository>()
             every { repository.find(account = account, checklistId = checklist.id) } returns flowOf(checklist)
 
@@ -92,10 +96,10 @@ class ChecklistQueryUseCaseTest :
 
         listOf(ChecklistItemSort.ADDED, ChecklistItemSort.UNCHECKED_FIRST).forEach { sort ->
             Given("현재 계정과 연결된 체크리스트의 체크 항목이 저장되어 있다 ($sort)") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
-                val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+                val account = Arb.accountUser().next()
+                val checklistId = Arb.kotlinUuid().next()
                 val itemList =
-                    listOf(true, false).map { isChecked -> fixtureMonkey.checklistItem(isChecked = isChecked, isDeleted = false, checklistId = checklistId) }
+                    listOf(true, false).map { isChecked -> Arb.checklistItem(isChecked = isChecked, isDeleted = false, checklistId = checklistId).next() }
                 val repository = mockk<AccountChecklistItemRepository>()
                 every { repository.get(account = account, checklistId = checklistId, sort = sort) } returns flowOf(itemList)
 

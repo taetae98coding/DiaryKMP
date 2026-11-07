@@ -213,6 +213,13 @@
 - When: 사용자가 목록에서 파일 하나를 선택한다.
 - Then: 목록은 그대로 유지되고 상세 영역이 그 파일의 FileDetail로 바뀐다.
 
+### TC-12078c1d-5652-4eb6-b4f9-bedc705c8cbc: 상세 영역의 FileDetail에서 저장하지 않은 입력은 그 FileDetail을 벗어나면 남지 않는다
+
+- 근거: `feature > 상세 영역의 구성`
+- Given: 파일 목록과 선택한 파일의 FileDetail이 함께 표시되어 있고, 사용자가 FileDetail의 제목을 저장하지 않은 채 고쳐 두었다.
+- When: 사용자가 상세 영역에서 시스템 뒤로가기를 실행한 뒤 목록에서 같은 파일을 다시 선택한다.
+- Then: 상세 영역의 FileDetail 제목에 고쳐 둔 값이 아니라 그 파일의 저장된 제목이 표시된다.
+
 ### TC-28f6f7bf-80cc-467a-8f3a-b5a40ddda245: 목록에서 연 FileAdd를 닫아도 선택 전 FileAdd의 작성 내용이 남는다
 
 - 근거: `feature > 상세 영역의 구성`, `domain > 유지와 초기화 기준`

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class QrAddViewModel(
@@ -44,13 +45,16 @@ internal class QrAddViewModel(
     private val _effect = Channel<QrAddEffect>(Channel.BUFFERED)
     val effect: Flow<QrAddEffect> = _effect.receiveAsFlow()
 
-    fun add(detail: QrDetail) {
+    fun add(
+        detail: QrDetail,
+        tagIdSet: Set<Uuid>,
+    ) {
         if (isInProgress.value) return
 
         viewModelScope.launch {
             isInProgress.value = true
             try {
-                addQrUseCase(parameter = detail)
+                addQrUseCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = tagIdSet))
                     .onSuccess { _effect.send(QrAddEffect.AddSucceeded) }
                     .onFailure { throwable ->
                         when (throwable) {

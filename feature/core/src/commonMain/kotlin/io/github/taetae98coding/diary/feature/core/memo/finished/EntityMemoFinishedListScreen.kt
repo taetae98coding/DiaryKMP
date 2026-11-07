@@ -27,7 +27,7 @@ public fun EntityMemoFinishedListScreen(
     navigateUp: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     emptyTitle: String,
-    memoViewModel: EntityMemoFinishedListViewModel,
+    memoViewModel: EntityMemoFinishedListController,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {

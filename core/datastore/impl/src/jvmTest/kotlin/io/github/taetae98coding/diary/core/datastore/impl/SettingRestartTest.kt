@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import org.koin.core.Koin
 import org.koin.core.qualifier.named
@@ -18,12 +18,10 @@ import kotlin.io.path.copyTo
 import kotlin.io.path.createTempDirectory
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class SettingRestartTest :
     FunSpec({
         test("TC-248fde95-f36c-453f-8893-f07f4bc4b0bd 앱을 다시 시작해도 저장한 Gemini 설정을 제공한다") {
-            val suffix = fixtureMonkey.giveMeOne<Uuid>()
+            val suffix = Arb.kotlinUuid().next()
             val setting = GeminiSettingLocalEntity(apiKey = "apiKey-$suffix", model = "models/$suffix", systemPrompt = "지시문 $suffix")
             val directory = createTempDirectory("diary-setting")
             createSettingKoin(directory).get<GeminiSettingLocalDataSource>().upsert(setting = setting)

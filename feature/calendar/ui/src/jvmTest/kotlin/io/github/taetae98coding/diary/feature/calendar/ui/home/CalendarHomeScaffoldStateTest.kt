@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.material3.SnackbarHostState
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
@@ -20,7 +20,7 @@ class CalendarHomeScaffoldStateTest :
         test("초기에는 날짜 선택 다이얼로그가 닫혀 있다") {
             val state =
                 CalendarHomeScaffoldState(
-                    calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
+                    calendarState = CalendarState(initialYearMonth = giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
                     snackbarHostState = SnackbarHostState(),
                 )
@@ -31,7 +31,7 @@ class CalendarHomeScaffoldStateTest :
         test("초기에는 오늘 날짜가 정해져 있지 않다") {
             val state =
                 CalendarHomeScaffoldState(
-                    calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
+                    calendarState = CalendarState(initialYearMonth = giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
                     snackbarHostState = SnackbarHostState(),
                 )
@@ -42,7 +42,7 @@ class CalendarHomeScaffoldStateTest :
         test("updateToday는 사용자의 현재 시간대 기준 오늘로 갱신한다") {
             val state =
                 CalendarHomeScaffoldState(
-                    calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
+                    calendarState = CalendarState(initialYearMonth = giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
                     snackbarHostState = SnackbarHostState(),
                 )
@@ -56,7 +56,7 @@ class CalendarHomeScaffoldStateTest :
         }
 
         test("showDatePicker는 현재 표시 중인 달의 1일로 날짜 선택 다이얼로그를 표시한다") {
-            val yearMonth = fixtureMonkey.giveMeYearMonth()
+            val yearMonth = giveMeYearMonth()
             val state =
                 CalendarHomeScaffoldState(
                     calendarState = CalendarState(initialYearMonth = yearMonth),
@@ -71,13 +71,10 @@ class CalendarHomeScaffoldStateTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun FixtureMonkey.giveMeYearMonth(): YearMonth =
+        private fun giveMeYearMonth(): YearMonth =
             YearMonth(
-                year = giveMeOne<Int>().mod(9999) + 1,
-                month = Month(giveMeOne<Int>().mod(12) + 1),
+                year = Arb.int(1..9999).next(),
+                month = Month(Arb.int(1..12).next()),
             )
     }
 }

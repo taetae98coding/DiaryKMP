@@ -24,6 +24,19 @@ internal interface AccountCalendarContactBirthdayDao {
         ),
         birthday_occurrence AS (
             SELECT contact.id AS contact_id, contact.name AS name,
+                CASE
+                    WHEN EXISTS(
+                        SELECT 1
+                        FROM contact AS same_name_contact
+                        INNER JOIN account_contact AS same_name_account_contact
+                            ON same_name_account_contact.contact_id = same_name_contact.id
+                                AND same_name_account_contact.account_id = :accountId
+                        WHERE same_name_contact.name = contact.name
+                            AND same_name_contact.id != contact.id
+                            AND same_name_contact.is_deleted = 0
+                    ) THEN contact.how_we_met
+                    ELSE ''
+                END AS name_qualifier,
                 printf('%04d', target_year.year) || substr(contact.birthday, 5) AS birthday_date
             FROM contact
             INNER JOIN account_contact
@@ -34,7 +47,7 @@ internal interface AccountCalendarContactBirthdayDao {
                 AND (contact.birthday_calendar IS NULL OR contact.birthday_calendar = :solarCalendar)
                 AND target_year.year >= CAST(strftime('%Y', contact.birthday) AS INTEGER)
         )
-        SELECT contact_id, name, birthday_date
+        SELECT contact_id, name, name_qualifier, birthday_date
         FROM birthday_occurrence
         WHERE date(birthday_date) = birthday_date
             AND birthday_date >= date(:start)
@@ -51,7 +64,20 @@ internal interface AccountCalendarContactBirthdayDao {
 
     @Query(
         """
-        SELECT contact.id AS contact_id, contact.name AS name, contact.birthday AS birthday
+        SELECT contact.id AS contact_id, contact.name AS name, contact.birthday AS birthday,
+            CASE
+                WHEN EXISTS(
+                    SELECT 1
+                    FROM contact AS same_name_contact
+                    INNER JOIN account_contact AS same_name_account_contact
+                        ON same_name_account_contact.contact_id = same_name_contact.id
+                            AND same_name_account_contact.account_id = :accountId
+                    WHERE same_name_contact.name = contact.name
+                        AND same_name_contact.id != contact.id
+                        AND same_name_contact.is_deleted = 0
+                ) THEN contact.how_we_met
+                ELSE ''
+            END AS name_qualifier
         FROM contact
         INNER JOIN account_contact
             ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId

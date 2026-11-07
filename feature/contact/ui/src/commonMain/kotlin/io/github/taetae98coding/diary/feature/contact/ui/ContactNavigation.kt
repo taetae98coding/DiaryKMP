@@ -19,3 +19,7 @@ internal fun NavBackStack<ScreenNavKey>.navigateToContactDetail(id: Uuid) {
 internal fun NavBackStack<ScreenNavKey>.navigateUpFromContactHome() {
     navigateUpTo(homeKey = ContactHomeNavKey)
 }
+
+internal fun NavBackStack<ScreenNavKey>.navigateToContactAddFromHome() {
+    add(ContactAddNavKey())
+}

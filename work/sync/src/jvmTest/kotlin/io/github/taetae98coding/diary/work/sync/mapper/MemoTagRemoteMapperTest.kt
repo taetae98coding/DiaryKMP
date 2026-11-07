@@ -1,13 +1,14 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
+import io.github.taetae98coding.diary.core.testing.memotag.memoTagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 
 class MemoTagRemoteMapperTest :
@@ -59,21 +60,22 @@ class MemoTagRemoteMapperTest :
         }
     })
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private fun localMemoTag(isDeleted: Boolean): MemoTagLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoTagLocalEntity>()
-        .setExp(MemoTagLocalEntity::isDeleted, isDeleted)
-        .setExp(MemoTagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(MemoTagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memoTagLocalEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun remoteMemoTag(isDeleted: Boolean): MemoTagRemoteEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoTagRemoteEntity>()
-        .setExp(MemoTagRemoteEntity::isDeleted, isDeleted)
-        .setExp(MemoTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(MemoTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memoTagRemoteEntity()
+        .next()
+        .copy(
+            isDeleted = isDeleted,
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )

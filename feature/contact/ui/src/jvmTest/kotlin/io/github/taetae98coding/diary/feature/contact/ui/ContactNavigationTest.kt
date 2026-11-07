@@ -1,28 +1,36 @@
 package io.github.taetae98coding.diary.feature.contact.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ContactNavigationTest :
     FunSpec({
+        test("TC-14e615c4-29a1-419a-a590-ebca89aaad7b ContactHome에서 연락처 추가를 선택하면 초기 태그 없는 연락처 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(ContactHomeNavKey)
+
+            backStack.navigateToContactAddFromHome()
+
+            backStack shouldContainExactly listOf(ContactHomeNavKey, ContactAddNavKey())
+            (backStack.last() as ContactAddNavKey).initialTagId.shouldBeNull()
+        }
+
         test("TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 연락처 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
                     listOf(ContactAddNavKey()),
-                    listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(ContactDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -38,12 +46,12 @@ class ContactNavigationTest :
             val detailCases =
                 listOf(
                     listOf(ContactAddNavKey()),
-                    listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactAddNavKey()),
-                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(ContactDetailNavKey(id = Arb.kotlinUuid().next()), ContactAddNavKey()),
+                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = Arb.kotlinUuid().next()), ContactDetailNavKey(id = Arb.kotlinUuid().next())),
                 )
 
             detailCases.forEach { detailKeyList ->
-                val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+                val selectedId = Arb.kotlinUuid().next()
                 val backStack = contactBackStack(detailKeyList = detailKeyList)
 
                 backStack.navigateToContactDetail(selectedId)
@@ -53,7 +61,7 @@ class ContactNavigationTest :
         }
 
         test("상세 영역에 연락처 상세가 없으면 목록에서 선택한 연락처 상세를 이어 둔다") {
-            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectedId = Arb.kotlinUuid().next()
             val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ContactHomeNavKey)
 
             backStack.navigateToContactDetail(selectedId)
@@ -62,7 +70,7 @@ class ContactNavigationTest :
         }
 
         test("연락처 목록이 없는 전환 이력에서는 연락처 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ContactDetailNavKey(id = Arb.kotlinUuid().next()))
             val expected = backStack.toList()
 
             backStack.navigateUpFromContactHome()

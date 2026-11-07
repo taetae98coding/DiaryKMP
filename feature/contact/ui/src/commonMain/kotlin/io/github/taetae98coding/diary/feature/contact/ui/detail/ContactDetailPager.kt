@@ -39,7 +39,7 @@ private fun ContactDetailPagerPreview() {
     DiaryTheme {
         ContactDetailPager(modifier = Modifier.fillMaxSize()) { tab ->
             when (tab) {
-                ContactDetailTab.DETAIL -> ContactDetailScaffoldContent(modifier = Modifier.fillMaxSize())
+                ContactDetailTab.DETAIL -> ContactDetailScaffoldContent(onFormEvent = {}, modifier = Modifier.fillMaxSize())
                 ContactDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title), emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
@@ -27,8 +28,8 @@ internal class ChecklistHomeViewModel(
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<ChecklistHomeEffect>(Channel.BUFFERED)
-    val effect: Flow<ChecklistHomeEffect> = _effect.receiveAsFlow()
+    private val _effect = Channel<ChecklistListEffect>(Channel.BUFFERED)
+    val effect: Flow<ChecklistListEffect> = _effect.receiveAsFlow()
 
     private val inProgressIds = mutableSetOf<Uuid>()
 
@@ -38,7 +39,7 @@ internal class ChecklistHomeViewModel(
         viewModelScope.launch {
             try {
                 deleteChecklistUseCase(parameter = id)
-                    .onSuccess { _effect.send(ChecklistHomeEffect.Deleted(id = id)) }
+                    .onSuccess { _effect.send(ChecklistListEffect.Deleted(id = id)) }
             } finally {
                 inProgressIds.remove(id)
             }

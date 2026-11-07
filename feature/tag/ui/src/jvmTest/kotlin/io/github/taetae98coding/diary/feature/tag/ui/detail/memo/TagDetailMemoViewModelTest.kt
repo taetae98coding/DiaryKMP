@@ -7,25 +7,29 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageTagMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -45,11 +49,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.atTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class TagDetailMemoViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -66,7 +68,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("태그별 메모 paging에 주입된 태그 ID를 전달한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
                 every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
@@ -82,9 +84,35 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-2991e08b-63dd-4752-b878-9e688f528e50 기간 없는 메모를 날짜 그룹 없이 먼저 두고 시작 날짜가 같은 메모를 한 그룹으로 묶는다") {
+            runTest(mainDispatcher) {
+                val tagId = Arb.kotlinUuid().next()
+                val date = Arb.kotlinxLocalDate().next()
+                val noDateMemo = memo()
+                val allDayMemo = memo(dateTime = MemoDateTime.AllDay(dateRange = date..date))
+                val dateTimeMemo = memo(dateTime = MemoDateTime.DateTime(start = date.atTime(hour = 9, minute = 0), endInclusive = date.atTime(hour = 10, minute = 0)))
+                val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
+                every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(listOf(noDateMemo, allDayMemo, dateTimeMemo))))
+                val viewModel = viewModel(tagId = tagId, pageTagMemoUseCase = pageTagMemoUseCase)
+
+                val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe
+                    listOf(
+                        MemoListItem.Content(memo = noDateMemo),
+                        MemoListItem.DateHeader(date = date),
+                        MemoListItem.Content(memo = allDayMemo),
+                        MemoListItem.Content(memo = dateTimeMemo),
+                    )
+            }
+        }
+
         test("TC-6e914ebb-0357-4604-87f2-6dc4438a9e03 표시 범위를 넓혔다 되돌리면 메모 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val selfMemoList = List(2) { memo() }
                 val childMemoList = selfMemoList + List(2) { memo() }
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
@@ -145,7 +173,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
                 every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
                     flowOf(Result.failure<PagingData<Memo>>(IllegalStateException()))
@@ -165,7 +193,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
                 every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
@@ -183,7 +211,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
                 val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
@@ -207,7 +235,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("메모 완료에 성공하면 완료 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -226,7 +254,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("메모 완료에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -242,7 +270,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("완료 실행 취소는 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -260,7 +288,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -279,7 +307,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("메모 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -295,7 +323,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
         test("삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -313,7 +341,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
     }
 
     private fun viewModel(
-        tagId: Uuid = fixtureMonkey.giveMeOne(),
+        tagId: Uuid = Arb.kotlinUuid().next(),
         pageTagMemoUseCase: PageTagMemoUseCase =
             mockk {
                 every { this@mockk(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns emptyFlow()
@@ -334,13 +362,13 @@ class TagDetailMemoViewModelTest : FunSpec() {
 
     private fun List<MemoListItem>.memoList(): List<Memo> = filterIsInstance<MemoListItem.Content>().map { item -> item.memo }
 
-    private fun memo(): Memo =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Memo>()
-            .setExp(
-                Memo::detail,
-                fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+    private fun memo(dateTime: MemoDateTime? = null): Memo =
+        Arb
+            .memo()
+            .next()
+            .copy(
+                detail = Arb.memoDetail().next().copy(dateTime = dateTime),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 }

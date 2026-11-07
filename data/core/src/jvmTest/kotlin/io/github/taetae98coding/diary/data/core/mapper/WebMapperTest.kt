@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
 import io.github.taetae98coding.diary.core.testing.web.localWeb
 import io.github.taetae98coding.diary.core.testing.web.web
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class WebMapperTest :
     FunSpec({
         test("domain to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val domain = fixtureMonkey.web(isDeleted = isDeleted)
+                val domain = Arb.web(isDeleted = isDeleted).next()
 
                 domain.toLocal() shouldBe
                     WebLocalEntity(
@@ -32,7 +29,7 @@ class WebMapperTest :
 
         test("local to domain") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localWeb(isDeleted = isDeleted)
+                val local = Arb.localWeb(isDeleted = isDeleted).next()
 
                 local.toDomain() shouldBe
                     Web(
@@ -47,7 +44,7 @@ class WebMapperTest :
 
         test("domain to local to domain") {
             isDeletedCaseList.forEach { isDeleted ->
-                val domain = fixtureMonkey.web(isDeleted = isDeleted)
+                val domain = Arb.web(isDeleted = isDeleted).next()
 
                 domain.toLocal().toDomain() shouldBe domain
             }
@@ -55,7 +52,7 @@ class WebMapperTest :
 
         test("local to domain to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localWeb(isDeleted = isDeleted)
+                val local = Arb.localWeb(isDeleted = isDeleted).next()
 
                 local.toDomain().toLocal() shouldBe local
             }

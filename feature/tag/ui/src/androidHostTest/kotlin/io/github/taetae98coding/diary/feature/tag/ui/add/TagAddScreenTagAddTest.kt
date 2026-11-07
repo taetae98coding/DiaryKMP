@@ -142,25 +142,29 @@ class TagAddScreenTagAddTest {
 
     @Test
     fun `TC-430ad93d-aa00-47b2-b4b7-3435df9312be TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 연결된다`() {
+        val linkedTag = testTag(title = LINKED_TAG_TITLE)
         val firstAddedTag = testTag(title = WORK_TAG_TITLE)
         val secondAddedTag = testTag(title = EXERCISE_TAG_TITLE)
         val resultEventBus = ResultEventBus()
-        setTagAddScreen(tagList = listOf(firstAddedTag, secondAddedTag), resultEventBus = resultEventBus)
+        setTagAddScreen(tagList = listOf(linkedTag, firstAddedTag, secondAddedTag), resultEventBus = resultEventBus)
+        linkTag(title = LINKED_TAG_TITLE)
 
         resultEventBus.sendTagAddedResult(id = firstAddedTag.id)
         resultEventBus.sendTagAddedResult(id = secondAddedTag.id)
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(LINKED_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
     }
 
     @Test
     fun `TC-6b4c99d6-75d5-435e-ba8a-20bb171d4203 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
-        val linkedTag = testTag(title = WORK_TAG_TITLE)
-        val otherTag = testTag(title = EXERCISE_TAG_TITLE)
-        setTagAddScreen(tagList = listOf(linkedTag, otherTag))
+        val firstLinkedTag = testTag(title = WORK_TAG_TITLE)
+        val secondLinkedTag = testTag(title = EXERCISE_TAG_TITLE)
+        setTagAddScreen(tagList = listOf(firstLinkedTag, secondLinkedTag))
         linkTag(title = WORK_TAG_TITLE)
+        linkTag(title = EXERCISE_TAG_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
         composeRule.awaitTagLinkPickerRows()
@@ -168,7 +172,7 @@ class TagAddScreenTagAddTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
-        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
     }
 
     @Test
@@ -353,6 +357,7 @@ class TagAddScreenTagAddTest {
 
     private companion object {
         const val DEFAULT_ADD_BUTTON_DESCRIPTION: String = "Add tag"
+        const val LINKED_TAG_TITLE: String = "TagAddLinkedBeforeMove"
         const val TYPED_TITLE: String = "TagAddTitleInput"
         const val TYPED_DESCRIPTION: String = "TagAddDescriptionInput"
         const val TYPED_EMOJI: String = "\uD83C\uDFC3"

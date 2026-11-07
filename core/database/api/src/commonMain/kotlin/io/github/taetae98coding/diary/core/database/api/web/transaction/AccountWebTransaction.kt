@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.core.database.api.web.transaction
 
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -10,7 +10,7 @@ public interface AccountWebTransaction {
     public suspend fun upsert(
         accountId: Uuid,
         webList: List<WebLocalEntity>,
-        webTagList: List<WebTagLocalEntity>,
+        webTagList: List<EntityTagLocalEntity>,
     )
 
     public suspend fun updateDetail(

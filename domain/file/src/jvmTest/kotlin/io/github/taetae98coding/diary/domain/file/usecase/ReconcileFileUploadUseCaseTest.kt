@@ -1,18 +1,15 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class ReconcileFileUploadUseCaseTest :
     BehaviorSpec({
@@ -32,7 +29,7 @@ class ReconcileFileUploadUseCaseTest :
         }
 
         Given("사용자가 확인되었다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val fileUploadManager = mockk<FileUploadManager>()
             coEvery { fileUploadManager.cancelUpload(exceptAccountId = any()) } returns Unit
             val useCase = ReconcileFileUploadUseCase(fileUploadManager = fileUploadManager)

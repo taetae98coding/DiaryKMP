@@ -12,12 +12,19 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
+import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,18 +80,23 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 고향, 알게 된 경로는 목록에 표시하지 않는다`() {
+    fun `TC-b0683e6f-02ad-4483-a1b7-6a50b491e6ac 연락처의 설명과 키, 신발 사이즈, 고향, 알게 된 경로는 목록에 표시하지 않는다`() {
         val contact =
             testContact(
                 name = CONTACT_NAME,
                 phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
                 description = CONTACT_DESCRIPTION,
+                height = CONTACT_HEIGHT_CENTIMETER.centimeter,
+                footSize = CONTACT_FOOT_SIZE_MILLIMETER.millimeter,
+                birthday = ContactBirthday(date = CONTACT_BIRTHDAY_DATE, calendar = ContactBirthdayCalendar.SOLAR),
                 hometown = CONTACT_HOMETOWN,
                 howWeMet = CONTACT_HOW_WE_MET,
             )
 
         setContactHomeList(contactList = listOf(contact))
 
+        // 카드는 클릭 가능한 컨테이너여서 자식 문구를 하나로 합치므로, 합쳐진 문구로 표시된 줄을 확인한다.
+        composeRule.onNodeWithTag(CONTACT_CARD_TEST_TAG).assertTextEquals(CONTACT_NAME, CONTACT_PHONE_NUMBER, CONTACT_BIRTHDAY_TEXT)
         composeRule.onNodeWithText(CONTACT_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(CONTACT_HOMETOWN).assertDoesNotExist()
         composeRule.onNodeWithText(CONTACT_HOW_WE_MET).assertDoesNotExist()
@@ -94,6 +106,7 @@ class ContactHomeListTest {
     fun `TC-f2c81ef9-b642-4471-b828-6a40267bc604 표시할 연락처가 있으면 빈 상태 안내를 표시하지 않는다`() {
         setContactHomeList(contactList = listOf(testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))))
 
+        composeRule.onNodeWithText(CONTACT_NAME).assertExists()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
@@ -114,12 +127,12 @@ class ContactHomeListTest {
     @Test
     fun `TC-1703c8ae-d3c7-4acc-8d12-3bfc6838c2e1 연락처 카드를 누르면 그 연락처를 선택한 이벤트를 전달한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
-        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        val eventList = mutableListOf<ContactListEvent>()
 
-        setContactHomeList(contactList = listOf(contact), onEvent = eventList::add)
+        setContactHomeList(contactList = listOf(contact), onContactListEvent = eventList::add)
         composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = contact.id))
+        eventList shouldBe listOf(ContactListEvent.ClickContact(id = contact.contact.id))
     }
 
     @Test
@@ -135,24 +148,48 @@ class ContactHomeListTest {
             DiaryTheme {
                 ContactHomeList(
                     onEvent = {},
+                    onContactListEvent = {},
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
         }
         composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
-        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-b5df1db6-b87a-4c52-b6e3-89e8f85763a7 이름이 같은 연락처는 알게 된 경로와 함께 표시한다`() {
+        val friend = testContact(name = CONTACT_NAME, howWeMet = FRIEND_HOW_WE_MET, nameQualifier = FRIEND_HOW_WE_MET)
+        val coworker = testContact(name = CONTACT_NAME, howWeMet = COWORKER_HOW_WE_MET, nameQualifier = COWORKER_HOW_WE_MET)
+
+        setContactHomeList(contactList = listOf(friend, coworker))
+
+        composeRule.onNodeWithText("$CONTACT_NAME($FRIEND_HOW_WE_MET)").assertExists()
+        composeRule.onNodeWithText("$CONTACT_NAME($COWORKER_HOW_WE_MET)").assertExists()
     }
 
     private fun setContactHomeList(
-        contactList: List<Contact> = emptyList(),
-        pagingData: PagingData<Contact> = contactPagingDataOf(contactList),
+        contactList: List<ContactListItem> = emptyList(),
+        pagingData: PagingData<ContactListItem> = contactPagingDataOf(contactList),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
+        onContactListEvent: (ContactListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
@@ -160,6 +197,7 @@ class ContactHomeListTest {
             DiaryTheme {
                 ContactHomeList(
                     onEvent = onEvent,
+                    onContactListEvent = onContactListEvent,
                     contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -168,6 +206,8 @@ class ContactHomeListTest {
 
     private companion object {
         private const val CONTACT_NAME = "김철수"
+        private const val FRIEND_HOW_WE_MET = "친구 소개"
+        private const val COWORKER_HOW_WE_MET = "회사"
         private const val OTHER_CONTACT_NAME = "이영희"
         private const val CONTACT_PHONE_NUMBER = "010-1111-2222"
         private const val OTHER_PHONE_NUMBER = "02-333-4444"
@@ -175,6 +215,10 @@ class ContactHomeListTest {
         private const val CONTACT_DESCRIPTION = "ContactHomeListDescription"
         private const val CONTACT_HOMETOWN = "ContactHomeListHometown"
         private const val CONTACT_HOW_WE_MET = "ContactHomeListHowWeMet"
+        private const val CONTACT_HEIGHT_CENTIMETER = 171.5
+        private const val CONTACT_FOOT_SIZE_MILLIMETER = 263
+        private val CONTACT_BIRTHDAY_DATE = LocalDate(year = 1990, month = 3, day = 4)
+        private const val CONTACT_BIRTHDAY_TEXT = "Mar 4, 1990"
         private const val RESTORATION_CONTACT_COUNT = 40
         private const val RESTORATION_SCROLL_INDEX = 30
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
@@ -50,8 +51,8 @@ internal class PlaylistHomeViewModel(
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
-    private val _effect = Channel<PlaylistHomeEffect>(Channel.BUFFERED)
-    val effect: Flow<PlaylistHomeEffect> = _effect.receiveAsFlow()
+    private val _effect = Channel<MusicListEffect>(Channel.BUFFERED)
+    val effect: Flow<MusicListEffect> = _effect.receiveAsFlow()
 
     fun select(sort: ListSort) {
         this.sort.value = sort
@@ -63,7 +64,7 @@ internal class PlaylistHomeViewModel(
         viewModelScope.launch {
             try {
                 deleteMusicUseCase(parameter = id)
-                    .onSuccess { _effect.send(PlaylistHomeEffect.Deleted(id = id)) }
+                    .onSuccess { _effect.send(MusicListEffect.Deleted(id = id)) }
             } finally {
                 inProgressIds.remove(id)
             }

@@ -256,6 +256,54 @@ export const placeTagPushRequestSchema = z.object({
   ),
 });
 
+export const contactTagPushRequestSchema = z.object({
+  contactTagList: z.array(
+    z.object({
+      contactId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const checklistTagPushRequestSchema = z.object({
+  checklistTagList: z.array(
+    z.object({
+      checklistId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const musicTagPushRequestSchema = z.object({
+  musicTagList: z.array(
+    z.object({
+      musicId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const qrTagPushRequestSchema = z.object({
+  qrTagList: z.array(
+    z.object({
+      qrId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
 export const memoPlacePushRequestSchema = z.object({
   memoPlaceList: z.array(
     z.object({

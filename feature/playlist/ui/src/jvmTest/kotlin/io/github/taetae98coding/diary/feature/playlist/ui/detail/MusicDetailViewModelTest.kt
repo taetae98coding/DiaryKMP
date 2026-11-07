@@ -3,24 +3,27 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
+import io.github.taetae98coding.diary.core.testing.playlist.music
+import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
+import io.github.taetae98coding.diary.core.testing.playlist.youtubeVideo
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FetchYoutubeVideoUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.UpdateMusicUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -37,7 +40,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -106,7 +108,7 @@ class MusicDetailViewModelTest : FunSpec() {
         test("TC-1b34c164-6cc9-496d-b3ec-6c173ac0afd6 저장된 제목이 바뀌면 내용 표시 상태의 제목이 갱신된다") {
             runTest(mainDispatcher) {
                 val music = music()
-                val renamed = music.copy(detail = music.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
+                val renamed = music.copy(detail = music.detail.copy(title = "renamed-${Arb.string().next()}"))
                 val musicFlow = MutableStateFlow<Result<Music?>>(Result.success(music))
                 val findMusicUseCase = mockk<FindMusicUseCase>()
                 every { findMusicUseCase(parameter = music.id) } returns musicFlow
@@ -132,7 +134,7 @@ class MusicDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(updateMusicUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.update(detail = fixtureMonkey.giveMeOne<MusicDetail>())
+                    viewModel.update(detail = Arb.musicDetail().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MusicDetailEffect.UpdateSucceeded
@@ -148,7 +150,7 @@ class MusicDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(updateMusicUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.update(detail = fixtureMonkey.giveMeOne<MusicDetail>())
+                    viewModel.update(detail = Arb.musicDetail().next())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe MusicDetailEffect.LinkNotYoutube
@@ -170,7 +172,7 @@ class MusicDetailViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     awaitItem()
 
-                    viewModel.update(detail = fixtureMonkey.giveMeOne<MusicDetail>())
+                    viewModel.update(detail = Arb.musicDetail().next())
                     runCurrent()
 
                     awaitItem()
@@ -245,14 +247,14 @@ class MusicDetailViewModelTest : FunSpec() {
                 val updateMusicUseCase = mockk<UpdateMusicUseCase>()
                 coEvery { updateMusicUseCase(any()) } returns Result.success(1)
                 val fetchYoutubeVideoUseCase = mockk<FetchYoutubeVideoUseCase>()
-                coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>())
+                coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(Arb.youtubeVideo().next())
                 val viewModel =
                     viewModel(
                         updateMusicUseCase = updateMusicUseCase,
                         deleteMusicUseCase = deleteMusicUseCase,
                         fetchYoutubeVideoUseCase = fetchYoutubeVideoUseCase,
                     )
-                val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val detail = Arb.musicDetail().next()
 
                 viewModel.delete()
                 runCurrent()
@@ -270,7 +272,7 @@ class MusicDetailViewModelTest : FunSpec() {
 
         test("TC-0048b9b6-69e2-47f9-8551-c7ad8a5c3e4f TC-25f3da4c-db8c-4913-9855-9a06da0dc324 다시 불러오기에 성공하면 불러온 값 Effect만 보낸다") {
             runTest(mainDispatcher) {
-                val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
+                val video = Arb.youtubeVideo().next()
                 val fetchYoutubeVideoUseCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(video)
                 val updateMusicUseCase = mockk<UpdateMusicUseCase>(relaxed = true)
@@ -336,8 +338,8 @@ class MusicDetailViewModelTest : FunSpec() {
 
         test("TC-d0f4ecb8-0869-4067-8fe9-0244d8e4b1b5 수정 처리 중 전달된 수정 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val firstDetail = fixtureMonkey.giveMeOne<MusicDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<MusicDetail>()
+                val firstDetail = Arb.musicDetail().next()
+                val secondDetail = Arb.musicDetail().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val useCase = mockk<UpdateMusicUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
@@ -399,7 +401,7 @@ class MusicDetailViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { useCase(YOUTUBE_LINK) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                completion.complete(Result.success(Arb.youtubeVideo().next()))
                 advanceUntilIdle()
 
                 viewModel.fetchLink(YOUTUBE_LINK)
@@ -417,7 +419,7 @@ class MusicDetailViewModelTest : FunSpec() {
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
                 coEvery { deleteMusicUseCase(any()) } returns Result.success(1)
                 val fetchYoutubeVideoUseCase = mockk<FetchYoutubeVideoUseCase>()
-                coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>())
+                coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(Arb.youtubeVideo().next())
                 val viewModel =
                     viewModel(
                         updateMusicUseCase = updateMusicUseCase,
@@ -425,7 +427,7 @@ class MusicDetailViewModelTest : FunSpec() {
                         fetchYoutubeVideoUseCase = fetchYoutubeVideoUseCase,
                     )
 
-                viewModel.update(detail = fixtureMonkey.giveMeOne<MusicDetail>())
+                viewModel.update(detail = Arb.musicDetail().next())
                 runCurrent()
                 viewModel.delete()
                 viewModel.fetchLink(YOUTUBE_LINK)
@@ -443,18 +445,15 @@ class MusicDetailViewModelTest : FunSpec() {
     private companion object {
         private val DEFAULT_ID: Uuid = Uuid.random()
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun music(): Music =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Music>()
-                .setExp(Music::isDeleted, false)
-                .setExp(Music::updatedAt, instant())
-                .setExp(Music::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .music()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun viewModel(
             id: Uuid = DEFAULT_ID,

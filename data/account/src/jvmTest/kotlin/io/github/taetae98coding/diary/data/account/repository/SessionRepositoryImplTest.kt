@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.core.model.authentication.Session
@@ -10,11 +8,17 @@ import io.github.taetae98coding.diary.core.network.api.authentication.datasource
 import io.github.taetae98coding.diary.core.network.api.authentication.entity.SessionRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.authentication.appleCredential
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialAuthorizationCode
+import io.github.taetae98coding.diary.core.testing.authentication.googleCredentialIdToken
+import io.github.taetae98coding.diary.core.testing.authentication.sessionRemoteEntity
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,12 +31,12 @@ class SessionRepositoryImplTest :
             test("TC-e15946a0-04bc-498d-a34f-30ef35e7f825 $platform authorization code 매핑") {
                 val credential =
                     GoogleCredential.AuthorizationCode(
-                        code = fixtureMonkey.giveMeOne<String>(),
-                        clientId = fixtureMonkey.giveMeOne<String>(),
-                        redirectUri = fixtureMonkey.giveMeOne<String>(),
-                        codeVerifier = if (platform == "데스크톱") fixtureMonkey.giveMeOne<String>() else null,
+                        code = Arb.string().next(),
+                        clientId = Arb.string().next(),
+                        redirectUri = Arb.string().next(),
+                        codeVerifier = if (platform == "데스크톱") Arb.string().next() else null,
                     )
-                val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+                val response = Arb.sessionRemoteEntity().next()
                 val remoteDataSource = mockk<SessionRemoteDataSource>()
                 val supabaseAuth = mockk<SupabaseAuth>()
                 coEvery {
@@ -81,8 +85,8 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-63cac31c-7605-4cf2-8d07-827a51c41bbc idToken 매핑") {
-            val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+            val credential = Arb.googleCredentialIdToken().next()
+            val response = Arb.sessionRemoteEntity().next()
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
             coEvery {
@@ -128,8 +132,8 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-6e664879-ccd1-4045-8836-4373dbf33fe3 Apple idToken 매핑") {
-            val credential = fixtureMonkey.giveMeOne<AppleCredential>()
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+            val credential = Arb.appleCredential().next()
+            val response = Arb.sessionRemoteEntity().next()
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
             coEvery {
@@ -181,7 +185,7 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-47abdb9e-1c92-4473-9567-e403066b1935 remote 실패 전파") {
-            val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+            val credential = Arb.googleCredentialIdToken().next()
             val failure = TestException("remote failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -218,8 +222,8 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-d934727a-8590-4527-96a8-621ad9d73ac1 token import 실패 전파") {
-            val credential = fixtureMonkey.giveMeOne<GoogleCredential.AuthorizationCode>()
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+            val credential = Arb.googleCredentialAuthorizationCode().next()
+            val response = Arb.sessionRemoteEntity().next()
             val failure = TestException("token import failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -266,7 +270,7 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-47abdb9e-1c92-4473-9567-e403066b1935 Apple remote 실패 전파") {
-            val credential = fixtureMonkey.giveMeOne<AppleCredential>()
+            val credential = Arb.appleCredential().next()
             val failure = TestException("apple remote failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -297,8 +301,8 @@ class SessionRepositoryImplTest :
         }
 
         test("TC-d934727a-8590-4527-96a8-621ad9d73ac1 Apple token import 실패 전파") {
-            val credential = fixtureMonkey.giveMeOne<AppleCredential>()
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+            val credential = Arb.appleCredential().next()
+            val response = Arb.sessionRemoteEntity().next()
             val failure = TestException("apple token import failure")
             val remoteDataSource = mockk<SessionRemoteDataSource>()
             val supabaseAuth = mockk<SupabaseAuth>()
@@ -362,12 +366,7 @@ class SessionRepositoryImplTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })
 
 private class TestException(
     message: String,

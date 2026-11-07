@@ -67,7 +67,7 @@ class MemoContactPickerDialogTest {
 
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
 
-        selectedIdList shouldBe listOf(contact.id)
+        selectedIdList shouldBe listOf(contact.contact.id)
         unselectedIdList shouldBe emptyList()
     }
 
@@ -86,7 +86,7 @@ class MemoContactPickerDialogTest {
 
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
 
-        unselectedIdList shouldBe listOf(contact.id)
+        unselectedIdList shouldBe listOf(contact.contact.id)
         selectedIdList shouldBe emptyList()
     }
 
@@ -115,7 +115,7 @@ class MemoContactPickerDialogTest {
             .assertCountEquals(0)
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
 
-        selectedIdList shouldBe listOf(contact.id)
+        selectedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -234,7 +234,7 @@ class MemoContactPickerDialogAddTest {
 
         composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).onFirst().assertIsOn()
         composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).onLast().assertIsOn()
-        viewModel.selectionUiState.value.contactIdSet shouldBe setOf(firstContact.id, secondContact.id)
+        viewModel.selectionUiState.value.contactIdSet shouldBe setOf(firstContact.contact.id, secondContact.contact.id)
     }
 
     @Test

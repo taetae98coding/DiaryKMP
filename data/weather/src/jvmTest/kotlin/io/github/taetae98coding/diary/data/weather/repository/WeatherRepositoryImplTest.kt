@@ -1,10 +1,14 @@
 package io.github.taetae98coding.diary.data.weather.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.weather.Weather
+import io.github.taetae98coding.diary.core.testing.location.coordinate
+import io.github.taetae98coding.diary.core.testing.weather.currentWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.forecastWeatherRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.locationNameRemoteEntity
+import io.github.taetae98coding.diary.core.testing.weather.weatherConditionRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
@@ -14,13 +18,16 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherCon
 import io.github.taetae98coding.diary.data.weather.cache.WeatherReportCache
 import io.github.taetae98coding.diary.data.weather.mapper.toDomain
 import io.github.taetae98coding.diary.domain.location.repository.LocationRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -36,15 +43,12 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class WeatherRepositoryImplTest :
     FunSpec({
         test("TC-89671f9e-6427-4dfe-b210-2388f68f48e6 확인한 위치 하나를 세 요청에 함께 사용한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val forecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val location = Arb.coordinate().next()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
+            val forecast = Arb.forecastRemoteEntity().next()
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
@@ -92,7 +96,7 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-b173a476-6550-4e06-a906-d28d26cb96aa 현재 날씨, 시간대별 예보와 지역명을 동시에 요청한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
+            val location = Arb.coordinate().next()
             val currentStarted = CompletableDeferred<Unit>()
             val forecastStarted = CompletableDeferred<Unit>()
             val locationNameStarted = CompletableDeferred<Unit>()
@@ -130,24 +134,25 @@ class WeatherRepositoryImplTest :
                     locationNameStarted.await()
                 }
 
-                currentResponse.complete(fixtureMonkey.giveMeOne())
-                forecastResponse.complete(fixtureMonkey.giveMeOne())
+                currentResponse.complete(Arb.currentWeatherRemoteEntity().next())
+                forecastResponse.complete(Arb.forecastRemoteEntity().next())
                 locationNameResponse.complete(emptyList())
                 fetch.await()
             }
         }
 
         test("TC-b42768d4-8b1a-422a-b1f7-3c23a7dfac2a 두 날씨 응답을 하나의 목록으로 저장한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val location = Arb.coordinate().next()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
             val forecast =
-                fixtureMonkey
-                    .giveMeOne<ForecastRemoteEntity>()
+                Arb
+                    .forecastRemoteEntity()
+                    .next()
                     .copy(
                         list =
                             listOf(
-                                fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>(),
-                                fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>(),
+                                Arb.forecastWeatherRemoteEntity().next(),
+                                Arb.forecastWeatherRemoteEntity().next(),
                             ),
                     )
             val repository =
@@ -171,11 +176,11 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-21717153-c5b7-46e6-b3a7-81c47c15a0a3 다시 동기화하면 이전 날씨를 새 결과로 교체한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
-            val oldCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val oldForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
-            val newCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val newForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val location = Arb.coordinate().next()
+            val oldCurrentWeather = Arb.currentWeatherRemoteEntity().next()
+            val oldForecast = Arb.forecastRemoteEntity().next()
+            val newCurrentWeather = Arb.currentWeatherRemoteEntity().next()
+            val newForecast = Arb.forecastRemoteEntity().next()
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
@@ -187,7 +192,7 @@ class WeatherRepositoryImplTest :
             coEvery {
                 weatherRemoteDataSource.getForecast(any(), any())
             } returns oldForecast andThen newForecast
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            var now = Arb.secondPrecisionInstant().next()
             val repository =
                 repository(
                     locationRepository = locationRepository,
@@ -212,10 +217,10 @@ class WeatherRepositoryImplTest :
 
         test("TC-47671c52-4594-48cc-8861-e46521d110cb 동기화 일부가 실패하면 이전 날씨를 유지한다") {
             FailurePoint.entries.forEach { failurePoint ->
-                val location = fixtureMonkey.giveMeOne<Coordinate>()
-                val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-                val forecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
-                val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+                val location = Arb.coordinate().next()
+                val currentWeather = Arb.currentWeatherRemoteEntity().next()
+                val forecast = Arb.forecastRemoteEntity().next()
+                val failure = WeatherRepositoryTestException(Arb.string().next())
                 val locationRepository = mockk<LocationRepository>()
                 coEvery { locationRepository.fetch() } returns location
                 val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
@@ -223,7 +228,7 @@ class WeatherRepositoryImplTest :
                 every { weatherRemoteDataSource.forecastInterval } returns 3.hours
                 coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
                 coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns forecast
-                var now = fixtureMonkey.giveMeOne<Instant>()
+                var now = Arb.secondPrecisionInstant().next()
                 val repository =
                     repository(
                         locationRepository = locationRepository,
@@ -256,9 +261,9 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-8a4538e7-11ea-44af-9458-0bffe9ed1218 새 동기화 결과를 관찰 중인 캘린더 날씨에 전달한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val forecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val location = Arb.coordinate().next()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
+            val forecast = Arb.forecastRemoteEntity().next()
             val repository =
                 successfulRepository(
                     location = location,
@@ -285,20 +290,23 @@ class WeatherRepositoryImplTest :
             val currentIcon = "01d"
             val forecastIcon = "10d"
             val currentWeather =
-                fixtureMonkey
-                    .giveMeOne<CurrentWeatherRemoteEntity>()
+                Arb
+                    .currentWeatherRemoteEntity()
+                    .next()
                     .withIcon(icon = currentIcon)
             val forecastWeather =
-                fixtureMonkey
-                    .giveMeOne<ForecastWeatherRemoteEntity>()
+                Arb
+                    .forecastWeatherRemoteEntity()
+                    .next()
                     .withIcon(icon = forecastIcon)
             val forecast =
-                fixtureMonkey
-                    .giveMeOne<ForecastRemoteEntity>()
+                Arb
+                    .forecastRemoteEntity()
+                    .next()
                     .copy(list = listOf(forecastWeather))
             val repository =
                 successfulRepository(
-                    location = fixtureMonkey.giveMeOne(),
+                    location = Arb.coordinate().next(),
                     currentWeather = currentWeather,
                     forecast = forecast,
                 )
@@ -319,20 +327,23 @@ class WeatherRepositoryImplTest :
 
         test("TC-66f662ca-62db-4e6c-a2b7-15c3533b87c0 Night 아이콘 식별자를 Day 아이콘 이미지 주소로 바꿔 저장한다") {
             val currentWeather =
-                fixtureMonkey
-                    .giveMeOne<CurrentWeatherRemoteEntity>()
+                Arb
+                    .currentWeatherRemoteEntity()
+                    .next()
                     .withIcon(icon = "01n")
             val forecastWeather =
-                fixtureMonkey
-                    .giveMeOne<ForecastWeatherRemoteEntity>()
+                Arb
+                    .forecastWeatherRemoteEntity()
+                    .next()
                     .withIcon(icon = "10n")
             val forecast =
-                fixtureMonkey
-                    .giveMeOne<ForecastRemoteEntity>()
+                Arb
+                    .forecastRemoteEntity()
+                    .next()
                     .copy(list = listOf(forecastWeather))
             val repository =
                 successfulRepository(
-                    location = fixtureMonkey.giveMeOne(),
+                    location = Arb.coordinate().next(),
                     currentWeather = currentWeather,
                     forecast = forecast,
                 )
@@ -361,7 +372,7 @@ class WeatherRepositoryImplTest :
 
             elapsedList.forEach { (elapsed, isRefetched) ->
                 val weatherRemoteDataSource = weatherRemoteDataSource()
-                var now = fixtureMonkey.giveMeOne<Instant>()
+                var now = Arb.secondPrecisionInstant().next()
                 val repository =
                     repository(
                         locationRepository = locationRepository(),
@@ -392,7 +403,7 @@ class WeatherRepositoryImplTest :
 
         test("TC-44f121e6-fb34-456f-b5c3-df7604d2fb20 위치 권한 허용 계기는 간격과 무관하게 조회한다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            var now = Arb.secondPrecisionInstant().next()
             val locationRepository = locationRepository()
             val repository =
                 repository(
@@ -411,23 +422,23 @@ class WeatherRepositoryImplTest :
 
         test("TC-468be48d-4caa-4bfb-9c6e-ad2e458af612 실패한 동기화는 다음 요청의 조회를 막지 않는다") {
             FailurePoint.entries.forEach { failurePoint ->
-                val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+                val failure = WeatherRepositoryTestException(Arb.string().next())
                 val locationRepository = locationRepository()
                 val weatherRemoteDataSource = weatherRemoteDataSource()
                 if (failurePoint == FailurePoint.LOCATION) {
-                    coEvery { locationRepository.fetch() } throws failure andThen fixtureMonkey.giveMeOne<Coordinate>()
+                    coEvery { locationRepository.fetch() } throws failure andThen Arb.coordinate().next()
                 }
                 if (failurePoint == FailurePoint.CURRENT_WEATHER) {
                     coEvery {
                         weatherRemoteDataSource.getCurrentWeather(any(), any())
-                    } throws failure andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+                    } throws failure andThen Arb.currentWeatherRemoteEntity().next()
                 }
                 if (failurePoint == FailurePoint.FORECAST) {
                     coEvery {
                         weatherRemoteDataSource.getForecast(any(), any())
-                    } throws failure andThen fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+                    } throws failure andThen Arb.forecastRemoteEntity().next()
                 }
-                var now = fixtureMonkey.giveMeOne<Instant>()
+                var now = Arb.secondPrecisionInstant().next()
                 val repository =
                     repository(
                         locationRepository = locationRepository,
@@ -451,12 +462,12 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-91c36e94-15be-4dc8-8fb3-1acf4c24e79b 이전 성공 뒤의 실패는 다음 조회 시점을 미루지 않는다") {
-            val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+            val failure = WeatherRepositoryTestException(Arb.string().next())
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery {
                 weatherRemoteDataSource.getCurrentWeather(any(), any())
-            } returns fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>() andThenThrows failure andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            } returns Arb.currentWeatherRemoteEntity().next() andThenThrows failure andThen Arb.currentWeatherRemoteEntity().next()
+            var now = Arb.secondPrecisionInstant().next()
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -477,7 +488,7 @@ class WeatherRepositoryImplTest :
 
         test("TC-4d4ff7a0-55e0-400f-abd2-6cea8b15200c 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            var now = Arb.secondPrecisionInstant().next()
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -501,11 +512,11 @@ class WeatherRepositoryImplTest :
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             coEvery {
                 weatherRemoteDataSource.getCurrentWeather(any(), any())
-            } returns fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>() andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            } returns Arb.currentWeatherRemoteEntity().next() andThen Arb.currentWeatherRemoteEntity().next()
             coEvery {
                 weatherRemoteDataSource.getForecast(any(), any())
-            } returns fixtureMonkey.giveMeOne<ForecastRemoteEntity>() andThen fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            } returns Arb.forecastRemoteEntity().next() andThen Arb.forecastRemoteEntity().next()
+            var now = Arb.secondPrecisionInstant().next()
             val repository =
                 repository(
                     locationRepository = locationRepository,
@@ -524,7 +535,7 @@ class WeatherRepositoryImplTest :
         test("TC-864efbba-00be-438d-a80e-c35b4896e572 앱 프로세스를 새로 시작하면 첫 동기화가 다시 조회한다") {
             val locationRepository = locationRepository()
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val now = Arb.secondPrecisionInstant().next()
             val previousRepository =
                 repository(
                     locationRepository = locationRepository,
@@ -546,15 +557,16 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-2994a0b5-37f3-413a-8470-40478695cec4 저장된 날씨의 시간 구간을 함께 제공한다") {
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
             val forecast =
-                fixtureMonkey
-                    .giveMeOne<ForecastRemoteEntity>()
+                Arb
+                    .forecastRemoteEntity()
+                    .next()
                     .copy(
                         list =
                             listOf(
-                                fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>(),
-                                fixtureMonkey.giveMeOne<ForecastWeatherRemoteEntity>(),
+                                Arb.forecastWeatherRemoteEntity().next(),
+                                Arb.forecastWeatherRemoteEntity().next(),
                             ),
                     )
             val weatherList =
@@ -564,7 +576,7 @@ class WeatherRepositoryImplTest :
                 }
             val repository =
                 successfulRepository(
-                    location = fixtureMonkey.giveMeOne(),
+                    location = Arb.coordinate().next(),
                     currentWeather = currentWeather,
                     forecast = forecast,
                 )
@@ -590,7 +602,7 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-fe58d96a-c870-41d9-a66b-9cec9bbade4c 위치와 인증 정보를 담아 지역명을 요청한다") {
-            val location = fixtureMonkey.giveMeOne<Coordinate>()
+            val location = Arb.coordinate().next()
             val locationRepository = mockk<LocationRepository>()
             coEvery { locationRepository.fetch() } returns location
             val weatherRemoteDataSource = weatherRemoteDataSource()
@@ -611,9 +623,9 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-bd7ec1d7-8fd6-40f2-819f-7166b299cb11 응답에서 지역명 하나를 정해 날씨와 함께 저장한다") {
-            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
-            val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
-            val paris = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Paris", localNames = emptyMap())
+            val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val yongin = Arb.locationNameRemoteEntity().next().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
+            val paris = Arb.locationNameRemoteEntity().next().copy(name = "Paris", localNames = emptyMap())
 
             mapOf(
                 listOf(seongnam) to "성남시",
@@ -640,10 +652,10 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-60683bed-79d6-4a91-b49d-dcb17e89ecc8 지역명만 실패해도 동기화는 성공하고 날씨를 저장한다") {
-            val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val currentWeather = Arb.currentWeatherRemoteEntity().next()
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
-            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws WeatherRepositoryTestException(Arb.string().next())
             val repository =
                 repository(
                     locationRepository = locationRepository(),
@@ -667,7 +679,7 @@ class WeatherRepositoryImplTest :
 
         test("TC-2381bd9d-4ed2-4267-845e-ff31ffeb634d 조회하지 않는 동기화는 현재 위치도 확인하지 않는다") {
             val locationRepository = locationRepository()
-            var now = fixtureMonkey.giveMeOne<Instant>()
+            var now = Arb.secondPrecisionInstant().next()
             val repository =
                 repository(
                     locationRepository = locationRepository,
@@ -683,9 +695,9 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-646ddb50-f79c-462f-8bca-a6d826ad475d 다시 동기화하면 지역명도 새 결과로 교체한다") {
-            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
-            val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
-            val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
+            val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val yongin = Arb.locationNameRemoteEntity().next().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
+            val fetchedAt = Arb.secondPrecisionInstant().next()
 
             listOf(
                 Result.success(listOf(yongin)) to "용인시",
@@ -721,17 +733,17 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-f6197581-073f-417c-9bc6-8ba4617c53e2 다시 동기화해도 새 날씨와 이전 지역명이 섞인 결과는 제공되지 않는다") {
-            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
-            val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
-            val oldCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val oldForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
-            val newCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
-            val newForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val yongin = Arb.locationNameRemoteEntity().next().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
+            val oldCurrentWeather = Arb.currentWeatherRemoteEntity().next()
+            val oldForecast = Arb.forecastRemoteEntity().next()
+            val newCurrentWeather = Arb.currentWeatherRemoteEntity().next()
+            val newForecast = Arb.forecastRemoteEntity().next()
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns oldCurrentWeather andThen newCurrentWeather
             coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns oldForecast andThen newForecast
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam) andThen listOf(yongin)
-            val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
+            val fetchedAt = Arb.secondPrecisionInstant().next()
             var now = fetchedAt
             val repository =
                 repository(
@@ -761,8 +773,8 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-879a1bfe-f157-4eeb-a373-d78bd1cdcfa9 날씨 조회가 실패하면 이전 지역명을 유지한다") {
-            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
-            val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
+            val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val fetchedAt = Arb.secondPrecisionInstant().next()
 
             val failWeatherRequestList =
                 listOf<(WeatherRemoteDataSource, Throwable) -> Unit>(
@@ -783,7 +795,7 @@ class WeatherRepositoryImplTest :
 
                 repository.fetch()
 
-                failWeatherRequest(weatherRemoteDataSource, WeatherRepositoryTestException(fixtureMonkey.giveMeOne()))
+                failWeatherRequest(weatherRemoteDataSource, WeatherRepositoryTestException(Arb.string().next()))
                 coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
                 now = fetchedAt + 1.hours
 
@@ -812,7 +824,7 @@ class WeatherRepositoryImplTest :
         }
 
         test("TC-9e24b3a6-6111-4c9c-9564-4687e216976f 새 지역명을 관찰 중인 곳에 전달한다") {
-            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val seongnam = Arb.locationNameRemoteEntity().next().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val weatherRemoteDataSource = weatherRemoteDataSource()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam)
             val repository =
@@ -843,15 +855,15 @@ private class WeatherRepositoryTestException(
 
 private fun locationRepository(): LocationRepository =
     mockk<LocationRepository>().also { dataSource ->
-        coEvery { dataSource.fetch() } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.fetch() } returns Arb.coordinate().next()
     }
 
 private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
         coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
-        coEvery { dataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.getCurrentWeather(any(), any()) } returns Arb.currentWeatherRemoteEntity().next()
+        coEvery { dataSource.getForecast(any(), any()) } returns Arb.forecastRemoteEntity().next()
     }
 
 private fun WeatherRemoteDataSource.verifyFetchCount(count: Int) {
@@ -870,7 +882,7 @@ private fun repository(
     locationRepository: LocationRepository,
     weatherRemoteDataSource: WeatherRemoteDataSource,
     weatherReportCache: WeatherReportCache = WeatherReportCache(),
-    clock: Clock = clock(now = fixtureMonkey.giveMeOne<Instant>()),
+    clock: Clock = clock(now = Arb.secondPrecisionInstant().next()),
 ): WeatherRepositoryImpl =
     WeatherRepositoryImpl(
         locationRepository = locationRepository,
@@ -898,6 +910,6 @@ private fun successfulRepository(
     )
 }
 
-private fun CurrentWeatherRemoteEntity.withIcon(icon: String): CurrentWeatherRemoteEntity = copy(weather = listOf(fixtureMonkey.giveMeOne<WeatherConditionRemoteEntity>().copy(icon = icon)))
+private fun CurrentWeatherRemoteEntity.withIcon(icon: String): CurrentWeatherRemoteEntity = copy(weather = listOf(Arb.weatherConditionRemoteEntity().next().copy(icon = icon)))
 
-private fun ForecastWeatherRemoteEntity.withIcon(icon: String): ForecastWeatherRemoteEntity = copy(weather = listOf(fixtureMonkey.giveMeOne<WeatherConditionRemoteEntity>().copy(icon = icon)))
+private fun ForecastWeatherRemoteEntity.withIcon(icon: String): ForecastWeatherRemoteEntity = copy(weather = listOf(Arb.weatherConditionRemoteEntity().next().copy(icon = icon)))

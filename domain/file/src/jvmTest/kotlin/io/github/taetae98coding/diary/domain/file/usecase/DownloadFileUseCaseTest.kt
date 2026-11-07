@@ -1,22 +1,25 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
 import io.github.taetae98coding.diary.core.model.file.FileDownloadSetting
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
+import io.github.taetae98coding.diary.core.testing.file.fileDownloadDirectory
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.domain.file.repository.FileDetailRepository
 import io.github.taetae98coding.diary.domain.file.repository.FileDownloadSettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -25,17 +28,14 @@ import io.mockk.slot
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class DownloadFileUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정이고 다운로드 위치 설정이 있다") {
             When("파일을 내려받는다") {
                 Then("TC-fa368167-d81a-4307-a63d-7e49c56ec884 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 저장하도록 맡기고 저장한 이름을 돌려준다") {
-                    listOf(null, fixtureMonkey.giveMeOne<FileDownloadDirectory>()).forEach { directory ->
-                        val file = fixtureMonkey.giveMeOne<DiaryFile>().copy(name = "report.pdf")
-                        val savedName = FileDownloadResult.Saved(name = fixtureMonkey.giveMeOne<String>())
+                    listOf(null, Arb.fileDownloadDirectory().next()).forEach { directory ->
+                        val file = Arb.diaryFile().next().copy(name = "report.pdf")
+                        val savedName = FileDownloadResult.Saved(name = Arb.string().next())
                         val fileRepository = mockk<FileDetailRepository>()
                         val nameCandidate = slot<(Int) -> String>()
                         coEvery { fileRepository.download(id = file.id, directory = directory, nameCandidate = capture(nameCandidate)) } returns savedName
@@ -50,15 +50,15 @@ class DownloadFileUseCaseTest :
                 }
 
                 Then("TC-5591938c-4f65-42ea-b01d-98177ca0c509 내려받을 때마다 그 시점의 설정을 읽는다") {
-                    val first = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
-                    val second = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
+                    val first = Arb.fileDownloadDirectory().next()
+                    val second = Arb.fileDownloadDirectory().next()
                     val settingList = ArrayDeque(listOf(first, second))
                     val settingRepository = mockk<FileDownloadSettingRepository>()
                     every { settingRepository.get() } answers { flowOf(FileDownloadSetting(directory = settingList.removeFirst())) }
                     val fileRepository = mockk<FileDetailRepository>()
                     coEvery { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) } returns FileDownloadResult.HandedToBrowser
                     val useCase = DownloadFileUseCase(getAccountUseCase = getAccountUseCase(), fileDetailRepository = fileRepository, fileDownloadSettingRepository = settingRepository)
-                    val file = fixtureMonkey.giveMeOne<DiaryFile>()
+                    val file = Arb.diaryFile().next()
 
                     useCase(parameter = file)
                     useCase(parameter = file)
@@ -70,9 +70,9 @@ class DownloadFileUseCaseTest :
                 Then("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 저장 위치에 저장하지 못하면 그 실패를 그대로 알린다") {
                     val fileRepository = mockk<FileDetailRepository>()
                     coEvery { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) } throws FileDownloadDirectoryUnavailableException()
-                    val useCase = useCase(fileDetailRepository = fileRepository, setting = FileDownloadSetting(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()))
+                    val useCase = useCase(fileDetailRepository = fileRepository, setting = FileDownloadSetting(directory = Arb.fileDownloadDirectory().next()))
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<DiaryFile>()).shouldBeFailure().shouldBeInstanceOf<FileDownloadDirectoryUnavailableException>()
+                    useCase(parameter = Arb.diaryFile().next()).shouldBeFailure().shouldBeInstanceOf<FileDownloadDirectoryUnavailableException>()
                     coVerify(exactly = 1) { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) }
                 }
             }
@@ -86,7 +86,7 @@ class DownloadFileUseCaseTest :
                     every { settingRepository.get() } returns flow { throw IllegalStateException("setting") }
                     val useCase = DownloadFileUseCase(getAccountUseCase = getAccountUseCase(), fileDetailRepository = fileRepository, fileDownloadSettingRepository = settingRepository)
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<DiaryFile>()).shouldBeFailure()
+                    useCase(parameter = Arb.diaryFile().next()).shouldBeFailure()
                     coVerify(exactly = 0) { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) }
                 }
             }
@@ -107,7 +107,7 @@ class DownloadFileUseCaseTest :
                                 fileDownloadSettingRepository = settingRepository(setting = FileDownloadSetting(directory = null)),
                             )
 
-                        useCase(parameter = fixtureMonkey.giveMeOne<DiaryFile>()).shouldBeFailure()
+                        useCase(parameter = Arb.diaryFile().next()).shouldBeFailure()
                         coVerify(exactly = 0) { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) }
                     }
                 }
@@ -127,4 +127,4 @@ private fun useCase(
 
 private fun settingRepository(setting: FileDownloadSetting): FileDownloadSettingRepository = mockk<FileDownloadSettingRepository>().also { repository -> every { repository.get() } returns flowOf(setting) }
 
-private fun getAccountUseCase(result: Result<Account> = Result.success(fixtureMonkey.giveMeOne<Account.User>())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(result) }
+private fun getAccountUseCase(result: Result<Account> = Result.success(Arb.accountUser().next())): GetAccountUseCase = mockk<GetAccountUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(result) }

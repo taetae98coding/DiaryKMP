@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarButton
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarRenderer
-import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarRendererRegistry
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarSearch
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarState
 import platform.UIKit.UIColor
@@ -21,19 +20,16 @@ public interface DiaryTopBarRenderer {
 // Swift 클래스가 Kotlin 인터페이스를 구현하려면 Swift export가 내보낸 Kotlin open 클래스를 함께 상속해야 한다.
 public open class DiaryTopBarRendererBase
 
-public data object DiaryTopBar {
-    public fun register(renderer: DiaryTopBarRenderer) {
-        UiKitTopBarRendererRegistry.renderer =
-            object : UiKitTopBarRenderer {
-                override fun createViewController(): UIViewController = renderer.createViewController()
+internal class DiaryTopBarRendererAdapter(
+    private val renderer: DiaryTopBarRenderer,
+) : UiKitTopBarRenderer {
+    override fun createViewController(): UIViewController = renderer.createViewController()
 
-                override fun update(
-                    viewController: UIViewController,
-                    state: UiKitTopBarState,
-                ) {
-                    renderer.update(viewController = viewController, state = DiaryTopBarState(state = state))
-                }
-            }
+    override fun update(
+        viewController: UIViewController,
+        state: UiKitTopBarState,
+    ) {
+        renderer.update(viewController = viewController, state = DiaryTopBarState(state = state))
     }
 }
 

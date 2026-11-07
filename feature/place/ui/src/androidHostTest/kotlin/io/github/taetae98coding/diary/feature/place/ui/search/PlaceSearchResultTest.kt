@@ -134,8 +134,13 @@ class PlaceSearchResultTest {
         composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).assertExists()
         composeRule
             .onAllNodes(hasText(place.name))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
+        composeRule
+            .onAllNodes(hasText(DEFAULT_EMPTY_MESSAGE) or hasText(DEFAULT_FAILED_MESSAGE))
             .fetchSemanticsNodes()
             .size shouldBe 0
     }

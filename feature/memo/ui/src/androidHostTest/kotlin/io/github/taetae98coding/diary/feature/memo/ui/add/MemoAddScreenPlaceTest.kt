@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -7,6 +8,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isDialog
@@ -27,6 +29,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_SEARCH_EMPTY_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_SEARCH_EMPTY_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
@@ -106,6 +110,7 @@ class MemoAddScreenPlaceTest {
         composeRule.openPlacePicker()
 
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
+        composeRule.assertNoPlacePickerNotice()
         placeAddCount shouldBe 0
     }
 
@@ -134,6 +139,7 @@ class MemoAddScreenPlaceTest {
 
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
         composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
+        composeRule.assertNoPlacePickerNotice()
     }
 
     @Test
@@ -257,6 +263,12 @@ class MemoAddScreenPlaceTest {
         composeRule.awaitPlacePickerRows()
 
         composeRule.placeDialogNodeWithText(placeList.first().detail.title).assertIsDisplayed()
+    }
+
+    private fun ComposeContentTestRule.assertNoPlacePickerNotice() {
+        placeDialogNodeWithText(DEFAULT_PLACE_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        placeDialogNodeWithText(DEFAULT_PLACE_PICKER_SEARCH_EMPTY_DESCRIPTION).assertDoesNotExist()
+        onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate) and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     /**

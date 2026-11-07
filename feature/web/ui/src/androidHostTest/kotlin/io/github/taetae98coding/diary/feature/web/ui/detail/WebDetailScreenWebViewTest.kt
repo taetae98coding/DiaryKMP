@@ -12,31 +12,36 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.domain.web.usecase.FetchWebPageUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.FindWebUseCase
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
@@ -46,8 +51,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -69,7 +72,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-73bd7b0a-5095-4950-a2da-08208ce8a52d 응답 본문은 응답을 받은 주소를 기준 주소로 넘긴다`() {
         val detail = testWebDetail(headerList = List(HEADER_COUNT) { testWebHeader() })
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase(page = page)),
@@ -85,7 +88,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-e58626cc-51a7-46d4-a321-aa44352da423 응답 본문은 스크립트를 실행하는 웹 표시 수단에 넘긴다`() {
         val detail = testWebDetail(headerList = List(HEADER_COUNT) { testWebHeader() })
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase(page = page)),
@@ -120,7 +123,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-bfc3e32b-068c-476e-b1db-204c02ba8aac 앱을 다시 실행해 진입하면 웹 페이지를 다시 불러온다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         // 앱을 다시 실행하면 화면의 ViewModel도 새로 만들어지므로, 실행마다 새 ViewModel을 넘긴다.
         val launchedWebViewModelList = List(LAUNCH_COUNT) { webViewModel(detail = detail) }
         val launchedPageViewModelList =
@@ -156,7 +159,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 URL 방식에서 화면이 재생성되면 저장된 URL을 처음부터 다시 연다`() {
         val detail = testWebDetail()
-        val fetchWebPageUseCase = fetchWebPageUseCase(page = testWebPage())
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = Arb.webPage().next())
         val webViewModel = webViewModel(detail = detail)
         val pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase)
         val restorationTester = StateRestorationTester(composeRule)
@@ -177,7 +180,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-f25eea61-c106-4e88-abf1-1ffd75cfba49 응답 본문 방식에서 화면이 재생성되면 이미 받은 응답 본문을 처음부터 다시 그린다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
         val webViewModel = webViewModel(detail = detail)
         val pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase)
@@ -200,7 +203,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-14f16d67-3917-4aa8-9f7a-86c3f73f7a17 URL 방식에서 다른 탭에 다녀오면 저장된 URL을 처음부터 다시 연다`() {
         val detail = testWebDetail()
-        val fetchWebPageUseCase = fetchWebPageUseCase(page = testWebPage())
+        val fetchWebPageUseCase = fetchWebPageUseCase(page = Arb.webPage().next())
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
             pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
@@ -220,7 +223,7 @@ class WebDetailScreenWebViewTest {
     @Test
     fun `TC-14f16d67-3917-4aa8-9f7a-86c3f73f7a17 응답 본문 방식에서 다른 탭에 다녀오면 이미 받은 응답 본문을 처음부터 다시 그린다`() {
         val detail = testWebDetail()
-        val page = testWebPage()
+        val page = Arb.webPage().next()
         val fetchWebPageUseCase = fetchWebPageUseCase(page = page)
         setWebDetailScreen(
             webViewModel = webViewModel(detail = detail),
@@ -238,6 +241,65 @@ class WebDetailScreenWebViewTest {
         shadowOf(redrawnWebView).lastLoadedUrl shouldBe null
         coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
     }
+
+    @Test
+    fun `TC-33f0130f-dc24-45c3-8e9b-2d0e9eb93202 불러오는 도중 URL 방식으로 바꾸면 URL 방식으로 표시하고 응답을 받은 뒤 돌아오면 그 결과를 보여 준다`() {
+        val detail = testWebDetail()
+        val page = Arb.webPage().next()
+        val response = CompletableDeferred<Result<WebPage>>()
+        val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+        coEvery { fetchWebPageUseCase(parameter = any()) } coAnswers { response.await() }
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+        )
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        isProgressShown() shouldBe true
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+        isProgressShown() shouldBe false
+        shadowOf(findWebViewList().single()).lastLoadedUrl shouldBe detail.url
+
+        composeRule.runOnIdle { response.complete(Result.success(page)) }
+        composeRule.waitForIdle()
+        shadowOf(findWebViewList().single()).lastLoadedUrl shouldBe detail.url
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+
+        awaitPageWebView(page = page)
+        isProgressShown() shouldBe false
+        coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
+    }
+
+    @Test
+    fun `TC-44066812-528e-4f8c-9740-8d9fa9d9eb7d 불러오기에 실패한 뒤 URL 방식에서 응답 본문 방식으로 돌아오면 다시 불러온다`() {
+        val detail = testWebDetail()
+        val page = Arb.webPage().next()
+        val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+        coEvery { fetchWebPageUseCase(parameter = any()) } returnsMany
+            listOf(Result.failure(IllegalStateException("fetch failed")), Result.success(page))
+        setWebDetailScreen(
+            webViewModel = webViewModel(detail = detail),
+            pageViewModel = pageViewModel(detail = detail, fetchWebPageUseCase = fetchWebPageUseCase),
+        )
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.onNodeWithText(PAGE_FAILURE_TITLE).assertExists()
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+
+        awaitPageWebView(page = page)
+        composeRule.onNodeWithText(PAGE_FAILURE_TITLE).assertDoesNotExist()
+        coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+    }
+
+    private fun isProgressShown(): Boolean =
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .isNotEmpty()
 
     // 문서 안의 링크 이동과 스크롤은 앱을 거치지 않고 웹 표시 수단 안에서 일어나므로, 웹 표시 수단을 직접 다른 주소로 옮기고 스크롤한다.
     private fun moveInsideDocument(webView: WebView) {
@@ -324,6 +386,7 @@ class WebDetailScreenWebViewTest {
         const val NAVIGATED_URL = "https://kotlinlang.org/"
         const val SCROLLED_Y = 480
         const val PAGE_TIMEOUT_MILLIS = 5_000L
+        const val PAGE_FAILURE_TITLE = "Unable to load the web page"
 
         fun webViewModel(detail: WebDetail): WebDetailViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = detail)))
 
@@ -343,8 +406,8 @@ class WebDetailScreenWebViewTest {
                     id = FIRST_WEB_ID,
                     detail = detail,
                     isDeleted = false,
-                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                    createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
                 )
             val findWebUseCase = mockk<FindWebUseCase>()
             every { findWebUseCase(parameter = FIRST_WEB_ID) } returns flowOf<Result<Web?>>(Result.success(web))
@@ -356,6 +419,6 @@ class WebDetailScreenWebViewTest {
             )
         }
 
-        fun testWebHeader(): WebHeader = WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())
+        fun testWebHeader(): WebHeader = WebHeader(name = "header-${Arb.string().next()}", value = Arb.string().next())
     }
 }

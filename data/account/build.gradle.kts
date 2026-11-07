@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.datastore.api)
                 implementation(projects.core.fcm.api)
                 implementation(projects.core.file.api)
                 implementation(projects.core.network.api)
@@ -15,7 +16,7 @@ kotlin {
             }
         }
 
-        jvmTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
             }

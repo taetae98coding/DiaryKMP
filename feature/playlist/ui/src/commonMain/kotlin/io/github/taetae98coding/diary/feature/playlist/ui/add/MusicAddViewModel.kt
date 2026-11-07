@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class MusicAddViewModel(
@@ -31,13 +32,16 @@ internal class MusicAddViewModel(
 
     private var fetchJob: Job? = null
 
-    fun add(detail: MusicDetail) {
+    fun add(
+        detail: MusicDetail,
+        tagIdSet: Set<Uuid>,
+    ) {
         if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
             uiState.update { value -> value.copy(isInProgress = true) }
             try {
-                addMusicUseCase(parameter = detail)
+                addMusicUseCase(parameter = AddMusicUseCase.Parameter(detail = detail, tagIdSet = tagIdSet))
                     .onSuccess {
                         fetchJob?.cancel()
                         _effect.send(MusicAddEffect.AddSucceeded)

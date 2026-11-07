@@ -5,8 +5,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -20,16 +18,16 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 앱 상태를 다시 구성한다.
 @RunWith(RobolectricTestRunner::class)
@@ -43,7 +41,7 @@ class AppRelaunchListDetailTest {
         assertDetailSelectionReset(
             topLevelNavigation = TopLevelNavigation.Memo,
             listPathKeyList = listOf(MemoFinishedListNavKey),
-            detailNavKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 
@@ -52,18 +50,18 @@ class AppRelaunchListDetailTest {
         assertDetailSelectionReset(
             topLevelNavigation = TopLevelNavigation.Tag,
             listPathKeyList = listOf(TagFinishedListNavKey),
-            detailNavKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = TagDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 
     @Test
     fun `TC-ec63217f-2237-4f2a-bb43-9b5ebef7c6f9 앱을 종료하고 다시 실행하면 태그의 완료된 메모 목록과 상세 선택 없이 시작 화면에서 시작한다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
 
         assertDetailSelectionReset(
             topLevelNavigation = TopLevelNavigation.Tag,
             listPathKeyList = listOf(TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId)),
-            detailNavKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 
@@ -72,7 +70,7 @@ class AppRelaunchListDetailTest {
         assertDetailSelectionReset(
             topLevelNavigation = TopLevelNavigation.More,
             listPathKeyList = listOf(PlaylistHomeNavKey),
-            detailNavKey = MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = MusicDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 
@@ -81,7 +79,7 @@ class AppRelaunchListDetailTest {
         assertDetailSelectionReset(
             topLevelNavigation = TopLevelNavigation.More,
             listPathKeyList = listOf(QrHomeNavKey),
-            detailNavKey = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+            detailNavKey = QrDetailNavKey(id = Arb.kotlinUuid().next()),
         )
     }
 

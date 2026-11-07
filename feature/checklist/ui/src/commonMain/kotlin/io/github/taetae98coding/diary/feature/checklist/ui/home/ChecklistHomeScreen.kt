@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
@@ -24,7 +26,7 @@ internal fun ChecklistHomeScreen(
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    DeleteUndoSnackbarEffect(
+    ChecklistListUndoSnackbarEffect(
         onRestore = checklistViewModel::restore,
         effect = checklistViewModel.effect,
         snackbarHostState = snackbarHostState,
@@ -36,8 +38,12 @@ internal fun ChecklistHomeScreen(
                 is ChecklistHomeScaffoldEvent.ClickNavigateUp -> navigateUp()
                 is ChecklistHomeScaffoldEvent.ClickAdd -> navigateToAdd()
                 is ChecklistHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
-                is ChecklistHomeScaffoldEvent.ClickChecklist -> navigateToDetail(event.id)
-                is ChecklistHomeScaffoldEvent.DeleteChecklist -> checklistViewModel.delete(id = event.id)
+            }
+        },
+        onChecklistListEvent = { event ->
+            when (event) {
+                is ChecklistListEvent.ClickChecklist -> navigateToDetail(event.id)
+                is ChecklistListEvent.SwipeDelete -> checklistViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

@@ -10,20 +10,19 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -53,6 +52,7 @@ internal const val TYPED_LONGITUDE = "126.9780"
 internal const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
 internal const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add place"
 internal const val DEFAULT_SEARCH_BUTTON_DESCRIPTION = "Search place"
+internal const val HEX_COLOR_LENGTH = 7
 internal const val DESCRIPTION_INDEX = 1
 internal const val ADDRESS_INDEX = 2
 internal const val LATITUDE_INDEX = 3
@@ -89,10 +89,10 @@ internal fun ComposeContentTestRule.currentColorHex(): String =
         .config[SemanticsProperties.Text]
         .firstNotNullOf { text -> hexRegex.find(text.text)?.value }
 
-internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): PlaceAddTagViewModel {
-    val viewModel = mockk<PlaceAddTagViewModel>(relaxed = true)
+internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): EntityAddTagViewModel {
+    val viewModel = mockk<EntityAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.selectionUiState } returns MutableStateFlow(PlaceAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
+    every { viewModel.selectionUiState } returns MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
@@ -113,7 +113,7 @@ internal fun ComposeContentTestRule.setPlaceAddScreen(
     navigateUp: () -> Unit = {},
     navigateToTagDetail: (Uuid) -> Unit = {},
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
-    tagViewModel: PlaceAddTagViewModel = addTagScreenTestViewModel(),
+    tagViewModel: EntityAddTagViewModel = addTagScreenTestViewModel(),
     initialCoordinate: Coordinate? = null,
 ) {
     setContent {
@@ -145,5 +145,3 @@ internal fun ComposeContentTestRule.setPlaceAddScaffoldState(): PlaceFormState {
 
     return state
 }
-
-internal fun FixtureMonkey.mapCoordinateInFormPrecision(): DiaryMapCoordinate = coordinateInFormPrecision().toDiaryMapCoordinate()

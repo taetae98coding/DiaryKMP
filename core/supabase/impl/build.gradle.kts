@@ -15,6 +15,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(ktorLibs.client.mock)
+                implementation(projects.logger.crashlytics.api)
             }
         }
     }

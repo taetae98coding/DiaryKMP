@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.core.supabase.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.MemorySessionManager
@@ -12,11 +10,13 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
 import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEngine
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
@@ -44,10 +44,7 @@ import kotlin.math.absoluteValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
-private fun functionName(): String = "v1-${fixtureMonkey.giveMeOne<Int>().absoluteValue}"
+private fun functionName(): String = "v1-${Arb.int().next().absoluteValue}"
 
 class SupabaseFunctionImplTest :
     FunSpec({

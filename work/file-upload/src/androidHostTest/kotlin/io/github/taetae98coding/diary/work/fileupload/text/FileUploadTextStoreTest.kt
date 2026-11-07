@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.work.fileupload.text
 
 import android.content.Context
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,8 +15,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.FileNotFoundException
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -34,7 +32,7 @@ class FileUploadTextStoreTest {
             val store = FileUploadTextStore(context = context, dispatcher = StandardTestDispatcher(testScheduler))
             val textList =
                 listOf(
-                    FileUploadText(title = " ${fixtureMonkey.giveMeOne<String>()} ", description = "첫 줄\n둘째 줄\r\n"),
+                    FileUploadText(title = " ${Arb.string().next()} ", description = "첫 줄\n둘째 줄\r\n"),
                     FileUploadText(title = "제목", description = ""),
                     // 64KB를 넘는 문자열도 담을 수 있어야 한다.
                     FileUploadText(title = "가".repeat(30_000), description = "나".repeat(100_000)),
@@ -51,7 +49,7 @@ class FileUploadTextStoreTest {
     fun `지운 제목과 설명은 다시 읽을 수 없다`() =
         runTest {
             val store = FileUploadTextStore(context = context, dispatcher = StandardTestDispatcher(testScheduler))
-            val id = store.write(text = FileUploadText(title = "제목", description = fixtureMonkey.giveMeOne<String>()))
+            val id = store.write(text = FileUploadText(title = "제목", description = Arb.string().next()))
 
             store.delete(id = id)
 

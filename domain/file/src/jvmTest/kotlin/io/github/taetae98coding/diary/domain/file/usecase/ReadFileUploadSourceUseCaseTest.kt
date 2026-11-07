@@ -1,25 +1,22 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.mockk
 
 private const val MAX_SIZE = 52_428_800L
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class ReadFileUploadSourceUseCaseTest :
     BehaviorSpec({
@@ -31,7 +28,7 @@ class ReadFileUploadSourceUseCaseTest :
                         MAX_SIZE to true,
                         MAX_SIZE + 1 to false,
                     ).forEach { (size, isSelected) ->
-                        val source = fixtureMonkey.fileUploadSource(size = size)
+                        val source = Arb.fileUploadSource(size = size).next()
                         val fileRepository = mockk<FileRepository>()
                         coEvery { fileRepository.readSource(uri = source.uri) } returns source
 
@@ -48,8 +45,8 @@ class ReadFileUploadSourceUseCaseTest :
         }
 
         Given("고른 파일의 이름이나 크기를 읽을 수 없다") {
-            val uri = fixtureMonkey.fileUri()
-            val exception = FileUnreadableException(name = fixtureMonkey.giveMeOne<String>(), cause = IllegalStateException())
+            val uri = Arb.fileUri().next()
+            val exception = FileUnreadableException(name = Arb.string().next(), cause = IllegalStateException())
             val fileRepository = mockk<FileRepository>()
             coEvery { fileRepository.readSource(uri = uri) } throws exception
 

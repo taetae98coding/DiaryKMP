@@ -8,19 +8,16 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -41,7 +38,7 @@ class WebAddScreenFocusTest {
     fun `TC-d4ad756e-9854-4735-be0c-2e13c6d16177 헤더 항목을 추가해도 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
         composeRule.addHeaderRow()
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
 
         composeRule.onNodeWithContentDescription(DEFAULT_HEADER_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -53,7 +50,7 @@ class WebAddScreenFocusTest {
     fun `TC-d4ad756e-9854-4735-be0c-2e13c6d16177 헤더 항목을 삭제해도 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = screenTestViewModel())
         composeRule.addHeaderRow()
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
 
         composeRule.onNodeWithContentDescription(DEFAULT_HEADER_REMOVE_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -65,8 +62,8 @@ class WebAddScreenFocusTest {
     fun `TC-f9b2aeb9-6b4c-45bb-bd78-3f865383ef5b 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.AddSucceeded(id = Uuid.random())))
 
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
-        composeRule.urlInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
+        composeRule.urlInput().performTextInput(Arb.string().next())
         composeRule.clickAdd()
 
         composeRule.titleInput().assertIsFocused()
@@ -76,7 +73,7 @@ class WebAddScreenFocusTest {
     fun `TC-28661286-7054-40c4-8153-3abe92b15752 제목이 비어 있으면 제목 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.TitleBlank))
 
-        composeRule.urlInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.urlInput().performTextInput(Arb.string().next())
         composeRule.clickAdd()
 
         composeRule.titleInput().assertIsFocused()
@@ -87,7 +84,7 @@ class WebAddScreenFocusTest {
     fun `TC-28661286-7054-40c4-8153-3abe92b15752 URL이 비어 있으면 URL 입력으로 초점을 옮긴다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.UrlBlank))
 
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
         composeRule.clickAdd()
 
         composeRule.urlInput().assertIsFocused()
@@ -98,10 +95,10 @@ class WebAddScreenFocusTest {
     fun `TC-28661286-7054-40c4-8153-3abe92b15752 헤더 이름이 비어 있으면 초점을 옮기지 않는다`() {
         setWebAddScreen(viewModel = effectViewModel(effect = WebAddEffect.HeaderNameBlank))
 
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
-        composeRule.urlInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
+        composeRule.urlInput().performTextInput(Arb.string().next())
         composeRule.addHeaderRow()
-        composeRule.headerValueInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.headerValueInput().performTextInput(Arb.string().next())
 
         composeRule.headerValueInput().performKeyInput {
             keyDown(Key.MetaLeft)

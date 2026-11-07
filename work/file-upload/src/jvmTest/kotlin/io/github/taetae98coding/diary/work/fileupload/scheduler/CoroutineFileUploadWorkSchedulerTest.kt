@@ -2,14 +2,13 @@
 
 package io.github.taetae98coding.diary.work.fileupload.scheduler
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
@@ -17,7 +16,7 @@ import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.domain.file.usecase.UploadFileRequest
 import io.github.taetae98coding.diary.domain.file.usecase.UploadFileUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadNotifier
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResult
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultReporter
@@ -27,6 +26,9 @@ import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWorkImpl
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -48,8 +50,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class CoroutineFileUploadWorkSchedulerTest :
     BehaviorSpec({
@@ -82,7 +82,7 @@ class CoroutineFileUploadWorkSchedulerTest :
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()
-                        val source = fixtureMonkey.fileUploadSource(size = 1_000).copy(uri = request.content.uri)
+                        val source = Arb.fileUploadSource(size = 1_000).next().copy(uri = request.content.uri)
                         val next = MutableSharedFlow<Unit>()
                         coEvery { fixture.work.doWork(request = request, onStep = any()) } coAnswers {
                             val onStep = secondArg<suspend (FileUploadStep) -> Unit>()
@@ -132,7 +132,7 @@ class CoroutineFileUploadWorkSchedulerTest :
                         val fixture = SchedulerFixture(scope = scope)
                         val first = fixture.request()
                         val second = fixture.request()
-                        coEvery { fixture.work.doWork(request = first, onStep = any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                        coEvery { fixture.work.doWork(request = first, onStep = any()) } throws IllegalStateException(Arb.string().next())
                         coEvery { fixture.work.doWork(request = second, onStep = any()) } returns Unit
                         val scheduler = fixture.scheduler()
 
@@ -155,10 +155,10 @@ class CoroutineFileUploadWorkSchedulerTest :
                         val scope = CoroutineScope(backgroundScope.coroutineContext + SupervisorJob(backgroundScope.coroutineContext[Job]) + CoroutineExceptionHandler { _, _ -> })
                         val fixture = SchedulerFixture(scope = scope)
                         val request = fixture.request()
-                        val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
+                        val source = Arb.fileUploadSource().next().copy(uri = request.content.uri)
                         val uploadFileUseCase = mockk<UploadFileUseCase>()
                         every { uploadFileUseCase(parameter = UploadFileRequest(content = request.content, accountId = request.accountId)) } returns
-                            flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IOException(fixtureMonkey.giveMeOne<String>())))
+                            flowOf(Result.success(FileUploadStep.Started(source = source)), Result.failure(IOException(Arb.string().next())))
                         coEvery { fixture.fileRepository.removeUploadSource(uri = request.content.uri) } returns Unit
                         val scheduler =
                             fixture.scheduler(
@@ -187,8 +187,8 @@ class CoroutineFileUploadWorkSchedulerTest :
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()
-                        val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
-                        val file = fixtureMonkey.diaryFile()
+                        val source = Arb.fileUploadSource().next().copy(uri = request.content.uri)
+                        val file = Arb.diaryFile().next()
                         val response = CompletableDeferred<Unit>()
                         val uploadFileUseCase = mockk<UploadFileUseCase>()
                         every { uploadFileUseCase(parameter = UploadFileRequest(content = request.content, accountId = request.accountId)) } returns
@@ -245,7 +245,7 @@ class CoroutineFileUploadWorkSchedulerTest :
                 Then("TC-07e4c4bb-5dc5-47d8-8161-b82c2b903104 올리는 중으로 보고 새 파일은 올리지 않는다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
-                        fixture.continuedUpload.value = ContinuedFileUpload(name = fixtureMonkey.fileUploadSource().name, size = 1_000, sentBytes = 250)
+                        fixture.continuedUpload.value = ContinuedFileUpload(name = Arb.fileUploadSource().next().name, size = 1_000, sentBytes = 250)
                         val scheduler = fixture.scheduler()
                         runCurrent()
 
@@ -263,7 +263,7 @@ class CoroutineFileUploadWorkSchedulerTest :
                 Then("TC-07e4c4bb-5dc5-47d8-8161-b82c2b903104 성공, 크기 초과, 그 밖의 실패를 올리기 결과로 알린다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
-                        val file = fixtureMonkey.diaryFile()
+                        val file = Arb.diaryFile().next()
                         fixture.scheduler()
                         runCurrent()
 
@@ -283,7 +283,7 @@ class CoroutineFileUploadWorkSchedulerTest :
         Given("계정 A가 시작한 파일을 올리는 중이다") {
             listOf<Pair<String, Uuid?>>(
                 "게스트" to null,
-                "계정 B의 사용자" to fixtureMonkey.giveMeOne<Uuid>(),
+                "계정 B의 사용자" to Arb.kotlinUuid().next(),
             ).forEach { (accountState, exceptAccountId) ->
                 When("${accountState}가 확인되어 다른 계정의 올리기를 취소한다") {
                     Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 올리기를 멈추고 결과를 알리지 않으며 붙들고 있던 파일을 돌려준다") {
@@ -351,7 +351,7 @@ class CoroutineFileUploadWorkSchedulerTest :
 private class SchedulerFixture(
     private val scope: CoroutineScope,
 ) {
-    val account = fixtureMonkey.giveMeOne<Account.User>()
+    val account = Arb.accountUser().next()
     val work = mockk<FileUploadWork>()
     val continuedUpload = MutableStateFlow<ContinuedFileUpload?>(null)
     val continuedUploadResult = MutableSharedFlow<ContinuedFileUploadResult>()
@@ -370,7 +370,7 @@ private class SchedulerFixture(
     private var requestCount = 0
 
     // 임의로 만든 위치가 우연히 겹쳐도 요청마다 다른 파일을 가리키게 한다.
-    fun request(): FileUploadRequest = FileUploadRequest(content = fixtureMonkey.fileUploadContent(uri = FileUri("${fixtureMonkey.fileUri().value}-${requestCount++}")), accountId = account.id)
+    fun request(): FileUploadRequest = FileUploadRequest(content = Arb.fileUploadContent(uri = FileUri("${Arb.fileUri().next().value}-${requestCount++}")).next(), accountId = account.id)
 
     fun scheduler(work: FileUploadWork = this.work): CoroutineFileUploadWorkScheduler =
         CoroutineFileUploadWorkScheduler(

@@ -6,20 +6,24 @@ import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,15 +40,12 @@ import kotlinx.coroutines.launch
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class AccountMemoRepositoryImplTest :
     FunSpec({
         test("단일 메모 조회는 로컬 저장소의 후속 변경도 도메인 모델로 반환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val memo = memo()
-            val changedMemo = memo.copy(detail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>())
+            val changedMemo = memo.copy(detail = Arb.memoDetailLocalEntity().next())
             val memoFlow = MutableStateFlow<MemoLocalEntity?>(memo)
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
@@ -62,9 +63,9 @@ class AccountMemoRepositoryImplTest :
         }
 
         test("TC-cf31ec56-1107-480f-98f0-73d83cdb95bc 메모 저장은 연결할 태그를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val memo = memo().toDomain()
-            val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+            val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
             coEvery { transaction.upsert(accountId = any(), memoList = any(), memoTagList = any()) } just Runs
@@ -91,7 +92,7 @@ class AccountMemoRepositoryImplTest :
         }
 
         test("연결할 태그가 없으면 태그 연결 없이 메모만 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val memo = memo().toDomain()
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
@@ -110,9 +111,9 @@ class AccountMemoRepositoryImplTest :
         }
 
         test("메모 저장은 연결할 장소를 메모와 같은 시각의 연결로 변환해 함께 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val memo = memo().toDomain()
-            val placeIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+            val placeIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
             coEvery { transaction.upsert(accountId = any(), memoList = any(), memoTagList = any(), memoPlaceList = any()) } just Runs
@@ -140,7 +141,7 @@ class AccountMemoRepositoryImplTest :
         }
 
         test("연결할 장소가 없으면 장소 연결 없이 메모만 위임한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val memo = memo().toDomain()
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
@@ -160,10 +161,10 @@ class AccountMemoRepositoryImplTest :
         }
 
         test("메모 상세 저장은 도메인 상세를 로컬 엔티티로 변환해 로컬 저장소에 위임하고 갱신된 메모 수를 반환한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
-            val detail = fixtureMonkey.giveMeOne<MemoDetail>()
-            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
+            val detail = Arb.memoDetail().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
             coEvery {
@@ -180,11 +181,13 @@ class AccountMemoRepositoryImplTest :
     })
 
 private fun memo(): MemoLocalEntity =
-    fixtureMonkey
-        .giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-        .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-        .sample()
+    Arb
+        .memoLocalEntity()
+        .next()
+        .copy(
+            updatedAt = Arb.secondPrecisionInstant().next(),
+            createdAt = Arb.secondPrecisionInstant().next(),
+        )
 
 private fun mockMemoPagingSource(memoList: List<MemoLocalEntity>): PagingSource<Int, MemoLocalEntity> =
     mockk(relaxed = true) {

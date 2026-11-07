@@ -7,11 +7,10 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoTagUseCase
@@ -21,9 +20,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoPrimaryTagUseCa
 import io.github.taetae98coding.diary.domain.memo.usecase.UnsetMemoPrimaryTagUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -65,7 +67,7 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-c1cd15ed-c8e9-43ce-9f36-edbeb4a1768b 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val item = tag()
                 val parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = "")
                 val useCase = mockk<PageMemoSelectableTagUseCase>()
@@ -270,7 +272,7 @@ class MemoTagViewModelTest : FunSpec() {
         test("TC-a7830318-9349-45fc-83e0-918b42687e70 표시하는 태그에 없는 대표 태그 지정은 해제한다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
-                val unselectableTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val unselectableTagId = Arb.kotlinUuid().next()
                 val memo = memo().copy(primaryTagId = unselectableTagId)
                 val viewModel =
                     viewModel(
@@ -367,8 +369,8 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-130270d5-4801-4215-b84d-029a6f8d8b96 태그를 선택하면 그 메모와 태그의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
                 val addMemoTagUseCase = mockk<AddMemoTagUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoTagUseCase = addMemoTagUseCase)
 
@@ -381,8 +383,8 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-278d2a9d-3386-4cee-a542-56f2577f0050 태그 선택을 해제하면 그 메모와 태그의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
                 val removeMemoTagUseCase = mockk<RemoveMemoTagUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, removeMemoTagUseCase = removeMemoTagUseCase)
 
@@ -395,8 +397,8 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-121409a2-4451-472a-bd3b-c6986bf6ff27 대표 태그를 지정하면 그 메모의 대표 태그 지정을 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
                 val setMemoPrimaryTagUseCase = mockk<SetMemoPrimaryTagUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, setMemoPrimaryTagUseCase = setMemoPrimaryTagUseCase)
 
@@ -409,7 +411,7 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-8f163fe3-4081-49db-adc8-22e85df13732 대표 태그 지정을 해제하면 그 메모의 대표 태그 해제를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val unsetMemoPrimaryTagUseCase = mockk<UnsetMemoPrimaryTagUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, unsetMemoPrimaryTagUseCase = unsetMemoPrimaryTagUseCase)
 
@@ -422,9 +424,9 @@ class MemoTagViewModelTest : FunSpec() {
 
         test("TC-39024d94-6c0e-4735-852c-1a56f7a559c3 앞선 태그 변경이 처리 중이어도 뒤이은 태그 변경을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val firstTagId = Arb.kotlinUuid().next()
+                val secondTagId = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Unit>>()
                 val addMemoTagUseCase = mockk<AddMemoTagUseCase>()
                 coEvery { addMemoTagUseCase(any()) } coAnswers { completion.await() }
@@ -450,7 +452,7 @@ class MemoTagViewModelTest : FunSpec() {
     private fun searchTests() {
         test("TC-70938ef2-fc50-498e-9890-96e03ab30a4e 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageMemoSelectableTagUseCase = mockk<PageMemoSelectableTagUseCase>()
@@ -478,7 +480,7 @@ class MemoTagViewModelTest : FunSpec() {
     private fun applyDelayTests() {
         test("TC-de371d99-7013-4f2f-adad-551f62a924a9 연속으로 입력하는 동안에는 마지막 검색어만 선택 목록에 반영된다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(3) { tag() }
                 val middleTagList = allTagList.take(2)
                 val matchedTagList = allTagList.take(1)
@@ -514,7 +516,7 @@ class MemoTagViewModelTest : FunSpec() {
     private fun blankQueryTests() {
         test("TC-9b897170-7624-4db6-94ab-8581958c9dce 검색어를 지우면 기다리지 않고 선택 목록이 되돌아온다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageMemoSelectableTagUseCase = mockk<PageMemoSelectableTagUseCase>()
@@ -568,8 +570,8 @@ class MemoTagViewModelTest : FunSpec() {
     private fun duplicateRequestTests() {
         test("같은 태그 선택, 선택 해제, 대표 태그 지정이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
                 val addMemoTagUseCase = mockk<AddMemoTagUseCase>(relaxed = true)
                 val removeMemoTagUseCase = mockk<RemoveMemoTagUseCase>(relaxed = true)
                 val setMemoPrimaryTagUseCase = mockk<SetMemoPrimaryTagUseCase>(relaxed = true)
@@ -606,28 +608,29 @@ class MemoTagViewModelTest : FunSpec() {
         private const val SEARCH_QUERY = "Travel"
         private const val MIDDLE_SEARCH_QUERY = "Trav"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         // 정렬 순서가 검증 대상인 케이스에서는 제목만 고정한다.
         private fun tag(title: String): Tag = tag().let { tag -> tag.copy(detail = tag.detail.copy(title = title)) }
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             tagListFlow: Flow<Result<List<Tag>>> = emptyFlow(),
             memoTagFlow: Flow<Result<List<Tag>>> = emptyFlow(),
             memoFlow: Flow<Result<Memo?>> = emptyFlow(),

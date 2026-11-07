@@ -88,7 +88,9 @@ stateDiagram-v2
 | `PlaceHome` | [PlaceHome 화면](./place-home.md) |
 | `PlaceMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 | `PlaylistHome` | [PlaylistHome 화면](./playlist-home.md) |
+| `Profile` | [Profile 화면](./profile.md) |
 | `ProfileImageEdit` | [ProfileImageEdit 화면](./profile-image-edit.md) |
+| `ProfileImageViewer` | [ProfileImageViewer 화면](./profile-image-viewer.md) |
 | `QrAdd` | [QrAdd 화면](./qr-add.md) |
 | `QrDetail` | [QrDetail 화면](./qr-detail.md) |
 | `QrHome` | [QrHome 화면](./qr-home.md) |
@@ -101,6 +103,7 @@ stateDiagram-v2
 | `SettingHoliday` | [SettingHoliday 화면](./setting-holiday.md) |
 | `SettingHome` | [SettingHome 화면](./setting-home.md) |
 | `SettingMap` | [SettingMap 화면](./setting-map.md) |
+| `SettingMcp` | [SettingMcp 화면](./setting-mcp.md) |
 | `TagAdd` | [TagAdd 화면](./tag-add.md) |
 | `TagDetail` | [TagDetail 화면](./tag-detail.md) |
 | `TagFinishedList` | [TagFinishedList 화면](./tag-finished-list.md) |

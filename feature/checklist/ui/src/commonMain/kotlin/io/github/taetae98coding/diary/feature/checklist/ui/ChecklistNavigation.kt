@@ -12,10 +12,14 @@ import kotlin.uuid.Uuid
 internal fun NavBackStack<ScreenNavKey>.navigateToChecklistDetail(id: Uuid) {
     navigateToDetail(
         detailKey = ChecklistDetailNavKey(id = id),
-        isDetailPaneKey = { key -> key is ChecklistDetailNavKey || key == ChecklistAddNavKey },
+        isDetailPaneKey = { key -> key is ChecklistDetailNavKey || key is ChecklistAddNavKey },
     )
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateUpFromChecklistHome() {
     navigateUpTo(homeKey = ChecklistHomeNavKey)
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToChecklistAddFromHome() {
+    add(ChecklistAddNavKey())
 }

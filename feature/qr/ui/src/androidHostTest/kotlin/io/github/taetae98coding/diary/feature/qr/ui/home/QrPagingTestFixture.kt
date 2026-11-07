@@ -5,16 +5,13 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 internal fun qrPagingDataOf(qrList: List<Qr>): PagingData<Qr> =
     PagingData.from(
@@ -43,15 +40,15 @@ internal fun failedQrPagingData(): PagingData<Qr> =
         data = emptyList(),
         sourceLoadStates =
             LoadStates(
-                refresh = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                refresh = LoadState.Error(IllegalStateException(Arb.string().next())),
                 prepend = LoadState.NotLoading(endOfPaginationReached = false),
                 append = LoadState.NotLoading(endOfPaginationReached = false),
             ),
     )
 
 internal fun testQr(titlePrefix: String = ""): Qr =
-    fixtureMonkey.qrDetail().let { detail ->
-        fixtureMonkey.qr(isDeleted = false, detail = detail.copy(title = titlePrefix + detail.title))
+    Arb.qrDetail().next().let { detail ->
+        Arb.qr(isDeleted = false, detail = detail.copy(title = titlePrefix + detail.title)).next()
     }
 
 internal fun SemanticsNodeInteractionsProvider.qrCodeValueList(): List<String> =

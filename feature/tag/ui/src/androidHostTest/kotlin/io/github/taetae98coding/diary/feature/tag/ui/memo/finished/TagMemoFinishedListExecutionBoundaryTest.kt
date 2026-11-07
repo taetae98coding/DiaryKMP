@@ -26,11 +26,13 @@ import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -49,7 +51,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val tagId = fixtureId()
+    private val tagId = Arb.kotlinUuid().next()
     private val finishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
     private val backStack = NavBackStack<ScreenNavKey>(TagDetailNavKey(id = tagId))
     private val syncViewModel = screenTestSyncViewModel()
@@ -64,7 +66,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
         setFinishedListNavDisplay(memoList = memoList())
 
         openFinishedList()
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureId())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { backStack.removeLastOrNull() }
         composeRule.waitForIdle()
@@ -197,7 +199,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     private fun memoList(): List<Memo> {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
 
         return List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
     }

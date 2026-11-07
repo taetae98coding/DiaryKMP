@@ -11,10 +11,13 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +79,7 @@ internal object CalendarHomeWeatherGroupFixture {
         CalendarContactBirthday(
             contactId = Uuid.random(),
             name = BIRTHDAY_NAME,
+            nameQualifier = "",
             date = date,
         )
 
@@ -87,11 +91,12 @@ internal object CalendarHomeWeatherGroupFixture {
         max: Double,
         description: String,
     ): CalendarWeather =
-        calendarWeather(
-            date = date,
-            temperature = CalendarWeatherTemperature.MinMax(min = min, max = max),
-            descriptionList = listOf(description),
-        )
+        Arb
+            .calendarWeather(
+                date = date,
+                temperature = CalendarWeatherTemperature.MinMax(min = min, max = max),
+                descriptionList = listOf(description),
+            ).next()
 }
 
 internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(

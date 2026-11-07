@@ -5,6 +5,7 @@
 이 문서는 공통 로깅 체계와 콘솔 기록, 오류 보고 기록, 원격 분석 기록 세 가지 기록 수단을 소유한다. 어떤 사건을 로그로 남기는지는 그 사건을 다루는 스펙이 소유하며, 이 체계 위에서 동작하는 스펙은 다음과 같다.
 
 - [기능 실패 로깅 스펙](./usecase-failure-logging.md)
+- [원격 응답 실패 보고 스펙](./remote-response-failure-logging.md)
 - [화면 조회 로깅 스펙](./screen-view-logging.md)
 - [Play Integrity 판정 기록 스펙](./play-integrity-logging.md)
 

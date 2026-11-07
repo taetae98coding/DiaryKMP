@@ -50,6 +50,7 @@
 
 | 대상 | client | common | server | 디자인 |
 | --- | --- | --- | --- | --- |
+| AI 도구 연결 | [client](./client/mcp-server.md) | — | — | — |
 | Calendar 날짜 선택 | [client](./client/calendar-select.md) | — | — | [Calendar 날짜 선택 디자인](../design/calendar-select.md) |
 | Calendar 컴포넌트 | [client](./client/calendar.md) | — | — | [Calendar 디자인](../design/calendar.md) |
 | CalendarBarText 컴포넌트 | [client](./client/calendar-bar-text.md) | — | — | [CalendarBarText 디자인](../design/calendar-bar-text.md) |
@@ -92,12 +93,15 @@
 | Play Integrity 판정 기록 | [client](./client/play-integrity-logging.md) | [common](./common/play-integrity-logging.md) | [server](./server/play-integrity-logging.md) | — |
 | Playlist 목록·상세 배치 | [client](./client/playlist-list-detail.md) | — | — | [Playlist 목록·상세 배치 디자인](../design/playlist-list-detail.md) |
 | PlaylistHome 화면 | [client](./client/playlist-home.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
+| Profile 화면 | [client](./client/profile.md) | — | — | [Profile 디자인](../design/profile.md) |
 | ProfileImageEdit 화면 | [client](./client/profile-image-edit.md) | — | — | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
+| ProfileImageViewer 화면 | [client](./client/profile-image-viewer.md) | — | — | [ProfileImageViewer 디자인](../design/profile-image-viewer.md) |
 | QrAdd 화면 | [client](./client/qr-add.md) | — | — | [QrAdd 디자인](../design/qr-add.md) |
 | QrDetail 화면 | [client](./client/qr-detail.md) | — | — | [QrDetail 디자인](../design/qr-detail.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
 | QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
 | QR 목록·상세 배치 | [client](./client/qr-list-detail.md) | — | — | [QR 목록·상세 배치 디자인](../design/qr-list-detail.md) |
+| QR 태그 | [client](./client/qr-tag.md) | [common](./common/qr-tag.md) | — | — |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
 | RoutineAdd 화면 | [client](./client/routine-add.md) | — | — | [RoutineAdd 디자인](../design/routine-add.md) |
 | RoutineHome 화면 | [client](./client/routine-home.md) | — | — | [RoutineHome 디자인](../design/routine-home.md) |
@@ -108,12 +112,17 @@
 | SettingHoliday 화면 | [client](./client/setting-holiday.md) | — | — | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
+| SettingMcp 화면 | [client](./client/setting-mcp.md) | — | — | [SettingMcp 디자인](../design/setting-mcp.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
 | TagDetail 메모 탭 | [client](./client/tag-detail-memo.md) | — | — | [TagDetail 메모 탭 디자인](../design/tag-detail-memo.md) |
 | TagDetail 웹 탭 | [client](./client/tag-detail-web.md) | — | — | [TagDetail 웹 탭 디자인](../design/tag-detail-web.md) |
 | TagDetail 장소 탭 | [client](./client/tag-detail-place.md) | — | — | [TagDetail 장소 탭 디자인](../design/tag-detail-place.md) |
+| TagDetail 연락처 탭 | [client](./client/tag-detail-contact.md) | — | — | [TagDetail 연락처 탭 디자인](../design/tag-detail-contact.md) |
+| TagDetail 체크리스트 탭 | [client](./client/tag-detail-checklist.md) | — | — | [TagDetail 체크리스트 탭 디자인](../design/tag-detail-checklist.md) |
+| TagDetail 곡 탭 | [client](./client/tag-detail-music.md) | — | — | [TagDetail 곡 탭 디자인](../design/tag-detail-music.md) |
+| TagDetail QR 탭 | [client](./client/tag-detail-qr.md) | — | — | [TagDetail QR 탭 디자인](../design/tag-detail-qr.md) |
 | TagDetail 화면 | [client](./client/tag-detail.md) | — | — | [TagDetail 디자인](../design/tag-detail.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
 | TagFinishedList 화면 | [client](./client/tag-finished-list.md) | — | — | [TagFinishedList 디자인](../design/tag-finished-list.md) |
 | TagFinishedList 목록·상세 배치 | [client](./client/tag-finished-list-detail.md) | — | — | [TagFinishedList 목록·상세 배치 디자인](../design/tag-finished-list-detail.md) |
@@ -129,6 +138,8 @@
 | WebHome 화면 | [client](./client/web-home.md) | — | — | [WebHome 디자인](../design/web-home.md) |
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
+| 계정 탈퇴 | [client](./client/account-deletion.md) | [common](./common/account-deletion.md) | [server](./server/account-deletion.md) | [Profile 디자인](../design/profile.md) |
+| 곡 태그 | [client](./client/music-tag.md) | [common](./common/music-tag.md) | — | — |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
@@ -166,8 +177,10 @@
 | 앱 안 웹 로그인 유지 | [client](./client/web-login-persistence.md) | — | — | [WebDetail 디자인](../design/web-detail.md) |
 | 앱 이름 | [client](./client/app-name.md) | — | — | — |
 | 앱 활성 상태 | [client](./client/app-active-state.md) | — | — | — |
+| 연락처 태그 | [client](./client/contact-tag.md) | [common](./common/contact-tag.md) | — | — |
 | 연도별 자료 동기화 | [client](./client/yearly-data-sync.md) | — | — | — |
 | 완료 목록 공통 | [client](./client/finished-list.md) | — | — | [완료 목록 공통 디자인](../design/finished-list.md) |
+| 원격 응답 실패 보고 | [client](./client/remote-response-failure-logging.md) | — | — | — |
 | 웹 태그 | [client](./client/web-tag.md) | [common](./common/web-tag.md) | — | — |
 | 위치 권한 요청 | [client](./client/location-permission.md) | — | — | — |
 | 음력 자료 동기화 | [client](./client/lunar-fetch.md) | — | — | — |
@@ -179,6 +192,7 @@
 | 장소 보기 모드 | [client](./client/place-view-mode.md) | — | — | [장소 보기 모드 디자인](../design/place-view-mode.md) |
 | 장소 태그 | [client](./client/place-tag.md) | [common](./common/place-tag.md) | — | — |
 | 제목 입력 | [client](./client/title-input.md) | — | — | [제목 입력 디자인](../design/title-input.md) |
+| 체크리스트 태그 | [client](./client/checklist-tag.md) | [common](./common/checklist-tag.md) | — | — |
 | 카메라 권한 요청 | [client](./client/camera-permission.md) | — | — | — |
 | 캘린더 메모 이동 | [client](./client/calendar-memo-move.md) | — | — | [캘린더 메모 이동 디자인](../design/calendar-memo-move.md) |
 | 캘린더 메모 표시 | [client](./client/calendar-memo.md) | — | — | — |

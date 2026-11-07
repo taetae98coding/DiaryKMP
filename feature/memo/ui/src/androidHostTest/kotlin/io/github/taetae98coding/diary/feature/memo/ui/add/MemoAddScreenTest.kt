@@ -104,7 +104,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-a6baf1a0-fcf7-4d4c-beb0-649aeca097ca TC-29f72dc2-15f1-426b-880c-9697c055beb8 TC-d58e8805-d2ad-42f2-a534-5ff654141413 TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-a6baf1a0-fcf7-4d4c-beb0-649aeca097ca 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoAddScreen(
             viewModels = screenTestViewModel(),
@@ -171,7 +171,7 @@ class MemoAddScreenTest {
     fun `TC-97d15054-fbd5-4499-8c8b-4a78a6dfb008 ContactDetail 메모 탭에서 진입해도 날짜·시간 입력이 스위치가 꺼진 상태로 표시된다`() {
         val contact = testContact(name = ENTRY_TARGET_TITLE)
 
-        assertDateTimeOffOnEntry(viewModels = screenTestRealViewModel(initialContactId = contact.id, contactList = listOf(contact)))
+        assertDateTimeOffOnEntry(viewModels = screenTestRealViewModel(initialContactId = contact.contact.id, contactList = listOf(contact)))
     }
 
     @Test

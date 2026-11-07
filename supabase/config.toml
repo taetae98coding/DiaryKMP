@@ -140,7 +140,39 @@ verify_jwt = true
 [functions.v1-sync-pull-checklist-item]
 verify_jwt = true
 
+[functions.v1-sync-push-contact-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-contact-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-checklist-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-checklist-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-music-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-music-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-qr-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-qr-tag]
+verify_jwt = true
+
 [functions.v1-profile-upload]
+verify_jwt = true
+
+# Apple 로그인 권한 취소는 secrets set으로 주입한 값을 쓴다.
+# APPLE_TEAM_ID, APPLE_KEY_ID: Apple Developer의 팀 ID와 Sign in with Apple 키 ID.
+# APPLE_PRIVATE_KEY: 그 키의 .p8 내용(PKCS#8 PEM). 줄바꿈은 \n으로 넣어도 된다.
+# APPLE_NATIVE_CLIENT_IDS: 콤마 구분 앱 bundle id 목록(iOS 기기 로그인의 발급 대상).
+# APPLE_WEB_CLIENT_IDS: 콤마 구분 Services ID 목록(Apple 웹 로그인의 발급 대상).
+[functions.v1-account-delete]
 verify_jwt = true
 
 [functions.v1-file-upload]

@@ -17,8 +17,6 @@ import androidx.compose.ui.test.performScrollToKey
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -26,10 +24,13 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,9 +43,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -289,11 +287,12 @@ class CalendarHomeScreenWeatherScrollTest {
         CalendarWeatherReport(
             weatherList =
                 listOf(
-                    calendarWeather(
-                        date = july(day = WEATHER_DAY),
-                        temperature = CalendarWeatherTemperature.Current(value = temperature),
-                        descriptionList = listOf(SUNNY_DESCRIPTION),
-                    ),
+                    Arb
+                        .calendarWeather(
+                            date = july(day = WEATHER_DAY),
+                            temperature = CalendarWeatherTemperature.Current(value = temperature),
+                            descriptionList = listOf(SUNNY_DESCRIPTION),
+                        ).next(),
                 ),
         )
 
@@ -353,7 +352,7 @@ class CalendarHomeScreenWeatherScrollTest {
         CalendarMemo(
             id = Uuid.random(),
             title = title,
-            color = fixtureMonkey.giveMeOne(),
+            color = Arb.long().next(),
             dateTime = MemoDateTime.AllDay(dateRange = july(day = MEMO_START_DAY)..july(day = WEATHER_DAY)),
         )
 

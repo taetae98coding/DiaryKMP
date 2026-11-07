@@ -1,56 +1,33 @@
 package io.github.taetae98coding.diary.core.testing.tag
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
-import kotlin.time.Instant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.map
 
-public fun FixtureMonkey.tag(
+public fun Arb.Companion.tag(
     isFinished: Boolean,
     isDeleted: Boolean,
-): Tag =
-    giveMeKotlinBuilder<Tag>()
-        .setExp(Tag::isFinished, isFinished)
-        .setExp(Tag::isDeleted, isDeleted)
-        .sample()
+): Arb<Tag> = Arb.tag().map { tag -> tag.copy(isFinished = isFinished, isDeleted = isDeleted) }
 
-public fun FixtureMonkey.tag(title: String): Tag =
-    giveMeKotlinBuilder<Tag>()
-        .setExp(Tag::detail, giveMeOne<TagDetail>().copy(emoji = "", title = title))
-        .setExp(Tag::updatedAt, giveMeOne<Instant>())
-        .setExp(Tag::createdAt, giveMeOne<Instant>())
-        .sample()
+public fun Arb.Companion.tag(title: String): Arb<Tag> =
+    arbitrary {
+        Arb.tag().bind().copy(detail = Arb.tagDetail().bind().copy(emoji = "", title = title))
+    }
 
-public fun FixtureMonkey.tag(
+public fun Arb.Companion.tag(
     title: String,
     isFinished: Boolean,
-): Tag =
-    giveMeKotlinBuilder<Tag>()
-        .setExp(Tag::detail, giveMeOne<TagDetail>().copy(emoji = "", title = title))
-        .setExp(Tag::isFinished, isFinished)
-        .setExp(Tag::isDeleted, false)
-        .setExp(Tag::updatedAt, giveMeOne<Instant>())
-        .setExp(Tag::createdAt, giveMeOne<Instant>())
-        .sample()
+): Arb<Tag> = Arb.tag(title = title).map { tag -> tag.copy(isFinished = isFinished, isDeleted = false) }
 
-public fun FixtureMonkey.localTag(
+public fun Arb.Companion.localTag(
     isFinished: Boolean,
     isDeleted: Boolean,
-): TagLocalEntity =
-    giveMeKotlinBuilder<TagLocalEntity>()
-        .setExp(TagLocalEntity::isFinished, isFinished)
-        .setExp(TagLocalEntity::isDeleted, isDeleted)
-        .sample()
+): Arb<TagLocalEntity> = Arb.tagLocalEntity().map { tag -> tag.copy(isFinished = isFinished, isDeleted = isDeleted) }
 
-public fun FixtureMonkey.remoteTag(
+public fun Arb.Companion.remoteTag(
     isFinished: Boolean,
     isDeleted: Boolean,
-): TagRemoteEntity =
-    giveMeKotlinBuilder<TagRemoteEntity>()
-        .setExp(TagRemoteEntity::isFinished, isFinished)
-        .setExp(TagRemoteEntity::isDeleted, isDeleted)
-        .sample()
+): Arb<TagRemoteEntity> = Arb.tagRemoteEntity().map { tag -> tag.copy(isFinished = isFinished, isDeleted = isDeleted) }

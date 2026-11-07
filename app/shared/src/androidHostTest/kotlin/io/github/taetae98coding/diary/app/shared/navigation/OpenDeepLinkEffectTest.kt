@@ -26,11 +26,12 @@ class OpenDeepLinkEffectTest {
     @Test
     fun `TC-e2ce08ed-fcaa-4ad9-aeeb-adb99caeacac 앱이 시작되며 받은 알림 주소로 화면이 만들어진 뒤 FileHome 화면을 연다`() {
         lateinit var appState: AppState
+        val appDeepLink = AppDeepLink()
 
-        AppDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME)
+        appDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME)
         composeRule.setContent {
             appState = rememberAppState()
-            OpenDeepLinkEffect(deepLink = AppDeepLink.deepLink, appState = appState)
+            OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
         }
 
         composeRule.runOnIdle {
@@ -45,12 +46,13 @@ class OpenDeepLinkEffectTest {
     @Test
     fun `TC-66288305-8c99-4bde-9280-d147cf3171a6 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome이면 알림을 선택해도 새로 열지 않는다`() {
         lateinit var appState: AppState
+        val appDeepLink = AppDeepLink()
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
 
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 appState = rememberAppState()
-                OpenDeepLinkEffect(deepLink = AppDeepLink.deepLink, appState = appState)
+                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
             }
         }
         composeRule.runOnIdle {
@@ -58,7 +60,7 @@ class OpenDeepLinkEffectTest {
             appState.backStack.add(FileHomeNavKey)
             lifecycleOwner.currentState = Lifecycle.State.CREATED
         }
-        composeRule.runOnIdle { AppDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME) }
+        composeRule.runOnIdle { appDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME) }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeRule.runOnIdle {
@@ -73,12 +75,13 @@ class OpenDeepLinkEffectTest {
     @Test
     fun `TC-41f772e5-d9ec-4108-8edc-7af5961a0a26 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileHome에서 연 FileAdd면 알림을 선택해도 FileAdd를 유지한다`() {
         lateinit var appState: AppState
+        val appDeepLink = AppDeepLink()
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
 
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 appState = rememberAppState()
-                OpenDeepLinkEffect(deepLink = AppDeepLink.deepLink, appState = appState)
+                OpenDeepLinkEffect(deepLink = appDeepLink.deepLink, deepLinkNavigationList = appDeepLinkNavigationList, navigator = appState)
             }
         }
         composeRule.runOnIdle {
@@ -87,7 +90,7 @@ class OpenDeepLinkEffectTest {
             appState.backStack.add(FileAddNavKey)
             lifecycleOwner.currentState = Lifecycle.State.CREATED
         }
-        composeRule.runOnIdle { AppDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME) }
+        composeRule.runOnIdle { appDeepLink.open(deepLink = ScreenDeepLink.FILE_HOME) }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeRule.runOnIdle {

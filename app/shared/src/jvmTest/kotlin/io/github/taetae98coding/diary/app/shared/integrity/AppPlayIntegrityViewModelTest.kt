@@ -52,6 +52,37 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-0af135da-aa35-4414-8edb-2e9ad8af5115 확인이 진행 중일 때 겹쳐 생긴 계기는 건너뛴다") {
+            runTest(mainDispatcher) {
+                val serverResponse = CompletableDeferred<Unit>()
+                var callCount = 0
+                val useCase = mockk<LogPlayIntegrityUseCase>()
+                coEvery { useCase(Unit) } coAnswers {
+                    callCount += 1
+                    if (callCount == 1) serverResponse.await()
+                    Result.success(Unit)
+                }
+                val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = useCase)
+
+                viewModel.log()
+                advanceUntilIdle()
+                viewModel.log()
+                advanceUntilIdle()
+
+                callCount shouldBe 1
+
+                serverResponse.complete(Unit)
+                advanceUntilIdle()
+
+                callCount shouldBe 1
+
+                viewModel.log()
+                advanceUntilIdle()
+
+                callCount shouldBe 2
+            }
+        }
+
         test("확인 요청이 반복되어도 진행 중에는 UseCase를 한 번만 실행하고 끝나면 다시 요청할 수 있다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<LogPlayIntegrityUseCase>()

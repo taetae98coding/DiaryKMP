@@ -1,19 +1,20 @@
 package io.github.taetae98coding.diary.core.naver.network.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.naver.network.impl.createNaverHttpClient
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.naver.naverPlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
+import io.kotest.property.arbitrary.take
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -42,7 +43,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+            dataSource.search(query = Arb.string().next())
 
             engine.requestHistory
                 .single()
@@ -52,7 +53,7 @@ class NaverPlaceRemoteDataSourceImplTest :
 
         test("TC-d9e62edd-3a31-459f-906d-e1eec4600fa5: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
             val config = NaverNetworkTestKoinModule.config
-            val query = fixtureMonkey.giveMeOne<String>()
+            val query = Arb.string().next()
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -66,11 +67,11 @@ class NaverPlaceRemoteDataSourceImplTest :
         }
 
         test("TC-aaf83532-f0e7-4b82-9f40-fcb849c82688: 성공 응답의 장소 목록을 그대로 전달한다") {
-            val places = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(5)
+            val places = Arb.naverPlaceRemoteEntity().take(5).toList()
             val engine = createSuccessEngine(places)
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+            val actual = dataSource.search(query = Arb.string().next())
 
             actual shouldBe places
         }
@@ -79,7 +80,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+            val actual = dataSource.search(query = Arb.string().next())
 
             actual shouldBe emptyList()
         }
@@ -94,13 +95,13 @@ class NaverPlaceRemoteDataSourceImplTest :
                 val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
-                    dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+                    dataSource.search(query = Arb.string().next())
                 }
             }
         }
 
         test("TC-2eff41ae-28e1-4305-a906-620d864e6476: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
-            val places = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(3)
+            val places = Arb.naverPlaceRemoteEntity().take(3).toList()
             val items =
                 JsonArray(
                     listOf(
@@ -111,7 +112,7 @@ class NaverPlaceRemoteDataSourceImplTest :
                 )
             val dataSource = createDataSource(createEngine(content = successContent(items = items, count = places.size)))
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+            val actual = dataSource.search(query = Arb.string().next())
 
             actual shouldBe
                 listOf(
@@ -125,7 +126,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+            dataSource.search(query = Arb.string().next())
 
             engine.requestHistory
                 .single()
@@ -134,9 +135,6 @@ class NaverPlaceRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun createSuccessEngine(places: List<NaverPlaceRemoteEntity>): MockEngine = createEngine(content = successContent(items = Json.encodeToJsonElement(places), count = places.size))
 
         private fun createEngine(content: String): MockEngine =

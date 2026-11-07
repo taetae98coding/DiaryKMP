@@ -31,10 +31,9 @@ internal fun LazyListScope.memoItems(
                     MemoDateHeader(
                         date = item.date,
                         state = state,
-                        // sticky header의 위치는 LazyColumn이 pin 오프셋으로 직접 제어하므로 placement 애니메이션은 두지 않는다.
                         modifier =
                             Modifier
-                                .animateItem(placementSpec = null)
+                                .animateItem()
                                 .fillMaxWidth(),
                     )
                 }

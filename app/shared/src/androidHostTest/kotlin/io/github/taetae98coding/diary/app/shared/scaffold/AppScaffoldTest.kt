@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.kotest.matchers.floats.shouldBeGreaterThan
 import io.kotest.matchers.floats.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Rule
@@ -83,6 +84,18 @@ class AppScaffoldTest {
                 composeRule.onNode(navigationItem(label), useUnmergedTree = true).assertIsNotSelected()
             }
         }
+    }
+
+    @Test
+    fun `TC-ff5a0d79-ad63-400e-9f38-1d0028dddd3b 주요 목적지를 정해진 순서로 다섯 개만 제공한다`() {
+        setAppScaffold(
+            mockWindowInfo(mutableStateOf(windowSize(width = 400.dp, height = 800.dp))),
+        )
+
+        val centerXList = DEFAULT_LABELS.map { label -> navigationItemCenter(label).x }
+
+        centerXList shouldBe centerXList.sorted()
+        centerXList.distinct().size shouldBe DEFAULT_LABELS.size
     }
 
     @Test

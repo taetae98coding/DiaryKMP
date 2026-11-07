@@ -4,12 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,8 +26,8 @@ class DiaryMapInitialCoordinateTest {
 
     @Test
     fun `TC-aee62b17-5336-4d71-99af-7c63aaf2ea7e 지도가 표시된 뒤에 초기 위치가 바뀌어도 지도 위치와 확대 수준을 유지한다`() {
-        val first = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
-        val second = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val first = Arb.diaryMapCoordinate().next()
+        val second = Arb.diaryMapCoordinate().next()
         var initialCoordinate by mutableStateOf(first)
         val states = mutableListOf<DiaryMapState>()
 
@@ -49,9 +48,5 @@ class DiaryMapInitialCoordinateTest {
                     zoom = DiaryMapCamera.NEIGHBORHOOD_ZOOM,
                 )
         }
-    }
-
-    private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

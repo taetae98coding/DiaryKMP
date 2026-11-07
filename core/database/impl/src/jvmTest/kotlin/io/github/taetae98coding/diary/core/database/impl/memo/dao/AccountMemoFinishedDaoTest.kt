@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -18,20 +15,25 @@ import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemo
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class AccountMemoFinishedDaoTest :
     FunSpec({
@@ -127,8 +129,8 @@ class AccountMemoFinishedDaoTest :
                         memoId = memoId,
                         tagId = tagId,
                         isDeleted = false,
-                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
                     ),
                 )
                 database.accountMemoTagDao().upsert(
@@ -143,8 +145,8 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-7f556861-2470-49ec-bae0-d41c58079f0f TC-a0437ed6-af73-40b1-9476-537e4aae6df0 현재 계정의 완료·미삭제 메모만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val finishedMemo = memo(isFinished = true, isDeleted = false)
             val activeMemo = memo(isFinished = false, isDeleted = false)
             val finishedDeletedMemo = memo(isFinished = true, isDeleted = true)
@@ -157,7 +159,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-7d7b6970-a186-4ddb-93ed-44bc4f9cc789 TC-0a5654f9-bf77-4a13-a609-e635dc4e57c6 태그 필터 선택을 조회 조건에 넣지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             val taggedMemo = memo(isFinished = true)
             val noTagMemo = memo(isFinished = true)
@@ -177,7 +179,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-a634b384-f9f7-450f-8492-d1ceeda37c61 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val noDateTimeBravoMemo = memo(isFinished = true, detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(isFinished = true, detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
             val allDayMemo =
@@ -285,7 +287,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-3f0bc0d0-f056-46ee-bf0b-beabce241cfa 제목순은 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTitleMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
             val lastTitleMemo = sortMemo(title = "Bravo", updatedAt = 3_000, startDay = 19)
             insert(accountId, lastTitleMemo, firstTitleMemo)
@@ -297,7 +299,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-3f0bc0d0-f056-46ee-bf0b-beabce241cfa 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val latestMemo = sortMemo(title = "Zebra", updatedAt = 3_000, startDay = 19)
             val sameUpdatedFirstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
             val sameUpdatedLastMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 20)
@@ -310,7 +312,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-84fb2122-71fc-494b-83cb-49680a8cea0f 완료 시점은 목록 순서에 영향을 주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val earlyStartMemo =
                 memo(
                     isFinished = true,
@@ -339,7 +341,7 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-a8e70d33-4184-47b5-9599-2667d5f536c2 상태와 기간 변경이 열어 둔 완료된 메모 목록에 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
             val secondMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 21)
             val activeMemo = sortMemo(title = "Charlie", updatedAt = 1_000, startDay = 20).copy(isFinished = false)
@@ -393,8 +395,8 @@ class AccountMemoFinishedDaoTest :
         }
 
         test("TC-c69dd675-54c0-4925-babc-5824a84279dc 상태 변경은 현재 계정과 연결된 메모에만 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo(isFinished = true)
             insert(accountId, memo)
 
@@ -408,8 +410,36 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(memo.id)
         }
 
+        test("TC-21e15768-6c0a-4a48-afd6-51fb9b1e4d74 완료 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+            val accountId = Arb.kotlinUuid().next()
+            val expectedMemoList =
+                List(MEMO_COUNT) { index ->
+                    memo(
+                        isFinished = true,
+                        detail = detail(title = "Memo-${index.toString().padStart(length = 3, padChar = '0')}", isAllDay = null, start = null, endInclusive = null),
+                    )
+                }
+            insert(accountId, *expectedMemoList.reversed().toTypedArray())
+            val pagingSource = database.accountMemoDao().pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+
+            val firstPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+
+            firstPage.data.map { memo -> memo.id } shouldBe expectedMemoList.take(PAGE_SIZE).map { memo -> memo.id }
+            firstPage.nextKey shouldBe PAGE_SIZE
+
+            val secondPage =
+                pagingSource
+                    .load(PagingSource.LoadParams.Append(key = requireNotNull(firstPage.nextKey), loadSize = PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+
+            secondPage.data.map { memo -> memo.id } shouldBe expectedMemoList.drop(PAGE_SIZE).take(PAGE_SIZE).map { memo -> memo.id }
+        }
+
         test("삭제를 되돌린 완료 메모는 자신의 시작 시점에 해당하는 자리에 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstMemo =
                 memo(
                     isFinished = true,
@@ -445,23 +475,27 @@ class AccountMemoFinishedDaoTest :
     }) {
     public companion object {
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
+        private const val MEMO_COUNT = 7
+        private const val PAGE_SIZE = 3
 
         private fun memo(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
-            detail: MemoDetailLocalEntity = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+            updatedAt: Instant = Arb.secondPrecisionInstant().next(),
+            detail: MemoDetailLocalEntity = Arb.memoDetailLocalEntity().next(),
         ): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::id, id)
-                .setExp(MemoLocalEntity::detail, detail)
-                .setExp(MemoLocalEntity::isFinished, isFinished)
-                .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, updatedAt)
-                .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    id = id,
+                    detail = detail,
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = updatedAt,
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun sortMemo(
             title: String,
@@ -481,24 +515,27 @@ class AccountMemoFinishedDaoTest :
             )
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
-                .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>())
-                .setExp(TagLocalEntity::isFinished, false)
-                .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    id = Arb.kotlinUuid().next(),
+                    detail = Arb.tagDetailLocalEntity().next(),
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun detail(
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
             isAllDay: Boolean?,
             start: LocalDateTime?,
             endInclusive: LocalDateTime?,
         ): MemoDetailLocalEntity =
-            fixtureMonkey
-                .giveMeOne<MemoDetailLocalEntity>()
+            Arb
+                .memoDetailLocalEntity()
+                .next()
                 .copy(
                     title = title,
                     isAllDay = isAllDay,

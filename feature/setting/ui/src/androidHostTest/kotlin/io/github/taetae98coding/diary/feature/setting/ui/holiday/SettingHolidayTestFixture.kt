@@ -12,14 +12,14 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.holiday.holidaySetting
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,9 +56,6 @@ internal const val KOREAN_CLEAR_DESCRIPTION: String = "지우기"
 internal const val KOREAN_BULK_ACTION_DESCRIPTION: String = "일괄 선택"
 internal const val KOREAN_BULK_ACTION_CLOSE_DESCRIPTION: String = "일괄 선택 닫기"
 
-internal val settingHolidayFixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun holidaySetting(
     isHoliday: Boolean,
     isVisible: Boolean,
@@ -67,8 +64,9 @@ internal fun holidaySetting(
     // 이름은 목록 항목의 LazyColumn key로 쓰여 중복되면 안 되므로 난수 대신 고유한 값으로 만든다.
     val identifier = Uuid.random().toString()
 
-    return settingHolidayFixtureMonkey
-        .giveMeOne<HolidaySetting>()
+    return Arb
+        .holidaySetting()
+        .next()
         .copy(
             name = name ?: "Holiday $identifier",
             isHoliday = isHoliday,

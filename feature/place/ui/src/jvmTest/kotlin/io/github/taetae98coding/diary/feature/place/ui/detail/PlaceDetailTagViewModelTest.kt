@@ -6,19 +6,22 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceTagUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceTagUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceSelectableTagUseCase
-import io.github.taetae98coding.diary.domain.place.usecase.RemovePlaceTagUseCase
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
+import io.github.taetae98coding.diary.domain.tag.usecase.AddEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetEntityTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageEntityTagSelectableTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RemoveEntityTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -56,18 +59,19 @@ class PlaceDetailTagViewModelTest : FunSpec() {
 
         test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val item = tag()
-                val parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = "")
-                val useCase = mockk<PagePlaceSelectableTagUseCase>()
+                val parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, query = "")
+                val useCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
                 val viewModel =
-                    PlaceDetailTagViewModel(
-                        id = id,
-                        pagePlaceSelectableTagUseCase = useCase,
-                        getPlaceTagUseCase = mockk(relaxed = true),
-                        addPlaceTagUseCase = mockk(relaxed = true),
-                        removePlaceTagUseCase = mockk(relaxed = true),
+                    EntityDetailTagViewModel(
+                        kind = EntityTagKind.PLACE,
+                        entityId = id,
+                        pageEntityTagSelectableTagUseCase = useCase,
+                        getEntityTagUseCase = mockk(relaxed = true),
+                        addEntityTagUseCase = mockk(relaxed = true),
+                        removeEntityTagUseCase = mockk(relaxed = true),
                     )
 
                 val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
@@ -81,7 +85,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
 
         test("TC-c0ce734b-ac58-4833-a662-65c2da3fde2f 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val tag = tag()
                 val tagFlow = MutableStateFlow(emptyList<Tag>())
                 val viewModel =
@@ -102,52 +106,52 @@ class PlaceDetailTagViewModelTest : FunSpec() {
 
         test("TC-84cbd1bf-3491-4078-8473-46014b26bdb8 태그를 연결하면 상세 대상 장소와 그 태그의 연결을 만든다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
-                val addPlaceTagUseCase = mockk<AddPlaceTagUseCase>()
-                coEvery { addPlaceTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val viewModel = viewModel(id = id, addPlaceTagUseCase = addPlaceTagUseCase)
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel = viewModel(id = id, addEntityTagUseCase = addEntityTagUseCase)
 
                 viewModel.add(tagId = tagId)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = tagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = tagId))
                 }
             }
         }
 
         test("TC-84cbd1bf-3491-4078-8473-46014b26bdb8 연결을 해제하면 상세 대상 장소와 그 태그의 연결을 해제한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
-                val removePlaceTagUseCase = mockk<RemovePlaceTagUseCase>()
-                coEvery { removePlaceTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val viewModel = viewModel(id = id, removePlaceTagUseCase = removePlaceTagUseCase)
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel = viewModel(id = id, removeEntityTagUseCase = removeEntityTagUseCase)
 
                 viewModel.remove(tagId = tagId)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    removePlaceTagUseCase(parameter = RemovePlaceTagUseCase.Parameter(placeId = id, tagId = tagId))
+                    removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = tagId))
                 }
             }
         }
 
         test("TC-fd3cf2dd-efa7-4184-9b1c-c3f5c8a47a99 연결과 해제는 이어서 실행해도 모두 반영된다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val addPlaceTagUseCase = mockk<AddPlaceTagUseCase>()
-                coEvery { addPlaceTagUseCase(parameter = any()) } returns Result.success(Unit)
-                val removePlaceTagUseCase = mockk<RemovePlaceTagUseCase>()
-                coEvery { removePlaceTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val id = Arb.kotlinUuid().next()
+                val firstTagId = Arb.kotlinUuid().next()
+                val secondTagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>()
+                coEvery { addEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>()
+                coEvery { removeEntityTagUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel =
                     viewModel(
                         id = id,
-                        addPlaceTagUseCase = addPlaceTagUseCase,
-                        removePlaceTagUseCase = removePlaceTagUseCase,
+                        addEntityTagUseCase = addEntityTagUseCase,
+                        removeEntityTagUseCase = removeEntityTagUseCase,
                     )
 
                 viewModel.add(tagId = firstTagId)
@@ -156,38 +160,39 @@ class PlaceDetailTagViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) {
-                    addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = firstTagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = firstTagId))
                 }
                 coVerify(exactly = 1) {
-                    addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = secondTagId))
+                    addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = secondTagId))
                 }
                 coVerify(exactly = 1) {
-                    removePlaceTagUseCase(
-                        parameter = RemovePlaceTagUseCase.Parameter(placeId = id, tagId = firstTagId),
+                    removeEntityTagUseCase(
+                        parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = firstTagId),
                     )
                 }
             }
         }
         searchTests()
         restorationTests()
+        requestLimitTests()
     }
 
     private fun searchTests() {
         test("TC-bb7ebc0b-c1f0-4e8f-89da-93c26ac97993 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
-                val pagePlaceSelectableTagUseCase = mockk<PagePlaceSelectableTagUseCase>()
+                val pageEntityTagSelectableTagUseCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every {
-                    pagePlaceSelectableTagUseCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = ""))
+                    pageEntityTagSelectableTagUseCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, query = ""))
                 } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every {
-                    pagePlaceSelectableTagUseCase(
-                        parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = SEARCH_QUERY),
+                    pageEntityTagSelectableTagUseCase(
+                        parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, query = SEARCH_QUERY),
                     )
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = pagePlaceSelectableTagUseCase)
+                val viewModel = viewModel(id = id, pageEntityTagSelectableTagUseCase = pageEntityTagSelectableTagUseCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe allTagList
@@ -203,7 +208,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
 
         test("TC-5d358731-189d-4dc8-a021-587dc2651495 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val tagList = List(2) { tag() }
                 val viewModel = viewModel(id = id, tagFlow = flowOf(Result.success(tagList)))
 
@@ -224,18 +229,18 @@ class PlaceDetailTagViewModelTest : FunSpec() {
     private fun restorationTests() {
         test("TC-600fa417-a608-4189-bd8c-409ea8506e2e 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val id = Arb.kotlinUuid().next()
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
-                val useCase = mockk<PagePlaceSelectableTagUseCase>()
+                val useCase = mockk<PageEntityTagSelectableTagUseCase>()
                 every {
-                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = ""))
+                    useCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, query = ""))
                 } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every {
-                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = query))
+                    useCase(parameter = PageEntityTagSelectableTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, query = query))
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = useCase)
+                val viewModel = viewModel(id = id, pageEntityTagSelectableTagUseCase = useCase)
 
                 viewModel.tagPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe allTagList
@@ -253,34 +258,14 @@ class PlaceDetailTagViewModelTest : FunSpec() {
         }
     }
 
-    private fun viewModel(
-        id: Uuid,
-        tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
-        addPlaceTagUseCase: AddPlaceTagUseCase = mockk(relaxed = true),
-        removePlaceTagUseCase: RemovePlaceTagUseCase = mockk(relaxed = true),
-        pagePlaceSelectableTagUseCase: PagePlaceSelectableTagUseCase =
-            mockk<PagePlaceSelectableTagUseCase>().apply {
-                every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
-            },
-    ): PlaceDetailTagViewModel {
-        val getPlaceTagUseCase = mockk<GetPlaceTagUseCase>()
-        every { getPlaceTagUseCase(parameter = id) } returns tagFlow
-
-        return PlaceDetailTagViewModel(
-            id = id,
-            pagePlaceSelectableTagUseCase = pagePlaceSelectableTagUseCase,
-            getPlaceTagUseCase = getPlaceTagUseCase,
-            addPlaceTagUseCase = addPlaceTagUseCase,
-            removePlaceTagUseCase = removePlaceTagUseCase,
-        )
-
+    private fun requestLimitTests() {
         test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
-                val addPlaceTagUseCase = mockk<AddPlaceTagUseCase>(relaxed = true)
-                val removePlaceTagUseCase = mockk<RemovePlaceTagUseCase>(relaxed = true)
-                val viewModel = viewModel(id = id, addPlaceTagUseCase = addPlaceTagUseCase, removePlaceTagUseCase = removePlaceTagUseCase)
+                val id = Arb.kotlinUuid().next()
+                val tagId = Arb.kotlinUuid().next()
+                val addEntityTagUseCase = mockk<AddEntityTagUseCase>(relaxed = true)
+                val removeEntityTagUseCase = mockk<RemoveEntityTagUseCase>(relaxed = true)
+                val viewModel = viewModel(id = id, addEntityTagUseCase = addEntityTagUseCase, removeEntityTagUseCase = removeEntityTagUseCase)
 
                 viewModel.add(tagId = tagId)
                 viewModel.add(tagId = tagId)
@@ -288,22 +273,44 @@ class PlaceDetailTagViewModelTest : FunSpec() {
                 viewModel.remove(tagId = tagId)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { addPlaceTagUseCase(parameter = AddPlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
-                coVerify(exactly = 1) { removePlaceTagUseCase(parameter = RemovePlaceTagUseCase.Parameter(placeId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { addEntityTagUseCase(parameter = AddEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { removeEntityTagUseCase(parameter = RemoveEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id, tagId = tagId)) }
             }
         }
+    }
+
+    private fun viewModel(
+        id: Uuid,
+        tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
+        addEntityTagUseCase: AddEntityTagUseCase = mockk(relaxed = true),
+        removeEntityTagUseCase: RemoveEntityTagUseCase = mockk(relaxed = true),
+        pageEntityTagSelectableTagUseCase: PageEntityTagSelectableTagUseCase =
+            mockk<PageEntityTagSelectableTagUseCase>().apply {
+                every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+            },
+    ): EntityDetailTagViewModel {
+        val getEntityTagUseCase = mockk<GetEntityTagUseCase>()
+        every { getEntityTagUseCase(parameter = GetEntityTagUseCase.Parameter(kind = EntityTagKind.PLACE, entityId = id)) } returns tagFlow
+
+        return EntityDetailTagViewModel(
+            kind = EntityTagKind.PLACE,
+            entityId = id,
+            pageEntityTagSelectableTagUseCase = pageEntityTagSelectableTagUseCase,
+            getEntityTagUseCase = getEntityTagUseCase,
+            addEntityTagUseCase = addEntityTagUseCase,
+            removeEntityTagUseCase = removeEntityTagUseCase,
+        )
     }
 
     public companion object {
         private const val SEARCH_QUERY = "Travel"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isDeleted, false)
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isDeleted = false,
+                )
     }
 }

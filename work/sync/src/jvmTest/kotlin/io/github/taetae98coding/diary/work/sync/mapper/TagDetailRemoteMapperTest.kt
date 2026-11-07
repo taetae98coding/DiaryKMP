@@ -1,17 +1,18 @@
 package io.github.taetae98coding.diary.work.sync.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagDetailRemoteEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailRemoteEntity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class TagDetailRemoteMapperTest :
     FunSpec({
         test("local to remote") {
-            val local = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val local = Arb.tagDetailLocalEntity().next()
 
             local.toRemote() shouldBe
                 TagDetailRemoteEntity(
@@ -23,7 +24,7 @@ class TagDetailRemoteMapperTest :
         }
 
         test("remote to local") {
-            val remote = fixtureMonkey.giveMeOne<TagDetailRemoteEntity>()
+            val remote = Arb.tagDetailRemoteEntity().next()
 
             remote.toLocal() shouldBe
                 TagDetailLocalEntity(
@@ -35,11 +36,8 @@ class TagDetailRemoteMapperTest :
         }
 
         test("local to remote to local") {
-            val local = fixtureMonkey.giveMeOne<TagDetailLocalEntity>()
+            val local = Arb.tagDetailLocalEntity().next()
 
             local.toRemote().toLocal() shouldBe local
         }
     })
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()

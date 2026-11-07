@@ -9,17 +9,18 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -43,12 +44,14 @@ class MemoHomeUndoLeaveTest {
     @Test
     fun `TC-58a0ebf9-3440-4ae6-9761-6371aa063fac 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         val memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = MEMO_TITLE, dateTime = null))
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = MEMO_TITLE, dateTime = null),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
         val effectChannel = Channel<MemoListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<MemoHomeViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
@@ -97,7 +100,5 @@ class MemoHomeUndoLeaveTest {
         private const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         private const val DEFAULT_UNDO_ACTION = "Undo"
         private const val TIMEOUT_MILLIS = 5_000L
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

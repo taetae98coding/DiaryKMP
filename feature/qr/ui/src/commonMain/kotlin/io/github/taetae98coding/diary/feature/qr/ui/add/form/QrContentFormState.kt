@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapProvider
+import io.github.taetae98coding.diary.compose.qr.fitsInQrCode
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.domain.qr.content.QrContent
@@ -29,7 +30,6 @@ import io.github.taetae98coding.diary.domain.qr.content.detectQrFormat
 import io.github.taetae98coding.diary.domain.qr.content.patch
 import io.github.taetae98coding.diary.domain.qr.content.readContent
 import io.github.taetae98coding.diary.domain.qr.content.recognizes
-import io.github.taetae98coding.diary.feature.qr.ui.code.fitsInQrCode
 import kotlin.time.Clock
 
 @Stable

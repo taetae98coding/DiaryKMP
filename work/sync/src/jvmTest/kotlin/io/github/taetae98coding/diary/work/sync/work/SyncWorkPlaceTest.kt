@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memoplace.entity.MemoPlaceRemoteEntity
@@ -13,6 +12,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -144,7 +146,7 @@ class SyncWorkPlaceTest :
                     memoTagList = memoTags(size = 1),
                     memoPlaceList = memoPlaces(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val placeRequests = mutableListOf<List<PlaceRemoteEntity>>()
             coEvery { context.placeRemoteDataSource.push(any()) } coAnswers {
                 placeRequests += firstArg<List<PlaceRemoteEntity>>()
@@ -171,7 +173,7 @@ class SyncWorkPlaceTest :
                     memoTagList = memoTags(size = 201),
                     memoPlaceList = memoPlaces(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val memoTagRequests = mutableListOf<List<MemoTagRemoteEntity>>()
             val memoPlaceRequests = mutableListOf<List<MemoPlaceRemoteEntity>>()
             coEvery { context.memoTagRemoteDataSource.push(any()) } coAnswers {
@@ -194,7 +196,7 @@ class SyncWorkPlaceTest :
 
         test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그가 실패해도 장소는 끝까지 업로드한다") {
             val context = context(tagList = tags(size = 201), placeList = places(size = 201))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<Int>()
             val placeRequests = mutableListOf<List<PlaceRemoteEntity>>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
@@ -224,7 +226,7 @@ class SyncWorkPlaceTest :
                     memoTagList = memoTags(size = 1),
                     memoPlaceList = memoPlaces(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -246,7 +248,7 @@ class SyncWorkPlaceTest :
                     memoTagList = memoTags(size = 1),
                     memoPlaceList = memoPlaces(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.memoRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -303,7 +305,7 @@ class SyncWorkPlaceTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b 장소 내려받기가 실패해도 메모·장소 연결은 빈 응답까지 내려받는다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val firstPullList = memoPlacePulls(usnList = listOf(2L))
             val secondPullList = memoPlacePulls(usnList = listOf(5L))
             coEvery { context.placeRemoteDataSource.pull(any()) } throws failure
@@ -338,7 +340,7 @@ class SyncWorkPlaceTest :
         ).forEach { (label, isPlaceFailed) ->
             test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 $label 내려받기가 실패하면 동기화가 실패한다") {
                 val context = context()
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 if (isPlaceFailed) {
                     coEvery { context.placeRemoteDataSource.pull(any()) } throws failure
                 } else {

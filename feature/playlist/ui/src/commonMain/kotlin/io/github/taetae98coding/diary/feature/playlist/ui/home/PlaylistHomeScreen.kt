@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
+import io.github.taetae98coding.diary.compose.music.MusicListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
@@ -27,7 +29,7 @@ internal fun PlaylistHomeScreen(
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    DeleteUndoSnackbarEffect(
+    MusicListUndoSnackbarEffect(
         onRestore = musicViewModel::restore,
         effect = musicViewModel.effect,
         snackbarHostState = snackbarHostState,
@@ -41,8 +43,12 @@ internal fun PlaylistHomeScreen(
                 is PlaylistHomeScaffoldEvent.ClickSort -> sortSheetState.show()
                 is PlaylistHomeScaffoldEvent.SelectSort -> musicViewModel.select(sort = event.sort)
                 is PlaylistHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
-                is PlaylistHomeScaffoldEvent.ClickMusic -> navigateToDetail(event.id)
-                is PlaylistHomeScaffoldEvent.DeleteMusic -> musicViewModel.delete(id = event.id)
+            }
+        },
+        onMusicListEvent = { event ->
+            when (event) {
+                is MusicListEvent.ClickMusic -> navigateToDetail(event.id)
+                is MusicListEvent.SwipeDelete -> musicViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,

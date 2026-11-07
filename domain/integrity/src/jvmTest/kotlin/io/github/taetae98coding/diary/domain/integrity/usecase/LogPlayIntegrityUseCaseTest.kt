@@ -1,11 +1,8 @@
 package io.github.taetae98coding.diary.domain.integrity.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -17,19 +14,22 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class LogPlayIntegrityUseCaseTest :
     BehaviorSpec({
         Given("서버가 Google의 모든 필드를 겹친 구조로 담은 판정 결과를 돌려준다") {
-            val value = List(12) { fixtureMonkey.giveMeOne<String>() }
-            val sdkVersion = fixtureMonkey.giveMeOne<Int>()
+            val value = List(12) { Arb.string().next() }
+            val sdkVersion = Arb.int().next()
             val verdict =
                 verdict(
                     "requestDetails" to
@@ -91,7 +91,7 @@ class LogPlayIntegrityUseCaseTest :
         }
 
         Given("판정 결과에 여러 값을 가진 필드가 있다") {
-            val valueList = List(2) { "value${fixtureMonkey.giveMeOne<Int>()}" }
+            val valueList = List(2) { "value${Arb.int().next()}" }
             val verdict =
                 verdict(
                     "deviceIntegrity" to group("deviceRecognitionVerdict" to valueList(*valueList.map { value -> text(value) }.toTypedArray())),
@@ -109,8 +109,8 @@ class LogPlayIntegrityUseCaseTest :
         }
 
         Given("판정 결과에 숫자, 문자열, 참, 거짓 값이 있다") {
-            val number = fixtureMonkey.giveMeOne<Long>()
-            val text = fixtureMonkey.giveMeOne<Long>().toString()
+            val number = Arb.long().next()
+            val text = Arb.long().next().toString()
             val verdict =
                 verdict(
                     "deviceIntegrity" to group("deviceAttributes" to group("sdkVersion" to PlayIntegrityVerdictValue.Number(value = number))),
@@ -138,7 +138,7 @@ class LogPlayIntegrityUseCaseTest :
         }
 
         Given("판정 결과에 빈 필드와 값이 있는 필드가 함께 있다") {
-            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
+            val appRecognitionVerdict = Arb.string().next()
             val deviceIntegrityList =
                 listOf(
                     group("deviceRecognitionVerdict" to valueList()),
@@ -167,11 +167,11 @@ class LogPlayIntegrityUseCaseTest :
         }
 
         Given("판정 결과에 표에 없는 새 필드가 있다") {
-            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
+            val appRecognitionVerdict = Arb.string().next()
             val verdict =
                 verdict(
                     "appIntegrity" to group("appRecognitionVerdict" to text(appRecognitionVerdict)),
-                    "environmentDetails" to group("newVerdict" to text(fixtureMonkey.giveMeOne<String>())),
+                    "environmentDetails" to group("newVerdict" to text(Arb.string().next())),
                 )
             val logList = recordLog()
 
@@ -202,7 +202,7 @@ class LogPlayIntegrityUseCaseTest :
         // 실패 종류별 전달과 확인 준비를 다시 하는 동작은 AndroidPlayIntegrityTokenProviderTest가 같은 ID로 확인한다.
         Given("판정 결과를 가져오지 못한다") {
             val repository = mockk<PlayIntegrityRepository>()
-            coEvery { repository.fetch() } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            coEvery { repository.fetch() } throws IllegalStateException(Arb.string().next())
             val logList = recordLog()
 
             When("판정을 확인한다") {

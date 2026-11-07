@@ -8,16 +8,20 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -73,8 +77,9 @@ class PlaceAddMapAreaTest {
 
     @Test
     fun `TC-76878263-9dc3-41c5-a746-494460c5df31 지도가 표시되지 않아도 좌표를 직접 입력해 추가를 실행한다`() {
-        val viewModel = screenTestViewModel()
-        every { viewModel.add(any(), tagIdSet = any()) } returns Unit
+        val effect = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
+        val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
+        every { viewModel.add(any(), tagIdSet = any()) } answers { effect.trySend(PlaceAddEffect.AddSucceeded(id = Uuid.random())).getOrThrow() }
 
         composeRule.setPlaceAddScreen(viewModel = viewModel)
         composeRule.waitForIdle()
@@ -83,6 +88,7 @@ class PlaceAddMapAreaTest {
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].performTextInput(TYPED_LATITUDE)
         composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].performTextInput(TYPED_LONGITUDE)
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
 
         verify(exactly = 1) {
             viewModel.add(
@@ -94,6 +100,7 @@ class PlaceAddMapAreaTest {
                 tagIdSet = emptySet(),
             )
         }
+        composeRule.onNodeWithText(ADD_SUCCEEDED_MESSAGE).assertExists()
     }
 
     public companion object {
@@ -101,5 +108,6 @@ class PlaceAddMapAreaTest {
         private const val COORDINATE_INPUT_COUNT = 5
         private const val DEFAULT_MAP_DESCRIPTION = "Place location map"
         private const val DEFAULT_MAP_PROVIDER_DESCRIPTION = "Map provider"
+        private const val ADD_SUCCEEDED_MESSAGE = "Place added."
     }
 }

@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.WebLogin
+import io.github.taetae98coding.diary.core.testing.web.webLogin
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -23,8 +24,8 @@ import kotlinx.coroutines.test.runTest
 class SaveWebLoginUseCaseTest :
     BehaviorSpec({
         Given("보관해 둔 로그인 정보가 있고 웹 표시 수단에 지금의 세션 쿠키가 있다") {
-            val savedLogin = fixtureMonkey.giveMeOne<WebLogin>()
-            val currentLogin = fixtureMonkey.giveMeOne<WebLogin>()
+            val savedLogin = Arb.webLogin().next()
+            val currentLogin = Arb.webLogin().next()
             val repository = repository(savedLogin = savedLogin)
             coEvery { repository.readWebViewLogin(siteUrlSet = savedLogin.siteUrlSet) } returns currentLogin
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
@@ -53,7 +54,7 @@ class SaveWebLoginUseCaseTest :
         }
 
         Given("웹 표시 수단이 세션 쿠키를 확인하는 기능을 제공하지 않는다") {
-            val repository = repository(savedLogin = fixtureMonkey.giveMeOne<WebLogin>())
+            val repository = repository(savedLogin = Arb.webLogin().next())
             coEvery { repository.readWebViewLogin(siteUrlSet = any()) } returns null
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
 
@@ -69,8 +70,8 @@ class SaveWebLoginUseCaseTest :
         }
 
         Given("웹 표시 수단에서 세션 쿠키를 읽지 못한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
-            val repository = repository(savedLogin = fixtureMonkey.giveMeOne<WebLogin>())
+            val throwable = IllegalStateException(Arb.string().next())
+            val repository = repository(savedLogin = Arb.webLogin().next())
             coEvery { repository.readWebViewLogin(siteUrlSet = any()) } throws throwable
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
 
@@ -85,9 +86,9 @@ class SaveWebLoginUseCaseTest :
         }
 
         Given("세션 쿠키가 보관되어 있고 앱을 시작해 로그인 정보를 되돌리는 중이다") {
-            val currentLogin = fixtureMonkey.giveMeOne<WebLogin>()
+            val currentLogin = Arb.webLogin().next()
             val isRestoring = MutableStateFlow(true)
-            val repository = repository(savedLogin = fixtureMonkey.giveMeOne<WebLogin>())
+            val repository = repository(savedLogin = Arb.webLogin().next())
             every { repository.getRestoring() } returns isRestoring
             coEvery { repository.readWebViewLogin(siteUrlSet = any()) } returns currentLogin
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
@@ -111,9 +112,9 @@ class SaveWebLoginUseCaseTest :
         }
 
         Given("앱 저장 영역에 쓰지 못한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
-            val repository = repository(savedLogin = fixtureMonkey.giveMeOne<WebLogin>())
-            coEvery { repository.readWebViewLogin(siteUrlSet = any()) } returns fixtureMonkey.giveMeOne<WebLogin>()
+            val throwable = IllegalStateException(Arb.string().next())
+            val repository = repository(savedLogin = Arb.webLogin().next())
+            coEvery { repository.readWebViewLogin(siteUrlSet = any()) } returns Arb.webLogin().next()
             coEvery { repository.submitSavedLogin(login = any()) } throws throwable
             val useCase = SaveWebLoginUseCase(webLoginRepository = repository)
 
@@ -127,8 +128,6 @@ class SaveWebLoginUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private fun repository(savedLogin: WebLogin): WebLoginRepository {
             val repository = mockk<WebLoginRepository>()
             coEvery { repository.readSavedLogin() } returns savedLogin

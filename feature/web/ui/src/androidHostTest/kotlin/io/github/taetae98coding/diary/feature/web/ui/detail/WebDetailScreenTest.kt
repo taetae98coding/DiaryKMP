@@ -22,14 +22,21 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.pressKey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.web.ui.add.LONG_URL
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.web.ui.add.inputHeight
+import io.github.taetae98coding.diary.feature.web.ui.add.inputLineCount
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -53,6 +60,35 @@ class WebDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
+    fun `TC-8929d842-fba1-4228-9ba2-4bf5d95669c2 URL 입력에서 엔터를 눌러도 줄이 나뉘지 않는다`() {
+        setWebDetailScreen()
+        composeRule.selectFormTab()
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().performKeyInput { pressKey(Key.Enter) }
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+    }
+
+    @Test
+    fun `TC-ee2b1b39-9128-4cfc-95c1-3874bfe589a3 입력 칸의 폭보다 긴 URL을 입력해도 입력 칸이 여러 줄로 늘어나지 않는다`() {
+        setWebDetailScreen()
+        composeRule.selectFormTab()
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.waitForIdle()
+        val shortUrlHeight = composeRule.urlInput().inputHeight()
+
+        composeRule.urlInput().performTextReplacement(LONG_URL)
+        composeRule.waitForIdle()
+
+        composeRule.urlInput().assert(hasText(LONG_URL))
+        composeRule.urlInput().inputLineCount() shouldBe 1
+        composeRule.urlInput().inputHeight() shouldBe shortUrlHeight
+    }
+
+    @Test
     fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
         val pageViewModel = pageViewModel()
 
@@ -74,13 +110,14 @@ class WebDetailScreenTest {
 
     @Test
     fun `TC-0f580379-f511-4eec-8e3e-f50aa0dd5c19 URL 방식으로 되돌려도 웹 페이지를 다시 불러오지 않는다`() {
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
 
         setWebDetailScreen(pageViewModel = pageViewModel)
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
         composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
 
         composeRule.onNodeWithText(DEFAULT_URL_VIEW_MODE_LABEL).assertExists()
+        verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
     }
 
@@ -108,7 +145,7 @@ class WebDetailScreenTest {
 
     @Test
     fun `TC-0773a117-92e3-4d97-b948-d2f53547bb40 불러오기에 성공하면 웹 페이지 영역에 받은 웹 페이지를 표시한다`() {
-        setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage())))
+        setWebDetailScreen(pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next())))
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
 
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
@@ -190,15 +227,18 @@ class WebDetailScreenTest {
     @Test
     fun `TC-26a8fc6b-6a03-477f-a070-e03027088d87 외부로 열기는 웹 페이지 요청을 일으키지 않는다`() {
         val detail = testWebDetail()
-        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val webViewModel = webViewModel(uiState = testContentUiState(detail = detail))
+        val pageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
 
-        setWebDetailScreen(uiState = testContentUiState(detail = detail), pageViewModel = pageViewModel)
+        setWebDetailScreen(webViewModel = webViewModel, pageViewModel = pageViewModel)
         composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         verify(exactly = 1) { pageViewModel.load() }
         verify(exactly = 0) { pageViewModel.retry() }
+        verify(exactly = 0) { webViewModel.update(any()) }
+        verify(exactly = 0) { webViewModel.delete() }
     }
 
     @Test
@@ -286,20 +326,27 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-05af06b9-5c30-4045-9213-f5dc39a90a0c 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시한다`() {
-        val detail = testWebDetail()
-        val webViewModel =
-            webViewModel(
-                uiState = testContentUiState(detail = detail),
-                effect = flowOf(WebDetailEffect.HeaderNameBlank),
-            )
+    fun `TC-05af06b9-5c30-4045-9213-f5dc39a90a0c 이름이 비어 있는 헤더 항목이 있으면 헤더 이름 안내를 표시하고 입력을 유지한다`() {
+        val effect = Channel<WebDetailEffect>(capacity = Channel.UNLIMITED)
+        val webViewModel = webViewModel(effect = effect.receiveAsFlow())
 
         setWebDetailScreen(webViewModel = webViewModel)
         composeRule.selectFormTab()
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.descriptionInput().performTextReplacement(TYPED_DESCRIPTION)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.addHeaderRow()
+        composeRule.headerValueInput().performTextInput(TYPED_HEADER_VALUE)
+        composeRule.waitForIdle()
+        effect.trySend(WebDetailEffect.HeaderNameBlank)
 
         composeRule.awaitText(DEFAULT_HEADER_NAME_BLANK_MESSAGE)
-        composeRule.titleInput().assert(hasText(detail.title))
-        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+        composeRule.headerNameInput().assert(hasText(""))
+        composeRule.headerValueInput().assert(hasText(TYPED_HEADER_VALUE))
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER + INPUT_COUNT_PER_HEADER
     }
 
     @Test
@@ -343,22 +390,49 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-fe84093a-c265-4d86-b4e8-e6a68eabc153 저장 내용이 바뀌어도 입력을 다시 채우지 않고 화면 제목만 갱신한다`() {
+    fun `TC-fe84093a-c265-4d86-b4e8-e6a68eabc153 저장 내용이 바뀌어도 처음 채운 입력을 다시 채우지 않는다`() {
         val detail = testWebDetail()
-        val changedDetail = detail.copy(title = CHANGED_TITLE, url = CHANGED_URL)
+        val changedDetail = detail.copy(title = CHANGED_TITLE, description = CHANGED_DESCRIPTION, url = CHANGED_URL)
+        val content = testContentUiState(detail = detail)
+        val uiStateFlow = MutableStateFlow<WebDetailUiState>(content)
+
+        setWebDetailScreen(webViewModel = webViewModel(uiStateFlow = uiStateFlow))
+        composeRule.selectFormTab()
+
+        uiStateFlow.value = content.copy(detail = changedDetail)
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(detail.url))
+    }
+
+    @Test
+    fun `TC-1e17e1be-6bfc-43c0-a465-18f55e142110 저장 내용이 다른 경로에서 바뀌어도 입력을 덮어쓰지 않고 화면 제목만 갱신한다`() {
+        val detail = testWebDetail()
+        val changedDetail =
+            detail.copy(
+                title = CHANGED_TITLE,
+                description = CHANGED_DESCRIPTION,
+                url = CHANGED_URL,
+                headerList = listOf(WebHeader(name = TYPED_HEADER_NAME, value = TYPED_HEADER_VALUE)),
+            )
         val content = testContentUiState(detail = detail)
         val uiStateFlow = MutableStateFlow<WebDetailUiState>(content)
 
         setWebDetailScreen(webViewModel = webViewModel(uiStateFlow = uiStateFlow))
         composeRule.selectFormTab()
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
         composeRule.waitForIdle()
 
         uiStateFlow.value = content.copy(detail = changedDetail)
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
-        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_HEADER
         composeRule.onNodeWithText(CHANGED_TITLE).assertExists()
     }
 
@@ -387,6 +461,7 @@ class WebDetailScreenTest {
 
         composeRule.selectFormTab()
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.descriptionInput().performTextReplacement(TYPED_DESCRIPTION)
         composeRule.urlInput().performTextReplacement(TYPED_URL)
         composeRule.addHeaderRow()
         composeRule.headerNameInput().performTextInput(TYPED_HEADER_NAME)
@@ -397,6 +472,7 @@ class WebDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.urlInput().assert(hasText(TYPED_URL))
         composeRule.headerNameInput().assert(hasText(TYPED_HEADER_NAME))
         composeRule.headerValueInput().assert(hasText(TYPED_HEADER_VALUE))
@@ -405,7 +481,7 @@ class WebDetailScreenTest {
     @Test
     fun `TC-3dc63903-fbcb-4aef-9d9e-a811d56ff1ae 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
         val restorationTester = StateRestorationTester(composeRule)
-        val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
         val recreatedPageViewModel = pageViewModel()
         var pageViewModel = firstPageViewModel
 
@@ -525,6 +601,7 @@ class WebDetailScreenTest {
         private const val TYPED_HEADER_VALUE = "Bearer typed-token"
         private const val CHANGED_TITLE = "WebDetailChangedTitle"
         private const val CHANGED_URL = "https://changed.example.com"
+        private const val CHANGED_DESCRIPTION = "WebDetailChangedDescription"
 
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Web updated."
         private const val DEFAULT_HEADER_NAME_BLANK_MESSAGE = "Please enter a header name."
@@ -548,6 +625,7 @@ class WebDetailScreenTest {
             every { viewModel.uiState } returns MutableStateFlow(pageUiState)
             justRun { viewModel.load() }
             justRun { viewModel.retry() }
+            justRun { viewModel.reloadIfFailed() }
 
             return viewModel
         }

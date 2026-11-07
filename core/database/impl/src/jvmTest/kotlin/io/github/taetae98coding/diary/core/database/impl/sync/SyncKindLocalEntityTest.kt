@@ -26,6 +26,10 @@ class SyncKindLocalEntityTest :
                     SyncKindLocalEntity.TAG_LINK to "tag_link",
                     SyncKindLocalEntity.WEB_TAG to "web_tag",
                     SyncKindLocalEntity.PLACE_TAG to "place_tag",
+                    SyncKindLocalEntity.CONTACT_TAG to "contact_tag",
+                    SyncKindLocalEntity.CHECKLIST_TAG to "checklist_tag",
+                    SyncKindLocalEntity.MUSIC_TAG to "music_tag",
+                    SyncKindLocalEntity.QR_TAG to "qr_tag",
                 )
         }
 

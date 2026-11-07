@@ -22,6 +22,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidMain {
             dependencies {
                 implementation(libs.androidx.work.runtime)
@@ -31,15 +37,8 @@ kotlin {
 
         androidHostTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(libs.androidx.work.testing)
                 implementation(libs.kotlinx.coroutines.test)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                implementation(projects.core.testing)
             }
         }
     }

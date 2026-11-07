@@ -3,17 +3,18 @@
 package io.github.taetae98coding.diary.feature.checklist.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.FindChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.UpdateChecklistUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -49,7 +50,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-ad2f259f-b081-4960-8a73-f4f580b1b753 조회에 성공하면 저장된 제목과 설명으로 내용 표시 상태가 된다") {
             runTest(mainDispatcher) {
-                val checklist = fixtureMonkey.checklist(isDeleted = false)
+                val checklist = Arb.checklist(isDeleted = false).next()
                 val viewModel = viewModel(checklist = flowOf(Result.success(checklist)), id = checklist.id)
 
                 viewModel.uiState.test {
@@ -87,8 +88,8 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-3eb8b261-f734-4f7d-a894-d55aeae3c8fd 저장된 제목이 다른 경로에서 바뀌면 바뀐 제목으로 갱신한다") {
             runTest(mainDispatcher) {
-                val checklist = fixtureMonkey.checklist(isDeleted = false)
-                val changed = checklist.copy(detail = fixtureMonkey.checklistDetail())
+                val checklist = Arb.checklist(isDeleted = false).next()
+                val changed = checklist.copy(detail = Arb.checklistDetail().next())
                 val checklistFlow = MutableStateFlow(Result.success<Checklist?>(checklist))
                 val viewModel = viewModel(checklist = checklistFlow, id = checklist.id)
 
@@ -105,7 +106,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-5d2eaa57-6b77-4ff5-864c-fc563eab34bc 대상 체크리스트가 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val checklist = fixtureMonkey.checklist(isDeleted = false)
+                val checklist = Arb.checklist(isDeleted = false).next()
                 val checklistFlow = MutableStateFlow(Result.success<Checklist?>(checklist))
                 val viewModel = viewModel(checklist = checklistFlow, id = checklist.id)
 
@@ -124,8 +125,8 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-09f51c5f-c2fc-4b70-8fc0-f223cd0c8496 수정에 성공하면 입력한 내용으로 수정을 한 번 요청하고 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val detail = fixtureMonkey.checklistDetail()
+                val id = Arb.kotlinUuid().next()
+                val detail = Arb.checklistDetail().next()
                 val updateChecklistUseCase = mockk<UpdateChecklistUseCase>()
                 coEvery { updateChecklistUseCase(parameter = UpdateChecklistUseCase.Parameter(id = id, detail = detail)) } returns Result.success(1)
                 val viewModel = viewModel(id = id, updateChecklistUseCase = updateChecklistUseCase)
@@ -142,7 +143,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-cc83beda-9642-4d59-8661-12a415c67e7c 수정을 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
-                val checklist = fixtureMonkey.checklist(isDeleted = false)
+                val checklist = Arb.checklist(isDeleted = false).next()
                 val gate = CompletableDeferred<Unit>()
                 val updateChecklistUseCase = mockk<UpdateChecklistUseCase>()
                 coEvery { updateChecklistUseCase(parameter = any()) } coAnswers {
@@ -155,7 +156,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
                     awaitItem() shouldBe ChecklistDetailUiState.Loading
                     awaitItem() shouldBe ChecklistDetailUiState.Content(id = checklist.id, detail = checklist.detail)
 
-                    viewModel.update(detail = fixtureMonkey.checklistDetail())
+                    viewModel.update(detail = Arb.checklistDetail().next())
                     awaitItem() shouldBe ChecklistDetailUiState.Content(id = checklist.id, detail = checklist.detail, isUpdateInProgress = true)
 
                     gate.complete(Unit)
@@ -166,9 +167,9 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-c93605ca-6b04-4408-85c5-55f71d6b6638 수정에 실패하면 안내 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.checklistDetail()
+                val detail = Arb.checklistDetail().next()
                 val updateChecklistUseCase = mockk<UpdateChecklistUseCase>()
-                coEvery { updateChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { updateChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(updateChecklistUseCase = updateChecklistUseCase)
 
                 viewModel.effect.test {
@@ -185,7 +186,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-95a0e2bf-e1e2-4e69-b3d1-77f9eaa4ee7d 삭제에 성공하면 삭제를 한 번 요청하고 화면을 떠나도록 한 번 알린다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
                 coEvery { deleteChecklistUseCase(parameter = id) } returns Result.success(1)
                 val viewModel = viewModel(id = id, deleteChecklistUseCase = deleteChecklistUseCase)
@@ -202,7 +203,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-ff222760-12c7-4ef6-a3e9-cea2a7ad15da 삭제를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
-                val checklist = fixtureMonkey.checklist(isDeleted = false)
+                val checklist = Arb.checklist(isDeleted = false).next()
                 val gate = CompletableDeferred<Unit>()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
                 coEvery { deleteChecklistUseCase(parameter = checklist.id) } coAnswers {
@@ -226,9 +227,9 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-ec088c83-4fba-4ce9-99fe-b65e4ebae0b6 삭제에 실패하면 화면에 머무르고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
-                coEvery { deleteChecklistUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteChecklistUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(id = id, deleteChecklistUseCase = deleteChecklistUseCase)
 
                 viewModel.effect.test {
@@ -245,7 +246,7 @@ class ChecklistDetailViewModelTest : FunSpec() {
 
         test("TC-dbb55974-a5c4-4272-b99b-52ecb3c30bf0 수정이나 삭제를 처리하는 동안 같은 종류는 다시 요청하지 않고 다른 종류는 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val gate = CompletableDeferred<Unit>()
                 val updateChecklistUseCase = mockk<UpdateChecklistUseCase>()
                 coEvery { updateChecklistUseCase(parameter = any()) } coAnswers {
@@ -259,9 +260,9 @@ class ChecklistDetailViewModelTest : FunSpec() {
                 }
                 val viewModel = viewModel(id = id, updateChecklistUseCase = updateChecklistUseCase, deleteChecklistUseCase = deleteChecklistUseCase)
 
-                viewModel.update(detail = fixtureMonkey.checklistDetail())
+                viewModel.update(detail = Arb.checklistDetail().next())
                 runCurrent()
-                viewModel.update(detail = fixtureMonkey.checklistDetail())
+                viewModel.update(detail = Arb.checklistDetail().next())
                 viewModel.delete()
                 runCurrent()
                 viewModel.delete()
@@ -275,12 +276,9 @@ class ChecklistDetailViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             checklist: Flow<Result<Checklist?>> = emptyFlow(),
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             updateChecklistUseCase: UpdateChecklistUseCase = mockk(),
             deleteChecklistUseCase: DeleteChecklistUseCase = mockk(),
         ): ChecklistDetailViewModel {

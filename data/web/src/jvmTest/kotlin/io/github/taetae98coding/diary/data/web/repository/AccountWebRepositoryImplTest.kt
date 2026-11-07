@@ -5,9 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
@@ -16,14 +13,21 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,13 +40,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountWebRepositoryImplTest :
     FunSpec({
         test("TC-fde9eef4-29df-45a0-a37c-b394f94df62f 웹 항목을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val web = web()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
@@ -57,11 +60,11 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-93bd05a6-5f77-4f2b-bd7e-05177feb4ea1 요청 헤더는 배치한 순서 그대로 로컬 모델로 변환된다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val headerList =
                 listOf(
-                    WebHeader(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
-                    WebHeader(name = "Authorization", value = "token-${fixtureMonkey.giveMeOne<String>()}"),
+                    WebHeader(name = "Authorization", value = "token-${Arb.string().next()}"),
+                    WebHeader(name = "Authorization", value = "token-${Arb.string().next()}"),
                     WebHeader(name = "X-Region", value = ""),
                 )
             val web = web().let { web -> web.copy(detail = web.detail.copy(headerList = headerList)) }
@@ -82,9 +85,9 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-5920ffe6-d055-49a0-9b3a-83743cf16050 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val web = web()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery { transaction.upsert(accountId = account.id, webList = listOf(web.toLocal()), webTagList = emptyList()) } throws throwable
@@ -96,7 +99,7 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-15ca546d-a9aa-4c94-b533-83e2ed65763b 웹 목록 페이지 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localWebList = List(2) { localWeb() }
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
@@ -107,7 +110,7 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-ea191f75-92fb-4e2f-a799-4fab5e3e3d38 상세 대상 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localWeb = localWeb()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
@@ -118,8 +121,8 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-33c93631-0b2b-48e2-91b7-f693c8043345 상세 대상이 조회되지 않으면 없음을 그대로 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val webId = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             every { localDataSource.find(accountId = account.id, webId = webId) } returns flowOf(null)
@@ -129,9 +132,9 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 현재 계정 식별자와 함께 로컬 저장소에 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = instant()
+            val account = Arb.accountUser().next()
+            val webId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -147,10 +150,10 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-7063aa40-a5ab-4f7c-9553-6f438d3affa6 수정은 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 반영한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val webId = Arb.kotlinUuid().next()
             val detail = web().detail
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -166,8 +169,8 @@ class AccountWebRepositoryImplTest :
         }
 
         test("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 수정 저장이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -178,16 +181,16 @@ class AccountWebRepositoryImplTest :
             shouldThrow<IllegalStateException> {
                 repository.updateDetail(
                     account = account,
-                    webId = fixtureMonkey.giveMeOne<Uuid>(),
+                    webId = Arb.kotlinUuid().next(),
                     detail = web().detail,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
 
         test("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 삭제 저장이 실패하면 실패를 그대로 전파한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             coEvery {
@@ -198,15 +201,15 @@ class AccountWebRepositoryImplTest :
             shouldThrow<IllegalStateException> {
                 repository.updateDeleted(
                     account = account,
-                    webId = fixtureMonkey.giveMeOne<Uuid>(),
+                    webId = Arb.kotlinUuid().next(),
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             } shouldBeSameInstanceAs throwable
         }
 
         test("조회된 웹 항목이 없으면 빈 목록을 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
             every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.TITLE) } returns pagingSource(emptyList())
@@ -216,24 +219,23 @@ class AccountWebRepositoryImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): Web =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Web>()
-                .setExp(Web::updatedAt, instant())
-                .setExp(Web::createdAt, instant())
-                .sample()
+            Arb
+                .web()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun localWeb(): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun pagingSource(webList: List<WebLocalEntity>): PagingSource<Int, WebLocalEntity> =
             mockk(relaxed = true) {

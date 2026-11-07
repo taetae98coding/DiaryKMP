@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class TagDetailPlaceStateTest :
     FunSpec({
@@ -26,13 +26,13 @@ class TagDetailPlaceStateTest :
 
         test("TC-25b808f4-b089-4a0b-8555-a06a86632ff6 목록 모드에서는 장소 추가로 넘길 지도 위치가 없다") {
             val state = TagDetailPlaceState()
-            state.moveMap(coordinate = fixtureMonkey.giveMeOne<Coordinate>())
+            state.moveMap(coordinate = Arb.coordinate().next())
 
             state.addCoordinate.shouldBeNull()
         }
 
         test("TC-9a764db7-36f2-4db2-960c-f503a819a9ab 지도 모드에서는 보고 있던 지도 위치를 장소 추가로 넘긴다") {
-            val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+            val coordinate = Arb.coordinate().next()
             val state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP)
 
             state.moveMap(coordinate = coordinate)
@@ -47,7 +47,7 @@ class TagDetailPlaceStateTest :
         }
 
         test("TC-efccf1d0-a4ca-4aa2-8366-52fa1f9234d1 목록 모드로 되돌려도 보고 있던 지도 위치는 유지한다") {
-            val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+            val coordinate = Arb.coordinate().next()
             val state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP)
             state.moveMap(coordinate = coordinate)
 
@@ -57,9 +57,4 @@ class TagDetailPlaceStateTest :
             state.coordinate shouldBe coordinate
             state.addCoordinate shouldBe coordinate
         }
-    }) {
-    private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

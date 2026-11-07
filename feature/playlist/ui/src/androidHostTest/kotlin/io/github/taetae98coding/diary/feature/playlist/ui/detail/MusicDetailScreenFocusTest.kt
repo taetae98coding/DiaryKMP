@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performTextReplacement
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -28,15 +30,20 @@ class MusicDetailScreenFocusTest {
         val uiState = MutableStateFlow<MusicDetailUiState>(MusicDetailUiState.Content(id = Uuid.random(), detail = testMusicDetail()))
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicDetailScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                    viewModel = detailViewModel(uiState = uiState, effect = effect.filterNotNull()),
+                    musicViewModel = detailViewModel(uiState = uiState, effect = effect.filterNotNull()),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
         composeRule.linkInput().performTextReplacement(NOT_YOUTUBE_LINK)
         composeRule.waitForIdle()
 
@@ -45,12 +52,13 @@ class MusicDetailScreenFocusTest {
 
         composeRule.linkInput().assertIsFocused()
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
-        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
         composeRule.linkInput().assert(hasText(NOT_YOUTUBE_LINK))
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
     }
 
     private companion object {
         private const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
+        private const val EDITING_ARTIST = "MusicDetailFocusEditingArtist"
     }
 }

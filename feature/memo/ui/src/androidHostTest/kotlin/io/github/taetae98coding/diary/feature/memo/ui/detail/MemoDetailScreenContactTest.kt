@@ -9,7 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.DEFAULT_CONTACT_PICKER_ADD_LABEL
@@ -88,7 +88,7 @@ class MemoDetailScreenContactTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { contactViewModel.selectContact(contactId = contact.id) }
+        verify(exactly = 1) { contactViewModel.selectContact(contactId = contact.contact.id) }
         composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
     }
 
@@ -103,7 +103,7 @@ class MemoDetailScreenContactTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { contactViewModel.unselectContact(contactId = contact.id) }
+        verify(exactly = 1) { contactViewModel.unselectContact(contactId = contact.contact.id) }
     }
 
     @Test
@@ -118,7 +118,7 @@ class MemoDetailScreenContactTest {
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        clickedIdList shouldBe listOf(contact.id)
+        clickedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -174,23 +174,33 @@ class MemoDetailScreenContactTest {
 
     @Test
     fun `TC-07a5a7c0-ff79-42f7-90dc-428b1fb00425 상세 대상이 바뀌면 열려 있던 연락처 선택 목록과 검색어를 유지하지 않는다`() {
-        val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        val firstContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        val secondContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val detailUiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
+        val contactUiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = listOf(firstContact)))
         composeRule.setMemoDetailScreenWithContact(
-            contactViewModel = memoDetailContactViewModel(contactList = listOf(contact)),
+            contactViewModel = screenTestContactViewModel(uiState = contactUiState, contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(listOf(firstContact, secondContact)))),
             detailUiState = detailUiState,
         )
         composeRule.openMemoDetailContactPicker()
         composeRule.awaitContactPickerRows()
-        composeRule.contactDialogSearchField().performTextInput(FIRST_CONTACT_NAME)
+        composeRule.contactDialogSearchField().performTextInput(STALE_CONTACT_QUERY)
         composeRule.waitForIdle()
+        composeRule.contactDialogNodeWithText(STALE_CONTACT_QUERY).assertExists()
 
         composeRule.runOnIdle {
-            detailUiState.value = memoDetailUiState(id = Uuid.parse("00000000-0000-0000-0000-000000000002"), detail = memoDetail(MEMO_TITLE))
+            detailUiState.value = memoDetailUiState(id = SECOND_CONTACT_MEMO_ID, detail = memoDetail(MEMO_TITLE))
+            contactUiState.value = MemoContactInputUiState(selectedContactList = listOf(secondContact))
         }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_CONTACT_SELECT_LABEL).performScrollTo()
+        composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertExists()
+        composeRule.onNodeWithText(FIRST_CONTACT_NAME).assertDoesNotExist()
+        composeRule.openMemoDetailContactPicker()
+        composeRule.awaitContactPickerRows()
+        composeRule.contactDialogNodeWithText(STALE_CONTACT_QUERY).assertDoesNotExist()
     }
 
     @Test
@@ -327,15 +337,16 @@ class MemoDetailScreenContactTest {
     }
 
     private fun memoDetailContactViewModel(
-        contactList: List<Contact>,
-        selectedContactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem>,
+        selectedContactList: List<ContactListItem> = emptyList(),
     ): MemoContactViewModel =
         screenTestContactViewModel(
             uiState = MutableStateFlow(MemoContactInputUiState(selectedContactList = selectedContactList)),
-            contactPagingDataFlow = MutableStateFlow<PagingData<Contact>>(contactPagingDataOf(contactList)),
+            contactPagingDataFlow = MutableStateFlow<PagingData<ContactListItem>>(contactPagingDataOf(contactList)),
         )
 
     private companion object {
         val SECOND_CONTACT_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000031")
+        const val STALE_CONTACT_QUERY: String = "MemoContactStaleQuery"
     }
 }

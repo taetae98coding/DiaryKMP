@@ -3,20 +3,21 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.testing.contact.contactDetail
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.FavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.FindContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -65,7 +66,7 @@ class ContactDetailViewModelTest : FunSpec() {
 
         test("TC-49a7b54d-3d36-40fd-914e-064a21ce1ee4 연락처를 조회할 수 없으면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
 
                 listOf(
                     Result.failure(IllegalStateException()),
@@ -668,9 +669,6 @@ class ContactDetailViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             id: Uuid,
             contactFlow: Flow<Result<Contact?>>,
@@ -694,12 +692,12 @@ class ContactDetailViewModelTest : FunSpec() {
 
         private fun contact(): Contact =
             Contact(
-                id = fixtureMonkey.giveMeOne<Uuid>(),
-                detail = fixtureMonkey.giveMeKotlinBuilder<ContactDetail>().sample(),
+                id = Arb.kotlinUuid().next(),
+                detail = Arb.contactDetail().next(),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
     }
 }

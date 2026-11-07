@@ -6,7 +6,9 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatc
 import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.McpSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,6 +31,14 @@ public class WasmDataStoreModule {
         WebLocalStorage(
             serializer = MapSettingSerializer,
             name = DataStoreModule.MAP_SETTING_NAME,
+        )
+
+    @Single
+    @McpSettingStorage
+    internal fun providesMcpSettingStorage(): Storage<McpSettingData> =
+        WebLocalStorage(
+            serializer = McpSettingSerializer,
+            name = DataStoreModule.MCP_SETTING_NAME,
         )
 
     @Single
@@ -61,6 +71,14 @@ public class WasmDataStoreModule {
         WebLocalStorage(
             serializer = WebLoginSerializer,
             name = DataStoreModule.WEB_LOGIN_NAME,
+        )
+
+    @Single
+    @LoginProviderStorage
+    internal fun providesLoginProviderStorage(): Storage<LoginProviderData> =
+        WebLocalStorage(
+            serializer = LoginProviderSerializer,
+            name = DataStoreModule.LOGIN_PROVIDER_NAME,
         )
 
     @Single

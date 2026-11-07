@@ -2,13 +2,14 @@ package io.github.taetae98coding.diary.compose.tag
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,18 +53,17 @@ class TagCardEmojiTest {
         private const val TAG_TITLE = "TagCardEmojiTitle"
         private const val TAG_EMOJI = "🏃"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(
             title: String,
             emoji: String = "",
         ): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title))
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    detail = Arb.tagDetail().next().copy(emoji = emoji, title = title),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

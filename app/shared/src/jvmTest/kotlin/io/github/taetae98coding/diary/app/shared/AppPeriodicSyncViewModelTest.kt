@@ -3,14 +3,14 @@
 package io.github.taetae98coding.diary.app.shared
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -44,7 +44,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
 
         test("TC-cc07f234-2c6a-4021-a650-4a0161718819 TC-56ebf0e0-19c8-4454-8389-44dc03ca0d63 인증 여부와 관계없이 바뀐 계정을 주기 동기화 예약 계기로 전달한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val invalidAccount = account.copy(isSessionValid = false)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
@@ -62,7 +62,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
 
         test("TC-6469282a-59e0-4ac6-8976-a566838d6669 같은 계정이 다시 확인되기만 하면 주기 동기화 예약 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val account = Arb.accountUser().next().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account), Result.success(account)))
 
                 viewModel.uiState.confirmedAccount().test {
@@ -116,9 +116,6 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             accountFlow: Flow<Result<Account>> = flowOf(Result.success(Account.Guest)),
             schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase = mockk(relaxed = true),

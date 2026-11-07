@@ -13,6 +13,8 @@
 | [TagDetail 메모 탭](./tag-detail-memo.md) | 태그별 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [TagDetail 웹 탭](./tag-detail-web.md) | 태그별 웹 목록 | 제목순, 최근 수정순 |
 | [TagDetail 장소 탭](./tag-detail-place.md) | 지도 모드의 태그별 장소 목록, 목록 모드의 태그별 장소 목록 | 제목순, 최근 수정순 |
+| [TagDetail 연락처 탭](./tag-detail-contact.md) | 태그별 연락처 목록 | 이름순, 최근 수정순 |
+| [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 | 제목순, 최근 수정순 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 연락처별·장소별·웹 항목별 완료된 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 | 기본순, 제목순, 최근 수정순 |
@@ -115,6 +117,7 @@
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 기본순 |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 기본순 |
 | ContactHome 연락처 목록 | 이름순 |
+| TagDetail 연락처 탭의 태그별 연락처 목록 | 이름순 |
 | ChecklistDetail 체크 항목 목록 | 추가순 |
 | 그 밖의 적용 대상 목록 | 제목순 |
 

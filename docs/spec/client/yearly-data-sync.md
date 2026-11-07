@@ -28,11 +28,7 @@
 
 ### 동기화 실패 보고
 
-동기화 실패는 오류 보고 대상이다. 보고 방식은 [기능 실패 로깅 스펙](./usecase-failure-logging.md)의 오류 보고를 따른다.
-
-원격 조회 실패와 기기 저장 실패 중 무엇이 실패했는지는 보고에 담긴 실패 원인으로 구분한다.
-
-자료를 제공하지 않는 연도로 끝난 동기화는 성공이므로 오류 보고 대상이 아니다.
+동기화 실패는 오류 보고 대상이 아니다. 원격 조회가 실패 응답을 받았거나 응답 내용을 읽지 못한 경우는 [원격 응답 실패 보고 스펙](./remote-response-failure-logging.md)을 따른다.
 
 ## data
 
@@ -99,5 +95,6 @@ Android, iOS, 데스크톱 앱에서는 기기에 저장한 자료가 앱을 다
 - [기기에 저장한 공휴일 스펙](./holiday-database.md): 기기 보관
 - [음력 자료 동기화 스펙](./lunar-fetch.md): 연도 단위
 - [CalendarHome 스펙](./calendar-home.md): 진행 중인 요청
-- [CalendarTimetable 화면 스펙](./calendar-timetable.md): 진행 중인 요청
+- [CalendarTimetable 화면 스펙](./calendar-timetable.md): 진행 중인 요청 (공휴일, 음력 자료)
 - [HolidayHome 화면 스펙](./holiday-home.md): 진행 중인 요청, 재조회 생략
+- [새로고침 스펙](./sync-refresh.md): 진행 중인 요청, 재조회 생략

@@ -24,14 +24,22 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DIARY_EMOJI_INPUT_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.Res
+import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.qr.TagDetailQrTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
@@ -61,6 +69,14 @@ internal const val DEFAULT_WEB_TAB_DESCRIPTION = "Web"
 internal const val DEFAULT_PLACE_TAB_DESCRIPTION = "Place"
 internal const val KOREAN_WEB_TAB_DESCRIPTION = "웹"
 internal const val KOREAN_PLACE_TAB_DESCRIPTION = "장소"
+internal const val DEFAULT_CONTACT_TAB_DESCRIPTION = "Contact"
+internal const val DEFAULT_CHECKLIST_TAB_DESCRIPTION = "Checklist"
+internal const val DEFAULT_MUSIC_TAB_DESCRIPTION = "Music"
+internal const val DEFAULT_QR_TAB_DESCRIPTION = "QR code"
+internal const val KOREAN_CONTACT_TAB_DESCRIPTION = "연락처"
+internal const val KOREAN_CHECKLIST_TAB_DESCRIPTION = "체크리스트"
+internal const val KOREAN_MUSIC_TAB_DESCRIPTION = "곡"
+internal const val KOREAN_QR_TAB_DESCRIPTION = "QR"
 internal const val EDIT_SUFFIX = "Edited"
 internal val FIRST_TAG_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000001")
 
@@ -150,6 +166,10 @@ internal fun TagDetailTestTabContent(
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
+    contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
+    checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
+    musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
+    qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
 ) {
     when (tab) {
         TagDetailTab.DETAIL ->
@@ -182,6 +202,34 @@ internal fun TagDetailTestTabContent(
                 onEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 placePagingItems = placePagingItems,
+            )
+
+        TagDetailTab.CONTACT ->
+            TagDetailContactTab(
+                onEvent = {},
+                modifier = Modifier.fillMaxSize(),
+                contactPagingItems = contactPagingItems,
+            )
+
+        TagDetailTab.CHECKLIST ->
+            TagDetailChecklistTab(
+                onEvent = {},
+                modifier = Modifier.fillMaxSize(),
+                checklistPagingItems = checklistPagingItems,
+            )
+
+        TagDetailTab.MUSIC ->
+            TagDetailMusicTab(
+                onEvent = {},
+                modifier = Modifier.fillMaxSize(),
+                musicPagingItems = musicPagingItems,
+            )
+
+        TagDetailTab.QR ->
+            TagDetailQrTab(
+                onEvent = {},
+                modifier = Modifier.fillMaxSize(),
+                qrPagingItems = qrPagingItems,
             )
     }
 }

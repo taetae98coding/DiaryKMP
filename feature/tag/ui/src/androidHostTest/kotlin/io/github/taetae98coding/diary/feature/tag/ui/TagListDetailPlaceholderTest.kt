@@ -71,10 +71,14 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailTabViewModelModule
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -149,7 +153,7 @@ class TagListDetailPlaceholderTest {
 
         composeRule.runOnIdle {
             backStack.removeLastOrNull()
-            backStack.add(TagDetailNavKey(id = fixtureId()))
+            backStack.add(TagDetailNavKey(id = Arb.kotlinUuid().next()))
         }
         composeRule.waitForIdle()
 
@@ -176,7 +180,7 @@ class TagListDetailPlaceholderTest {
     @Test
     fun `TC-02d2b347-3210-4073-a9eb-f6a89f47b605 선택한 태그가 없을 때 상세 영역에서 추가한 태그는 다른 태그 입력에 돌려주지 않는다`() {
         val input = placeholderInput()
-        coEvery { addTagUseCase(parameter = any()) } returns Result.success(fixtureId())
+        coEvery { addTagUseCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
         setTagNavDisplay(input = input)
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(input.title)
 
@@ -214,7 +218,7 @@ class TagListDetailPlaceholderTest {
     // 앱을 다시 실행하면 저장해 둔 화면 상태와 뒤로가기 기록 없이 처음 목적지부터 다시 시작하므로, 새 기록과 새 키로 배치를 다시 구성한다.
     @Test
     fun `TC-d29f392c-d55a-4806-8755-45be76306215 앱을 종료하고 다시 실행하면 상세 영역이 선택 전 상태로 돌아간다`() {
-        val detailKey = TagDetailNavKey(id = fixtureId())
+        val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         setTagNavDisplay(input = placeholderInput())
         composeRule.runOnIdle { backStack.navigateToTagDetail(detailKey.id) }
         composeRule.waitForIdle()
@@ -240,12 +244,12 @@ class TagListDetailPlaceholderTest {
 
     @Test
     fun `TC-98758bf8-de13-45c5-839b-312f29457d71 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 입력과 연결이 남는다`() {
-        assertPlaceholderRetained(route = TagDetailNavKey(id = fixtureId()))
+        assertPlaceholderRetained(route = TagDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     @Test
     fun `TC-98758bf8-de13-45c5-839b-312f29457d71 배치를 떠나기 전에는 연결 입력으로 연 태그 추가에 다녀와도 태그 추가의 입력과 연결이 남는다`() {
-        assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureId()))
+        assertPlaceholderRetained(route = TagAddNavKey(requestKey = Arb.kotlinUuid().next()))
     }
 
     @Test
@@ -276,12 +280,12 @@ class TagListDetailPlaceholderTest {
 
     @Test
     fun `TC-07227459-8909-4395-9db7-693bbf378a3a 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 컬러가 남는다`() {
-        assertPlaceholderColorRetained(route = TagDetailNavKey(id = fixtureId()))
+        assertPlaceholderColorRetained(route = TagDetailNavKey(id = Arb.kotlinUuid().next()))
     }
 
     @Test
     fun `TC-07227459-8909-4395-9db7-693bbf378a3a 배치를 떠나기 전에는 연결 입력으로 연 태그 추가에 다녀와도 태그 추가의 컬러가 남는다`() {
-        assertPlaceholderColorRetained(route = TagAddNavKey(requestKey = fixtureId()))
+        assertPlaceholderColorRetained(route = TagAddNavKey(requestKey = Arb.kotlinUuid().next()))
     }
 
     @Test
@@ -293,15 +297,15 @@ class TagListDetailPlaceholderTest {
     fun `TC-99964339-7621-458b-b2e1-86b115657409 목록에서 고른 태그의 상세에서 시스템 뒤로가기를 사용하면 태그 상세를 고르기 전 상태로 돌아간다`() {
         val pathCases =
             listOf(
-                listOf(TagDetailNavKey(id = fixtureId())),
-                listOf(TagDetailNavKey(id = fixtureId()), TagDetailNavKey(id = fixtureId())),
-                listOf(TagDetailNavKey(id = fixtureId()), TagAddNavKey(requestKey = fixtureId()), TagDetailNavKey(id = fixtureId())),
-                listOf(TagAddNavKey(), TagDetailNavKey(id = fixtureId()), TagDetailNavKey(id = fixtureId())),
+                listOf(TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                listOf(TagDetailNavKey(id = Arb.kotlinUuid().next()), TagAddNavKey(requestKey = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
+                listOf(TagAddNavKey(), TagDetailNavKey(id = Arb.kotlinUuid().next()), TagDetailNavKey(id = Arb.kotlinUuid().next())),
             )
         setTagNavDisplay(input = placeholderInput())
 
         pathCases.forEach { pathKeyList ->
-            val selectedId = fixtureId()
+            val selectedId = Arb.kotlinUuid().next()
             composeRule.runOnIdle {
                 backStack.addAll(pathKeyList)
                 backStack.navigateToTagDetail(selectedId)
@@ -320,7 +324,7 @@ class TagListDetailPlaceholderTest {
 
     @Test
     fun `TC-b4d6b49f-09cd-485f-b1a1-e8f7d0414ded 태그 상세 위에 연 태그 추가에서 시스템 뒤로가기를 사용하면 그 태그 상세로 돌아온다`() {
-        val detailKey = TagDetailNavKey(id = fixtureId())
+        val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         setTagNavDisplay(input = placeholderInput())
         composeRule.runOnIdle { backStack.navigateToTagDetail(detailKey.id) }
         composeRule.waitForIdle()
@@ -337,8 +341,8 @@ class TagListDetailPlaceholderTest {
 
     @Test
     fun `TC-dc43207a-95ef-4a7f-9050-1154df3631bc 연결한 태그를 눌러 연 태그 상세에서 시스템 뒤로가기를 사용하면 목록을 유지하고 이전 태그의 상세로 돌아간다`() {
-        val fromKey = TagDetailNavKey(id = fixtureId())
-        val toKey = TagDetailNavKey(id = fixtureId())
+        val fromKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+        val toKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
         setTagNavDisplay(input = placeholderInput())
         composeRule.runOnIdle {
             backStack.add(fromKey)
@@ -487,6 +491,14 @@ class TagListDetailPlaceholderTest {
             navigateToWebDetail = {},
             navigateToPlaceAdd = {},
             navigateToPlaceDetail = {},
+            navigateToContactAdd = {},
+            navigateToContactDetail = {},
+            navigateToChecklistAdd = {},
+            navigateToChecklistDetail = {},
+            navigateToMusicAdd = {},
+            navigateToMusicDetail = {},
+            navigateToQrAdd = {},
+            navigateToQrDetail = {},
         )
     }
 
@@ -572,9 +584,9 @@ class TagListDetailPlaceholderTest {
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
                 emoji = EMOJI,
-                title = fixtureText(prefix = "title"),
-                description = fixtureText(prefix = "description"),
-                linkedTag = testTag(title = fixtureText(prefix = "tag")),
+                title = Arb.alphanumericString(prefix = "title").next(),
+                description = Arb.alphanumericString(prefix = "description").next(),
+                linkedTag = testTag(title = Arb.alphanumericString(prefix = "tag").next()),
             )
     }
 }

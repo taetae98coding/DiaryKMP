@@ -24,17 +24,16 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
-import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_PHONE_NUMBER_BLANK_MESSAGE
+import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
@@ -43,10 +42,17 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.howWeMetInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
+import io.github.taetae98coding.diary.feature.contact.ui.add.selectBirthday
+import io.github.taetae98coding.diary.feature.contact.ui.add.today
+import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
@@ -87,7 +93,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -116,7 +126,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -148,7 +162,11 @@ class ContactDetailScreenEditTest {
                         navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        contactViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -192,7 +210,7 @@ class ContactDetailScreenEditTest {
     @Test
     fun `TC-2f5e9a91-c345-4b33-be1c-9209710b562b 이름을 비운 채 수정하면 비운 이름과 바꾼 설명으로 수정하고 성공을 알린다`() {
         val stored = storedDetail()
-        val description = "설명-${fixtureMonkey.giveMeOne<String>()}"
+        val description = "설명-${Arb.string().next()}"
         val viewModel = effectViewModel(stored = stored, effect = ContactDetailEffect.UpdateSucceeded)
         composeRule.setContactDetailScreen(viewModel = viewModel)
         composeRule.nameInput().performTextReplacement("")
@@ -256,7 +274,7 @@ class ContactDetailScreenEditTest {
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
         var navigateUpCount = 0
         composeRule.setContactDetailScreen(viewModel = viewModel, navigateUp = { navigateUpCount++ })
-        composeRule.nameInput().performTextReplacement("이름-${fixtureMonkey.giveMeOne<String>()}")
+        composeRule.nameInput().performTextReplacement("이름-${Arb.string().next()}")
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
@@ -278,7 +296,7 @@ class ContactDetailScreenEditTest {
 
     @Test
     fun `TC-ef7f75d7-17b5-4ed2-94dc-bfd8c64c1141 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
-        val titleList = List(MEMO_COUNT) { index -> "메모-$index-${fixtureMonkey.giveMeOne<Int>()}" }
+        val titleList = List(MEMO_COUNT) { index -> "메모-$index-${Arb.int().next()}" }
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = storedDetail())))
         composeRule.setContactDetailScreen(
             viewModel = viewModel,
@@ -316,7 +334,11 @@ class ContactDetailScreenEditTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    contactViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -362,6 +384,7 @@ class ContactDetailScreenEditTest {
         howWeMetInput().performTextReplacement(input.howWeMet)
         onNodeWithContentDescription(DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION).performSemanticsAction(SemanticsActions.OnClick)
         waitForIdle()
+        selectBirthday()
         addPhoneNumberRowOnScreen()
         phoneNumberInput(row = 1).performTextInput(input.phoneNumber)
         waitForIdle()
@@ -377,7 +400,8 @@ class ContactDetailScreenEditTest {
         footSizeInput().assert(hasText(EDITED_FOOT_SIZE_TEXT))
         hometownInput().assert(hasText(input.hometown))
         howWeMetInput().assert(hasText(input.howWeMet))
-        onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
+        onNodeWithText(todayDisplayText()).assertExists()
+        birthYearInput().assert(hasText(today().year.toString()))
         phoneNumberRowCount() shouldBe STORED_PHONE_NUMBER_COUNT + 1 + blankPhoneNumberRowCount
         phoneNumberInput(row = 1).assert(hasText(input.phoneNumber))
     }
@@ -391,7 +415,6 @@ class ContactDetailScreenEditTest {
     )
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
         private const val STORED_HEIGHT_TEXT = "175.5"
         private const val STORED_FOOT_SIZE_TEXT = "250"
         private const val EDITED_HEIGHT_TEXT = "180"
@@ -407,23 +430,23 @@ class ContactDetailScreenEditTest {
 
         private fun storedDetail(): ContactDetail =
             testContactDetail(
-                name = "이름-${fixtureMonkey.giveMeOne<Int>()}",
-                description = "설명-${fixtureMonkey.giveMeOne<Int>()}",
+                name = "이름-${Arb.int().next()}",
+                description = "설명-${Arb.int().next()}",
                 height = 175.5.centimeter,
                 footSize = 250.millimeter,
                 birthday = ContactBirthday(date = LocalDate(year = 1994, month = 3, day = 21), calendar = ContactBirthdayCalendar.SOLAR),
-                hometown = "고향-${fixtureMonkey.giveMeOne<Int>()}",
-                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<Int>()}",
-                phoneNumberList = List(STORED_PHONE_NUMBER_COUNT) { "010-${fixtureMonkey.giveMeOne<Int>()}" },
+                hometown = "고향-${Arb.int().next()}",
+                howWeMet = "알게 된 경로-${Arb.int().next()}",
+                phoneNumberList = List(STORED_PHONE_NUMBER_COUNT) { "010-${Arb.int().next()}" },
             )
 
         private fun editedInput(): EditedInput =
             EditedInput(
-                name = "이름-${fixtureMonkey.giveMeOne<Int>()}",
-                description = "설명-${fixtureMonkey.giveMeOne<Int>()}",
-                hometown = "고향-${fixtureMonkey.giveMeOne<Int>()}",
-                howWeMet = "알게 된 경로-${fixtureMonkey.giveMeOne<Int>()}",
-                phoneNumber = "02-${fixtureMonkey.giveMeOne<Int>()}",
+                name = "이름-${Arb.int().next()}",
+                description = "설명-${Arb.int().next()}",
+                hometown = "고향-${Arb.int().next()}",
+                howWeMet = "알게 된 경로-${Arb.int().next()}",
+                phoneNumber = "02-${Arb.int().next()}",
             )
     }
 }

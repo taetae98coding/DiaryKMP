@@ -10,16 +10,19 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.ContactTagTestTheme
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.contact.ui.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -85,7 +88,7 @@ class ContactDetailScreenTest {
     @Test
     fun `TC-2957350d-6626-496a-88b5-14324123a7b6 저장된 생일이 다른 경로에서 바뀌어도 입력 중인 생일은 덮어쓰지 않는다`() {
         val id = Uuid.random()
-        val birthdayRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+        val birthdayRange = Arb.localDateRange().next()
         val stored = testContactDetail(name = CONTACT_NAME, birthday = ContactBirthday(date = birthdayRange.start, calendar = ContactBirthdayCalendar.SOLAR))
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
 
@@ -114,7 +117,7 @@ class ContactDetailScreenTest {
         val restorationTester = StateRestorationTester(composeRule)
 
         restorationTester.setContent {
-            DiaryTheme {
+            ContactTagTestTheme {
                 ContactDetailScreen(
                     navigateUp = {},
                     navigateToMemoAdd = {},
@@ -122,7 +125,11 @@ class ContactDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel(uiState = uiState),
+                    contactViewModel = viewModel(uiState = uiState),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -178,7 +185,7 @@ class ContactDetailScreenTest {
         navigateUp: () -> Unit = {},
     ) {
         composeRule.setContent {
-            DiaryTheme {
+            ContactTagTestTheme {
                 ContactDetailScreen(
                     navigateUp = navigateUp,
                     navigateToMemoAdd = {},
@@ -186,7 +193,11 @@ class ContactDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
-                    viewModel = viewModel(uiState = uiState, effect = effect),
+                    contactViewModel = viewModel(uiState = uiState, effect = effect),
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -196,7 +207,6 @@ class ContactDetailScreenTest {
         private const val CONTACT_NAME = "ContactDetailScreenName"
         private const val CHANGED_NAME = "ContactDetailScreenChanged"
         private const val EDITING_NAME = "ContactDetailScreenEditing"
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         private fun viewModel(
             uiState: MutableStateFlow<ContactDetailUiState>,

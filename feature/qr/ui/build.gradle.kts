@@ -8,12 +8,21 @@ kotlin {
             dependencies {
                 implementation(projects.compose.permission)
                 implementation(projects.compose.place)
+                implementation(projects.compose.qr)
+                implementation(projects.compose.tag)
                 implementation(projects.domain.qr)
                 implementation(projects.domain.setting)
+                implementation(projects.domain.tag)
                 implementation(projects.feature.core)
                 implementation(projects.feature.qr.api)
+                implementation(projects.feature.tag.api)
                 implementation(projects.library.kotlin)
-                implementation(libs.qrose)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
 
@@ -28,7 +37,6 @@ kotlin {
 
         jvmTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(libs.androidx.paging.testing)
             }
         }
@@ -36,7 +44,6 @@ kotlin {
         androidHostTest {
             dependencies {
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
-                implementation(projects.core.testing)
             }
         }
 

@@ -16,8 +16,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -25,7 +23,9 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,8 +43,8 @@ class RoutineListDetailPlaceholderTest {
 
     @Test
     fun `TC-acdca25a-a5ef-4070-972f-0c2bbcc47a45 다른 주요 목적지에 다녀오면 상세 영역의 루틴 추가는 제목과 설명이 비어 있는 상태로 시작한다`() {
-        val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+        val title = "title-${Arb.string().next()}"
+        val description = "description-${Arb.string().next()}"
         setRoutineNavDisplay()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(title)
         composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(description)
@@ -98,7 +98,6 @@ class RoutineListDetailPlaceholderTest {
     private companion object {
         const val ROUTINE_HOME_CONTENT = "RoutineHomeContent"
         const val OTHER_TOP_LEVEL_CONTENT = "OtherTopLevelContent"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }
 

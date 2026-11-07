@@ -4,14 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.place.searchedPlace
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 internal const val DEFAULT_QUERY_PLACEHOLDER = "Search for a place"
@@ -23,23 +23,22 @@ internal const val KOREAN_QUERY_INPUT_DESCRIPTION = "검색어"
 internal const val KOREAN_CLEAR_BUTTON_DESCRIPTION = "검색어 지우기"
 internal const val SEARCH_DELAY_MILLIS = 200L
 
-internal val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
-internal fun randomText(prefix: String): String = "$prefix-${fixtureMonkey.giveMeOne<Int>()}"
+internal fun randomText(prefix: String): String = "$prefix-${Arb.int().next()}"
 
 internal fun searchedPlace(
     name: String,
     address: String,
     coordinate: Coordinate = Coordinate(latitude = 37.5665, longitude = 126.9780),
 ): SearchedPlace =
-    fixtureMonkey
-        .giveMeKotlinBuilder<SearchedPlace>()
-        .setExp(SearchedPlace::id, Uuid.random())
-        .setExp(SearchedPlace::name, name)
-        .setExp(SearchedPlace::address, address)
-        .setExp(SearchedPlace::coordinate, coordinate)
-        .sample()
+    Arb
+        .searchedPlace()
+        .next()
+        .copy(
+            id = Uuid.random(),
+            name = name,
+            address = address,
+            coordinate = coordinate,
+        )
 
 /**
  * 검색어 입력과 결과 목록은 다이얼로그가 위아래로 배치하는 두 조각이다.

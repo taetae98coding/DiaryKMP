@@ -6,23 +6,25 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -44,9 +46,6 @@ import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class ContactDetailMemoViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -63,7 +62,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
         listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
             test("TC-89a5e403-8096-425d-9b90-9aad461340a0 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
                 runTest(mainDispatcher) {
-                    val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                    val contactId = Arb.kotlinUuid().next()
                     val memo = memo()
                     val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
                     every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns
@@ -86,7 +85,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("TC-32411d04-27aa-4911-bd6d-5339b9846d2f 연락처별 메모 paging에 주입된 연락처 ID를 전달한다") {
             runTest(mainDispatcher) {
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val contactId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
                 every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns
@@ -104,7 +103,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("TC-3503d5e5-d242-4b66-b80a-a5083962f72d 연락처별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val contactId = Arb.kotlinUuid().next()
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
                 every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns
                     flowOf(Result.failure<PagingData<Memo>>(IllegalStateException()))
@@ -124,7 +123,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("TC-3503d5e5-d242-4b66-b80a-a5083962f72d 연락처별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val contactId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
@@ -149,7 +148,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("메모 완료에 성공하면 완료 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -168,7 +167,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("메모 완료에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -184,7 +183,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("완료 실행 취소는 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -202,7 +201,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -221,7 +220,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("메모 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -237,7 +236,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
         test("삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -255,7 +254,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
     }
 
     private fun viewModel(
-        contactId: Uuid = fixtureMonkey.giveMeOne(),
+        contactId: Uuid = Arb.kotlinUuid().next(),
         pageContactMemoUseCase: PageContactMemoUseCase =
             mockk {
                 every { this@mockk(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns emptyFlow()
@@ -275,12 +274,12 @@ class ContactDetailMemoViewModelTest : FunSpec() {
         )
 
     private fun memo(): Memo =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Memo>()
-            .setExp(
-                Memo::detail,
-                fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .memo()
+            .next()
+            .copy(
+                detail = Arb.memoDetail().next().copy(dateTime = null),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 }

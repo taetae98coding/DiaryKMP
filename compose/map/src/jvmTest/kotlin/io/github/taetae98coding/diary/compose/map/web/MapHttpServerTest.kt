@@ -1,22 +1,20 @@
 package io.github.taetae98coding.diary.compose.map.web
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import java.net.HttpURLConnection
 import java.net.URI
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class MapHttpServerTest :
     FunSpec({
         test("서버 하나로 지도마다 등록한 문서를 함께 제공한다") {
-            val firstHtml = fixtureMonkey.nonBlankString()
-            val secondHtml = fixtureMonkey.nonBlankString()
+            val firstHtml = Arb.nonBlankString().next()
+            val secondHtml = Arb.nonBlankString().next()
 
             MapHttpServer().use { server ->
                 val firstPage = server.register(html = firstHtml)
@@ -30,7 +28,7 @@ class MapHttpServerTest :
 
         test("등록을 닫은 지도 문서는 더 제공하지 않는다") {
             MapHttpServer().use { server ->
-                val page = server.register(html = fixtureMonkey.nonBlankString())
+                val page = server.register(html = Arb.nonBlankString().next())
 
                 page.close()
 
@@ -42,7 +40,7 @@ class MapHttpServerTest :
 
         test("정의되지 않거나 허용되지 않은 HTTP 요청을 거절한다") {
             MapHttpServer().use { server ->
-                val pageUri = URI(server.register(html = fixtureMonkey.nonBlankString()).url)
+                val pageUri = URI(server.register(html = Arb.nonBlankString().next()).url)
                 val requests =
                     listOf(
                         Triple(pageUri.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
@@ -61,7 +59,7 @@ class MapHttpServerTest :
 
         test("시작하기 전에는 지도 문서를 등록할 수 없다") {
             shouldThrow<IllegalStateException> {
-                MapHttpServer().register(html = fixtureMonkey.nonBlankString())
+                MapHttpServer().register(html = Arb.nonBlankString().next())
             }
         }
     })

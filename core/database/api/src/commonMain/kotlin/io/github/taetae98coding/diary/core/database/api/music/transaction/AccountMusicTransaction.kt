@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.api.music.transaction
 
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import kotlin.time.Instant
@@ -9,6 +10,7 @@ public interface AccountMusicTransaction {
     public suspend fun upsert(
         accountId: Uuid,
         musicList: List<MusicLocalEntity>,
+        musicTagList: List<EntityTagLocalEntity>,
     )
 
     public suspend fun updateDetail(

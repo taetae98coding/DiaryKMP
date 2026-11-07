@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
@@ -17,8 +18,9 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEvent
 import io.github.taetae98coding.diary.core.model.playlist.Music
-import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.playlist.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,6 +93,13 @@ class PlaylistHomeScaffoldTest {
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
+        val cardTextList =
+            composeRule
+                .onNodeWithTag(MUSIC_CARD_TEST_TAG)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.Text]
+                .map { text -> text.text }
+        cardTextList.filter(String::isNotEmpty) shouldBe listOf(FIRST_TITLE)
     }
 
     @Test
@@ -118,13 +127,13 @@ class PlaylistHomeScaffoldTest {
     @Test
     fun `TC-cdffb691-2c41-4b33-a6da-8c243b81a200 곡 카드를 누르면 그 곡의 선택 이벤트를 내보낸다`() {
         val music = testMusic(title = FIRST_TITLE)
-        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
-        setPlaylistHomeScaffold(musicList = listOf(music), onEvent = eventList::add)
+        val eventList = mutableListOf<MusicListEvent>()
+        setPlaylistHomeScaffold(musicList = listOf(music), onMusicListEvent = eventList::add)
 
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickMusic(id = music.id))
+        eventList shouldBe listOf(MusicListEvent.ClickMusic(id = music.id))
     }
 
     @Test
@@ -266,6 +275,7 @@ class PlaylistHomeScaffoldTest {
     private fun setPlaylistHomeScaffold(
         musicList: List<Music> = emptyList(),
         onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {},
+        onMusicListEvent: (MusicListEvent) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
     ) {
         val musicPagingDataFlow: MutableStateFlow<PagingData<Music>> = MutableStateFlow(musicPagingDataOf(musicList))
@@ -274,6 +284,7 @@ class PlaylistHomeScaffoldTest {
             DiaryTheme {
                 PlaylistHomeScaffold(
                     onEvent = onEvent,
+                    onMusicListEvent = onMusicListEvent,
                     musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
                     componentVisibleProvider = { componentVisible },
                 )

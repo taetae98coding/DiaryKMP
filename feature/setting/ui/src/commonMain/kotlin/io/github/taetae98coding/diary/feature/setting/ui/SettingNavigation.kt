@@ -7,9 +7,10 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 
 private val settingDetailNavKeySet: Set<ScreenNavKey> =
-    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingFileNavKey)
+    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingFileNavKey, SettingMcpNavKey)
 
 internal fun NavBackStack<ScreenNavKey>.navigateToSettingDetail(destination: ScreenNavKey) {
     require(destination in settingDetailNavKeySet)

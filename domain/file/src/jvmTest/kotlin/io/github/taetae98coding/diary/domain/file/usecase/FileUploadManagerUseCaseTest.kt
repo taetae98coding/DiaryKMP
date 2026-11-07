@@ -1,27 +1,25 @@
 package io.github.taetae98coding.diary.domain.file.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
+import io.github.taetae98coding.diary.core.testing.file.fileUploadStateUploading
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FileUploadManagerUseCaseTest :
     BehaviorSpec({
         Given("올리기를 맡는 쪽이 올리기 상태와 결과를 알린다") {
-            val fileId = fixtureMonkey.giveMeOne<Uuid>()
-            val uploading = fixtureMonkey.giveMeOne<FileUploadState.Uploading>()
+            val fileId = Arb.kotlinUuid().next()
+            val uploading = Arb.fileUploadStateUploading().next()
             val fileUploadManager = mockk<FileUploadManager>()
             every { fileUploadManager.state } returns flowOf(FileUploadState.Idle, uploading)
             every { fileUploadManager.event } returns flowOf(FileUploadEvent.Succeeded(fileId = fileId), FileUploadEvent.TooLarge, FileUploadEvent.Failed)

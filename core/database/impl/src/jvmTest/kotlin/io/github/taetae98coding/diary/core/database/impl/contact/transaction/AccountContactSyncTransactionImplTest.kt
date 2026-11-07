@@ -3,9 +3,8 @@ package io.github.taetae98coding.diary.core.database.impl.contact.transaction
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountContactLocalDataSourceImpl
@@ -14,12 +13,18 @@ import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountC
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.testing.contact.contactPhoneNumberCaseList
 import io.github.taetae98coding.diary.core.testing.contact.localContact
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -70,8 +75,8 @@ class AccountContactSyncTransactionImplTest :
             contactId: Uuid,
         ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { contact -> contact.id == contactId }
 
-        test("TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 연락처는 포함되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+        test("TC-aac365bb-b751-48aa-8d35-f88b442e15b1 TC-36179c3a-4170-42bc-beda-73aa6e1b75a0 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 연락처는 포함되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
             val guestEntity = contact()
             val accountEntity = contact()
             insertWithSyncState(accountId = Uuid.NIL, contact = guestEntity, isDirty = true)
@@ -81,7 +86,7 @@ class AccountContactSyncTransactionImplTest :
         }
 
         test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val contact = contact()
             insertWithSyncState(accountId = accountId, contact = contact, isDirty = true)
 
@@ -91,7 +96,7 @@ class AccountContactSyncTransactionImplTest :
         }
 
         test("TC-882adb8e-cd96-4862-a529-585bb17af19a 업로드 중 수정 시각이 바뀐 연락처는 업로드 대기로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val pushedContact = contact(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val changedContact = pushedContact.copy(updatedAt = Instant.fromEpochMilliseconds(2_000))
             insertWithSyncState(accountId = accountId, contact = changedContact, isDirty = true)
@@ -106,7 +111,7 @@ class AccountContactSyncTransactionImplTest :
             "같음" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-7fe36220-e35f-4c2b-9172-094e9bf95870 서버의 수정 시각이 기기보다 $label 이면 서버 내용을 반영한다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val localContact = contact(updatedAt = Instant.fromEpochMilliseconds(1_000))
                 val remoteContact =
                     localContact.copy(
@@ -123,8 +128,35 @@ class AccountContactSyncTransactionImplTest :
             }
         }
 
+        test("TC-f5c3db7c-930a-44dc-bc0f-de71333148ed 내려받은 연락처의 전화번호 목록이 기기의 목록을 대체한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val localNumberList = listOf("local-${Arb.string().next()}", "local-${Arb.string().next()}")
+            val remoteNumber = "remote-${Arb.string().next()}"
+            val remoteNumberList = listOf(remoteNumber, "remote-${Arb.string().next()}", remoteNumber)
+            val localContact =
+                Arb
+                    .localContact(numberList = localNumberList, hasMeasure = Arb.boolean().next(), isFavorite = Arb.boolean().next(), isDeleted = false)
+                    .next()
+                    .copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val remoteContact =
+                localContact.copy(
+                    detail = localContact.detail.copy(phoneNumberList = remoteNumberList.map { number -> ContactPhoneNumberLocalEntity(number = number) }),
+                    updatedAt = Instant.fromEpochMilliseconds(2_000),
+                )
+            insertWithSyncState(accountId = accountId, contact = localContact, isDirty = false)
+
+            transaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+
+            dataSource
+                .find(accountId = accountId, contactId = localContact.id)
+                .first()
+                ?.detail
+                ?.phoneNumberList
+                ?.map { phoneNumber -> phoneNumber.number } shouldBe remoteNumberList
+        }
+
         test("TC-2f3591f7-e9cb-4759-a9aa-01fbf0331179 기기의 수정 시각이 더 늦으면 기기 내용을 유지한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val localContact = contact(updatedAt = Instant.fromEpochMilliseconds(2_000))
             val remoteContact =
                 localContact.copy(
@@ -145,7 +177,7 @@ class AccountContactSyncTransactionImplTest :
             "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-84a29c64-490b-482a-acab-32fae5dbba26 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val localContact = contact(updatedAt = Instant.fromEpochMilliseconds(2_000))
                 val remoteContact = localContact.copy(detail = contact().detail, updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId = accountId, contact = localContact, isDirty = true)
@@ -157,7 +189,7 @@ class AccountContactSyncTransactionImplTest :
         }
 
         test("TC-81241ed9-5c4f-4176-a243-e818fb676fd3 내려받기 저장이 실패하면 연락처와 커서가 모두 반영되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val remoteContact = contact()
             val failingDatabase = spyk(database)
             every { failingDatabase.syncCursorDao() } throws ContactSyncTestException()
@@ -172,16 +204,17 @@ class AccountContactSyncTransactionImplTest :
         }
 
         test("TC-c334819a-dc0e-4f1e-8d02-4a932cb77b25 기기에 없던 연락처는 계정과 연결되어 새로 저장되고 동기화 완료로 기록된다") {
-            fixtureMonkey.contactPhoneNumberCaseList().forEach { numberList ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val cursor = fixtureMonkey.giveMeOne<Long>()
+            contactPhoneNumberCaseList().forEach { numberList ->
+                val accountId = Arb.kotlinUuid().next()
+                val cursor = Arb.long().next()
                 val remote =
-                    fixtureMonkey.localContact(
-                        numberList = numberList,
-                        hasMeasure = fixtureMonkey.giveMeOne<Boolean>(),
-                        isFavorite = fixtureMonkey.giveMeOne<Boolean>(),
-                        isDeleted = false,
-                    )
+                    Arb
+                        .localContact(
+                            numberList = numberList,
+                            hasMeasure = Arb.boolean().next(),
+                            isFavorite = Arb.boolean().next(),
+                            isDeleted = false,
+                        ).next()
 
                 transaction.upsert(accountId = accountId, contactList = listOf(remote), cursor = cursor)
 
@@ -192,16 +225,14 @@ class AccountContactSyncTransactionImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun contact(updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>()): ContactLocalEntity =
-            fixtureMonkey
+        private fun contact(updatedAt: Instant = Arb.secondPrecisionInstant().next()): ContactLocalEntity =
+            Arb
                 .localContact(
-                    numberList = fixtureMonkey.contactPhoneNumberCaseList().random(),
-                    hasMeasure = fixtureMonkey.giveMeOne<Boolean>(),
-                    isFavorite = fixtureMonkey.giveMeOne<Boolean>(),
-                    isDeleted = fixtureMonkey.giveMeOne<Boolean>(),
-                ).copy(updatedAt = updatedAt)
+                    numberList = contactPhoneNumberCaseList().random(),
+                    hasMeasure = Arb.boolean().next(),
+                    isFavorite = Arb.boolean().next(),
+                    isDeleted = Arb.boolean().next(),
+                ).next()
+                .copy(updatedAt = updatedAt)
     }
 }

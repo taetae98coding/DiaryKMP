@@ -4,6 +4,8 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import io.github.taetae98coding.diary.core.fcm.impl.R
 
 // FCM SDK는 앱이 앞에 있는 동안 받은 알림 메시지를 표시하지 않고 넘겨주므로, 백그라운드에서 SDK가 표시하는 것과 같은 모양으로 직접 표시한다.
@@ -19,7 +21,7 @@ internal class RemoteNotificationPresenter(
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(notification.title)
                 .setBody(notification.body)
-                .setContentIntent(context.launchAppPendingIntent())
+                .setContentIntent(context.launchAppPendingIntent(deepLink = notification.deepLink))
                 .setAutoCancel(true)
                 .build()
 
@@ -38,9 +40,16 @@ internal class RemoteNotificationPresenter(
     }
 }
 
-// 이 모듈이 앱의 시작 화면을 알지 않도록 런처가 쓰는 진입점을 그대로 연다.
-private fun Context.launchAppPendingIntent(): PendingIntent? {
-    val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return null
+// 이 모듈이 앱의 화면 구성을 알지 않도록 런처가 쓰는 진입점을 그대로 열고, 주소가 있으면 주소만 실어 보낸다.
+// 주소를 실을 때는 떠 있는 진입 화면을 다시 만들지 않고 그 화면이 주소를 받게 해서 보던 화면을 남긴다.
+private fun Context.launchAppPendingIntent(deepLink: String): PendingIntent? {
+    val intent =
+        packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            if (deepLink.isNotEmpty()) {
+                data = Uri.parse(deepLink)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+        } ?: return null
 
     return PendingIntent.getActivity(
         this,

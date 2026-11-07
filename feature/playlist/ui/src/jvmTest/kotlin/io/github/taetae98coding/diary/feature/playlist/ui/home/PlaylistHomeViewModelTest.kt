@@ -5,19 +5,23 @@ package io.github.taetae98coding.diary.feature.playlist.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.testing.playlist.musicDetail
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -92,8 +96,26 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("TC-45bc7f0a-99ae-4a0d-bdef-16fc581a4c68 곡을 추가하면 별도 조작 없이 그 곡이 든 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val existing = music(title = "existing" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
-                val added = music(title = "added" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
+                val existing =
+                    music(
+                        title =
+                            "existing" +
+                                Arb
+                                    .int()
+                                    .next()
+                                    .toString()
+                                    .filter(Char::isDigit),
+                    )
+                val added =
+                    music(
+                        title =
+                            "added" +
+                                Arb
+                                    .int()
+                                    .next()
+                                    .toString()
+                                    .filter(Char::isDigit),
+                    )
                 val musicListFlow = MutableStateFlow(Result.success(listOf(existing)))
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = musicListFlow))
 
@@ -147,7 +169,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("TC-9978aa69-9804-4ff3-bd5a-96492a93752c 삭제에 성공하면 그 곡의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
                 coEvery { deleteMusicUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -159,7 +181,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
                 viewModel.effect.test {
                     viewModel.delete(id = id)
 
-                    awaitItem() shouldBe PlaylistHomeEffect.Deleted(id = id)
+                    awaitItem() shouldBe MusicListEffect.Deleted(id = id)
                     expectNoEvents()
                 }
                 coVerify(exactly = 1) { deleteMusicUseCase(parameter = id) }
@@ -168,9 +190,9 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("TC-c3ccf01d-a060-48b1-9a76-14991dd801b6 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
-                coEvery { deleteMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
@@ -188,9 +210,9 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("TC-e05d6154-dc88-4e4e-a0ea-737fef70dee5 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
-                coEvery { restoreMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restoreMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
@@ -209,7 +231,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("같은 곡의 삭제를 진행하는 중에 다시 삭제하면 삭제를 한 번만 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val gate = CompletableDeferred<Unit>()
                 val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
                 coEvery { deleteMusicUseCase(parameter = id) } coAnswers {
@@ -233,7 +255,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("같은 곡의 실행 취소를 진행하는 중에 다시 실행 취소하면 한 번만 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val gate = CompletableDeferred<Unit>()
                 val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
                 coEvery { restoreMusicUseCase(parameter = id) } coAnswers {
@@ -257,7 +279,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         test("TC-7063f073-eeea-4c54-ab31-f9d65df23d44 실행 취소하면 그 곡의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
                 coEvery { restoreMusicUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -275,9 +297,6 @@ class PlaylistHomeViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageMusicUseCase: PageMusicUseCase,
             deleteMusicUseCase: DeleteMusicUseCase = mockk(),
@@ -299,17 +318,19 @@ class PlaylistHomeViewModelTest : FunSpec() {
 
         private fun music(title: String): Music {
             val detail =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<MusicDetail>()
-                    .setExp(MusicDetail::title, title)
-                    .sample()
+                Arb
+                    .musicDetail()
+                    .next()
+                    .copy(
+                        title = title,
+                    )
 
             return Music(
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
         }
     }

@@ -3,16 +3,18 @@
 package io.github.taetae98coding.diary.feature.place.ui.search
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
+import io.github.taetae98coding.diary.core.testing.place.searchedPlace
 import io.github.taetae98coding.diary.domain.place.usecase.FetchSearchedPlaceUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -44,7 +46,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("검색에 성공하면 받은 장소 목록을 결과로 둔다") {
             runTest(mainDispatcher) {
-                val placeList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val placeList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val request = searchRequest()
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
@@ -67,7 +69,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val request = searchRequest()
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
 
                 viewModel.uiState.test {
@@ -84,7 +86,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("검색 결과를 비우면 결과 없음 상태로 되돌린다") {
             runTest(mainDispatcher) {
-                val placeList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val placeList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val request = searchRequest()
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
@@ -108,8 +110,8 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-46f3162f-a7ec-4469-a5c9-78956fdf7338 다시 검색하는 동안 직전 결과를 그대로 둔다") {
             runTest(mainDispatcher) {
-                val firstList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
-                val secondList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val firstList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
+                val secondList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val firstRequest = searchRequest()
                 val secondRequest = firstRequest.copy(query = "${firstRequest.query}-2")
@@ -140,8 +142,8 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-da70eee7-60c1-4580-b906-70cc963b5d03 앞선 검색의 늦은 결과는 쓰지 않는다") {
             runTest(mainDispatcher) {
-                val lateList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
-                val latestList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val lateList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
+                val latestList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val lateCompletion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val firstRequest = searchRequest()
                 val secondRequest = searchRequest()
@@ -170,8 +172,8 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-f0af275c-669c-4614-89d4-fb32041377b3 제공자를 바꾸면 직전 결과를 곧바로 비운다") {
             runTest(mainDispatcher) {
-                val naverList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
-                val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val naverList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
+                val googleList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val naverRequest = searchRequest(provider = MapProvider.NAVER)
                 val googleRequest = naverRequest.copy(provider = MapProvider.GOOGLE)
@@ -202,12 +204,12 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-0d43d4c4-6eba-4c62-b4a6-17146c51d853 한 제공자의 검색 실패는 다른 제공자로 바꾼 검색에 영향을 주지 않는다") {
             runTest(mainDispatcher) {
-                val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val googleList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val naverRequest = searchRequest(provider = MapProvider.NAVER)
                 val googleRequest = naverRequest.copy(provider = MapProvider.GOOGLE)
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(naverRequest.toParameter()) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 coEvery { fetchSearchedPlaceUseCase(googleRequest.toParameter()) } returns Result.success(googleList)
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
 
@@ -229,10 +231,10 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("같은 제공자로 다시 검색하면 제공자 전환으로 다루지 않는다") {
             runTest(mainDispatcher) {
-                val firstList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val firstList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val firstRequest = searchRequest(provider = MapProvider.GOOGLE)
-                val secondRequest = searchRequest(provider = MapProvider.GOOGLE, bounds = fixtureMonkey.giveMeOne<CoordinateBounds>())
+                val secondRequest = searchRequest(provider = MapProvider.GOOGLE, bounds = Arb.coordinateBounds().next())
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } returns Result.success(firstList)
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } coAnswers { completion.await() }
@@ -256,7 +258,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-3b1b05f4-85d3-44aa-a895-8e5562962d29 검색 중에 검색어를 비우면 늦게 도착한 결과를 쓰지 않는다") {
             runTest(mainDispatcher) {
-                val lateList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val lateList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val lateCompletion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val request = searchRequest()
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
@@ -281,7 +283,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("TC-1050b9ca-7a54-4dc6-8282-b0083ca2d111 앱이 백그라운드에 갔다가 돌아와도 결과를 유지하고 다시 검색하지 않는다") {
             runTest(mainDispatcher) {
-                val placeList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val placeList = List(SEARCHED_PLACE_COUNT) { Arb.searchedPlace().next() }
                 val request = searchRequest()
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
@@ -311,7 +313,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
         test("검색은 입력한 검색어와 제공자와 보이는 영역을 그대로 요청한다") {
             runTest(mainDispatcher) {
-                val request = searchRequest(provider = MapProvider.GOOGLE, bounds = fixtureMonkey.giveMeOne<CoordinateBounds>())
+                val request = searchRequest(provider = MapProvider.GOOGLE, bounds = Arb.coordinateBounds().next())
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(any()) } returns Result.success(emptyList())
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
@@ -342,13 +344,10 @@ class PlaceSearchViewModelTest : FunSpec() {
         private const val SEARCHED_PLACE_COUNT = 3
         private val BACKGROUND_DURATION = (UI_STOP_TIMEOUT_MILLIS * 2).milliseconds
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(fetchSearchedPlaceUseCase: FetchSearchedPlaceUseCase = mockk()): PlaceSearchViewModel = PlaceSearchViewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
 
         private fun searchRequest(
-            query: String = "검색어-${fixtureMonkey.giveMeOne<String>()}",
+            query: String = "검색어-${Arb.string().next()}",
             provider: MapProvider = MapProvider.NAVER,
             bounds: CoordinateBounds? = null,
         ): PlaceSearchRequest =

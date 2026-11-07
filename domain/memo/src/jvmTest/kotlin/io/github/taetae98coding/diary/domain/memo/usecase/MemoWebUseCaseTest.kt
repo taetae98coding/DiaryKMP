@@ -1,19 +1,22 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoWebRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,8 +30,8 @@ import kotlin.uuid.Uuid
 class MemoWebUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
             val getAccountUseCase = accountUseCase(account = account)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
@@ -37,8 +40,8 @@ class MemoWebUseCaseTest :
 
             When("웹 항목를 추가한다") {
                 Then("TC-858a06f1-a316-4252-9a7f-831cc0ea6505 메모와 그 웹 항목의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val webId = Arb.kotlinUuid().next()
                     val useCase =
                         AddMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -74,8 +77,8 @@ class MemoWebUseCaseTest :
                         useCase(
                             parameter =
                                 AddMemoWebUseCase.Parameter(
-                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    webId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    memoId = Arb.kotlinUuid().next(),
+                                    webId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -86,8 +89,8 @@ class MemoWebUseCaseTest :
 
             When("웹 항목를 해제한다") {
                 Then("TC-20e23ee0-6926-4285-9161-5d9bf265aff7 메모와 그 웹 항목의 연결을 해제 상태와 해제 시점으로 저장한다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val webId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -113,9 +116,9 @@ class MemoWebUseCaseTest :
         }
 
         Given("동기화 요청이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = fixtureMonkey.giveMeOne<Instant>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val now = Arb.secondPrecisionInstant().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = accountUseCase(account = account)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.failure(throwable)
@@ -125,8 +128,8 @@ class MemoWebUseCaseTest :
 
             When("웹 항목를 추가한다") {
                 Then("TC-ea37a9e5-9ce0-467b-b523-ac575b70000d 저장한 웹 연결을 되돌리지 않는다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val webId = Arb.kotlinUuid().next()
                     val useCase =
                         AddMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -149,8 +152,8 @@ class MemoWebUseCaseTest :
 
             When("웹 항목를 해제한다") {
                 Then("TC-ea37a9e5-9ce0-467b-b523-ac575b70000d 저장한 웹 연결 해제를 되돌리지 않는다") {
-                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
-                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memoId = Arb.kotlinUuid().next()
+                    val webId = Arb.kotlinUuid().next()
                     val useCase =
                         RemoveMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -173,7 +176,7 @@ class MemoWebUseCaseTest :
         }
 
         Given("저장이 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
             coEvery {
                 accountMemoWebRepository.upsert(
@@ -200,8 +203,8 @@ class MemoWebUseCaseTest :
                         useCase(
                             parameter =
                                 AddMemoWebUseCase.Parameter(
-                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
-                                    webId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    memoId = Arb.kotlinUuid().next(),
+                                    webId = Arb.kotlinUuid().next(),
                                 ),
                         )
 
@@ -212,8 +215,8 @@ class MemoWebUseCaseTest :
         }
 
         Given("로그인한 계정과 메모에 연결된 웹 항목가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val memoId = Arb.kotlinUuid().next()
             val webList = List(2) { web() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -233,7 +236,7 @@ class MemoWebUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
@@ -245,7 +248,7 @@ class MemoWebUseCaseTest :
 
             When("메모의 웹 항목를 조회한다") {
                 Then("실패를 그대로 전달한다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -254,17 +257,16 @@ class MemoWebUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): Web =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Web>()
-                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .web()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
-        private fun accountUseCase(account: Account = fixtureMonkey.giveMeOne<Account.User>()): GetAccountUseCase {
+        private fun accountUseCase(account: Account = Arb.accountUser().next()): GetAccountUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 

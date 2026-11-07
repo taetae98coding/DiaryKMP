@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.file.ui.add
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -17,17 +18,24 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
@@ -72,7 +80,7 @@ class FileAddScreenTest {
             "빈 파일.txt" to (0L to "0 B"),
         ).forEach { (name, sizeToText) ->
             val screen = FileAddTestScreen()
-            val source = fileAddFixtureMonkey.fileUploadSource(size = sizeToText.first, name = name)
+            val source = Arb.fileUploadSource(size = sizeToText.first, name = name).next()
             screen.pick(source = source)
             setFileAddScreen(screen = screen)
 
@@ -84,10 +92,25 @@ class FileAddScreenTest {
     }
 
     @Test
+    fun `TC-d6e5e799-fb08-47a8-96a4-905b9bd49603 파일을 골라도 제목을 파일 이름으로 채우지 않는다`() {
+        listOf("", TITLE).forEach { title ->
+            val screen = FileAddTestScreen()
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
+            setFileAddScreen(screen = screen)
+            if (title.isNotEmpty()) composeRule.titleInput().performTextInput(title)
+
+            composeRule.clickChooseFile()
+
+            composeRule.onNodeWithText(FILE_NAME_A).assertExists()
+            composeRule.titleInput().assert(hasText(title))
+        }
+    }
+
+    @Test
     fun `TC-0c908f3c-7a9d-4a76-82c6-2c23c2dbc398 이미 고른 파일이 있어도 다시 고르면 새 파일로 바뀐다`() {
         val screen = FileAddTestScreen()
-        val first = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A)
-        val second = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_B)
+        val first = Arb.fileUploadSource(name = FILE_NAME_A).next()
+        val second = Arb.fileUploadSource(name = FILE_NAME_B).next()
         setFileAddScreen(screen = screen)
 
         screen.pick(source = first)
@@ -106,7 +129,7 @@ class FileAddScreenTest {
         composeRule.clickChooseFile()
         composeRule.onNodeWithText(NO_FILE_SELECTED).assertExists()
 
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
         composeRule.clickChooseFile()
         screen.pickedUri = null
         composeRule.clickChooseFile()
@@ -120,14 +143,14 @@ class FileAddScreenTest {
     fun `TC-c89e24fb-6233-4119-80c9-9444a789c6d6 고를 수 없는 파일을 고르면 이유를 알리고 이전 선택을 둔다`() {
         val screen = FileAddTestScreen()
         setFileAddScreen(screen = screen)
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
         composeRule.clickChooseFile()
 
         mapOf(
             FileUnreadableException(name = "", cause = IllegalStateException("read")) to FILE_UNREADABLE_MESSAGE,
             FileTooLargeException() to TOO_LARGE_MESSAGE,
         ).forEach { (exception, message) ->
-            val uri = FileUri("file:///${fileAddFixtureMonkey.giveMeOne<Int>()}")
+            val uri = FileUri("file:///${Arb.int().next()}")
             screen.mocks.register(uri = uri, result = Result.failure(exception))
             screen.pickedUri = uri
             composeRule.clickChooseFile()
@@ -141,7 +164,7 @@ class FileAddScreenTest {
     fun `TC-13958209-1811-4ea0-b20a-56f57c8a9f75 제목 없이 올리기를 실행하면 제목을 요청하고 초점을 옮긴다`() {
         listOf("", "  ").forEach { title ->
             val screen = FileAddTestScreen()
-            screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
             setFileAddScreen(screen = screen)
             composeRule.titleInput().performTextInput(title)
             composeRule.descriptionInput().performTextInput(DESCRIPTION)
@@ -164,10 +187,13 @@ class FileAddScreenTest {
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
         composeRule.descriptionInput().performTextInput(DESCRIPTION)
+        composeRule.descriptionInput().performClick()
+        composeRule.descriptionInput().assertIsFocused()
 
         composeRule.clickUpload()
 
         composeRule.onNodeWithText(FILE_NOT_SELECTED_MESSAGE).assertExists()
+        composeRule.descriptionInput().assertIsFocused()
         composeRule.titleInput().assert(hasText(TITLE))
         composeRule.descriptionInput().assert(hasText(DESCRIPTION))
         screen.mocks.state.value shouldBe FileUploadState.Idle
@@ -186,7 +212,7 @@ class FileAddScreenTest {
     @Test
     fun `TC-4c8c007d-7359-4fa6-9caf-57f28b16a319 올리기를 시작하면 입력을 비우고 제목에 초점을 옮기며 화면을 유지한다`() {
         val screen = FileAddTestScreen()
-        val source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A)
+        val source = Arb.fileUploadSource(name = FILE_NAME_A).next()
         screen.pick(source = source)
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
@@ -207,7 +233,7 @@ class FileAddScreenTest {
     @Test
     fun `TC-ba87c78b-1adf-4f51-9ad1-f0b76eeb699c 설명을 미리보기로 보던 중 올리기를 시작하면 설명 입력 상태로 돌아간다`() {
         val screen = FileAddTestScreen()
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
         composeRule.descriptionInput().performTextInput("# 메모")
@@ -229,13 +255,13 @@ class FileAddScreenTest {
             if (!isStartedHere) screen.mocks.state.value = FileUploadState.Uploading(percent = null)
             setFileAddScreen(screen = screen)
             if (isStartedHere) {
-                screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+                screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
                 composeRule.clickChooseFile()
                 composeRule.titleInput().performTextInput(TITLE)
                 composeRule.clickUpload()
             }
             val requestCountBefore = screen.mocks.requestList.size
-            screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_B))
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_B).next())
             composeRule.clickChooseFile()
             composeRule.titleInput().performTextInput(NEXT_TITLE)
 
@@ -252,7 +278,7 @@ class FileAddScreenTest {
     fun `TC-2bdb00f3-e9db-459e-a33a-82f72bcf4a92 올리는 중에도 입력하고 파일을 고를 수 있다`() {
         val screen = FileAddTestScreen()
         screen.mocks.state.value = FileUploadState.Uploading(percent = null)
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_B))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_B).next())
         setFileAddScreen(screen = screen)
 
         composeRule.titleInput().performTextInput(NEXT_TITLE)
@@ -265,13 +291,13 @@ class FileAddScreenTest {
     @Test
     fun `TC-f33a3f46-e611-4fd6-b6a4-453ca777497a 화면을 보고 있는 동안 올리기가 끝나면 결과를 알리고 적어 둔 내용은 둔다`() {
         mapOf(
-            FileUploadEvent.Succeeded(fileId = fileAddFixtureMonkey.giveMeOne<Uuid>()) to SUCCEEDED_MESSAGE,
+            FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next()) to SUCCEEDED_MESSAGE,
             FileUploadEvent.TooLarge to TOO_LARGE_MESSAGE,
             FileUploadEvent.Failed to FAILED_MESSAGE,
         ).forEach { (event, message) ->
             val screen = FileAddTestScreen()
             screen.mocks.state.value = FileUploadState.Uploading(percent = null)
-            screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_B))
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_B).next())
             setFileAddScreen(screen = screen)
             composeRule.titleInput().performTextInput(NEXT_TITLE)
             composeRule.clickChooseFile()
@@ -287,6 +313,32 @@ class FileAddScreenTest {
     }
 
     @Test
+    fun `TC-59947c2f-2fce-4c84-a2c4-77bf7137348b 화면이 보이지 않는 동안 끝난 올리기의 결과는 돌아와도 알리지 않는다`() {
+        val screen = FileAddTestScreen()
+        val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                screen.Content()
+            }
+        }
+        composeRule.waitForIdle()
+
+        listOf(
+            FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next()),
+            FileUploadEvent.TooLarge,
+            FileUploadEvent.Failed,
+        ).forEach { event ->
+            composeRule.runOnIdle { screen.mocks.state.value = FileUploadState.Uploading(percent = null) }
+            composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+            composeRule.runOnIdle { screen.mocks.finish(event = event) }
+            composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+            composeRule.waitForIdle()
+
+            listOf(SUCCEEDED_MESSAGE, TOO_LARGE_MESSAGE, FAILED_MESSAGE).forEach { message -> composeRule.snackbarCount(message) shouldBe 0 }
+        }
+    }
+
+    @Test
     fun `TC-47674d67-ab95-4534-bfb2-97d394f22ecf 올리는 동안 계정이 바뀌어 중단되면 결과를 알리지 않는다`() {
         val screen = FileAddTestScreen()
         screen.mocks.state.value = FileUploadState.Uploading(percent = null)
@@ -294,7 +346,7 @@ class FileAddScreenTest {
         uploadProgress().assertExists()
 
         composeRule.runOnIdle {
-            screen.mocks.accountFlow.value = Result.success(fileAddFixtureMonkey.giveMeOne<Account.User>())
+            screen.mocks.accountFlow.value = Result.success(Arb.accountUser().next())
             screen.mocks.finishWithoutEvent()
         }
         composeRule.waitForIdle()
@@ -317,11 +369,11 @@ class FileAddScreenTest {
     @Test
     fun `TC-ce898c39-e03d-472d-9099-57ac371ab343 다른 사용자가 되거나 계정을 확정하지 않으면 화면과 적어 둔 내용을 유지한다`() {
         listOf(
-            Result.success(fileAddFixtureMonkey.giveMeOne<Account.User>()),
+            Result.success(Arb.accountUser().next()),
             Result.failure(IllegalStateException(ACCOUNT_FAILURE_MESSAGE)),
         ).forEach { account ->
             val screen = FileAddTestScreen()
-            screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+            screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
             setFileAddScreen(screen = screen)
             composeRule.titleInput().performTextInput(TITLE)
             composeRule.clickChooseFile()
@@ -340,7 +392,7 @@ class FileAddScreenTest {
         val screen = FileAddTestScreen()
         screen.mocks.accountFlow.value = Result.failure(IllegalStateException(ACCOUNT_FAILURE_MESSAGE))
         screen.mocks.requestResult = { Result.failure(IllegalStateException(ACCOUNT_FAILURE_MESSAGE)) }
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
         composeRule.clickChooseFile()
@@ -371,7 +423,7 @@ class FileAddScreenTest {
     fun `TC-4828e410-703c-4644-a5aa-6bc44c948b6b Android에서 붙들어 둘 수 없는 파일을 올리면 올리지 못했다고 알린다`() {
         val screen = FileAddTestScreen()
         screen.mocks.requestResult = { Result.failure(SecurityException("persist")) }
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME_A).next())
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)
         composeRule.clickChooseFile()
@@ -389,7 +441,7 @@ class FileAddScreenTest {
             "회의록" to "",
         ).forEach { (title, description) ->
             val screen = FileAddTestScreen()
-            val source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A)
+            val source = Arb.fileUploadSource(name = FILE_NAME_A).next()
             screen.pick(source = source)
             setFileAddScreen(screen = screen)
             composeRule.titleInput().performTextInput(title)
@@ -405,7 +457,7 @@ class FileAddScreenTest {
     @Test
     fun `TC-97f6812a-c3ef-465e-a7be-ec026dfa4fbe 올리기를 시작한 뒤 입력을 바꿔도 시작할 때의 제목과 설명으로 올린다`() {
         val screen = FileAddTestScreen()
-        val source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME_A)
+        val source = Arb.fileUploadSource(name = FILE_NAME_A).next()
         screen.pick(source = source)
         setFileAddScreen(screen = screen)
         composeRule.titleInput().performTextInput(TITLE)

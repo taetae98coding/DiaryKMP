@@ -2,20 +2,22 @@ package io.github.taetae98coding.diary.domain.tag.usecase
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -26,7 +28,7 @@ import kotlin.time.Instant
 class PageFinishedTagUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 해당 계정의 완료된 태그가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>()
@@ -54,7 +56,7 @@ class PageFinishedTagUseCaseTest :
         }
 
         Given("계정 조회에 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val accountTagRepository = mockk<AccountTagRepository>(relaxed = true)
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
@@ -77,16 +79,15 @@ class PageFinishedTagUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isFinished, true)
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isFinished = true,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

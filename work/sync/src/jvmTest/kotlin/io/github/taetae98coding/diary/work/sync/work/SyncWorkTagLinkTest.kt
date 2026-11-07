@@ -1,10 +1,11 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkRemoteEntity
+import io.github.taetae98coding.diary.core.testing.taglink.tagLinkLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -12,6 +13,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -106,7 +110,7 @@ class SyncWorkTagLinkTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 태그 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(tagLinkList = tagLinks(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagLinkRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -124,7 +128,7 @@ class SyncWorkTagLinkTest :
                     tagList = tags(size = 1),
                     tagLinkList = tagLinks(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -142,7 +146,7 @@ class SyncWorkTagLinkTest :
                     memoList = memos(size = 201),
                     tagLinkList = tagLinks(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val memoRequestCount = mutableListOf<Int>()
             coEvery { context.memoRemoteDataSource.push(any()) } coAnswers {
                 memoRequestCount += 1
@@ -164,7 +168,7 @@ class SyncWorkTagLinkTest :
                     memoTagList = memoTags(size = 201),
                     tagLinkList = tagLinks(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagLinkRequestCount = mutableListOf<Int>()
             coEvery { context.tagLinkRemoteDataSource.push(any()) } coAnswers {
                 tagLinkRequestCount += 1
@@ -252,7 +256,7 @@ class SyncWorkTagLinkTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 태그 연결 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagPullList = tagPulls(usnList = listOf(3L))
             val memoPullList = memoPulls(usnList = listOf(4L))
             coEvery { context.tagLinkRemoteDataSource.pull(any()) } throws failure
@@ -285,8 +289,8 @@ class SyncWorkTagLinkTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.tagLinkSyncLocalDataSource.readPendingList(accountId = otherAccountId)
@@ -305,11 +309,13 @@ class SyncWorkTagLinkTest :
     }) {
     public companion object {
         private fun tagLink(isDeleted: Boolean): TagLinkLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLinkLocalEntity>()
-                .setExp(TagLinkLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLinkLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagLinkLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagLinkLocalEntity()
+                .next()
+                .copy(
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

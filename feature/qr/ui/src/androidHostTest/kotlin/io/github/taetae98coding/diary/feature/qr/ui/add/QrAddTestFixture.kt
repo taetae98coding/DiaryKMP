@@ -18,11 +18,10 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
-import com.navercorp.fixturemonkey.FixtureMonkey
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -123,8 +122,6 @@ internal fun SemanticsNodeInteractionsProvider.visibleTextList(): List<String> =
         .flatMap { node -> node.config[SemanticsProperties.Text] }
         .map { text -> text.text }
 
-internal val qrTestFixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 internal const val MAX_NUMERIC_LENGTH: Int = 7089
 
 // 입력 칸을 거치지 않고 상태를 바꾸므로, 프레임이 상태 변경을 알리는 것과 같게 변경 직후 알림을 보낸다.
@@ -155,6 +152,6 @@ internal fun screenTestViewModel(
 internal fun effectViewModel(effect: QrAddEffect): QrAddViewModel {
     val channel = Channel<QrAddEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = channel.receiveAsFlow())
-    every { viewModel.add(detail = any()) } answers { channel.trySend(effect).getOrThrow() }
+    every { viewModel.add(detail = any(), tagIdSet = any()) } answers { channel.trySend(effect).getOrThrow() }
     return viewModel
 }

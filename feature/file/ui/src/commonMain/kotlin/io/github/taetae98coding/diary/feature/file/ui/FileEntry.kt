@@ -32,7 +32,7 @@ import io.github.taetae98coding.diary.feature.file.ui.picker.rememberFilePicker
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.fileEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.fileEntry(backStack: NavBackStack<ScreenNavKey>) {
     fileHomeEntry(backStack = backStack)
     fileAddEntry(backStack = backStack)
     fileDetailEntry(backStack = backStack)

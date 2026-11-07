@@ -6,17 +6,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.excludeRecords
@@ -25,6 +26,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -54,7 +56,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val item = tag()
                 val useCase = mockk<PageTagUseCase>()
                 every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
-                val viewModel = PlaceAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+                val viewModel = EntityAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
 
                 val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
                 viewModel.viewModelScope.cancel()
@@ -80,13 +82,13 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val pageTagUseCase = pageTagUseCase()
                 val getSelectedTagUseCase = getSelectedTagUseCase(selectedTagList = listOf(tag))
                 val viewModel =
-                    PlaceAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = null,
                         pageTagUseCase = pageTagUseCase,
                         getSelectedTagUseCase = getSelectedTagUseCase,
                     )
 
-                viewModel.add(id = tag.id)
+                viewModel.add(tagId = tag.id)
                 advanceUntilIdle()
 
                 viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
@@ -112,9 +114,9 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val secondTag = tag()
                 val viewModel = viewModel(initialTagId = null)
 
-                viewModel.add(id = firstTag.id)
-                viewModel.add(id = secondTag.id)
-                viewModel.remove(id = firstTag.id)
+                viewModel.add(tagId = firstTag.id)
+                viewModel.add(tagId = secondTag.id)
+                viewModel.remove(tagId = firstTag.id)
                 advanceUntilIdle()
 
                 viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
@@ -150,16 +152,43 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-71d58634-9629-4149-805c-c8482f8d3e5c 표시 기준에서 빠졌던 태그가 다시 표시 기준을 만족하면 유지되어 있던 선택이 다시 나타난다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val selectedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                every { getSelectedTagUseCase(parameter = any()) } returns selectedTagFlow
+                val viewModel =
+                    EntityAddTagViewModel(
+                        initialTagId = tag.id,
+                        pageTagUseCase = pageTagUseCase(),
+                        getSelectedTagUseCase = getSelectedTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().tagList.shouldBeEmpty()
+
+                    selectedTagFlow.value = Result.success(listOf(tag))
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().tagList shouldBe listOf(tag)
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
+            }
+        }
+
         test("TC-600fa417-a608-4189-bd8c-409ea8506e2e 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val query = Arb.alphanumericString(prefix = "Query").next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageTagUseCase = mockk<PageTagUseCase>()
                 every { pageTagUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allTagList)))
                 every { pageTagUseCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedTagList)))
                 val viewModel =
-                    PlaceAddTagViewModel(
+                    EntityAddTagViewModel(
                         initialTagId = null,
                         pageTagUseCase = pageTagUseCase,
                         getSelectedTagUseCase = getSelectedTagUseCase(),
@@ -185,8 +214,8 @@ class PlaceAddTagViewModelTest : FunSpec() {
         initialTagId: Uuid?,
         selectedTagList: List<Tag> = emptyList(),
         selectableTagList: List<Tag> = emptyList(),
-    ): PlaceAddTagViewModel =
-        PlaceAddTagViewModel(
+    ): EntityAddTagViewModel =
+        EntityAddTagViewModel(
             initialTagId = initialTagId,
             pageTagUseCase = pageTagUseCase(selectableTagList = selectableTagList),
             getSelectedTagUseCase = getSelectedTagUseCase(selectedTagList = selectedTagList),
@@ -205,14 +234,13 @@ class PlaceAddTagViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isFinished, false)
-                .setExp(Tag::isDeleted, false)
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                )
     }
 }

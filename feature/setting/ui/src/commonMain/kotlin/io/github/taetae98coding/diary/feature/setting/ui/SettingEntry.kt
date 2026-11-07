@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScreen
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
@@ -26,14 +27,17 @@ import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayS
 import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeScreen
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
+import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpScreen
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
     settingHomeEntry(backStack = backStack)
     settingHolidayEntry(backStack = backStack)
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
     settingFileEntry(backStack = backStack)
+    settingMcpEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -50,6 +54,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             navigateToMap = { backStack.navigateToSettingDetail(SettingMapNavKey) },
             navigateToGemini = { backStack.navigateToSettingDetail(SettingGeminiNavKey) },
             navigateToFile = { backStack.navigateToSettingDetail(SettingFileNavKey) },
+            navigateToMcp = { backStack.navigateToSettingDetail(SettingMcpNavKey) },
             viewModel = koinViewModel(),
         )
     }
@@ -118,6 +123,22 @@ private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBack
             },
             directoryPicker = rememberDirectoryPicker(onPick = viewModel::setDirectory),
             viewModel = viewModel,
+        )
+    }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.settingMcpEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<SettingMcpNavKey>(
+        metadata = { key -> backStack.settingDetailPaneMetadata(key) },
+    ) {
+        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+
+        SettingMcpScreen(
+            navigateUp = backStack::removeLastOrNull,
+            componentVisibleProvider = {
+                SettingMcpScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
+            },
+            viewModel = koinViewModel(),
         )
     }
 }

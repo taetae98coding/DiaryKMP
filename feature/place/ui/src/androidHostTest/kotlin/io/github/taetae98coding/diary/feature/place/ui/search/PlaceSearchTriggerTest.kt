@@ -8,12 +8,13 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toCoordinateBounds
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.boundsAround
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.reportCamera
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -199,7 +200,7 @@ class PlaceSearchTriggerTest {
     @Test
     fun `TC-bc47b8df-c5e9-4cc9-a567-d5e882cf9b4e Google로 검색할 때 지도를 옮기면 바뀐 영역을 기준으로 다시 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
-        val movedBounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN)
+        val movedBounds = boundsAround(center = Arb.diaryMapCoordinateInFormPrecision().next(), span = BOUNDS_SPAN)
         val requestList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
@@ -210,7 +211,7 @@ class PlaceSearchTriggerTest {
 
         requestList.size shouldBe 1
 
-        composeRule.runOnIdle { state().mapState.reportCamera(center = randomCoordinate(), bounds = movedBounds) }
+        composeRule.runOnIdle { state().mapState.reportCamera(center = Arb.diaryMapCoordinateInFormPrecision().next(), bounds = movedBounds) }
         composeRule.mainClock.advanceTimeBy(IMMEDIATE_MILLIS)
 
         requestList.size shouldBe 1
@@ -242,7 +243,7 @@ class PlaceSearchTriggerTest {
         val clearCountAfterSearch = clearCount
 
         composeRule.runOnIdle {
-            state().mapState.reportCamera(center = randomCoordinate(), bounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN))
+            state().mapState.reportCamera(center = Arb.diaryMapCoordinateInFormPrecision().next(), bounds = boundsAround(center = Arb.diaryMapCoordinateInFormPrecision().next(), span = BOUNDS_SPAN))
         }
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
@@ -259,7 +260,7 @@ class PlaceSearchTriggerTest {
         val state = composeRule.setPlaceSearchEffect(initialProvider = DiaryMapProvider.GOOGLE, onSearch = { request -> requestList += request })
 
         composeRule.runOnIdle {
-            state().mapState.reportCamera(center = randomCoordinate(), bounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN))
+            state().mapState.reportCamera(center = Arb.diaryMapCoordinateInFormPrecision().next(), bounds = boundsAround(center = Arb.diaryMapCoordinateInFormPrecision().next(), span = BOUNDS_SPAN))
         }
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
@@ -270,8 +271,8 @@ class PlaceSearchTriggerTest {
     @Test
     fun `TC-2bf9ced9-1602-4210-a48b-58e0942f6a44 목록의 장소를 눌러 지도가 옮겨져도 다시 검색하지 않고 그 뒤 직접 옮기면 다시 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
-        val shownCoordinate = randomCoordinate()
-        val draggedBounds = boundsAround(center = randomCoordinate(), span = BOUNDS_SPAN)
+        val shownCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val draggedBounds = boundsAround(center = Arb.diaryMapCoordinateInFormPrecision().next(), span = BOUNDS_SPAN)
         val requestList = mutableListOf<PlaceSearchRequest>()
         var clearCount = 0
 
@@ -294,7 +295,7 @@ class PlaceSearchTriggerTest {
         requestList.size shouldBe 1
         clearCount shouldBe clearCountAfterSearch
 
-        composeRule.runOnIdle { state().mapState.reportCamera(center = randomCoordinate(), bounds = draggedBounds) }
+        composeRule.runOnIdle { state().mapState.reportCamera(center = Arb.diaryMapCoordinateInFormPrecision().next(), bounds = draggedBounds) }
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.mainClock.advanceTimeBy(SEARCH_DELAY_MILLIS * 2)
 
@@ -306,7 +307,7 @@ class PlaceSearchTriggerTest {
     fun `TC-b6c6e3e0-1fb9-4e3e-b4e3-33615d59275e 목록의 장소로 지도를 옮긴 뒤 검색어를 바꾸면 그때 보고 있는 영역을 기준으로 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val changedQuery = randomText(prefix = CHANGED_QUERY_PREFIX)
-        val shownCoordinate = randomCoordinate()
+        val shownCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val requestList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
@@ -332,8 +333,6 @@ class PlaceSearchTriggerTest {
         showOnMap(coordinate)
         mapState.reportCamera(center = coordinate, bounds = boundsAround(center = coordinate, span = BOUNDS_SPAN))
     }
-
-    private fun randomCoordinate(): DiaryMapCoordinate = fixtureMonkey.coordinateInFormPrecision().toDiaryMapCoordinate()
 
     private companion object {
         private const val QUERY_PREFIX = "query"

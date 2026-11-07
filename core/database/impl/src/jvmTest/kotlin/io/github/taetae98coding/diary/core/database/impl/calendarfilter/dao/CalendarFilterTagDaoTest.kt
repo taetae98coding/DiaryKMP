@@ -3,9 +3,6 @@ package io.github.taetae98coding.diary.core.database.impl.calendarfilter.dao
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -14,10 +11,17 @@ import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoF
 import io.github.taetae98coding.diary.core.database.impl.sync.transaction.AccountDataTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tagDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.first
 import java.io.File
 import kotlin.time.Instant
@@ -78,7 +82,7 @@ class CalendarFilterTagDaoTest :
                 .map { tag -> tag.id }
 
         test("TC-b072652a-fa86-4f68-8bc6-802add8d705d 필터 선택을 현재 사용자 계정에 즉시 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
 
@@ -88,8 +92,8 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-5272dc02-b22e-401d-a1ec-933b438abb27 계정마다 서로 다른 필터 선택을 유지한다") {
-            val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstAccountId = Arb.kotlinUuid().next()
+            val secondAccountId = Arb.kotlinUuid().next()
             val firstTag = tag()
             val secondTag = tag()
             database.insertTag(firstAccountId, firstTag, secondTag)
@@ -103,7 +107,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-aa13a24d-1be5-46ff-933a-c6635b91f8c3 저장된 필터 선택은 새로 조회를 시작해도 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "Alpha")
             val secondTag = tag(title = "Bravo")
             database.insertTag(accountId, firstTag, secondTag)
@@ -118,7 +122,7 @@ class CalendarFilterTagDaoTest :
             val file = File.createTempFile("calendar-filter-tag", ".db")
 
             try {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val tag = tag()
                 val firstDatabase =
                     Room
@@ -146,7 +150,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-5d618a64-f553-499d-b100-d54cd74c88e4 선택할 수 없게 된 태그는 선택 목록 조회에서 제외된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectableTag = tag()
             val finishedTag = tag(isFinished = true)
             val deletedTag = tag(isDeleted = true)
@@ -161,7 +165,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-dc99635c-9102-45ca-9e47-5ab54e6e25e2 태그가 다시 선택할 수 있게 되면 이전 선택이 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
             database.select(accountId = accountId, tagId = tag.id)
@@ -184,7 +188,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-37db7668-cff1-44be-8b00-d7f4060a00f1 캘린더 필터 선택과 메모 목록 필터 선택은 서로 영향을 주지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val calendarTag = tag(title = "Calendar")
             val memoTag = tag(title = "Memo")
             database.insertTag(accountId, calendarTag, memoTag)
@@ -207,7 +211,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-9648d551-1ea0-4d0e-ab02-3050c762be35 필터 선택과 해제는 동기화 업로드 대기 목록에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag, isDirty = false)
 
@@ -221,8 +225,8 @@ class CalendarFilterTagDaoTest :
         }
 
         test("선택 해제는 해당 계정의 해당 태그 선택만 제거한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val firstTag = tag(title = "Alpha")
             val secondTag = tag(title = "Bravo")
             database.insertTag(accountId, firstTag, secondTag)
@@ -238,7 +242,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-e8bfbd03-c30a-44af-988e-0241d530b7b0 선택 전체 해제는 무시되고 있던 선택까지 지운다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val selectableTag = tag()
             val finishedTag = tag(isFinished = true)
             val deletedTag = tag(isDeleted = true)
@@ -262,7 +266,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-8c9b3391-704b-4fe7-aef3-92547492cfbf 무시되고 있는 선택만 남으면 보이는 선택이 없고 태그가 다시 선택할 수 있게 되면 그 선택이 다시 적용된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag(isDeleted = true)
             database.insertTag(accountId, tag)
             database.select(accountId = accountId, tagId = tag.id)
@@ -272,14 +276,14 @@ class CalendarFilterTagDaoTest :
             AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isDeleted = false)),
-                cursor = fixtureMonkey.giveMeOne<Long>(),
+                cursor = Arb.long().next(),
             )
 
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
         }
 
         test("TC-80a064b2-3565-4b46-b5e9-2cd17811e1d1 선택 전체 해제는 다른 화면의 태그 필터 선택을 지우지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
             database.select(accountId = accountId, tagId = tag.id)
@@ -302,8 +306,8 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-2f4a74cf-10a5-48c3-8121-9b347428fcc3 선택 전체 해제는 다른 계정의 선택을 지우지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
             database.insertTag(otherAccountId, tag)
@@ -317,8 +321,8 @@ class CalendarFilterTagDaoTest :
         }
 
         test("TC-9c9b67c4-b79e-4067-b1cf-ee59620a3742 강제 전체 재동기화로 계정 데이터를 지우면 그 계정의 캘린더 필터 선택은 처음 상태로 돌아간다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
             database.insertTag(otherAccountId, tag)
@@ -333,7 +337,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("선택한 태그가 없어도 선택 전체 해제는 실패하지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
 
@@ -343,7 +347,7 @@ class CalendarFilterTagDaoTest :
         }
 
         test("같은 태그를 다시 선택해도 선택은 한 번만 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val tag = tag()
             database.insertTag(accountId, tag)
 
@@ -354,22 +358,21 @@ class CalendarFilterTagDaoTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(
-            title: String = fixtureMonkey.giveMeOne<String>(),
+            title: String = Arb.string().next(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
         ): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
-                .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>().copy(title = title))
-                .setExp(TagLocalEntity::isFinished, isFinished)
-                .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    id = Arb.kotlinUuid().next(),
+                    detail = Arb.tagDetailLocalEntity().next().copy(title = title),
+                    isFinished = isFinished,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

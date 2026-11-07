@@ -1,23 +1,25 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankException
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -31,7 +33,7 @@ import kotlin.uuid.Uuid
 class UpdateWebUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 웹 항목이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val stored = web()
             val detailSlot = slot<WebDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -46,7 +48,7 @@ class UpdateWebUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 useCase(
@@ -118,7 +120,7 @@ class UpdateWebUseCaseTest :
                     }
 
                     listOf("", "   ").forEach { url ->
-                        val title = "changed-${fixtureMonkey.giveMeOne<String>()}"
+                        val title = "changed-${Arb.string().next()}"
 
                         useCase(
                             parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail(title = title, url = url)),
@@ -138,7 +140,7 @@ class UpdateWebUseCaseTest :
 
                 Then("TC-27705886-bde0-4657-b8ff-78b17b433fc0 설명과 요청 헤더는 입력한 대로 반영한다") {
                     val header = WebHeader(name = "Accept", value = "text/html")
-                    val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+                    val description = "description-${Arb.string().next()}"
 
                     useCase(
                         parameter =
@@ -156,7 +158,7 @@ class UpdateWebUseCaseTest :
 
         listOf("", "   ").forEach { blankName ->
             Given("이름이 `$blankName` 인 헤더 항목이 섞여 있다") {
-                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val account = Arb.accountUser().next()
                 val stored = web()
                 val getAccountUseCase = getAccountUseCase(account = account)
                 val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
@@ -192,6 +194,32 @@ class UpdateWebUseCaseTest :
             }
         }
 
+        Given("기기 저장은 성공하고 서버 반영 요청은 실패하도록 준비되어 있다") {
+            val account = Arb.accountUser().next()
+            val stored = web()
+            val accountWebRepository = mockk<AccountWebRepository>()
+            coEvery {
+                accountWebRepository.updateDetail(account = account, webId = stored.id, detail = any(), updatedAt = any())
+            } returns 1
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+            val useCase =
+                useCase(
+                    getAccountUseCase = getAccountUseCase(account = account),
+                    requestSyncUseCase = requestSyncUseCase,
+                    findWebUseCase = findWebUseCase(web = stored),
+                    accountWebRepository = accountWebRepository,
+                )
+
+            When("웹 항목을 수정한다") {
+                Then("TC-c6828a34-6fdc-4319-b79c-5a9a022b2ea7 서버 반영 실패와 관계없이 기기에 저장한 결과로 성공을 전달한다") {
+                    useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
+
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
+
         Given("게스트 계정이 준비되어 있다") {
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
@@ -215,7 +243,7 @@ class UpdateWebUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
@@ -241,8 +269,8 @@ class UpdateWebUseCaseTest :
         }
 
         Given("수정 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val stored = web()
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery {
@@ -269,9 +297,6 @@ class UpdateWebUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun useCase(
             getAccountUseCase: GetAccountUseCase,
             requestSyncUseCase: RequestSyncUseCase,
@@ -316,21 +341,19 @@ class UpdateWebUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
-
         private fun web(): Web =
             Web(
                 id = Uuid.random(),
                 detail = detail(),
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private fun detail(
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            description: String = "description-${fixtureMonkey.giveMeOne<String>()}",
-            url: String = "https://example.com/${fixtureMonkey.giveMeOne<String>()}",
+            title: String = "title-${Arb.string().next()}",
+            description: String = "description-${Arb.string().next()}",
+            url: String = "https://example.com/${Arb.string().next()}",
             headerList: List<WebHeader> = emptyList(),
         ): WebDetail =
             WebDetail(

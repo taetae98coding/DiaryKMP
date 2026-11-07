@@ -17,8 +17,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -31,9 +29,11 @@ import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -50,9 +50,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class CalendarHomeScreenBirthdayTest {
@@ -67,6 +64,7 @@ class CalendarHomeScreenBirthdayTest {
         )
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        assertBirthdayUnderDate(dateDescription = "July 8")
     }
 
     @Test
@@ -115,6 +113,8 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2027)).assertIsDisplayed()
+        assertBirthdayUnderDate(dateDescription = "July 8")
     }
 
     @Test
@@ -136,7 +136,7 @@ class CalendarHomeScreenBirthdayTest {
     @Test
     fun `TC-cb6f457b-3630-438b-903e-a6e92d58e816 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
-        val errorMessage = fixtureMonkey.nonBlankString()
+        val errorMessage = Arb.nonBlankString().next()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
             flowOf(Result.failure(IllegalStateException(errorMessage)))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
@@ -170,7 +170,7 @@ class CalendarHomeScreenBirthdayTest {
             flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
         coEvery { fetchLunarUseCase(parameter = any()) } returns
-            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            Result.failure(IllegalStateException(Arb.string().next()))
         val birthdayViewModel =
             CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase)
 
@@ -195,6 +195,18 @@ class CalendarHomeScreenBirthdayTest {
         val buttonRole = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)
 
         composeRule.onNodeWithContentDescription(BIRTHDAY_DESCRIPTION).assert(buttonRole)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-a8614352-4035-4d99-a224-82b9f3d23340 동명이인 생일은 알게 된 경로와 함께 표시한다`() {
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 8), nameQualifier = HOW_WE_MET))),
+        )
+
+        composeRule.onNodeWithText("🎂 $NAME($HOW_WE_MET)").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("$NAME($HOW_WE_MET) 생일").assertExists()
     }
 
     // 기본 화면 높이에서는 한 주에 아이템 한 줄만 보여 나머지 줄이 구성되지 않으므로, 세 줄이 모두 보이는 높이로 연다.
@@ -286,6 +298,18 @@ class CalendarHomeScreenBirthdayTest {
         }
     }
 
+    // 생일 아이템이 그 날짜 칸과 같은 가로 자리에 놓였는지 확인한다.
+    private fun assertBirthdayUnderDate(dateDescription: String) {
+        val dateBounds = composeRule.onNodeWithContentDescription(dateDescription).fetchSemanticsNode().boundsInRoot
+        val birthdayCenterX =
+            composeRule
+                .onNodeWithText(BIRTHDAY_TEXT)
+                .fetchSemanticsNode()
+                .boundsInRoot.center.x
+
+        (birthdayCenterX in dateBounds.left..dateBounds.right) shouldBe true
+    }
+
     private fun top(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
     private fun bottom(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().bottom
@@ -293,10 +317,12 @@ class CalendarHomeScreenBirthdayTest {
     private fun birthday(
         name: String,
         date: LocalDate,
+        nameQualifier: String = "",
     ): CalendarContactBirthday =
         CalendarContactBirthday(
             contactId = Uuid.random(),
             name = name,
+            nameQualifier = nameQualifier,
             date = date,
         )
 
@@ -318,6 +344,7 @@ class CalendarHomeScreenBirthdayTest {
         private const val NAME = "홍길동"
         private const val SUMMER_NAME = "여름"
         private const val BIRTHDAY_TEXT = "🎂 홍길동"
+        private const val HOW_WE_MET = "친구 소개"
         private const val SUMMER_BIRTHDAY_TEXT = "🎂 여름"
         private const val TRIP_TITLE = "여행"
         private const val CONSTITUTION_DAY_NAME = "제헌절"

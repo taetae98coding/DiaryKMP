@@ -16,9 +16,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
@@ -27,9 +24,13 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -279,21 +280,21 @@ class MemoFinishedListScaffoldTest {
         private const val DEFAULT_ALL_DAY_PERIOD = "Jul 19, 2026"
         private const val DEFAULT_TODAY_HEADER = "Today"
         private const val KOREAN_TODAY_HEADER = "오늘"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun memo(
             title: String,
             dateTime: MemoDateTime? = null,
         ): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime))
-                .setExp(Memo::isFinished, true)
-                .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = title, dateTime = dateTime),
+                    isFinished = true,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun dateHeaderMemoItemList(): List<MemoListItem> =
             listOf(

@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQr
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.data.qr.mapper.toDomain
 import io.github.taetae98coding.diary.data.qr.mapper.toLocal
@@ -40,10 +41,12 @@ internal class AccountQrRepositoryImpl(
     override suspend fun upsert(
         account: Account,
         qr: Qr,
+        tagIdSet: Set<Uuid>,
     ) {
         accountQrTransaction.upsert(
             accountId = account.id,
             qrList = listOf(qr.toLocal()),
+            qrTagList = tagIdSet.toEntityTagLocalList(entityId = qr.id, updatedAt = qr.updatedAt, createdAt = qr.createdAt),
         )
     }
 

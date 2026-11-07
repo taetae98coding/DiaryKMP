@@ -10,9 +10,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -77,7 +79,7 @@ class ContactHomeScreenTest {
         setContactHomeScreen(contactList = listOf(contact), navigateToDetail = navigatedIdList::add)
         composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).onFirst().performClick()
 
-        navigatedIdList shouldBe listOf(contact.id)
+        navigatedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -110,6 +112,18 @@ class ContactHomeScreenTest {
     }
 
     @Test
+    fun `TC-feb4d498-1610-4a5a-80f0-588d81287adc 빈 상태에서 목록 영역을 당기면 새로고침을 한 번 실행한다`() {
+        val syncViewModel = syncViewModel()
+
+        setContactHomeScreen(syncViewModel = syncViewModel)
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        verify(exactly = 1) { syncViewModel.refresh() }
+    }
+
+    @Test
     fun `TC-f1366e80-eba2-4bb8-8715-9b2f3bf56840 동기화가 진행 중이면 진행 표시가 나타난다`() {
         setContactHomeScreen(syncViewModel = syncViewModel(uiState = SyncRefreshUiState(isRefreshing = true)))
 
@@ -117,7 +131,7 @@ class ContactHomeScreenTest {
     }
 
     private fun setContactHomeScreen(
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
         navigateUp: () -> Unit = {},
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},

@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
 import io.github.taetae98coding.diary.core.testing.place.localPlace
 import io.github.taetae98coding.diary.core.testing.place.place
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class PlaceMapperTest :
     FunSpec({
         test("domain to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val domain = fixtureMonkey.place(isDeleted = isDeleted)
+                val domain = Arb.place(isDeleted = isDeleted).next()
 
                 domain.toLocal() shouldBe
                     PlaceLocalEntity(
@@ -32,7 +29,7 @@ class PlaceMapperTest :
 
         test("local to domain") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localPlace(isDeleted = isDeleted)
+                val local = Arb.localPlace(isDeleted = isDeleted).next()
 
                 local.toDomain() shouldBe
                     Place(
@@ -47,7 +44,7 @@ class PlaceMapperTest :
 
         test("domain to local to domain") {
             isDeletedCaseList.forEach { isDeleted ->
-                val domain = fixtureMonkey.place(isDeleted = isDeleted)
+                val domain = Arb.place(isDeleted = isDeleted).next()
 
                 domain.toLocal().toDomain() shouldBe domain
             }
@@ -55,7 +52,7 @@ class PlaceMapperTest :
 
         test("local to domain to local") {
             isDeletedCaseList.forEach { isDeleted ->
-                val local = fixtureMonkey.localPlace(isDeleted = isDeleted)
+                val local = Arb.localPlace(isDeleted = isDeleted).next()
 
                 local.toDomain().toLocal() shouldBe local
             }

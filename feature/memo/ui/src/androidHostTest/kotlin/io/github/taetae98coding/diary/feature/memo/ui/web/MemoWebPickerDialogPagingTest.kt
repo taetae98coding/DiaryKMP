@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.height
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -46,9 +47,16 @@ class MemoWebPickerDialogPagingTest {
         val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         composeRule.setMemoWebPickerDialog(webPagingData = appendFailedWebPagingDataOf(listOf(wikiWeb, docsWeb)))
 
+        composeRule.webPickerList().performScrollToIndex(1)
+        composeRule.waitForIdle()
+
         composeRule.webDialogNodeWithText(WIKI_WEB_TITLE).assertExists()
         composeRule.webDialogNodeWithText(DOCS_WEB_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+        composeRule
+            .webPickerList()
+            .fetchSemanticsNode()
+            .children.size shouldBe 2
     }
 
     @Test

@@ -8,14 +8,14 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -37,7 +37,7 @@ class MemoFinishedListUndoLeaveTest {
 
     @Test
     fun `TC-69285530-f8ea-4d42-b147-d816f70e9ab2 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
-        val baseMemo = fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null)
+        val baseMemo = Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next()
         val memo = baseMemo.copy(detail = baseMemo.detail.copy(title = MEMO_TITLE, dateTime = null))
         val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<MemoFinishedListViewModel>()
@@ -81,7 +81,5 @@ class MemoFinishedListUndoLeaveTest {
         private const val DEFAULT_RESTARTED_MESSAGE = "Memo restarted."
         private const val DEFAULT_UNDO_ACTION = "Undo"
         private const val TIMEOUT_MILLIS = 5_000L
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

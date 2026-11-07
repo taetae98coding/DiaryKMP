@@ -5,21 +5,23 @@ package io.github.taetae98coding.diary.feature.web.ui.home
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -38,7 +40,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 class WebHomeViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -123,7 +124,7 @@ class WebHomeViewModelTest : FunSpec() {
 
         test("TC-66f330bf-440b-4571-aa38-685a4d683fb6 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
             runTest(mainDispatcher) {
-                val webList = listOf(web(title = "A-${fixtureMonkey.giveMeOne<String>()}"), web(title = "B-${fixtureMonkey.giveMeOne<String>()}"))
+                val webList = listOf(web(title = "A-${Arb.string().next()}"), web(title = "B-${Arb.string().next()}"))
                 val pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(webList)))
                 val viewModel = viewModel(pageWebUseCase = pageWebUseCase)
 
@@ -143,7 +144,7 @@ class WebHomeViewModelTest : FunSpec() {
 
         test("TC-b6eb4a10-bb07-4d9c-9ae2-4955a3aeb9d1 삭제에 성공하면 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
                 coEvery { deleteWebUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -164,9 +165,9 @@ class WebHomeViewModelTest : FunSpec() {
 
         test("TC-a61f7c33-1a1f-40e2-9e13-0e3c3b551f96 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
-                coEvery { deleteWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { deleteWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
@@ -184,9 +185,9 @@ class WebHomeViewModelTest : FunSpec() {
 
         test("TC-b47c5332-9960-40e2-b9fc-41d687d583a7 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
-                coEvery { restoreWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { restoreWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel =
                     viewModel(
                         pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
@@ -205,7 +206,7 @@ class WebHomeViewModelTest : FunSpec() {
 
         test("TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
                 coEvery { restoreWebUseCase(parameter = id) } returns Result.success(1)
                 val viewModel =
@@ -222,7 +223,7 @@ class WebHomeViewModelTest : FunSpec() {
         }
         test("TC-07a9652a-cb13-4ed4-bebd-32e69f7a419b 같은 웹 항목의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
                 coEvery { deleteWebUseCase(parameter = id) } returns Result.success(1)
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()
@@ -247,9 +248,6 @@ class WebHomeViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             pageWebUseCase: PageWebUseCase,
             deleteWebUseCase: DeleteWebUseCase = mockk(),
@@ -271,17 +269,19 @@ class WebHomeViewModelTest : FunSpec() {
 
         private fun web(title: String): Web {
             val detail =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<WebDetail>()
-                    .setExp(WebDetail::title, title)
-                    .sample()
+                Arb
+                    .webDetail()
+                    .next()
+                    .copy(
+                        title = title,
+                    )
 
             return Web(
-                id = Uuid.random(),
+                id = Arb.kotlinUuid().next(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
         }
     }

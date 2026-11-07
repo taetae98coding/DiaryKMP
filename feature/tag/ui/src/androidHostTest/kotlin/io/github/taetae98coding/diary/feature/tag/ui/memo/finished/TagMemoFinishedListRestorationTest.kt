@@ -14,10 +14,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +38,7 @@ class TagMemoFinishedListRestorationTest {
 
     @Test
     fun `TC-35ffef5a-0a04-4ae0-ae5f-9acdded58ccf 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
         val memoList = List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
@@ -79,7 +81,7 @@ class TagMemoFinishedListRestorationTest {
 
     @Test
     fun `TC-959e4783-2edf-4d42-bec0-fa0b1c62c002 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
         val memoList = List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
         var nextViewModel = sortableViewModel(memoList = memoList)
         val restorationTester = StateRestorationTester(composeRule)

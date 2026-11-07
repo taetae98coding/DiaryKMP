@@ -111,6 +111,23 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
+    fun `TC-588cc03a-b172-4c30-82b8-2ab4e5c5ca28 요청에 응답하지 않아도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+        val registry = unansweredPermissionRegistry()
+        val weatherViewModel = weatherViewModel()
+
+        setCalendarHomeScreen(
+            registry = registry,
+            weatherViewModel = weatherViewModel,
+        )
+        composeRule.waitForIdle()
+
+        registry.launchedPermissionList shouldHaveSize 1
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        verify(exactly = 0) { weatherViewModel.refreshOnLocationPermissionGranted() }
+    }
+
+    @Test
     fun `TC-791d3475-68f2-4124-ba31-1ac6ff05de62 위치 권한 요청에서 정확한 위치를 허용하면 현재 위치의 날씨를 다시 동기화한다`() {
         val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
@@ -254,6 +271,14 @@ class CalendarHomeScreenLocationPermissionTest {
         every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } answers {
             registry.dispatchResult(firstArg(), result)
         }
+
+        return registry
+    }
+
+    private fun unansweredPermissionRegistry(): ActivityResultRegistry {
+        val registry = spyk<ActivityResultRegistry>()
+
+        every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } returns Unit
 
         return registry
     }

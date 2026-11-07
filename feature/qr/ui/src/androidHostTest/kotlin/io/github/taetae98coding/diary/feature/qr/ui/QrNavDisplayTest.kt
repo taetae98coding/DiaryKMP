@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -29,6 +30,7 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
@@ -50,12 +52,10 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onTitleInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrCodeValue
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailEffect
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailUiState
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
@@ -63,6 +63,8 @@ import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -109,7 +111,7 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-f9bff6e7-f638-4c0d-99ea-f6279ca0b857 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
+    fun `TC-f9bff6e7-f638-4c0d-99ea-f6279ca0b857 TC-f868d081-61f3-4ee0-b902-551b84aaea24 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -123,7 +125,7 @@ class QrNavDisplayTest {
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.qrCodeValue() shouldBe URL
         composeRule.onQrFieldInput("URL").editableText() shouldBe URL
@@ -131,15 +133,15 @@ class QrNavDisplayTest {
 
     @Test
     fun `TC-efe28016-74d1-4182-bde1-52dc53de2817 QrScan 화면에서 텍스트 QR을 읽어 돌아오면 QR 탭과 텍스트 포맷으로 읽은 값을 보여 주고 제목과 설명은 그대로 둔다`() {
-        val scannedValue = qrTestFixtureMonkey.qrDetail().value
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val scannedValue = Arb.qrDetail().next().value
+        val detail = Arb.qrDetail().next()
         setQrNavDisplay()
         openQrScanWithValue(value = detail.value, title = detail.title, description = detail.description)
 
         composeRule.runOnIdle { backStack.navigateUpWithQrScannedValue(resultEventBus = resultEventBus, value = scannedValue) }
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
         composeRule.qrTextInputText() shouldBe scannedValue
         composeRule.qrCodeValue() shouldBe scannedValue
@@ -149,15 +151,15 @@ class QrNavDisplayTest {
 
     @Test
     fun `TC-39760b0f-24f6-411f-b977-dcb1265c1a75 QR을 읽으면 읽은 값을 넘기고 이전 화면으로 돌아간다`() {
-        val scannedValue = qrTestFixtureMonkey.qrDetail().value
+        val scannedValue = Arb.qrDetail().next().value
         setQrNavDisplay()
-        openQrScanWithValue(value = qrTestFixtureMonkey.qrDetail().value)
+        openQrScanWithValue(value = Arb.qrDetail().next().value)
 
         composeRule.runOnIdle { backStack.navigateUpWithQrScannedValue(resultEventBus = resultEventBus, value = scannedValue) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertDoesNotExist()
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
         composeRule.qrTextInputText() shouldBe scannedValue
     }
 
@@ -166,10 +168,11 @@ class QrNavDisplayTest {
         setQrNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
         composeRule.onQrTextInput().performTextInput(detail.value)
+        composeRule.selectFormat(formatLabel = DEFAULT_FORMAT_LABEL, formatName = "URL")
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
@@ -178,12 +181,15 @@ class QrNavDisplayTest {
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey())
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.titleInputText() shouldBe ""
         composeRule.descriptionInputText() shouldBe ""
+        composeRule.selectTab(QR_TAB_INDEX)
+        composeRule.onNode(hasText(DEFAULT_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe "Text"
         composeRule.qrTextInputText() shouldBe ""
         composeRule.qrCodeValue() shouldBe ""
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any(), tagIdSet = any()) } }
     }
 
     @Test
@@ -420,6 +426,8 @@ class QrNavDisplayTest {
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun navDisplayViewModelModule() =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<QrHomeViewModel>(relaxed = true).apply {
                     every { qrPagingData } returns MutableStateFlow(qrPagingDataOf(homeQrList))

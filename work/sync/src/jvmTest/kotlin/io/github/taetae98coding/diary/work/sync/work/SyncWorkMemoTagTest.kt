@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -90,7 +93,7 @@ class SyncWorkMemoTagTest :
 
         test("메모 태그 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(memoTagList = memoTags(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.memoTagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -157,7 +160,7 @@ class SyncWorkMemoTagTest :
 
         test("메모 태그 내려받기가 실패해도 태그와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagPullList = tagPulls(usnList = listOf(3L))
             val memoPullList = memoPulls(usnList = listOf(4L))
             coEvery { context.memoTagRemoteDataSource.pull(any()) } throws failure
@@ -190,8 +193,8 @@ class SyncWorkMemoTagTest :
         }
 
         test("실행 시점에 확인된 계정의 메모 태그만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.memoTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)

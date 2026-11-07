@@ -10,8 +10,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -35,19 +33,19 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -256,7 +254,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-cca9e6c2-7793-45a7-88e9-b83b66b8f98c 화면 재생성 후 파일 목록과 함께 놓인 상세 선택을 유지한다`() {
-        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailNavKey = FileDetailNavKey(id = Arb.kotlinUuid().next())
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
         restorationTester.setContent {
@@ -280,7 +278,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-d74e781c-d7cb-4d80-a96d-c3c66fa897c7 시스템이 앱을 정리했다가 다시 만들어도 파일 목록과 함께 놓인 상세 선택과 뒤로가기 기록을 유지한다`() {
-        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailNavKey = FileDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(FileHomeNavKey, detailNavKey))
 
         composeRule.runOnIdle {
@@ -293,7 +291,7 @@ class RememberAppStateTest {
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-6fbc8782-e3e3-4c31-8f30-856af745434f 앱이 백그라운드에 다녀와도 파일 목록과 함께 놓인 상세 선택을 유지한다`() {
-        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val detailNavKey = FileDetailNavKey(id = Arb.kotlinUuid().next())
         val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(FileHomeNavKey, detailNavKey))
 
         composeRule.runOnIdle {
@@ -583,7 +581,7 @@ class RememberAppStateTest {
         val appState = relaunchableAppState()
         composeRule.runOnIdle {
             appState().navigateTo(TopLevelNavigation.Memo)
-            appState().backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+            appState().backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next()))
         }
 
         relaunch()

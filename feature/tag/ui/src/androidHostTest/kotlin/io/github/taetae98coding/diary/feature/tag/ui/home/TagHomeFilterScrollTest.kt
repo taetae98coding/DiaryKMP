@@ -13,17 +13,18 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -110,7 +111,7 @@ class TagHomeFilterScrollTest {
         composeRule.onNodeWithText(allTagList.first().title()).assertIsDisplayed()
 
         scrollToLast(tagList = allTagList)
-        composeRule.runOnIdle { resultState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) to false }
+        composeRule.runOnIdle { resultState.value = allTagList + tag(title = Arb.alphanumericString(prefix = TITLE_PREFIX).next()) to false }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
@@ -144,7 +145,7 @@ class TagHomeFilterScrollTest {
         setTagHomeScaffoldWithResult(isApplied = isApplied, tagListState = tagListState)
         scrollToLast(tagList = allTagList)
 
-        composeRule.runOnIdle { tagListState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) }
+        composeRule.runOnIdle { tagListState.value = allTagList + tag(title = Arb.alphanumericString(prefix = TITLE_PREFIX).next()) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
@@ -161,7 +162,7 @@ class TagHomeFilterScrollTest {
 
         composeRule.runOnIdle { filterUiState.value = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true) }
         composeRule.waitForIdle()
-        composeRule.runOnIdle { tagListState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) }
+        composeRule.runOnIdle { tagListState.value = allTagList + tag(title = Arb.alphanumericString(prefix = TITLE_PREFIX).next()) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
@@ -241,9 +242,6 @@ class TagHomeFilterScrollTest {
         private const val NARROWED_TAG_COUNT = 50
         private const val TITLE_PREFIX = "ScrollTagTitle"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun Tag.title(): String = detail.title
 
         private fun tagResultPagingData(
@@ -259,17 +257,19 @@ class TagHomeFilterScrollTest {
         }
 
         private fun tagList(count: Int): List<Tag> {
-            val titlePrefix = fixtureText(prefix = TITLE_PREFIX)
+            val titlePrefix = Arb.alphanumericString(prefix = TITLE_PREFIX).next()
 
             return List(count) { index -> tag(title = "${titlePrefix}Index$index") }
         }
 
         private fun tag(title: String): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    detail = Arb.tagDetail().next().copy(emoji = "", title = title),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.data.tag.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tagfilter.datasource.AccountTagFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.flowOf
 class AccountTagFilterRepositoryImplTest :
     FunSpec({
         test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 저장된 필터 선택을 그대로 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             every { localDataSource.find(accountId = account.id) } returns
                 flowOf(TagFilterLocalEntity(accountId = account.id, isTopLevelOnly = true))
@@ -30,7 +30,7 @@ class AccountTagFilterRepositoryImplTest :
         }
 
         test("TC-c3277845-4c50-4e2e-ac84-24ad2a01a4fa 저장된 필터 선택이 없으면 꺼진 상태로 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             every { localDataSource.find(accountId = account.id) } returns flowOf(null)
             val repository = AccountTagFilterRepositoryImpl(accountTagFilterLocalDataSource = localDataSource)
@@ -39,7 +39,7 @@ class AccountTagFilterRepositoryImplTest :
         }
 
         test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 필터 선택을 현재 계정 식별자와 함께 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localDataSource = mockk<AccountTagFilterLocalDataSource>()
             coEvery { localDataSource.upsert(accountId = account.id, isTopLevelOnly = true) } just Runs
             val repository = AccountTagFilterRepositoryImpl(accountTagFilterLocalDataSource = localDataSource)
@@ -48,9 +48,4 @@ class AccountTagFilterRepositoryImplTest :
 
             coVerify(exactly = 1) { localDataSource.upsert(accountId = account.id, isTopLevelOnly = true) }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

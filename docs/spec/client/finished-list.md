@@ -123,4 +123,4 @@
 - [항목 완료 메모 목록 화면 스펙](./entity-memo-finished-list.md) (TagMemoFinishedList 포함)
 - [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)
 - [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `완료 목록의 배치`
-- [SearchHome 화면 스펙](./search-home.md)의 `다시 시작과 삭제`: 검색 결과에서 메모와 태그를 다시 시작할 때의 안내
+- [SearchHome 화면 스펙](./search-home.md)의 `안내와 실행 취소`: 검색 결과에서 메모와 태그를 다시 시작할 때의 안내

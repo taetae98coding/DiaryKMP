@@ -22,6 +22,8 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.feature.contact.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.contact.ui.addTagScreenTestViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import org.junit.Rule
@@ -228,7 +230,11 @@ class ContactAddScreenTest {
                     addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -270,7 +276,11 @@ class ContactAddScreenTest {
                     addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -296,7 +306,11 @@ class ContactAddScreenTest {
                     addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -346,7 +360,11 @@ class ContactAddScreenTest {
                         addedResultRequestKey = null,
                         navigateUp = {},
                         componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        addViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = addTagScreenTestViewModel(),
                     )
                 }
             }
@@ -424,6 +442,7 @@ class ContactAddScreenTest {
                                 ContactPhoneNumber(number = TYPED_SECOND_PHONE_NUMBER),
                             ),
                     ),
+                tagIdSet = emptySet(),
             )
         }
     }

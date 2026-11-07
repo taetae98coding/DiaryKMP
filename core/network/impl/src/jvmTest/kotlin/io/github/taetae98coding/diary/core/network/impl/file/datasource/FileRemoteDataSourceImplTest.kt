@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.core.network.impl.file.datasource
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
@@ -14,13 +12,23 @@ import io.github.taetae98coding.diary.core.network.impl.file.entity.FileListRequ
 import io.github.taetae98coding.diary.core.network.impl.file.entity.FileListResponseRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.file.entity.FileUpdateRequestRemoteEntity
 import io.github.taetae98coding.diary.core.network.impl.file.transport.FileUploadTransport
+import io.github.taetae98coding.diary.core.network.impl.fileUpdateRequestRemoteEntity
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.file.continuedFileUploadRemoteEntity
+import io.github.taetae98coding.diary.core.testing.file.fileCursorRemoteEntity
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.randomByteArray
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -45,19 +53,16 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FileRemoteDataSourceImplTest :
     FunSpec({
         test("고른 파일의 이름, 제목, 설명, 형식, 크기, 시작한 계정, 내용과 보낸 양을 플랫폼의 전송 수단에 그대로 넘기고 그 결과를 돌려준다") {
-            val name = fixtureMonkey.giveMeOne<String>()
-            val title = fixtureMonkey.giveMeOne<String>()
-            val description = fixtureMonkey.giveMeOne<String>()
-            val mimeType = fixtureMonkey.giveMeOne<String>()
-            val contentLength = fixtureMonkey.giveMeOne<Long>()
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val name = Arb.string().next()
+            val title = Arb.string().next()
+            val description = Arb.string().next()
+            val mimeType = Arb.string().next()
+            val contentLength = Arb.long().next()
+            val accountId = Arb.kotlinUuid().next()
+            val response = Arb.fileRemoteEntity().next()
             val source = Buffer()
             val openContent: suspend () -> RawSource = { source }
             val onSent: (Long) -> Unit = {}
@@ -83,8 +88,8 @@ class FileRemoteDataSourceImplTest :
         }
 
         test("앞선 실행에서 이어지는 올리기와 그 결과, 취소를 플랫폼의 전송 수단에 맡긴다") {
-            val upload = fixtureMonkey.giveMeOne<ContinuedFileUploadRemoteEntity>()
-            val result = ContinuedFileUploadResultRemoteEntity.Failed(name = fixtureMonkey.giveMeOne<String>())
+            val upload = Arb.continuedFileUploadRemoteEntity().next()
+            val result = ContinuedFileUploadResultRemoteEntity.Failed(name = Arb.string().next())
             val transport = mockk<FileUploadTransport>(relaxUnitFun = true)
             every { transport.getContinuedUpload() } returns flowOf(upload)
             every { transport.getContinuedUploadResult() } returns flowOf(result)
@@ -98,15 +103,15 @@ class FileRemoteDataSourceImplTest :
                 awaitItem() shouldBe result
                 awaitComplete()
             }
-            val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val exceptAccountId = Arb.kotlinUuid().next()
             dataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId)
 
             coVerify(exactly = 1) { transport.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
         }
 
         test("TC-c3c9a856-e7b9-41c7-b35b-025cbe78c827 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {
-            val size = fixtureMonkey.giveMeOne<Int>()
-            val fileList = List(2) { fixtureMonkey.giveMeOne<FileRemoteEntity>() }
+            val size = Arb.int().next()
+            val fileList = List(2) { Arb.fileRemoteEntity().next() }
             val requestSlot = slot<FileListRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
@@ -127,7 +132,7 @@ class FileRemoteDataSourceImplTest :
         }
 
         test("TC-e83464f1-ff45-45d4-b832-57f4b4f82143 이어서 불러올 때 마지막 파일의 올린 시각과 식별자를 보낸다") {
-            val cursor = fixtureMonkey.giveMeOne<FileCursorRemoteEntity>()
+            val cursor = Arb.fileCursorRemoteEntity().next()
             val requestSlot = slot<FileListRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
@@ -147,15 +152,15 @@ class FileRemoteDataSourceImplTest :
         }
 
         test("목록 요청은 서버 함수가 받는 필드 이름으로 직렬화된다") {
-            val cursor = fixtureMonkey.giveMeOne<FileCursorRemoteEntity>()
+            val cursor = Arb.fileCursorRemoteEntity().next()
 
             val json = Json.encodeToString(FileListRequestRemoteEntity(cursor = cursor, size = 20))
 
             json shouldBe """{"cursor":{"createdAt":"${cursor.createdAt}","id":"${cursor.id}"},"size":20}"""
         }
         test("TC-2209b4c9-9d1b-41ca-a863-6c755564b60c 파일 하나의 정보를 식별자로 요청하고, 찾을 수 없으면 찾을 수 없음으로 알린다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val id = Arb.kotlinUuid().next()
+            val file = Arb.fileRemoteEntity().next()
             val requestSlot = slot<FileIdRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
@@ -173,8 +178,8 @@ class FileRemoteDataSourceImplTest :
         }
 
         test("TC-cd6be59f-06d7-4587-ab0a-6668ae6dd1f4 정보 고치기는 식별자와 이름, 제목, 설명을 함께 보낸다") {
-            val request = fixtureMonkey.giveMeOne<FileUpdateRequestRemoteEntity>()
-            val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val request = Arb.fileUpdateRequestRemoteEntity().next()
+            val file = Arb.fileRemoteEntity().next()
             val requestSlot = slot<FileUpdateRequestRemoteEntity>()
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
@@ -188,9 +193,9 @@ class FileRemoteDataSourceImplTest :
         }
 
         test("TC-c8dace87-717c-4c9c-a6af-7c9edef184b1 서버가 내준 임시 주소에서 받은 내용을 그대로 쓴다") {
-            val id = fixtureMonkey.giveMeOne<Uuid>()
-            val content = fixtureMonkey.giveMeOne<ByteArray>()
-            val url = "https://storage.example/${fixtureMonkey.giveMeOne<Int>()}"
+            val id = Arb.kotlinUuid().next()
+            val content = Arb.randomByteArray().next()
+            val url = "https://storage.example/${Arb.int().next()}"
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
                 supabaseFunction(function = "v1-file-download", body = FileIdRequestRemoteEntity(id = id), typeInfo = any(), headers = any(), requestTimeout = any())
@@ -215,7 +220,7 @@ class FileRemoteDataSourceImplTest :
 
                 shouldThrowAny {
                     FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = HttpClient(engine))
-                        .download(id = fixtureMonkey.giveMeOne<Uuid>(), sink = Buffer())
+                        .download(id = Arb.kotlinUuid().next(), sink = Buffer())
                 }
             }
         }
@@ -227,7 +232,7 @@ class FileRemoteDataSourceImplTest :
             } throws SupabaseFunctionException(statusCode = 404)
 
             shouldThrow<FileNotFoundRemoteException> {
-                FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk()).download(id = fixtureMonkey.giveMeOne<Uuid>(), sink = Buffer())
+                FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk(), httpClient = mockk()).download(id = Arb.kotlinUuid().next(), sink = Buffer())
             }
         }
     })

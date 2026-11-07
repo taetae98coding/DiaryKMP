@@ -19,19 +19,21 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
 import io.github.taetae98coding.diary.core.model.file.FileDownloadResult
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.file.exception.FileDownloadDirectoryUnavailableException
 import io.github.taetae98coding.diary.domain.file.exception.FileNameTooLongException
 import io.github.taetae98coding.diary.domain.file.usecase.UpdateFileUseCase
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coVerify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
@@ -116,9 +118,9 @@ class FileDetailScreenTest {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
         try {
             val file =
-                fileDetailFixtureMonkey.nonBlankDiaryFile().copy(
+                Arb.nonBlankDiaryFile().next().copy(
                     size = KILOBYTE_SIZE,
-                    description = fileDetailFixtureMonkey.nonBlankString(),
+                    description = Arb.nonBlankString().next(),
                     createdAt = Instant.parse("2026-09-26T06:05:00Z"),
                 )
 
@@ -146,10 +148,10 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-a5102b2f-a852-4415-8fc0-bbc716924795 입력이 저장된 값과 다를 때만 수정 동작을 제공한다`() {
-        val file = fileDetailFixtureMonkey.nonBlankDiaryFile()
-        val otherTitle = fileDetailFixtureMonkey.nonBlankString()
-        val otherDescription = fileDetailFixtureMonkey.nonBlankString()
-        val otherName = fileDetailFixtureMonkey.nonBlankString()
+        val file = Arb.nonBlankDiaryFile().next()
+        val otherTitle = Arb.nonBlankString().next()
+        val otherDescription = Arb.nonBlankString().next()
+        val otherName = Arb.nonBlankString().next()
         val changeList: List<Pair<() -> Unit, Boolean>> =
             listOf(
                 {} to false,
@@ -224,7 +226,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-d7989670-bd8b-4ee2-b182-7ccea3e78db5 수정에 성공하면 성공을 알리고 화면 제목을 바꾼다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
 
         setScreen(screen = screen)
@@ -239,7 +241,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-e003678c-6093-4a0b-a547-529034563a5b 수정하는 동안 진행 중임을 표시하고 다시 실행해도 한 번만 보낸다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { awaitCancellation() }
 
@@ -254,8 +256,8 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-7e965793-33a2-44cb-93f8-9f7c2e6fda5b 수정하는 동안 더 고친 입력은 성공 뒤에도 남아 수정 동작이 다시 보인다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
-        val moreDescription = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
+        val moreDescription = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
         val response = CompletableDeferred<Unit>()
         val updateAnswer = screen.mocks.updateAnswer
@@ -277,7 +279,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-960b0057-5c59-4e39-a64b-9505dce274f6 수정에 실패하면 실패를 알리고 입력을 그대로 둔다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { Result.failure(IllegalStateException(FAILURE_MESSAGE)) }
 
@@ -293,7 +295,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-8a9c6995-d9cd-4082-ba1f-e2019e03b8fe 다운로드는 입력 중인 이름이 아니라 저장된 파일 이름으로 내려받는다`() {
-        val file = fileDetailFixtureMonkey.nonBlankDiaryFile().copy(name = "report.pdf")
+        val file = Arb.nonBlankDiaryFile().next().copy(name = "report.pdf")
         val screen = FileDetailTestScreen(mocks = FileDetailMocks(file = file))
 
         setScreen(screen = screen)
@@ -359,7 +361,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-24a020d7-5144-4e80-b8ec-4bdee3b8f315 수정과 다운로드는 서로 막지 않는다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { awaitCancellation() }
         screen.mocks.downloadAnswer = { awaitCancellation() }
@@ -377,7 +379,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-97c06e67-2ee1-4376-8ad9-61e5b2b76adc 계정이 게스트나 다른 사용자로 바뀌면 화면을 닫는다`() {
-        listOf<Account>(Account.Guest, fileDetailFixtureMonkey.giveMeOne<Account.User>()).forEach { changed ->
+        listOf<Account>(Account.Guest, Arb.accountUser().next()).forEach { changed ->
             val screen = FileDetailTestScreen()
 
             setScreen(screen = screen)
@@ -390,7 +392,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-dd6a353f-2bc5-4709-a362-218ee5cdfd32 계정을 확정하지 않은 동안에는 화면을 그대로 두고 수정과 다운로드를 실패로 알린다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
 
         setScreen(screen = screen)
@@ -410,8 +412,7 @@ class FileDetailScreenTest {
 
     @Test
     fun `TC-5db21cb6-38ef-4b0d-8165-9ac171b23038 뒤로가면 FileHome으로 돌아간다`() {
-        val newTitle = fileDetailFixtureMonkey.nonBlankString()
-        val moreDescription = fileDetailFixtureMonkey.nonBlankString()
+        val newTitle = Arb.nonBlankString().next()
         val screen = FileDetailTestScreen()
 
         setScreen(screen = screen)

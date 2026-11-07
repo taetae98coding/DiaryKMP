@@ -127,6 +127,25 @@ class RequestPermissionEffectTest {
     }
 
     @Test
+    fun `TC-ebd72f3b-d874-4adc-b6e7-bb5713082f13 요청에 응답하지 않고 앱을 계속 사용해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+        val registry = spyk<ActivityResultRegistry>()
+        every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } just runs
+        val resultList = mutableListOf<PermissionResult>()
+
+        setRequestPermissionEffect(
+            permission = Permission.NOTIFICATION,
+            registry = registry,
+            onResult = { result -> resultList += result },
+        )
+        composeRule.waitForIdle()
+
+        registry.launchedPermissionList shouldHaveSize 1
+        composeRule.onNodeWithText(APP_CONTENT, substring = true).assertIsDisplayed()
+        composeRule.onRoot().onChildren().assertCountEquals(1)
+        resultList.shouldBeEmpty()
+    }
+
+    @Test
     fun `TC-f2c3b71c-7e46-4194-b289-f0712758f25f 앱 안에서 다른 화면으로 이동해도 요청 조건을 다시 확인하지 않는다`() {
         val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         var currentScreen by mutableStateOf(FIRST_SCREEN)

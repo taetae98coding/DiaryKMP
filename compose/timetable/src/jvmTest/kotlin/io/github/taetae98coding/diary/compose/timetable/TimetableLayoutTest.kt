@@ -1,17 +1,15 @@
 package io.github.taetae98coding.diary.compose.timetable
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TimetableLayoutTest :
     FunSpec({
@@ -190,7 +188,7 @@ private fun timeItem(
     TimetableTimeItem(
         start = start,
         endInclusive = endInclusive,
-        key = fixtureMonkey.giveMeOne<Uuid>(),
+        key = Arb.kotlinUuid().next(),
         content = {},
     )
 
@@ -200,6 +198,6 @@ private fun allDayItem(
 ): TimetableAllDayItem =
     TimetableAllDayItem(
         dateRange = start..end,
-        key = fixtureMonkey.giveMeOne<Uuid>(),
+        key = Arb.kotlinUuid().next(),
         content = {},
     )

@@ -2,25 +2,23 @@ package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.GeminiSettingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.core.datastore.impl.geminiSettingData
+import io.github.taetae98coding.diary.core.datastore.impl.geminiSettingLocalEntity
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class GeminiSettingLocalDataSourceImplTest :
     FunSpec({
@@ -31,7 +29,7 @@ class GeminiSettingLocalDataSourceImplTest :
         }
 
         test("보관된 설정을 그대로 제공한다") {
-            val stored = fixtureMonkey.giveMeOne<GeminiSettingData>()
+            val stored = Arb.geminiSettingData().next()
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(stored)))
 
             dataSource.get().first() shouldBe
@@ -45,7 +43,7 @@ class GeminiSettingLocalDataSourceImplTest :
         test("보관된 설정이 바뀌면 바뀐 설정을 이어서 제공한다") {
             val settingFlow = MutableStateFlow(GeminiSettingData())
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
-            val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>().copy(apiKey = fixtureMonkey.nonBlankString())
+            val entity = Arb.geminiSettingLocalEntity().next().copy(apiKey = Arb.nonBlankString().next())
 
             dataSource.get().test {
                 awaitItem() shouldBe GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = "")
@@ -57,10 +55,10 @@ class GeminiSettingLocalDataSourceImplTest :
         }
 
         test("세 값을 DataStore의 한 번의 갱신으로 저장한다") {
-            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingData>())
+            val settingFlow = MutableStateFlow(Arb.geminiSettingData().next())
             val dataStore = mockDataStore(settingFlow)
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = dataStore)
-            val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>()
+            val entity = Arb.geminiSettingLocalEntity().next()
 
             dataSource.upsert(setting = entity)
 
@@ -74,7 +72,7 @@ class GeminiSettingLocalDataSourceImplTest :
         }
 
         test("세 값이 모두 비어 있어도 저장한다") {
-            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingData>())
+            val settingFlow = MutableStateFlow(Arb.geminiSettingData().next())
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 
             dataSource.upsert(setting = GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = ""))
@@ -92,7 +90,7 @@ class GeminiSettingLocalDataSourceImplTest :
 
             val actual =
                 shouldThrowExactly<IllegalStateException> {
-                    dataSource.upsert(setting = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>())
+                    dataSource.upsert(setting = Arb.geminiSettingLocalEntity().next())
                 }
 
             actual shouldBeSameInstanceAs failure

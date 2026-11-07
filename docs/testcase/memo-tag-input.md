@@ -8,6 +8,8 @@
 
 검색어의 정규화와 일치 판정, 검색 결과 없음 판정은 [검색어 일치 판정 스펙](../spec/client/search-match.md)에 위임되어 있으며, 태그 선택 목록에서의 결과를 이 문서의 케이스로 덮는다.
 
+`domain > 진행 상태 유지`는 화면마다 복원 기준이 달라 [MemoAdd 테스트 케이스](./memo-add.md)와 [MemoDetail 테스트 케이스](./memo-detail.md)가 각 화면의 케이스로 덮는다.
+
 완료된 태그를 선택한 것으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. MemoAdd 화면의 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)에서, MemoDetail 화면의 케이스는 [MemoDetail 테스트 케이스](./memo-detail.md)에서 다룬다.
 
 ## feature

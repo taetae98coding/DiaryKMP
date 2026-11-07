@@ -23,10 +23,18 @@ internal class KotestPrimitivePlugin : Plugin<Project> {
 
     private fun Project.configureDependencies() {
         extensions.configure<KotlinMultiplatformExtension> {
+            // 테스트 데이터 생성은 모든 타깃에서 동작하므로 commonTest에 두어 jvmTest와 androidHostTest가 물려받게 한다.
+            if (path != FIXTURE_PATH) {
+                sourceSets.named("commonTest") {
+                    dependencies {
+                        implementation(project(FIXTURE_PATH))
+                    }
+                }
+            }
+
             // jvm 타깃을 build 파일에서 직접 선언하는 모듈에서는 이 플러그인이 타깃보다 먼저 적용되므로 소스셋을 만들지 않고 기다린다.
             sourceSets.matching { it.name == "jvmTest" }.configureEach {
                 dependencies {
-                    implementation(project(FIXTURE_MONKEY_PATH))
                     implementation(library("kotest.runner.junit5"))
                     implementation(library("kotlinx.coroutines.test"))
                     implementation(library("mockk"))
@@ -36,7 +44,6 @@ internal class KotestPrimitivePlugin : Plugin<Project> {
 
             sourceSets.matching { it.name == "androidHostTest" }.configureEach {
                 dependencies {
-                    implementation(project(FIXTURE_MONKEY_PATH))
                     implementation(library("kotest.assertions.core"))
                     implementation(library("mockk"))
                     implementation(library("turbine"))
@@ -52,4 +59,4 @@ internal class KotestPrimitivePlugin : Plugin<Project> {
     }
 }
 
-private const val FIXTURE_MONKEY_PATH = ":library:fixture-monkey"
+private const val FIXTURE_PATH = ":library:fixture"

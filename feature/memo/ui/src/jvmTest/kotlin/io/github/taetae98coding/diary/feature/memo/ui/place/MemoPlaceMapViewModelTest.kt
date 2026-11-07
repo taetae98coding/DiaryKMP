@@ -4,15 +4,15 @@ package io.github.taetae98coding.diary.feature.memo.ui.place
 
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -138,7 +138,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
         test("TC-718d19df-b17b-4756-b3ce-2e652ef8ffb3 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
             runTest(mainDispatcher) {
-                val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val coordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
                 val viewModel =
                     viewModel(
@@ -162,8 +162,8 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
         test("TC-d69e72f7-f42b-4b45-ba68-b5c7956e161a 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
-                val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-                val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val beforeCoordinate = Arb.coordinate().next()
+                val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
                 coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
@@ -194,11 +194,11 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
         test("TC-ccada8e8-fc89-41f3-afbe-6446af288e35 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 확인하지 않은 상태로 제공한다") {
             runTest(mainDispatcher) {
-                val restoredCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val restoredCoordinate = Arb.coordinate().next()
                 val restoredLocation = CompletableDeferred<Result<Coordinate>>()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
                 coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns
-                    Result.success(fixtureMonkey.giveMeOne<Coordinate>()) coAndThen { restoredLocation.await() }
+                    Result.success(Arb.coordinate().next()) coAndThen { restoredLocation.await() }
 
                 viewModel(
                     defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
@@ -251,9 +251,6 @@ class MemoPlaceMapViewModelTest : FunSpec() {
 
     private companion object {
         private const val REPEAT_COUNT = 3
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private suspend fun ReceiveTurbine<MemoPlaceMapUiState>.awaitFetchedContent(): MemoPlaceMapUiState.Content {
             var item = awaitItem()

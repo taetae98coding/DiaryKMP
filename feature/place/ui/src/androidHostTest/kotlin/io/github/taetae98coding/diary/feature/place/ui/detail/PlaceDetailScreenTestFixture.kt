@@ -6,19 +6,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -30,6 +33,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
@@ -37,7 +41,9 @@ import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailF
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
 import io.github.taetae98coding.diary.library.compose.ui.color.toColorLong
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -127,6 +133,7 @@ internal const val CHANGED_ADDRESS = "바뀐 주소"
 internal const val CHANGED_LATITUDE = "38.0"
 internal const val CHANGED_LONGITUDE = "128.0"
 internal const val INVALID_LATITUDE = "abc"
+internal const val OUT_OF_RANGE_LATITUDE = "90.1"
 
 private const val SAVED_LATITUDE = 37.5665
 private const val SAVED_LONGITUDE = 126.978
@@ -135,12 +142,9 @@ internal const val SAVED_LONGITUDE_TEXT = "126.978000"
 private const val SAVED_COLOR = 0xFF3A7BD5
 internal const val SAVED_ADDRESS = "Saved Address"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 internal fun placeDetail(
-    title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-    description: String = "description-${fixtureMonkey.giveMeOne<String>()}",
+    title: String = "title-${Arb.string().next()}",
+    description: String = "description-${Arb.string().next()}",
     // 컬러 입력이 다루는 값과 같은 표현을 쓰기 위해 앱이 저장하는 방식으로 만든다.
     color: Long = Color(SAVED_COLOR).toColorLong(),
     coordinate: Coordinate = Coordinate(latitude = SAVED_LATITUDE, longitude = SAVED_LONGITUDE),
@@ -190,8 +194,8 @@ internal fun ComposeContentTestRule.input(index: Int): SemanticsNodeInteraction 
 internal fun detailTagScreenTestViewModel(
     tagList: List<Tag> = emptyList(),
     selectableTagList: List<Tag> = emptyList(),
-): PlaceDetailTagViewModel {
-    val viewModel = mockk<PlaceDetailTagViewModel>(relaxed = true)
+): EntityDetailTagViewModel {
+    val viewModel = mockk<EntityDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
@@ -209,7 +213,7 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
     memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
-    tagViewModel: PlaceDetailTagViewModel = detailTagScreenTestViewModel(),
+    tagViewModel: EntityDetailTagViewModel = detailTagScreenTestViewModel(),
     uriHandler: UriHandler = mockk(relaxed = true),
 ) {
     preparePlaceDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
@@ -238,6 +242,21 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
 
 internal fun ComposeContentTestRule.selectPlaceDetailTab(contentDescription: String) {
     onNodeWithContentDescription(contentDescription).performClick()
+    waitForIdle()
+}
+
+internal const val SAVED_COLOR_HEX = "#3A7BD5"
+internal const val CHANGED_COLOR_HEX = "#FF7BD5"
+private const val COLOR_CHANNEL_MAX = 255F
+private const val COLOR_CONFIRM_TEXT = "Confirm"
+
+internal fun ComposeContentTestRule.changeColor() {
+    onNodeWithText(SAVED_COLOR_HEX).performScrollTo().performClick()
+    waitForIdle()
+    onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+        .performSemanticsAction(SemanticsActions.SetProgress) { setProgress -> setProgress(COLOR_CHANNEL_MAX) }
+    waitForIdle()
+    onNodeWithText(COLOR_CONFIRM_TEXT).performClick()
     waitForIdle()
 }
 

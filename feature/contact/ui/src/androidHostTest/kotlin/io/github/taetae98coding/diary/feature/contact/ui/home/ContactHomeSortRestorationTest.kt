@@ -9,8 +9,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -22,8 +20,10 @@ import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatche
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -35,9 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -54,7 +51,7 @@ class ContactHomeSortRestorationTest {
     fun `TC-9467ac6f-bb4c-454c-ad8e-4fc10c76d361 시스템이 앱을 정리했다가 다시 만들면 정렬은 이름순으로 돌아가고 보던 목록 위치는 복원한다`() {
         val nameOrderList =
             List(RESTORATION_CONTACT_COUNT) { index ->
-                testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<String>()}")
+                testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}-${Arb.string().next()}")
             }
         val recentOrderList = nameOrderList.reversed()
         val pageContactUseCase = mockk<PageContactUseCase>()
@@ -80,22 +77,35 @@ class ContactHomeSortRestorationTest {
                 )
             }
         }
-        waitUntilNameExists(nameOrderList.first().detail.name)
+        waitUntilNameExists(
+            nameOrderList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
-        waitUntilNameExists(recentOrderList.first().detail.name)
+        waitUntilNameExists(
+            recentOrderList
+                .first()
+                .contact.detail.name,
+        )
         composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
-        composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
+        composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
 
         // 시스템이 앱을 정리하면 화면 상태를 보관하던 객체도 사라지므로, 되살린 화면에는 새로 만든 객체를 준다.
         viewModel = contactHomeViewModel(pageContactUseCase = pageContactUseCase)
         restorationTester.emulateSavedInstanceStateRestore()
-        waitUntilNameExists(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name)
+        waitUntilNameExists(nameOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name)
 
         viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.NAME)
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
-        composeRule.onNodeWithText(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
-        composeRule.onNodeWithText(nameOrderList.first().detail.name).assertDoesNotExist()
+        composeRule.onNodeWithText(nameOrderList[RESTORATION_SCROLL_INDEX].contact.detail.name).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                nameOrderList
+                    .first()
+                    .contact.detail.name,
+            ).assertDoesNotExist()
     }
 
     private fun contactHomeViewModel(pageContactUseCase: PageContactUseCase): ContactHomeViewModel =

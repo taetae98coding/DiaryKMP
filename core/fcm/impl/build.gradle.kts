@@ -32,6 +32,7 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation(projects.core.navigation)
                 implementation(project.dependencies.platform(libs.firebase.bom))
                 implementation(libs.firebase.messaging)
                 implementation(libs.kotlinx.coroutines.play.services)

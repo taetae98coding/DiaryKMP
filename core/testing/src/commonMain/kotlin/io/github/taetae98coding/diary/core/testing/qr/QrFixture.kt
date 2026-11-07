@@ -1,39 +1,39 @@
 package io.github.taetae98coding.diary.core.testing.qr
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrRemoteEntity
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.string
 
-public fun FixtureMonkey.qrDetail(
-    title: String = "title-" + giveMeOne<String>(),
-    description: String = giveMeOne<String>(),
-    value: String = "value-" + giveMeOne<String>(),
-): QrDetail =
-    QrDetail(
-        title = title,
-        description = description,
-        value = value,
-    )
+// 제목과 값은 비어 있으면 저장하지 않으므로 앞에 고정 문자열을 붙인다.
+public fun Arb.Companion.qrDetail(
+    title: String? = null,
+    description: String? = null,
+    value: String? = null,
+): Arb<QrDetail> =
+    arbitrary {
+        QrDetail(
+            title = title ?: "title-${Arb.string().bind()}",
+            description = description ?: Arb.string().bind(),
+            value = value ?: "value-${Arb.string().bind()}",
+        )
+    }
 
-public fun FixtureMonkey.qr(
+public fun Arb.Companion.qr(
     isDeleted: Boolean,
-    detail: QrDetail = qrDetail(),
-): Qr =
-    giveMeKotlinBuilder<Qr>()
-        .setExp(Qr::isDeleted, isDeleted)
-        .sample()
-        .copy(detail = detail)
+    detail: QrDetail? = null,
+): Arb<Qr> =
+    arbitrary {
+        Arb.qr().bind().copy(
+            detail = detail ?: Arb.qrDetail().bind(),
+            isDeleted = isDeleted,
+        )
+    }
 
-public fun FixtureMonkey.localQr(isDeleted: Boolean): QrLocalEntity =
-    giveMeKotlinBuilder<QrLocalEntity>()
-        .setExp(QrLocalEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.localQr(isDeleted: Boolean): Arb<QrLocalEntity> = Arb.qrLocalEntity().map { qr -> qr.copy(isDeleted = isDeleted) }
 
-public fun FixtureMonkey.remoteQr(isDeleted: Boolean): QrRemoteEntity =
-    giveMeKotlinBuilder<QrRemoteEntity>()
-        .setExp(QrRemoteEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.remoteQr(isDeleted: Boolean): Arb<QrRemoteEntity> = Arb.qrRemoteEntity().map { qr -> qr.copy(isDeleted = isDeleted) }

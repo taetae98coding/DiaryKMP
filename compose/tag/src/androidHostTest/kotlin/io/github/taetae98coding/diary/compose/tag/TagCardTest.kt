@@ -12,14 +12,17 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,9 +31,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.math.roundToInt
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -41,7 +41,7 @@ class TagCardTest {
 
     @Test
     fun `태그 카드의 제목 왼쪽 원형 표시에 저장된 컬러를 사용한다`() {
-        val colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt()
+        val colorArgb = Arb.int().next() or 0xFF000000.toInt()
         val tag = tag(colorArgb = colorArgb)
 
         setTagCard(tag)
@@ -69,13 +69,18 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
-        val tag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지와 제목을 비워 표시한다`() {
+        val tag = tag(colorArgb = Arb.int().next() or 0xFF000000.toInt())
 
         setTagCard(tag = null)
 
         composeRule.onNodeWithTag(TAG_CARD_TEST_TAG).assertExists()
         composeRule.onNodeWithText(tag.detail.emojiWithTitle).assertDoesNotExist()
+    }
+
+    @Test
+    fun `자리 표시 카드의 컬러 원형 표시는 카드 배경과 같은 색으로 비워 둔다`() {
+        setTagCard(tag = null)
 
         val indicatorBounds =
             composeRule
@@ -113,7 +118,7 @@ class TagCardTest {
 
     @Test
     fun `TC-5c13d3ed-4d6b-43c3-b434-2ffa97b75334 TC-aa7644ae-95fc-4af9-8aa5-14a62c2f7417 카드 폭보다 긴 제목의 태그는 이모지와 제목이 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
-        val baseTag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+        val baseTag = tag(colorArgb = Arb.int().next() or 0xFF000000.toInt())
         val tag = baseTag.copy(detail = baseTag.detail.copy(emoji = EMOJI, title = LONG_TITLE))
         val emojiWithTitle = tag.detail.emojiWithTitle
 
@@ -138,7 +143,7 @@ class TagCardTest {
 
     @Test
     fun `카드 폭보다 긴 제목은 시간이 지나면 그려지는 위치가 바뀐다`() {
-        val baseTag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+        val baseTag = tag(colorArgb = Arb.int().next() or 0xFF000000.toInt())
         val tag = baseTag.copy(detail = baseTag.detail.copy(emoji = EMOJI, title = LONG_TITLE))
         composeRule.mainClock.autoAdvance = false
         setTagCard(tag)
@@ -159,18 +164,14 @@ class TagCardTest {
     }
 
     private fun tag(colorArgb: Int): Tag =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Tag>()
-            .setExp(
-                Tag::detail,
-                fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}", color = colorArgb.toLong()),
-            ).setExp(
-                Tag::updatedAt,
-                fixtureMonkey.giveMeOne<Instant>(),
-            ).setExp(
-                Tag::createdAt,
-                fixtureMonkey.giveMeOne<Instant>(),
-            ).sample()
+        Arb
+            .tag()
+            .next()
+            .copy(
+                detail = Arb.tagDetail().next().copy(title = "title-${Arb.string().next()}", color = colorArgb.toLong()),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private fun setTagCard(
         tag: Tag?,

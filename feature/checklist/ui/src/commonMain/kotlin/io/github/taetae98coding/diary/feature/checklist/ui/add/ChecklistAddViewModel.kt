@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class ChecklistAddViewModel(
@@ -38,13 +39,14 @@ internal class ChecklistAddViewModel(
     fun add(
         detail: ChecklistDetail,
         itemContentList: List<String>,
+        tagIdSet: Set<Uuid>,
     ) {
         if (isInProgress.value) return
 
         viewModelScope.launch {
             isInProgress.value = true
             try {
-                addChecklistUseCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = itemContentList))
+                addChecklistUseCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = itemContentList, tagIdSet = tagIdSet))
                     .onSuccess { _effect.send(ChecklistAddEffect.AddSucceeded) }
                     .onFailure { throwable ->
                         if (throwable is ChecklistTitleBlankException) {

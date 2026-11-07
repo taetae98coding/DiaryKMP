@@ -6,5 +6,6 @@ import kotlin.uuid.Uuid
 public data class LunarContactBirthday(
     val contactId: Uuid,
     val name: String,
+    val nameQualifier: String,
     val birthday: LocalDate,
 )

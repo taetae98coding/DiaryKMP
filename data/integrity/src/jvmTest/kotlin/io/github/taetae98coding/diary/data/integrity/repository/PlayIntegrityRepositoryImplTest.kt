@@ -1,19 +1,22 @@
 package io.github.taetae98coding.diary.data.integrity.repository
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityToken
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityTokenProvider
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
 import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.core.network.api.integrity.datasource.PlayIntegrityRemoteDataSource
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -22,12 +25,10 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 class PlayIntegrityRepositoryImplTest :
     FunSpec({
         test("TC-0b08e592-db52-4ec0-b462-0aadca7cb1e8 확인마다 새 무작위 값을 요청 해시로 담는다") {
-            val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
+            val token = Arb.playIntegrityToken().next()
             val requestHashList = mutableListOf<String>()
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = capture(requestHashList)) } returns token
@@ -43,8 +44,8 @@ class PlayIntegrityRepositoryImplTest :
         }
 
         test("TC-21a18142-dfc1-4643-ae8e-2e6c223c2342 발급받은 토큰과 패키지 이름으로 요청해 받은 판정 결과를 그대로 돌려준다") {
-            val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
-            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
+            val token = Arb.playIntegrityToken().next()
+            val appRecognitionVerdict = Arb.string().next()
             val verdict = verdict(appRecognitionVerdict = appRecognitionVerdict)
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } returns token
@@ -65,12 +66,12 @@ class PlayIntegrityRepositoryImplTest :
         }
 
         test("판정 결과의 문자열, 숫자, 참·거짓, null, 목록, 겹친 필드를 종류를 지켜 옮긴다") {
-            val text = fixtureMonkey.giveMeOne<Long>().toString()
-            val integer = fixtureMonkey.giveMeOne<Long>()
-            val decimal = fixtureMonkey.giveMeOne<Int>() + 0.5
-            val flag = fixtureMonkey.giveMeOne<Boolean>()
-            val listValue = fixtureMonkey.giveMeOne<String>()
-            val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
+            val text = Arb.long().next().toString()
+            val integer = Arb.long().next()
+            val decimal = Arb.int().next() + 0.5
+            val flag = Arb.boolean().next()
+            val listValue = Arb.string().next()
+            val token = Arb.playIntegrityToken().next()
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } returns token
             val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
@@ -117,7 +118,7 @@ class PlayIntegrityRepositoryImplTest :
         }
 
         test("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 토큰 발급에 실패하면 서버에 요청하지 않고 실패를 전달한다") {
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failure = IllegalStateException(Arb.string().next())
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } throws failure
             val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
@@ -126,8 +127,21 @@ class PlayIntegrityRepositoryImplTest :
             shouldThrowExactly<IllegalStateException> { repository.fetch() } shouldBe failure
             coVerify(exactly = 0) { remoteDataSource.decode(token = any(), packageName = any()) }
         }
+
+        test("TC-38f0fd49-9bdf-435a-aef3-ca084756c93f 서버가 실패로 답하면 다시 요청하지 않고 실패를 전달한다") {
+            val token = Arb.playIntegrityToken().next()
+            val failure = IllegalStateException(Arb.string().next())
+            val tokenProvider = mockk<PlayIntegrityTokenProvider>()
+            coEvery { tokenProvider.getToken(requestHash = any()) } returns token
+            val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
+            coEvery { remoteDataSource.decode(token = any(), packageName = any()) } throws failure
+            val repository = PlayIntegrityRepositoryImpl(playIntegrityTokenProvider = tokenProvider, playIntegrityRemoteDataSource = remoteDataSource)
+
+            shouldThrowExactly<IllegalStateException> { repository.fetch() } shouldBe failure
+            coVerify(exactly = 1) { remoteDataSource.decode(token = any(), packageName = any()) }
+        }
     }) {
     private companion object {
-        fun verdict(appRecognitionVerdict: String = fixtureMonkey.giveMeOne<String>()): JsonObject = JsonObject(mapOf("appIntegrity" to JsonObject(mapOf("appRecognitionVerdict" to JsonPrimitive(appRecognitionVerdict)))))
+        fun verdict(appRecognitionVerdict: String = Arb.string().next()): JsonObject = JsonObject(mapOf("appIntegrity" to JsonObject(mapOf("appRecognitionVerdict" to JsonPrimitive(appRecognitionVerdict)))))
     }
 }

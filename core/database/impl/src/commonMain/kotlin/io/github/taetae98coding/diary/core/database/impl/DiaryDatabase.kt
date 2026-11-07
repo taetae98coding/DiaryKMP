@@ -16,28 +16,38 @@ import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLo
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.dao.CalendarFilterTagDao
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklist.dao.AccountChecklistDao
 import io.github.taetae98coding.diary.core.database.impl.checklist.dao.AccountChecklistSyncDao
+import io.github.taetae98coding.diary.core.database.impl.checklist.dao.AccountTagChecklistDao
 import io.github.taetae98coding.diary.core.database.impl.checklist.dao.ChecklistDao
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.AccountChecklistItemDao
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.AccountChecklistItemSyncDao
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.ChecklistItemDao
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.dao.AccountChecklistTagDao
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.dao.AccountChecklistTagSyncDao
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.dao.ChecklistTagDao
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.entity.AccountChecklistTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.entity.ChecklistTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountCalendarContactBirthdayDao
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountContactDao
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountContactSyncDao
+import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountTagContactDao
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.ContactDao
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.contacttag.dao.AccountContactTagDao
+import io.github.taetae98coding.diary.core.database.impl.contacttag.dao.AccountContactTagSyncDao
+import io.github.taetae98coding.diary.core.database.impl.contacttag.dao.ContactTagDao
+import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.AccountContactTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.ContactTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactBirthdayCalendarColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactPhoneNumberListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.WebHeaderListColumnTypeConverter
@@ -73,8 +83,14 @@ import io.github.taetae98coding.diary.core.database.impl.migration.ContactBirthY
 import io.github.taetae98coding.diary.core.database.impl.migration.ContactHowWeMetAutoMigrationSpec
 import io.github.taetae98coding.diary.core.database.impl.music.dao.AccountMusicDao
 import io.github.taetae98coding.diary.core.database.impl.music.dao.AccountMusicSyncDao
+import io.github.taetae98coding.diary.core.database.impl.music.dao.AccountTagMusicDao
 import io.github.taetae98coding.diary.core.database.impl.music.dao.MusicDao
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.musictag.dao.AccountMusicTagDao
+import io.github.taetae98coding.diary.core.database.impl.musictag.dao.AccountMusicTagSyncDao
+import io.github.taetae98coding.diary.core.database.impl.musictag.dao.MusicTagDao
+import io.github.taetae98coding.diary.core.database.impl.musictag.entity.AccountMusicTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.musictag.entity.MusicTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.dao.AccountPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.place.dao.AccountPlaceSyncDao
 import io.github.taetae98coding.diary.core.database.impl.place.dao.AccountTagPlaceDao
@@ -84,10 +100,17 @@ import io.github.taetae98coding.diary.core.database.impl.placetag.dao.AccountPla
 import io.github.taetae98coding.diary.core.database.impl.placetag.dao.AccountPlaceTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.placetag.dao.PlaceTagDao
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.dao.AccountQrDao
 import io.github.taetae98coding.diary.core.database.impl.qr.dao.AccountQrSyncDao
+import io.github.taetae98coding.diary.core.database.impl.qr.dao.AccountTagQrDao
 import io.github.taetae98coding.diary.core.database.impl.qr.dao.QrDao
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qrtag.dao.AccountQrTagDao
+import io.github.taetae98coding.diary.core.database.impl.qrtag.dao.AccountQrTagSyncDao
+import io.github.taetae98coding.diary.core.database.impl.qrtag.dao.QrTagDao
+import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.AccountQrTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.QrTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchMemoDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchTagDao
@@ -114,6 +137,7 @@ import io.github.taetae98coding.diary.core.database.impl.webtag.dao.AccountWebTa
 import io.github.taetae98coding.diary.core.database.impl.webtag.dao.AccountWebTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.webtag.dao.WebTagDao
 import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.library.room3.converter.InstantColumnTypeConverter
 import io.github.taetae98coding.diary.library.room3.converter.LocalDateColumnTypeConverter
 import io.github.taetae98coding.diary.library.room3.converter.LocalDateTimeColumnTypeConverter
@@ -157,14 +181,23 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountChecklistLocalEntity::class,
         ChecklistItemLocalEntity::class,
         AccountChecklistItemLocalEntity::class,
+        ContactTagLocalEntity::class,
+        AccountContactTagLocalEntity::class,
+        ChecklistTagLocalEntity::class,
+        AccountChecklistTagLocalEntity::class,
+        MusicTagLocalEntity::class,
+        AccountMusicTagLocalEntity::class,
+        QrTagLocalEntity::class,
+        AccountQrTagLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 5,
+    version = 6,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = ContactBirthYearAutoMigrationSpec::class),
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5, spec = ContactHowWeMetAutoMigrationSpec::class),
+        AutoMigration(from = 5, to = 6),
     ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)
@@ -281,6 +314,14 @@ internal abstract class DiaryDatabase : RoomDatabase() {
 
     abstract fun accountContactSyncDao(): AccountContactSyncDao
 
+    abstract fun contactTagDao(): ContactTagDao
+
+    abstract fun accountContactTagDao(): AccountContactTagDao
+
+    abstract fun accountContactTagSyncDao(): AccountContactTagSyncDao
+
+    abstract fun accountTagContactDao(): AccountTagContactDao
+
     abstract fun accountCalendarContactBirthdayDao(): AccountCalendarContactBirthdayDao
 
     abstract fun musicDao(): MusicDao
@@ -289,17 +330,41 @@ internal abstract class DiaryDatabase : RoomDatabase() {
 
     abstract fun accountMusicSyncDao(): AccountMusicSyncDao
 
+    abstract fun musicTagDao(): MusicTagDao
+
+    abstract fun accountMusicTagDao(): AccountMusicTagDao
+
+    abstract fun accountMusicTagSyncDao(): AccountMusicTagSyncDao
+
+    abstract fun accountTagMusicDao(): AccountTagMusicDao
+
     abstract fun qrDao(): QrDao
 
     abstract fun accountQrDao(): AccountQrDao
 
     abstract fun accountQrSyncDao(): AccountQrSyncDao
 
+    abstract fun qrTagDao(): QrTagDao
+
+    abstract fun accountQrTagDao(): AccountQrTagDao
+
+    abstract fun accountQrTagSyncDao(): AccountQrTagSyncDao
+
+    abstract fun accountTagQrDao(): AccountTagQrDao
+
     abstract fun checklistDao(): ChecklistDao
 
     abstract fun accountChecklistDao(): AccountChecklistDao
 
     abstract fun accountChecklistSyncDao(): AccountChecklistSyncDao
+
+    abstract fun checklistTagDao(): ChecklistTagDao
+
+    abstract fun accountChecklistTagDao(): AccountChecklistTagDao
+
+    abstract fun accountChecklistTagSyncDao(): AccountChecklistTagSyncDao
+
+    abstract fun accountTagChecklistDao(): AccountTagChecklistDao
 
     abstract fun checklistItemDao(): ChecklistItemDao
 

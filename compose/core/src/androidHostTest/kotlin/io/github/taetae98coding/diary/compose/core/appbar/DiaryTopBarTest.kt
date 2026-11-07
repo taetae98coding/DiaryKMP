@@ -24,18 +24,16 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -45,7 +43,7 @@ class DiaryTopBarTest {
 
     @Test
     fun `아이콘 버튼을 누르면 동작을 한 번 실행한다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         var clickCount = 0
         composeRule.setContent {
             DiaryTheme {
@@ -70,7 +68,7 @@ class DiaryTopBarTest {
 
     @Test
     fun `진행 중인 아이콘 버튼은 진행 표시로 바뀌어도 버튼 이름을 유지한다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
@@ -96,7 +94,7 @@ class DiaryTopBarTest {
 
     @Test
     fun `비활성 아이콘 버튼은 누를 수 없다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         var isEnabled by mutableStateOf(false)
         composeRule.setContent {
             DiaryTheme {
@@ -123,7 +121,7 @@ class DiaryTopBarTest {
 
     @Test
     fun `표시하지 않기로 한 아이콘 버튼은 사라진다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         var isVisible by mutableStateOf(true)
         composeRule.setContent {
             DiaryTheme {
@@ -150,7 +148,7 @@ class DiaryTopBarTest {
 
     @Test
     fun `켬끔 버튼은 켜짐 여부를 켬끔 상태로 알린다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
         var isChecked by mutableStateOf(false)
         composeRule.setContent {
             DiaryTheme {
@@ -177,8 +175,8 @@ class DiaryTopBarTest {
 
     @Test
     fun `적용 상태 버튼은 적용되었을 때만 적용 상태 문구를 알린다`() {
-        val contentDescription = fixtureMonkey.nonBlankString()
-        val appliedStateDescription = fixtureMonkey.nonBlankString()
+        val contentDescription = Arb.nonBlankString().next()
+        val appliedStateDescription = Arb.nonBlankString().next()
         var isApplied by mutableStateOf(false)
         composeRule.setContent {
             DiaryTheme {
@@ -208,8 +206,8 @@ class DiaryTopBarTest {
 
     @Test
     fun `글자 버튼은 보이는 글자와 함께 접근성 이름으로 알린다`() {
-        val text = fixtureMonkey.nonBlankString()
-        val contentDescription = fixtureMonkey.nonBlankString()
+        val text = Arb.nonBlankString().next()
+        val contentDescription = Arb.nonBlankString().next()
         var clickCount = 0
         composeRule.setContent {
             DiaryTheme {
@@ -235,8 +233,8 @@ class DiaryTopBarTest {
 
     @Test
     fun `글자 제목은 보조 제목과 함께 표시한다`() {
-        val title = fixtureMonkey.nonBlankString()
-        val subtitle = fixtureMonkey.nonBlankString()
+        val title = Arb.nonBlankString().next()
+        val subtitle = Arb.nonBlankString().next()
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(title = { Title(text = title, subtitle = subtitle, isMarquee = true) })
@@ -249,9 +247,9 @@ class DiaryTopBarTest {
 
     @Test
     fun `누를 수 있는 제목은 펼침 여부에 맞는 화살표 이름을 알리고 누르면 동작을 실행한다`() {
-        val title = fixtureMonkey.nonBlankString()
-        val expandContentDescription = fixtureMonkey.nonBlankString()
-        val collapseContentDescription = fixtureMonkey.nonBlankString()
+        val title = Arb.nonBlankString().next()
+        val expandContentDescription = Arb.nonBlankString().next()
+        val collapseContentDescription = Arb.nonBlankString().next()
         var isExpanded by mutableStateOf(false)
         var clickCount = 0
         composeRule.setContent {
@@ -280,8 +278,8 @@ class DiaryTopBarTest {
 
     @Test
     fun `검색 제목에 입력한 글자는 검색어 상태에 반영된다`() {
-        val placeholder = fixtureMonkey.nonBlankString()
-        val query = fixtureMonkey.nonBlankString()
+        val placeholder = Arb.nonBlankString().next()
+        val query = Arb.nonBlankString().next()
         val state = TextFieldState()
         composeRule.setContent {
             DiaryTheme {

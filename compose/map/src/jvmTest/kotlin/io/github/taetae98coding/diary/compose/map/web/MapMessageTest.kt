@@ -1,21 +1,23 @@
 package io.github.taetae98coding.diary.compose.map.web
 
-import androidx.compose.ui.graphics.Color
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.color
+import io.github.taetae98coding.diary.compose.map.diaryMapCamera
+import io.github.taetae98coding.diary.compose.map.diaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
 import io.github.taetae98coding.diary.compose.map.naver.createNaverMapHtml
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
 class MapMessageTest :
@@ -188,9 +190,20 @@ class MapMessageTest :
                 """{"type": "camera", "latitude": ${camera.latitude}, "longitude": ${camera.longitude}, "zoom": ${camera.zoom}}"""
             val clickMessage =
                 """{"type": "click", "latitude": ${coordinate.latitude}, "longitude": ${coordinate.longitude}}"""
+            val deliveredList = mutableListOf<DiaryMapCoordinate>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
 
-            cameraMessage.toMapMessageOrNull() shouldBe MapMessage.Camera(camera = camera)
-            clickMessage.toMapMessageOrNull() shouldBe MapMessage.Click(coordinate = coordinate)
+            listOf(cameraMessage, clickMessage).forEach { message ->
+                state.handleMapMessage(
+                    message = message,
+                    onReady = {},
+                    onSpotClick = { spot -> deliveredList += spot },
+                    onPinClick = null,
+                )
+            }
+
+            state.camera shouldBe camera
+            deliveredList shouldBe listOf(coordinate)
         }
 
         test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 위치 소식의 보이는 영역을 확인한다") {
@@ -234,7 +247,7 @@ class MapMessageTest :
         }
 
         test("지도가 알려온 위치 소식을 같은 값의 카메라로 읽는다") {
-            val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>().copy(bounds = null)
+            val camera = Arb.diaryMapCamera().next().copy(bounds = null)
             val message =
                 """{"type": "camera", "latitude": ${camera.latitude}, "longitude": ${camera.longitude}, "zoom": ${camera.zoom}}"""
 
@@ -260,15 +273,12 @@ class MapMessageTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun pin(id: Uuid): DiaryMapPin =
             DiaryMapPin(
                 id = id,
-                coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
-                color = Color(fixtureMonkey.giveMeOne<Int>()),
-                label = "label-${fixtureMonkey.giveMeOne<Int>()}",
+                coordinate = Arb.diaryMapCoordinate().next(),
+                color = Arb.color().next(),
+                label = "label-${Arb.int().next()}",
             )
     }
 }

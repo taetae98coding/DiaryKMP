@@ -14,7 +14,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
@@ -27,8 +26,9 @@ import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
@@ -38,8 +38,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -116,7 +114,7 @@ class PlaceDetailTagInputTest {
      */
     @Test
     fun `TC-1f48861e-d312-4334-8d4f-a251df532203 태그를 연결하거나 해제해도 지도가 보고 있는 위치와 지점 표시는 바뀌지 않는다`() {
-        val detail = placeDetail(coordinate = fixtureMonkey.coordinateInFormPrecision())
+        val detail = placeDetail(coordinate = Arb.coordinateInFormPrecision().next())
         val savedCoordinate = detail.coordinate.toDiaryMapCoordinate()
         val tag = placeTestTag(title = SELECTABLE_TAG_TITLE)
         val tagUiState = mutableStateOf(EntityTagInputUiState())
@@ -194,6 +192,43 @@ class PlaceDetailTagInputTest {
             }
         }
         return state
+    }
+
+    @Test
+    fun `TC-6e1e8318-ce9f-4318-898d-09657d185da4 연결된 태그를 해제해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
+        val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
+        setPlaceDetailScreen(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-80e48e65-0601-4073-9161-87db979bc146 태그를 해제해도 입력 중인 내용은 바뀌지 않는다`() {
+        val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
+        setPlaceDetailScreen(tagList = listOf(linkedTag), selectableTagList = listOf(linkedTag))
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.waitForIdle()
+
+        unlinkTag(title = LINKED_TAG_TITLE)
+
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+        composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+        composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+    }
+
+    private fun unlinkTag(title: String) {
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        awaitPickerRow(title = title)
+        composeRule.onNode(hasText(title) and isToggleable()).performClick()
+        composeRule.waitForIdle()
     }
 
     private fun linkTag(title: String) {

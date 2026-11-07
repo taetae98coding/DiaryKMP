@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import kotlin.uuid.Uuid
 
 internal sealed interface PlaylistHomeScaffoldEvent {
     data object ClickNavigateUp : PlaylistHomeScaffoldEvent
@@ -15,12 +14,4 @@ internal sealed interface PlaylistHomeScaffoldEvent {
     ) : PlaylistHomeScaffoldEvent
 
     data object Refresh : PlaylistHomeScaffoldEvent
-
-    data class ClickMusic(
-        val id: Uuid,
-    ) : PlaylistHomeScaffoldEvent
-
-    data class DeleteMusic(
-        val id: Uuid,
-    ) : PlaylistHomeScaffoldEvent
 }

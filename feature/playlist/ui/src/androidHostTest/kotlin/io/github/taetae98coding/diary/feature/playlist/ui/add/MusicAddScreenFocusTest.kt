@@ -4,18 +4,17 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.addTagScreenTestViewModel
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -35,7 +34,7 @@ class MusicAddScreenFocusTest {
     @Test
     fun `TC-9f05a301-c3ea-4e8f-9ed8-7d576156a1e5 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded))
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
         composeRule.linkInput().performClick()
         composeRule.waitForIdle()
         composeRule.linkInput().assertIsFocused()
@@ -48,7 +47,7 @@ class MusicAddScreenFocusTest {
     @Test
     fun `TC-61ac0ff3-333e-4024-9c18-54cd0419cec6 제목이 공백이면 제목 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.TitleBlank))
-        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.artistInput().performTextInput(Arb.string().next())
 
         composeRule.clickAdd()
 
@@ -58,7 +57,7 @@ class MusicAddScreenFocusTest {
     @Test
     fun `TC-61ac0ff3-333e-4024-9c18-54cd0419cec6 링크가 YouTube 주소가 아니면 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.LinkNotYoutube))
-        composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.titleInput().performTextInput(Arb.string().next())
 
         composeRule.clickAdd()
 
@@ -68,7 +67,7 @@ class MusicAddScreenFocusTest {
     @Test
     fun `TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 공백이면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkBlank))
-        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.artistInput().performTextInput(Arb.string().next())
 
         composeRule.clickFetch()
 
@@ -78,7 +77,7 @@ class MusicAddScreenFocusTest {
     @Test
     fun `TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 YouTube 주소가 아니면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkNotYoutube))
-        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+        composeRule.artistInput().performTextInput(Arb.string().next())
 
         composeRule.clickFetch()
 
@@ -109,11 +108,15 @@ class MusicAddScreenFocusTest {
 
     private fun setMusicAddScreen(viewModel: MusicAddViewModel) {
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }

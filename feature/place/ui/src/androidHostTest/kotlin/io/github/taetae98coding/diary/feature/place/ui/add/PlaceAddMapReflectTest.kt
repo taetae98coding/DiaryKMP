@@ -10,26 +10,25 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 /**
  * 지도 제공자의 실제 표시 요소는 만들 수 없으므로, 화면이 지도 기능에 지정하는 지점과 지도 위치로 반영 결과를 확인한다.
@@ -43,8 +42,8 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-2564e844-d4e4-40f8-9cd9-c49ec9042b77 지도에서 고른 좌표는 기다리지 않고 곧바로 반영한다`() {
         composeRule.mainClock.autoAdvance = false
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val state = setReflectCoordinate(initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
         composeRule.write { state().selectSpotOnMap(selectedCoordinate) }
 
@@ -58,8 +57,8 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-3428e27a-0779-4775-98da-812ef312751f 좌표를 직접 입력하면 지점 표시와 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
-        val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+        val typedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val state = setReflectCoordinate(initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
         composeRule.write { state().typeCoordinate(typedCoordinate) }
         composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
@@ -73,8 +72,8 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-c262ea93-bebd-4821-b480-242c417923c9 성립하지 않는 좌표를 입력하면 지점 표시가 사라지고 지도는 옮기지 않는다`() {
         composeRule.mainClock.autoAdvance = false
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val state = setReflectCoordinate(initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
         listOf("", "abc", "90.1").forEach { latitude ->
             composeRule.write { state().selectSpotOnMap(selectedCoordinate) }
@@ -97,8 +96,8 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-0c3cadbc-bbae-4f24-be38-c836211269ee 직접 입력한 좌표는 입력이 멈춘 뒤 지도에 반영한다`() {
         composeRule.mainClock.autoAdvance = false
-        val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+        val typedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val state = setReflectCoordinate(initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
         composeRule.write { state().typeCoordinate(typedCoordinate) }
         // 테스트 시계는 프레임 단위로 올려 진행하므로 대기 시간의 절반에서 반영 전을 확인한다.
@@ -114,12 +113,12 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-c9c8114e-a62d-4f9c-b35b-338509b8c914 기다리는 동안 다시 입력하면 마지막으로 입력한 좌표만 반영한다`() {
         composeRule.mainClock.autoAdvance = false
-        val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val typedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val changedCoordinate =
-            generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }
+            generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }
                 .first { coordinate -> coordinate.latitude != typedCoordinate.latitude }
                 .copy(longitude = typedCoordinate.longitude)
-        val state = setReflectCoordinate(initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+        val state = setReflectCoordinate(initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next())
 
         composeRule.write { state().typeCoordinate(typedCoordinate) }
         composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS / 2)
@@ -135,7 +134,7 @@ class PlaceAddMapReflectTest {
 
     @Test
     fun `TC-3a4ad223-0a33-47f1-bbe0-7f0997d3c4a4 넘겨받은 지도 위치를 초기 지도 위치로 지정한다`() {
-        val initialCoordinateList = List(2) { fixtureMonkey.mapCoordinateInFormPrecision() }
+        val initialCoordinateList = List(2) { Arb.diaryMapCoordinateInFormPrecision().next() }
         val stateList = setPlaceAddFormStateList(initialCoordinateList = initialCoordinateList)
 
         composeRule.runOnIdle {
@@ -146,7 +145,7 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-7e2d31c7-b8db-4c66-96de-3afeab9a475e 넘겨받은 지도 위치가 있어도 위도와 경도는 비어 있고 지점 표시가 없다`() {
         composeRule.mainClock.autoAdvance = false
-        val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         val state = setReflectCoordinate(initialCoordinate = initialCoordinate)
 
         composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
@@ -161,10 +160,10 @@ class PlaceAddMapReflectTest {
 
     @Test
     fun `TC-ae101b65-cb8a-4dd8-983f-c7b5340bd993 앱을 다시 실행한 뒤 새로 진입하면 지점 표시 없이 이동해 온 화면의 지도 위치에서 시작한다`() {
-        val previousOriginCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val nextOriginCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != previousOriginCoordinate }
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != nextOriginCoordinate }
+        val previousOriginCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val nextOriginCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != previousOriginCoordinate }
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val viewedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != nextOriginCoordinate }
         var launchCount by mutableIntStateOf(0)
         var originCoordinate by mutableStateOf(previousOriginCoordinate)
         lateinit var state: PlaceFormState
@@ -217,8 +216,8 @@ class PlaceAddMapReflectTest {
     @Test
     fun `TC-f882b25c-284b-4470-b1ed-6de9707acc5e 표시 중에 기본 지도가 바뀌면 바뀐 지도로 새로 시작하고 입력을 유지한다`() {
         composeRule.mainClock.autoAdvance = false
-        val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val typedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val typedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         var defaultProvider by mutableStateOf(MapProvider.NAVER)
         lateinit var state: PlaceFormState
 
@@ -266,9 +265,9 @@ class PlaceAddMapReflectTest {
 
     @Test
     fun `TC-b2d6ed6e-4a3c-462c-8d4b-4e390f45b4d5 화면이 재생성되어도 고른 지점과 보고 있던 지도를 유지한다`() {
-        val initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val movedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
+        val initialCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val selectedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val movedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != selectedCoordinate }
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: PlaceFormState
 

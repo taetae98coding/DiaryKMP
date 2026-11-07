@@ -32,11 +32,13 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -97,7 +99,7 @@ class TagDetailPlaceDeleteTest {
     @Test
     fun `TC-e1e93066-125b-4a93-9e0c-bb2e48c03d2e 안내가 보이는 동안 다른 장소를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val place = setScreenOnPlaceTab()
-        val otherId = fixtureId()
+        val otherId = Arb.kotlinUuid().next()
 
         swipeCardLeft()
         emitPlaceEffect(PlaceListEffect.Deleted(id = place.id))

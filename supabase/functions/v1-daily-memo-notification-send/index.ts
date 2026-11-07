@@ -49,7 +49,7 @@ serve(async (request) => {
         toContent(memoError ? null : memos.map((memo: { title: string }) => memo.title)),
       );
       const target = due.kind === "installation_id" ? { fid: due.token } : { token: due.token };
-      const result = await fcm.send(buildFcmMessage(target, text, new Date(due.expires_at), new Date()));
+      const result = await fcm.send(buildFcmMessage(target, text, due.local_date, new Date(due.expires_at), new Date()));
 
       switch (result.status) {
         case "sent":

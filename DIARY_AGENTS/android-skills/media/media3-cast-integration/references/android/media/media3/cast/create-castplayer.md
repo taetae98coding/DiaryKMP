@@ -20,17 +20,17 @@ dependencies to the `build.gradle` file of your app module.
 
 ### Kotlin
 
-    implementation("androidx.media3:media3-exoplayer:1.11.0")
-    implementation("androidx.media3:media3-ui:1.11.0")
-    implementation("androidx.media3:media3-session:1.11.0")
-    implementation("androidx.media3:media3-cast:1.11.0")
+    implementation("androidx.media3:media3-exoplayer:1.11.1")
+    implementation("androidx.media3:media3-ui:1.11.1")
+    implementation("androidx.media3:media3-session:1.11.1")
+    implementation("androidx.media3:media3-cast:1.11.1")
 
 ### Groovy
 
-    implementation "androidx.media3:media3-exoplayer:1.11.0"
-    implementation "androidx.media3:media3-ui:1.11.0"
-    implementation "androidx.media3:media3-session:1.11.0"
-    implementation "androidx.media3:media3-cast:1.11.0"
+    implementation "androidx.media3:media3-exoplayer:1.11.1"
+    implementation "androidx.media3:media3-ui:1.11.1"
+    implementation "androidx.media3:media3-session:1.11.1"
+    implementation "androidx.media3:media3-cast:1.11.1"
 
 ## Configure your CastPlayer
 
@@ -236,7 +236,7 @@ override fun onCreateOptionsMenu(menu: Menu): Boolean {
   Futures.addCallback(
     menuItemFuture,
     object : FutureCallback<MenuItem> {
-      override fun onSuccess(menuItem: MenuItem?) {
+      override fun onSuccess(menuItem: MenuItem) {
         // Do something with the menu item.
       }
 

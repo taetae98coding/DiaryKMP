@@ -28,6 +28,7 @@ public interface AccountMusicRepository {
     public suspend fun upsert(
         account: Account,
         music: Music,
+        tagIdSet: Set<Uuid>,
     )
 
     public suspend fun updateDetail(

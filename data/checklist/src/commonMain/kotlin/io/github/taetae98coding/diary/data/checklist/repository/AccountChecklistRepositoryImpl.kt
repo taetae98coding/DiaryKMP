@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.data.checklist.mapper.toDomain
 import io.github.taetae98coding.diary.data.checklist.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistRepository
 import kotlinx.coroutines.flow.Flow
@@ -43,11 +44,13 @@ internal class AccountChecklistRepositoryImpl(
         account: Account,
         checklist: Checklist,
         itemList: List<ChecklistItem>,
+        tagIdSet: Set<Uuid>,
     ) {
         accountChecklistTransaction.upsert(
             accountId = account.id,
             checklist = checklist.toLocal(),
             itemList = itemList.map { item -> item.toLocal() },
+            checklistTagList = tagIdSet.toEntityTagLocalList(entityId = checklist.id, updatedAt = checklist.updatedAt, createdAt = checklist.createdAt),
         )
     }
 

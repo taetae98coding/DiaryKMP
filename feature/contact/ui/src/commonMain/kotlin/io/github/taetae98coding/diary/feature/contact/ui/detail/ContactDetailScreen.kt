@@ -11,66 +11,78 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoContent
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.contactDetailTabShortcut
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.rememberContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
+import io.github.taetae98coding.diary.feature.contact.ui.form.handleContactFormEvent
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.core.tag.handleEntityTagPickerEvent
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun ContactDetailScreen(
     navigateUp: () -> Unit,
+    navigateToTagAdd: () -> Unit,
+    navigateToTagDetail: (Uuid) -> Unit,
     navigateToMemoAdd: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     navigateToMemoFinishedList: () -> Unit,
     id: Uuid,
+    tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> ContactDetailScaffoldComponentVisible,
-    viewModel: ContactDetailViewModel,
+    contactViewModel: ContactDetailViewModel,
+    tagViewModel: EntityDetailTagViewModel,
     modifier: Modifier = Modifier,
 ) {
     val tabState = key(id) { rememberContactDetailTabState() }
     val viewModelStoreProvider = rememberViewModelStoreProvider()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by contactViewModel.uiState.collectAsStateWithLifecycle()
+    val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
+    val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? ContactDetailUiState.Content
     val state = key(content?.id) { rememberContactDetailFormState(initialDetail = content?.detail ?: ContactDetail.EMPTY) }
     val isUpdateEnabled by rememberIsUpdateEnabled(state = state, uiStateProvider = { uiState })
 
+    EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     ContactDetailScreenEffect(
         navigateUp = navigateUp,
-        effect = viewModel.effect,
+        effect = contactViewModel.effect,
         state = state,
     )
 
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = state.snackbarHostState)
 
     ContactDetailScaffold(
-        onEvent = { event ->
-            when (event) {
-                is ContactDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
-                is ContactDetailScaffoldEvent.ClickUpdate -> viewModel.update(detail = state.detail)
-                is ContactDetailScaffoldEvent.ClickFavorite -> viewModel.toggleFavorite()
-                is ContactDetailScaffoldEvent.ClickDelete -> viewModel.delete()
-            }
-        },
+        onEvent = { event -> handleContactDetailScaffoldEvent(event = event, contactViewModel = contactViewModel, state = state, navigateUp = navigateUp) },
+        onTagPickerEvent = { event -> handleEntityTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
         modifier =
             modifier.contactDetailTabShortcut(
-                onUpdate = { viewModel.update(detail = state.detail) },
+                onUpdate = { contactViewModel.update(detail = state.detail) },
                 onMemoAdd = navigateToMemoAdd,
                 state = tabState,
                 isUpdateEnabledProvider = { isUpdateEnabled },
             ),
         state = state,
         tabState = tabState,
+        tagPagingItems = tagPagingItems,
         uiStateProvider = { uiState },
+        tagUiStateProvider = { tagUiState },
         componentVisibleProvider = componentVisibleProvider,
         tabFloatingActionButton = { tab ->
             ContactDetailTabFloatingActionButton(
                 tab = tab,
-                onUpdate = { viewModel.update(detail = state.detail) },
+                onUpdate = { contactViewModel.update(detail = state.detail) },
                 onMemoAdd = navigateToMemoAdd,
                 isUpdateVisible = isUpdateEnabled,
                 isUpdateInProgressProvider = { content?.isUpdateInProgress == true },
@@ -80,12 +92,30 @@ internal fun ContactDetailScreen(
         ContactDetailTabContent(
             tab = tab,
             id = id,
+            navigateToTagAdd = navigateToTagAdd,
+            navigateToTagDetail = navigateToTagDetail,
             navigateToMemoDetail = navigateToMemoDetail,
             navigateToMemoFinishedList = navigateToMemoFinishedList,
             viewModelStoreProvider = viewModelStoreProvider,
             state = state,
+            selectableTagPagingItems = selectableTagPagingItems,
             uiStateProvider = { uiState },
+            tagUiStateProvider = { tagUiState },
         )
+    }
+}
+
+private fun handleContactDetailScaffoldEvent(
+    event: ContactDetailScaffoldEvent,
+    contactViewModel: ContactDetailViewModel,
+    state: ContactFormState,
+    navigateUp: () -> Unit,
+) {
+    when (event) {
+        is ContactDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
+        is ContactDetailScaffoldEvent.ClickUpdate -> contactViewModel.update(detail = state.detail)
+        is ContactDetailScaffoldEvent.ClickFavorite -> contactViewModel.toggleFavorite()
+        is ContactDetailScaffoldEvent.ClickDelete -> contactViewModel.delete()
     }
 }
 
@@ -93,18 +123,32 @@ internal fun ContactDetailScreen(
 private fun ContactDetailTabContent(
     tab: ContactDetailTab,
     id: Uuid,
+    navigateToTagAdd: () -> Unit,
+    navigateToTagDetail: (Uuid) -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     navigateToMemoFinishedList: () -> Unit,
     viewModelStoreProvider: ViewModelStoreProvider,
     state: ContactFormState,
+    selectableTagPagingItems: LazyPagingItems<Tag>,
     uiStateProvider: () -> ContactDetailUiState,
+    tagUiStateProvider: () -> EntityTagInputUiState,
 ) {
     when (tab) {
         ContactDetailTab.DETAIL ->
             ContactDetailScaffoldContent(
+                onFormEvent = { event ->
+                    handleContactFormEvent(
+                        event = event,
+                        state = state,
+                        selectableTagPagingItems = selectableTagPagingItems,
+                        navigateToTagAdd = navigateToTagAdd,
+                        navigateToTagDetail = navigateToTagDetail,
+                    )
+                },
                 modifier = Modifier.fillMaxSize(),
                 state = state,
                 uiStateProvider = uiStateProvider,
+                tagUiStateProvider = tagUiStateProvider,
             )
 
         ContactDetailTab.MEMO ->

@@ -17,7 +17,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
@@ -62,10 +62,10 @@ private const val CONTACT_TEST_PICKER_NAME_PREFIX: String = "MemoContactPicker"
 private const val CONTACT_TEST_PICKER_COUNT: Int = 30
 
 private fun ResultEventBus.sendContactAddedResult(
-    contact: Contact,
+    contact: ContactListItem,
     requestKey: Uuid = TEST_ADD_REQUEST_KEY,
 ) {
-    sendContactAddedResult(id = contact.id, requestKey = requestKey)
+    sendContactAddedResult(id = contact.contact.id, requestKey = requestKey)
 }
 
 private fun ComposeContentTestRule.openContactPicker() {
@@ -207,7 +207,7 @@ class MemoAddScreenContactTest {
     fun `TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 ContactDetail 메모 탭에서 진입하면 대상 연락처가 연락처 입력에 선택되어 있다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoAddScreenForContact(
-            viewModels = screenTestRealViewModel(initialContactId = contact.id, contactList = listOf(contact)),
+            viewModels = screenTestRealViewModel(initialContactId = contact.contact.id, contactList = listOf(contact)),
         )
 
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).assertExists()
@@ -256,7 +256,7 @@ class MemoAddScreenContactTest {
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        clickedIdList shouldBe listOf(contact.id)
+        clickedIdList shouldBe listOf(contact.contact.id)
     }
 
     @Test
@@ -298,13 +298,23 @@ class MemoAddScreenContactTest {
         composeRule.awaitContactPickerRows()
         composeRule.contactPickerList().performScrollToIndex(contactList.lastIndex)
         composeRule.waitForIdle()
-        composeRule.contactDialogNodeWithText(contactList.first().detail.name).assertIsNotDisplayed()
+        composeRule
+            .contactDialogNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertIsNotDisplayed()
 
         composeRule.closeDialogByBack()
         composeRule.openContactPicker()
         composeRule.awaitContactPickerRows()
 
-        composeRule.contactDialogNodeWithText(contactList.first().detail.name).assertIsDisplayed()
+        composeRule
+            .contactDialogNodeWithText(
+                contactList
+                    .first()
+                    .contact.detail.name,
+            ).assertIsDisplayed()
     }
 
     @Test
@@ -320,7 +330,12 @@ class MemoAddScreenContactTest {
         composeRule.contactPickerList().performScrollToIndex(contactList.lastIndex)
         composeRule.waitForIdle()
 
-        composeRule.contactDialogNodeWithText(contactList.last().detail.name).assertIsDisplayed()
+        composeRule
+            .contactDialogNodeWithText(
+                contactList
+                    .last()
+                    .contact.detail.name,
+            ).assertIsDisplayed()
         composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertIsDisplayed()
     }
 
@@ -420,6 +435,24 @@ class MemoAddScreenContactAddedResultTest {
 
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-3c6a9cc3-e5bc-4f92-9402-cde2099232a8 자동 선택된 연락처의 선택을 해제하면 다시 선택되지 않는다`() {
+        val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
+        val resultEventBus = ResultEventBus()
+        composeRule.setMemoAddScreenForContact(
+            viewModels = screenTestRealViewModel(contactList = listOf(addedContact)),
+            resultEventBus = resultEventBus,
+        )
+        resultEventBus.sendContactAddedResult(addedContact)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertExists()
+
+        composeRule.selectContact(name = SECOND_CONTACT_NAME)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(SECOND_CONTACT_NAME).assertDoesNotExist()
     }
 
     @Test

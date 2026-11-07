@@ -26,17 +26,21 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         androidHostTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
-                implementation(projects.core.testing)
             }
         }
 
         jvmTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)
-                implementation(projects.core.testing)
             }
         }
     }

@@ -1,23 +1,20 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.testing.web.localWebDetail
 import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.core.testing.web.webHeaderNameCaseList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 
 class WebDetailMapperTest :
     FunSpec({
         test("domain to local") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val domain = fixtureMonkey.webDetail(headerNameList = headerNameList)
+                val domain = Arb.webDetail(headerNameList = headerNameList).next()
 
                 domain.toLocal() shouldBe
                     WebDetailLocalEntity(
@@ -31,7 +28,7 @@ class WebDetailMapperTest :
 
         test("local to domain") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val local = fixtureMonkey.localWebDetail(headerNameList = headerNameList)
+                val local = Arb.localWebDetail(headerNameList = headerNameList).next()
 
                 local.toDomain() shouldBe
                     WebDetail(
@@ -45,7 +42,7 @@ class WebDetailMapperTest :
 
         test("domain to local to domain") {
             webHeaderNameCaseList.forEach { headerNameList ->
-                val domain = fixtureMonkey.webDetail(headerNameList = headerNameList)
+                val domain = Arb.webDetail(headerNameList = headerNameList).next()
 
                 domain.toLocal().toDomain() shouldBe domain
             }

@@ -6,11 +6,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.logger.console.api)
                 implementation(projects.logger.crashlytics.api)
             }
         }
 
-        jvmTest {
+        commonTest {
             dependencies {
                 implementation(projects.core.testing)
             }

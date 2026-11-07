@@ -1,13 +1,10 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday.search
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 class SettingHolidaySearchTest : FunSpec() {
     init {
@@ -34,7 +31,7 @@ class SettingHolidaySearchTest : FunSpec() {
         }
 
         test("공백뿐인 검색어는 모든 표시 이름과 일치한다") {
-            val displayName = fixtureMonkey.giveMeOne<String>()
+            val displayName = Arb.string().next()
 
             matchesSettingHolidaySearch(query = "", displayName = displayName) shouldBe true
             matchesSettingHolidaySearch(query = " \t ", displayName = displayName) shouldBe true

@@ -28,13 +28,15 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.playlist.ui.MusicTagTestTheme
+import io.github.taetae98coding.diary.feature.playlist.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.playlist.ui.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -48,8 +50,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -305,12 +305,16 @@ class MusicDetailScreenTest {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setMusicDetailScreen(uiState = contentUiState(), uriHandler = uriHandler)
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
     }
 
     @Test
@@ -408,6 +412,27 @@ class MusicDetailScreenTest {
     }
 
     @Test
+    fun `TC-917a95b1-daae-4e09-ad20-3c6967902cd0 단독으로 표시되면 뒤로가기로 이전 화면으로 돌아간다`() {
+        var navigateUpCount = 0
+        setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 })
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-e1d68a79-74e0-416a-a913-0ae5d6911ce2 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+        setMusicDetailScreen(
+            uiState = contentUiState(),
+            componentVisible = MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-1b34c164-6cc9-496d-b3ec-6c173ac0afd6 저장된 제목이 바뀌면 화면 제목만 갱신하고 입력은 덮어쓰지 않는다`() {
         val id = Uuid.random()
         val uiState = contentUiState(id = id)
@@ -434,11 +459,15 @@ class MusicDetailScreenTest {
         val viewModel = detailViewModel(uiState = uiState)
 
         restorationTester.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 MusicDetailScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    musicViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -463,12 +492,16 @@ class MusicDetailScreenTest {
         var isVisible by mutableStateOf(true)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 if (isVisible) {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -496,12 +529,16 @@ class MusicDetailScreenTest {
         val viewModel = detailViewModel(uiState = contentUiState())
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -561,12 +598,12 @@ class MusicDetailScreenTest {
 
     @Test
     fun `TC-eb3351ca-807f-4da5-aada-0a8f97dd4842 앱을 종료한 뒤 새로 진입하면 수정 중이던 내용을 복원하지 않는다`() {
-        val musicId = fixtureMonkey.giveMeOne<Uuid>()
+        val musicId = Arb.kotlinUuid().next()
         val firstLaunchViewModel = detailViewModel(uiState = contentUiState(id = musicId))
         var launchCount by mutableIntStateOf(0)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 // 앱을 다시 실행하면 저장 상태 없이 같은 곡의 화면을 새 ViewModel로 다시 구성한다.
                 key(launchCount) {
                     val viewModel = remember { if (launchCount == 0) firstLaunchViewModel else detailViewModel(uiState = contentUiState(id = musicId)) }
@@ -574,7 +611,11 @@ class MusicDetailScreenTest {
                     MusicDetailScreen(
                         navigateUp = {},
                         componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }
@@ -692,16 +733,21 @@ class MusicDetailScreenTest {
         effect: Flow<MusicDetailEffect> = emptyFlow(),
         navigateUp: () -> Unit = {},
         uriHandler: UriHandler = mockk(relaxed = true),
+        componentVisible: MusicDetailScaffoldComponentVisible = MusicDetailScaffoldComponentVisible(),
     ): MusicDetailViewModel {
         val viewModel = detailViewModel(uiState = uiState, effect = effect)
 
         composeRule.setContent {
-            DiaryTheme {
+            MusicTagTestTheme {
                 CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                     MusicDetailScreen(
                         navigateUp = navigateUp,
-                        componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                        viewModel = viewModel,
+                        componentVisibleProvider = { componentVisible },
+                        musicViewModel = viewModel,
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        tagViewModel = detailTagScreenTestViewModel(),
                     )
                 }
             }

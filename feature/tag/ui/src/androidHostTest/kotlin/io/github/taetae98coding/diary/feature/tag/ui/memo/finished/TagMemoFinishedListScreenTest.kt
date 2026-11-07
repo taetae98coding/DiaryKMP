@@ -23,11 +23,13 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -199,7 +201,7 @@ class TagMemoFinishedListScreenTest {
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(SECOND_TIME_ZONE))
             val secondToday = Clock.System.todayIn(TimeZone.currentSystemDefault())
             JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
-            val secondTodayMemo = tagMemo(title = fixtureText(prefix = "SecondTodayMemo"), dateTime = allDayMemoDateTime(secondToday))
+            val secondTodayMemo = tagMemo(title = Arb.alphanumericString(prefix = "SecondTodayMemo").next(), dateTime = allDayMemoDateTime(secondToday))
             val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
             every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
@@ -209,7 +211,7 @@ class TagMemoFinishedListScreenTest {
                         itemList =
                             listOf(
                                 MemoListItem.DateHeader(date = firstToday),
-                                MemoListItem.Content(memo = tagMemo(title = fixtureText(prefix = "FirstTodayMemo"), dateTime = allDayMemoDateTime(firstToday))),
+                                MemoListItem.Content(memo = tagMemo(title = Arb.alphanumericString(prefix = "FirstTodayMemo").next(), dateTime = allDayMemoDateTime(firstToday))),
                                 MemoListItem.DateHeader(date = secondToday),
                                 MemoListItem.Content(memo = secondTodayMemo),
                             ),

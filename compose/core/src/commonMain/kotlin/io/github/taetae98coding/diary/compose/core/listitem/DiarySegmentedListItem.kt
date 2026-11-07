@@ -23,19 +23,23 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 public fun DiarySegmentedListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     index: Int = 0,
     count: Int = 1,
     leadingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     SegmentedListItem(
         onClick = onClick,
         shapes = DiarySegmentedListItemDefaults.shapes(index = index, count = count),
         modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
         colors = DiarySegmentedListItemDefaults.colors(),
         leadingContent = leadingContent,
         supportingContent = supportingContent,
+        trailingContent = trailingContent,
         content = content,
     )
 }

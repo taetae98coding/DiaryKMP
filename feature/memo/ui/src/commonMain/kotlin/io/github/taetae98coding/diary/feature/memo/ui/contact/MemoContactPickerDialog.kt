@@ -12,7 +12,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchField
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_contact_add_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_contact_picker_add_label
@@ -30,7 +30,7 @@ internal fun MemoContactPickerDialog(
     onEvent: (MemoContactPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     searchFieldState: DiaryPickerSearchFieldState = rememberDiaryPickerSearchFieldState(),
-    contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
+    contactPagingItems: LazyPagingItems<ContactListItem> = remember { flowOf(PagingData.empty<ContactListItem>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
 ) {
     DiaryPagingPickerDialog(
@@ -45,7 +45,7 @@ internal fun MemoContactPickerDialog(
             ),
         onAddClick = { onEvent(MemoContactPickerEvent.ClickAdd) },
         onDismissRequest = onDismissRequest,
-        itemKey = { contact -> contact.id },
+        itemKey = { contact -> contact.contact.id },
         modifier = modifier,
         searchFieldState = searchFieldState,
         pagingItems = contactPagingItems,
@@ -55,7 +55,7 @@ internal fun MemoContactPickerDialog(
             onEvent = onEvent,
             modifier = itemModifier,
             contact = contact,
-            isSelected = contact != null && uiStateProvider().selectedContactList.any { selectedContact -> selectedContact.id == contact.id },
+            isSelected = contact != null && uiStateProvider().selectedContactList.any { selectedContact -> selectedContact.contact.id == contact.contact.id },
         )
     }
 }

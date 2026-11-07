@@ -11,6 +11,9 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -84,3 +87,13 @@ internal fun MemoDetailScreenTestTheme(
         DiaryTheme(content = content)
     }
 }
+
+private const val COLOR_RGB_MASK = 0xFFFFFF
+private const val COLOR_HEX_LENGTH = 6
+
+internal fun randomColorHex(): String =
+    "#" +
+        (Arb.int().next() and COLOR_RGB_MASK)
+            .toString(radix = 16)
+            .uppercase()
+            .padStart(length = COLOR_HEX_LENGTH, padChar = '0')

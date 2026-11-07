@@ -170,7 +170,7 @@ class MemoDetailScaffoldTest {
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val MEMO_TITLE = "MemoDetailTitle"
         private val LONG_MEMO_TITLE = "LongMemoDetailTitle".repeat(20)
-        private const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Write with AI"
+        private const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Write with Gemini"
     }
 }
 

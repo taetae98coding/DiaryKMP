@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.height
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
+import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
@@ -118,6 +119,30 @@ class TagLinkPickerDialogTest {
         composeRule.waitForIdle()
 
         clickAddCount shouldBe 1
+        linkedIdList.shouldBeEmpty()
+        unlinkedIdList.shouldBeEmpty()
+    }
+
+    @Test
+    fun `TC-d7346bdd-fd91-440c-99d0-0ffa429db209 나타낼 태그가 없을 때 목록의 태그 추가 항목을 누르면 목록이 닫히고 태그 추가를 요청한다`() {
+        val dialogState = DialogState(isVisible = true)
+        val linkedIdList = mutableListOf<Uuid>()
+        val unlinkedIdList = mutableListOf<Uuid>()
+        var clickAddCount = 0
+        composeRule.setTagLinkPickerDialogHost(
+            dialogState = dialogState,
+            tagList = emptyList(),
+            onClickAdd = { clickAddCount += 1 },
+            onLink = linkedIdList::add,
+            onUnlink = unlinkedIdList::add,
+        )
+        composeRule.waitForIdle()
+
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
+        composeRule.waitForIdle()
+
+        clickAddCount shouldBe 1
+        composeRule.runOnIdle { dialogState.isVisible shouldBe false }
         linkedIdList.shouldBeEmpty()
         unlinkedIdList.shouldBeEmpty()
     }

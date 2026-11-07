@@ -1,8 +1,5 @@
 package io.github.taetae98coding.diary.core.testing.checklist
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.model.checklist.Checklist
@@ -10,64 +7,71 @@ import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.network.api.checklist.entity.ChecklistRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.checklistitem.entity.ChecklistItemRemoteEntity
+import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemLocalEntity
+import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.string
 import kotlin.uuid.Uuid
 
-public fun FixtureMonkey.checklistDetail(
-    title: String = "title-" + giveMeOne<String>(),
-    description: String = giveMeOne<String>(),
-): ChecklistDetail =
-    ChecklistDetail(
-        title = title,
-        description = description,
-    )
+// 제목은 비어 있으면 저장하지 않으므로 앞에 고정 문자열을 붙인다.
+public fun Arb.Companion.checklistDetail(
+    title: String? = null,
+    description: String? = null,
+): Arb<ChecklistDetail> =
+    arbitrary {
+        ChecklistDetail(
+            title = title ?: "title-${Arb.string().bind()}",
+            description = description ?: Arb.string().bind(),
+        )
+    }
 
-public fun FixtureMonkey.checklist(
+public fun Arb.Companion.checklist(
     isDeleted: Boolean,
-    detail: ChecklistDetail = checklistDetail(),
-): Checklist =
-    giveMeKotlinBuilder<Checklist>()
-        .setExp(Checklist::isDeleted, isDeleted)
-        .sample()
-        .copy(detail = detail)
+    detail: ChecklistDetail? = null,
+): Arb<Checklist> =
+    arbitrary {
+        Arb.checklist().bind().copy(
+            detail = detail ?: Arb.checklistDetail().bind(),
+            isDeleted = isDeleted,
+        )
+    }
 
-public fun FixtureMonkey.checklistItem(
+public fun Arb.Companion.checklistItem(
     isChecked: Boolean,
     isDeleted: Boolean,
-    checklistId: Uuid = giveMeOne<Uuid>(),
-    content: String = "content-" + giveMeOne<String>(),
-): ChecklistItem =
-    giveMeKotlinBuilder<ChecklistItem>()
-        .setExp(ChecklistItem::isChecked, isChecked)
-        .setExp(ChecklistItem::isDeleted, isDeleted)
-        .sample()
-        .copy(checklistId = checklistId, content = content)
+    checklistId: Uuid? = null,
+    content: String? = null,
+): Arb<ChecklistItem> =
+    arbitrary {
+        Arb.checklistItem().bind().copy(
+            checklistId = checklistId ?: Arb.kotlinUuid().bind(),
+            content = content ?: "content-${Arb.string().bind()}",
+            isChecked = isChecked,
+            isDeleted = isDeleted,
+        )
+    }
 
-public fun FixtureMonkey.localChecklist(isDeleted: Boolean): ChecklistLocalEntity =
-    giveMeKotlinBuilder<ChecklistLocalEntity>()
-        .setExp(ChecklistLocalEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.localChecklist(isDeleted: Boolean): Arb<ChecklistLocalEntity> = Arb.checklistLocalEntity().map { checklist -> checklist.copy(isDeleted = isDeleted) }
 
-public fun FixtureMonkey.localChecklistItem(
+public fun Arb.Companion.localChecklistItem(
     isChecked: Boolean,
     isDeleted: Boolean,
-    checklistId: Uuid = giveMeOne<Uuid>(),
-): ChecklistItemLocalEntity =
-    giveMeKotlinBuilder<ChecklistItemLocalEntity>()
-        .setExp(ChecklistItemLocalEntity::isChecked, isChecked)
-        .setExp(ChecklistItemLocalEntity::isDeleted, isDeleted)
-        .sample()
-        .copy(checklistId = checklistId)
+    checklistId: Uuid? = null,
+): Arb<ChecklistItemLocalEntity> =
+    arbitrary {
+        Arb.checklistItemLocalEntity().bind().copy(
+            checklistId = checklistId ?: Arb.kotlinUuid().bind(),
+            isChecked = isChecked,
+            isDeleted = isDeleted,
+        )
+    }
 
-public fun FixtureMonkey.remoteChecklist(isDeleted: Boolean): ChecklistRemoteEntity =
-    giveMeKotlinBuilder<ChecklistRemoteEntity>()
-        .setExp(ChecklistRemoteEntity::isDeleted, isDeleted)
-        .sample()
+public fun Arb.Companion.remoteChecklist(isDeleted: Boolean): Arb<ChecklistRemoteEntity> = Arb.checklistRemoteEntity().map { checklist -> checklist.copy(isDeleted = isDeleted) }
 
-public fun FixtureMonkey.remoteChecklistItem(
+public fun Arb.Companion.remoteChecklistItem(
     isChecked: Boolean,
     isDeleted: Boolean,
-): ChecklistItemRemoteEntity =
-    giveMeKotlinBuilder<ChecklistItemRemoteEntity>()
-        .setExp(ChecklistItemRemoteEntity::isChecked, isChecked)
-        .setExp(ChecklistItemRemoteEntity::isDeleted, isDeleted)
-        .sample()
+): Arb<ChecklistItemRemoteEntity> = Arb.checklistItemRemoteEntity().map { item -> item.copy(isChecked = isChecked, isDeleted = isDeleted) }

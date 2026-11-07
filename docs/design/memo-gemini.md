@@ -116,8 +116,8 @@
 
 | 문구 | 한국어 | 그 외 기본 |
 | --- | --- | --- |
-| 작성 도우미 버튼 접근성 이름 | `AI 작성` | `Write with AI` |
-| 다이얼로그 제목 | `AI 작성` | `Write with AI` |
+| 작성 도우미 버튼 접근성 이름 | `Gemini 작성` | `Write with Gemini` |
+| 다이얼로그 제목 | `Gemini 작성` | `Write with Gemini` |
 | 프롬프트 입력 라벨 | `프롬프트` | `Prompt` |
 | 프롬프트 자리 표시 문구 | `어떤 메모를 만들까요?` | `What memo should I write?` |
 | 생성 버튼 | `생성` | `Generate` |

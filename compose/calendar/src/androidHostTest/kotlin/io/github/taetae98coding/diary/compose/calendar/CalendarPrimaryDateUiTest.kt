@@ -14,14 +14,14 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.filter
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -30,9 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -44,7 +41,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-1c298adc-031b-4bd8-ac42-d0e477d3624d 지정한 주요 날짜가 강조된다`() {
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val defaultContentColor = nonWhiteColor()
         setCalendar(defaultContentColor = defaultContentColor) { listOf(july(day = 15)) }
 
         composeRule.onNodeWithText("15").textColor() shouldBe onPrimary
@@ -53,7 +50,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-c3a0c52b-a5ef-4e83-bc45-c1c718db405d 주요 날짜를 지정하지 않으면 어떤 날짜도 강조되지 않는다`() {
-        setCalendar(defaultContentColor = fixtureMonkey.giveMeColor()) { emptyList() }
+        setCalendar(defaultContentColor = nonWhiteColor()) { emptyList() }
 
         dayTextColors().apply {
             shouldHaveSize(DAYS_PER_CALENDAR)
@@ -63,7 +60,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-0050dc58-0ef6-480e-99bd-a73eb2d328e4 주요 날짜 지정이 바뀌면 강조가 갱신된다`() {
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val defaultContentColor = nonWhiteColor()
         var primaryDateList by mutableStateOf(emptyList<LocalDate>())
         setCalendar(defaultContentColor = defaultContentColor) { primaryDateList }
 
@@ -78,7 +75,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-940876a7-96b9-4134-9733-44d2a5bc2aa3 같은 주요 날짜를 여러 번 지정해도 한 번 지정한 것과 같다`() {
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val defaultContentColor = nonWhiteColor()
         setCalendar(defaultContentColor = defaultContentColor) { List(DUPLICATE_COUNT) { july(day = 15) } }
 
         composeRule.onNodeWithText("15").textColor() shouldBe onPrimary
@@ -87,7 +84,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-2f5b7704-ec2c-4140-a283-a5b9e87ae0ed 표시 중인 달에 없는 날짜를 주요 날짜로 지정해도 강조 대상이 없는 것으로 처리한다`() {
-        setCalendar(defaultContentColor = fixtureMonkey.giveMeColor()) {
+        setCalendar(defaultContentColor = nonWhiteColor()) {
             listOf(LocalDate(year = 2026, month = Month.DECEMBER, day = 25))
         }
 
@@ -99,7 +96,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-164ab310-f5bf-4f00-ad6b-30317cdc322e 주요 날짜는 요일과 공휴일 여부에 관계없이 주요 날짜로 구분된다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
+        val colors = nonWhiteCalendarColor()
         val sunday = july(day = 12)
         val holiday = july(day = 13)
         val saturday = july(day = 18)
@@ -125,7 +122,7 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-86b7ead5-eca9-455c-b0f9-c0743dd7c6c8 이웃 달에 속한 주요 날짜는 이웃 달 구분보다 주요 날짜 강조를 우선한다`() {
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val defaultContentColor = nonWhiteColor()
         val primaryDate = LocalDate(year = 2026, month = Month.JUNE, day = 28)
 
         setCalendarWeekOfMonth(
@@ -141,8 +138,8 @@ class CalendarPrimaryDateUiTest {
 
     @Test
     fun `TC-2327ab55-7229-480f-be44-493f594dda0f 주 전체가 지정한 달 밖이면 모든 날짜가 이웃 달로 구분되고 주요 날짜만 강조를 유지한다`() {
-        val defaultContentColor = fixtureMonkey.giveMeColor()
-        val colors = fixtureMonkey.giveMeCalendarColor()
+        val defaultContentColor = nonWhiteColor()
+        val colors = nonWhiteCalendarColor()
 
         setCalendarWeekOfMonth(
             yearMonth = YearMonth(year = 2026, month = Month.FEBRUARY),
@@ -234,11 +231,11 @@ class CalendarPrimaryDateUiTest {
     }
 }
 
-private fun FixtureMonkey.giveMeCalendarColor(): CalendarColor =
-    CalendarColor(
-        sundayAndHolidayColor = giveMeColor(),
-        saturdayColor = giveMeColor(),
-    )
-
 // 강조한 날의 글자색인 onPrimary가 밝은 테마에서 흰색이라, 흰색이 뽑히면 강조 여부를 색으로 가릴 수 없다.
-private fun FixtureMonkey.giveMeColor(): Color = generateSequence { Color(color = giveMeOne<Int>()) }.first { color -> color != Color.White }
+private fun nonWhiteColor(): Color = Arb.color().filter { color -> color != Color.White }.next()
+
+private fun nonWhiteCalendarColor(): CalendarColor =
+    Arb
+        .calendarColor()
+        .filter { colors -> colors.sundayAndHolidayColor != Color.White && colors.saturdayColor != Color.White }
+        .next()

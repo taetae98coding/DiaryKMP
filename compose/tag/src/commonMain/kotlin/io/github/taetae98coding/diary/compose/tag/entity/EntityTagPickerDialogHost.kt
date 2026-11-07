@@ -6,9 +6,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialogHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.previewTag
@@ -22,30 +21,21 @@ public fun EntityTagPickerDialogHost(
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
 ) {
-    if (!dialogState.isVisible) return
-
-    val searchFieldState = rememberDiaryPickerSearchFieldState()
-
-    val hide = {
-        onEvent(EntityTagPickerEvent.ChangeQuery(query = ""))
-        dialogState.hide()
-    }
-
-    DiarySearchQueryEffect(
-        queryState = searchFieldState.textFieldState,
+    DiaryPickerDialogHost(
+        dialogState = dialogState,
         onQueryChange = { query -> onEvent(EntityTagPickerEvent.ChangeQuery(query = query)) },
-    )
-
-    EntityTagPickerDialog(
-        onDismissRequest = hide,
-        onEvent = { event ->
-            if (event is EntityTagPickerEvent.ClickAdd) hide()
-            onEvent(event)
-        },
-        searchFieldState = searchFieldState,
-        tagPagingItems = tagPagingItems,
-        uiStateProvider = uiStateProvider,
-    )
+    ) { searchFieldState, hide ->
+        EntityTagPickerDialog(
+            onDismissRequest = hide,
+            onEvent = { event ->
+                if (event is EntityTagPickerEvent.ClickAdd) hide()
+                onEvent(event)
+            },
+            searchFieldState = searchFieldState,
+            tagPagingItems = tagPagingItems,
+            uiStateProvider = uiStateProvider,
+        )
+    }
 }
 
 @ScreenPreview

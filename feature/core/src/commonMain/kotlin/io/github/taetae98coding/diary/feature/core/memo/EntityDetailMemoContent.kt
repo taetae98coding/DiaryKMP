@@ -18,7 +18,7 @@ import kotlin.uuid.Uuid
 
 @Composable
 public fun EntityDetailMemoContent(
-    memoViewModel: MemoListViewModel<MemoListEffect>,
+    memoViewModel: MemoListController<MemoListEffect>,
     syncViewModel: SyncRefreshViewModel,
     navigateToMemoDetail: (Uuid) -> Unit,
     emptyTitle: String,

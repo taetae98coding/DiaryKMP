@@ -15,7 +15,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
@@ -116,14 +116,23 @@ class MemoContactPickerDialogBoundaryTest {
 
     // 검색어에 맞는 연락처를 고르는 조회 자체는 저장소 테스트가 검증하므로, 검색어를 받으면 그 조건의 결과를 돌려준다.
     private fun viewModel(
-        contactList: List<Contact>,
+        contactList: List<ContactListItem>,
         queryList: MutableList<String>,
     ): MemoAddContactViewModel {
         val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
         every { pageMemoSelectableContactUseCase(parameter = any()) } answers {
             val query = firstArg<String>()
             queryList.add(query)
-            flowOf(Result.success(PagingData.from(contactList.filter { contact -> contact.detail.name.contains(query, ignoreCase = true) })))
+            flowOf(
+                Result.success(
+                    PagingData.from(
+                        contactList.filter { contact ->
+                            contact.contact.detail.name
+                                .contains(query, ignoreCase = true)
+                        },
+                    ),
+                ),
+            )
         }
         val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
         every { getSelectedContactUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))

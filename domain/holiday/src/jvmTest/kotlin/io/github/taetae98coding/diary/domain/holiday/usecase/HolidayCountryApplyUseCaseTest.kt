@@ -1,20 +1,22 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -29,9 +31,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 private const val HOLIDAY_YEAR = 2026
 
 private val BOTH_OPTION_SET: Set<HolidayCountryOption> = setOf(HolidayCountryOption.KOREA, HolidayCountryOption.UNITED_STATES)
@@ -45,7 +44,7 @@ private val countryOptionMap: Map<HolidayCountry, HolidayCountryOption> =
 class HolidayCountryApplyUseCaseTest :
     BehaviorSpec({
         Given("TC-45e9e289-bbf3-4520-bd05-99d9d0bd2030 적용 국가가 한국과 미국이고 두 국가의 원격 조회가 성공한다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val koreaHolidayList = listOf(holiday(name = "korea"))
             val unitedStatesHolidayList = listOf(holiday(name = "united-states"))
             val repository = mockk<HolidayRepository>()
@@ -63,7 +62,7 @@ class HolidayCountryApplyUseCaseTest :
         }
 
         Given("TC-9e6ad71e-78b3-4790-ae5f-65c5202e004d 적용 국가가 없다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val repository = mockk<HolidayRepository>()
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = emptySet()), holidayRepository = repository)
 
@@ -78,8 +77,8 @@ class HolidayCountryApplyUseCaseTest :
         }
 
         Given("TC-7182d3ff-07ce-496b-aa7d-3030eb9ad9e6 한국 원격 조회는 실패하고 미국 원격 조회는 성공한다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val year = Arb.int().next()
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<HolidayRepository>()
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } throws failure
             coEvery { repository.fetch(country = HolidayCountry.UNITED_STATES, year = year) } returns listOf(holiday(name = "united-states"))
@@ -101,7 +100,7 @@ class HolidayCountryApplyUseCaseTest :
                 true to false,
                 false to false,
             ).forEach { (isKoreaProvided, isUnitedStatesProvided) ->
-                val year = fixtureMonkey.giveMeOne<Int>()
+                val year = Arb.int().next()
                 val koreaHolidayList = if (isKoreaProvided) listOf(holiday(name = "korea")) else emptyList()
                 val unitedStatesHolidayList = if (isUnitedStatesProvided) listOf(holiday(name = "united-states")) else emptyList()
                 val repository = mockk<HolidayRepository>()
@@ -120,11 +119,11 @@ class HolidayCountryApplyUseCaseTest :
         }
 
         Given("TC-edbe175e-0d29-4bcd-a7be-20a72a8a4d7f 저장된 국가 설정을 읽을 수 없다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val repository = mockk<HolidayRepository>()
             val useCase =
                 FetchHolidayUseCase(
-                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }),
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = flow { throw IllegalStateException(Arb.string().next()) }),
                     holidayRepository = repository,
                 )
 
@@ -190,7 +189,7 @@ class HolidayCountryApplyUseCaseTest :
             val year = HOLIDAY_YEAR
             val useCase =
                 GetCalendarHolidayUseCase(
-                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }),
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = flow { throw IllegalStateException(Arb.string().next()) }),
                     holidayRepository = holidayRepository(holidayMap = countryHolidayMap()),
                     holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = emptySet()),
                 )
@@ -203,7 +202,7 @@ class HolidayCountryApplyUseCaseTest :
         }
 
         Given("TC-d26a6e51-fcef-49ea-ae2f-2dc707f70139 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있으며 그 이름을 숨겼다") {
-            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val sharedName = "shared-${Arb.string().next()}"
             val koreaHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))
             val unitedStatesHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))
             val otherHoliday = holiday(name = "other")
@@ -229,7 +228,7 @@ class HolidayCountryApplyUseCaseTest :
         }
 
         Given("TC-992f1222-917f-4fe8-b232-e182f67d5d9b 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있다") {
-            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val sharedName = "shared-${Arb.string().next()}"
             val useCase =
                 GetSettingHolidayUseCase(
                     getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET),
@@ -437,13 +436,13 @@ private fun countryHolidayMap(): Map<HolidayCountry, List<Holiday>> =
 
 private fun holiday(
     name: String,
-    isHoliday: Boolean = fixtureMonkey.giveMeOne(),
+    isHoliday: Boolean = Arb.boolean().next(),
     date: LocalDate? = null,
 ): Holiday {
     val start = date ?: LocalDate(year = HOLIDAY_YEAR, month = 1, day = 1)
 
     return Holiday(
-        name = if (date == null) "$name-${fixtureMonkey.giveMeOne<String>()}" else name,
+        name = if (date == null) "$name-${Arb.string().next()}" else name,
         isHoliday = isHoliday,
         dateRange = start..start,
     )

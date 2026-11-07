@@ -22,7 +22,7 @@ internal fun SearchHomePlaceContent(
     modifier: Modifier = Modifier,
 ) {
     SearchHomeResultContent(
-        viewModel = viewModel,
+        uiState = viewModel.uiState,
         pagingItems = pagingItems,
         listState = listState,
     ) { state ->

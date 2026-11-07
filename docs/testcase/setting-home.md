@@ -2,7 +2,7 @@
 
 기준 스펙: [SettingHome 화면 스펙](../spec/client/setting-home.md)
 
-`더보기`에서 설정 동작을 선택해 SettingHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서 다룬다. 설정 목록과 상세 설정이 함께 표시되는 상태의 시스템 뒤로가기 결과는 [Setting 목록·상세 배치 테스트 케이스](./setting-list-detail.md)에서, 각 설정 항목에서 이어지는 화면의 케이스는 [SettingHoliday 테스트 케이스](./setting-holiday.md), [SettingMap 테스트 케이스](./setting-map.md), [SettingGemini 테스트 케이스](./setting-gemini.md), [SettingFile 테스트 케이스](./setting-file.md)에서 다룬다.
+`더보기`에서 설정 동작을 선택해 SettingHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서 다룬다. 설정 목록과 상세 설정이 함께 표시되는 상태의 시스템 뒤로가기 결과는 [Setting 목록·상세 배치 테스트 케이스](./setting-list-detail.md)에서, 각 설정 항목에서 이어지는 화면의 케이스는 [SettingHoliday 테스트 케이스](./setting-holiday.md), [SettingMap 테스트 케이스](./setting-map.md), [SettingGemini 테스트 케이스](./setting-gemini.md), [SettingFile 테스트 케이스](./setting-file.md), [SettingMcp 테스트 케이스](./setting-mcp.md)에서 다룬다.
 
 ## feature
 
@@ -22,22 +22,23 @@
 | SettingHome과 SettingMap이 함께 표시됨 |
 | SettingHome과 SettingGemini가 함께 표시됨 |
 | SettingHome과 SettingFile이 함께 표시됨 |
+| SettingHome과 SettingMcp가 함께 표시됨 |
 
 `더보기` 화면으로 돌아간 뒤 공통 내비게이션이 다시 제공되는 결과는 [TopLevelNavigation 테스트 케이스](./top-level-navigation.md)의 TC-713b65da-f06b-4d3a-8cd4-4fe3d4ceacb3가 다룬다.
 
 ### TC-26463de7-89f3-4930-ba91-c3c650a71ea0: 설정 항목을 표시한다
 
 - 근거: `feature > 설정 항목`
-- Given: `파일` 항목을 제공하는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
+- Given: `파일` 항목은 제공하고 `MCP` 항목은 제공하지 않는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
 - When: 사용자가 SettingHome 화면 본문을 확인한다.
-- Then: `공휴일`, `지도`, `Gemini`, `파일` 항목이 표시된다.
+- Then: `공휴일`, `지도`, `Gemini`, `파일` 항목이 표시되고 `MCP` 항목은 표시되지 않는다.
 
 ### TC-1fe41076-3740-428d-b240-224b26682451: 각 설정 항목을 선택할 수 있다
 
 - 근거: `feature > 설정 항목`
-- Given: `파일` 항목을 제공하는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
+- Given: `파일`과 `MCP` 항목을 제공하는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
 - When: 사용자가 화면 본문을 확인한다.
-- Then: `공휴일`, `지도`, `Gemini`, `파일` 항목을 각각 선택할 수 있다.
+- Then: `공휴일`, `지도`, `Gemini`, `파일`, `MCP` 항목을 각각 선택할 수 있다.
 
 ### TC-adb9f475-c36e-422f-9fd3-c87d3b48faf1: 공휴일 항목을 선택하면 SettingHoliday 화면으로 이동한다
 
@@ -67,12 +68,26 @@
 - When: 사용자가 `파일` 항목을 선택한다.
 - Then: SettingFile 화면으로 이동하는 동작이 한 번 실행되고, 다른 설정 화면으로 이동하지 않는다.
 
+### TC-e9af706e-728b-4f16-ae34-5f73e606809e: MCP 항목을 제공하는 환경에서는 MCP 항목을 마지막에 표시한다
+
+- 근거: `feature > 설정 항목`, `domain > 설정 항목과 순서`
+- Given: `파일`과 `MCP` 항목을 제공하는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
+- When: 사용자가 SettingHome 화면 본문을 확인한다.
+- Then: `공휴일`, `지도`, `Gemini`, `파일`, `MCP` 항목이 이 순서로 표시된다.
+
+### TC-d8581a07-6c17-45ad-952c-177a9a70871f: MCP 항목을 선택하면 SettingMcp 화면으로 이동한다
+
+- 근거: `feature > 설정 항목`
+- Given: `MCP` 항목을 제공하는 환경에서 SettingHome 화면이 표시되어 있다.
+- When: 사용자가 `MCP` 항목을 선택한다.
+- Then: SettingMcp 화면으로 이동하는 동작이 한 번 실행되고, 다른 설정 화면으로 이동하지 않는다.
+
 ### TC-b229f1d1-84b1-4b8c-9994-3e063807175a: 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다
 
 - 근거: `feature > 설정 항목`, `domain > 설정 항목과 순서`
-- Given: `파일` 항목을 제공하지 않는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
+- Given: `파일`과 `MCP` 항목을 제공하지 않는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
 - When: 사용자가 SettingHome 화면 본문을 확인한다.
-- Then: `공휴일`, `지도`, `Gemini` 항목만 이 순서로 표시되고 `파일` 항목은 표시되지 않는다.
+- Then: `공휴일`, `지도`, `Gemini` 항목만 이 순서로 표시되고 `파일`과 `MCP` 항목은 표시되지 않는다.
 
 ### TC-1d05e6d2-8452-43cb-b3a4-2eb757fbb510: 제공하는 항목을 확인하기 전에는 항목을 제공하지 않는다
 
@@ -84,9 +99,16 @@
 ### TC-65478d8f-82d4-4a82-9f7d-31b0e7885809: 제공하는 항목을 확인하지 못하면 항목을 제공하지 않는다
 
 - 근거: `feature > 설정 항목`
-- Given: `파일` 항목 제공 여부를 확인하지 못했다.
+- Given: `파일` 또는 `MCP` 항목 제공 여부를 확인하지 못했다.
 - When: 사용자가 SettingHome 화면 본문을 확인한다.
 - Then: 설정 항목이 표시되지 않고 별도 로딩 또는 오류 상태도 제공되지 않는다.
+
+### TC-f9d774f7-c64b-4f6c-af2b-188c19a37b09: 제공하는 항목을 확인하지 못한 뒤 화면을 떠났다가 다시 들어오면 다시 확인한다
+
+- 근거: `feature > 설정 항목`
+- Given: `파일` 항목 제공 여부를 확인하지 못해 SettingHome 화면에 설정 항목이 표시되지 않았고, 이후 다시 확인하면 `파일` 항목을 제공하는 것으로 확인되도록 제어되어 있다.
+- When: 사용자가 화면을 떠났다가 SettingHome 화면에 다시 들어온다.
+- Then: `공휴일`, `지도`, `Gemini`, `파일` 항목이 이 순서로 표시된다.
 
 ### TC-1146e230-f3a9-493c-afa2-61762b676e52: 화면을 보는 동안에는 항목 목록이 바뀌지 않는다
 
@@ -142,6 +164,6 @@
 ### TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7: 설정 항목을 선언된 순서대로 배치한다
 
 - 근거: `domain > 설정 항목과 순서`
-- Given: `파일` 항목을 제공하는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
+- Given: `파일` 항목은 제공하고 `MCP` 항목은 제공하지 않는 환경에서 제공하는 항목이 확인된 상태로 SettingHome 화면이 표시되어 있다.
 - When: 사용자가 화면 본문의 항목 순서를 확인한다.
 - Then: `공휴일`, `지도`, `Gemini`, `파일` 순서로 배치되고, 그 밖의 설정 항목은 표시되지 않는다.

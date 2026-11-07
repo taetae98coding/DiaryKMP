@@ -11,19 +11,21 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -47,7 +49,7 @@ class PlaceAddTagMemoryRestoreTest {
         val targetTag = placeTestTag(title = TARGET_TAG_TITLE)
         val otherTag = placeTestTag(title = OTHER_TAG_TITLE)
         val viewModelList = setRestorablePlaceAddScreen(initialTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
-        composeRule.runOnIdle { viewModelList.last().add(id = otherTag.id) }
+        composeRule.runOnIdle { viewModelList.last().add(tagId = otherTag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
 
@@ -64,7 +66,7 @@ class PlaceAddTagMemoryRestoreTest {
     fun `TC-baeab7b1-e21d-42dd-b491-17b9fc0d4559 그 밖의 경로로 진입했으면 메모리 정리 뒤 복원할 때 선택된 태그가 없다`() {
         val tag = placeTestTag(title = OTHER_TAG_TITLE)
         val viewModelList = setRestorablePlaceAddScreen(initialTagId = null, tagList = listOf(tag))
-        composeRule.runOnIdle { viewModelList.last().add(id = tag.id) }
+        composeRule.runOnIdle { viewModelList.last().add(tagId = tag.id) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertExists()
 
@@ -78,7 +80,7 @@ class PlaceAddTagMemoryRestoreTest {
 
     @Test
     fun `TC-baeab7b1-e21d-42dd-b491-17b9fc0d4559 메모리 정리 뒤 복원하면 입력 내용과 컬러, 기본 지도를 다시 확인한 뒤의 지도 제공자와 위치가 복원된다`() {
-        val coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+        val coordinate = Arb.coordinate().next().toDiaryMapCoordinate()
         val restorationTester = StateRestorationTester(composeRule)
         val defaultProviderHistory = mutableListOf<MapProvider?>()
         lateinit var state: PlaceFormState
@@ -123,8 +125,8 @@ class PlaceAddTagMemoryRestoreTest {
     private fun setRestorablePlaceAddScreen(
         initialTagId: Uuid?,
         tagList: List<Tag>,
-    ): List<PlaceAddTagViewModel> {
-        val viewModelList = mutableListOf<PlaceAddTagViewModel>()
+    ): List<EntityAddTagViewModel> {
+        val viewModelList = mutableListOf<EntityAddTagViewModel>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTesterHolder = restorationTester
         restorationTester.setContent {
@@ -149,7 +151,7 @@ class PlaceAddTagMemoryRestoreTest {
         return viewModelList
     }
 
-    private fun restore(viewModelList: List<PlaceAddTagViewModel>) {
+    private fun restore(viewModelList: List<EntityAddTagViewModel>) {
         restorationTesterHolder.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
         viewModelList.size shouldBe 2
@@ -159,7 +161,7 @@ class PlaceAddTagMemoryRestoreTest {
     private fun tagViewModel(
         initialTagId: Uuid?,
         tagList: List<Tag>,
-    ): PlaceAddTagViewModel {
+    ): EntityAddTagViewModel {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(tagList)))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
@@ -168,7 +170,7 @@ class PlaceAddTagMemoryRestoreTest {
             flowOf(Result.success(tagList.filter { tag -> tag.id in tagIdSet }))
         }
 
-        return PlaceAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = initialTagId,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,
@@ -181,7 +183,5 @@ class PlaceAddTagMemoryRestoreTest {
         private const val TYPED_TITLE = "복원할 장소"
         private const val TYPED_DESCRIPTION = "복원할 설명"
         private const val TYPED_ADDRESS = "복원할 주소"
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

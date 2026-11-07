@@ -29,8 +29,6 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -40,6 +38,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
@@ -49,7 +48,6 @@ import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEA
 import io.github.taetae98coding.diary.feature.web.ui.add.TYPED_FIRST_HEADER_NAME
 import io.github.taetae98coding.diary.feature.web.ui.add.TYPED_FIRST_HEADER_VALUE
 import io.github.taetae98coding.diary.feature.web.ui.add.TYPED_URL
-import io.github.taetae98coding.diary.feature.web.ui.add.WebAddTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddUiState
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.addHeaderRow
@@ -60,9 +58,11 @@ import io.github.taetae98coding.diary.feature.web.ui.add.inputCount
 import io.github.taetae98coding.diary.feature.web.ui.add.titleInput
 import io.github.taetae98coding.diary.feature.web.ui.add.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,7 +90,7 @@ class WebListDetailPlaceholderTest {
 
     private var currentTag: Tag? = null
     private val addViewModelList = mutableListOf<WebAddViewModel>()
-    private val tagViewModelList = mutableListOf<WebAddTagViewModel>()
+    private val tagViewModelList = mutableListOf<EntityAddTagViewModel>()
     private val backStack = NavBackStack<ScreenNavKey>(MoreNavKey, WebHomeNavKey)
 
     @Before
@@ -251,7 +251,7 @@ class WebListDetailPlaceholderTest {
             factory { realTagViewModel().also { viewModel -> tagViewModelList += viewModel } }
         }
 
-    private fun realTagViewModel(): WebAddTagViewModel {
+    private fun realTagViewModel(): EntityAddTagViewModel {
         val tag = requireNotNull(currentTag)
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList())))
@@ -261,7 +261,7 @@ class WebListDetailPlaceholderTest {
             flowOf(Result.success(listOf(tag).filter { value -> value.id in idSet }))
         }
 
-        return WebAddTagViewModel(
+        return EntityAddTagViewModel(
             initialTagId = null,
             pageTagUseCase = pageTagUseCase,
             getSelectedTagUseCase = getSelectedTagUseCase,
@@ -291,7 +291,6 @@ class WebListDetailPlaceholderTest {
         const val WEB_HOME_CONTENT = "WebHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val WEB_ADD_CONTENT = "WebAddContent"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
         fun relaxedAddViewModel(): WebAddViewModel =
@@ -302,9 +301,9 @@ class WebListDetailPlaceholderTest {
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
-                title = "title-${fixtureMonkey.giveMeOne<String>()}",
-                description = "description-${fixtureMonkey.giveMeOne<String>()}",
-                tag = webTestTag(title = "tag-${fixtureMonkey.giveMeOne<String>()}"),
+                title = "title-${Arb.string().next()}",
+                description = "description-${Arb.string().next()}",
+                tag = webTestTag(title = "tag-${Arb.string().next()}"),
             )
     }
 }

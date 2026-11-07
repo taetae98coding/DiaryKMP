@@ -4,11 +4,11 @@
 
 이 문서에서 `domain > 추가 항목의 동작 판정`, `domain > 추가한 태그의 자동 선택`, `domain > 태그 검색어`, `domain > 태그 선택 목록의 열림 상태`, `feature > 선택 상태 표시`, `feature > 태그 검색`, `feature > 태그 상세 이동`, `feature > 태그 선택 목록`, `feature > 태그 선택과 해제`, `feature > 태그 추가 이동` 절은 [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목 또는 장소 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail 네 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 [WebAdd 테스트 케이스](./web-add.md), [WebDetail 테스트 케이스](./web-detail.md), [PlaceAdd 테스트 케이스](./place-add.md), [PlaceDetail 테스트 케이스](./place-detail.md)에서 다룬다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡 또는 QR 하나를 가리킨다. 이 문서의 케이스는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail 열두 화면에서 같은 결과로 판정된다. 사용자가 반영한 선택이 언제 저장된 연결이 되는지는 각 화면의 테스트 케이스([WebAdd](./web-add.md), [WebDetail](./web-detail.md), [PlaceAdd](./place-add.md), [PlaceDetail](./place-detail.md), [ContactAdd](./contact-add.md), [ContactDetail](./contact-detail.md), [ChecklistAdd](./checklist-add.md), [ChecklistDetail](./checklist-detail.md), [MusicAdd](./music-add.md), [MusicDetail](./music-detail.md), [QrAdd](./qr-add.md), [QrDetail](./qr-detail.md))에서 다룬다.
 
 검색어의 정규화와 일치 판정, 검색 결과 없음 판정은 [검색어 일치 판정 스펙](../spec/client/search-match.md)에 위임되어 있으며, 태그 선택 목록에서의 결과를 이 문서의 케이스로 덮는다.
 
-완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 네 문서에서 다룬다.
+완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 각 화면의 케이스는 위 열두 문서에서 다룬다.
 
 ## feature
 
@@ -415,6 +415,20 @@ flowchart TD
 - Given: 사용자가 이 태그 입력이 아닌 곳에서 TagAdd 화면을 열어 태그를 추가했다.
 - When: 사용자가 태그 입력이 있는 화면을 확인한다.
 - Then: 추가한 태그는 연결 대상으로 표시되지 않는다.
+
+### TC-03b0f5b5-7702-4dd1-8d82-3bc38c818593: 태그를 추가한 뒤 앱을 종료하고 새로 진입하면 추가한 태그가 자동 선택되지 않는다
+
+- 근거: `domain > 추가한 태그의 자동 선택`
+- Given: 태그 입력에서 TagAdd 화면으로 이동해 태그를 추가한 뒤, 태그 입력이 있는 화면으로 돌아오기 전에 앱을 종료했다.
+- When: 사용자가 앱을 다시 실행하고 태그 입력이 있는 화면에 새로 진입한다.
+- Then: 추가한 태그는 연결 대상으로 표시되지 않는다.
+
+### TC-230754d8-fbe7-4d87-9aee-c1bba449e730: 목록이 열린 채 앱을 종료하고 새로 진입하면 목록이 닫힌 상태로 시작한다
+
+- 근거: `domain > 태그 선택 목록의 열림 상태`
+- Given: 태그 선택 목록이 열려 있고 검색어가 입력된 채 앱을 종료했다.
+- When: 사용자가 앱을 다시 실행하고 태그 입력이 있는 화면에 새로 진입한다.
+- Then: 태그 선택 목록은 닫혀 있고, 목록을 다시 열면 검색어가 비어 있다.
 
 ## data
 

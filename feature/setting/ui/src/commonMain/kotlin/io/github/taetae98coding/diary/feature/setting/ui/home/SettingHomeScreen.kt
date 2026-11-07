@@ -12,6 +12,7 @@ internal fun SettingHomeScreen(
     navigateToMap: () -> Unit,
     navigateToGemini: () -> Unit,
     navigateToFile: () -> Unit,
+    navigateToMcp: () -> Unit,
     viewModel: SettingHomeViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -30,6 +31,7 @@ internal fun SettingHomeScreen(
                         SettingHomeItem.MAP -> navigateToMap()
                         SettingHomeItem.GEMINI -> navigateToGemini()
                         SettingHomeItem.FILE -> navigateToFile()
+                        SettingHomeItem.MCP -> navigateToMcp()
                     }
                 }
             }

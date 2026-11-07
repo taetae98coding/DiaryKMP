@@ -1,17 +1,20 @@
 plugins {
-    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.primitive.kmp)
 }
 
 kotlin {
-    jvm()
-
     sourceSets {
         commonMain {
             dependencies {
                 api(projects.core.database.api)
+                api(projects.core.googleNetwork.api)
+                api(projects.core.ipNetwork.api)
+                api(projects.core.location.api)
                 api(projects.core.model)
+                api(projects.core.naverNetwork.api)
                 api(projects.core.network.api)
-                api(projects.library.fixtureMonkey)
+                api(projects.core.weatherNetwork.api)
+                api(projects.library.fixture)
             }
         }
     }

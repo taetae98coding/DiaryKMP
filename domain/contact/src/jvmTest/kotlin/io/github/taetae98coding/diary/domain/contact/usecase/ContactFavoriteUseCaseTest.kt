@@ -1,18 +1,21 @@
 package io.github.taetae98coding.diary.domain.contact.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +29,8 @@ import kotlin.uuid.Uuid
 class ContactFavoriteUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 저장된 연락처가 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val contactId = Arb.kotlinUuid().next()
             val isFavoriteSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val accountContactRepository = mockk<AccountContactRepository>()
@@ -39,7 +42,7 @@ class ContactFavoriteUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = instant()
+            val now = Arb.secondPrecisionInstant().next()
             val requestSyncUseCase = requestSyncUseCase()
 
             When("연락처를 즐겨찾기에 추가한다") {
@@ -108,7 +111,7 @@ class ContactFavoriteUseCaseTest :
         }
 
         Given("대상 연락처가 없어 아무것도 바뀌지 않도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery {
                 accountContactRepository.updateFavorite(account = account, contactId = any(), isFavorite = any(), updatedAt = any())
@@ -124,14 +127,14 @@ class ContactFavoriteUseCaseTest :
                     )
 
                 Then("TC-11b8fded-b993-4a0c-8334-0da88e444e17 아무것도 바꾸지 않은 결과를 그대로 전달한다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>()).shouldBeSuccess(0)
+                    useCase(parameter = Arb.kotlinUuid().next()).shouldBeSuccess(0)
                 }
             }
         }
 
         Given("즐겨찾기 저장이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val account = Arb.accountUser().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery {
                 accountContactRepository.updateFavorite(account = account, contactId = any(), isFavorite = any(), updatedAt = any())
@@ -148,7 +151,7 @@ class ContactFavoriteUseCaseTest :
                     )
 
                 Then("TC-e5d727a2-80a2-4f39-bc0f-a1295f84684d 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
@@ -158,7 +161,7 @@ class ContactFavoriteUseCaseTest :
         }
 
         Given("게스트 계정이 준비되어 있다") {
-            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val contactId = Arb.kotlinUuid().next()
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
 
             When("연락처의 즐겨찾기를 바꾼다") {
@@ -186,9 +189,6 @@ class ContactFavoriteUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun getAccountUseCase(account: Account): GetAccountUseCase {
             val useCase = mockk<GetAccountUseCase>()
             every { useCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -204,7 +204,5 @@ class ContactFavoriteUseCaseTest :
         }
 
         private fun clock(now: Instant): Clock = mockk<Clock>().also { clock -> every { clock.now() } returns now }
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

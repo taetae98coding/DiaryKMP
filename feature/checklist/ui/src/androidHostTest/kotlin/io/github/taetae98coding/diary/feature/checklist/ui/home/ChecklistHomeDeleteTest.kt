@@ -14,19 +14,21 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.domain.checklist.usecase.DeleteChecklistUseCase
 import io.github.taetae98coding.diary.domain.checklist.usecase.PageChecklistUseCase
-import io.github.taetae98coding.diary.feature.checklist.ui.card.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
-import io.github.taetae98coding.diary.feature.checklist.ui.checklistTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.checklist.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.checklist.ui.testChecklistSummary
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -109,7 +111,7 @@ class ChecklistHomeDeleteTest {
         swipeCardLeft(summary = environment.first)
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
 
-        environment.effectChannel.trySend(ChecklistHomeEffect.Deleted(id = environment.second.checklist.id)).getOrThrow()
+        environment.effectChannel.trySend(ChecklistListEffect.Deleted(id = environment.second.checklist.id)).getOrThrow()
         composeRule.waitForIdle()
 
         composeRule.onAllNodesWithText(DEFAULT_DELETED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
@@ -126,7 +128,7 @@ class ChecklistHomeDeleteTest {
         val pageChecklistUseCase = mockk<PageChecklistUseCase>()
         every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(checklistPagingDataOf(listOf(first))))
         val deleteChecklistUseCase = mockk<DeleteChecklistUseCase>()
-        coEvery { deleteChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(checklistTestFixtureMonkey.giveMeOne<String>()))
+        coEvery { deleteChecklistUseCase(parameter = any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModel =
             ChecklistHomeViewModel(
                 pageChecklistUseCase = pageChecklistUseCase,
@@ -196,12 +198,12 @@ class ChecklistHomeDeleteTest {
     ): Environment {
         val first = testChecklistSummary()
         val second = testChecklistSummary()
-        val effectChannel = Channel<ChecklistHomeEffect>(capacity = Channel.BUFFERED)
+        val effectChannel = Channel<ChecklistListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<ChecklistHomeViewModel>()
         every { viewModel.checklistPagingData } returns MutableStateFlow(checklistPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
-            effectChannel.trySend(ChecklistHomeEffect.Deleted(id = firstArg())).getOrThrow()
+            effectChannel.trySend(ChecklistListEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
 
@@ -251,7 +253,7 @@ class ChecklistHomeDeleteTest {
 
     private class Environment(
         val viewModel: ChecklistHomeViewModel,
-        val effectChannel: Channel<ChecklistHomeEffect>,
+        val effectChannel: Channel<ChecklistListEffect>,
         val first: ChecklistSummary,
         val second: ChecklistSummary,
     )

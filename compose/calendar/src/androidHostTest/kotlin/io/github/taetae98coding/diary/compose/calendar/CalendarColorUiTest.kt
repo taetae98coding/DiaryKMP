@@ -14,13 +14,12 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.dayofweek.CalendarDayOfWeekRow
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
@@ -30,9 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -74,8 +70,8 @@ class CalendarColorUiTest {
 
     @Test
     fun `요일 헤더에 지정한 의미 색상을 적용한다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
         composeRule.setContent {
             DiaryTheme {
                 CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
@@ -91,8 +87,8 @@ class CalendarColorUiTest {
 
     @Test
     fun `TC-127691d8-916c-480a-97ae-193b65d2386f 지정한 공휴일 기간에 드는 날짜가 공휴일로 구분된다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
         composeRule.setContent {
             DiaryTheme {
                 CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
@@ -123,9 +119,29 @@ class CalendarColorUiTest {
     }
 
     @Test
+    fun `TC-d04200e7-73bb-4bc0-a247-bbde0a0547e6 공휴일을 지정하지 않으면 어떤 날짜도 공휴일로 구분되지 않는다`() {
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
+        composeRule.setContent {
+            DiaryTheme {
+                CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
+                    Calendar(
+                        state = rememberCalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY)),
+                        colors = colors,
+                    ) {}
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("12").textColor() shouldBe colors.sundayAndHolidayColor
+        composeRule.onNodeWithText("13").textColor() shouldBe defaultContentColor
+        composeRule.onNodeWithText("18").textColor() shouldBe colors.saturdayColor
+    }
+
+    @Test
     fun `TC-97967e1e-731a-4003-afeb-ead39d925689 공휴일 지정이 바뀌면 공휴일 구분이 갱신된다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
         val holiday = LocalDate(year = 2026, month = Month.JULY, day = 13)
         var holidayProvider: () -> List<LocalDateRange> by mutableStateOf({ emptyList() })
         composeRule.setContent {
@@ -155,8 +171,8 @@ class CalendarColorUiTest {
 
     @Test
     fun `TC-33bc555c-c996-4239-9a12-61f9f70c0dc2 주요 날짜가 아닌 날짜는 공휴일 일요일 토요일 그 밖의 날짜 순으로 구분된다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
         val wednesdayHoliday = LocalDate(year = 2026, month = Month.JULY, day = 8)
         val saturdayHoliday = LocalDate(year = 2026, month = Month.JULY, day = 18)
         composeRule.setContent {
@@ -186,8 +202,8 @@ class CalendarColorUiTest {
 
     @Test
     fun `TC-6ad83b88-14e7-4672-bbd5-51c37ad477c4 지정한 달에 속하지 않는 날짜는 요일 구분을 유지한 채 지정한 달의 날짜와 구분된다`() {
-        val colors = fixtureMonkey.giveMeCalendarColor()
-        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val colors = Arb.calendarColor().next()
+        val defaultContentColor = Arb.color().next()
         composeRule.setContent {
             DiaryTheme {
                 CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
@@ -223,11 +239,3 @@ class CalendarColorUiTest {
         private const val ADJACENT_MONTH_DAY_ALPHA = 0.38F
     }
 }
-
-private fun FixtureMonkey.giveMeCalendarColor(): CalendarColor =
-    CalendarColor(
-        sundayAndHolidayColor = giveMeColor(),
-        saturdayColor = giveMeColor(),
-    )
-
-private fun FixtureMonkey.giveMeColor(): Color = Color(color = giveMeOne<Int>())

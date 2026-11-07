@@ -18,7 +18,9 @@ kotlin {
             dependencies {
                 implementation(projects.app.shared)
                 implementation(projects.compose.core)
+                implementation(projects.core.navigation)
                 implementation(libs.jetbrains.compose.ui)
+                implementation(libs.koin.core)
             }
         }
     }

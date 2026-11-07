@@ -13,7 +13,8 @@ public fun List<ScreenNavKey>.isPlaylistListDetailPane(key: ScreenNavKey): Boole
 public fun List<ScreenNavKey>.isPlaylistAddOnDetailPane(): Boolean {
     val key = lastOrNull() ?: return false
 
-    return key == PlaylistHomeNavKey || (key == MusicAddNavKey && isPlaylistListDetailPane(key))
+    return key == PlaylistHomeNavKey || (key is MusicAddNavKey && isPlaylistListDetailPane(key))
 }
 
-private fun ScreenNavKey.isPlaylistDetailPaneKey(): Boolean = this is MusicAddNavKey || this is MusicDetailNavKey
+// 초기 태그가 있는 MusicAdd는 TagDetail 곡 탭에서 진입한 것이다.
+private fun ScreenNavKey.isPlaylistDetailPaneKey(): Boolean = (this is MusicAddNavKey && initialTagId == null) || this is MusicDetailNavKey

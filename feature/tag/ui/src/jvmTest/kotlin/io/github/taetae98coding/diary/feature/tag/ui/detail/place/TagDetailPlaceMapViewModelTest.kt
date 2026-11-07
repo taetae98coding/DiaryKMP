@@ -3,16 +3,16 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
+import io.github.taetae98coding.diary.core.testing.location.coordinate
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -96,7 +96,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
 
         test("TC-bb0136dd-2d35-4563-a5bd-ecf2e9e8a76c 확인한 현재 위치를 초기 위치로 제공한다") {
             runTest(mainDispatcher) {
-                val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val coordinate = Arb.coordinate().next()
                 val viewModel =
                     viewModel(
                         defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
@@ -129,7 +129,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
 
         test("TC-efccf1d0-a4ca-4aa2-8366-52fa1f9234d1 TC-7634fb75-4b16-43dd-8767-649d1f781552 확인을 다시 요청해도 현재 위치는 한 번만 확인한다") {
             runTest(mainDispatcher) {
-                val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val coordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
                 val viewModel =
                     viewModel(
@@ -153,8 +153,8 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
 
         test("TC-a7b1b209-3b0a-4564-af5d-f1ae346d8568 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
-                val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-                val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val beforeCoordinate = Arb.coordinate().next()
+                val afterCoordinate = Arb.coordinate().next()
                 val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
                 coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returnsMany
                     listOf(Result.success(beforeCoordinate), Result.success(afterCoordinate))
@@ -178,9 +178,6 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
 
     private companion object {
         private const val REPEAT_COUNT = 3
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun TagDetailPlaceUiState.shouldBeLoaded(
             defaultProvider: MapProvider,

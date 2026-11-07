@@ -1,16 +1,20 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.checklist.entity.ChecklistRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.checklistitem.entity.ChecklistItemRemoteEntity
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.uuid.Uuid
@@ -74,11 +78,11 @@ class SyncWorkChecklistTest :
         }
 
         test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 삭제된 체크리스트와 뺀 체크 항목도 삭제 상태로 업로드된다") {
-            val checklistList = listOf(fixtureMonkey.localChecklist(isDeleted = true), fixtureMonkey.localChecklist(isDeleted = false))
+            val checklistList = listOf(Arb.localChecklist(isDeleted = true).next(), Arb.localChecklist(isDeleted = false).next())
             val itemList =
                 listOf(
-                    fixtureMonkey.localChecklistItem(isChecked = fixtureMonkey.giveMeOne(), isDeleted = true),
-                    fixtureMonkey.localChecklistItem(isChecked = fixtureMonkey.giveMeOne(), isDeleted = false),
+                    Arb.localChecklistItem(isChecked = Arb.boolean().next(), isDeleted = true).next(),
+                    Arb.localChecklistItem(isChecked = Arb.boolean().next(), isDeleted = false).next(),
                 )
             val context = context(checklistList = checklistList, checklistItemList = itemList)
             val checklistRequests = mutableListOf<List<ChecklistRemoteEntity>>()
@@ -97,11 +101,11 @@ class SyncWorkChecklistTest :
         }
 
         test("TC-860568ea-3f66-4d2d-833d-4eeeed777358 같은 체크리스트의 서로 다른 체크 항목은 체크리스트 없이 각자의 전체 상태로 업로드된다") {
-            val checklistId = fixtureMonkey.giveMeOne<Uuid>()
+            val checklistId = Arb.kotlinUuid().next()
             val itemList =
                 listOf(
-                    fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklistId),
-                    fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklistId),
+                    Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next(),
+                    Arb.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklistId).next(),
                 )
             val context = context(checklistItemList = itemList)
             val requests = mutableListOf<List<ChecklistItemRemoteEntity>>()
@@ -135,7 +139,7 @@ class SyncWorkChecklistTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-90561386-15a3-4139-9983-cb88f3fe4a47 체크 항목 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(checklistItemList = checklistItems(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.checklistItemRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -147,7 +151,7 @@ class SyncWorkChecklistTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-90561386-15a3-4139-9983-cb88f3fe4a47 체크리스트 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(checklistList = checklists(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.checklistRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -158,10 +162,10 @@ class SyncWorkChecklistTest :
         }
 
         test("TC-c320d931-4f62-4f3c-a2e8-ebae4742a3c3 체크리스트 업로드가 성공하고 체크 항목 업로드가 실패하면 체크리스트의 대기 해제만 유지된다") {
-            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
-            val item = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
+            val checklist = Arb.localChecklist(isDeleted = false).next()
+            val item = Arb.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id).next()
             val context = context(checklistList = listOf(checklist), checklistItemList = listOf(item))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.checklistItemRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -180,7 +184,7 @@ class SyncWorkChecklistTest :
                     checklistList = checklists(size = 201),
                     checklistItemList = checklistItems(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
@@ -205,7 +209,7 @@ class SyncWorkChecklistTest :
                         checklistList = checklists(size = 1),
                         checklistItemList = checklistItems(size = 1),
                     )
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 val requestMap = mutableMapOf<String, MutableList<Int>>()
                 if (isChecklistFailing) {
                     coEvery { context.checklistRemoteDataSource.push(any()) } throws failure
@@ -259,8 +263,8 @@ class SyncWorkChecklistTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 체크리스트와 체크 항목만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery { context.checklistSyncLocalDataSource.readPendingList(accountId = otherAccountId) } returns checklists(size = 1)
             coEvery { context.checklistItemSyncLocalDataSource.readPendingList(accountId = otherAccountId) } returns checklistItems(size = 1)

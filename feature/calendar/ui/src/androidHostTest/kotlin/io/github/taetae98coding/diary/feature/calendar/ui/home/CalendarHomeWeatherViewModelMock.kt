@@ -2,12 +2,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
-import io.github.taetae98coding.diary.core.model.weather.Weather
-import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
-import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
@@ -29,8 +24,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDate
-import kotlin.time.Instant
 
 internal fun weatherViewModel(
     weatherReportFlow: StateFlow<CalendarWeatherReport> = MutableStateFlow(CalendarWeatherReport()),
@@ -84,40 +77,6 @@ internal fun syncViewModel(isRefreshingFlow: StateFlow<Boolean> = MutableStateFl
         every { viewModel.refresh() } returns Unit
         every { viewModel.uiState } returns isRefreshingFlow.mapState { isRefreshing -> SyncRefreshUiState(isRefreshing = isRefreshing) }
     }
-
-internal fun calendarWeather(
-    date: LocalDate,
-    temperature: CalendarWeatherTemperature,
-    descriptionList: List<String>,
-    imageUrlList: List<String> = descriptionList.indices.map { index -> "https://example.com/weather/$index.png" },
-): CalendarWeather =
-    CalendarWeather(
-        date = date,
-        temperature = temperature,
-        weatherList =
-            descriptionList.zip(imageUrlList).map { (description, imageUrl) ->
-                forecast(
-                    description = description,
-                    imageUrl = imageUrl,
-                )
-            },
-    )
-
-private fun forecast(
-    description: String,
-    imageUrl: String,
-): Weather =
-    Weather(
-        dateTime = Instant.fromEpochSeconds(0),
-        conditionList =
-            listOf(
-                WeatherCondition(
-                    description = description,
-                    imageUrl = imageUrl,
-                ),
-            ),
-        temperature = WeatherTemperature(current = 0.0, min = 0.0, max = 0.0),
-    )
 
 internal fun <T, R> StateFlow<T>.mapState(transform: (T) -> R): StateFlow<R> =
     object : StateFlow<R> {

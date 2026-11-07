@@ -18,8 +18,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -35,7 +33,10 @@ import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinis
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -47,14 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
-private fun fixtureId(): Uuid = fixtureMonkey.giveMeOne<Uuid>()
-
-private fun fixtureText(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)
 
 private fun screenTestSyncViewModel(): SyncRefreshViewModel {
     val viewModel = mockk<SyncRefreshViewModel>(relaxed = true)
@@ -69,7 +62,7 @@ class ContactMemoFinishedListExecutionBoundaryTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val contactId = fixtureId()
+    private val contactId = Arb.kotlinUuid().next()
     private val finishedListKey = ContactMemoFinishedListNavKey(contactId = contactId)
     private val backStack = NavBackStack<ScreenNavKey>(ContactDetailNavKey(id = contactId))
     private val syncViewModel = screenTestSyncViewModel()
@@ -84,7 +77,7 @@ class ContactMemoFinishedListExecutionBoundaryTest {
         setFinishedListNavDisplay(memoList = memoList())
 
         openFinishedList()
-        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureId())) }
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { backStack.removeLastOrNull() }
         composeRule.waitForIdle()
@@ -218,9 +211,9 @@ class ContactMemoFinishedListExecutionBoundaryTest {
     }
 
     private fun memoList(): List<Memo> {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
 
-        return List(MEMO_COUNT) { index -> fixtureMonkey.memo(title = "${titlePrefix}Index$index") }
+        return List(MEMO_COUNT) { index -> Arb.memo(title = "${titlePrefix}Index$index").next() }
     }
 
     private companion object {

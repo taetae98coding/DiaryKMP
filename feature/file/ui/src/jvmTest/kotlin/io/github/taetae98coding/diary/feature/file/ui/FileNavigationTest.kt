@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.feature.file.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileNavigationTest :
     FunSpec({
@@ -21,8 +19,8 @@ class FileNavigationTest :
                 listOf(
                     emptyList(),
                     listOf(FileAddNavKey),
-                    listOf(FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), FileAddNavKey),
+                    listOf(FileDetailNavKey(id = Arb.kotlinUuid().next())),
+                    listOf(FileDetailNavKey(id = Arb.kotlinUuid().next()), FileAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -35,8 +33,8 @@ class FileNavigationTest :
         }
 
         test("TC-3138af23-fb7b-408c-8a86-92eead539d42 FileDetail이 놓여 있으면 새 파일의 FileDetail로 교체한다") {
-            val first = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-            val second = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val first = FileDetailNavKey(id = Arb.kotlinUuid().next())
+            val second = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = fileBackStack(detailKeyList = listOf(first))
 
             backStack.navigateToFileDetail(id = second.id)
@@ -48,11 +46,11 @@ class FileNavigationTest :
             val detailCases =
                 listOf(
                     listOf(FileAddNavKey),
-                    listOf(FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), FileAddNavKey),
+                    listOf(FileDetailNavKey(id = Arb.kotlinUuid().next()), FileAddNavKey),
                 )
 
             detailCases.forEach { detailKeyList ->
-                val selected = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val selected = FileDetailNavKey(id = Arb.kotlinUuid().next())
                 val backStack = fileBackStack(detailKeyList = detailKeyList)
 
                 backStack.navigateToFileDetail(id = selected.id)
@@ -62,7 +60,7 @@ class FileNavigationTest :
         }
 
         test("상세 영역에 FileDetail이 없으면 목록에서 선택한 FileDetail을 이어서 놓는다") {
-            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detail = FileDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = fileBackStack(detailKeyList = emptyList())
 
             backStack.navigateToFileDetail(id = detail.id)

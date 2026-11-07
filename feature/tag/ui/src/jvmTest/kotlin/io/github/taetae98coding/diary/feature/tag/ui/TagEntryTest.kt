@@ -7,8 +7,6 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -23,20 +21,20 @@ import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TagEntryTest :
     FunSpec({
         test("TC-02124320-69e7-4652-b17b-d983759dcb80 필터를 열어도 목록의 태그 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
-            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStackCases =
                 listOf(
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey) to true,
@@ -50,6 +48,21 @@ class TagEntryTest :
 
             backStackCases.forEach { (backStack, isTagDetailOnDetailPane) ->
                 backStack.isTagDetailOnDetailPane() shouldBe isTagDetailOnDetailPane
+            }
+        }
+
+        test("TC-374b3a7b-b08e-4076-80f2-eda7bbf7488c 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
+            val addKey = TagAddNavKey()
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagHomeFilterNavKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, addKey, TagHomeFilterNavKey) to addKey,
+                )
+
+            backStackCases.forEach { (backStack, key) ->
+                metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+                metadataOf(backStack = backStack, key = TagHomeFilterNavKey).keys shouldBe bottomSheetMetadataKeys
             }
         }
 
@@ -72,7 +85,7 @@ class TagEntryTest :
         }
 
         test("TC-d9b226dc-43d3-4a5d-af8d-967ce5c4c827 목록에서 태그를 선택하면 그 태그의 상세가 목록과 함께 상세 영역에 놓인다") {
-            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey)
 
             backStack.navigateToTagDetail(detailKey.id)
@@ -82,7 +95,7 @@ class TagEntryTest :
         }
 
         test("TC-eeac07d4-4c42-4999-8d89-da62fbf017b2 태그 상세가 놓인 동안 새 태그 추가를 선택하면 목록을 유지한 채 상세 영역이 태그 추가로 바뀐다") {
-            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey, detailKey)
 
             backStack.navigateToTagAdd()
@@ -140,10 +153,10 @@ class TagEntryTest :
         }
 
         test("TC-d40a0f5e-925a-48c7-8997-4adfd0fc9b84 완료된 태그 목록에서 태그를 선택하면 그 태그의 상세가 그 목록의 상세 영역에 놓인다") {
-            val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+            val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(TagDetailNavKey(id = Arb.kotlinUuid().next())))
 
             homeDetailCases.forEach { homeDetailList ->
-                val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
                 val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey, *homeDetailList.toTypedArray(), TagFinishedListNavKey)
 
                 backStack.navigateToTagDetail(detailKey.id)
@@ -155,11 +168,11 @@ class TagEntryTest :
         }
 
         test("TC-8175338b-308e-40e9-8d8f-c50793db9466 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 그 목록의 상세 영역에 놓인다") {
-            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val openedKeyList: List<ScreenNavKey> =
                 listOf(
-                    TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                    TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                    TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                    TagAddNavKey(requestKey = Arb.kotlinUuid().next()),
                 )
 
             openedKeyList.forEach { openedKey ->
@@ -171,7 +184,7 @@ class TagEntryTest :
         }
 
         test("TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 상세 영역의 태그 상세에서 연 완료된 메모 목록은 이 배치에 참여하지 않는다") {
-            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val listSelectedKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = listSelectedKey.id)
             val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, tagMemoFinishedListKey)
 
@@ -183,7 +196,7 @@ class TagEntryTest :
             "TC-3716eb49-6ffb-4b3b-8c62-482b4e7b72c4 TC-95e17dbf-5c89-4501-aaee-fd14f21e11ef " +
                 "완료된 태그 목록에서 진입하지 않은 태그 화면은 이 배치에 참여하지 않고, 완료된 메모 목록의 상세에서 연 태그 상세도 단독으로 표시한다",
         ) {
-            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val detailKey = TagDetailNavKey(id = Arb.kotlinUuid().next())
             val addKey = TagAddNavKey()
             val sceneKeyCases: List<Triple<List<ScreenNavKey>, ScreenNavKey, ScreenNavKey?>> =
                 listOf(
@@ -192,7 +205,7 @@ class TagEntryTest :
                     // 완료된 태그 목록을 연 채 태그 목록의 상세가 아래에 남아 있어도, 그 상세는 태그 목록의 배치에 속한다.
                     Triple(listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagFinishedListNavKey), detailKey, TagHomeNavKey),
                     Triple(
-                        listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), detailKey),
+                        listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoDetailNavKey(id = Arb.kotlinUuid().next()), detailKey),
                         detailKey,
                         null,
                     ),
@@ -201,8 +214,8 @@ class TagEntryTest :
                             OtherTopLevelNavKey,
                             TagHomeNavKey,
                             TagFinishedListNavKey,
-                            TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
-                            MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                            TagDetailNavKey(id = Arb.kotlinUuid().next()),
+                            MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                             detailKey,
                         ),
                         detailKey,
@@ -213,7 +226,7 @@ class TagEntryTest :
                             OtherTopLevelNavKey,
                             MemoHomeNavKey,
                             MemoFinishedListNavKey,
-                            MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                            MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                             detailKey,
                         ),
                         detailKey,

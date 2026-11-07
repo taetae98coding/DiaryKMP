@@ -1,9 +1,5 @@
 package io.github.taetae98coding.diary.core.google.network.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMe
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceDisplayNameRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
@@ -13,13 +9,21 @@ import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTest
 import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.google.network.impl.createGoogleHttpClient
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceDisplayNameRemoteEntity
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceLocationBiasRemoteEntity
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceLocationRemoteEntity
+import io.github.taetae98coding.diary.core.testing.google.googlePlaceRemoteEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.doubles.shouldBeNaN
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
+import io.kotest.property.arbitrary.take
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -53,7 +57,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            dataSource.search(query = Arb.string().next(), locationBias = null)
 
             engine.requestHistory
                 .single()
@@ -66,7 +70,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            dataSource.search(query = Arb.string().next(), locationBias = null)
 
             engine.requestHistory
                 .single()
@@ -80,7 +84,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = locationBias)
+            dataSource.search(query = Arb.string().next(), locationBias = locationBias)
 
             val body = engine.requestHistory.single().jsonBody()
             val circle = body["locationBias"]?.jsonObject?.get("circle")?.jsonObject
@@ -106,7 +110,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = locationBias)
+            dataSource.search(query = Arb.string().next(), locationBias = locationBias)
 
             val body = engine.requestHistory.single().jsonBody()
 
@@ -123,7 +127,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            dataSource.search(query = Arb.string().next(), locationBias = null)
 
             val body = engine.requestHistory.single().jsonBody()
 
@@ -135,7 +139,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            dataSource.search(query = Arb.string().next(), locationBias = null)
 
             engine.requestHistory
                 .single()
@@ -152,7 +156,7 @@ class GooglePlaceRemoteDataSourceImplTest :
 
         test("TC-5d72c32d-9128-4486-b1d8-4e69b1fd567d: 검색어와 인증 정보를 담아 기본 정렬로 요청한다") {
             val config = GoogleNetworkTestKoinModule.config
-            val query = fixtureMonkey.giveMeOne<String>()
+            val query = Arb.string().next()
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
@@ -166,11 +170,11 @@ class GooglePlaceRemoteDataSourceImplTest :
         }
 
         test("TC-3240a860-51b0-4110-a863-e2e95955aa8d: 성공 응답의 장소 목록을 그대로 전달한다") {
-            val places = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(20)
+            val places = Arb.googlePlaceRemoteEntity().take(20).toList()
             val engine = createSuccessEngine(places)
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            val actual = dataSource.search(query = Arb.string().next(), locationBias = null)
 
             actual shouldBe places
         }
@@ -179,7 +183,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createEngine(content = "{}")
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            val actual = dataSource.search(query = Arb.string().next(), locationBias = null)
 
             actual shouldBe emptyList()
         }
@@ -195,15 +199,15 @@ class GooglePlaceRemoteDataSourceImplTest :
                 val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
-                    dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+                    dataSource.search(query = Arb.string().next(), locationBias = null)
                 }
             }
         }
 
         test("TC-22cce4a8-f806-49e1-85d3-07225309b5bc: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
-            val representable = fixtureMonkey.giveMeOne<GooglePlaceRemoteEntity>()
-            val withoutLocationName = "place-${fixtureMonkey.giveMeOne<Int>()}"
-            val withoutLatitudeName = "place-${fixtureMonkey.giveMeOne<Int>()}"
+            val representable = Arb.googlePlaceRemoteEntity().next()
+            val withoutLocationName = "place-${Arb.int().next()}"
+            val withoutLatitudeName = "place-${Arb.int().next()}"
             val content =
                 buildJsonObject {
                     put(
@@ -226,7 +230,7 @@ class GooglePlaceRemoteDataSourceImplTest :
                 }.toString()
             val dataSource = createDataSource(createEngine(content = content))
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            val actual = dataSource.search(query = Arb.string().next(), locationBias = null)
 
             actual.map { place -> place.displayName.text } shouldBe listOf(representable.displayName.text, withoutLocationName, withoutLatitudeName)
             actual[0] shouldBe representable
@@ -239,7 +243,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
 
-            dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+            dataSource.search(query = Arb.string().next(), locationBias = null)
 
             val request = engine.requestHistory.single()
 
@@ -251,13 +255,13 @@ class GooglePlaceRemoteDataSourceImplTest :
         test("응답에 없는 선택 정보는 빈 값으로 전달한다") {
             val place =
                 GooglePlaceRemoteEntity(
-                    displayName = fixtureMonkey.giveMeOne<GooglePlaceDisplayNameRemoteEntity>(),
-                    location = fixtureMonkey.giveMeOne<GooglePlaceLocationRemoteEntity>(),
+                    displayName = Arb.googlePlaceDisplayNameRemoteEntity().next(),
+                    location = Arb.googlePlaceLocationRemoteEntity().next(),
                 )
             val engine = createSuccessEngine(listOf(place))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null).single()
+            val actual = dataSource.search(query = Arb.string().next(), locationBias = null).single()
 
             actual.formattedAddress shouldBe ""
             actual.shortFormattedAddress shouldBe ""
@@ -267,14 +271,13 @@ class GooglePlaceRemoteDataSourceImplTest :
         private const val MAX_RADIUS_METERS = 50_000.0
         private const val WITHIN_LIMIT_RADIUS_METERS = 1_000.0
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun locationBias(radiusMeters: Double): GooglePlaceLocationBiasRemoteEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<GooglePlaceLocationBiasRemoteEntity>()
-                .setExp(GooglePlaceLocationBiasRemoteEntity::radiusMeters, radiusMeters)
-                .sample()
+            Arb
+                .googlePlaceLocationBiasRemoteEntity()
+                .next()
+                .copy(
+                    radiusMeters = radiusMeters,
+                )
 
         private fun HttpRequestData.jsonBody(): JsonObject = Json.parseToJsonElement((body as TextContent).text).jsonObject
 

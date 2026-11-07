@@ -100,7 +100,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 TC-29f72dc2-15f1-426b-880c-9697c055beb8 TC-d58e8805-d2ad-42f2-a534-5ff654141413 TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoDetailScreen(
             viewModel = screenTestViewModel(),

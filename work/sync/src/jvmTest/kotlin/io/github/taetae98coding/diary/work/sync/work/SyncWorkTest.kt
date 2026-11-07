@@ -1,9 +1,5 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.KotlinPlugin
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
@@ -18,6 +14,7 @@ import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRem
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -27,6 +24,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
@@ -81,7 +81,7 @@ class SyncWorkTest :
             val tagList = tags(size = 201)
             val memoList = memos(size = 1)
             val context = context(tagList = tagList, memoList = memoList)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<List<TagRemoteEntity>>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
                 tagRequests += firstArg<List<TagRemoteEntity>>()
@@ -103,7 +103,7 @@ class SyncWorkTest :
             val tagList = tags(size = 1)
             val memoList = memos(size = 201)
             val context = context(tagList = tagList, memoList = memoList)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val memoRequests = mutableListOf<List<MemoRemoteEntity>>()
             coEvery { context.memoRemoteDataSource.push(any()) } coAnswers {
                 memoRequests += firstArg<List<MemoRemoteEntity>>()
@@ -120,8 +120,8 @@ class SyncWorkTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 대상만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.tagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
@@ -149,8 +149,8 @@ class SyncWorkTest :
         }
 
         test("TC-cdfd501c-c0ba-469f-a52a-bc040216c2e6 요청과 실행 사이에 계정이 바뀌면 바뀐 계정을 동기화한다") {
-            val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstAccountId = Arb.kotlinUuid().next()
+            val secondAccountId = Arb.kotlinUuid().next()
             val context =
                 context(
                     accountId = secondAccountId,
@@ -190,7 +190,7 @@ class SyncWorkTest :
 
         test("TC-184c320d-7763-4932-8c52-55eb8b129cad 세션이 갱신되지 않았으면 갱신될 때까지 기다린 뒤 동기화한다") {
             runTest {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
                 accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
                 val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
@@ -258,7 +258,7 @@ class SyncWorkTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b 태그 내려받기가 실패해도 메모는 빈 응답까지 내려받는다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val firstMemoPullList = memoPulls(usnList = listOf(2L))
             val secondMemoPullList = memoPulls(usnList = listOf(5L))
             coEvery { context.tagRemoteDataSource.pull(any()) } throws failure
@@ -289,7 +289,7 @@ class SyncWorkTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b 메모 내려받기가 실패해도 태그는 빈 응답까지 내려받는다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val firstTagPullList = tagPulls(usnList = listOf(3L))
             val secondTagPullList = tagPulls(usnList = listOf(6L))
             coEvery { context.memoRemoteDataSource.pull(any()) } throws failure
@@ -325,7 +325,7 @@ class SyncWorkTest :
         ).forEach { (label, isTagFailed, isMemoFailed) ->
             test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 $label 내려받기가 실패하면 동기화가 실패한다") {
                 val context = context()
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 if (isTagFailed) {
                     coEvery { context.tagRemoteDataSource.pull(any()) } throws failure
                 }
@@ -374,7 +374,7 @@ class SyncWorkTest :
         test("TC-a31c9e09-00c4-4621-8826-33dfae97e093 업로드 묶음이 실패하면 그 묶음의 대기 해제를 요청하지 않는다") {
             val tagList = tags(size = 201)
             val context = context(tagList = tagList)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<List<TagRemoteEntity>>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers {
                 tagRequests += firstArg<List<TagRemoteEntity>>()
@@ -401,7 +401,7 @@ class SyncWorkTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(tagList = tags(size = 1), memoList = memos(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.memoRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -463,7 +463,7 @@ class SyncWorkTest :
 
         test("TC-2d656b4a-c48b-4cf5-b9da-04dbd7457b62 내려받기가 실패하면 저장하지 않고 마지막 순번으로 다시 요청한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 8L
             coEvery { context.tagRemoteDataSource.pull(usn = 8L) } throws failure
 
@@ -503,7 +503,7 @@ class SyncWorkTest :
             val tagList = tags(size = 1)
             val originalTagList = tagList.map { tag -> tag.copy(detail = tag.detail.copy()) }
             val context = context(tagList = tagList)
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             val actual =
@@ -591,7 +591,7 @@ class SyncWorkTest :
 
         test("TC-b4f2910f-0ea0-4fb8-a19f-9c663c09cd76 실패한 묶음은 같은 실행에서 다시 시도하지 않는다") {
             val context = context(tagList = tags(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -603,7 +603,7 @@ class SyncWorkTest :
 
         test("코루틴 취소는 그대로 전파한다") {
             val context = context(tagList = tags(size = 1))
-            val cancellationException = CancellationException(fixtureMonkey.giveMeOne<String>())
+            val cancellationException = CancellationException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws cancellationException
 
             val actual =
@@ -647,7 +647,7 @@ class SyncWorkTest :
 
         test("내려받기 중 코루틴 취소는 그대로 전파한다") {
             val context = context()
-            val cancellationException = CancellationException(fixtureMonkey.giveMeOne<String>())
+            val cancellationException = CancellationException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.pull(any()) } throws cancellationException
 
             val actual =
@@ -676,14 +676,14 @@ class SyncWorkTest :
             "내려받기: 메모" to { context, failure -> coEvery { context.memoRemoteDataSource.pull(any()) } throws failure },
             "내려받기: 연결" to { context, failure -> coEvery { context.memoTagRemoteDataSource.pull(any()) } throws failure },
         ).forEach { (label, prepareFailure) ->
-            test("TC-ff799c65-2ad3-472d-893b-a41a7586012c $label 단계가 실패하면 실패 원인을 담은 오류 보고가 한 번 남는다") {
+            test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 $label 단계가 실패해도 오류 보고는 남지 않는다") {
                 val context =
                     context(
                         tagList = tags(size = 1),
                         memoList = memos(size = 1),
                         memoTagList = memoTags(size = 1),
                     )
-                val failure = TestException(fixtureMonkey.giveMeOne())
+                val failure = TestException(Arb.string().next())
                 prepareFailure(context, failure)
                 val reportList = recordCrashlyticsLog()
 
@@ -691,45 +691,13 @@ class SyncWorkTest :
                     context.subject.doWork()
                 }
 
-                val report = reportList.single()
-                report.throwable.shouldBeInstanceOf<TestException>()
-                report.throwable.message shouldBe failure.message
-                report.message shouldBe SYNC_FAILURE_REPORT_MESSAGE
+                reportList.shouldBeEmpty()
             }
-        }
-
-        test("TC-06eb87fd-45cd-42b6-a11f-176c8073a21d 여러 종류의 내려받기가 실패해도 오류 보고는 한 번만 남는다") {
-            val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
-            coEvery { context.tagRemoteDataSource.pull(any()) } throws failure
-            coEvery { context.memoRemoteDataSource.pull(any()) } throws failure
-            coEvery { context.memoTagRemoteDataSource.pull(any()) } throws failure
-            val reportList = recordCrashlyticsLog()
-
-            shouldThrowExactly<TestException> {
-                context.subject.doWork()
-            }
-
-            reportList.shouldHaveSize(1)
-        }
-
-        test("TC-367c7b17-98eb-4fb9-a44e-072b4be2c056 동기화가 성공하면 오류 보고가 남지 않는다") {
-            val context =
-                context(
-                    tagList = tags(size = 1),
-                    memoList = memos(size = 1),
-                    memoTagList = memoTags(size = 1),
-                )
-            val reportList = recordCrashlyticsLog()
-
-            context.subject.doWork()
-
-            reportList.shouldBeEmpty()
         }
 
         test("TC-08cbe2b5-73ec-4ef2-b388-f95850b0b1ed 진행 중인 동기화가 취소되면 오류 보고가 남지 않는다") {
             val context = context(tagList = tags(size = 1))
-            val cancellationException = CancellationException(fixtureMonkey.giveMeOne<String>())
+            val cancellationException = CancellationException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws cancellationException
             val reportList = recordCrashlyticsLog()
 
@@ -740,9 +708,9 @@ class SyncWorkTest :
             reportList.shouldBeEmpty()
         }
 
-        test("TC-89d9c2ca-e9f9-4c8e-99c3-eba824b3717e 오프라인으로 인한 동기화 실패도 오류 보고로 남는다") {
+        test("TC-7b5ce34d-946d-4b44-996b-d3ecf46290d5 오프라인으로 실패해도 오류 보고는 남지 않는다") {
             val context = context(tagList = tags(size = 1))
-            val failure = UnknownHostException(fixtureMonkey.giveMeOne<String>())
+            val failure = UnknownHostException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
             val reportList = recordCrashlyticsLog()
 
@@ -750,10 +718,6 @@ class SyncWorkTest :
                 context.subject.doWork()
             }
 
-            val report = reportList.single()
-            report.throwable.shouldBeInstanceOf<UnknownHostException>()
-            report.throwable.message shouldBe failure.message
+            reportList.shouldBeEmpty()
         }
     })
-
-private const val SYNC_FAILURE_REPORT_MESSAGE: String = "데이터 동기화 실패"

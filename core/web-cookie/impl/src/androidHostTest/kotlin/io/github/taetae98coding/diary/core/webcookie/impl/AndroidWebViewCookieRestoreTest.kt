@@ -1,11 +1,10 @@
 package io.github.taetae98coding.diary.core.webcookie.impl
 
 import android.webkit.CookieManager
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.webcookie.api.WebViewCookieEntity
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,11 +12,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 // Set-Cookie 형식에 쓰이는 구분 문자가 이름과 값에 섞이면 다른 쿠키가 되므로, 이름과 값만 영문자로 고정한다.
 private fun testCookie(): WebViewCookieEntity =
-    fixtureMonkey.giveMeOne<WebViewCookieEntity>().copy(
+    Arb.webViewCookieEntity().next().copy(
         name = "name${Uuid.random().toHexString()}",
         value = "value${Uuid.random().toHexString()}",
     )
@@ -29,7 +26,7 @@ class AndroidWebViewCookieRestoreTest {
     fun `TC-a8c81333-f7af-4735-86ec-9a6a1a6e8c6d 되돌릴 때 같은 쿠키가 이미 있으면 보관해 둔 값으로 바꾼다`() {
         val cookieManager = CookieManager.getInstance()
         val cookie =
-            fixtureMonkey.giveMeOne<WebViewCookieEntity>().copy(
+            Arb.webViewCookieEntity().next().copy(
                 name = "sid",
                 value = "saved",
                 domain = "${Uuid.random().toHexString()}.example.com",

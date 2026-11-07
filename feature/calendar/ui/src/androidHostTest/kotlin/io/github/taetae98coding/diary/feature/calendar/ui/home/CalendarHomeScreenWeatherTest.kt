@@ -14,9 +14,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
+import io.github.taetae98coding.diary.compose.calendar.weather.CALENDAR_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
@@ -25,14 +24,16 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
+import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
-import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CALENDAR_HOME_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,9 +47,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.math.abs
 import kotlin.time.Instant
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -70,11 +68,12 @@ class CalendarHomeScreenWeatherTest {
             CalendarWeatherReport(
                 weatherList =
                     listOf(
-                        calendarWeather(
-                            date = july(day = 15),
-                            temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                            descriptionList = listOf(SUNNY_DESCRIPTION),
-                        ),
+                        Arb
+                            .calendarWeather(
+                                date = july(day = 15),
+                                temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                                descriptionList = listOf(SUNNY_DESCRIPTION),
+                            ).next(),
                     ),
             )
         composeRule.waitForIdle()
@@ -86,11 +85,12 @@ class CalendarHomeScreenWeatherTest {
     @Test
     fun `TC-150b4b4d-d2ad-4950-a585-6cd96e1cdd98 캘린더에 보이는 주와 겹치지 않는 날짜의 날씨는 표시되지 않는다`() {
         val weather =
-            calendarWeather(
-                date = july(day = 15),
-                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                descriptionList = listOf(SUNNY_DESCRIPTION),
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 15),
+                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                    descriptionList = listOf(SUNNY_DESCRIPTION),
+                ).next()
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(weather)))),
@@ -114,11 +114,12 @@ class CalendarHomeScreenWeatherTest {
     @Config(sdk = [36], qualifiers = "w840dp-h900dp")
     fun `TC-1020d8a1-0e40-42b9-aba8-04a1242da437 오늘 날짜의 모든 날씨 아이콘과 현재 기온이 표시된다`() {
         val weather =
-            calendarWeather(
-                date = july(day = 15),
-                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                descriptionList = listOf(SUNNY_DESCRIPTION, CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 15),
+                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                    descriptionList = listOf(SUNNY_DESCRIPTION, CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
+                ).next()
 
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -141,23 +142,37 @@ class CalendarHomeScreenWeatherTest {
             ) / 2
         val iconAreaCenter =
             composeRule
-                .onNodeWithTag(CALENDAR_HOME_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true)
+                .onNodeWithTag(CALENDAR_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true)
                 .fetchSemanticsNode()
                 .boundsInRoot
                 .center
                 .x
         (abs(iconGroupCenter - iconAreaCenter) <= CENTER_ALIGNMENT_TOLERANCE_PX) shouldBe true
         composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+        val iconBottom =
+            composeRule
+                .onNodeWithContentDescription(SUNNY_DESCRIPTION, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .bottom
+        val temperatureTop =
+            composeRule
+                .onNodeWithText(CURRENT_TEMPERATURE_TEXT, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (iconBottom <= temperatureTop) shouldBe true
     }
 
     @Test
     fun `TC-141a0841-2fba-4903-ba97-22f6cc0d3c09 오늘이 아닌 날짜의 모든 날씨 아이콘과 최저 최고 기온이 표시된다`() {
         val weather =
-            calendarWeather(
-                date = july(day = 16),
-                temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
-                descriptionList = listOf(CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 16),
+                    temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
+                    descriptionList = listOf(CLOUDY_DESCRIPTION, RAINY_DESCRIPTION),
+                ).next()
 
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -173,11 +188,12 @@ class CalendarHomeScreenWeatherTest {
     @Test
     fun `TC-e7ee237a-2c9e-4efb-91ee-a632bf7c8e29 온도 표시가 없는 날짜는 날씨 아이콘만 표시된다`() {
         val weather =
-            calendarWeather(
-                date = july(day = 16),
-                temperature = CalendarWeatherTemperature.None,
-                descriptionList = listOf(CLOUDY_DESCRIPTION),
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 16),
+                    temperature = CalendarWeatherTemperature.None,
+                    descriptionList = listOf(CLOUDY_DESCRIPTION),
+                ).next()
 
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -192,11 +208,12 @@ class CalendarHomeScreenWeatherTest {
     fun `TC-c9866073-5352-4222-aff1-c6f4cc89bc1f 한 번에 보이지 않는 날씨 아이콘을 가로로 스크롤해 확인한다`() {
         val descriptionList = List(size = WEATHER_ICON_COUNT) { index -> "$WEATHER_DESCRIPTION_PREFIX$index" }
         val weather =
-            calendarWeather(
-                date = july(day = 15),
-                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                descriptionList = descriptionList,
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 15),
+                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                    descriptionList = descriptionList,
+                ).next()
 
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -206,7 +223,7 @@ class CalendarHomeScreenWeatherTest {
         composeRule.onNodeWithContentDescription(descriptionList.last(), useUnmergedTree = true).assertIsNotDisplayed()
 
         repeat(HORIZONTAL_SWIPE_COUNT) {
-            composeRule.onNodeWithTag(CALENDAR_HOME_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true).performTouchInput { swipeLeft() }
+            composeRule.onNodeWithTag(CALENDAR_WEATHER_ICONS_TEST_TAG, useUnmergedTree = true).performTouchInput { swipeLeft() }
         }
         composeRule.waitForIdle()
 
@@ -222,24 +239,25 @@ class CalendarHomeScreenWeatherTest {
         val sunnyImageUrl = "https://openweathermap.org/img/wn/01d.png"
         val cloudyImageUrl = "https://openweathermap.org/img/wn/02d.png"
         val weather =
-            calendarWeather(
-                date = july(day = 15),
-                temperature = CalendarWeatherTemperature.Current(value = 24.3),
-                descriptionList =
-                    listOf(
-                        firstSunnyDescription,
-                        consecutiveSunnyDescription,
-                        cloudyDescription,
-                        lastSunnyDescription,
-                    ),
-                imageUrlList =
-                    listOf(
-                        sunnyImageUrl,
-                        sunnyImageUrl,
-                        cloudyImageUrl,
-                        sunnyImageUrl,
-                    ),
-            )
+            Arb
+                .calendarWeather(
+                    date = july(day = 15),
+                    temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                    descriptionList =
+                        listOf(
+                            firstSunnyDescription,
+                            consecutiveSunnyDescription,
+                            cloudyDescription,
+                            lastSunnyDescription,
+                        ),
+                    imageUrlList =
+                        listOf(
+                            sunnyImageUrl,
+                            sunnyImageUrl,
+                            cloudyImageUrl,
+                            sunnyImageUrl,
+                        ),
+                ).next()
 
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
@@ -263,7 +281,7 @@ class CalendarHomeScreenWeatherTest {
                 weatherList =
                     listOf(
                         Weather(
-                            dateTime = fixtureMonkey.giveMeOne<Instant>(),
+                            dateTime = Arb.secondPrecisionInstant().next(),
                             conditionList =
                                 listOf(
                                     WeatherCondition(description = SUNNY_DESCRIPTION, imageUrl = "https://example.com/weather/sunny.png"),

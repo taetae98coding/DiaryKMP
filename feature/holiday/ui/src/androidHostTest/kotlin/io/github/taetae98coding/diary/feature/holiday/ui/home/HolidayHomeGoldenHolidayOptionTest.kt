@@ -8,11 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
+import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
+import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ANNUAL_LEAVE_ITEM_LABEL
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NEXT_OPTION_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_PREVIOUS_OPTION_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.KOREAN_NEXT_OPTION_DESCRIPTION
@@ -23,6 +27,10 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday.GoldenHolidayYear
+import io.kotest.matchers.floats.shouldBeLessThan
+import io.kotest.matchers.shouldBe
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +75,7 @@ class HolidayHomeGoldenHolidayOptionTest {
         setGoldenHoliday()
 
         composeRule.onNodeWithText(FORWARD_PERIOD).assertExists()
+        composeRule.textCount(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL) shouldBe FORWARD_ANNUAL_LEAVE_ITEM_COUNT
 
         composeRule.onNodeWithContentDescription(DEFAULT_NEXT_OPTION_DESCRIPTION).performClick()
 
@@ -74,6 +83,8 @@ class HolidayHomeGoldenHolidayOptionTest {
         composeRule.onNodeWithText("12 days").assertExists()
         composeRule.onNodeWithText(SECOND_OPTION_POSITION).assertExists()
         composeRule.onNodeWithText(FORWARD_PERIOD).assertDoesNotExist()
+        composeRule.textCount(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL) shouldBe BACKWARD_ANNUAL_LEAVE_ITEM_COUNT
+        composeRule.textCount(HOLIDAY_NAME) shouldBe SUMMARY_AND_ONE_WEEK_COUNT
     }
 
     @Test
@@ -85,6 +96,9 @@ class HolidayHomeGoldenHolidayOptionTest {
 
         composeRule.onNodeWithText(FORWARD_PERIOD).assertExists()
         composeRule.onNodeWithText("1 / 2").assertExists()
+        composeRule.onNodeWithText(BACKWARD_PERIOD).assertDoesNotExist()
+        composeRule.textCount(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL) shouldBe FORWARD_ANNUAL_LEAVE_ITEM_COUNT
+        composeRule.textCount(HOLIDAY_NAME) shouldBe SUMMARY_AND_ONE_WEEK_COUNT
     }
 
     @Test
@@ -110,6 +124,37 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
+    @Config(qualifiers = "w400dp-h1200dp")
+    fun `TC-922e596a-f3ba-49bb-b877-a822b90f7fe7 대안을 바꿔도 다른 항목과 목록 순서는 바뀌지 않는다`() {
+        val autumnHoliday = holiday(name = AUTUMN_HOLIDAY_NAME, start = LocalDate(year = YEAR, month = Month.SEPTEMBER, day = 25))
+        val autumnGroup =
+            goldenHolidayGroup(
+                optionList =
+                    listOf(
+                        goldenHoliday(
+                            holidayList = listOf(autumnHoliday),
+                            start = autumnHoliday.dateRange.start,
+                            endInclusive = LocalDate(year = YEAR, month = Month.SEPTEMBER, day = 27),
+                        ),
+                    ),
+            )
+        setGoldenHolidayGroupList(
+            groupList = listOf(goldenHolidayGroup(optionList = listOf(forwardOption(), backwardOption())), autumnGroup),
+        )
+
+        composeRule.top(FORWARD_PERIOD) shouldBeLessThan composeRule.top(AUTUMN_PERIOD)
+
+        // 첫 항목의 동작이 목록에서 가장 앞에 있다.
+        composeRule.onAllNodesWithContentDescription(DEFAULT_NEXT_OPTION_DESCRIPTION)[0].performClick()
+
+        composeRule.onNodeWithText(BACKWARD_PERIOD).assertExists()
+        composeRule.top(BACKWARD_PERIOD) shouldBeLessThan composeRule.top(AUTUMN_PERIOD)
+        composeRule.onNodeWithText(AUTUMN_PERIOD).assertExists()
+        composeRule.onNodeWithText("1 / 1").assertExists()
+        composeRule.textCount(AUTUMN_HOLIDAY_NAME) shouldBe SUMMARY_AND_ONE_WEEK_COUNT
+    }
+
+    @Test
     fun `TC-8c7b83f2-0a88-4201-9c9f-e26a3d9874e7 다른 년도로 이동했다가 돌아와도 고른 대안은 유지된다`() {
         setGoldenHoliday()
 
@@ -128,10 +173,11 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     private fun setGoldenHoliday(optionList: List<GoldenHoliday> = listOf(forwardOption(), backwardOption())) {
-        val uiState =
-            HolidayHomeYearUiState.Content(
-                goldenHolidayGroupList = listOf(goldenHolidayGroup(optionList = optionList)),
-            )
+        setGoldenHolidayGroupList(groupList = listOf(goldenHolidayGroup(optionList = optionList)))
+    }
+
+    private fun setGoldenHolidayGroupList(groupList: List<GoldenHolidayGroup>) {
+        val uiState = HolidayHomeYearUiState.Content(goldenHolidayGroupList = groupList)
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
 
         composeRule.setContent {
@@ -167,6 +213,13 @@ class HolidayHomeGoldenHolidayOptionTest {
         private const val FORWARD_PERIOD = "Feb 7 ~ Feb 18"
         private const val BACKWARD_PERIOD = "Feb 14 ~ Feb 25"
         private const val SECOND_OPTION_POSITION = "2 / 2"
+        private const val AUTUMN_HOLIDAY_NAME = "추석"
+        private const val AUTUMN_PERIOD = "Sep 25 ~ Sep 27"
+
+        // 이름은 요약 줄에 한 번, 겹치는 주마다 한 번씩 표시된다.
+        private const val SUMMARY_AND_ONE_WEEK_COUNT = 2
+        private const val FORWARD_ANNUAL_LEAVE_ITEM_COUNT = 1
+        private const val BACKWARD_ANNUAL_LEAVE_ITEM_COUNT = 2
 
         private fun lunarNewYear() =
             holiday(
@@ -198,3 +251,10 @@ class HolidayHomeGoldenHolidayOptionTest {
             )
     }
 }
+
+private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.textCount(text: String): Int = onAllNodesWithText(text).fetchSemanticsNodes().size
+
+private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.top(text: String): Float =
+    onNodeWithText(text)
+        .fetchSemanticsNode()
+        .boundsInRoot.top

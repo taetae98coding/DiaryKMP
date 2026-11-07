@@ -32,6 +32,10 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.android.library"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.AndroidLibraryPrimitivePlugin"
         }
+        register("primitiveAndroidTest") {
+            id = "io.github.taetae98coding.diary.primitive.android.test"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.AndroidTestPrimitivePlugin"
+        }
         register("primitiveCompose") {
             id = "io.github.taetae98coding.diary.primitive.compose"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposePrimitivePlugin"

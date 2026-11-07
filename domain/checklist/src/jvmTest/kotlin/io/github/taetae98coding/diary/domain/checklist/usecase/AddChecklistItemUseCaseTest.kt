@@ -1,12 +1,14 @@
 package io.github.taetae98coding.diary.domain.checklist.usecase
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.checklist.exception.ChecklistItemContentBlankException
 import io.github.taetae98coding.diary.domain.checklist.repository.AccountChecklistItemRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -14,6 +16,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.constant
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -23,7 +29,7 @@ import kotlin.uuid.Uuid
 class AddChecklistItemUseCaseTest :
     BehaviorSpec({
         Given("현재 계정과 연결된 체크리스트가 있고 현재 시각이 고정되어 있다") {
-            val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.User>())
+            val context = AddItemContext(account = Arb.accountUser().next())
             context.stubUpdatedCount(updatedCount = 1)
 
             When("내용 ` 우산 `으로 항목을 넣는다") {
@@ -51,7 +57,7 @@ class AddChecklistItemUseCaseTest :
         }
 
         Given("대상 체크리스트에 내용 `우산`인 항목을 이미 넣었다") {
-            val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.User>())
+            val context = AddItemContext(account = Arb.accountUser().next())
             context.stubUpdatedCount(updatedCount = 1)
             val content = itemContent()
             val parameter = AddChecklistItemUseCase.Parameter(checklistId = context.checklistId, content = content)
@@ -69,7 +75,7 @@ class AddChecklistItemUseCaseTest :
 
         listOf("", "   ").forEach { content ->
             Given("항목 입력이 '$content' 이다") {
-                val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.User>())
+                val context = AddItemContext(account = Arb.accountUser().next())
                 context.stubUpdatedCount(updatedCount = 1)
 
                 When("항목을 넣는다") {
@@ -85,7 +91,7 @@ class AddChecklistItemUseCaseTest :
         }
 
         Given("로그인하지 않아 게스트 계정이 확인된다") {
-            val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.Guest>())
+            val context = AddItemContext(account = Arb.constant(Account.Guest).next())
             context.stubUpdatedCount(updatedCount = 1)
 
             When("항목을 넣는다") {
@@ -98,7 +104,7 @@ class AddChecklistItemUseCaseTest :
         }
 
         Given("현재 계정과 연결된 체크리스트가 기기에 없다") {
-            val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.User>())
+            val context = AddItemContext(account = Arb.accountUser().next())
             context.stubUpdatedCount(updatedCount = 0)
 
             When("항목을 넣는다") {
@@ -111,8 +117,8 @@ class AddChecklistItemUseCaseTest :
         }
 
         Given("기기 저장이 실패하도록 설정되어 있다") {
-            val context = AddItemContext(account = fixtureMonkey.giveMeOne<Account.User>())
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val context = AddItemContext(account = Arb.accountUser().next())
+            val throwable = IllegalStateException(Arb.string().next())
             coEvery { context.repository.upsert(account = any(), item = any()) } throws throwable
 
             When("항목을 넣는다") {
@@ -129,8 +135,8 @@ class AddChecklistItemUseCaseTest :
 private class AddItemContext(
     val account: Account?,
 ) {
-    val checklistId: Uuid = fixtureMonkey.giveMeOne()
-    val now: Instant = fixtureMonkey.giveMeOne()
+    val checklistId: Uuid = Arb.kotlinUuid().next()
+    val now: Instant = Arb.secondPrecisionInstant().next()
     val requestSyncUseCase: RequestSyncUseCase = requestSyncUseCase()
     val repository: AccountChecklistItemRepository = mockk()
     val savedItemList = mutableListOf<ChecklistItem>()

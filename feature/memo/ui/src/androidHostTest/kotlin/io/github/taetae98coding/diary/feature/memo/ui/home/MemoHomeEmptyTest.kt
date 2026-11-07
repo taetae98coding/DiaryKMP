@@ -21,9 +21,6 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -35,9 +32,15 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +71,7 @@ class MemoHomeEmptyTest {
     fun `TC-48ab2da7-8834-4aed-8d71-edecd7a2abe3 선택한 태그가 모두 판정에서 무시되고 있으면 아직 메모가 없음을 알린다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
-            filterUiState = MemoHomeScaffoldFilterUiState(storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())),
+            filterUiState = MemoHomeScaffoldFilterUiState(storedTagIdSet = setOf(Arb.kotlinUuid().next())),
         )
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -124,7 +127,7 @@ class MemoHomeEmptyTest {
 
     @Test
     fun `TC-81c9e74a-735a-4d32-ad00-4a760300e14d 태그를 하나 이상 선택한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
-        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        val tagId = Arb.kotlinUuid().next()
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
             filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)),
@@ -141,7 +144,7 @@ class MemoHomeEmptyTest {
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
                     itemList = emptyList(),
-                    refresh = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    refresh = LoadState.Error(IllegalStateException(Arb.string().next())),
                 ),
             ),
         )
@@ -157,7 +160,7 @@ class MemoHomeEmptyTest {
             MutableStateFlow(
                 memoPagingDataWithLoadStates(
                     itemList = listOf(MemoListItem.Content(memo = memo(title = MEMO_TITLE))),
-                    append = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    append = LoadState.Error(IllegalStateException(Arb.string().next())),
                 ),
             ),
         )
@@ -303,17 +306,16 @@ class MemoHomeEmptyTest {
         private const val TIMEOUT_MILLIS = 5_000L
         private val CENTER_TOLERANCE: Dp = 2.dp
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(title: String): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
-                .setExp(Memo::isFinished, false)
-                .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = title, dateTime = null),
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

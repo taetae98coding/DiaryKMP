@@ -1,17 +1,19 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -24,13 +26,10 @@ import kotlinx.datetime.LocalDate
 private const val CONSTITUTION_DAY_NAME = "제헌절"
 private const val MIDSUMMER_DAY_NAME = "초복"
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class GetCalendarHolidayUseCaseSettingTest :
     BehaviorSpec({
         Given("TC-4c46ba8f-559f-4d1f-a0ef-e3b053a6df0a 한 이름을 숨긴 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
             val changedMidsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
@@ -56,7 +55,7 @@ class GetCalendarHolidayUseCaseSettingTest :
         }
 
         Given("TC-c3856162-f3e9-445f-8c79-e2ada5b9fb0e 한 이름을 숨겼고 저장된 공휴일에는 그 이름이 없다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
             val holidayFlow = MutableStateFlow(listOf(constitutionDay))
@@ -77,8 +76,8 @@ class GetCalendarHolidayUseCaseSettingTest :
         }
 
         Given("TC-fede3fb1-84ee-4559-b115-71d93ca4a0b5 두 공휴일이 저장되어 있고 보관된 노출 설정을 읽을 수 없다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failureMessage = fixtureMonkey.giveMeOne<String>()
+            val year = Arb.int().next()
+            val failureMessage = Arb.string().next()
             val useCase =
                 GetCalendarHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
@@ -108,7 +107,7 @@ class GetCalendarHolidayUseCaseSettingTest :
         }
 
         Given("보관된 노출 설정이 바뀐 상태로 캘린더용 공휴일을 계속 조회하고 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME)
             val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME)
             val hiddenKeySetFlow = MutableStateFlow<Set<String>>(emptySet())
@@ -159,14 +158,14 @@ private fun holiday(name: String): Holiday {
 
     return Holiday(
         name = name,
-        isHoliday = fixtureMonkey.giveMeOne(),
+        isHoliday = Arb.boolean().next(),
         dateRange = start..start,
     )
 }
 
 private fun randomDate(): LocalDate =
     LocalDate(
-        year = 2000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 100u).toInt(),
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )

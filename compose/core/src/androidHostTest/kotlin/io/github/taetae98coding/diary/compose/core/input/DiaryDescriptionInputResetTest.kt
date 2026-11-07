@@ -36,7 +36,7 @@ class DiaryDescriptionInputResetTest {
     }
 
     @Test
-    fun `입력 페이지에서 내용이 있는 설명으로 새로 채우면 미리보기 페이지로 바뀐다`() {
+    fun `TC-5da0a6da-1cce-4987-ab44-b091b72595ab 입력 페이지에서 내용이 있는 설명으로 새로 채우면 미리보기 페이지로 바뀐다`() {
         val (state, scope) = setDiaryDescriptionInput(initialText = "")
 
         composeRule.runOnIdle { scope.launch { state.reset(text = MARKDOWN_SOURCE) } }

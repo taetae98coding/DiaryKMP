@@ -6,7 +6,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -15,7 +14,8 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -42,7 +42,7 @@ class MemoFinishedListLastRestartTest {
 
     @Test
     fun `TC-3b62f484-7942-4ea8-8be7-d366f4738898 마지막 메모를 다시 시작하면 빈 상태 안내가 나타난다`() {
-        val baseMemo = fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null)
+        val baseMemo = Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next()
         val memo = baseMemo.copy(detail = baseMemo.detail.copy(title = MEMO_TITLE, dateTime = null))
         val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
         // 다시 시작이 기기에 저장된 완료 목록에서 메모를 빼는 것처럼, 다시 시작하면 목록을 비운다.
@@ -83,7 +83,5 @@ class MemoFinishedListLastRestartTest {
         private const val MEMO_TITLE = "MemoFinishedLastRestartTitle"
         private const val DEFAULT_EMPTY_TITLE = "No finished memos"
         private const val TIMEOUT_MILLIS = 5_000L
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

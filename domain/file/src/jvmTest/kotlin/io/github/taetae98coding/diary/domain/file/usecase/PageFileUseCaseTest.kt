@@ -3,17 +3,19 @@ package io.github.taetae98coding.diary.domain.file.usecase
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,14 +25,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class PageFileUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정의 파일이 서버에 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val account = Arb.accountUser().next()
+            val fileList = List(2) { Arb.diaryFile().next() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val fileRepository = mockk<FileRepository>()
@@ -64,10 +63,10 @@ class PageFileUseCaseTest :
         }
 
         Given("계정 A로 파일 목록을 조회하고 있다") {
-            val accountA = fixtureMonkey.giveMeOne<Account.User>()
-            val accountB = fixtureMonkey.giveMeOne<Account.User>()
-            val fileListA = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
-            val fileListB = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val accountA = Arb.accountUser().next()
+            val accountB = Arb.accountUser().next()
+            val fileListA = List(2) { Arb.diaryFile().next() }
+            val fileListB = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(accountA))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -96,7 +95,7 @@ class PageFileUseCaseTest :
             When("파일 목록을 페이지로 조회한다") {
                 Then("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 서버에 목록을 요청한다") {
                     listOf(true, false).forEach { isSessionValid ->
-                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
+                        val account = Arb.accountUser().next().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
                         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
                         val fileRepository = mockk<FileRepository>()
@@ -112,7 +111,7 @@ class PageFileUseCaseTest :
         }
 
         Given("로그인한 계정으로 파일 목록을 조회하고 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+            val account = Arb.accountUser().next().copy(isSessionValid = true)
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -136,8 +135,8 @@ class PageFileUseCaseTest :
         }
 
         Given("계정 A로 파일 목록을 불러와 표시하고 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val account = Arb.accountUser().next()
+            val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -151,7 +150,7 @@ class PageFileUseCaseTest :
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
 
-                        accountFlow.value = Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                        accountFlow.value = Result.failure(IllegalStateException(Arb.string().next()))
                         expectNoEvents()
                         accountFlow.value = Result.success(account)
 
@@ -164,8 +163,8 @@ class PageFileUseCaseTest :
         }
 
         Given("게스트 상태라 빈 목록을 전달했다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val account = Arb.accountUser().next()
+            val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(Account.Guest))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -191,8 +190,8 @@ class PageFileUseCaseTest :
         }
 
         Given("계정 A로 파일 목록을 불러온 뒤 게스트가 되었다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val account = Arb.accountUser().next()
+            val fileList = List(2) { Arb.diaryFile().next() }
             val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow

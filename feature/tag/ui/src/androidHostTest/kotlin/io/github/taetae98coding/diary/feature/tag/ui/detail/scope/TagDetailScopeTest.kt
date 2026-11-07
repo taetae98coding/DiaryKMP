@@ -6,30 +6,47 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CONTACT_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MUSIC_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_QR_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffold
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailTestTabContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.colorHexText
+import io.github.taetae98coding.diary.feature.tag.ui.detail.descriptionInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.emojiInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.toHexColorText
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
+import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
+import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +62,9 @@ private const val DEFAULT_DESCENDANT_LABEL = "All descendants"
 private const val KOREAN_SELF_LABEL = "이 태그만"
 private const val KOREAN_CHILD_LABEL = "직속 하위까지"
 private const val KOREAN_DESCENDANT_LABEL = "모든 하위까지"
+private const val STORED_EMOJI = "\uD83C\uDFC3"
+private const val STORED_DESCRIPTION = "TagDetailScopeDescription"
+private val STORED_COLOR: Long = 0xFFFF0000.toInt().toLong()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -111,8 +131,12 @@ class TagDetailScopeTest {
             DEFAULT_MEMO_TAB_DESCRIPTION,
             DEFAULT_WEB_TAB_DESCRIPTION,
             DEFAULT_PLACE_TAB_DESCRIPTION,
+            DEFAULT_CONTACT_TAB_DESCRIPTION,
+            DEFAULT_CHECKLIST_TAB_DESCRIPTION,
+            DEFAULT_MUSIC_TAB_DESCRIPTION,
+            DEFAULT_QR_TAB_DESCRIPTION,
         ).forEach { tabDescription ->
-            composeRule.onNodeWithContentDescription(tabDescription).performClick()
+            composeRule.onNodeWithContentDescription(tabDescription).performScrollTo().performClick()
             composeRule.waitForIdle()
 
             composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
@@ -144,13 +168,23 @@ class TagDetailScopeTest {
 
     @Test
     fun `TC-8815deac-e38a-4281-bf0c-5a7e09d982c3 표시 범위를 바꿔도 태그 디테일 탭의 표시는 바뀌지 않는다`() {
-        composeRule.setTagDetailScaffoldWithScope(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
+        val storedDetail = tagDetail(title = TAG_TITLE, emoji = STORED_EMOJI, description = STORED_DESCRIPTION, color = STORED_COLOR)
+        val linkedTag = testTag(title = WORK_TAG_TITLE)
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = storedDetail))),
+            linkUiState = TagLinkInputUiState(linkedTagList = listOf(linkedTag)),
+        )
 
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).performClick()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(storedDetail.emojiWithTitle).assertExists()
+        composeRule.emojiInput().assert(hasText(STORED_EMOJI))
+        composeRule.titleInput().assert(hasText(TAG_TITLE))
+        composeRule.descriptionInput().assert(hasText(STORED_DESCRIPTION))
+        composeRule.colorHexText() shouldBe STORED_COLOR.toHexColorText()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
     }

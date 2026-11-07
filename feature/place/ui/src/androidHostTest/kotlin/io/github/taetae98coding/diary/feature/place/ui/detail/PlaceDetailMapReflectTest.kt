@@ -7,21 +7,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.feature.place.ui.add.mapCoordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.diaryMapCoordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,10 +37,10 @@ class PlaceDetailMapReflectTest {
     @Test
     fun `TC-249e3f61-04fd-4c80-9aa1-9e9583f6dbca 기본 지도가 바뀌면 그 시점의 저장된 좌표에서 새로 시작하고 수정 중인 내용을 유지한다`() {
         composeRule.mainClock.autoAdvance = false
-        val firstSavedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val latestSavedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstSavedCoordinate }
+        val firstSavedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val latestSavedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != firstSavedCoordinate }
         val typedCoordinate =
-            generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }
+            generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }
                 .first { coordinate -> coordinate != firstSavedCoordinate && coordinate != latestSavedCoordinate }
         var savedDetail by mutableStateOf(placeDetail(coordinate = firstSavedCoordinate.toCoordinate()))
         var defaultProvider by mutableStateOf(MapProvider.NAVER)
@@ -90,8 +90,8 @@ class PlaceDetailMapReflectTest {
     @Test
     fun `TC-45f8be21-1996-4488-a977-965aae3321dc 지도가 시작된 뒤 저장된 좌표가 바뀌어도 지도를 옮기지 않는다`() {
         composeRule.mainClock.autoAdvance = false
-        val firstSavedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
-        val latestSavedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstSavedCoordinate }
+        val firstSavedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
+        val latestSavedCoordinate = generateSequence { Arb.diaryMapCoordinateInFormPrecision().next() }.first { coordinate -> coordinate != firstSavedCoordinate }
         var savedDetail by mutableStateOf(placeDetail(coordinate = firstSavedCoordinate.toCoordinate()))
         lateinit var state: PlaceFormState
 
@@ -117,7 +117,7 @@ class PlaceDetailMapReflectTest {
     @Test
     fun `TC-744926fc-9b16-4d87-bd7e-6bd123f904d1 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
         composeRule.mainClock.autoAdvance = false
-        val savedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val savedCoordinate = Arb.diaryMapCoordinateInFormPrecision().next()
         lateinit var state: PlaceFormState
 
         composeRule.setContent {
@@ -159,7 +159,5 @@ class PlaceDetailMapReflectTest {
 
     private companion object {
         private const val REFLECT_DELAY_MILLIS = 200L
-
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

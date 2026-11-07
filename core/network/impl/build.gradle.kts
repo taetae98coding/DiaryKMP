@@ -12,6 +12,12 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+
         iosMain {
             dependencies {
                 implementation(projects.library.coroutines)
@@ -20,10 +26,10 @@ kotlin {
 
         jvmTest {
             dependencies {
-                implementation(projects.core.testing)
                 implementation(ktorLibs.client.contentNegotiation)
                 implementation(ktorLibs.client.mock)
                 implementation(ktorLibs.serialization.kotlinx.json)
+                implementation(projects.logger.crashlytics.api)
             }
         }
     }

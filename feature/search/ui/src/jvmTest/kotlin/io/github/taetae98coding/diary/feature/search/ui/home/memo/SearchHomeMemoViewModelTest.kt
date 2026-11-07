@@ -133,6 +133,41 @@ class SearchHomeMemoViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-21cc8daf-f468-469e-8803-ab31856f5219 연속으로 입력하는 동안에는 마지막 질의만 반영하고 그 전까지 직전 결과를 남긴다") {
+            runTest(mainDispatcher) {
+                val memoList = listOf(searchMemo(title = "여름 여행 계획"))
+                val otherMemoList = listOf(searchMemo(title = "주간 회의록"))
+                val partialQuery = "회"
+                val useCase =
+                    searchMemoUseCase(
+                        queryToMemoList = mapOf(QUERY to memoList, OTHER_QUERY to otherMemoList),
+                    )
+                val viewModel = viewModel(useCase)
+
+                viewModel.pagingData.test {
+                    awaitItem()
+                    viewModel.updateQuery(QUERY)
+                    advanceUntilIdle()
+                    flowOf(awaitItem()).asSnapshot() shouldBe memoList
+
+                    viewModel.updateQuery(partialQuery)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    viewModel.updateQuery(OTHER_QUERY)
+                    advanceTimeBy(INPUT_IDLE_DELAY / 2)
+                    runCurrent()
+
+                    expectNoEvents()
+
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe otherMemoList
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                verify(exactly = 0) { useCase(parameter = SearchMemoUseCase.Parameter(query = partialQuery, sort = ListSort.TITLE)) }
+            }
+        }
+
         test("TC-c4fe9d3f-01c4-4b1a-a7bb-2fd1ca334fdb 질의를 비우면 결과가 비워진다") {
             runTest(mainDispatcher) {
                 val memoList = listOf(searchMemo(title = "여름 여행 계획"))
@@ -169,7 +204,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                     viewModel.updateQuery(BLANK_QUERY)
                     runCurrent()
 
-                    currentUiState(viewModel).appliedQuery shouldBe BLANK_QUERY
+                    currentUiState(viewModel.uiState).appliedQuery shouldBe BLANK_QUERY
                     flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
 
                     cancelAndIgnoreRemainingEvents()

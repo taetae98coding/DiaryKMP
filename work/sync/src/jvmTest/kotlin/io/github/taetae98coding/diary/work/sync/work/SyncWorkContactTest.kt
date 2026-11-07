@@ -1,17 +1,20 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -59,7 +62,7 @@ class SyncWorkContactTest :
 
         test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그가 실패해도 연락처는 끝까지 업로드한다") {
             val context = context(tagList = tags(size = 1), contactList = contacts(size = 201))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val contactRequests = mutableListOf<Int>()
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
             coEvery { context.contactRemoteDataSource.push(any()) } answers {
@@ -79,7 +82,7 @@ class SyncWorkContactTest :
                     webList = webs(size = 201),
                     contactList = contacts(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<Int>()
             val placeRequests = mutableListOf<Int>()
             val webRequests = mutableListOf<Int>()
@@ -137,8 +140,8 @@ class SyncWorkContactTest :
             Triple("생일과 태어난 연도가 모두 없는", null, false),
         ).forEach { (label, birthdayCalendar, hasBirthYearOnly) ->
             test("TC-2ab0df88-4ebe-4b95-a0cb-5403c8f569d8 $label 연락처의 업로드에는 생일의 날짜와 달력 구분, 태어난 연도가 함께 담긴다") {
-                val birthday = birthdayCalendar?.let { fixtureMonkey.giveMeOne<LocalDate>() }
-                val birthYear = birthday?.year ?: if (hasBirthYearOnly) fixtureMonkey.giveMeOne<LocalDate>().year else null
+                val birthday = birthdayCalendar?.let { Arb.kotlinxLocalDate().next() }
+                val birthYear = birthday?.year ?: if (hasBirthYearOnly) Arb.kotlinxLocalDate().next().year else null
                 val stored =
                     contact().let { value ->
                         value.copy(detail = value.detail.copy(birthday = birthday, birthdayCalendar = birthdayCalendar, birthYear = birthYear))
@@ -161,7 +164,7 @@ class SyncWorkContactTest :
             "알게 된 경로가 비어 있는" to true,
         ).forEach { (label, isEmpty) ->
             test("TC-d97f26f1-42c6-4c74-b77f-eab310b25581 $label 연락처의 업로드에는 알게 된 경로가 담긴다") {
-                val howWeMet = if (isEmpty) "" else "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+                val howWeMet = if (isEmpty) "" else "how-we-met-${Arb.string().next()}"
                 val stored = contact().let { value -> value.copy(detail = value.detail.copy(howWeMet = howWeMet)) }
                 val context = context(contactList = listOf(stored))
                 val requestList = mutableListOf<List<ContactRemoteEntity>>()
@@ -178,7 +181,7 @@ class SyncWorkContactTest :
 
         test("TC-392dc2b2-5e73-4ab4-ada3-199066c6cc2f 내려받은 연락처의 알게 된 경로가 기기에 저장된다") {
             val context = context()
-            val howWeMet = "how-we-met-${fixtureMonkey.giveMeOne<String>()}"
+            val howWeMet = "how-we-met-${Arb.string().next()}"
             val pulled =
                 contactPulls(usnList = listOf(1L)).map { pull ->
                     pull.copy(contact = pull.contact.copy(detail = pull.contact.detail.copy(howWeMet = howWeMet)))
@@ -251,7 +254,7 @@ class SyncWorkContactTest :
 
         test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 연락처 내려받기가 실패하면 동기화가 실패한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.contactRemoteDataSource.pull(any()) } throws failure
 
             shouldThrowExactly<TestException> { context.subject.doWork() }

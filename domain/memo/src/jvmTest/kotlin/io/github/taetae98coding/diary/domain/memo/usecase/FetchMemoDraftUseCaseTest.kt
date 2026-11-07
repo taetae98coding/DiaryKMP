@@ -1,18 +1,17 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftGeneration
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftProgress
 import io.github.taetae98coding.diary.core.model.memo.MemoDraftRequest
+import io.github.taetae98coding.diary.core.testing.gemini.geminiSetting
+import io.github.taetae98coding.diary.core.testing.memo.memoDraftProgress
 import io.github.taetae98coding.diary.domain.memo.repository.MemoDraftRepository
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiRequestException
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.result.shouldBeFailure
@@ -21,6 +20,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -41,15 +42,12 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchMemoDraftUseCaseTest :
     BehaviorSpec({
         Given("Gemini 설정이 저장되어 있다") {
             When("메모 초안을 조회하면") {
                 Then("TC-9b073a1f-64e9-4bb1-be62-c93c520d2f8b: 저장된 설정과 입력 중인 내용을 함께 전달한다") {
-                    val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                    val setting = Arb.geminiSetting().next()
                     val settingSlot = slot<GeminiSetting>()
                     val requestSlot = slot<MemoDraftRequest>()
                     val memoDraftRepository =
@@ -103,7 +101,7 @@ class FetchMemoDraftUseCaseTest :
         Given("도우미를 연 뒤 저장된 Gemini 설정이 바뀌었다") {
             When("메모 초안을 조회하면") {
                 Then("TC-c5df7d5f-6386-4350-8e19-85d16fc93017: 조회하는 시점에 저장된 설정으로 요청한다") {
-                    val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSetting>())
+                    val settingFlow = MutableStateFlow(Arb.geminiSetting().next())
                     val settingList = mutableListOf<GeminiSetting>()
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {
@@ -116,7 +114,7 @@ class FetchMemoDraftUseCaseTest :
                             clock = Clock.System,
                         )
                     useCase(parameter = emptyParameter()).shouldBeSuccess()
-                    val changedSetting = fixtureMonkey.giveMeOne<GeminiSetting>()
+                    val changedSetting = Arb.geminiSetting().next()
 
                     settingFlow.value = changedSetting
                     useCase(parameter = emptyParameter()).shouldBeSuccess()
@@ -257,42 +255,11 @@ class FetchMemoDraftUseCaseTest :
                         }
                     val useCase = createUseCase(memoDraftRepository = memoDraftRepository)
 
-                    useCase(parameter = emptyParameter())
+                    val result = useCase(parameter = emptyParameter())
 
-                    Then("TC-b746e610-5fed-4771-8f4c-92c1cbea6d35 $name 원인을 담은 오류 보고가 한 번 남는다") {
-                        val report = reportList.single()
-
-                        report.throwable shouldBeSameInstanceAs failure
-                        report.message shouldContain "FetchMemoDraftUseCase"
-                    }
-                }
-            }
-        }
-
-        Given("오류 보고 기록 수단이 등록되어 있고 사용자가 적은 내용과 저장된 설정에 값이 있다") {
-            When("생성이 실패하면") {
-                Then("TC-78cd381e-2737-42c3-b920-1a6b404d2d69 오류 보고의 메시지와 실패 원인에 인증 정보와 사용자가 적은 내용을 담지 않는다") {
-                    val reportList = recordCrashlyticsLog()
-                    val setting = GeminiSetting(apiKey = "apiKey-${fixtureMonkey.giveMeOne<Uuid>()}", model = "models/gemini", systemPrompt = "system-${fixtureMonkey.giveMeOne<Uuid>()}")
-                    val parameter =
-                        FetchMemoDraftUseCase.Parameter(
-                            prompt = "prompt-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            title = "title-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            description = "description-${fixtureMonkey.giveMeOne<Uuid>()}",
-                            dateTime = null,
-                        )
-                    val memoDraftRepository =
-                        mockk<MemoDraftRepository> {
-                            every { stream(any(), any()) } returns failing(GeminiApiKeyInvalidException(cause = IllegalStateException("generate failed")))
-                        }
-                    val useCase = createUseCase(setting = setting, memoDraftRepository = memoDraftRepository)
-
-                    useCase(parameter = parameter)
-
-                    val report = reportList.single()
-                    val reportedTextList = listOf(report.message) + generateSequence(report.throwable) { throwable -> throwable.cause }.mapNotNull { throwable -> throwable.message }
-                    listOf(setting.apiKey, setting.systemPrompt, parameter.prompt, parameter.title, parameter.description).forEach { secret ->
-                        reportedTextList.forEach { text -> text shouldNotContain secret }
+                    Then("TC-ad9b9bbf-b6c9-4611-b438-bed0b7576447 $name 실패는 오류 보고를 남기지 않는다") {
+                        result.shouldBeFailure() shouldBeSameInstanceAs failure
+                        reportList.shouldBeEmpty()
                     }
                 }
             }
@@ -323,11 +290,10 @@ class FetchMemoDraftUseCaseTest :
 
 private fun reportFailureCases(): List<Triple<String, Throwable, Boolean>> =
     listOf(
-        Triple("인증 정보가 유효하지 않은 실패", GeminiApiKeyInvalidException(cause = null), false),
         Triple("구조화된 형태가 아닌 응답", GeminiRequestException.Other(description = "", cause = null), false),
         Triple("대기 한도 안에 조각이 오지 않음", GeminiRequestException.Timeout(cause = null), false),
         Triple("통신 오류", GeminiRequestException.Network(cause = null), false),
-        Triple("조각을 받는 도중의 실패", GeminiRequestException.Network(cause = null), true),
+        Triple("조각을 받는 도중 연결이 끊김", GeminiRequestException.Network(cause = null), true),
     )
 
 private fun completed(draft: MemoDraft): Flow<MemoDraftGeneration> = flowOf(MemoDraftGeneration.Completed(draft = draft))
@@ -336,7 +302,7 @@ private fun failing(cause: Throwable): Flow<MemoDraftGeneration> = flow { throw 
 
 private fun failingAfterProgress(cause: Throwable): Flow<MemoDraftGeneration> =
     flow {
-        emit(MemoDraftGeneration.InProgress(progress = fixtureMonkey.giveMeOne<MemoDraftProgress>()))
+        emit(MemoDraftGeneration.InProgress(progress = Arb.memoDraftProgress().next()))
         throw cause
     }
 
@@ -349,7 +315,7 @@ private fun emptyParameter(): FetchMemoDraftUseCase.Parameter =
     )
 
 private fun createUseCase(
-    setting: GeminiSetting = fixtureMonkey.giveMeOne(),
+    setting: GeminiSetting = Arb.geminiSetting().next(),
     draft: MemoDraft = MemoDraft.EMPTY,
     memoDraftRepository: MemoDraftRepository =
         mockk {

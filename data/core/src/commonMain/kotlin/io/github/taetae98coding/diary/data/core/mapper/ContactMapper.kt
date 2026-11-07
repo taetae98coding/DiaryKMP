@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.data.core.mapper
 
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactListItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 
 public fun Contact.toLocal(): ContactLocalEntity =
     ContactLocalEntity(
@@ -21,4 +23,10 @@ public fun ContactLocalEntity.toDomain(): Contact =
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,
+    )
+
+public fun ContactListItemLocalEntity.toDomain(): ContactListItem =
+    ContactListItem(
+        contact = contact.toDomain(),
+        nameQualifier = nameQualifier.trim(),
     )

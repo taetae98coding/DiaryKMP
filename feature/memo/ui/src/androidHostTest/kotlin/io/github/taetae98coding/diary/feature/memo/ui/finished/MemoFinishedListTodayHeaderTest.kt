@@ -14,9 +14,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
@@ -25,10 +22,14 @@ import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffec
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -165,7 +166,6 @@ class MemoFinishedListTodayHeaderTest {
         const val NEW_TODAY_TITLE = "NewTodayFinishedMemoTitle"
         val PREVIOUS_TODAY = LocalDate(year = 2026, month = 7, day = 31)
         val NEW_TODAY = LocalDate(year = 2026, month = 8, day = 1)
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun noonOf(date: LocalDate): Instant = LocalDateTime(date = date, time = LocalTime(hour = 12, minute = 0)).toInstant(TimeZone.currentSystemDefault())
 
@@ -175,16 +175,16 @@ class MemoFinishedListTodayHeaderTest {
             date: LocalDate,
             title: String,
         ): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(
-                    Memo::detail,
-                    fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = MemoDateTime.AllDay(dateRange = date..date)),
-                ).setExp(Memo::isFinished, true)
-                .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(title = title, dateTime = MemoDateTime.AllDay(dateRange = date..date)),
+                    isFinished = true,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         fun dateHeader(text: String): SemanticsMatcher = hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(text)
     }

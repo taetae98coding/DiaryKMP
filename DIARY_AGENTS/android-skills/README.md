@@ -43,6 +43,30 @@ will be installed for Gemini and Antigravity at `~/.gemini/antigravity/skills`.
 - `--agent` - A comma-separated list of agents to install the skill for. If omitted, the skill will be installed for all detected agents.
 - `--project` - Path to a project root in which to install the skills.
 
+
+To update all skills or specific ones, run:
+
+```
+android skills update --all
+android skills update wear-compose-m3
+```
+
+### Install as an agent plugin
+
+**Claude Code**:
+
+```
+/plugin marketplace add android/skills
+/plugin install android-skills@android-skills
+```
+
+**Codex:**
+
+```
+codex plugin marketplace add android/skills
+codex plugin add android-skills@android-skills
+```
+
 ### Activate skills
 
 Your agent automatically activates skills that are relevant to your task. To use a skill, prompt your agent to complete a task that is related to the skill, for example "Make my app UI edge-to-edge." The agent should automatically find and use the skill if it has been installed.

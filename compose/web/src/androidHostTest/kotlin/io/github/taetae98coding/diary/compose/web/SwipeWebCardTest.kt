@@ -9,21 +9,21 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -95,15 +95,19 @@ class SwipeWebCardTest {
 
     private fun web(): Web {
         val detail =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebDetail>()
-                .setExp(WebDetail::title, "제목-${fixtureMonkey.giveMeOne<String>()}")
-                .setExp(WebDetail::url, "https://example.com/${fixtureMonkey.giveMeOne<Int>()}")
-                .sample()
+            Arb
+                .webDetail()
+                .next()
+                .copy(
+                    title = "제목-${Arb.string().next()}",
+                    url = "https://example.com/${Arb.int().next()}",
+                )
 
-        return fixtureMonkey
-            .giveMeKotlinBuilder<Web>()
-            .setExp(Web::detail, detail)
-            .sample()
+        return Arb
+            .web()
+            .next()
+            .copy(
+                detail = detail,
+            )
     }
 }

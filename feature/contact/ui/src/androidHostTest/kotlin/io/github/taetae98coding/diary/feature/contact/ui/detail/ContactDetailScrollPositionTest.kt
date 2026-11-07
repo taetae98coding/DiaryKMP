@@ -10,19 +10,19 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performScrollTo
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -32,15 +32,20 @@ class ContactDetailScrollPositionTest {
 
     @Test
     fun `TC-f04f8a20-41ad-4db3-9ffe-98d4b0898c5e 처리 중 상태가 되거나 저장 내용이 갱신되어도 보던 화면 위치를 유지한다`() {
-        val name = "name-${fixtureMonkey.giveMeOne<String>()}"
-        val updatedName = "updated-name-${fixtureMonkey.giveMeOne<String>()}"
-        val phoneNumberMiddle = fixtureMonkey.giveMeOne<Int>().mod(PHONE_NUMBER_PART_BOUND).toPhoneNumberPart()
+        val name = "name-${Arb.string().next()}"
+        val updatedName = "updated-name-${Arb.string().next()}"
+        val phoneNumberMiddle =
+            Arb
+                .int()
+                .next()
+                .mod(PHONE_NUMBER_PART_BOUND)
+                .toPhoneNumberPart()
         val detail =
             testContactDetail(
                 name = name,
                 phoneNumberList = List(PHONE_NUMBER_COUNT) { index -> "010-$phoneNumberMiddle-${index.toPhoneNumberPart()}" },
             )
-        val content = ContactDetailUiState.Content(id = fixtureMonkey.giveMeOne<Uuid>(), detail = detail)
+        val content = ContactDetailUiState.Content(id = Arb.kotlinUuid().next(), detail = detail)
         var uiState: ContactDetailUiState by mutableStateOf(content)
         composeRule.setContent {
             DiaryTheme {

@@ -5,14 +5,16 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,15 +98,11 @@ class WebCardTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
+        private fun title(): String = "제목-${Arb.nonBlankString().next()}"
 
-        // FixtureMonkey는 빈 문자열도 생성하므로 표시 여부 검증에 쓰는 값은 비어 있지 않게 접두사를 붙인다.
-        private fun title(): String = "제목-${fixtureMonkey.giveMeOne<String>()}"
+        private fun description(): String = "설명-${Arb.nonBlankString().next()}"
 
-        private fun description(): String = "설명-${fixtureMonkey.giveMeOne<String>()}"
-
-        private fun url(): String = "https://example.com/${fixtureMonkey.giveMeOne<Int>()}"
+        private fun url(): String = "https://example.com/${Arb.int().next()}"
 
         private fun web(
             title: String,
@@ -112,19 +110,21 @@ class WebCardTest {
             url: String,
         ): Web {
             val detail =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<WebDetail>()
-                    .setExp(WebDetail::title, title)
-                    .setExp(WebDetail::description, description)
-                    .setExp(WebDetail::url, url)
-                    .sample()
+                Arb
+                    .webDetail()
+                    .next()
+                    .copy(
+                        title = title,
+                        description = description,
+                        url = url,
+                    )
 
             return Web(
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-                createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
         }
     }

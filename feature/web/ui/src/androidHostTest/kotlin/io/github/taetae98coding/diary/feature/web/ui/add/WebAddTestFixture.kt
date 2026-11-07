@@ -2,12 +2,14 @@ package io.github.taetae98coding.diary.feature.web.ui.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
@@ -15,7 +17,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
+import io.github.taetae98coding.diary.feature.core.tag.EntityDetailTagViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
@@ -38,6 +42,7 @@ internal const val INPUT_COUNT_PER_HEADER = 2
 internal const val TYPED_TITLE = "WebTitleInput"
 internal const val TYPED_DESCRIPTION = "WebDescriptionInput"
 internal const val TYPED_URL = "https://developer.android.com"
+internal const val LONG_URL = "https://developer.android.com/very/long/path/that/is/certainly/wider/than/the/url/input/field/on/a/phone/screen/and/keeps/going/on/and/on/index.html"
 internal const val TYPED_FIRST_HEADER_NAME = "Authorization"
 internal const val TYPED_FIRST_HEADER_VALUE = "Bearer token"
 internal const val TYPED_SECOND_HEADER_NAME = "Accept"
@@ -100,10 +105,10 @@ internal fun ComposeContentTestRule.fillAllInput() {
     waitForIdle()
 }
 
-internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): WebAddTagViewModel {
-    val viewModel = mockk<WebAddTagViewModel>(relaxed = true)
+internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): EntityAddTagViewModel {
+    val viewModel = mockk<EntityAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.tagSelectionUiState } returns MutableStateFlow(WebAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
+    every { viewModel.selectionUiState } returns MutableStateFlow(EntityAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns flowOf(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns flowOf(PagingData.from(tagList))
     return viewModel
@@ -122,8 +127,8 @@ internal fun webTestTag(title: String): Tag =
 internal fun detailTagScreenTestViewModel(
     tagList: List<Tag> = emptyList(),
     selectableTagList: List<Tag> = emptyList(),
-): WebDetailTagViewModel {
-    val viewModel = mockk<WebDetailTagViewModel>(relaxed = true)
+): EntityDetailTagViewModel {
+    val viewModel = mockk<EntityDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
@@ -141,4 +146,16 @@ internal fun WebAddScreenTestTheme(
     CompositionLocalProvider(LocalResultEventBus provides resultEventBus) {
         DiaryTheme(content = content)
     }
+}
+
+internal fun SemanticsNodeInteraction.inputHeight(): Int = fetchSemanticsNode().size.height
+
+internal fun SemanticsNodeInteraction.inputLineCount(): Int {
+    val layoutResultList = mutableListOf<TextLayoutResult>()
+    fetchSemanticsNode()
+        .config[SemanticsActions.GetTextLayoutResult]
+        .action
+        ?.invoke(layoutResultList)
+
+    return layoutResultList.single().lineCount
 }

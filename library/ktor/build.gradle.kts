@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.primitive.kmp)
     alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
@@ -11,6 +12,7 @@ kotlin {
                 api(ktorLibs.serialization.kotlinx.json)
 
                 implementation(ktorLibs.client.contentNegotiation)
+                implementation(projects.logger.crashlytics.api)
             }
         }
 
@@ -23,6 +25,12 @@ kotlin {
         iosMain {
             dependencies {
                 implementation(ktorLibs.client.darwin)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(ktorLibs.client.mock)
             }
         }
 

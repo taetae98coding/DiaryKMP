@@ -1,18 +1,16 @@
 package io.github.taetae98coding.diary.library.foundation
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeBlank
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import java.nio.file.Files
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class SecurityScopedBookmarkTest :
     FunSpec({
@@ -24,7 +22,7 @@ class SecurityScopedBookmarkTest :
 
                 bookmark.shouldNotBeBlank()
                 SecurityScopedBookmark.startAccessing(bookmark = bookmark).use {
-                    val content = fixtureMonkey.giveMeOne<String>()
+                    val content = Arb.string().next()
                     val file = directory.resolve("written.txt")
                     file.writeText(content)
 
@@ -43,6 +41,6 @@ class SecurityScopedBookmarkTest :
         }
 
         test("북마크가 아닌 값으로는 접근을 얻지 못한다") {
-            shouldThrow<IllegalStateException> { SecurityScopedBookmark.startAccessing(bookmark = fixtureMonkey.giveMeOne<String>()) }
+            shouldThrow<IllegalStateException> { SecurityScopedBookmark.startAccessing(bookmark = Arb.string().next()) }
         }
     })

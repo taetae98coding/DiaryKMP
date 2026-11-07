@@ -6,4 +6,8 @@ internal val tagDetailTabList: List<TagDetailTab> =
         TagDetailTab.MEMO,
         TagDetailTab.WEB,
         TagDetailTab.PLACE,
+        TagDetailTab.CONTACT,
+        TagDetailTab.CHECKLIST,
+        TagDetailTab.MUSIC,
+        TagDetailTab.QR,
     )

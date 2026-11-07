@@ -6,14 +6,15 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -41,7 +42,7 @@ class SyncEffectTest {
 
     @Test
     fun `TC-c066000b-3dfc-4f5b-a451-7aea39e33f11 TC-f7816008-73c9-4079-a740-e4e695b0de94 Android와 iOS에서 앱이 다시 화면에 보이게 되면 진행을 표시할 동기화를 다시 요청한다`() {
-        val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()))
+        val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()))
         val requestSync = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(uiStateFlow, requestSync)
 
@@ -63,8 +64,8 @@ class SyncEffectTest {
         val requestSync = mockk<() -> Unit>(relaxed = true)
         setSyncEffect(uiStateFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()) }
-        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()) }
 
         composeRule.runOnIdle {
             verify(exactly = 0) { requestSync() }
@@ -77,8 +78,8 @@ class SyncEffectTest {
         val requestSync = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(uiStateFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()) }
-        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()) }
+        composeRule.runOnIdle { uiStateFlow.value = AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()) }
         composeRule.runOnIdle {
             verify(exactly = 0) { requestSync() }
             lifecycleOwner.currentState = Lifecycle.State.STARTED
@@ -91,7 +92,7 @@ class SyncEffectTest {
 
     @Test
     fun `TC-c016ece6-0cdf-4afc-a776-f3fe741d3821 TC-f7816008-73c9-4079-a740-e4e695b0de94 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
         val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -125,7 +126,7 @@ class SyncEffectTest {
 
     @Test
     fun `Android와 iOS에서는 포커스를 잃고 다시 얻는 것은 계기가 아니다`() {
-        val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()))
+        val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = Arb.kotlinUuid().next()))
         val requestSync = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(uiStateFlow, requestSync, initialState = Lifecycle.State.RESUMED)
 
@@ -139,7 +140,7 @@ class SyncEffectTest {
 
     @Test
     fun `TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c TC-bce9da35-2f00-4bb6-9621-28916b11bd49 인증이 풀렸다가 같은 계정으로 다시 인증되면 동기화를 다시 요청한다`() {
-        val accountId = fixtureMonkey.giveMeOne<Uuid>()
+        val accountId = Arb.kotlinUuid().next()
         val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = accountId))
         val requestSync = mockk<() -> Unit>(relaxed = true)
         setSyncEffect(uiStateFlow, requestSync)
@@ -180,10 +181,5 @@ class SyncEffectTest {
         }
 
         return lifecycleOwner
-    }
-
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

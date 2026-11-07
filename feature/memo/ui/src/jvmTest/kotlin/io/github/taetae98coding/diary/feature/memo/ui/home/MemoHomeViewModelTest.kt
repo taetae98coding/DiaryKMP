@@ -6,9 +6,6 @@ import androidx.paging.PagingData
 import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -18,6 +15,9 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
@@ -28,10 +28,13 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -70,7 +73,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("메모 완료에 성공하면 완료 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
@@ -115,7 +118,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("완료 실행 취소는 완료 취소를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
@@ -133,7 +136,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("메모 삭제에 성공하면 삭제 Effect를 보낸다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
@@ -178,7 +181,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("삭제 실행 취소는 복구를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memoId = Arb.kotlinUuid().next()
                 val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
                 coEvery { restoreMemoUseCase(any()) } returns Result.success(1)
                 val viewModel = viewModel(restoreMemoUseCase = restoreMemoUseCase)
@@ -264,8 +267,8 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("저장된 선택이 바뀌면 목록 위치 되돌림 기준도 바뀐다") {
             runTest(mainDispatcher) {
-                val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val firstTagId = Arb.kotlinUuid().next()
+                val secondTagId = Arb.kotlinUuid().next()
                 val tagIdSetFlow = MutableStateFlow(Result.success(setOf(firstTagId)))
                 val viewModel =
                     viewModel(
@@ -415,7 +418,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 이어서 불러오기에 실패해도 앞서 불러온 메모를 유지한다") {
             runTest(mainDispatcher) {
-                val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
+                val memoList = listOf(Arb.memo().next(), Arb.memo().next())
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
                     appendFailingPagingData(firstPage = memoList).map { pagingData -> Result.success(pagingData) }
@@ -432,7 +435,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         test("TC-e6e2ae08-6e73-4a51-a80c-edc4a8222c77 메모가 보이는 목록을 다시 불러오다 실패하면 앞서 보이던 메모를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
-                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val memo = Arb.memo().next()
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
                     flowOf(
@@ -452,9 +455,6 @@ class MemoHomeViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun viewModel(
             getMemoFilterUseCase: GetMemoFilterUseCase = filterUseCase(filterFlow = emptyFlow()),
             getMemoFilterTagIdUseCase: GetMemoFilterTagIdUseCase = filterTagIdUseCase(),
@@ -498,21 +498,23 @@ class MemoHomeViewModelTest : FunSpec() {
         }
 
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun datedMemo(): Memo =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Memo>()
-                .setExp(
-                    Memo::detail,
-                    fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
-                ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .memo()
+                .next()
+                .copy(
+                    detail = Arb.memoDetail().next().copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun memoUseCase(): PageMemoHomeUseCase {
             val pageMemoUseCase = mockk<PageMemoHomeUseCase>()

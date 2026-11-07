@@ -75,8 +75,8 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
             memoList = listOf(memo(title = APPOINTMENT_TITLE, start = july(day = 20), endInclusive = july(day = 21))),
         )
 
-        val weatherRowHeight = bottom(text = SUNDAY_TEMPERATURE_TEXT) - bottom(text = "12")
-        val appointmentOffset = top(text = APPOINTMENT_TITLE) - bottom(text = "19")
+        val weatherRowHeight = bottom(text = SUNDAY_TEMPERATURE_TEXT) - dateNumberBottom(day = 12)
+        val appointmentOffset = top(text = APPOINTMENT_TITLE) - dateNumberBottom(day = 19)
         (appointmentOffset < weatherRowHeight) shouldBe true
     }
 
@@ -84,4 +84,7 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
     private fun top(text: String): Dp = composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().top
 
     private fun bottom(text: String): Dp = composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
+
+    // 상단 바 오늘 버튼도 오늘 날짜의 일 숫자를 표시하므로, 날짜 칸의 접근성 이름을 가진 날짜 숫자만 대상으로 삼는다.
+    private fun dateNumberBottom(day: Int): Dp = composeRule.onAllNodes(CalendarHomeTestFixture.dateCell(day = day))[0].getUnclippedBoundsInRoot().bottom
 }

@@ -18,8 +18,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -30,8 +28,10 @@ import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +58,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-b9322a47-1482-415f-b1e8-907b1fef9457 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
+    fun `TC-bda4daa2-04b7-42a4-afb5-701f40a37620 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
         val eventList = mutableListOf<MemoFinishedListScaffoldEvent>()
         setMemoFinishedListScaffold(onEvent = eventList::add)
 
@@ -247,7 +247,7 @@ class MemoFinishedListSortTest {
     }
 
     private fun memo(title: String): Memo {
-        val memo = fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+        val memo = Arb.memo(isFinished = true, isDeleted = false, primaryTagId = Arb.kotlinUuid().next()).next()
 
         return memo.copy(detail = memo.detail.copy(title = title, dateTime = null))
     }
@@ -262,8 +262,5 @@ class MemoFinishedListSortTest {
         private const val DEFAULT_DEFAULT_SORT = "Default"
         private const val DEFAULT_TITLE_SORT = "Title"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

@@ -6,18 +6,22 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
+import io.github.taetae98coding.diary.core.testing.contact.contact
+import io.github.taetae98coding.diary.core.testing.contact.toListItem
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoContactUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -94,7 +98,7 @@ class MemoContactViewModelTest : FunSpec() {
         test("TC-f477fe87-b4f8-469e-9b25-1198beabe60a 다른 경로로 저장된 연락처 연결이 바뀌면 연락처 입력에 반영된다") {
             runTest(mainDispatcher) {
                 val contact = contact()
-                val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
+                val memoContactFlow = MutableStateFlow(Result.success(emptyList<ContactListItem>()))
                 val viewModel =
                     viewModel(
                         contactPagingFlow = flowOf(Result.success(PagingData.from(listOf(contact)))),
@@ -140,8 +144,8 @@ class MemoContactViewModelTest : FunSpec() {
                     val savedUiState = expectMostRecentItem()
                     savedUiState shouldBe MemoContactInputUiState(selectedContactList = listOf(connectedContact))
 
-                    viewModel.selectContact(contactId = otherContact.id)
-                    viewModel.unselectContact(contactId = connectedContact.id)
+                    viewModel.selectContact(contactId = otherContact.contact.id)
+                    viewModel.unselectContact(contactId = connectedContact.contact.id)
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -175,7 +179,7 @@ class MemoContactViewModelTest : FunSpec() {
         test("TC-5d35b4ae-d9a7-4db3-b241-061c6ca6ce82 연락처가 복구되면 유지되어 있던 선택이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val contact = contact()
-                val memoContactFlow = MutableStateFlow(Result.success(emptyList<Contact>()))
+                val memoContactFlow = MutableStateFlow(Result.success(emptyList<ContactListItem>()))
                 val viewModel = viewModel(memoContactFlow = memoContactFlow)
 
                 viewModel.uiState.test {
@@ -260,8 +264,8 @@ class MemoContactViewModelTest : FunSpec() {
 
         test("TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b 연락처를 선택하면 그 메모와 연락처의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val contactId = Arb.kotlinUuid().next()
                 val addMemoContactUseCase = mockk<AddMemoContactUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoContactUseCase = addMemoContactUseCase)
 
@@ -274,8 +278,8 @@ class MemoContactViewModelTest : FunSpec() {
 
         test("TC-58e3a6fc-fec5-48dd-ae63-a332532ae678 연락처 선택을 해제하면 그 메모와 연락처의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val contactId = Arb.kotlinUuid().next()
                 val removeMemoContactUseCase = mockk<RemoveMemoContactUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, removeMemoContactUseCase = removeMemoContactUseCase)
 
@@ -288,9 +292,9 @@ class MemoContactViewModelTest : FunSpec() {
 
         test("TC-4e41e999-d7d8-43dc-a7d6-5525d55eccfb 앞선 연락처 연결 변경이 처리 중이어도 뒤이은 연락처 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstContactId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondContactId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val firstContactId = Arb.kotlinUuid().next()
+                val secondContactId = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Unit>>()
                 val addMemoContactUseCase = mockk<AddMemoContactUseCase>()
                 coEvery { addMemoContactUseCase(any()) } coAnswers { completion.await() }
@@ -370,8 +374,8 @@ class MemoContactViewModelTest : FunSpec() {
 
         test("같은 Contact 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val contactId = Arb.kotlinUuid().next()
                 val addMemoContactUseCase = mockk<AddMemoContactUseCase>(relaxed = true)
                 val removeMemoContactUseCase = mockk<RemoveMemoContactUseCase>(relaxed = true)
                 val viewModel = viewModel(id = id, addMemoContactUseCase = addMemoContactUseCase, removeMemoContactUseCase = removeMemoContactUseCase)
@@ -391,21 +395,20 @@ class MemoContactViewModelTest : FunSpec() {
     public companion object {
         private const val SEARCH_QUERY = "Wiki"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun contact(): Contact =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Contact>()
-                .setExp(Contact::isDeleted, false)
-                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+        private fun contact(): ContactListItem =
+            Arb
+                .contact()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                ).toListItem(nameQualifier = Arb.string().next())
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
-            contactPagingFlow: Flow<Result<PagingData<Contact>>> = emptyFlow(),
-            memoContactFlow: Flow<Result<List<Contact>>> = emptyFlow(),
+            id: Uuid = Arb.kotlinUuid().next(),
+            contactPagingFlow: Flow<Result<PagingData<ContactListItem>>> = emptyFlow(),
+            memoContactFlow: Flow<Result<List<ContactListItem>>> = emptyFlow(),
             addMemoContactUseCase: AddMemoContactUseCase = mockk(relaxed = true),
             removeMemoContactUseCase: RemoveMemoContactUseCase = mockk(relaxed = true),
             pageMemoSelectableContactUseCase: PageMemoSelectableContactUseCase =

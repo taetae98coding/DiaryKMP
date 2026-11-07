@@ -7,7 +7,10 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -15,6 +18,7 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
@@ -28,7 +32,10 @@ import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccou
 import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -41,6 +48,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -160,9 +168,13 @@ class MoreHomeScreenTest {
 
     @Test
     fun `TC-28c9f8de-19c1-41d7-ad20-9f061b5f6e83 업로드 대기 항목이 없으면 확인 다이얼로그 없이 로그아웃한다`() {
+        val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
+        val accountViewModel = mockk<MoreHomeAccountViewModel>()
+        every { accountViewModel.uiState } returns accountUiState
         val signOutViewModel = screenTestSignOutViewModel()
+        every { signOutViewModel.signOut() } answers { accountUiState.value = MoreHomeAccountUiState.Guest }
         setMoreHomeScreen(
-            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            viewModel = accountViewModel,
             signOutViewModel = signOutViewModel,
         )
 
@@ -171,6 +183,8 @@ class MoreHomeScreenTest {
 
         verify(exactly = 1) { signOutViewModel.signOut() }
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_GUEST_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).assert(hasClickAction())
     }
 
     @Test
@@ -187,9 +201,17 @@ class MoreHomeScreenTest {
 
     @Test
     fun `TC-6a0c54d2-cdc9-4df9-ac7a-3dc236c0e4f6 확인 다이얼로그에서 로그아웃을 고르면 로그아웃을 요청한다`() {
-        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
+        val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
+        val accountViewModel = mockk<MoreHomeAccountViewModel>()
+        every { accountViewModel.uiState } returns accountUiState
+        val signOutUiState = MutableStateFlow(MoreHomeSignOutUiState(isConfirmVisible = true))
+        val signOutViewModel = screenTestSignOutViewModel(signOutUiState)
+        every { signOutViewModel.confirmSignOut() } answers {
+            signOutUiState.value = MoreHomeSignOutUiState(isConfirmVisible = false)
+            accountUiState.value = MoreHomeAccountUiState.Guest
+        }
         setMoreHomeScreen(
-            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            viewModel = accountViewModel,
             signOutViewModel = signOutViewModel,
         )
 
@@ -198,11 +220,15 @@ class MoreHomeScreenTest {
 
         verify(exactly = 1) { signOutViewModel.confirmSignOut() }
         verify(exactly = 0) { signOutViewModel.cancelSignOut() }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_GUEST_LABEL).assertIsDisplayed()
     }
 
     @Test
     fun `TC-c4f73ebf-449e-43f0-a3f9-1d87743a56cd 확인 다이얼로그에서 취소를 고르면 로그아웃을 요청하지 않는다`() {
-        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
+        val signOutUiState = MutableStateFlow(MoreHomeSignOutUiState(isConfirmVisible = true))
+        val signOutViewModel = screenTestSignOutViewModel(signOutUiState)
+        every { signOutViewModel.cancelSignOut() } answers { signOutUiState.value = MoreHomeSignOutUiState(isConfirmVisible = false) }
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
             signOutViewModel = signOutViewModel,
@@ -213,6 +239,9 @@ class MoreHomeScreenTest {
 
         verify(exactly = 1) { signOutViewModel.cancelSignOut() }
         verify(exactly = 0) { signOutViewModel.confirmSignOut() }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
     }
 
     @Test
@@ -246,17 +275,69 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-791312fa-b99b-4f25-9888-e188f27dd356 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
+    fun `TC-27b18470-b859-4412-b67b-32d8f569c86d 사용자 상태에서 계정 카드를 선택하면 Profile 화면으로 이동한다`() {
         var navigateCount = 0
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
-            navigateToProfileImageEdit = { navigateCount += 1 },
+            navigateToProfile = { navigateCount += 1 },
+        )
+
+        composeRule.onNodeWithText(USER_EMAIL).performClick()
+        composeRule.waitForIdle()
+
+        navigateCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-830e30bd-bdbc-43af-a683-b07d1eb59b20 프로필 이미지를 선택하면 그 이미지로 ProfileImageViewer 화면으로 이동한다`() {
+        val profileImage = "https://example.com/${Arb.kotlinUuid().next()}.jpg"
+        val viewerImageList = mutableListOf<String>()
+        var navigateToProfileCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = profileImage, email = USER_EMAIL)),
+            navigateToProfile = { navigateToProfileCount += 1 },
+            navigateToProfileImageViewer = { imageUrl -> viewerImageList += imageUrl },
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        navigateCount shouldBe 1
+        viewerImageList shouldBe listOf(profileImage)
+        navigateToProfileCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-b69722ff-6c23-4bac-a89d-bd9d201bd239 프로필 이미지가 없으면 그 자리를 눌러도 이동하지 않는다`() {
+        var navigateToProfileCount = 0
+        var navigateToViewerCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            navigateToProfile = { navigateToProfileCount += 1 },
+            navigateToProfileImageViewer = { navigateToViewerCount += 1 },
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION, useUnmergedTree = true).performTouchInput { click() }
+        composeRule.waitForIdle()
+
+        navigateToProfileCount shouldBe 0
+        navigateToViewerCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-6b23c279-8c2a-4712-b9e1-dab40e5a1036 계정 카드 안의 로그아웃을 선택하면 Profile 화면으로 이동하지 않는다`() {
+        var navigateToProfileCount = 0
+        val signOutViewModel = screenTestSignOutViewModel()
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = signOutViewModel,
+            navigateToProfile = { navigateToProfileCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { signOutViewModel.signOut() }
+        navigateToProfileCount shouldBe 0
     }
 
     @Test
@@ -294,14 +375,32 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-6c3b0b45-4d87-4fb8-bfa8-d5e5a1998f2c 확인 중과 게스트 상태에서는 프로필을 선택해도 ProfileImageEdit 화면으로 이동하지 않는다`() {
+    fun `TC-1d2b6f96-96ac-4d4f-a35c-fd2db9c2bcd1 계정 카드 안의 로그인을 선택하면 Profile 화면으로 이동하지 않는다`() {
+        var navigateToLoginCount = 0
+        var navigateToProfileCount = 0
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest),
+            navigateToLogin = { navigateToLoginCount += 1 },
+            navigateToProfile = { navigateToProfileCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        navigateToLoginCount shouldBe 1
+        navigateToProfileCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-9dc35298-e4ce-41a8-ba1b-6f989f7df20a 확인 중과 게스트 상태에서는 계정 카드와 프로필 이미지를 눌러도 이동하지 않는다`() {
         var navigateCount = 0
         val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         val viewModel = mockk<MoreHomeAccountViewModel>()
         every { viewModel.uiState } returns accountUiState
         setMoreHomeScreen(
             viewModel = viewModel,
-            navigateToProfileImageEdit = { navigateCount += 1 },
+            navigateToProfile = { navigateCount += 1 },
+            navigateToProfileImageViewer = { navigateCount += 1 },
         )
 
         NON_USER_ACCOUNT_UI_STATES.forEach { uiState ->
@@ -422,7 +521,8 @@ class MoreHomeScreenTest {
                     navigateToLogin = {},
                     navigateToPlace = {},
                     navigateToPlaylist = {},
-                    navigateToProfileImageEdit = {},
+                    navigateToProfile = {},
+                    navigateToProfileImageViewer = {},
                     navigateToQr = {},
                     navigateToSearch = {},
                     navigateToSetting = {},
@@ -442,6 +542,58 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        coVerify(exactly = 0) { signOutUseCase(Unit) }
+    }
+
+    @Test
+    fun `TC-b8ad0a35-4f48-41c9-95aa-63be43b43fff 닫은 다이얼로그는 화면 구성이 바뀌어 다시 그려져도 다시 열리지 않는다`() {
+        val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        val signOutUseCase = mockk<SignOutUseCase>()
+        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        val signOutViewModel =
+            MoreHomeSignOutViewModel(
+                savedStateHandle = SavedStateHandle(),
+                findSyncPendingUseCase = findSyncPendingUseCase,
+                signOutUseCase = signOutUseCase,
+            )
+        val accountViewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
+        val refreshViewModel = screenTestRefreshViewModel()
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            DiaryTheme {
+                MoreHomeScreen(
+                    navigateToChecklist = {},
+                    navigateToContact = {},
+                    navigateToDDay = {},
+                    navigateToFile = {},
+                    navigateToHoliday = {},
+                    navigateToLogin = {},
+                    navigateToPlace = {},
+                    navigateToPlaylist = {},
+                    navigateToProfile = {},
+                    navigateToProfileImageViewer = {},
+                    navigateToQr = {},
+                    navigateToSearch = {},
+                    navigateToSetting = {},
+                    navigateToWeb = {},
+                    accountViewModel = accountViewModel,
+                    signOutViewModel = signOutViewModel,
+                    refreshViewModel = refreshViewModel,
+                )
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CANCEL_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
         coVerify(exactly = 0) { signOutUseCase(Unit) }
     }
 
@@ -476,7 +628,8 @@ class MoreHomeScreenTest {
                         navigateToLogin = {},
                         navigateToPlace = {},
                         navigateToPlaylist = {},
-                        navigateToProfileImageEdit = {},
+                        navigateToProfile = {},
+                        navigateToProfileImageViewer = {},
                         navigateToQr = {},
                         navigateToSearch = {},
                         navigateToSetting = {},
@@ -513,7 +666,8 @@ class MoreHomeScreenTest {
         navigateToLogin: () -> Unit = {},
         navigateToPlace: () -> Unit = {},
         navigateToPlaylist: () -> Unit = {},
-        navigateToProfileImageEdit: () -> Unit = {},
+        navigateToProfile: () -> Unit = {},
+        navigateToProfileImageViewer: (String) -> Unit = {},
         navigateToQr: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
         navigateToSetting: () -> Unit = {},
@@ -531,7 +685,8 @@ class MoreHomeScreenTest {
                         navigateToLogin = navigateToLogin,
                         navigateToPlace = navigateToPlace,
                         navigateToPlaylist = navigateToPlaylist,
-                        navigateToProfileImageEdit = navigateToProfileImageEdit,
+                        navigateToProfile = navigateToProfile,
+                        navigateToProfileImageViewer = navigateToProfileImageViewer,
                         navigateToQr = navigateToQr,
                         navigateToSearch = navigateToSearch,
                         navigateToSetting = navigateToSetting,
@@ -549,6 +704,7 @@ class MoreHomeScreenTest {
         // 메뉴 격자는 화면에 보이는 항목만 배치하므로, 아래쪽 항목을 누르는 테스트에만 넉넉한 창을 준다.
         private const val MENU_VISIBLE_QUALIFIERS = "w480dp-h1600dp"
 
+        private const val DEFAULT_GUEST_LABEL = "Guest"
         private const val DEFAULT_SIGN_IN_LABEL = "Sign in"
         private const val DEFAULT_SIGN_OUT_LABEL = "Sign out"
         private const val DEFAULT_SIGN_OUT_CONFIRM_TITLE = "Sign out?"
@@ -587,9 +743,11 @@ class MoreHomeScreenTest {
             return viewModel
         }
 
-        private fun screenTestSignOutViewModel(uiState: MoreHomeSignOutUiState = MoreHomeSignOutUiState()): MoreHomeSignOutViewModel {
+        private fun screenTestSignOutViewModel(uiState: MoreHomeSignOutUiState = MoreHomeSignOutUiState()): MoreHomeSignOutViewModel = screenTestSignOutViewModel(MutableStateFlow(uiState))
+
+        private fun screenTestSignOutViewModel(uiStateFlow: MutableStateFlow<MoreHomeSignOutUiState>): MoreHomeSignOutViewModel {
             val viewModel = mockk<MoreHomeSignOutViewModel>()
-            every { viewModel.uiState } returns MutableStateFlow(uiState)
+            every { viewModel.uiState } returns uiStateFlow
             every { viewModel.signOut() } returns Unit
             every { viewModel.confirmSignOut() } returns Unit
             every { viewModel.cancelSignOut() } returns Unit

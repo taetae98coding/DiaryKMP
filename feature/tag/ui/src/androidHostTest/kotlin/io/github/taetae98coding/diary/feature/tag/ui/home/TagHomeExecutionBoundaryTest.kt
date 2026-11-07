@@ -21,21 +21,22 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.lifecycle.Lifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
-import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -263,18 +264,20 @@ class TagHomeExecutionBoundaryTest {
     }
 
     private fun tagList(): List<Tag> {
-        val titlePrefix = fixtureText(prefix = "TagHomeTag")
+        val titlePrefix = Arb.alphanumericString(prefix = "TagHomeTag").next()
 
         return List(TAG_COUNT) { index -> tag(title = "${titlePrefix}Index$index") }
     }
 
     private fun tag(title: String): Tag =
-        fixtureMonkey
-            .giveMeKotlinBuilder<Tag>()
-            .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-            .sample()
+        Arb
+            .tag()
+            .next()
+            .copy(
+                detail = Arb.tagDetail().next().copy(emoji = "", title = title),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
+            )
 
     private companion object {
         private const val TAG_HOME_ENTRY_KEY = "TagHome"
@@ -284,8 +287,5 @@ class TagHomeExecutionBoundaryTest {
         private const val DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION = "Filter applied"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
         private const val DEFAULT_TITLE_SORT = "Title"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

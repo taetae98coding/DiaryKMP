@@ -5,8 +5,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.navigation3.runtime.NavBackStack
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
@@ -15,21 +13,20 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
-import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class TagMemoNavigationTest :
     FunSpec({
         test("TagMemoFinishedList ScreenNavKey를 저장하고 복원하면 tagId가 유지된다") {
-            val key: ScreenNavKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
+            val key: ScreenNavKey = TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next())
 
             val savedState =
                 encodeToSavedState(
@@ -44,7 +41,7 @@ class TagMemoNavigationTest :
         }
 
         test("MemoAdd ScreenNavKey를 저장하고 복원하면 최초 대표 태그 ID가 유지된다") {
-            val key: ScreenNavKey = MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+            val key: ScreenNavKey = MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next())
 
             val savedState =
                 encodeToSavedState(
@@ -59,13 +56,13 @@ class TagMemoNavigationTest :
         }
 
         test("MemoAdd ScreenNavKey를 저장하고 복원하면 초기 기간이 유지된다") {
-            val dayList = List(2) { fixtureMonkey.giveMeOne<Int>().mod(1_000_000) }.sorted()
+            val dateRange = Arb.localDateRange().next()
             val key: ScreenNavKey =
                 MemoAddNavKey(
                     initialDateRange =
                         MemoAddNavKey.InitialDateRange(
-                            start = LocalDate.fromEpochDays(dayList[0]),
-                            endInclusive = LocalDate.fromEpochDays(dayList[1]),
+                            start = dateRange.start,
+                            endInclusive = dateRange.endInclusive,
                         ),
                 )
 
@@ -82,7 +79,7 @@ class TagMemoNavigationTest :
         }
 
         test("넓은 화면에서도 TagDetail 메모 탭에서 이어진 독립 흐름에서는 내비게이션을 숨긴다") {
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = Arb.kotlinUuid().next()
             val tagDetailBackStack =
                 listOf(
                     TopLevelNavigation.DEFAULT.key,
@@ -93,9 +90,9 @@ class TagMemoNavigationTest :
             val backStackCases =
                 listOf(
                     tagDetailBackStack + MemoAddNavKey(primaryTagId = tagId),
-                    tagDetailBackStack + MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                     tagMemoFinishedListBackStack,
-                    tagMemoFinishedListBackStack + MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagMemoFinishedListBackStack + MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 )
 
             backStackCases.forEach { keys ->

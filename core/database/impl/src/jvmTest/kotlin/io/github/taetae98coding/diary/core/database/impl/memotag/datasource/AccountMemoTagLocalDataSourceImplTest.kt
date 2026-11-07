@@ -4,9 +4,6 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -16,15 +13,19 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.Acc
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDateTime
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountMemoTagLocalDataSourceImplTest :
@@ -72,12 +73,12 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memoId,
                 tagId = tag.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
         }
 
         test("TC-5282a1f8-8c3c-4dd2-b017-585e42c532b0 계정과 연결된 메모의 해제되지 않은 연결의 태그를 모두 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val firstTag = tag()
             val secondTag = tag()
@@ -91,7 +92,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-278d2a9d-3386-4cee-a542-56f2577f0050 해제된 연결의 태그는 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -102,14 +103,14 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
         test("TC-23953088-b463-4072-9ca9-13be23784eb2 가리키는 메모가 기기에 없는 연결은 메모별 태그 조회에 나타나지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             connect(accountId = accountId, memoId = memo.id, tag = tag)
@@ -123,8 +124,8 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-7a2f780f-348c-4006-8b7e-ea46cd179c08 계정과 연결되지 않은 태그를 메모에 연결해도 메모의 연결된 태그로 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             val otherAccountTag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -135,15 +136,27 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = otherAccountTag.id,
                 isDeleted = false,
-                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
+        test("TC-6f67b4ae-691f-4463-bf54-0e7c561f73af 계정과 연결되지 않은 메모에는 태그를 연결해도 조회되지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val otherAccountMemo = memo()
+            val tag = tag()
+            insertMemo(accountId = otherAccountId, memo = otherAccountMemo)
+
+            connect(accountId = accountId, memoId = otherAccountMemo.id, tag = tag)
+
+            dataSource.getTagList(accountId = accountId, memoId = otherAccountMemo.id).first().shouldBeEmpty()
+        }
+
         test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 다른 계정의 연결은 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             insertMemo(accountId = accountId, memo = memo)
             connect(accountId = accountId, memoId = memo.id, tag = tag())
@@ -152,7 +165,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-a96e6ab1-53aa-412b-8818-9efac6db49e3 TC-76d211fc-cc39-4af9-ae09-da3e22841bda 완료된 태그의 연결도 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -165,7 +178,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-a96e6ab1-53aa-412b-8818-9efac6db49e3 TC-fac3274a-65c0-48b6-a0aa-e43b7e597803 TC-76d211fc-cc39-4af9-ae09-da3e22841bda 삭제된 태그의 연결은 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -177,7 +190,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-ee72205f-e02d-4403-b4ad-b743994d46bb 삭제된 태그의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -195,7 +208,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-038d714a-47cc-4ba1-ba9a-0531f3dc10bc 태그의 이모지·제목·설명·컬러를 수정해도 메모와의 연결은 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -204,12 +217,12 @@ class AccountMemoTagLocalDataSourceImplTest :
             val newDetail =
                 TagDetailLocalEntity(
                     emoji = "✈️",
-                    title = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
-                    description = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
+                    title = "edited-${Arb.kotlinUuid().next()}",
+                    description = "edited-${Arb.kotlinUuid().next()}",
                     color = tag.detail.color.inv(),
                 )
 
-            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = instant())
+            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = Arb.secondPrecisionInstant().next())
 
             dataSource
                 .getTagList(accountId = accountId, memoId = memo.id)
@@ -223,7 +236,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             "연결된 태그 하나의 연결을 해제하면" to true,
         ).forEach { (label, isDeleted) ->
             test("TC-0c6f0881-63d7-456b-8439-9c1d76999476 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 $label 그 연결만 업로드 대기가 된다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val memo = memo().copy(primaryTagId = null)
                 val keptTag = tag()
                 val removedTag = tag()
@@ -245,7 +258,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                     memoId = memo.id,
                     tagId = changedTagId,
                     isDeleted = isDeleted,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                 )
 
                 syncDataSource.readPendingList(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
@@ -253,7 +266,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-bc8feb4b-8381-4ed7-ad9e-2b3c78442d89 연결된 태그가 완료되어도 조회 결과에 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -268,7 +281,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d TC-d2942532-4b96-432c-8b0a-9acd2d608c22 조회한 태그는 제목 오름차순으로 정렬된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val lastTag = tag().let { tag -> tag.copy(detail = tag.detail.copy(title = LAST_TAG_TITLE)) }
             val firstTag = tag().let { tag -> tag.copy(detail = tag.detail.copy(title = FIRST_TAG_TITLE)) }
@@ -283,7 +296,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 계정과 연결된 메모의 해제되지 않은 연결의 태그 id를 모두 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val firstTag = tag()
             val secondTag = tag()
@@ -295,7 +308,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 해제된 연결의 태그 id는 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -306,7 +319,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource.readTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
@@ -317,7 +330,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             "삭제된" to { tag: TagLocalEntity -> tag.copy(isDeleted = true) },
         ).forEach { (label, change) ->
             test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 $label 태그의 해제되지 않은 연결도 태그 id로 조회된다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val tag = tag()
                 insertMemo(accountId = accountId, memo = memo)
@@ -330,8 +343,8 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-d6c69891-28f5-4a36-b188-e01dbff987e4 다른 계정의 연결은 태그 id로 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             insertMemo(accountId = accountId, memo = memo)
             connect(accountId = accountId, memoId = memo.id, tag = tag())
@@ -340,7 +353,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("다른 메모의 연결은 태그 id로 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val otherMemo = memo()
             insertMemo(accountId = accountId, memo = memo)
@@ -351,7 +364,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-8a88520a-5d49-4adb-abcc-d21a05f7ead8 TC-5b370c4c-d285-41ba-965b-da7e6ecf8c95 선택 목록에는 선택할 수 있는 태그와 연결된 완료된 태그가 함께 담긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val selectableTag = tag().withTitle(FIRST_TAG_TITLE)
             val connectedFinishedTag = tag().withTitle(LAST_TAG_TITLE)
@@ -369,7 +382,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-eef3ed3f-7869-4ba5-afd7-8c0158d21cce TC-c8b46a53-3227-4f18-9061-defb7a9cf9de 연결되지 않은 완료된 태그는 선택 목록에 담기지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val selectableTag = tag()
             val finishedTag = tag().copy(isFinished = true)
@@ -383,7 +396,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-fac3274a-65c0-48b6-a0aa-e43b7e597803 삭제된 태그는 연결이 남아 있어도 선택 목록에 담기지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -399,7 +412,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-b0aa3cdf-77a4-449a-bb0e-38fcff2ecbdf 선택 목록은 완료 여부로 구분하지 않고 제목 오름차순으로 정렬한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val firstTag = tag().withTitle(FIRST_TAG_TITLE)
             val middleTag = tag().withTitle(MIDDLE_TAG_TITLE)
@@ -418,7 +431,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-435c14a0-7434-48a6-9775-b8910c85738a 연결이 해제되면 완료된 태그가 선택 목록에서 빠진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -433,7 +446,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 memoId = memo.id,
                 tagId = tag.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             dataSource
@@ -444,8 +457,8 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-7fc44645-d468-48c4-b2da-4d65f3e9f1bb 다른 계정의 태그는 선택 목록에 담기지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val memo = memo()
             insertMemo(accountId = accountId, memo = memo)
             tagTransaction.upsert(accountId = otherAccountId, tagList = listOf(tag()), tagLinkList = emptyList())
@@ -458,7 +471,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-36238c18-3987-4f50-9051-4272285d7c16 선택 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -482,7 +495,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-5eaf66e6-583e-4d17-9bdc-e1a9fd38bf34 검색어는 이모지·제목·설명 중 하나 이상을 포함하는 태그만 남긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val titleTag = tag().withDetail(emoji = "", title = "Travel", description = "")
             val emojiTag = tag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
@@ -507,7 +520,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-6fead397-e8d2-4843-bca0-d62477cafcce 검색어를 만족하지 않으면 연결된 완료된 태그도 선택 목록에서 빠진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val selectableTag = tag().withDetail(emoji = "", title = "Travel", description = "")
             val connectedTag = tag().withDetail(emoji = "", title = "AlphaTag", description = "")
@@ -525,7 +538,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-ecf420f3-f92b-4577-8542-1b176636869a 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tagList =
                 List(TAG_COUNT) { index ->
@@ -542,7 +555,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-ef9f8c54-750a-42b9-9491-ef622a6f420d 연결이 바뀌면 조회 결과가 갱신된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val tag = tag()
             insertMemo(accountId = accountId, memo = memo)
@@ -556,7 +569,7 @@ class AccountMemoTagLocalDataSourceImplTest :
 
         test("TC-546496c5-218d-4e17-ae7b-937df11b75ef 필터를 고르지 않은 메모 목록에서 태그 연결은 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val linkedMemo = memo().visible().withTitle(title = linkedTitle)
                 val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
                 insertMemo(accountId = accountId, memo = linkedMemo)
@@ -574,7 +587,7 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-215cd5bd-6759-4904-9b87-33b084d3e62f 태그 필터를 고르지 않은 캘린더에서 태그 연결은 메모 노출을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
             val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
             val linkedMemo = memo().visible().withPeriod(start = start, endInclusive = endInclusive)
@@ -593,8 +606,8 @@ class AccountMemoTagLocalDataSourceImplTest :
         }
 
         test("TC-953b1503-454f-4047-abff-2a6cd8878c14 연결된 태그의 제목은 메모 검색에 쓰이지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val accountId = Arb.kotlinUuid().next()
+            val query = "query-${Arb.kotlinUuid().next()}"
             val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
             insertMemo(accountId = accountId, memo = memo)
             connect(accountId = accountId, memoId = memo.id, tag = tag().withTitle(title = "tag-$query"))
@@ -615,24 +628,25 @@ class AccountMemoTagLocalDataSourceImplTest :
         private const val TAG_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::isFinished, false)
-                .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun TagLocalEntity.withTitle(title: String): TagLocalEntity = copy(detail = detail.copy(title = title))
 
@@ -669,7 +683,5 @@ class AccountMemoTagLocalDataSourceImplTest :
 
             return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
         }
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

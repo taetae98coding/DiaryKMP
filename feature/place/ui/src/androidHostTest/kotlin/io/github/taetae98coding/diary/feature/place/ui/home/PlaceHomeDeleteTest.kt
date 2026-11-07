@@ -14,8 +14,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
@@ -31,8 +29,10 @@ import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceL
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.justRun
@@ -239,15 +239,12 @@ class PlaceHomeDeleteTest {
         const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun mapViewModel(): PlaceHomeMapViewModel {
             // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
             val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
             every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
             val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns Result.failure(IllegalStateException(Arb.string().next()))
 
             return PlaceHomeMapViewModel(
                 fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,

@@ -2,7 +2,7 @@
 
 이 문서는 사용자가 목록이나 캘린더를 아래로 당겨 최신 내용을 다시 가져오는 새로고침 행동과, 동기화가 진행되는 동안 사용자에게 진행을 알리는 기준을 다룬다. 계정과 연결된 메모, 태그, 장소, 웹 항목, 연락처, 곡, QR, 체크리스트, 체크 항목과 그 연결들을 서버와 맞추는 규칙은 [데이터 동기화 스펙](../common/data-sync.md)과 [데이터 동기화 앱 스펙](./data-sync.md)을, 공휴일을 원격에서 받아 저장하는 규칙은 [공휴일 동기화 스펙](./holiday-fetch.md)을, 현재 위치의 날씨를 받아 저장하는 규칙은 [현재 날씨 동기화 스펙](./weather-fetch.md)을 따른다. 이 문서는 그 동기화를 언제 사용자의 조작으로 시작하고 언제 진행을 보여 줄지만 정한다.
 
-[데이터 동기화 앱 스펙](./data-sync.md)의 `동기화 단계와 처리 순서`가 정하는 동기화는 열여섯 종류를 한 번에 처리하는 하나의 동작이므로, 이 문서에서는 이를 `계정 데이터의 서버 동기화`로 부른다. 어느 화면에서 새로고침하더라도 그 한 번의 동기화가 열여섯 종류를 모두 처리한다.
+[데이터 동기화 앱 스펙](./data-sync.md)의 `동기화 단계와 처리 순서`가 정하는 동기화는 스무 종류를 한 번에 처리하는 하나의 동작이므로, 이 문서에서는 이를 `계정 데이터의 서버 동기화`로 부른다. 어느 화면에서 새로고침하더라도 그 한 번의 동기화가 스무 종류를 모두 처리한다.
 
 새로고침은 이미 정의된 동기화를 다시 요청할 뿐 저장, 조회, 충돌 판정 흐름을 새로 만들지 않으므로 `data` 영역은 생략한다.
 
@@ -20,6 +20,10 @@
 - TagDetail 메모 탭
 - TagDetail 웹 탭
 - TagDetail 장소 탭
+- TagDetail 연락처 탭
+- TagDetail 체크리스트 탭
+- TagDetail 곡 탭
+- TagDetail QR 탭
 - TagMemoFinishedList
 - ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList
 - ContactDetail 메모 탭
@@ -70,9 +74,9 @@ CalendarHome에서는 공휴일과 날씨가 사용자 계정과 무관하므로
 | 화면 | 새로고침 대상 |
 | --- | --- |
 | CalendarHome | 계정 데이터의 서버 동기화, 표시 중인 달의 공휴일 동기화, 현재 위치의 날씨 동기화 |
-| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, ContactDetail 메모 탭, PlaceDetail 메모 탭, WebDetail 메모 탭, ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList, RoutineHome, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome, ChecklistHome | 계정 데이터의 서버 동기화 |
+| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소·연락처·체크리스트·곡·QR 탭, TagMemoFinishedList, ContactDetail 메모 탭, PlaceDetail 메모 탭, WebDetail 메모 탭, ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList, RoutineHome, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome, ChecklistHome | 계정 데이터의 서버 동기화 |
 
-계정 데이터의 서버 동기화는 열여섯 종류를 한 번에 처리하므로, 화면이 보여 주는 종류만 골라 동기화하지 않는다. PlaceHome에서 당겨도 메모와 태그가 함께 동기화되고, MemoHome에서 당겨도 장소와 웹 항목과 연락처와 곡과 QR과 체크리스트와 체크 항목이 함께 동기화된다. TagDetail의 어느 탭에서 당겨도 같은 한 번의 동기화가 실행되므로 탭마다 동기화 대상이 다르지 않다.
+계정 데이터의 서버 동기화는 스무 종류를 한 번에 처리하므로, 화면이 보여 주는 종류만 골라 동기화하지 않는다. PlaceHome에서 당겨도 메모와 태그가 함께 동기화되고, MemoHome에서 당겨도 장소와 웹 항목과 연락처와 곡과 QR과 체크리스트와 체크 항목이 함께 동기화된다. TagDetail의 어느 탭에서 당겨도 같은 한 번의 동기화가 실행되므로 탭마다 동기화 대상이 다르지 않다.
 
 공휴일 동기화의 대상 연도는 [CalendarHome 스펙](./calendar-home.md)의 `공휴일 동기화 대상`을 따른다.
 
@@ -97,7 +101,7 @@ flowchart LR
 
 계정 확인을 계기로 시작된 서버 동기화는 모두 진행을 표시한다. 어떤 계정 확인이 계기인지는 [데이터 동기화 앱 스펙](./data-sync.md)의 `동기화 계기`를 따르며, 게스트 상태에서 로그인해 인증된 계정이 확인되는 것도 포함된다.
 
-계정 확인을 계기로 하는 서버 동기화의 판단 기준은 [데이터 동기화 스펙](./data-sync.md)의 `동기화 계기`를, 주기 동기화의 예약과 실행 기준은 같은 스펙의 `주기 동기화`를 따른다.
+계정 확인을 계기로 하는 서버 동기화의 판단 기준은 [데이터 동기화 앱 스펙](./data-sync.md)의 `동기화 계기`를, 주기 동기화의 예약과 실행 기준은 같은 스펙의 `주기 동기화`를 따른다.
 
 CalendarHome에서 화면이 표시되거나 표시 중인 달이 바뀌어 시작되는 공휴일 동기화와, 화면이 표시되어 시작되는 날씨 동기화는 새로고침 계기와 같이 진행을 표시한다. 이 두 동기화는 사용자 계정의 데이터를 바꾸지 않고 화면에 보이는 내용을 채우는 동기화이므로, 계기와 무관하게 진행 중임을 표시한다.
 
@@ -107,7 +111,7 @@ CalendarHome에서 사용자가 위치 권한 요청에서 새로 허용해 시�
 
 당김은 각 동기화가 이미 가진 중복 요청 규칙을 그대로 따르며, 새로운 예외를 만들지 않는다.
 
-- 계정 데이터의 서버 동기화는 진행 중인 동기화를 취소하고 새 동기화를 시작한다. 진행 중인 주기 동기화는 예외로, 취소하지 않고 새 동기화와 따로 진행된다. [데이터 동기화 스펙](./data-sync.md)의 `동기화 계기`와 `백그라운드 실행`을 따른다.
+- 계정 데이터의 서버 동기화는 진행 중인 동기화를 취소하고 새 동기화를 시작한다. 진행 중인 주기 동기화는 예외로, 취소하지 않고 새 동기화와 따로 진행된다. [데이터 동기화 앱 스펙](./data-sync.md)의 `동기화 계기`와 `백그라운드 실행`을 따른다.
 - 공휴일 동기화는 같은 연도가 진행 중이면 [연도별 자료 동기화 스펙](./yearly-data-sync.md)의 `진행 중인 요청`을 따르고, 이번 실행에서 이미 동기화에 성공한 연도는 같은 스펙의 `재조회 생략`에 따라 원격 조회 없이 성공으로 끝낸다. 따라서 당김으로 다시 원격에서 받아오는 연도는 아직 동기화에 성공하지 못한 연도다.
 - 날씨 동기화는 진행 중이면 새 동기화를 시작하지 않고, 마지막 동기화에 성공한 뒤 1시간이 지나지 않았으면 원격 조회 없이 성공으로 끝낸다. [CalendarHome 스펙](./calendar-home.md)의 `날씨 중복 동기화 방지`와 [현재 날씨 동기화 스펙](./weather-fetch.md)의 `동기화 간격`을 따른다. 따라서 당김으로 다시 받아오는 날씨는 마지막 동기화로부터 1시간이 지난 경우다.
 

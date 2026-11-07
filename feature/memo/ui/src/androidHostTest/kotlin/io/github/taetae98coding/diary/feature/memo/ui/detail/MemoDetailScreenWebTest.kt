@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -191,6 +192,15 @@ class MemoDetailScreenWebTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
+
+        composeRule.openMemoDetailWebPicker()
+        composeRule.awaitWebPickerRows()
+
+        composeRule
+            .webDialogSearchField()
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.EditableText]
+            .text shouldBe ""
     }
 
     @Test

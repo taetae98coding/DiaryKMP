@@ -1,8 +1,6 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
@@ -17,9 +15,11 @@ import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -35,9 +35,6 @@ private const val YEAR = 2026
 private const val CONSTITUTION_DAY = "제헌절"
 private const val MIDSUMMER_DAY = "초복"
 private const val SECOND_MIDSUMMER_DAY = "중복"
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidayVisibilityDataTest :
     FunSpec({
@@ -283,7 +280,7 @@ private fun standardHolidayList(): List<HolidayLocalEntity> =
         holiday(name = MIDSUMMER_DAY, day = 20),
     )
 
-private fun uniqueKey(label: String): String = "${fixtureMonkey.giveMeOne<String>()}:$label"
+private fun uniqueKey(label: String): String = "${Arb.string().next()}:$label"
 
 private fun holiday(
     name: String,

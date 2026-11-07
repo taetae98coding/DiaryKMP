@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.core.database.impl.place.transaction
 
 import androidx.room3.withWriteTransaction
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceTransaction
-import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.placetag.placeTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -19,7 +19,7 @@ internal class AccountPlaceTransactionImpl(
     override suspend fun upsert(
         accountId: Uuid,
         placeList: List<PlaceLocalEntity>,
-        placeTagList: List<PlaceTagLocalEntity>,
+        placeTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.placeDao().upsert(placeList)
@@ -32,17 +32,7 @@ internal class AccountPlaceTransactionImpl(
                     )
                 },
             )
-            database.placeTagDao().upsert(placeTagList)
-            database.accountPlaceTagDao().upsert(
-                placeTagList.map { placeTag ->
-                    AccountPlaceTagLocalEntity(
-                        accountId = accountId,
-                        placeId = placeTag.placeId,
-                        tagId = placeTag.tagId,
-                        isDirty = true,
-                    )
-                },
-            )
+            database.placeTagTable().upsertPending(accountId = accountId, entityTagList = placeTagList)
         }
     }
 

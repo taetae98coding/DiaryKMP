@@ -5,9 +5,7 @@ import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
@@ -17,7 +15,6 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
@@ -25,7 +22,13 @@ import io.github.taetae98coding.diary.core.database.impl.memoweb.datasource.Acco
 import io.github.taetae98coding.diary.core.database.impl.memoweb.datasource.AccountMemoWebSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
+import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.web.webLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -34,6 +37,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
@@ -121,7 +126,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-1a2ab192-a0b7-4da2-b20a-f1fe12816f6c 하나의 메모에 여러 웹 항목을 연결해 저장한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val webList = List(2) { web() }
 
@@ -131,7 +136,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-f172e0ca-a9cb-4fc5-b287-6c9f48f4a74e 같은 웹 항목을 여러 메모에 연결해도 서로 대체되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val web = web()
             val firstMemo = memo()
             val secondMemo = memo()
@@ -145,7 +150,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-23000646-3cfe-4f0b-ab0d-f8f46ba76aa5 같은 메모와 웹 항목의 연결을 다시 저장해도 한 건으로 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
 
@@ -157,7 +162,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-a0441096-0392-4f22-91e0-ea125dda3403 연결할 웹 항목이 없으면 웹 연결 없이 메모만 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
 
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
@@ -168,7 +173,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-03e2d8f0-3d7a-4005-8516-666c596310d2 웹 항목을 삭제해도 메모와의 연결이 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -180,25 +185,25 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-168f96b6-1d06-44a5-a066-eabd23808177 메모를 완료하거나 삭제해도 웹 항목과의 연결이 유지된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo().copy(isFinished = false, isDeleted = false)
             val web = web()
             val memoWeb = memoWeb(memoId = memo.id, webId = web.id, memo = memo)
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
-            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
+            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoWebList(memoId = memo.id) shouldBe listOf(memoWeb)
 
-            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
+            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             findMemoWebList(memoId = memo.id) shouldBe listOf(memoWeb)
         }
 
         test("TC-2bb3318d-a7ae-465e-a13c-2da99e6656a5 메모의 제목·설명·컬러·기간 수정은 웹 연결을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
-            val newDetail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>()
-            val updatedAt = instant()
+            val newDetail = Arb.memoDetailLocalEntity().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
             memoTransaction.updateDetail(accountId = accountId, memoId = memo.id, detail = newDetail, updatedAt = updatedAt)
@@ -210,10 +215,10 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-2bb3318d-a7ae-465e-a13c-2da99e6656a5 웹 항목의 제목·설명·URL·요청 헤더 수정은 웹 연결을 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
-            val changedWeb = web.copy(detail = webDetail(), updatedAt = instant())
+            val changedWeb = web.copy(detail = webDetail(), updatedAt = Arb.secondPrecisionInstant().next())
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
 
             webTransaction.upsert(accountId = accountId, webList = listOf(changedWeb), webTagList = emptyList())
@@ -224,11 +229,11 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-94a23fe8-0bf0-4ac9-a31a-054af7f2740e TC-20e23ee0-6926-4285-9161-5d9bf265aff7 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
-            val removedAt = instant()
+            val removedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = true, updatedAt = removedAt)
 
@@ -246,10 +251,10 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-5f22cbde-10b7-419e-8eb6-ee33dc756ebb 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
-            val createdAt = instant()
+            val createdAt = Arb.secondPrecisionInstant().next()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             database.memoWebDao().upsert(
@@ -257,11 +262,11 @@ class AccountMemoWebTransactionImplTest :
                     memoId = memo.id,
                     webId = web.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
                     createdAt = createdAt,
                 ),
             )
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -279,7 +284,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-64fc31a2-f638-495f-a203-b0497272caef 삭제된 웹 항목은 메모의 연결된 웹 항목 조회에서 빠진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val keptWeb = web()
             val deletedWeb = web()
@@ -291,7 +296,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-424db2e8-0488-4798-9c86-fb32bbe220a6 연결된 웹 항목은 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val firstWeb = web().withTitle(title = "AAA")
             val secondWeb = web().withTitle(title = "BBB")
@@ -303,7 +308,7 @@ class AccountMemoWebTransactionImplTest :
 
         test("TC-b7b2713c-252a-4b85-97e2-c1c3d7429a43 웹 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val linkedMemo = memo().visible().withTitle(title = linkedTitle)
                 val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
                 val web = web()
@@ -322,7 +327,7 @@ class AccountMemoWebTransactionImplTest :
 
         test("TC-a16d63cf-a08b-4faa-815a-df62eed62338 메모 연결은 웹 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val memo = memo()
                 val linkedWeb = web().withTitle(title = linkedTitle)
                 val unlinkedWeb = web().withTitle(title = unlinkedTitle)
@@ -340,7 +345,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-7d1b07f5-5cd9-42a0-af88-7329d7a401fd 웹 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo().visible().copy(primaryTagId = null)
             val web = web()
             val tag = tag()
@@ -362,7 +367,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-dd93b454-76c7-4e98-958d-1e4f0df6c750 메모 연결은 태그로 웹 항목을 조회한 결과를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo().visible().copy(primaryTagId = null)
             val web = web()
             val tag = tag()
@@ -385,7 +390,7 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-168f8f3a-4788-4319-afe6-07846b958092 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val removedWeb = web()
             val keptWeb = web()
@@ -397,14 +402,14 @@ class AccountMemoWebTransactionImplTest :
                 memoId = memo.id,
                 webId = removedWeb.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingWebIdList(accountId = accountId) shouldBe listOf(removedWeb.id)
         }
 
         test("TC-168f8f3a-4788-4319-afe6-07846b958092 TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val keptWeb = web()
             val addedWeb = web()
@@ -417,15 +422,25 @@ class AccountMemoWebTransactionImplTest :
                 memoId = memo.id,
                 webId = addedWeb.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
             )
 
             findPendingWebIdList(accountId = accountId) shouldBe listOf(addedWeb.id)
         }
 
+        test("TC-16582126-e239-4cef-91b8-c8ac38486eda 웹 항목을 연결한 새 메모를 저장하면 그 연결이 업로드 대기 항목으로 조회된다") {
+            val accountId = Arb.kotlinUuid().next()
+            val memo = memo()
+            val webList = List(2) { web() }
+
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = webList)
+
+            findPendingWebIdList(accountId = accountId) shouldContainExactlyInAnyOrder webList.map { web -> web.id }
+        }
+
         test("TC-5da8e195-c179-4192-b20d-cbb725e4706a 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val now = instant()
+            val accountId = Arb.kotlinUuid().next()
+            val now = Arb.secondPrecisionInstant().next()
             val memo = memo().copy(updatedAt = now, createdAt = now)
             val web = web()
 
@@ -444,9 +459,9 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-7067ee0e-2618-406d-b8cf-0b2dc33996c8 저장이 실패하면 메모와 계정 연결, 태그·웹·장소 연결이 모두 남지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val tagId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val tagId = Arb.kotlinUuid().next()
+            val placeId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             val memoSyncDataSource = AccountMemoSyncLocalDataSourceImpl(database = database)
@@ -472,9 +487,9 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-cb209341-52cf-45ed-b471-8a5173e57284 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
-            val changedMemo = memo.copy(updatedAt = instant())
+            val changedMemo = memo.copy(updatedAt = Arb.secondPrecisionInstant().next())
             val web = web()
 
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -493,24 +508,24 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-3a637550-4db1-482e-91ac-6ff64ef6bd71 해제되지 않은 연결의 웹 항목만 메모의 웹 항목으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val keptWeb = web()
             val removedWeb = web()
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(keptWeb, removedWeb))
 
-            accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = removedWeb.id, isDeleted = true, updatedAt = instant())
+            accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = removedWeb.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
             getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptWeb)
         }
 
         test("TC-858a06f1-a316-4252-9a7f-831cc0ea6505 웹 항목을 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val memo = memo()
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = updatedAt)
 
@@ -529,14 +544,14 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-9c7bd95c-487e-455e-944e-6a97d5782f22 복사본에 원본의 해제되지 않은 웹 연결만 복사 시점으로 저장된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val source = memo()
             val keptWeb = web()
             val removedWeb = web()
             insertMemoWithWebList(accountId = accountId, memo = source, webList = listOf(keptWeb, removedWeb))
-            accountMemoWebTransaction.upsert(accountId = accountId, memoId = source.id, webId = removedWeb.id, isDeleted = true, updatedAt = instant())
+            accountMemoWebTransaction.upsert(accountId = accountId, memoId = source.id, webId = removedWeb.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
-            val copiedAt = instant()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceWebIdSet =
                 dataSource
@@ -573,13 +588,13 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-4864afda-0ca9-4c97-a5ea-031dd6d8cd72 삭제된 웹 항목을 가리키는 원본 연결도 복사본에 만들어진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val source = memo()
             val deletedWeb = web()
             insertMemoWithWebList(accountId = accountId, memo = source, webList = listOf(deletedWeb))
             webTransaction.upsert(accountId = accountId, webList = listOf(deletedWeb.copy(isDeleted = true)), webTagList = emptyList())
 
-            val copiedAt = fixtureMonkey.giveMeOne<Instant>()
+            val copiedAt = Arb.secondPrecisionInstant().next()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceWebIdSet =
                 dataSource
@@ -606,8 +621,8 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-8a8d0b58-a4de-45db-8417-f558aee6deb4 연결된 웹 항목의 제목은 메모 검색에 쓰이지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val accountId = Arb.kotlinUuid().next()
+            val query = "query-${Arb.kotlinUuid().next()}"
             val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
             val web = web().withTitle(title = "web-$query")
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -622,8 +637,8 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-8a8d0b58-a4de-45db-8417-f558aee6deb4 연결된 메모의 제목은 웹 검색에 쓰이지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val accountId = Arb.kotlinUuid().next()
+            val query = "query-${Arb.kotlinUuid().next()}"
             val memo = memo().visible().withTitle(title = "memo-$query")
             val web = web().let { value -> value.copy(detail = value.detail.copy(title = "web-title", description = "web-description", url = "https://example.com")) }
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
@@ -642,43 +657,46 @@ class AccountMemoWebTransactionImplTest :
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
         ).forEach { (label, change) ->
             test("TC-28ea6a21-60a4-41a4-aa24-6ac50f07241b $label 메모도 웹 연결을 만들 수 있다") {
-                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountId = Arb.kotlinUuid().next()
                 val memo = change(memo())
                 val web = web()
                 webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
                 memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-                accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = instant())
+                accountMemoWebTransaction.upsert(accountId = accountId, memoId = memo.id, webId = web.id, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next())
 
                 getWebList(accountId = accountId, memoId = memo.id) shouldBe listOf(web)
             }
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun memo(): MemoLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .memoLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun web(): WebLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebLocalEntity>()
-                .setExp(WebLocalEntity::detail, webDetail())
-                .setExp(WebLocalEntity::isDeleted, false)
-                .setExp(WebLocalEntity::updatedAt, instant())
-                .setExp(WebLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .webLocalEntity()
+                .next()
+                .copy(
+                    detail = webDetail(),
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun webDetail(): WebDetailLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<WebDetailLocalEntity>()
-                .setExp(WebDetailLocalEntity::headerList, emptyList<Nothing>())
-                .sample()
+            Arb
+                .webDetailLocalEntity()
+                .next()
+                .copy(
+                    headerList = emptyList<Nothing>(),
+                )
 
         private fun WebLocalEntity.withTitle(title: String): WebLocalEntity = copy(detail = detail.copy(title = title))
 
@@ -688,32 +706,32 @@ class AccountMemoWebTransactionImplTest :
         private fun MemoLocalEntity.visible(): MemoLocalEntity = copy(isFinished = false, isDeleted = false)
 
         private fun tag(): TagLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::isFinished, false)
-                .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, instant())
-                .setExp(TagLocalEntity::createdAt, instant())
-                .sample()
+            Arb
+                .tagLocalEntity()
+                .next()
+                .copy(
+                    isFinished = false,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun webTag(
             webId: Uuid,
             tagId: Uuid,
-        ): WebTagLocalEntity =
-            WebTagLocalEntity(
-                webId = webId,
+        ): EntityTagLocalEntity =
+            EntityTagLocalEntity(
+                entityId = webId,
                 tagId = tagId,
                 isDeleted = false,
-                updatedAt = instant(),
-                createdAt = instant(),
+                updatedAt = Arb.secondPrecisionInstant().next(),
+                createdAt = Arb.secondPrecisionInstant().next(),
             )
 
         private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
             load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
                 .data
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun memoWeb(
             memoId: Uuid,

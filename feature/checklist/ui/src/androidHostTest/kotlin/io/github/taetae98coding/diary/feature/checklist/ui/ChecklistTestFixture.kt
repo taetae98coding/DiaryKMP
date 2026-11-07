@@ -16,25 +16,23 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.core.testing.checklist.checklist
 import io.github.taetae98coding.diary.core.testing.checklist.checklistDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-
-internal val checklistTestFixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 
 internal fun testChecklistSummary(
     titlePrefix: String = "",
     checkedCount: Int = 1,
     totalCount: Int = 3,
 ): ChecklistSummary {
-    val detail = checklistTestFixtureMonkey.checklistDetail()
+    val detail = Arb.checklistDetail().next()
 
     return ChecklistSummary(
-        checklist = checklistTestFixtureMonkey.checklist(isDeleted = false, detail = detail.copy(title = titlePrefix + detail.title)),
+        checklist = Arb.checklist(isDeleted = false, detail = detail.copy(title = titlePrefix + detail.title)).next(),
         checkedCount = checkedCount,
         totalCount = totalCount,
     )
@@ -67,7 +65,7 @@ internal fun failedChecklistPagingData(): PagingData<ChecklistSummary> =
         data = emptyList(),
         sourceLoadStates =
             LoadStates(
-                refresh = LoadState.Error(IllegalStateException(checklistTestFixtureMonkey.giveMeOne<String>())),
+                refresh = LoadState.Error(IllegalStateException(Arb.string().next())),
                 prepend = LoadState.NotLoading(endOfPaginationReached = false),
                 append = LoadState.NotLoading(endOfPaginationReached = false),
             ),

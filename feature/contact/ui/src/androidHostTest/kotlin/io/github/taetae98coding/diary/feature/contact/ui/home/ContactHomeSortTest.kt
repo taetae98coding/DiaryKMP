@@ -1,20 +1,23 @@
 package io.github.taetae98coding.diary.feature.contact.ui.home
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,9 +47,13 @@ class ContactHomeSortTest {
         setContactHomeScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
-        composeRule.onAllNodesWithText(DEFAULT_NAME_SORT).onLast().assertExists()
-        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
-        composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertDoesNotExist()
+        composeRule
+            .onAllNodes(isSelectable())
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text } } shouldBe
+            listOf(DEFAULT_NAME_SORT, DEFAULT_RECENTLY_UPDATED_SORT)
+        composeRule.onAllNodes(isSelectable())[0].assertIsSelected()
+        composeRule.onAllNodes(isSelectable())[1].assertIsNotSelected()
     }
 
     @Test
@@ -96,7 +103,7 @@ class ContactHomeSortTest {
     }
 
     private fun setContactHomeScaffold(
-        contactPagingData: PagingData<Contact> = contactPagingDataOf(listOf(testContact(name = CONTACT_NAME))),
+        contactPagingData: PagingData<ContactListItem> = contactPagingDataOf(listOf(testContact(name = CONTACT_NAME))),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
         sortSheetState: DialogState = DialogState(),
         sort: ListSort = ListSort.NAME,
@@ -107,6 +114,7 @@ class ContactHomeSortTest {
             DiaryTheme {
                 ContactHomeScaffold(
                     onEvent = onEvent,
+                    onContactListEvent = {},
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
                     sortSheetState = sortSheetState,
                     sortProvider = { sort },
@@ -125,6 +133,5 @@ class ContactHomeSortTest {
         private const val DEFAULT_TITLE_SORT = "Title"
         private const val KOREAN_TITLE_SORT = "제목순"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
-        private const val DEFAULT_DEFAULT_SORT = "Default"
     }
 }

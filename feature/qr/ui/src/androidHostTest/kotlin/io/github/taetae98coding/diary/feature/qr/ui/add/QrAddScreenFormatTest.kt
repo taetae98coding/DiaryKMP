@@ -1,31 +1,26 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
 import androidx.compose.runtime.remember
-import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
-import androidx.compose.ui.test.assertIsOff
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
-import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
-import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
-import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
@@ -62,10 +57,28 @@ class QrAddScreenFormatTest {
         }
     }
 
-    private fun valueEmptyViewModel(): QrAddViewModel {
+    @Test
+    fun `TC-b8dc1118-cdec-49eb-8c8b-3e5a817b93cb 제목 없이 추가해도 되돌리기 기록은 유지된다`() {
         val useCase = mockk<AddQrUseCase>()
-        coEvery { useCase(parameter = any()) } returns Result.failure(QrValueEmptyException())
-        return qrAddViewModel(addQrUseCase = useCase)
+        coEvery { useCase(parameter = any()) } returns Result.failure(QrTitleBlankException())
+        setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
+        composeRule.onQrTextInput().performTextInput(HELLO)
+        composeRule.selectFormat(formatLabel = DEFAULT_FORMAT_LABEL, formatName = WIFI_FORMAT_NAME)
+        composeRule.onQrFieldInput(DEFAULT_NETWORK_NAME_LABEL).performTextInput(WIFI_SSID)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_UNDO_DESCRIPTION).assertIsEnabled()
+
+        clickAdd()
+
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.onNodeWithContentDescription(DEFAULT_UNDO_DESCRIPTION).assertIsEnabled()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UNDO_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.onNode(hasText(DEFAULT_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe TEXT_FORMAT_NAME
+        composeRule.qrCodeValue() shouldBe HELLO
     }
 
     private fun clickAdd() {
@@ -85,7 +98,11 @@ class QrAddScreenFormatTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { resultEventBus },
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -93,18 +110,14 @@ class QrAddScreenFormatTest {
     }
 
     private companion object {
-        const val URL = "https://a.com"
+        const val HELLO = "hello"
         const val WIFI_SSID = "home"
         const val WIFI_FORMAT_NAME = "Wi-Fi"
-        const val URL_FORMAT_NAME = "URL"
-        const val DEFAULT_HIDDEN_NETWORK_LABEL = "Hidden network"
+        const val TEXT_FORMAT_NAME = "Text"
         const val DEFAULT_NETWORK_NAME_LABEL = "Network name"
         const val DEFAULT_FORMAT_LABEL = "Format"
-        const val KOREAN_FORMAT_LABEL = "포맷"
-        const val DEFAULT_URL_LABEL = "URL"
         const val DEFAULT_ADD_DESCRIPTION = "Add QR code"
+        const val DEFAULT_UNDO_DESCRIPTION = "Undo"
         const val KOREAN_ADD_DESCRIPTION = "QR 추가"
-        const val PERIOD_SWITCH_LABEL = "날짜·시간"
-        const val COORDINATE_MESSAGE = "지도에서 위치를 선택하거나, 위도는 -90에서 90, 경도는 -180에서 180 사이의 숫자로 입력해 주세요."
     }
 }

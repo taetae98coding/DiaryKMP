@@ -19,6 +19,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,7 +43,7 @@ class FileAddScreenRetentionTest {
     fun `TC-cdbd80c4-3b49-42bc-b797-fba0b857ea56 화면이 재생성되어도 입력과 설명 미리보기 상태와 고른 파일을 유지한다`() {
         val screen = FileAddTestScreen()
         val tester = StateRestorationTester(composeRule)
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME).next())
 
         tester.setContent { screen.Content() }
         composeRule.waitForIdle()
@@ -56,7 +58,7 @@ class FileAddScreenRetentionTest {
     fun `TC-cdbd80c4-3b49-42bc-b797-fba0b857ea56 앱이 백그라운드에 다녀와도 입력과 설명 미리보기 상태와 고른 파일을 유지한다`() {
         val screen = FileAddTestScreen()
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME).next())
 
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
@@ -77,7 +79,7 @@ class FileAddScreenRetentionTest {
         // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
         var screen by mutableStateOf(FileAddTestScreen())
         val tester = StateRestorationTester(composeRule)
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME).next())
 
         tester.setContent { screen.Content() }
         composeRule.waitForIdle()
@@ -102,7 +104,7 @@ class FileAddScreenRetentionTest {
     @Test
     fun `TC-185abd98-d7e3-4611-aa6d-e4267923f407 화면을 떠났다가 다시 들어오면 처음 상태로 시작한다`() {
         var screen by mutableStateOf(FileAddTestScreen())
-        screen.pick(source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME))
+        screen.pick(source = Arb.fileUploadSource(name = FILE_NAME).next())
 
         composeRule.setContent { key(screen) { screen.Content() } }
         composeRule.waitForIdle()
@@ -117,7 +119,7 @@ class FileAddScreenRetentionTest {
 
     // 선택 도구의 결과는 다시 만들어진 화면의 onPick으로 전달된다. 전달 자체는 플랫폼 선택 도구 테스트가 확인한다.
     private fun assertPickedAfterRecreation(isProcessRecreated: Boolean) {
-        val source = fileAddFixtureMonkey.fileUploadSource(name = FILE_NAME)
+        val source = Arb.fileUploadSource(name = FILE_NAME).next()
         var screen by mutableStateOf(FileAddTestScreen())
         val tester = StateRestorationTester(composeRule)
 

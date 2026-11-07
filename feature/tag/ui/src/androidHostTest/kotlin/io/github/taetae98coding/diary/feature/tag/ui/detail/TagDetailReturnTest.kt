@@ -17,19 +17,31 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
+import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.contact.ContactListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.music.MusicListEffect
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.qr.QrListEffect
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
+import io.github.taetae98coding.diary.feature.tag.ui.tagContact
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tagMusic
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
+import io.github.taetae98coding.diary.feature.tag.ui.tagQr
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
@@ -55,6 +67,10 @@ class TagDetailReturnTest {
     private val memo = tagMemo(title = MEMO_TITLE)
     private val web = tagWeb(title = WEB_TITLE)
     private val place = tagPlace(title = PLACE_TITLE)
+    private val contact = tagContact(name = CONTACT_TITLE)
+    private val checklist = tagChecklist(title = CHECKLIST_TITLE)
+    private val music = tagMusic(title = MUSIC_TITLE)
+    private val qr = tagQr(title = QR_TITLE)
 
     @Before
     fun resetUiDispatcher() {
@@ -237,6 +253,218 @@ class TagDetailReturnTest {
         verify(exactly = 0) { requireNotNull(placeViewModelRef).restore(id = any()) }
     }
 
+    @Test
+    fun `TC-edf3173e-f6df-4ff7-8119-71c689fd43e6 연락처 추가에서 뒤로가면 연락처 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(CONTACT_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 상세 화면은 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-edf3173e-f6df-4ff7-8119-71c689fd43e6 연락처 상세가 닫히면 연락처 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+        waitForText(CONTACT_TITLE)
+
+        composeRule.onNodeWithText(CONTACT_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(CONTACT_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CONTACT_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(CONTACT_TITLE)
+        composeRule.onNodeWithText(CONTACT_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-6e82f86e-fdec-48eb-b316-1063cb3b8199 연락처 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CONTACT_TAB_DESCRIPTION)
+        waitForText(CONTACT_TITLE)
+
+        composeRule.onNode(hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(CONTACT_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        contactPagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        contactEffectFlow.tryEmit(ContactListEffect.Deleted(id = contact.contact.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CONTACT_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_CONTACT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(contactViewModelRef).restore(id = any()) }
+    }
+
+    @Test
+    fun `TC-d3c66547-7287-4a52-93bf-940ce1fabdcf 체크리스트 추가에서 뒤로가면 체크리스트 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(CHECKLIST_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 상세 화면은 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-d3c66547-7287-4a52-93bf-940ce1fabdcf 체크리스트 상세가 닫히면 체크리스트 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+        waitForText(CHECKLIST_TITLE)
+
+        composeRule.onNodeWithText(CHECKLIST_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(CHECKLIST_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_CHECKLIST_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(CHECKLIST_TITLE)
+        composeRule.onNodeWithText(CHECKLIST_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-779dda5b-da8e-4975-baa0-f5befb301e3d 체크리스트 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_CHECKLIST_TAB_DESCRIPTION)
+        waitForText(CHECKLIST_TITLE)
+
+        composeRule.onNode(hasTestTag(CHECKLIST_CARD_TEST_TAG) and hasText(CHECKLIST_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        checklistPagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        checklistEffectFlow.tryEmit(ChecklistListEffect.Deleted(id = checklist.checklist.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CHECKLIST_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_CHECKLIST_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(checklistViewModelRef).restore(id = any()) }
+    }
+
+    @Test
+    fun `TC-3f2d8487-f5f8-4d75-b2eb-e47e4de14374 곡 추가에서 뒤로가면 곡 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(MUSIC_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 상세 화면은 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-3f2d8487-f5f8-4d75-b2eb-e47e4de14374 곡 상세가 닫히면 곡 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+        waitForText(MUSIC_TITLE)
+
+        composeRule.onNodeWithText(MUSIC_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(MUSIC_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MUSIC_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(MUSIC_TITLE)
+        composeRule.onNodeWithText(MUSIC_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-a807e00e-3e24-4b47-9855-a9b00a2fb9bb 곡 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_MUSIC_TAB_DESCRIPTION)
+        waitForText(MUSIC_TITLE)
+
+        composeRule.onNode(hasTestTag(MUSIC_CARD_TEST_TAG) and hasText(MUSIC_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        musicPagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        musicEffectFlow.tryEmit(MusicListEffect.Deleted(id = music.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_MUSIC_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_MUSIC_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(musicViewModelRef).restore(id = any()) }
+    }
+
+    @Test
+    fun `TC-fccb952d-91ae-4828-a2b7-b5832a467381 QR 추가에서 뒤로가면 QR 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_QR_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(QR_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 상세 화면은 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-fccb952d-91ae-4828-a2b7-b5832a467381 QR 상세가 닫히면 QR 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_QR_TAB_DESCRIPTION)
+        waitForText(QR_TITLE)
+
+        composeRule.onNodeWithText(QR_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(QR_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(QR_TITLE)
+        composeRule.onNodeWithText(QR_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-4650188a-877b-40ba-afda-cfdd6f23aff1 QR 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_QR_TAB_DESCRIPTION)
+        waitForText(QR_TITLE)
+
+        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(QR_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        qrPagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        qrEffectFlow.tryEmit(QrListEffect.Deleted(id = qr.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_QR_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_QR_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(qrViewModelRef).restore(id = any()) }
+    }
+
     private fun waitForText(text: String) {
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
@@ -272,6 +500,10 @@ class TagDetailReturnTest {
             memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
             webPagingData = tagEntityPagingData(itemList = listOf(web)),
             placePagingData = tagEntityPagingData(itemList = listOf(place)),
+            contactPagingData = tagEntityPagingData(itemList = listOf(contact)),
+            checklistPagingData = tagEntityPagingData(itemList = listOf(checklist)),
+            musicPagingData = tagEntityPagingData(itemList = listOf(music)),
+            qrPagingData = tagEntityPagingData(itemList = listOf(qr)),
         )
 
         composeRule.setContent {
@@ -296,6 +528,14 @@ class TagDetailReturnTest {
                             navigateToWebDetail = { leaveTo(WEB_DETAIL) },
                             navigateToPlaceAdd = { leaveTo(PLACE_ADD) },
                             navigateToPlaceDetail = { leaveTo(PLACE_DETAIL) },
+                            navigateToContactAdd = { leaveTo(CONTACT_ADD) },
+                            navigateToContactDetail = { leaveTo(CONTACT_DETAIL) },
+                            navigateToChecklistAdd = { leaveTo(CHECKLIST_ADD) },
+                            navigateToChecklistDetail = { leaveTo(CHECKLIST_DETAIL) },
+                            navigateToMusicAdd = { leaveTo(MUSIC_ADD) },
+                            navigateToMusicDetail = { leaveTo(MUSIC_DETAIL) },
+                            navigateToQrAdd = { leaveTo(QR_ADD) },
+                            navigateToQrDetail = { leaveTo(QR_DETAIL) },
                         )
                     }
                 } else {
@@ -327,6 +567,26 @@ class TagDetailReturnTest {
         const val DEFAULT_WEB_DELETED_MESSAGE = "Web deleted."
         const val DEFAULT_PLACE_DELETED_MESSAGE = "Place deleted."
         const val DEFAULT_UNDO_ACTION = "Undo"
+        const val CONTACT_ADD = "ContactAdd"
+        const val CONTACT_DETAIL = "ContactDetail"
+        const val CONTACT_TITLE = "TagDetailReturnContact"
+        const val DEFAULT_CONTACT_ADD_DESCRIPTION = "Add contact"
+        const val DEFAULT_CONTACT_DELETED_MESSAGE = "Contact deleted."
+        const val CHECKLIST_ADD = "ChecklistAdd"
+        const val CHECKLIST_DETAIL = "ChecklistDetail"
+        const val CHECKLIST_TITLE = "TagDetailReturnChecklist"
+        const val DEFAULT_CHECKLIST_ADD_DESCRIPTION = "Add checklist"
+        const val DEFAULT_CHECKLIST_DELETED_MESSAGE = "Checklist deleted."
+        const val MUSIC_ADD = "MusicAdd"
+        const val MUSIC_DETAIL = "MusicDetail"
+        const val MUSIC_TITLE = "TagDetailReturnMusic"
+        const val DEFAULT_MUSIC_ADD_DESCRIPTION = "Add music"
+        const val DEFAULT_MUSIC_DELETED_MESSAGE = "Song deleted."
+        const val QR_ADD = "QrAdd"
+        const val QR_DETAIL = "QrDetail"
+        const val QR_TITLE = "TagDetailReturnQr"
+        const val DEFAULT_QR_ADD_DESCRIPTION = "Add QR code"
+        const val DEFAULT_QR_DELETED_MESSAGE = "QR code deleted."
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
     }
 }

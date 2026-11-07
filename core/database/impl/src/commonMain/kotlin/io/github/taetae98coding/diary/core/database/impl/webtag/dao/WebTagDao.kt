@@ -2,31 +2,31 @@ package io.github.taetae98coding.diary.core.database.impl.webtag.dao
 
 import androidx.room3.Dao
 import androidx.room3.Query
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
-import io.github.taetae98coding.diary.library.room3.dao.RoomDao
+import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.EntityTagDao
+import io.github.taetae98coding.diary.core.database.impl.webtag.entity.WebTagLocalEntity
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Dao
-internal interface WebTagDao : RoomDao<WebTagLocalEntity> {
+internal interface WebTagDao : EntityTagDao<WebTagLocalEntity> {
     @Query(
         """
         SELECT *
         FROM web_tag
-        WHERE web_id IN (:webIdList)
+        WHERE web_id IN (:entityIdList)
         """,
     )
-    suspend fun findByWebIdList(webIdList: List<Uuid>): List<WebTagLocalEntity>
+    override suspend fun findByEntityIdList(entityIdList: List<Uuid>): List<WebTagLocalEntity>
 
     @Query(
         """
         UPDATE web_tag
         SET is_deleted = :isDeleted, updated_at = :updatedAt
-        WHERE web_id = :webId AND tag_id = :tagId
+        WHERE web_id = :entityId AND tag_id = :tagId
         """,
     )
-    suspend fun updateDeleted(
-        webId: Uuid,
+    override suspend fun updateDeleted(
+        entityId: Uuid,
         tagId: Uuid,
         isDeleted: Boolean,
         updatedAt: Instant,

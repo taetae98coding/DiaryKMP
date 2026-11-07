@@ -25,6 +25,8 @@
     <string name="setting_navigate_up_button_content_description">Navigate up</string>
     <string name="setting_home_gemini_item_label">Gemini</string>
     <string name="setting_gemini_title">Gemini Settings</string>
+    <string name="setting_gemini_api_key_issue_button_content_description">Get API key</string>
+    <string name="setting_gemini_api_key_issue_open_failed_message">Couldn't open the page.</string>
     <string name="setting_gemini_api_key_label">API key</string>
     <string name="setting_gemini_api_key_show_button_content_description">Show API key</string>
     <string name="setting_gemini_api_key_hide_button_content_description">Hide API key</string>
@@ -54,4 +56,15 @@
     <string name="setting_file_choose_directory">Choose folder</string>
     <string name="setting_file_reset_directory">Reset to default location</string>
     <string name="setting_file_change_failed_message">Couldn't change the download location.</string>
+    <string name="setting_home_mcp_item_label">MCP</string>
+    <string name="setting_mcp_title">MCP Settings</string>
+    <string name="setting_mcp_connection_label">AI tool connection</string>
+    <string name="setting_mcp_connection_description">When on, AI tools on this Mac can view, add, edit, and delete your current account's memos and items without asking.</string>
+    <string name="setting_mcp_enabled_label">Use MCP server</string>
+    <string name="setting_mcp_state_off">Off</string>
+    <string name="setting_mcp_state_running">Running</string>
+    <string name="setting_mcp_state_address_in_use">Couldn't start because another program is using the address</string>
+    <string name="setting_mcp_state_start_failed">Couldn't start the connection</string>
+    <string name="setting_mcp_copy_address">Copy address</string>
+    <string name="setting_mcp_address_copied_message">Address copied.</string>
 </resources>

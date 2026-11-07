@@ -19,6 +19,8 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.nulls.shouldBeNull
@@ -104,6 +106,26 @@ class TimetableSelectTest {
     }
 
     @Test
+    fun `TC-27a8e99a-740b-4db7-a213-cd1fbc965d61 하루 형식에서 날짜 머리줄이나 종일 영역을 길게 누르면 표시 중인 날짜 하루가 전달된다`() {
+        setTimetable {
+            allDayItem(dateRange = september(day = 23)..september(day = 23), key = VACATION) { Text(text = VACATION) }
+        }
+
+        performLongPress(dayCenter(day = 23))
+        performUp()
+        performLongPress(
+            composeRule
+                .onNodeWithText(VACATION)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot.center,
+        )
+        performUp()
+
+        eventList shouldBe List(2) { TimetableEvent.SelectDate(dateRange = september(day = 23)..september(day = 23)) }
+    }
+
+    @Test
     fun `TC-d423318f-51a8-4ab4-8ffa-0f5bcd1b68e7 종일 영역의 아이템 위를 길게 누르면 그 자리의 날짜에서 선택이 시작된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
@@ -115,6 +137,7 @@ class TimetableSelectTest {
         performLongPress(
             composeRule
                 .onNodeWithText(VACATION)
+                .performScrollTo()
                 .fetchSemanticsNode()
                 .boundsInRoot.center,
         )
@@ -122,6 +145,43 @@ class TimetableSelectTest {
 
         eventList shouldBe listOf(TimetableEvent.SelectDate(dateRange = september(day = 22)..september(day = 22)))
         clickCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-f2211af7-80a6-4c9a-b98c-22c2f47bdc77 날짜 정보를 길게 누르면 날짜 선택이 시작된다`() {
+        var clickCount = 0
+        setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
+            dateInfo(date = september(day = 22)) {
+                Text(text = SUNNY, modifier = Modifier.clickable { clickCount += 1 })
+            }
+        }
+
+        performLongPress(
+            composeRule
+                .onNodeWithText(SUNNY)
+                .fetchSemanticsNode()
+                .boundsInRoot.center,
+        )
+        performUp()
+
+        eventList shouldBe listOf(TimetableEvent.SelectDate(dateRange = september(day = 22)..september(day = 22)))
+        clickCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-dae47069-23ca-4b6a-b451-63c38f4eeb44 날짜 정보를 짧게 누르면 기간 없이 선택 결과가 실행된다`() {
+        var clickCount = 0
+        setTimetable {
+            dateInfo(date = september(day = 23)) {
+                Text(text = SUNNY, modifier = Modifier.clickable { clickCount += 1 })
+            }
+        }
+
+        composeRule.onNodeWithText(SUNNY).performClick()
+        composeRule.waitForIdle()
+
+        clickCount shouldBe 1
+        eventList shouldBe emptyList()
     }
 
     @Test
@@ -474,6 +534,7 @@ private fun september(
 ): LocalDateTime = LocalDateTime(date = september(day = day), time = LocalTime(hour = hour, minute = minute))
 
 private const val MEETING = "Meeting"
+private const val SUNNY = "Sunny"
 private const val NINE_AM_LABEL = "9 AM"
 private const val TEN_AM_LABEL = "10 AM"
 private const val ELEVEN_AM_LABEL = "11 AM"

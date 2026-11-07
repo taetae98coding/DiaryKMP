@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.logger.console.impl
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.mockk
 import io.mockk.verify
 import java.io.ByteArrayOutputStream
@@ -22,9 +23,9 @@ class ConsoleDiaryLoggerDelegateTest :
             When("태그, 메시지, 오류 정보를 지정한 콘솔 로그를 공통 창구에 전달한다") {
                 Then("TC-35091adf-20d2-4d76-ac02-a9fa1da40b74 지정한 태그, 메시지와 오류 내용이 개발 콘솔에 함께 남는다") {
                     // 빈 문자열이 생성되면 포함 검증이 무의미해지므로 접두사로 비어 있지 않음을 보장한다.
-                    val tag = "tag${fixtureMonkey.giveMeOne<Int>()}"
-                    val message = "message${fixtureMonkey.giveMeOne<Int>()}"
-                    val errorMessage = "error${fixtureMonkey.giveMeOne<Int>()}"
+                    val tag = "tag${Arb.int().next()}"
+                    val message = "message${Arb.int().next()}"
+                    val errorMessage = "error${Arb.int().next()}"
 
                     val output =
                         captureConsole {
@@ -39,7 +40,7 @@ class ConsoleDiaryLoggerDelegateTest :
 
             When("태그와 오류 정보를 지정하지 않은 콘솔 로그를 공통 창구에 전달한다") {
                 Then("TC-b634fb28-d029-401a-93cb-a3949f6fcacc 로그를 만든 클래스의 이름이 태그로, 메시지가 오류 없이 개발 콘솔에 남는다") {
-                    val message = "message${fixtureMonkey.giveMeOne<Int>()}"
+                    val message = "message${Arb.int().next()}"
 
                     val output =
                         captureConsole {
@@ -53,7 +54,7 @@ class ConsoleDiaryLoggerDelegateTest :
 
             When("콘솔 로그가 아닌 종류의 로그를 공통 창구에 전달한다") {
                 Then("TC-a67642d9-cecb-41fc-ac49-94487ca64af5 기본 태그와 로그 내용이 읽을 수 있는 문자열로 개발 콘솔에 남는다") {
-                    val log = OtherLog(value = fixtureMonkey.giveMeOne<Int>())
+                    val log = OtherLog(value = Arb.int().next())
 
                     val output =
                         captureConsole {
@@ -71,7 +72,7 @@ class ConsoleDiaryLoggerDelegateTest :
 
             When("콘솔 로그를 전달한다") {
                 Then("지정한 태그, 메시지, 오류 정보가 그대로 기록하는 자리로 전달된다") {
-                    val log = ConsoleLog(tag = fixtureMonkey.giveMeOne<String>(), message = fixtureMonkey.giveMeOne<String>(), throwable = IllegalStateException())
+                    val log = ConsoleLog(tag = Arb.string().next(), message = Arb.string().next(), throwable = IllegalStateException())
 
                     delegate.log(log = log)
 
@@ -81,7 +82,7 @@ class ConsoleDiaryLoggerDelegateTest :
 
             When("콘솔 로그가 아닌 종류의 로그를 전달한다") {
                 Then("기본 태그와 로그 문자열이 오류 정보 없이 기록하는 자리로 전달된다") {
-                    val log = OtherLog(value = fixtureMonkey.giveMeOne<Int>())
+                    val log = OtherLog(value = Arb.int().next())
 
                     delegate.log(log = log)
 
@@ -91,9 +92,6 @@ class ConsoleDiaryLoggerDelegateTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private data class OtherLog(
             val value: Int,
         ) : DiaryLog

@@ -14,6 +14,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.library.fixture.alphanumericString
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,10 +35,10 @@ class EntityMemoFinishedListRestorationTest {
 
     @Test
     fun `TC-48d89365-1aa3-4c0b-90cc-e3cd69ab605f 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
         val memoList = List(MEMO_COUNT) { index -> entityMemo(title = "${titlePrefix}Index$index") }
         val sortFlow = MutableStateFlow(ListSortUiState())
-        val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
+        val viewModel = mockk<EntityMemoFinishedListController>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
@@ -76,7 +79,7 @@ class EntityMemoFinishedListRestorationTest {
 
     @Test
     fun `TC-ee4da67f-66c0-484c-ad0e-f7f24952c402 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
-        val titlePrefix = fixtureText(prefix = "FinishedMemo")
+        val titlePrefix = Arb.alphanumericString(prefix = "FinishedMemo").next()
         val memoList = List(MEMO_COUNT) { index -> entityMemo(title = "${titlePrefix}Index$index") }
         var nextViewModel = sortableViewModel(memoList = memoList)
         val restorationTester = StateRestorationTester(composeRule)
@@ -114,9 +117,9 @@ class EntityMemoFinishedListRestorationTest {
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
     }
 
-    private fun sortableViewModel(memoList: List<Memo>): EntityMemoFinishedListViewModel {
+    private fun sortableViewModel(memoList: List<Memo>): EntityMemoFinishedListController {
         val sortFlow = MutableStateFlow(ListSortUiState())
-        val viewModel = mockk<EntityMemoFinishedListViewModel>(relaxed = true)
+        val viewModel = mockk<EntityMemoFinishedListController>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
         every { viewModel.sortUiState } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }

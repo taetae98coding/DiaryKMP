@@ -4,8 +4,6 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.repository.FcmTokenRepository
 import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -18,9 +16,5 @@ public class SubmitFcmTokenUseCase internal constructor(
             is Account.Guest -> fcmTokenRepository.delete()
             is Account.User -> if (account.isSessionValid) fcmTokenRepository.upsert()
         }
-    }
-
-    override fun onFailure(throwable: Throwable) {
-        DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
     }
 }

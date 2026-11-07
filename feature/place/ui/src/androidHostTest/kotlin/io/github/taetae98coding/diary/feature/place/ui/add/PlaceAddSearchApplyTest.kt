@@ -8,15 +8,15 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.search.DEFAULT_QUERY_PLACEHOLDER
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.verify
 import org.junit.Rule
@@ -47,7 +47,7 @@ class PlaceAddSearchApplyTest {
     @Test
     fun `TC-bb58367c-7232-4e5e-b197-9a2727b22ecc 위도와 경도가 입력되어 있어도 검색에서 고른 장소의 좌표로 바뀐다`() {
         val state = composeRule.setPlaceAddScaffoldState()
-        val place = searchedPlace().copy(coordinate = fixtureMonkey.coordinateInFormPrecision())
+        val place = searchedPlace().copy(coordinate = Arb.coordinateInFormPrecision().next())
 
         composeRule.runOnIdle {
             state.latitudeState.setTextAndPlaceCursorAtEnd(TYPED_LATITUDE)
@@ -147,8 +147,10 @@ class PlaceAddSearchApplyTest {
     fun `TC-a1247e71-b57d-46fc-a6f7-9dedc700a2bb 장소를 고르지 않고 검색을 닫으면 입력 내용이 그대로 남는다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
+        val colorBefore = composeRule.runOnIdle { state.detail.color }
         composeRule.runOnIdle {
             state.titleState.setText(TYPED_TITLE)
+            state.descriptionState.setText(TYPED_DESCRIPTION)
             state.addressState.setTextAndPlaceCursorAtEnd(TYPED_ADDRESS)
             state.latitudeState.setTextAndPlaceCursorAtEnd(TYPED_LATITUDE)
             state.longitudeState.setTextAndPlaceCursorAtEnd(TYPED_LONGITUDE)
@@ -159,6 +161,8 @@ class PlaceAddSearchApplyTest {
         composeRule.runOnIdle {
             state.searchDialogState.isVisible shouldBe false
             state.detail.title shouldBe TYPED_TITLE
+            state.detail.description shouldBe TYPED_DESCRIPTION
+            state.detail.color shouldBe colorBefore
             state.detail.address shouldBe TYPED_ADDRESS
             state.detail.coordinate shouldBe Coordinate(latitude = TYPED_LATITUDE.toDouble(), longitude = TYPED_LONGITUDE.toDouble())
         }
@@ -185,8 +189,6 @@ class PlaceAddSearchApplyTest {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private const val BLANK_TITLE = "   "
         private const val SEARCHED_ADDRESS = "Searched Address"
         private const val SEARCH_QUERY = "query"

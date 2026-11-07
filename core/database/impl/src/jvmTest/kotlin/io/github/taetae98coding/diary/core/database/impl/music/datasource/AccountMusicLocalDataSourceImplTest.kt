@@ -3,20 +3,22 @@ package io.github.taetae98coding.diary.core.database.impl.music.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -59,39 +61,39 @@ class AccountMusicLocalDataSourceImplTest :
         suspend fun pagedMusics(accountId: Uuid): List<MusicLocalEntity> = dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT).pagedMusics()
 
         test("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 TC-7b479c76-f086-4f5e-9a12-08f8adcf789d 삭제되지 않은 계정의 곡만 제목 오름차순으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
             val deletedMusic = music().copy(isDeleted = true)
             val otherAccountMusic = music()
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic, deletedMusic))
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(otherAccountMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic, deletedMusic), musicTagList = emptyList())
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(otherAccountMusic), musicTagList = emptyList())
 
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
 
         test("TC-be003d7a-bf77-45fa-b27f-3acaf8bc248a 가수는 정렬 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE, artist = LAST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic), musicTagList = emptyList())
 
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
 
         test("TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 다른 계정의 곡만 저장되어 있으면 빈 목록으로 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()))
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()), musicTagList = emptyList())
 
             pagedMusics(accountId).shouldBeEmpty()
         }
 
         test("TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 요청한 크기만큼 페이지로 나누어 이어서 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val musicList = List(3) { index -> music(title = "$index-${fixtureMonkey.giveMeOne<String>()}") }
-            musicTransaction.upsert(accountId = accountId, musicList = musicList)
+            val accountId = Arb.kotlinUuid().next()
+            val musicList = List(3) { index -> music(title = "$index-${Arb.string().next()}") }
+            musicTransaction.upsert(accountId = accountId, musicList = musicList, musicTagList = emptyList())
 
             val pagingSource = dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT)
             val firstPage =
@@ -108,9 +110,9 @@ class AccountMusicLocalDataSourceImplTest :
         }
 
         test("TC-dd670125-228a-4168-9d06-dce88416c41d TC-28bdd9e9-db07-4b95-8037-f14354fc7f20 저장된 곡의 변화가 페이지 조회에 반영된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val music = music()
-            val renamedMusic = music.copy(detail = music.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
+            val renamedMusic = music.copy(detail = music.detail.copy(title = "renamed-${Arb.string().next()}"))
 
             suspend fun assertPageInvalidated(
                 expected: List<MusicLocalEntity>,
@@ -130,60 +132,61 @@ class AccountMusicLocalDataSourceImplTest :
 
             pagedMusics(accountId).shouldBeEmpty()
             assertPageInvalidated(expected = listOf(music)) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(music), musicTagList = emptyList())
             }
             assertPageInvalidated(expected = listOf(renamedMusic)) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic), musicTagList = emptyList())
             }
             assertPageInvalidated(expected = emptyList()) {
-                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic.copy(isDeleted = true)))
+                musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic.copy(isDeleted = true)), musicTagList = emptyList())
             }
         }
 
         test("TC-089834cb-924c-4e13-ab94-cf51b620a5eb 삭제 여부와 관계없이 계정의 곡을 대상 식별자로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val music = music()
             val deletedMusic = music().copy(isDeleted = true)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, deletedMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, deletedMusic), musicTagList = emptyList())
 
             dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe music
             dataSource.find(accountId = accountId, musicId = deletedMusic.id).first() shouldBe deletedMusic
         }
 
         test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 다른 계정의 곡은 대상 식별자로도 조회되지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val music = music()
-            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music))
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music), musicTagList = emptyList())
 
             dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe null
         }
 
         test("TC-9d5c8d13-b400-4c57-8c27-3a66a01e4e11 TC-0d30ddb5-93ad-4f30-8535-b378c6be519c 수정한 곡은 목록에 반영되고 삭제한 곡은 목록에서 사라진다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val music = music()
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
+            val accountId = Arb.kotlinUuid().next()
+            val music = music(title = FIRST_MUSIC_TITLE)
+            val otherMusic = music(title = MIDDLE_MUSIC_TITLE)
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, otherMusic), musicTagList = emptyList())
             val detail = music.detail.copy(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
 
             musicTransaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt)
 
-            pagedMusics(accountId) shouldBe listOf(music.copy(detail = detail, updatedAt = updatedAt))
+            pagedMusics(accountId) shouldBe listOf(otherMusic, music.copy(detail = detail, updatedAt = updatedAt))
 
-            musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = instant())
+            musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
 
-            pagedMusics(accountId).shouldBeEmpty()
+            pagedMusics(accountId) shouldBe listOf(otherMusic)
         }
 
         test("TC-5f1a7f9a-2311-4d3f-9cbc-25cba566c9a0 실행 취소한 곡은 제목 오름차순에 맞는 자리로 다시 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val middleMusic = music(title = MIDDLE_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic))
-            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = instant())
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic), musicTagList = emptyList())
+            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = Arb.secondPrecisionInstant().next())
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
-            val restoredAt = instant()
+            val restoredAt = Arb.secondPrecisionInstant().next()
 
             musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -191,13 +194,14 @@ class AccountMusicLocalDataSourceImplTest :
         }
 
         test("최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val latestMusic = music(title = LAST_MUSIC_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
             val sameUpdatedFirstMusic = music(title = FIRST_MUSIC_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val sameUpdatedLastMusic = music(title = MIDDLE_MUSIC_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(1_000))
             musicTransaction.upsert(
                 accountId = accountId,
                 musicList = listOf(sameUpdatedLastMusic, latestMusic, sameUpdatedFirstMusic),
+                musicTagList = emptyList(),
             )
 
             dataSource
@@ -206,10 +210,10 @@ class AccountMusicLocalDataSourceImplTest :
         }
 
         test("정렬을 고르지 않은 기본 순서는 제목순과 같다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
             val firstMusic = music(title = FIRST_MUSIC_TITLE)
             val lastMusic = music(title = LAST_MUSIC_TITLE)
-            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic))
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, firstMusic), musicTagList = emptyList())
 
             dataSource.page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT).pagedMusics() shouldBe
                 dataSource.page(accountId = accountId, sort = ListSortLocalEntity.TITLE).pagedMusics()
@@ -221,25 +225,20 @@ class AccountMusicLocalDataSourceImplTest :
         private const val LAST_MUSIC_TITLE = "ZebraMusic"
         private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun music(
-            link: String = "https://youtu.be/${fixtureMonkey.giveMeOne<String>()}",
-            title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
-            artist: String = "artist-${fixtureMonkey.giveMeOne<String>()}",
-            thumbnail: String = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg",
+            link: String = "https://youtu.be/${Arb.string().next()}",
+            title: String = "title-${Arb.string().next()}",
+            artist: String = "artist-${Arb.string().next()}",
+            thumbnail: String = "https://i.ytimg.com/vi/${Arb.string().next()}/hqdefault.jpg",
         ): MusicLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<MusicLocalEntity>()
-                .setExp(
-                    MusicLocalEntity::detail,
-                    MusicDetailLocalEntity(link = link, title = title, artist = artist, thumbnail = thumbnail),
-                ).setExp(MusicLocalEntity::isDeleted, false)
-                .setExp(MusicLocalEntity::updatedAt, instant())
-                .setExp(MusicLocalEntity::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .musicLocalEntity()
+                .next()
+                .copy(
+                    detail = MusicDetailLocalEntity(link = link, title = title, artist = artist, thumbnail = thumbnail),
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

@@ -1,14 +1,17 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrRemoteEntity
 import io.github.taetae98coding.diary.core.testing.qr.localQr
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.uuid.Uuid
@@ -47,7 +50,7 @@ class SyncWorkQrTest :
         }
 
         test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 삭제된 QR도 삭제 상태로 업로드된다") {
-            val qrList = listOf(fixtureMonkey.localQr(isDeleted = true), fixtureMonkey.localQr(isDeleted = false))
+            val qrList = listOf(Arb.localQr(isDeleted = true).next(), Arb.localQr(isDeleted = false).next())
             val context = context(qrList = qrList)
             val requests = mutableListOf<List<QrRemoteEntity>>()
             coEvery { context.qrRemoteDataSource.push(any()) } coAnswers {
@@ -82,7 +85,7 @@ class SyncWorkQrTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-73f30279-c2bc-4cc8-afd7-41dad8268fc5 QR 업로드가 실패하면 업로드 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(qrList = qrs(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.qrRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -100,7 +103,7 @@ class SyncWorkQrTest :
                     tagList = tags(size = 1),
                     qrList = qrs(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -120,7 +123,7 @@ class SyncWorkQrTest :
                     musicList = musics(size = 201),
                     qrList = qrs(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val tagRequests = mutableListOf<Int>()
             val placeRequests = mutableListOf<Int>()
             val webRequests = mutableListOf<Int>()
@@ -171,8 +174,8 @@ class SyncWorkQrTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 QR만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.qrSyncLocalDataSource.readPendingList(accountId = otherAccountId)

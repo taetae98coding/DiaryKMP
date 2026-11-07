@@ -3,12 +3,12 @@ package io.github.taetae98coding.diary.data.web.repository
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebTransaction
-import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toEntityTagLocalList
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
@@ -65,16 +65,7 @@ internal class AccountWebRepositoryImpl(
         accountWebTransaction.upsert(
             accountId = account.id,
             webList = listOf(web.toLocal()),
-            webTagList =
-                tagIdSet.map { tagId ->
-                    WebTagLocalEntity(
-                        webId = web.id,
-                        tagId = tagId,
-                        isDeleted = false,
-                        updatedAt = web.updatedAt,
-                        createdAt = web.createdAt,
-                    )
-                },
+            webTagList = tagIdSet.toEntityTagLocalList(entityId = web.id, updatedAt = web.updatedAt, createdAt = web.createdAt),
         )
     }
 

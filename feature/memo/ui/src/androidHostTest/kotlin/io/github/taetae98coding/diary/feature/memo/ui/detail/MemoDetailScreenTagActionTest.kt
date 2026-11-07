@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -12,6 +15,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
+import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.shouldBe
@@ -93,15 +97,23 @@ class MemoDetailScreenTagActionTest {
     }
 
     @Test
-    fun `TC-56f753c7-fccd-447c-a3bf-3a875a383274 태그 변경이 저장에 반영되지 않으면 저장된 태그를 그대로 표시한다`() {
-        val workTag = testTag(title = WORK_TAG_TITLE)
+    fun `TC-56f753c7-fccd-447c-a3bf-3a875a383274 태그 변경이 저장에 반영되지 않으면 안내 없이 저장된 태그와 대표 태그를 그대로 표시한다`() {
+        val storedTag = testTag(title = WORK_TAG_TITLE)
+        val otherTag = testTag(title = EXERCISE_TAG_TITLE)
+        val tagViewModel = memoDetailTagViewModel(tagList = listOf(storedTag, otherTag), selectedTagList = listOf(storedTag), primaryTagId = storedTag.id)
 
-        composeRule.setMemoDetailTagScreen(tagList = listOf(workTag))
+        composeRule.setMemoDetailTagScreen(tagViewModel = tagViewModel)
         composeRule.openMemoDetailTagPicker()
-        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
         composeRule.closeDialogByBack()
+        composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        verify(exactly = 1) { tagViewModel.selectTag(tagId = otherTag.id) }
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
+        composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss)).assertCountEquals(0)
     }
 
     @Test

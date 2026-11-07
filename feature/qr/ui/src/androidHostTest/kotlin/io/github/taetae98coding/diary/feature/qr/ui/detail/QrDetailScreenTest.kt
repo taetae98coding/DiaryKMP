@@ -43,9 +43,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverride
+import io.github.taetae98coding.diary.compose.map.DiaryMapContentOverrideScope
+import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.map.LocalDiaryMapContentOverride
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.compose.qr.QrCodeValueKey
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.QR_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.descriptionInputText
@@ -56,19 +63,20 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onTitleInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrCodeValue
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeValueKey
+import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -113,7 +121,7 @@ class QrDetailScreenTest {
         val fake = setScreen()
 
         caseList.forEach { fillCase ->
-            val detail = qrTestFixtureMonkey.qrDetail(value = fillCase.value)
+            val detail = Arb.qrDetail(value = fillCase.value).next()
             fake.reload(detail = detail)
 
             composeRule.onNode(screenTitle(detail.title), useUnmergedTree = true).assertExists()
@@ -151,13 +159,15 @@ class QrDetailScreenTest {
     }
 
     @Test
-    fun `TC-c78bde66-c00f-42df-ae30-01628f3e911e 화면에는 정해진 탭, 입력과 동작만 둔다`() {
-        setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
+    fun `TC-549da963-ebd8-467c-995f-f71e1836c83c 화면에는 정해진 탭, 입력과 동작만 둔다`() {
+        setScreen(detail = Arb.qrDetail(description = Arb.nonBlankString().next(), value = HELLO).next())
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
-        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB) + INFO_INPUT_CONTROL_LIST
+        // 태그 입력의 추가 칩은 내용 설명 대신 글자로 이름을 드러내므로 이름 없는 버튼 하나로 센다.
+        composeRule.buttonNameList() shouldContainExactlyInAnyOrder listOf(NAVIGATE_UP, UNDO, SCAN, DELETE, UPDATE, INFO_TAB, QR_TAB, "") + INFO_INPUT_CONTROL_LIST
+        composeRule.onNodeWithText(TAG_INPUT_LABEL).assertExists()
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.waitForIdle()
         composeRule.onNodeWithText(FORMAT_LABEL, useUnmergedTree = true).assertExists()
@@ -165,8 +175,8 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-1707fd4b-403e-4afa-88c2-d5a581961b6c 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
-        val storedDescription = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
+        val storedDescription = Arb.nonBlankString().next()
         val detail = QrDetail(title = storedTitle, description = storedDescription, value = HELLO)
         val caseList: List<Pair<() -> Unit, Boolean>> =
             listOf(
@@ -195,7 +205,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-6eac81d7-9218-4b4d-a57e-205557922e2e 수정에 성공하면 화면과 입력을 유지하고 성공 피드백을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         every { fake.viewModel.update(detail = any()) } answers {
@@ -244,7 +254,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-69797177-9c6a-4a07-9ba0-c2b3456f28cb 수정에 실패하면 안내 없이 입력을 유지하고 다시 시도할 수 있다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO)).let { fake ->
             composeRule.onTitleInput().performTextReplacement(editedTitle)
@@ -264,8 +274,8 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-71f45fb1-578c-4bd8-a9ed-beff96864cb0 제목을 비운 채 수정하면 기존 제목이 유지되고 수정 동작이 계속 제공된다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
-        val storedDescription = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
+        val storedDescription = Arb.nonBlankString().next()
         val editedDescription = editedText()
         val detail = QrDetail(title = storedTitle, description = storedDescription, value = HELLO)
         val fake = setScreen(detail = detail)
@@ -292,7 +302,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-153eb53d-f3c0-40fc-90e8-dad2749d8e37 QR 값이 비어 있으면 QR 탭에서 선택한 포맷의 첫 입력을 알린다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = EXAMPLE_URL))
         every { fake.viewModel.update(detail = any()) } answers { fake.effect.trySend(QrDetailEffect.ValueEmpty) }
@@ -360,7 +370,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-3dfc9b71-b8a2-462d-a87b-22aa53d6755f QrScan 화면에서 읽은 값을 받으면 QR 값을 바꾸고 수정 동작을 제공한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val resultEventBus = ResultEventBus()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO), resultEventBus = resultEventBus)
 
@@ -377,7 +387,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-b7d6ac5a-9a5f-40a2-8c32-dff664e6c913 되돌리기는 저장된 QR을 바꾸지 않고 입력만 되돌린다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
         composeRule.onQrFieldInput(NETWORK_NAME_LABEL).performTextInput("home")
@@ -397,7 +407,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-0aadb52b-f4a6-4bc0-8a09-5c9199f61191 삭제에 성공하면 확인을 묻지 않고 QrHome 화면으로 돌아간다`() {
         var navigateUpCount = 0
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
         every { fake.viewModel.delete() } answers { fake.effect.trySend(QrDetailEffect.DeleteSucceeded) }
 
@@ -433,7 +443,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 제목이 다른 경로에서 바뀌면 화면 제목만 갱신한다`() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val otherTitle = otherText()
         val fake = setScreen(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
@@ -453,7 +463,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-ff23013a-f4c3-484d-b4e7-e8207ea7ae8d 뒤로가면 수정하지 않은 채 돌아간다`() {
         var navigateUpCount = 0
-        val detail = qrTestFixtureMonkey.qrDetail()
+        val detail = Arb.qrDetail().next()
         val fake = setScreen(detail = detail, navigateUp = { navigateUpCount += 1 })
 
         listOf(INFO_TAB_INDEX, QR_TAB_INDEX).forEachIndexed { index, tab ->
@@ -500,7 +510,7 @@ class QrDetailScreenTest {
     @Test
     fun `TC-3d388656-9d46-429c-9229-d050d997a570 앱이 백그라운드에 다녀와도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
         val editedTitle = editedText()
-        val fake = FakeViewModel(detail = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO))
+        val fake = FakeViewModel(detail = QrDetail(title = Arb.nonBlankString().next(), description = "", value = HELLO))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
@@ -530,7 +540,7 @@ class QrDetailScreenTest {
     // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 QR의 화면을 다시 구성한다.
     @Test
     fun `TC-c4da1b3a-7069-4be3-a2e4-8f62fa9ae5ea 앱을 다시 실행해 진입하면 수정 중이던 내용을 복원하지 않는다`() {
-        val stored = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO)
+        val stored = QrDetail(title = Arb.nonBlankString().next(), description = "", value = HELLO)
         val firstLaunch = FakeViewModel(detail = stored)
         var launchCount by mutableIntStateOf(0)
         composeRule.setContent {
@@ -558,8 +568,36 @@ class QrDetailScreenTest {
         composeRule.titleInputText() shouldBe stored.title
     }
 
+    /**
+     * 지도 제공자의 실제 표시 요소는 만들 수 없으므로, 화면이 지도 기능에 지정하는 지점과 지도 위치로 확인한다.
+     */
     @Test
-    fun `TC-ef395c1e-6d9f-4591-b79e-17b19e041cec 저장된 일정 QR이 다른 경로에서 바뀌어도 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
+    fun `TC-bb6fb994-2c45-4036-8b09-adbcccb134ef 저장된 위치 QR을 열고 QR 탭으로 바꾸면 반영을 기다린 뒤 지도에 그 좌표의 지점을 표시한다`() {
+        var map: DiaryMapContentOverrideScope? = null
+        val mapContent =
+            object : DiaryMapContentOverride {
+                @Composable
+                override fun DiaryMapContentOverrideScope.MapContent() {
+                    map = this
+                }
+            }
+        val fake = FakeViewModel(detail = Arb.qrDetail(value = "geo:37.5665,126.978").next())
+        fake.uiState.value = fake.content().copy(defaultProvider = MapProvider.NAVER)
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent { CompositionLocalProvider(LocalDiaryMapContentOverride provides mapContent) { ScreenContent(viewModel = fake.viewModel) } }
+        composeRule.selectTab(QR_TAB_INDEX)
+
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        composeRule.runOnIdle {
+            checkNotNull(map).state.spot shouldBe expected
+            checkNotNull(map).state.coordinate shouldBe expected
+        }
+    }
+
+    @Test
+    fun `TC-91db2a1b-5095-412a-bc7d-9c1c4387e2ea 저장된 일정 QR이 다른 경로에서 바뀌어도 선택한 일정 포맷과 입력 중이던 일정 기간을 덮어쓰지 않는다`() {
         val stored =
             listOf(
                 "BEGIN:VEVENT",
@@ -568,7 +606,7 @@ class QrDetailScreenTest {
                 "DTEND;VALUE=DATE:20260102",
                 "END:VEVENT",
             ).joinToString(separator = "\n")
-        val fake = setScreen(detail = qrTestFixtureMonkey.qrDetail(value = stored))
+        val fake = setScreen(detail = Arb.qrDetail(value = stored).next())
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.onQrFieldInput(EVENT_TITLE_LABEL).performTextReplacement("b")
         composeRule.waitForIdle()
@@ -578,6 +616,7 @@ class QrDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.qrCodeValue() shouldBe edited
+        composeRule.selectedFormat() shouldBe EVENT_FORMAT
         composeRule.onQrFieldInput(EVENT_TITLE_LABEL).editableText() shouldBe "b"
     }
 
@@ -688,7 +727,7 @@ class QrDetailScreenTest {
     }
 
     private fun assertInputRetained() {
-        val storedTitle = qrTestFixtureMonkey.nonBlankString()
+        val storedTitle = Arb.nonBlankString().next()
         val editedTitle = editedText()
         val fake = FakeViewModel(detail = QrDetail(title = storedTitle, description = "", value = HELLO))
         val restorationTester = StateRestorationTester(composeRule)
@@ -765,7 +804,7 @@ class QrDetailScreenTest {
     private fun SemanticsNodeInteractionsProvider.selectedFormat(): String = onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList)).editableText()
 
     private fun setScreen(
-        detail: QrDetail = qrTestFixtureMonkey.qrDetail(),
+        detail: QrDetail = Arb.qrDetail().next(),
         registry: ActivityResultRegistry = respondingRegistry(isGranted = false),
         navigateUp: () -> Unit = {},
         navigateToScan: () -> Unit = {},
@@ -813,7 +852,11 @@ class QrDetailScreenTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    qrViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = detailTagScreenTestViewModel(),
                 )
             }
         }
@@ -830,7 +873,7 @@ class QrDetailScreenTest {
     }
 
     private class FakeViewModel(
-        detail: QrDetail = qrTestFixtureMonkey.qrDetail(),
+        detail: QrDetail = Arb.qrDetail().next(),
     ) {
         val uiState = MutableStateFlow<QrDetailUiState>(QrDetailUiState.Content(id = Uuid.random(), detail = detail))
         val effect = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
@@ -857,7 +900,9 @@ class QrDetailScreenTest {
         const val URL_LABEL = "URL"
         const val TEXT_FORMAT = "텍스트"
         const val EVENT_TITLE_LABEL = "일정 제목"
+        const val EVENT_FORMAT = "일정"
         const val APPENDED_TEXT = "2"
+        const val REFLECT_DELAY_MILLIS = 200L
 
         const val NAVIGATE_UP = "뒤로가기"
         const val UNDO = "되돌리기"
@@ -872,13 +917,14 @@ class QrDetailScreenTest {
         const val URL_EMPTY = "URL을 입력해 주세요."
 
         // 제목 입력과 설명 입력이 각자 갖는 지우기 버튼과 설명 입력의 입력·미리보기 전환이다.
+        const val TAG_INPUT_LABEL = "태그 선택"
         val INFO_INPUT_CONTROL_LIST: List<String> = listOf("지우기", "지우기", "입력", "미리보기")
         const val SCROLLABLE_QUALIFIERS = "ko-w480dp-h480dp"
         const val PERMISSION_DENIED = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."
 
-        fun editedText(): String = "edited-" + qrTestFixtureMonkey.nonBlankString()
+        fun editedText(): String = "edited-" + Arb.nonBlankString().next()
 
-        fun otherText(): String = "other-" + qrTestFixtureMonkey.nonBlankString()
+        fun otherText(): String = "other-" + Arb.nonBlankString().next()
 
         fun updateButton(): SemanticsMatcher = hasClickAction() and hasContentDescription(UPDATE)
 

@@ -1,9 +1,7 @@
 package io.github.taetae98coding.diary.domain.core
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.MAX_COLLECTION_SIZE
 import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.kotest.core.spec.style.BehaviorSpec
@@ -15,13 +13,14 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.list
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class FlowUseCaseTest :
     BehaviorSpec({
@@ -31,10 +30,10 @@ class FlowUseCaseTest :
 
             When("작업을 관찰한다") {
                 Then("TC-28ec08f7-b94c-40aa-a1b8-fd3d949171ad 실패한 작업의 이름이 태그로, 실패 원인이 오류 정보로 남는다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val failure = IllegalStateException("failure-" + Arb.string().next())
                     val useCase = FailingFlowUseCase(throwable = failure)
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                    useCase(parameter = Arb.string().next()).test {
                         awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
                         awaitComplete()
                     }
@@ -53,9 +52,9 @@ class FlowUseCaseTest :
 
             When("작업을 관찰한다") {
                 Then("TC-7d961071-3576-4a0b-8b28-21d4cf998249 실패 로그에 입력 값이 포함되지 않는다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val failure = IllegalStateException("failure-" + Arb.string().next())
                     val useCase = FailingFlowUseCase(throwable = failure)
-                    val parameter = "parameter-" + fixtureMonkey.giveMeOne<String>()
+                    val parameter = "parameter-" + Arb.string().next()
 
                     useCase(parameter = parameter).test {
                         awaitItem().shouldBeFailure()
@@ -73,11 +72,11 @@ class FlowUseCaseTest :
 
             When("작업을 한 번 관찰한다") {
                 Then("TC-6562f13e-51d3-4c9c-a1c9-604783c587e8 실패를 전달한 뒤 관찰이 끝나고 실패 로그는 한 번만 남는다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
-                    val values = fixtureMonkey.giveMeOne<List<String>>().ifEmpty { listOf(fixtureMonkey.giveMeOne<String>()) }
+                    val failure = IllegalStateException("failure-" + Arb.string().next())
+                    val values = Arb.list(Arb.string(), 0..MAX_COLLECTION_SIZE).next().ifEmpty { listOf(Arb.string().next()) }
                     val useCase = EmitThenFailFlowUseCase(values = values, throwable = failure)
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                    useCase(parameter = Arb.string().next()).test {
                         values.forEach { value -> awaitItem().shouldBeSuccess() shouldBe value }
                         awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
                         awaitComplete()
@@ -94,10 +93,10 @@ class FlowUseCaseTest :
 
             When("바깥 작업을 관찰한다") {
                 Then("TC-f8ba9a1c-4bbe-4a12-9e00-527a7a8fdcd6 실패는 결과로 전달되고 안쪽 작업 이름의 실패 로그 하나만 남는다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val failure = IllegalStateException("failure-" + Arb.string().next())
                     val useCase = RelayingFlowUseCase(inner = FailingFlowUseCase(throwable = failure))
 
-                    useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                    useCase(parameter = Arb.string().next()).test {
                         awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
                         awaitComplete()
                     }
@@ -117,11 +116,11 @@ class FlowUseCaseTest :
 
             When("같은 작업을 두 번 관찰한다") {
                 Then("TC-ffab2916-0d70-4877-b321-ec59083a40e9 실패 로그가 두 번 남는다") {
-                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val failure = IllegalStateException("failure-" + Arb.string().next())
                     val useCase = FailingFlowUseCase(throwable = failure)
 
                     repeat(times = 2) {
-                        useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                        useCase(parameter = Arb.string().next()).test {
                             awaitItem().shouldBeFailure()
                             awaitComplete()
                         }
@@ -139,7 +138,7 @@ class FlowUseCaseTest :
             When("작업을 관찰한다") {
                 Then("TC-ab12ade8-95b3-443e-ba83-0b1fda65f82a 실패 로그가 남지 않는다") {
                     val useCase = SuccessFlowUseCase()
-                    val parameter = fixtureMonkey.giveMeOne<String>()
+                    val parameter = Arb.string().next()
 
                     useCase(parameter = parameter).test {
                         awaitItem().shouldBeSuccess() shouldBe parameter
@@ -158,7 +157,7 @@ class FlowUseCaseTest :
             When("관찰 중이던 작업을 중단한다") {
                 Then("TC-9f2cf9fb-cb64-462f-a7e3-efc210cd71ce 실패 로그가 남지 않는다") {
                     val useCase = AwaitCancellationFlowUseCase()
-                    val parameter = fixtureMonkey.giveMeOne<String>()
+                    val parameter = Arb.string().next()
 
                     useCase(parameter = parameter).test {
                         awaitItem().shouldBeSuccess() shouldBe parameter

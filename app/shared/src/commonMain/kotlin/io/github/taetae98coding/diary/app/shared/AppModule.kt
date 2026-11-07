@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.app.shared
 
+import io.github.taetae98coding.diary.compose.credential.apple.AppleCredentialsConfig
 import io.github.taetae98coding.diary.core.google.network.impl.GooglePlacesConfig
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverOpenApiConfig
 import io.github.taetae98coding.diary.core.supabase.impl.SupabaseConfig
 import io.github.taetae98coding.diary.core.weather.network.impl.OpenWeatherApiConfig
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory

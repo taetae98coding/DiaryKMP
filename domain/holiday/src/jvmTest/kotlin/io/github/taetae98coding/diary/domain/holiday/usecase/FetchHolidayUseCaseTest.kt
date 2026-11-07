@@ -1,11 +1,8 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
@@ -17,19 +14,21 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FetchHolidayUseCaseTest :
     BehaviorSpec({
         Given("공휴일 동기화가 성공하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val repository = mockk<HolidayRepository>()
             val holidayList = listOf(holiday())
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns holidayList
@@ -46,8 +45,8 @@ class FetchHolidayUseCaseTest :
         }
 
         Given("공휴일 동기화가 실패하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val year = Arb.int().next()
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<HolidayRepository>()
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } throws failure
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
@@ -62,8 +61,8 @@ class FetchHolidayUseCaseTest :
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 공휴일 동기화가 특정 원인으로 실패하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val year = Arb.int().next()
+            val failure = IllegalStateException(Arb.string().next())
             val repository = mockk<HolidayRepository>()
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } throws failure
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
@@ -71,36 +70,17 @@ class FetchHolidayUseCaseTest :
             val reportList = recordCrashlyticsLog()
 
             When("특정 연도의 공휴일 동기화를 요청한다") {
-                useCase(parameter = year)
+                val result = useCase(parameter = year)
 
-                Then("TC-358d29f3-29e8-4f44-a03a-a5cfed370247 TC-117c1b06-4930-4a5e-acd3-d7895901b0b7 그 원인을 담은 오류 보고가 한 번 남는다") {
-                    val report = reportList.single()
-
-                    report.throwable shouldBeSameInstanceAs failure
-                    report.message shouldContain "FetchHolidayUseCase"
-                }
-            }
-        }
-
-        Given("오류 보고 기록 수단이 등록되어 있고 공휴일 동기화가 성공하도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val repository = mockk<HolidayRepository>()
-            coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns listOf(holiday())
-            val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
-
-            val reportList = recordCrashlyticsLog()
-
-            When("특정 연도의 공휴일 동기화를 요청한다") {
-                useCase(parameter = year)
-
-                Then("TC-75aeb7c0-ad3a-4462-a042-81c9e9193458 오류 보고가 남지 않는다") {
+                Then("TC-944eb4ec-3e92-4b1a-8495-a6bd0439c0f7 실패로 끝나고 오류 보고는 남지 않는다") {
+                    result.shouldBeFailure() shouldBeSameInstanceAs failure
                     reportList.shouldBeEmpty()
                 }
             }
         }
 
         Given("오류 보고 기록 수단이 등록되어 있고 원격이 공휴일을 제공하지 않도록 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
+            val year = Arb.int().next()
             val repository = mockk<HolidayRepository>()
             coEvery { repository.fetch(country = HolidayCountry.KOREA, year = year) } returns emptyList()
             val useCase = FetchHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
@@ -118,8 +98,8 @@ class FetchHolidayUseCaseTest :
         }
 
         Given("원격 조회 결과가 준비되어 있다") {
-            val year = fixtureMonkey.giveMeOne<Int>()
-            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val year = Arb.int().next()
+            val failure = IllegalStateException(Arb.string().next())
 
             When("받아오지 못해 실패한다") {
                 val repository = mockk<HolidayRepository>()
@@ -162,14 +142,14 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
 private fun holiday(): Holiday {
     val start =
         LocalDate(
-            year = 2000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 100u).toInt(),
-            month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-            day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+            year = 2000 + (Arb.int().next().toUInt() % 100u).toInt(),
+            month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+            day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
         )
 
     return Holiday(
-        name = fixtureMonkey.giveMeOne(),
-        isHoliday = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
+        isHoliday = Arb.boolean().next(),
         dateRange = start..start,
     )
 }

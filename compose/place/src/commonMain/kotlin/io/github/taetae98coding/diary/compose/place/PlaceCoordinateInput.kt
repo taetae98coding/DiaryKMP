@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.place
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -20,12 +21,14 @@ public fun PlaceCoordinateInput(
     label: String,
     modifier: Modifier = Modifier,
     state: TextFieldState = rememberTextFieldState(),
+    inputTransformation: InputTransformation? = null,
 ) {
     Card(modifier = modifier) {
         ClearTextField(
             state = state,
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = label) },
+            inputTransformation = inputTransformation,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.DecimalSigned),
             lineLimits = TextFieldLineLimits.SingleLine,
         )

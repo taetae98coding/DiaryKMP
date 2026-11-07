@@ -1,12 +1,11 @@
 package io.github.taetae98coding.diary.core.network.impl.file.transport
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -15,6 +14,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -43,9 +46,6 @@ import kotlin.math.absoluteValue
 import kotlin.time.Duration
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 // 한 번에 보내는 덩어리(8KiB)보다 커야 보낸 양이 여러 번 알려진다.
 private const val CONTENT_BYTES = 20_000
 
@@ -53,7 +53,7 @@ class SupabaseFunctionFileUploadTransportTest :
     FunSpec({
         test("TC-11549cf7-1e0e-4997-8f8c-b73c93f15246 고른 파일의 내용과 크기를 그대로 보내고 서버가 돌려준 파일 정보를 돌려준다") {
             val bytes = contentBytes()
-            val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
+            val response = Arb.fileRemoteEntity().next()
             val bodySlot = slot<Any>()
             val supabaseFunction = uploadFunction(bodySlot = bodySlot, response = response)
             val sentBytesList = mutableListOf<Long>()
@@ -63,10 +63,10 @@ class SupabaseFunctionFileUploadTransportTest :
                 transport.upload(
                     name = fileName(),
                     title = title(),
-                    description = description(),
+                    description = Arb.string().next(),
                     mimeType = mimeType(),
                     contentLength = bytes.size.toLong(),
-                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                    accountId = Arb.kotlinUuid().next(),
                     openContent = { Buffer().apply { write(bytes) } },
                     onSent = { sentBytes -> sentBytesList += sentBytes },
                 )
@@ -82,7 +82,7 @@ class SupabaseFunctionFileUploadTransportTest :
         }
 
         test("TC-7657ffc9-4037-4d7c-b233-3962e9398528 파일 이름과 형식을 본문에 담아 보내고 헤더에는 이름을 싣지 않는다") {
-            val name = "보고서 ${fixtureMonkey.giveMeOne<String>()}.pdf"
+            val name = "보고서 ${Arb.string().next()}.pdf"
             val headersSlot = slot<Headers>()
             val bodySlot = slot<Any>()
             val supabaseFunction = uploadFunction(bodySlot = bodySlot, headersSlot = headersSlot)
@@ -91,10 +91,10 @@ class SupabaseFunctionFileUploadTransportTest :
             transport.upload(
                 name = name,
                 title = title(),
-                description = description(),
+                description = Arb.string().next(),
                 mimeType = "application/pdf",
                 contentLength = 0,
-                accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                accountId = Arb.kotlinUuid().next(),
                 openContent = { Buffer() },
                 onSent = {},
             )
@@ -123,7 +123,7 @@ class SupabaseFunctionFileUploadTransportTest :
                     description = description,
                     mimeType = mimeType(),
                     contentLength = 0,
-                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                    accountId = Arb.kotlinUuid().next(),
                     openContent = { Buffer() },
                     onSent = {},
                 )
@@ -137,7 +137,7 @@ class SupabaseFunctionFileUploadTransportTest :
 
         test("TC-acb88bc0-2de2-4bd1-8a22-86c9c5caa91d 올리기 요청에는 시간 제한을 두지 않는다") {
             var requestTimeout: Duration? = null
-            val response = httpResponse(body = Json.encodeToString(fixtureMonkey.giveMeOne<FileRemoteEntity>()))
+            val response = httpResponse(body = Json.encodeToString(Arb.fileRemoteEntity().next()))
             val supabaseFunction = mockk<SupabaseFunction>()
             coEvery {
                 supabaseFunction(
@@ -156,10 +156,10 @@ class SupabaseFunctionFileUploadTransportTest :
             transport.upload(
                 name = fileName(),
                 title = title(),
-                description = description(),
+                description = Arb.string().next(),
                 mimeType = mimeType(),
                 contentLength = 0,
-                accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                accountId = Arb.kotlinUuid().next(),
                 openContent = { Buffer() },
                 onSent = {},
             )
@@ -184,10 +184,10 @@ class SupabaseFunctionFileUploadTransportTest :
                 transport.upload(
                     name = fileName(),
                     title = title(),
-                    description = description(),
+                    description = Arb.string().next(),
                     mimeType = mimeType(),
                     contentLength = 0,
-                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                    accountId = Arb.kotlinUuid().next(),
                     openContent = { Buffer() },
                     onSent = {},
                 )
@@ -214,10 +214,10 @@ class SupabaseFunctionFileUploadTransportTest :
                         transport.upload(
                             name = fileName(),
                             title = title(),
-                            description = description(),
+                            description = Arb.string().next(),
                             mimeType = mimeType(),
                             contentLength = 0,
-                            accountId = fixtureMonkey.giveMeOne<Uuid>(),
+                            accountId = Arb.kotlinUuid().next(),
                             openContent = { Buffer() },
                             onSent = {},
                         )
@@ -232,14 +232,14 @@ class SupabaseFunctionFileUploadTransportTest :
 
             transport.getContinuedUpload().first().shouldBeNull()
             transport.getContinuedUploadResult().toList().shouldBeEmpty()
-            transport.cancelContinuedUpload(exceptAccountId = fixtureMonkey.giveMeOne<Uuid>())
+            transport.cancelContinuedUpload(exceptAccountId = Arb.kotlinUuid().next())
         }
     })
 
 private suspend fun uploadFunction(
     bodySlot: io.mockk.CapturingSlot<Any>,
     headersSlot: io.mockk.CapturingSlot<Headers> = slot(),
-    response: FileRemoteEntity = fixtureMonkey.giveMeOne<FileRemoteEntity>(),
+    response: FileRemoteEntity = Arb.fileRemoteEntity().next(),
 ): SupabaseFunction {
     val httpResponse = httpResponse(body = Json.encodeToString(response))
     val supabaseFunction = mockk<SupabaseFunction>()
@@ -328,16 +328,14 @@ private suspend fun httpResponse(body: String): HttpResponse {
 
 // 파일 내용에 경계 구분에 쓰이는 줄바꿈과 대시를 섞어, 내용이 경계로 오인되지 않는지도 함께 확인한다.
 private fun contentBytes(): ByteArray =
-    generateSequence { "\r\n--chunk-${fixtureMonkey.giveMeOne<String>()}" }
+    generateSequence { "\r\n--chunk-${Arb.string().next()}" }
         .flatMap { value -> value.encodeToByteArray().asSequence() }
         .take(CONTENT_BYTES)
         .toList()
         .toByteArray()
 
-private fun fileName(): String = "file-${fixtureMonkey.giveMeOne<Int>()}.txt"
+private fun fileName(): String = "file-${Arb.int().next()}.txt"
 
-private fun title(): String = "title-${fixtureMonkey.giveMeOne<String>()}"
+private fun title(): String = "title-${Arb.string().next()}"
 
-private fun description(): String = fixtureMonkey.giveMeOne<String>()
-
-private fun mimeType(): String = "application/x-${fixtureMonkey.giveMeOne<Int>().absoluteValue}"
+private fun mimeType(): String = "application/x-${Arb.int().next().absoluteValue}"

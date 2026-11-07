@@ -20,9 +20,9 @@ public class AddMusicUseCase internal constructor(
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountMusicRepository: AccountMusicRepository,
     private val clock: Clock,
-) : UseCase<MusicDetail, Uuid>() {
-    override suspend fun execute(parameter: MusicDetail): Uuid {
-        val detail = parameter.validated()
+) : UseCase<AddMusicUseCase.Parameter, Uuid>() {
+    override suspend fun execute(parameter: Parameter): Uuid {
+        val detail = parameter.detail.validated()
 
         val account = getAccountUseCase.requireAccount()
         val now = clock.now()
@@ -38,6 +38,7 @@ public class AddMusicUseCase internal constructor(
         accountMusicRepository.upsert(
             account = account,
             music = music,
+            tagIdSet = parameter.tagIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -50,4 +51,9 @@ public class AddMusicUseCase internal constructor(
 
         return copy(link = link.toOptionalYoutubeVideoLinkOrThrow())
     }
+
+    public data class Parameter(
+        val detail: MusicDetail,
+        val tagIdSet: Set<Uuid>,
+    )
 }

@@ -22,15 +22,15 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -53,8 +53,8 @@ class MemoAddScreenRetentionTest {
 
     @Test
     fun `TC-57275378-6577-4ed4-8418-78a8eb3f56b0 화면이 다시 만들어져 복원되어도 입력한 제목, 설명, 컬러, 기간을 유지한다`() {
-        val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+        val title = "title-${Arb.string().next()}"
+        val description = "description-${Arb.string().next()}"
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
         val viewModels = screenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)
@@ -84,10 +84,10 @@ class MemoAddScreenRetentionTest {
 
     @Test
     fun `TC-91c79196-39ac-4ba8-964f-0e6c4f20ba85 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
-        val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
+        val title = "title-${Arb.string().next()}"
+        val description = "description-${Arb.string().next()}"
         val addMemoUseCase = mockk<AddMemoUseCase>()
-        coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(IllegalStateException(Arb.string().next()))
         val viewModels = screenTestRealViewModel(addMemoUseCase = addMemoUseCase)
         composeRule.setContent {
             MemoAddScreenTestTheme {
@@ -121,7 +121,6 @@ class MemoAddScreenRetentionTest {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
         private const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Memo added."
         private const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."

@@ -22,12 +22,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.checklist.ChecklistListEvent
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
 import io.github.taetae98coding.diary.feature.checklist.ui.actionNameList
-import io.github.taetae98coding.diary.feature.checklist.ui.card.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistPagingDataOf
 import io.github.taetae98coding.diary.feature.checklist.ui.failedChecklistPagingData
 import io.github.taetae98coding.diary.feature.checklist.ui.loadingChecklistPagingData
@@ -137,9 +138,9 @@ class ChecklistHomeScaffoldTest {
 
     @Test
     fun `TC-d3047469-1345-4506-aa74-4099ec6046b5 목록의 체크리스트를 선택하면 그 체크리스트의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
-        val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
+        val eventList = mutableListOf<ChecklistListEvent>()
         val summaryList = listOf(testChecklistSummary(), testChecklistSummary())
-        setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList), onEvent = eventList::add)
+        setChecklistHomeScaffold(pagingData = checklistPagingDataOf(summaryList), onChecklistListEvent = eventList::add)
 
         composeRule
             .onNode(
@@ -152,7 +153,7 @@ class ChecklistHomeScaffoldTest {
             ).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(ChecklistHomeScaffoldEvent.ClickChecklist(id = summaryList.last().checklist.id))
+        eventList shouldBe listOf(ChecklistListEvent.ClickChecklist(id = summaryList.last().checklist.id))
     }
 
     @Test
@@ -349,6 +350,7 @@ class ChecklistHomeScaffoldTest {
     private fun setChecklistHomeScaffold(
         pagingData: PagingData<ChecklistSummary> = checklistPagingDataOf(emptyList()),
         onEvent: (ChecklistHomeScaffoldEvent) -> Unit = {},
+        onChecklistListEvent: (ChecklistListEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         componentVisible: ChecklistHomeScaffoldComponentVisible = ChecklistHomeScaffoldComponentVisible(),
@@ -359,6 +361,7 @@ class ChecklistHomeScaffoldTest {
             DiaryTheme {
                 ChecklistHomeScaffold(
                     onEvent = onEvent,
+                    onChecklistListEvent = onChecklistListEvent,
                     snackbarHostState = snackbarHostState,
                     checklistPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = uiStateProvider,

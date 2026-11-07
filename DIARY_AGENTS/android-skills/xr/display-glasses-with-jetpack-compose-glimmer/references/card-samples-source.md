@@ -23,7 +23,11 @@ package androidx.xr.glimmer.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -35,10 +39,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.ActionCard
 import androidx.xr.glimmer.Button
+import androidx.xr.glimmer.ButtonGroup
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
+import androidx.xr.glimmer.ImageCard
+import androidx.xr.glimmer.LeadingImageCard
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.TrailingImageCard
 import androidx.xr.glimmer.list.GlimmerLazyColumn
 
 @Composable
@@ -47,15 +55,21 @@ fun CardSampleUsage() {
         item { CardSample() }
         item { CardWithTrailingIconSample() }
         item { CardWithTitleAndSubtitleAndLeadingIconSample() }
-        item { CardWithTitleAndHeaderSample() }
-        item { ActionCardWithTitleSample() }
-        item { CardWithTitleAndLeadingIconAndHeader() }
-        item { ActionCardWithTitleAndLeadingIconAndHeader() }
         item { CardWithLongText() }
         item { CardWithTitleAndSubtitleAndLeadingIconLongText() }
-        item { CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText() }
+        item { ActionCardWithTitleSample() }
+        item { ActionCardWithTitleAndLeadingIcon() }
+        item { ImageCardSample() }
+        item { ImageCardWithTitleAndSubtitleAndLeadingIconSample() }
+        item { LeadingImageCardSample() }
+        item { TrailingImageCardSample() }
+        item { NonFocusableCardWithButtonGroupSample() }
     }
 }
+
+// ---
+// Card samples
+// ---
 
 @Sampled
 @Composable
@@ -85,27 +99,6 @@ fun CardWithTitleAndSubtitleAndLeadingIconSample() {
 
 @Sampled
 @Composable
-fun CardWithTitleAndHeaderSample() {
-    Card(
-        title = { Text("Title") },
-        header = {
-            Image(MyHeaderImage, "Localized description", contentScale = ContentScale.FillWidth)
-        },
-    ) {
-        Text("This is a card with a title and header image")
-    }
-}
-
-@Sampled
-@Composable
-fun ActionCardWithTitleSample() {
-    ActionCard(action = { Button(onClick = {}) { Text("Send") } }, title = { Text("Title") }) {
-        Text("This is a card with a title and action")
-    }
-}
-
-@Sampled
-@Composable
 fun ClickableCardSample() {
     Card(onClick = {}) { Text("This is a card") }
 }
@@ -128,51 +121,6 @@ fun ClickableCardWithTitleAndSubtitleAndLeadingIconSample() {
         leadingIcon = { Icon(FavoriteIcon, "Localized description") },
     ) {
         Text("This is a card with a title, subtitle, and leading icon")
-    }
-}
-
-@Sampled
-@Composable
-fun ClickableCardWithTitleAndHeaderSample() {
-    Card(
-        onClick = {},
-        title = { Text("Title") },
-        header = {
-            Image(MyHeaderImage, "Localized description", contentScale = ContentScale.FillWidth)
-        },
-    ) {
-        Text("This is a card with a title and header image")
-    }
-}
-
-@Composable
-fun CardWithTitleAndLeadingIconAndHeader() {
-    Card(
-        title = { Text("Title") },
-        leadingIcon = { Icon(FavoriteIcon, "Localized description") },
-        header = {
-            Image(MyHeaderImage, "Localized description", contentScale = ContentScale.FillWidth)
-        },
-    ) {
-        Text("This is a card with a title, leading icon, and header image")
-    }
-}
-
-@Composable
-fun ActionCardWithTitleAndLeadingIconAndHeader() {
-    ActionCard(
-        action = {
-            Button(onClick = {}, trailingIcon = { Icon(FavoriteIcon, "Localized description") }) {
-                Text("Send")
-            }
-        },
-        title = { Text("Title") },
-        leadingIcon = { Icon(FavoriteIcon, "Localized description") },
-        header = {
-            Image(MyHeaderImage, "Localized description", contentScale = ContentScale.FillWidth)
-        },
-    ) {
-        Text("This is a card with a title, leading icon, header image, and action")
     }
 }
 
@@ -214,6 +162,130 @@ fun CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText() {
     }
 }
 
+@Sampled
+@Composable
+fun NonFocusableCardWithButtonGroupSample() {
+    Column(verticalArrangement = Arrangement.spacedBy(GlimmerTheme.componentSpacingValues.large)) {
+        Card(focusable = false) { Text("This is a non-focusable card with a button group") }
+        ButtonGroup(modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {}) { Text("Button 1") }
+            Button(onClick = {}) { Text("Button 2") }
+            Button(onClick = {}) { Text("Button 3") }
+        }
+    }
+}
+
+// ---
+// ActionCard samples
+// ---
+
+@Sampled
+@Composable
+fun ActionCardWithTitleSample() {
+    ActionCard(action = { Button(onClick = {}) { Text("Send") } }, title = { Text("Title") }) {
+        Text("This is an action card with a title")
+    }
+}
+
+@Composable
+fun ActionCardWithTitleAndLeadingIcon() {
+    ActionCard(
+        action = {
+            Button(onClick = {}, trailingIcon = { Icon(FavoriteIcon, "Localized description") }) {
+                Text("Send")
+            }
+        },
+        title = { Text("Title") },
+        leadingIcon = { Icon(FavoriteIcon, "Localized description") },
+    ) {
+        Text("This is an action card with a title and leading icon")
+    }
+}
+
+// ---
+// ImageCard samples
+// ---
+
+@Sampled
+@Composable
+fun ImageCardSample() {
+    ImageCard(
+        image = { Image(MyImage, "Localized description", contentScale = ContentScale.FillWidth) }
+    ) {
+        Text("This is an image card")
+    }
+}
+
+@Sampled
+@Composable
+fun ImageCardWithTitleAndSubtitleAndLeadingIconSample() {
+    ImageCard(
+        image = { Image(MyImage, "Localized description", contentScale = ContentScale.FillWidth) },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+        leadingIcon = { Icon(FavoriteIcon, "Localized description") },
+    ) {
+        Text("This is an image card with a title, subtitle, and leading icon")
+    }
+}
+
+@Sampled
+@Composable
+fun ClickableImageCardSample() {
+    ImageCard(
+        onClick = {},
+        image = { Image(MyImage, "Localized description", contentScale = ContentScale.FillWidth) },
+    ) {
+        Text("This is an image card")
+    }
+}
+
+@Sampled
+@Composable
+fun ClickableImageCardWithTitleAndSubtitleAndLeadingIconSample() {
+    ImageCard(
+        onClick = {},
+        image = { Image(MyImage, "Localized description", contentScale = ContentScale.FillWidth) },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+        leadingIcon = { Icon(FavoriteIcon, "Localized description") },
+    ) {
+        Text("This is an image card with a title, subtitle, and leading icon")
+    }
+}
+
+// ---
+// Leading/Trailing ImageCard samples
+// ---
+
+@Sampled
+@Composable
+fun LeadingImageCardSample() {
+    LeadingImageCard(
+        image = { Image(MyImage, "Localized description") },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+    ) {
+        Text("This is a card with a leading image.")
+    }
+}
+
+@Sampled
+@Composable
+fun TrailingImageCardSample() {
+    TrailingImageCard(
+        image = { Image(MyImage, "Localized description") },
+        title = { Text("Title") },
+        subtitle = { Text("Subtitle") },
+    ) {
+        Text("This is a card with a trailing image.")
+    }
+}
+
+// ---
+// Previews
+// ---
+
 @Preview
 @Composable
 private fun CardPreview() {
@@ -234,30 +306,6 @@ private fun CardWithTitleAndSubtitleAndLeadingIconPreview() {
 
 @Preview
 @Composable
-private fun CardWithTitleAndHeaderPreview() {
-    GlimmerTheme { CardWithTitleAndHeaderSample() }
-}
-
-@Preview
-@Composable
-private fun ActionCardWithTitlePreview() {
-    GlimmerTheme { ActionCardWithTitleSample() }
-}
-
-@Preview
-@Composable
-private fun CardWithTitleAndLeadingIconAndHeaderPreview() {
-    GlimmerTheme { CardWithTitleAndLeadingIconAndHeader() }
-}
-
-@Preview
-@Composable
-private fun ActionCardWithTitleAndLeadingIconAndHeaderPreview() {
-    GlimmerTheme { ActionCardWithTitleAndLeadingIconAndHeader() }
-}
-
-@Preview
-@Composable
 private fun CardWithLongTextPreview() {
     GlimmerTheme { CardWithLongText() }
 }
@@ -272,6 +320,48 @@ private fun CardWithTitleAndSubtitleAndLeadingIconLongTextPreview() {
 @Composable
 private fun CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongTextPreview() {
     GlimmerTheme { CardWithTitleAndSubtitleAndLeadingIconAndTrailingIconLongText() }
+}
+
+@Preview
+@Composable
+private fun NonFocusableCardWithButtonGroupPreview() {
+    GlimmerTheme { NonFocusableCardWithButtonGroupSample() }
+}
+
+@Preview
+@Composable
+private fun ActionCardWithTitlePreview() {
+    GlimmerTheme { ActionCardWithTitleSample() }
+}
+
+@Preview
+@Composable
+private fun ActionCardWithTitleAndLeadingIconPreview() {
+    GlimmerTheme { ActionCardWithTitleAndLeadingIcon() }
+}
+
+@Preview
+@Composable
+private fun ImageCardPreview() {
+    GlimmerTheme { ImageCardSample() }
+}
+
+@Preview
+@Composable
+private fun ImageCardWithTitleAndSubtitleAndLeadingIconPreview() {
+    GlimmerTheme { ImageCardWithTitleAndSubtitleAndLeadingIconSample() }
+}
+
+@Preview
+@Composable
+private fun LeadingImageCardPreview() {
+    GlimmerTheme { LeadingImageCardSample() }
+}
+
+@Preview
+@Composable
+private fun TrailingImageCardPreview() {
+    GlimmerTheme { TrailingImageCardSample() }
 }
 
 fun placeholderImagePainter(intrinsicSize: Size): Painter =
@@ -290,7 +380,7 @@ fun placeholderImagePainter(intrinsicSize: Size): Painter =
  * Placeholder image with a large intrinsic size, to simulate a real life use case of loading a
  * bitmap
  */
-private val MyHeaderImage = placeholderImagePainter(Size(1000f, 1000f))
+private val MyImage = placeholderImagePainter(Size(1000f, 1000f))
 ```
 
 <br />

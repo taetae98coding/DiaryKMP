@@ -1,18 +1,19 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.WebLogin
 import io.github.taetae98coding.diary.core.model.web.WebLoginCookie
 import io.github.taetae98coding.diary.core.model.web.WebLoginRestoreState
+import io.github.taetae98coding.diary.core.testing.web.webLoginCookie
 import io.github.taetae98coding.diary.domain.web.repository.WebLoginRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -24,7 +25,7 @@ import io.mockk.mockk
 class RestoreWebLoginUseCaseTest :
     BehaviorSpec({
         Given("세션 쿠키가 보관되어 있다") {
-            val savedLogin = WebLogin(sessionCookieList = listOf(fixtureMonkey.giveMeOne<WebLoginCookie>()))
+            val savedLogin = WebLogin(sessionCookieList = listOf(Arb.webLoginCookie().next()))
             val repository = mockk<WebLoginRepository>()
             coEvery { repository.readSavedLogin() } returns savedLogin
             coEvery { repository.upsertWebViewLogin(login = any()) } just Runs
@@ -51,7 +52,7 @@ class RestoreWebLoginUseCaseTest :
 
         Given("보관된 세션 쿠키가 하나도 없다") {
             val repository = mockk<WebLoginRepository>()
-            coEvery { repository.readSavedLogin() } returns WebLogin(siteUrlSet = setOf(fixtureMonkey.giveMeOne<String>()))
+            coEvery { repository.readSavedLogin() } returns WebLogin(siteUrlSet = setOf(Arb.string().next()))
             justRun { repository.setRestoring() }
             justRun { repository.unsetRestoring() }
             val useCase = RestoreWebLoginUseCase(webLoginRepository = repository)
@@ -69,7 +70,7 @@ class RestoreWebLoginUseCaseTest :
         }
 
         Given("보관한 세션 쿠키를 읽지 못한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val repository = mockk<WebLoginRepository>()
             coEvery { repository.readSavedLogin() } throws throwable
             justRun { repository.setRestoring() }
@@ -88,8 +89,4 @@ class RestoreWebLoginUseCaseTest :
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-    }
-}
+    })

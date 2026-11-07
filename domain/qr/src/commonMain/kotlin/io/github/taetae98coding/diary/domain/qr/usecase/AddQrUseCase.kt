@@ -20,16 +20,16 @@ public class AddQrUseCase internal constructor(
     private val requestSyncUseCase: RequestSyncUseCase,
     private val accountQrRepository: AccountQrRepository,
     private val clock: Clock,
-) : UseCase<QrDetail, Uuid>() {
-    override suspend fun execute(parameter: QrDetail): Uuid {
-        parameter.validate()
+) : UseCase<AddQrUseCase.Parameter, Uuid>() {
+    override suspend fun execute(parameter: Parameter): Uuid {
+        parameter.detail.validate()
 
         val account = getAccountUseCase.requireAccount()
         val now = clock.now()
         val qr =
             Qr(
                 id = Uuid.random(),
-                detail = parameter,
+                detail = parameter.detail,
                 isDeleted = false,
                 updatedAt = now,
                 createdAt = now,
@@ -38,6 +38,7 @@ public class AddQrUseCase internal constructor(
         accountQrRepository.upsert(
             account = account,
             qr = qr,
+            tagIdSet = parameter.tagIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -49,4 +50,9 @@ public class AddQrUseCase internal constructor(
         if (title.isBlank()) throw QrTitleBlankException()
         if (value.isEmpty()) throw QrValueEmptyException()
     }
+
+    public data class Parameter(
+        val detail: QrDetail,
+        val tagIdSet: Set<Uuid>,
+    )
 }

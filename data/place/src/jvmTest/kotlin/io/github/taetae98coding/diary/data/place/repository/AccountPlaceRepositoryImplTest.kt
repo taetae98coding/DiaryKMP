@@ -5,9 +5,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -16,13 +13,21 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
+import io.github.taetae98coding.diary.core.testing.place.place
+import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -35,13 +40,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class AccountPlaceRepositoryImplTest :
     FunSpec({
         test("TC-71726817-3873-40c5-8081-8856b2290f1c 장소를 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val place = place()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
@@ -56,9 +60,9 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-1c64c262-6223-452d-b72b-6ff5c108b7a5 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val place = place()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
             coEvery { transaction.upsert(accountId = account.id, placeList = listOf(place.toLocal()), placeTagList = emptyList()) } throws throwable
@@ -70,8 +74,8 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("장소 목록 페이지 조회는 검색어와 현재 계정으로 조회한 로컬 장소를 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val query = fixtureMonkey.giveMeOne<String>()
+            val account = Arb.accountUser().next()
+            val query = Arb.string().next()
             val localPlaceList = List(2) { localPlace() }
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
@@ -82,7 +86,7 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("선택한 장소 조회는 선택한 식별자를 그대로 전달하고 도메인 모델로 변환해 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localPlaceList = List(2) { localPlace() }
             val placeIdSet = localPlaceList.mapTo(mutableSetOf()) { local -> local.id }
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
@@ -94,8 +98,8 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-fca8ba60-d018-4c66-8347-83a664ce5fd9 계정과 보이는 영역을 기준으로 로컬 저장소에서 장소를 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+            val account = Arb.accountUser().next()
+            val bounds = Arb.coordinateBounds().next()
             val localPlaceList = List(2) { localPlace() }
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
@@ -115,7 +119,7 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-0fad4667-a470-48d7-b8b0-d67cafc909ae 계정과 대상 식별자를 기준으로 로컬 저장소에서 장소를 조회한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val localPlace = localPlace()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
@@ -126,8 +130,8 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-8df9d1f4-ce1e-47e2-9929-ea6b531d30ab 조회되지 않는 대상 장소는 없는 것으로 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val placeId = Arb.kotlinUuid().next()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
             every { localDataSource.find(accountId = account.id, placeId = placeId) } returns flowOf(null)
@@ -137,9 +141,9 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-a51d0a4a-f218-4b3d-99ce-f8da1f06eec6 수정 내용을 로컬 모델로 변환해 저장하고 반영 건수를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val place = place()
-            val updatedAt = instant()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
             coEvery {
@@ -172,9 +176,9 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제 상태를 저장하고 반영 건수를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val placeId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = instant()
+            val account = Arb.accountUser().next()
+            val placeId = Arb.kotlinUuid().next()
+            val updatedAt = Arb.secondPrecisionInstant().next()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
             coEvery {
@@ -207,10 +211,10 @@ class AccountPlaceRepositoryImplTest :
         }
 
         test("TC-6d7ec354-4dd3-4336-9f46-42ddff1469ee 수정과 삭제의 기기 저장이 실패하면 성공으로 다루지 않고 실패를 전달한다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val place = place()
-            val updatedAt = instant()
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val updatedAt = Arb.secondPrecisionInstant().next()
+            val throwable = IllegalStateException(Arb.string().next())
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
             val transaction = mockk<AccountPlaceTransaction>()
             coEvery {
@@ -240,24 +244,23 @@ class AccountPlaceRepositoryImplTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun place(): Place =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Place>()
-                .setExp(Place::updatedAt, instant())
-                .setExp(Place::createdAt, instant())
-                .sample()
+            Arb
+                .place()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun localPlace(): PlaceLocalEntity =
-            fixtureMonkey
-                .giveMeKotlinBuilder<PlaceLocalEntity>()
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
-                .sample()
-
-        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
+            Arb
+                .placeLocalEntity()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun pagingSource(placeList: List<PlaceLocalEntity>): PagingSource<Int, PlaceLocalEntity> =
             mockk(relaxed = true) {

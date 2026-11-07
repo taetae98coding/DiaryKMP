@@ -19,6 +19,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.core.testing.web.webPage
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_DELETE_DESCRIPTION
@@ -49,13 +50,14 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.setWebDetailMemoScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
-import io.github.taetae98coding.diary.feature.web.ui.detail.testWebPage
 import io.github.taetae98coding.diary.feature.web.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -148,7 +150,7 @@ class WebDetailTabTest {
 
     @Test
     fun `TC-e4094ff0-602d-4751-a390-50346cf882da 메모 탭에 다녀와도 수정 중이던 내용과 웹 페이지 상태가 유지된다`() {
-        val pageViewModel = memoScreenPageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val pageViewModel = memoScreenPageViewModel(pageUiState = WebDetailPageUiState.Content(page = Arb.webPage().next()))
         composeRule.setWebDetailMemoScreen(
             viewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
             memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = MEMO_TITLE)))),

@@ -226,6 +226,7 @@ private fun QrCoordinateInput(
                 .fillMaxWidth()
                 .focusRequester(fieldState.focusRequester),
         state = fieldState.textFieldState,
+        inputTransformation = state.inputTransformation(field),
     )
 }
 

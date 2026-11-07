@@ -1,10 +1,17 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
 import androidx.activity.ComponentDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -16,6 +23,8 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagSelectionUiState
+import io.github.taetae98coding.diary.feature.core.tag.EntityAddTagViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.place.ui.sendTagAddedResult
@@ -148,19 +157,39 @@ class PlaceAddTagAddTest {
 
     @Test
     fun `TC-e0845b94-fdc3-47b2-a91e-e9da40b9785c 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
-        val linkedTag = placeTestTag(title = WORK_TAG_TITLE)
-        val otherTag = placeTestTag(title = EXERCISE_TAG_TITLE)
-        setPlaceAddScreen(tagList = listOf(linkedTag, otherTag))
+        val firstLinkedTag = placeTestTag(title = WORK_TAG_TITLE)
+        val secondLinkedTag = placeTestTag(title = EXERCISE_TAG_TITLE)
+        setPlaceAddScreen(tagList = listOf(firstLinkedTag, secondLinkedTag))
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithText(WORK_TAG_TITLE).performClick()
+        dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TAG_ADD).performClick()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
-        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-51a413b9-ca9e-454e-afc7-6183017b3c1f 목록에서 태그 두 개를 차례로 누르면 목록에서 연결 상태로 표시되고 태그 입력에도 표시된다`() {
+        val firstTag = placeTestTag(title = WORK_TAG_TITLE)
+        val secondTag = placeTestTag(title = EXERCISE_TAG_TITLE)
+        setPlaceAddScreen(tagList = listOf(firstTag, secondTag))
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        dialogToggleWithText(WORK_TAG_TITLE).assertIsOn()
+        dialogToggleWithText(EXERCISE_TAG_TITLE).assertIsOn()
+        closeDialogByBack()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
     }
 
     @Test
@@ -210,7 +239,49 @@ class PlaceAddTagAddTest {
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
     }
 
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-03b0f5b5-7702-4dd1-8d82-3bc38c818593 태그를 추가한 뒤 앱을 종료하고 새로 진입하면 추가한 태그가 자동 선택되지 않는다`() {
+        val addedTag = placeTestTag(title = WORK_TAG_TITLE)
+        var launchCount by mutableIntStateOf(0)
+        var tagAddCount = 0
+        composeRule.setContent {
+            key(launchCount) {
+                val tagViewModel =
+                    remember {
+                        selectionTagViewModel(
+                            tagList = listOf(addedTag),
+                            tagPagingData = MutableStateFlow(loadedTagPagingDataOf(emptyList())),
+                        )
+                    }
+                PlaceAddScreenTestTheme(resultEventBus = remember { ResultEventBus() }) {
+                    PlaceAddScreen(
+                        addedResultRequestKey = null,
+                        navigateUp = {},
+                        navigateToTagAdd = { tagAddCount += 1 },
+                        navigateToTagDetail = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        initialCoordinate = null,
+                        addViewModel = screenTestViewModel(),
+                        searchViewModel = searchScreenTestViewModel(),
+                        tagViewModel = tagViewModel,
+                    )
+                }
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        tagAddCount shouldBe 1
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+    }
+
     private fun dialogNodeWithText(text: String): SemanticsNodeInteraction = composeRule.onNode(hasText(text) and hasAnyAncestor(isDialog()))
+
+    private fun dialogToggleWithText(text: String): SemanticsNodeInteraction = composeRule.onNode(isToggleable() and hasText(text) and hasAnyAncestor(isDialog()))
 
     @Test
     fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 TC-275e3447-faf3-4877-861a-c88b99f5dc75 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 추가 항목이 TagAdd 이동을 요청한다`() {
@@ -218,7 +289,7 @@ class PlaceAddTagAddTest {
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(loadedTagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
         every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
-        val tagViewModel = PlaceAddTagViewModel(initialTagId = null, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
+        val tagViewModel = EntityAddTagViewModel(initialTagId = null, pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
         var tagAddCount = 0
         setPlaceAddScreen(tagViewModel = tagViewModel, navigateToTagAdd = { tagAddCount += 1 })
 
@@ -241,7 +312,7 @@ class PlaceAddTagAddTest {
         tagPagingData: MutableStateFlow<PagingData<Tag>> = MutableStateFlow(loadedTagPagingDataOf(tagList)),
         navigateToTagAdd: () -> Unit = {},
         resultEventBus: ResultEventBus = ResultEventBus(),
-        tagViewModel: PlaceAddTagViewModel = selectionTagViewModel(tagList = tagList, tagPagingData = tagPagingData),
+        tagViewModel: EntityAddTagViewModel = selectionTagViewModel(tagList = tagList, tagPagingData = tagPagingData),
     ) {
         composeRule.setContent {
             PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
@@ -308,24 +379,24 @@ class PlaceAddTagAddTest {
         fun selectionTagViewModel(
             tagList: List<Tag>,
             tagPagingData: MutableStateFlow<PagingData<Tag>>,
-        ): PlaceAddTagViewModel {
-            val tagIdSet = MutableStateFlow(PlaceAddTagSelectionUiState())
+        ): EntityAddTagViewModel {
+            val tagIdSet = MutableStateFlow(EntityAddTagSelectionUiState())
             val uiState = MutableStateFlow(EntityTagInputUiState())
 
             fun reflect() {
                 uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value.tagIdSet })
             }
 
-            return mockk<PlaceAddTagViewModel>(relaxed = true).apply {
+            return mockk<EntityAddTagViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
                 every { this@apply.selectableTagPagingData } returns tagPagingData
                 every { this@apply.selectionUiState } returns tagIdSet
-                every { add(id = any()) } answers {
+                every { add(tagId = any()) } answers {
                     tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet + firstArg<Uuid>())
                     reflect()
                 }
-                every { remove(id = any()) } answers {
+                every { remove(tagId = any()) } answers {
                     tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet - firstArg<Uuid>())
                     reflect()
                 }

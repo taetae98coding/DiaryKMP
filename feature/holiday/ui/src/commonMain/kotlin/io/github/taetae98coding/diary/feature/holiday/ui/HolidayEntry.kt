@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeScreen
 import io.github.taetae98coding.diary.feature.holiday.ui.home.rememberHolidayHomeScaffoldState
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 
-public fun EntryProviderScope<ScreenNavKey>.holidayEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.holidayEntry(backStack: NavBackStack<ScreenNavKey>) {
     holidayHomeEntry(backStack = backStack)
 }
 

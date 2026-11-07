@@ -1,17 +1,16 @@
 package io.github.taetae98coding.diary.domain.place.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.location.CoordinateCircle
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.core.testing.location.coordinateBounds
 import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.core.testing.place.searchedPlace
 import io.github.taetae98coding.diary.domain.place.repository.GooglePlaceSearchRepository
 import io.github.taetae98coding.diary.domain.place.repository.NaverPlaceSearchRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
-import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
@@ -19,6 +18,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -44,7 +45,7 @@ class FetchSearchedPlaceUseCaseTest :
                             FetchSearchedPlaceUseCase.Parameter(
                                 query = query,
                                 provider = MapProvider.NAVER,
-                                bounds = fixtureMonkey.giveMeOne<CoordinateBounds>(),
+                                bounds = Arb.coordinateBounds().next(),
                             ),
                     ).shouldBeSuccess() shouldBe placeList
 
@@ -330,16 +331,14 @@ class FetchSearchedPlaceUseCaseTest :
         private const val OUT_OF_RANGE_LATITUDE = 91.0
         private val BLANK_QUERY_LIST = listOf("", " \t\n ")
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         // 끝에 공백 문자가 뽑히면 검색어를 다듬은 값과 달라지므로 다듬어도 그대로인 검색어를 만든다.
-        private fun query(): String = "검색어-${fixtureMonkey.nonBlankString().trim()}"
+        private fun query(): String = "검색어-${Arb.nonBlankString().next().trim()}"
 
         private fun searchedPlace(): SearchedPlace =
-            fixtureMonkey
-                .giveMeOne<SearchedPlace>()
-                .copy(coordinate = fixtureMonkey.coordinateInFormPrecision())
+            Arb
+                .searchedPlace()
+                .next()
+                .copy(coordinate = Arb.coordinateInFormPrecision().next())
 
         private fun googleParameter(
             query: String,

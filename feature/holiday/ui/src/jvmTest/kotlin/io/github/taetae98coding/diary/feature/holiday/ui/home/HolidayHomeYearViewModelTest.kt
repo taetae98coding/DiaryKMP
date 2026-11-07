@@ -3,17 +3,18 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHoliday
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
@@ -35,9 +36,6 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 class HolidayHomeYearViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -88,7 +86,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 val year = randomYear()
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = year - 1) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 coEvery { fetchHolidayUseCase(parameter = year) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year + 1) } returns Result.success(providedHolidayList())
 
@@ -200,7 +198,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year + 1) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase)
                 viewModel.fetch()
 
@@ -259,7 +257,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year) } returns Result.success(emptyList())
                 coEvery { fetchHolidayUseCase(parameter = year - 1) } returns
-                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase)
                 viewModel.fetch()
 
@@ -312,7 +310,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
                 coEvery { fetchHolidayUseCase(parameter = year - 1) } returnsMany
                     listOf(
-                        Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                        Result.failure(IllegalStateException(Arb.string().next())),
                         Result.success(providedHolidayList()),
                     )
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
@@ -426,7 +424,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 val year = randomYear()
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
                 every { getGoldenHolidayUseCase(parameter = any()) } returns
-                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = holidayHomeYearViewModel(year = year, getGoldenHolidayUseCase = getGoldenHolidayUseCase)
                 viewModel.fetch()
 
@@ -572,7 +570,7 @@ private fun holiday(year: Int): Holiday {
     val start = randomDate(year = year)
 
     return Holiday(
-        name = fixtureMonkey.giveMeOne(),
+        name = Arb.string().next(),
         isHoliday = true,
         dateRange = start..start,
     )
@@ -581,8 +579,8 @@ private fun holiday(year: Int): Holiday {
 private fun randomDate(year: Int): LocalDate =
     LocalDate(
         year = year,
-        month = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 12u).toInt(),
-        day = 1 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 28u).toInt(),
+        month = 1 + (Arb.int().next().toUInt() % 12u).toInt(),
+        day = 1 + (Arb.int().next().toUInt() % 28u).toInt(),
     )
 
-private fun randomYear(): Int = 2_000 + (fixtureMonkey.giveMeOne<Int>().toUInt() % 1_000u).toInt()
+private fun randomYear(): Int = 2_000 + (Arb.int().next().toUInt() % 1_000u).toInt()

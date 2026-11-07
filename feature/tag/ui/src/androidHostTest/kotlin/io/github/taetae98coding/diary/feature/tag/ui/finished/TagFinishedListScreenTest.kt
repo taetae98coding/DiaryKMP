@@ -4,17 +4,18 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,19 +97,19 @@ class TagFinishedListScreenTest {
         private const val TAG_TITLE = "TagFinishedListScreenTitle"
         private const val DEFAULT_TITLE = "Finished Tags"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun screenTestEnvironment(): ScreenTestEnvironment {
             val tag =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<Tag>()
-                    .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
-                    .setExp(Tag::isFinished, true)
-                    .setExp(Tag::isDeleted, false)
-                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                    .sample()
+                Arb
+                    .tag()
+                    .next()
+                    .copy(
+                        detail = Arb.tagDetail().next().copy(emoji = "", title = TAG_TITLE),
+                        isFinished = true,
+                        isDeleted = false,
+                        updatedAt = Arb.secondPrecisionInstant().next(),
+                        createdAt = Arb.secondPrecisionInstant().next(),
+                    )
             val viewModel = mockk<TagFinishedListViewModel>()
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 

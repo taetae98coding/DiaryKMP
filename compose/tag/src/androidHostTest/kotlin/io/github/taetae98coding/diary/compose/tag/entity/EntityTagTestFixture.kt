@@ -29,6 +29,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -239,7 +240,7 @@ internal fun hasClickLabel(label: String): SemanticsMatcher =
         node.config.getOrNull(SemanticsActions.OnClick)?.label == label
     }
 
-internal fun ComposeContentTestRule.entityTagPickerList(): SemanticsNodeInteraction = onNode(hasTestTag(ENTITY_TAG_PICKER_LIST_TEST_TAG))
+internal fun ComposeContentTestRule.entityTagPickerList(): SemanticsNodeInteraction = onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG))
 
 internal fun ComposeContentTestRule.dialogNodeWithText(text: String): SemanticsNodeInteraction = onNode(hasText(text) and hasAnyAncestor(isDialog()))
 

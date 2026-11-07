@@ -6,52 +6,62 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrEntryTest :
     FunSpec({
         test("TC-716e1825-c501-4fb2-80e9-4da12240bdbc QR 목록에서 이어 진입한 QR 추가는 목록·상세 배치의 상세 pane이다") {
-            val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey)
+            val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey())
 
-            metadataOf(backStack = backStack, key = QrAddNavKey).keys shouldBe detailPaneMetadataKeys
+            metadataOf(backStack = backStack, key = QrAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
         test("TC-3a2f6ba4-c418-49a0-b6eb-7905a5fca6c2 QR 목록에서 진입하지 않은 QR 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherNavKey, QrAddNavKey),
-                    listOf(QrHomeNavKey, OtherNavKey, QrAddNavKey),
+                    listOf(OtherNavKey, QrAddNavKey()),
+                    listOf(QrHomeNavKey, OtherNavKey, QrAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
-                metadataOf(backStack = backStack, key = QrAddNavKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = QrAddNavKey()).shouldBeEmpty()
             }
         }
 
         test("TC-0a34437d-40fb-40de-8b7a-53f3dc5293ae QR 목록에서 이어 진입한 QR 상세는 목록·상세 배치의 상세 pane이다") {
-            val key = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
-            val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey, key)
+            val key = QrDetailNavKey(id = Arb.kotlinUuid().next())
+            val backStack = listOf(OtherNavKey, QrHomeNavKey, QrAddNavKey(), key)
 
             metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
         }
 
         test("QR 목록에서 진입하지 않은 QR 상세는 목록·상세 배치에 참여하지 않는다") {
-            val key = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val key = QrDetailNavKey(id = Arb.kotlinUuid().next())
             val backStack = listOf(QrHomeNavKey, OtherNavKey, key)
 
             metadataOf(backStack = backStack, key = key).shouldBeEmpty()
+        }
+
+        test("TC-6754b037-6b49-4ffa-a02a-41c150e14f1b TagDetail QR 탭에서 이어진 QR 추가와 QR 상세는 목록·상세 배치에 참여하지 않는다") {
+            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
+            val addKey = QrAddNavKey(initialTagId = tagDetailKey.id)
+            val detailKey = QrDetailNavKey(id = Uuid.random())
+
+            metadataOf(backStack = tagDetailBackStack + addKey, key = addKey).shouldBeEmpty()
+            metadataOf(backStack = tagDetailBackStack + detailKey, key = detailKey).shouldBeEmpty()
         }
 
         test("QrHome 화면은 목록·상세 배치의 목록 pane이다") {

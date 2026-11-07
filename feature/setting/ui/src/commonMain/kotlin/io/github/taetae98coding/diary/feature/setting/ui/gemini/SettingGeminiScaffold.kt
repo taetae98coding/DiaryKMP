@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -26,6 +27,7 @@ import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGem
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelDialogHost
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
 import io.github.taetae98coding.diary.feature.setting.ui.previewGeminiSetting
+import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_api_key_issue_button_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_save_button_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_title
 import io.github.taetae98coding.diary.feature.setting.ui.setting_navigate_up_button_content_description
@@ -56,7 +58,13 @@ internal fun SettingGeminiScaffold(
                 onNavigateUp = { onEvent(SettingGeminiScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
-            )
+            ) {
+                IconAction(
+                    icon = DiaryTopBarIcon.KEY,
+                    contentDescription = stringResource(Res.string.setting_gemini_api_key_issue_button_content_description),
+                    onClick = { onEvent(SettingGeminiScaffoldEvent.ClickApiKeyIssue) },
+                )
+            }
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {

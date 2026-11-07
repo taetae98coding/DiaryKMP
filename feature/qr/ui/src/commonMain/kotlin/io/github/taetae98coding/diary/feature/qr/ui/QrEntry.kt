@@ -8,11 +8,13 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.result.LocalResultEventBus
+import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.domain.tag.EntityTagKind
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -26,10 +28,12 @@ import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScreen
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScreen
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
     qrHomeEntry(backStack = backStack)
     qrAddEntry(backStack = backStack)
     qrDetailEntry(backStack = backStack)
@@ -45,7 +49,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack
 
         QrHomeScreen(
             navigateUp = backStack::navigateUpFromQrHome,
-            navigateToAdd = { backStack.add(QrAddNavKey) },
+            navigateToAdd = backStack::navigateToQrAddFromHome,
             navigateToDetail = { id -> backStack.navigateToQrDetail(id = id) },
             componentVisibleProvider = { QrHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isQrAddOnDetailPane()) },
             qrViewModel = koinViewModel(),
@@ -61,13 +65,19 @@ internal fun qrHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<
         sceneKey = QrHomeNavKey,
         detailPlaceholder = {
             ListDetailPlaceholderStateProvider(listContentKey = QR_HOME_CONTENT_KEY) {
+                val tagAddRequestKey = rememberResultRequestKey()
+
                 QrAddScreen(
                     navigateUp = {},
                     navigateToScan = { backStack.add(QrScanNavKey) },
+                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    tagAddRequestKey = tagAddRequestKey,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = LocalResultEventBus.current,
                     componentVisibleProvider = { QrAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                    viewModel = koinViewModel(),
+                    addViewModel = koinViewModel(),
+                    tagViewModel = koinViewModel { parametersOf(null) },
                 )
             }
         },
@@ -76,16 +86,21 @@ internal fun qrHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<
 private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<QrAddNavKey>(
         metadata = { key -> backStack.qrListDetailPaneMetadata(key) },
-    ) {
+    ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+        val tagAddRequestKey = rememberResultRequestKey()
 
         QrAddScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToScan = { backStack.add(QrScanNavKey) },
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            viewModel = koinViewModel(),
+            addViewModel = koinViewModel(),
+            tagViewModel = koinViewModel { parametersOf(key.initialTagId) },
         )
     }
 }
@@ -95,14 +110,19 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(backStack: NavBackSta
         metadata = { key -> backStack.qrListDetailPaneMetadata(key) },
     ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+        val tagAddRequestKey = rememberResultRequestKey()
 
         QrDetailScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToScan = { backStack.add(QrScanNavKey) },
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
-            viewModel = koinViewModel { parametersOf(key.id) },
+            qrViewModel = koinViewModel { parametersOf(key.id) },
+            tagViewModel = koinViewModel { parametersOf(EntityTagKind.QR, key.id) },
         )
     }
 }

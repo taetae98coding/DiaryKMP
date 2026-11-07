@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.compose.core.preview.IconPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-internal fun CopyIcon(
+public fun CopyIcon(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
 ) {

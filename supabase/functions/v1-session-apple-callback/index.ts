@@ -13,7 +13,7 @@ const ALLOWED_WEB_ORIGINS = new Set(
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0),
 );
-const FORWARDED_FIELDS = ["id_token", "state", "error"] as const;
+const FORWARDED_FIELDS = ["id_token", "code", "state", "error"] as const;
 
 type ReturnTarget = { kind: "redirect"; uri: string } | { kind: "web"; origin: string };
 
@@ -63,6 +63,7 @@ function redirectResponse(uri: string, parameters: URLSearchParams): Response {
 function webResponse(origin: string, parameters: URLSearchParams): Response {
   const message = {
     idToken: parameters.get("id_token"),
+    code: parameters.get("code"),
     state: parameters.get("state"),
     error: parameters.get("error"),
   };

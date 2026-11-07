@@ -1,14 +1,15 @@
 package io.github.taetae98coding.diary.app.shared
 
+import io.github.taetae98coding.diary.compose.credential.CredentialsDispatcher
+import io.github.taetae98coding.diary.compose.credential.google.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDirectory
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
-import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraDispatcher
+import io.github.taetae98coding.diary.work.mcp.di.McpServerPort
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -42,6 +43,10 @@ internal class JvmAppModule {
     @Factory
     @CredentialsDispatcher
     fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Factory
+    @McpServerPort
+    fun providesMcpServerPort(): Int = BuildKonfig.MCP_SERVER_PORT
 
     @Single
     fun providesMapHttpServer(): MapHttpServer = MapHttpServer()

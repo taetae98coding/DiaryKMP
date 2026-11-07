@@ -20,10 +20,16 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -142,6 +148,14 @@ class TagDetailScreenTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -229,6 +243,14 @@ class TagDetailScreenTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -311,7 +333,7 @@ class TagDetailScreenUpdateTest {
         val findTagUseCase = mockk<FindTagUseCase>()
         every { findTagUseCase(FIRST_TAG_ID) } returns flowOf(Result.success(storedTag))
         val updateTagUseCase = mockk<UpdateTagUseCase>()
-        coEvery { updateTagUseCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
+        coEvery { updateTagUseCase(any()) } returns Result.failure(IllegalStateException(SAVE_FAILURE_MESSAGE))
         val viewModel =
             TagDetailViewModel(
                 id = FIRST_TAG_ID,
@@ -398,6 +420,14 @@ class TagDetailScreenUpdateTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -449,6 +479,62 @@ class TagDetailScreenActionTest {
     }
 
     @Test
+    fun `TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 완료에 실패하면 안내 없이 화면에 남아 입력 내용을 유지하고 다시 완료할 수 있다`() {
+        val finishTagUseCase = mockk<FinishTagUseCase>()
+        coEvery { finishTagUseCase(any()) } returns Result.failure(IllegalStateException(SAVE_FAILURE_MESSAGE))
+        val viewModel = failingActionViewModel(isFinished = false, finishTagUseCase = finishTagUseCase)
+        var navigateUpCount = 0
+        setTagDetailScreen(
+            viewModel = viewModel,
+            navigateUp = { navigateUpCount += 1 },
+        )
+        composeRule.waitForIdle()
+        composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(TAG_TITLE + EDIT_SUFFIX))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { finishTagUseCase(parameter = FIRST_TAG_ID) }
+        navigateUpCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 다시 시작에 실패하면 안내 없이 화면에 남아 입력 내용을 유지하고 다시 시작할 수 있다`() {
+        val restartTagUseCase = mockk<RestartTagUseCase>()
+        coEvery { restartTagUseCase(any()) } returns Result.failure(IllegalStateException(SAVE_FAILURE_MESSAGE))
+        val viewModel = failingActionViewModel(isFinished = true, restartTagUseCase = restartTagUseCase)
+        var navigateUpCount = 0
+        setTagDetailScreen(
+            viewModel = viewModel,
+            navigateUp = { navigateUpCount += 1 },
+        )
+        composeRule.waitForIdle()
+        composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(TAG_TITLE + EDIT_SUFFIX))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { restartTagUseCase(parameter = FIRST_TAG_ID) }
+        navigateUpCount shouldBe 0
+    }
+
+    @Test
     fun `TC-26fe06e0-1644-4d0b-9787-27d69f252e70 태그를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
         var navigateUpCount = 0
         val effectChannel = Channel<TagDetailEffect>(capacity = Channel.BUFFERED)
@@ -468,6 +554,81 @@ class TagDetailScreenActionTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-dc0fdee9-0949-4538-9fc5-fd078d6e377d 삭제 저장에 실패하면 안내 없이 화면에 남아 입력 내용을 유지하고 다시 삭제할 수 있다`() {
+        val storedTag =
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    id = FIRST_TAG_ID,
+                    detail = tagDetail(TAG_TITLE),
+                    isFinished = false,
+                    isDeleted = false,
+                )
+        val findTagUseCase = mockk<FindTagUseCase>()
+        every { findTagUseCase(FIRST_TAG_ID) } returns flowOf(Result.success(storedTag))
+        val deleteTagUseCase = mockk<DeleteTagUseCase>()
+        coEvery { deleteTagUseCase(any()) } returns Result.failure(IllegalStateException(SAVE_FAILURE_MESSAGE))
+        val viewModel =
+            TagDetailViewModel(
+                id = FIRST_TAG_ID,
+                findTagUseCase = findTagUseCase,
+                updateTagUseCase = mockk(relaxed = true),
+                finishTagUseCase = mockk(relaxed = true),
+                restartTagUseCase = mockk(relaxed = true),
+                deleteTagUseCase = deleteTagUseCase,
+            )
+        var navigateUpCount = 0
+        setTagDetailScreen(
+            viewModel = viewModel,
+            navigateUp = { navigateUpCount += 1 },
+        )
+        composeRule.waitForIdle()
+        composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(TAG_TITLE + EDIT_SUFFIX))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { deleteTagUseCase(parameter = FIRST_TAG_ID) }
+        navigateUpCount shouldBe 0
+    }
+
+    private fun failingActionViewModel(
+        isFinished: Boolean,
+        finishTagUseCase: FinishTagUseCase = mockk(relaxed = true),
+        restartTagUseCase: RestartTagUseCase = mockk(relaxed = true),
+    ): TagDetailViewModel {
+        val storedTag =
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    id = FIRST_TAG_ID,
+                    detail = tagDetail(TAG_TITLE),
+                    isFinished = isFinished,
+                    isDeleted = false,
+                )
+        val findTagUseCase = mockk<FindTagUseCase>()
+        every { findTagUseCase(FIRST_TAG_ID) } returns flowOf(Result.success(storedTag))
+
+        return TagDetailViewModel(
+            id = FIRST_TAG_ID,
+            findTagUseCase = findTagUseCase,
+            updateTagUseCase = mockk(relaxed = true),
+            finishTagUseCase = finishTagUseCase,
+            restartTagUseCase = restartTagUseCase,
+            deleteTagUseCase = mockk(relaxed = true),
+        )
     }
 
     private fun setTagDetailScreen(
@@ -492,6 +653,14 @@ class TagDetailScreenActionTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -545,6 +714,14 @@ class TagDetailScreenMessageTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -585,6 +762,14 @@ class TagDetailScreenMessageTest {
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToChecklistAdd = {},
+                    navigateToChecklistDetail = {},
+                    navigateToMusicAdd = {},
+                    navigateToMusicDetail = {},
+                    navigateToQrAdd = {},
+                    navigateToQrDetail = {},
                 )
             }
         }
@@ -639,3 +824,5 @@ private fun editedTagDetail(): TagDetail =
     )
 
 private fun storedLoadedViewModel(): TagDetailViewModel = screenTestViewModel(uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = storedTagDetail())))
+
+private const val SAVE_FAILURE_MESSAGE = "저장 실패"

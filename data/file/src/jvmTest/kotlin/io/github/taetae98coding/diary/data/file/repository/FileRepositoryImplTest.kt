@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.data.file.repository
 
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.file.api.datasource.FileLocalDataSource
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
@@ -13,19 +11,25 @@ import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemot
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
-import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLargeRemoteException
+import io.github.taetae98coding.diary.core.testing.file.continuedFileUploadRemoteEntity
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -39,9 +43,6 @@ import kotlinx.io.buffered
 import kotlinx.io.readByteArray
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 class FileRepositoryImplTest :
     FunSpec({
         test("TC-7657ffc9-4037-4d7c-b233-3962e9398528 기기가 알려 주는 이름, 형식, 크기를 읽고 형식을 모르면 일반 파일로 본다") {
@@ -49,9 +50,9 @@ class FileRepositoryImplTest :
                 "application/pdf" to "application/pdf",
                 "" to "application/octet-stream",
             ).forEach { (mimeType, sourceMimeType) ->
-                val uri = fixtureMonkey.fileUri()
-                val name = "보고서-${fixtureMonkey.giveMeOne<Int>()}.pdf"
-                val size = fixtureMonkey.giveMeOne<Long>()
+                val uri = Arb.fileUri().next()
+                val name = "보고서-${Arb.int().next()}.pdf"
+                val size = Arb.long().next()
                 val repository =
                     FileRepositoryImpl(
                         fileLocalDataSource = fileLocalDataSource(uri = uri, name = name, mimeType = mimeType, size = size),
@@ -64,13 +65,13 @@ class FileRepositoryImplTest :
         }
 
         test("TC-aab59fbf-b414-4195-aed3-3fecd5be4f91 이름을 읽은 뒤 크기를 읽지 못하면 읽어 둔 이름을 실패에 싣고, 이름을 읽지 못하면 이름 없이 실패한다") {
-            val uri = fixtureMonkey.fileUri()
-            val name = "file-${fixtureMonkey.giveMeOne<String>()}"
+            val uri = Arb.fileUri().next()
+            val name = "file-${Arb.string().next()}"
             val sizeUnreadable = fileLocalDataSource(uri = uri)
             coEvery { sizeUnreadable.name(uri = uri) } returns name
-            coEvery { sizeUnreadable.size(uri = uri) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            coEvery { sizeUnreadable.size(uri = uri) } throws IllegalStateException(Arb.string().next())
             val nameUnreadable = fileLocalDataSource(uri = uri)
-            coEvery { nameUnreadable.name(uri = uri) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            coEvery { nameUnreadable.name(uri = uri) } throws IllegalStateException(Arb.string().next())
 
             shouldThrow<FileUnreadableException> {
                 FileRepositoryImpl(fileLocalDataSource = sizeUnreadable, fileRemoteDataSource = mockk(), fileUpdateHolder = FileUpdateHolder()).readSource(uri = uri)
@@ -91,10 +92,10 @@ class FileRepositoryImplTest :
 
         test("TC-aab59fbf-b414-4195-aed3-3fecd5be4f91 이름이나 크기를 알 수 없는 파일은 서버에 요청하지 않고 크기 초과가 아닌 실패로 끝난다") {
             listOf(
-                { dataSource: FileLocalDataSource, uri: FileUri -> coEvery { dataSource.name(uri = uri) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>()) },
-                { dataSource: FileLocalDataSource, uri: FileUri -> coEvery { dataSource.size(uri = uri) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>()) },
+                { dataSource: FileLocalDataSource, uri: FileUri -> coEvery { dataSource.name(uri = uri) } throws IllegalStateException(Arb.string().next()) },
+                { dataSource: FileLocalDataSource, uri: FileUri -> coEvery { dataSource.size(uri = uri) } throws IllegalStateException(Arb.string().next()) },
             ).forEach { unreadable ->
-                val uri = fixtureMonkey.fileUri()
+                val uri = Arb.fileUri().next()
                 val fileLocalDataSource = fileLocalDataSource(uri = uri)
                 unreadable(fileLocalDataSource, uri)
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
@@ -108,28 +109,28 @@ class FileRepositoryImplTest :
         }
 
         test("TC-24dc37eb-887e-4982-bbe8-d5e86d4a989c 올리는 도중 내용을 읽을 수 없으면 크기 초과가 아닌 실패로 끝난다") {
-            val source = fixtureMonkey.fileUploadSource()
-            val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val source = Arb.fileUploadSource().next()
+            val exception = IllegalStateException(Arb.string().next())
             val fileLocalDataSource = fileLocalDataSource(uri = source.uri)
             coEvery { fileLocalDataSource.openSource(uri = source.uri) } throws exception
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
                 fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any())
-            } coAnswers { arg<suspend () -> RawSource>(6).invoke().close().let { remoteFile() } }
+            } coAnswers { arg<suspend () -> RawSource>(6).invoke().close().let { Arb.fileRemoteEntity().next() } }
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder())
 
-            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) } shouldBeSameInstanceAs exception
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = Arb.string().next(), description = Arb.string().next(), accountId = Arb.kotlinUuid().next(), onSent = {}) } shouldBeSameInstanceAs exception
         }
 
         test("TC-11549cf7-1e0e-4997-8f8c-b73c93f15246 고른 위치의 내용과 크기를 제목, 설명과 함께 그대로 올리고 보낸 양과 서버가 돌려준 파일 정보를 전달한다") {
-            val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-            val description = fixtureMonkey.giveMeOne<String>()
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val bytes = "file-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
-            val source = fixtureMonkey.fileUploadSource(size = bytes.size.toLong())
+            val title = "title-${Arb.string().next()}"
+            val description = Arb.string().next()
+            val accountId = Arb.kotlinUuid().next()
+            val bytes = "file-${Arb.string().next()}".encodeToByteArray()
+            val source = Arb.fileUploadSource(size = bytes.size.toLong()).next()
             val fileLocalDataSource = fileLocalDataSource(uri = source.uri, size = source.size)
             coEvery { fileLocalDataSource.openSource(uri = source.uri) } answers { Buffer().apply { write(bytes) } }
-            val remoteFile = remoteFile()
+            val remoteFile = Arb.fileRemoteEntity().next()
             val openContentSlot = slot<suspend () -> RawSource>()
             val onSentSlot = slot<(Long) -> Unit>()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
@@ -165,20 +166,20 @@ class FileRepositoryImplTest :
         }
 
         test("TC-e4baf560-0898-49fe-ad5c-a7c6d1c4716b 서버가 크기 초과로 거절하면 크기 초과 실패로 바꾸고 그 밖의 실패는 그대로 전달한다") {
-            val source = fixtureMonkey.fileUploadSource()
-            val otherException = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val source = Arb.fileUploadSource().next()
+            val otherException = IllegalStateException(Arb.string().next())
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
                 fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any())
-            } throws FileTooLargeRemoteException(message = fixtureMonkey.giveMeOne<String>()) andThenThrows otherException
+            } throws FileTooLargeRemoteException(message = Arb.string().next()) andThenThrows otherException
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource(uri = source.uri), fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder())
 
-            shouldThrow<FileTooLargeException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) }
-            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) } shouldBeSameInstanceAs otherException
+            shouldThrow<FileTooLargeException> { repository.create(source = source, title = Arb.string().next(), description = Arb.string().next(), accountId = Arb.kotlinUuid().next(), onSent = {}) }
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = Arb.string().next(), description = Arb.string().next(), accountId = Arb.kotlinUuid().next(), onSent = {}) } shouldBeSameInstanceAs otherException
         }
 
         test("고른 파일의 읽기 권한을 붙들고 놓는 일은 기기의 파일 보관 수단에 맡긴다") {
-            val uri = fixtureMonkey.fileUri()
+            val uri = Arb.fileUri().next()
             val fileLocalDataSource = mockk<FileLocalDataSource>(relaxUnitFun = true)
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = mockk(), fileUpdateHolder = FileUpdateHolder())
 
@@ -190,9 +191,9 @@ class FileRepositoryImplTest :
         }
 
         test("앞선 실행에서 이어지는 올리기의 진행과 결과를 이름, 크기, 보낸 양과 결과 종류 그대로 전달한다") {
-            val upload = fixtureMonkey.giveMeOne<ContinuedFileUploadRemoteEntity>()
-            val file = remoteFile()
-            val name = fixtureMonkey.giveMeOne<String>()
+            val upload = Arb.continuedFileUploadRemoteEntity().next()
+            val file = Arb.fileRemoteEntity().next()
+            val name = Arb.string().next()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>(relaxUnitFun = true)
             every { fileRemoteDataSource.getContinuedUpload() } returns flowOf(upload, null)
             every { fileRemoteDataSource.getContinuedUploadResult() } returns
@@ -216,7 +217,7 @@ class FileRepositoryImplTest :
                 awaitItem() shouldBe ContinuedFileUploadResult.Failed(name = name)
                 awaitComplete()
             }
-            val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val exceptAccountId = Arb.kotlinUuid().next()
             repository.deleteContinuedUpload(exceptAccountId = exceptAccountId)
 
             coVerify(exactly = 1) { fileRemoteDataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
@@ -224,7 +225,7 @@ class FileRepositoryImplTest :
 
         test("TC-c3c9a856-e7b9-41c7-b35b-025cbe78c827 목록을 처음 불러올 때 마지막 파일 없이 20개를 한 번 요청한다") {
             runTest {
-                val fileList = List(3) { remoteFile() }
+                val fileList = List(3) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns fileList
                 val repository =
@@ -243,7 +244,7 @@ class FileRepositoryImplTest :
 
         test("TC-4c3f6c39-bda2-4ac2-8036-5bf7096a0332 목록의 파일 정보에 서버가 돌려준 제목과 설명이 담긴다") {
             runTest {
-                val remoteFile = remoteFile()
+                val remoteFile = Arb.fileRemoteEntity().next()
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns listOf(remoteFile)
                 val repository =
@@ -262,7 +263,7 @@ class FileRepositoryImplTest :
 
         test("TC-e83464f1-ff45-45d4-b832-57f4b4f82143 목록의 끝에 다가가면 받은 마지막 파일의 올린 시각과 식별자를 기준으로 20개를 이어서 요청한다") {
             runTest {
-                val firstPage = List(20) { remoteFile() }
+                val firstPage = List(20) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage
                 coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
@@ -282,13 +283,11 @@ class FileRepositoryImplTest :
         }
     }) {
     public companion object {
-        private fun remoteFile(): FileRemoteEntity = fixtureMonkey.giveMeOne<FileRemoteEntity>()
-
         private fun fileLocalDataSource(
             uri: FileUri,
-            name: String = "file-${fixtureMonkey.giveMeOne<Int>()}.txt",
-            mimeType: String = "application/${fixtureMonkey.giveMeOne<Int>()}",
-            size: Long = fixtureMonkey.fileUploadSource().size,
+            name: String = "file-${Arb.int().next()}.txt",
+            mimeType: String = "application/${Arb.int().next()}",
+            size: Long = Arb.fileUploadSource().next().size,
         ): FileLocalDataSource {
             val dataSource = mockk<FileLocalDataSource>()
             coEvery { dataSource.name(uri = uri) } returns name

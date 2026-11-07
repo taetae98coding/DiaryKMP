@@ -47,9 +47,10 @@ class DiaryDateTimeInputTest {
 
     @Test
     fun `TC-71aaf089-15de-4a86-8f56-9058ce377622 초기 기간이 없으면 스위치가 꺼진 상태로 표시되고 기간 선택 영역이 표시되지 않는다`() {
-        setDiaryDateTimeInput()
+        val state = setDiaryDateTimeInput()
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOff()
+        composeRule.runOnIdle { state.value shouldBe null }
         composeRule.onNode(hasRole(Role.Checkbox)).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_START).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_END).assertDoesNotExist()
@@ -57,18 +58,20 @@ class DiaryDateTimeInputTest {
 
     @Test
     fun `TC-dccba5c1-5f71-45ca-833b-fbb0e2d86776 초기 종일 기간이 제공되면 스위치가 켜진 상태로 날짜가 표시된다`() {
-        setDiaryDateTimeInput(initialValue = allDayValue())
+        val state = setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.runOnIdle { state.value shouldBe allDayValue() }
         composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
         composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertExists()
     }
 
     @Test
     fun `TC-dccba5c1-5f71-45ca-833b-fbb0e2d86776 초기 종일 아님 기간이 제공되면 스위치가 켜진 상태로 날짜와 시간이 표시된다`() {
-        setDiaryDateTimeInput(initialValue = dateTimeValue())
+        val state = setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.runOnIdle { state.value shouldBe dateTimeValue() }
         composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
         composeRule.onNodeWithText(START_TIME_TEXT).assertExists()
         composeRule.onNodeWithText(END_DATE_TEXT).assertExists()
@@ -210,12 +213,18 @@ class DiaryDateTimeInputTest {
         composeRule.onAllNodesWithText(defaultTimeText).assertCountEquals(2)
     }
 
-    private fun setDiaryDateTimeInput(initialValue: DiaryDateTimeInputValue? = null) {
+    private fun setDiaryDateTimeInput(initialValue: DiaryDateTimeInputValue? = null): DiaryDateTimeInputState {
+        lateinit var state: DiaryDateTimeInputState
+
         composeRule.setContent {
+            state = rememberDiaryDateTimeInputState(initialValue = initialValue)
+
             DiaryTheme {
-                DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
+                DiaryDateTimeInput(state = state)
             }
         }
+
+        return state
     }
 
     private companion object {

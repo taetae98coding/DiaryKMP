@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.impl.API_KEY_INVALID_REASON
@@ -10,7 +8,7 @@ import io.github.taetae98coding.diary.core.gemini.network.impl.badRequestEngine
 import io.github.taetae98coding.diary.core.gemini.network.impl.createGeminiHttpClient
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -20,6 +18,8 @@ import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
@@ -43,7 +43,7 @@ import kotlin.uuid.Uuid
 class GeminiModelRemoteDataSourceImplTest :
     FunSpec({
         test("TC-412278da-bcc1-4b72-96cb-742895a3aca1: 조회는 최대 개수인 1000개를 요청한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
@@ -56,7 +56,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-f818e1e6-d876-497c-9979-4f3afa182843: 내용 생성에 쓸 수 있는 모델만 결과에 포함한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val generateOnly = modelName()
             val generateAndCount = modelName()
             val content =
@@ -75,7 +75,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-d663817b-9698-4ecf-82b0-8c82d5a750f3: 받은 순서를 그대로 유지한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val order = List(3) { modelName() }
             val content = listModelsResponse(*order.map { name -> model(name = name) }.toTypedArray())
             val engine = createEngine(content = content)
@@ -91,12 +91,12 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-211ae1fb-8290-4e06-a1ca-5b8f35ee50f1: 다음 결과가 남아 있다고 알려 와도 이어서 받지 않는다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val name = modelName()
             val content =
                 buildJsonObject {
                     putJsonArray("models") { add(model(name = name)) }
-                    put("nextPageToken", "nextPageToken${fixtureMonkey.giveMeOne<Uuid>()}")
+                    put("nextPageToken", "nextPageToken${Arb.kotlinUuid().next()}")
                 }.toString()
             val engine = createEngine(content = content)
             val dataSource = createDataSource(engine)
@@ -107,7 +107,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-aa003166-63bd-4035-a7ad-ebd30f51f83a: 인증 정보를 담아 조회한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
@@ -120,10 +120,10 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-0f8409dd-24ce-4374-b402-7f86d29d4f0c: 성공 응답의 모델 정보를 그대로 전달한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val expected =
                 List(2) {
-                    Triple(modelName(), "Gemini ${fixtureMonkey.giveMeOne<Uuid>()}", "설명 ${fixtureMonkey.giveMeOne<Uuid>()}")
+                    Triple(modelName(), "Gemini ${Arb.kotlinUuid().next()}", "설명 ${Arb.kotlinUuid().next()}")
                 }
             val content =
                 listModelsResponse(
@@ -137,9 +137,9 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-c3829ff3-9290-4b6b-89f1-53b81d343d87: 설명이 없는 모델도 전달한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val name = modelName()
-            val displayName = "Gemini ${fixtureMonkey.giveMeOne<Uuid>()}"
+            val displayName = "Gemini ${Arb.kotlinUuid().next()}"
             val content =
                 listModelsResponse(
                     buildJsonObject {
@@ -158,7 +158,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-15f7886d-ad40-4789-b8d8-83e02bfd6897: 기준에 맞는 모델이 없으면 빈 목록을 성공으로 전달한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val contents =
                 listOf(
                     listModelsResponse(),
@@ -173,7 +173,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-dea588b7-4afa-480c-83dc-5124ef512c60: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             listOf(
                 MockEngine { respondError(HttpStatusCode.Unauthorized) },
                 MockEngine { respondError(HttpStatusCode.Forbidden) },
@@ -188,7 +188,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-20ea17d1-f65b-44dc-a808-189c1bffa637: 그 밖의 실패를 실패로 알린다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             listOf(
                 MockEngine { respondError(HttpStatusCode.BadRequest) },
                 badRequestEngine(reason = OTHER_BAD_REQUEST_REASON),
@@ -206,7 +206,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-977b79c7-04bc-4bde-a1dc-271cf67cfb8e: 조회할 때마다 새로 조회한다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val first = modelName()
             val second = modelName()
             val contents =
@@ -231,7 +231,7 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-50450572-6788-4784-8fbf-264fcf89cf61: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다") {
-            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val apiKey = "apiKey${Arb.kotlinUuid().next()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
@@ -245,11 +245,9 @@ class GeminiModelRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
         private const val OTHER_BAD_REQUEST_REASON = "INVALID_ARGUMENT"
 
-        private fun modelName(): String = "models/gemini-${fixtureMonkey.giveMeOne<Uuid>()}"
+        private fun modelName(): String = "models/gemini-${Arb.kotlinUuid().next()}"
 
         private fun model(
             name: String,

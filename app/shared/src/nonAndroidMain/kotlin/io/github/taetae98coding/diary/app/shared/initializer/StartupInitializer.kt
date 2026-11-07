@@ -9,5 +9,6 @@ public object StartupInitializer {
         initializeSyncWork()
         initializeFileUpload()
         initializeMapHttpServer()
+        initializeMcpServer()
     }
 }

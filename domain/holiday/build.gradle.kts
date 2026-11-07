@@ -7,6 +7,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.library.kotlinxDatetime)
+            }
+        }
+
+        jvmTest {
+            dependencies {
                 implementation(projects.logger.crashlytics.api)
             }
         }

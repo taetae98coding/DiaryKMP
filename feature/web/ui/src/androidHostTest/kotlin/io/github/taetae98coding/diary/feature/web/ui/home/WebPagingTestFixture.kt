@@ -3,17 +3,16 @@ package io.github.taetae98coding.diary.feature.web.ui.home
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.core.testing.web.webDetail
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 internal fun webPagingDataOf(webList: List<Web>): PagingData<Web> =
     PagingData.from(
@@ -50,22 +49,24 @@ internal fun failedWebPagingData(): PagingData<Web> =
 
 internal fun testWeb(
     title: String,
-    url: String = "https://example.com/${fixtureMonkey.giveMeOne<Int>()}",
-    description: String = "설명-${fixtureMonkey.giveMeOne<String>()}",
+    url: String = "https://example.com/${Arb.int().next()}",
+    description: String = "설명-${Arb.string().next()}",
 ): Web {
     val detail =
-        fixtureMonkey
-            .giveMeKotlinBuilder<WebDetail>()
-            .setExp(WebDetail::title, title)
-            .setExp(WebDetail::description, description)
-            .setExp(WebDetail::url, url)
-            .sample()
+        Arb
+            .webDetail()
+            .next()
+            .copy(
+                title = title,
+                description = description,
+                url = url,
+            )
 
     return Web(
-        id = Uuid.random(),
+        id = Arb.kotlinUuid().next(),
         detail = detail,
         isDeleted = false,
-        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
-        createdAt = fixtureMonkey.giveMeOne<Instant>(),
+        updatedAt = Arb.secondPrecisionInstant().next(),
+        createdAt = Arb.secondPrecisionInstant().next(),
     )
 }

@@ -6,19 +6,20 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveTagLinkUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -57,7 +58,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-bafce675-468e-430e-b1ca-2721e029fcd5 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val item = tag()
                 val parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = "")
                 val useCase = mockk<PageTagLinkSelectableTagUseCase>()
@@ -82,7 +83,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-35995748-4049-436d-af96-2e0466241b9e 저장된 연결의 도착 태그를 연결 대상으로 표시한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val linkedTagList = List(2) { tag() }
                 val viewModel = viewModel(id = id, linkedTagFlow = flowOf(Result.success(linkedTagList)))
 
@@ -95,7 +96,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-f24a43a2-e275-4227-bca6-8d2f9793e98f 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val tag = tag()
                 val linkedTagFlow = MutableStateFlow(emptyList<Tag>())
                 val viewModel =
@@ -116,8 +117,8 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-664344b5-d1b5-422d-a12c-ea7dcbe45e2e 태그를 연결하면 상세 대상 태그를 출발 태그로 연결을 만든다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val toTagId = Arb.kotlinUuid().next()
                 val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
                 coEvery { addTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel = viewModel(id = id, addTagLinkUseCase = addTagLinkUseCase)
@@ -133,8 +134,8 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-6e01ef75-9bf3-4f5d-9dc4-60ea526233da 연결을 해제하면 상세 대상 태그를 출발 태그로 연결을 해제한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val toTagId = Arb.kotlinUuid().next()
                 val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
                 coEvery { removeTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
                 val viewModel = viewModel(id = id, removeTagLinkUseCase = removeTagLinkUseCase)
@@ -150,9 +151,9 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-7b2f9da6-18a5-4195-a84e-51403986e506 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val linkedTag = tag()
-                val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val otherTagId = Arb.kotlinUuid().next()
                 val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
                 coEvery { addTagLinkUseCase(parameter = any()) } returns Result.failure(IllegalStateException("저장 실패"))
                 val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
@@ -191,9 +192,9 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("연결과 해제는 이어서 실행해도 모두 반영된다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstToTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val secondToTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val firstToTagId = Arb.kotlinUuid().next()
+                val secondToTagId = Arb.kotlinUuid().next()
                 val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
                 coEvery { addTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
                 val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
@@ -225,8 +226,8 @@ class TagDetailLinkViewModelTest : FunSpec() {
         }
         test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
+                val toTagId = Arb.kotlinUuid().next()
                 val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
                 coEvery { addTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
                 val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
@@ -256,7 +257,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
     private fun searchTests() {
         test("TC-6c8807b6-281d-4167-abf4-d79272febec2 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
@@ -284,7 +285,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         test("TC-88b1423e-e248-41cb-bd1a-a0f70736ca67 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val linkedTagList = List(2) { tag() }
                 val viewModel = viewModel(id = id, linkedTagFlow = flowOf(Result.success(linkedTagList)))
 
@@ -305,7 +306,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
     private fun restorationTests() {
         test("TC-2a30f51f-399f-4eb9-8448-dd3b3dad1c32 복원 뒤 새로 만든 화면이 되살린 검색어를 알리면 입력 정지 대기 시간 뒤 그 검색어로 좁힌 목록을 보여 준다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val allTagList = List(2) { tag() }
                 val matchedTagList = listOf(allTagList.first())
                 val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
@@ -360,15 +361,14 @@ class TagDetailLinkViewModelTest : FunSpec() {
     public companion object {
         private const val SEARCH_QUERY = "Travel"
 
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

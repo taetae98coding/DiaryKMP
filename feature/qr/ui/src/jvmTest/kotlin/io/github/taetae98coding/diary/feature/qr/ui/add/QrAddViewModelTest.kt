@@ -3,20 +3,22 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -55,40 +57,40 @@ class QrAddViewModelTest : FunSpec() {
 
         test("TC-f8cb4a3f-8b52-40bb-b8cc-3a7badbc7706 추가 처리 중 전달된 추가 요청은 처리하지 않고 처리가 끝난 뒤의 요청은 다시 처리한다") {
             runTest(mainDispatcher) {
-                val firstDetail = fixtureMonkey.giveMeOne<QrDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<QrDetail>()
+                val firstDetail = Arb.qrDetail().next()
+                val secondDetail = Arb.qrDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = firstDetail) } coAnswers { completion.await() }
-                coEvery { useCase(parameter = secondDetail) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } coAnswers { completion.await() }
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 runCurrent()
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 runCurrent()
 
-                coVerify(exactly = 1) { useCase(parameter = firstDetail) }
-                coVerify(exactly = 0) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) }
+                coVerify(exactly = 0) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
 
         test("TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<QrDetail>()
+                val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.AddSucceeded
@@ -100,15 +102,30 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-a6fde504-b12a-4648-9b7f-cad5ca5d3fd0 고른 태그를 새 QR과 함께 추가하도록 넘긴다") {
+            runTest(mainDispatcher) {
+                val detail = Arb.qrDetail().next()
+                val tagIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
+                val useCase = mockk<AddQrUseCase>()
+                coEvery { useCase(parameter = any()) } returns Result.success(Arb.kotlinUuid().next())
+                val viewModel = viewModel(addQrUseCase = useCase)
+
+                viewModel.add(detail = detail, tagIdSet = tagIdSet)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)) }
+            }
+        }
+
         test("TC-1a5e7fb5-df16-4fd9-8bef-df01b624f7e9 제목 조건이 성립하지 않으면 제목 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<QrDetail>()
+                val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(QrTitleBlankException())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(QrTitleBlankException())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.TitleBlank
@@ -122,13 +139,13 @@ class QrAddViewModelTest : FunSpec() {
 
         test("TC-b707d875-5ed9-49ab-ad91-bd0647f2bba5 QR 값 조건이 성립하지 않으면 QR 값 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<QrDetail>()
+                val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(QrValueEmptyException())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(QrValueEmptyException())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     awaitItem() shouldBe QrAddEffect.ValueEmpty
@@ -142,44 +159,44 @@ class QrAddViewModelTest : FunSpec() {
 
         test("TC-018763b3-6a0e-4132-b201-64d8ed5b8b6d 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<QrDetail>()
+                val detail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(addQrUseCase = useCase)
 
                 viewModel.effect.test {
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                     viewModel.uiState.value.isInProgress
                         .shouldBeFalse()
 
-                    viewModel.add(detail = detail)
+                    viewModel.add(detail = detail, tagIdSet = emptySet())
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
-                coVerify(exactly = 2) { useCase(parameter = detail) }
+                coVerify(exactly = 2) { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) }
             }
         }
 
         test("TC-1e6c2fde-1356-4fe2-a374-f4ba7f54761a 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<QrDetail>()
+                val detail = Arb.qrDetail().next()
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = detail) } coAnswers { completion.await() }
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = detail, tagIdSet = emptySet())) } coAnswers { completion.await() }
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = detail)
+                viewModel.add(detail = detail, tagIdSet = emptySet())
                 runCurrent()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeTrue()
 
-                completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                completion.complete(Result.success(Arb.kotlinUuid().next()))
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
@@ -223,7 +240,7 @@ class QrAddViewModelTest : FunSpec() {
                 val viewModel =
                     viewModel(
                         addQrUseCase = mockk(),
-                        defaultMapProviderUseCase = defaultMapProviderUseCase(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))),
+                        defaultMapProviderUseCase = defaultMapProviderUseCase(Result.failure(IllegalStateException(Arb.string().next()))),
                     )
                 advanceUntilIdle()
 
@@ -236,23 +253,23 @@ class QrAddViewModelTest : FunSpec() {
 
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val firstDetail = fixtureMonkey.giveMeOne<QrDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<QrDetail>()
+                val firstDetail = Arb.qrDetail().next()
+                val secondDetail = Arb.qrDetail().next()
                 val useCase = mockk<AddQrUseCase>()
-                coEvery { useCase(parameter = firstDetail) } throws CancellationException()
-                coEvery { useCase(parameter = secondDetail) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = firstDetail, tagIdSet = emptySet())) } throws CancellationException()
+                coEvery { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addQrUseCase = useCase)
 
-                viewModel.add(detail = firstDetail)
+                viewModel.add(detail = firstDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
 
-                viewModel.add(detail = secondDetail)
+                viewModel.add(detail = secondDetail, tagIdSet = emptySet())
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { useCase(parameter = secondDetail) }
+                coVerify(exactly = 1) { useCase(parameter = AddQrUseCase.Parameter(detail = secondDetail, tagIdSet = emptySet())) }
             }
         }
     }
@@ -274,9 +291,4 @@ class QrAddViewModelTest : FunSpec() {
         mockk<GetDefaultMapProviderUseCase>().also { useCase ->
             every { useCase(Unit) } returns flowOf(result)
         }
-
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
 }

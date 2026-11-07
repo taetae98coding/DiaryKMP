@@ -9,12 +9,12 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUri
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -27,9 +27,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class AndroidFilePickerTest {
@@ -38,7 +35,7 @@ class AndroidFilePickerTest {
 
     @Test
     fun `TC-297131e8-7445-4e19-a12c-12f900568c0d 선택 도구가 열린 동안 화면이 재생성되어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
-        val uri = Uri.parse("content://documents/${fixtureMonkey.giveMeOne<Int>()}")
+        val uri = Uri.parse("content://documents/${Arb.int().next()}")
         val harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<FileUri>()
         lateinit var picker: FilePicker
@@ -58,7 +55,7 @@ class AndroidFilePickerTest {
 
     @Test
     fun `TC-297131e8-7445-4e19-a12c-12f900568c0d 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
-        val uri = Uri.parse("content://documents/${fixtureMonkey.giveMeOne<Int>()}")
+        val uri = Uri.parse("content://documents/${Arb.int().next()}")
         var harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<FileUri>()
         lateinit var picker: FilePicker

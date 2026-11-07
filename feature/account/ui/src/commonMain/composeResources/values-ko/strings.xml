@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">프로필</string>
+    <string name="profile_navigate_up_button_content_description">뒤로가기</string>
+    <string name="profile_change_profile_image">프로필 이미지 변경</string>
+    <string name="profile_delete_account">탈퇴하기</string>
+    <string name="profile_delete_confirm_title">탈퇴할까요?</string>
+    <string name="profile_delete_confirm_message">계정과 서버에 저장된 모든 데이터가 삭제되며 되돌릴 수 없습니다. 이 기기에 저장된 이 계정의 데이터와 아직 서버에 반영되지 않은 변경도 함께 삭제됩니다.</string>
+    <string name="profile_delete_confirm_button">탈퇴</string>
+    <string name="profile_delete_cancel_button">취소</string>
+    <string name="profile_delete_progress_content_description">탈퇴 진행 중</string>
+    <string name="profile_delete_failed_message">탈퇴하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="profile_image_edit_title">프로필 이미지 편집</string>
+    <string name="profile_image_edit_navigate_up_button_content_description">뒤로가기</string>
+    <string name="profile_image_edit_photo_content_description">편집 중인 사진</string>
+    <string name="profile_image_edit_choose_photo_button">사진 선택</string>
+    <string name="profile_image_edit_empty_message">사진을 선택해 주세요.</string>
+    <string name="profile_image_edit_apply_button_content_description">완료</string>
+    <string name="profile_image_edit_unreadable_message">사진을 읽을 수 없습니다.</string>
+    <string name="profile_image_edit_failed_message">프로필 이미지 반영에 실패했습니다.</string>
+    <string name="profile_image_viewer_title">프로필 이미지</string>
+    <string name="profile_image_viewer_navigate_up_button_content_description">뒤로가기</string>
+    <string name="profile_image_viewer_failed_message">이미지를 불러올 수 없습니다.</string>
+    <string name="profile_image_content_description">프로필 이미지</string>
+</resources>

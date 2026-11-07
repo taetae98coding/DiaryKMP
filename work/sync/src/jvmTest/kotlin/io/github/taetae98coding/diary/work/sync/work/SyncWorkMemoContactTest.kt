@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memocontact.entity.MemoContactRemoteEntity
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -10,6 +10,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.delay
@@ -49,7 +52,7 @@ class SyncWorkMemoContactTest :
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoPlaceRemoteDataSource.push(any()) }
-            coVerify(exactly = 0) { context.webTagRemoteDataSource.push(any()) }
+            coVerify(exactly = 0) { context.entityTagRemoteDataSource.push(any(), any()) }
         }
 
         listOf(
@@ -108,7 +111,7 @@ class SyncWorkMemoContactTest :
 
         test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee 메모·연락처 연결 업로드가 실패하면 내려받기를 진행하지 않는다") {
             val context = context(memoContactList = memoContacts(size = 1))
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.memoContactRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -126,7 +129,7 @@ class SyncWorkMemoContactTest :
                     contactList = contacts(size = 1),
                     memoContactList = memoContacts(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.contactRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -144,7 +147,7 @@ class SyncWorkMemoContactTest :
                     contactList = contacts(size = 1),
                     memoContactList = memoContacts(size = 1),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -164,7 +167,7 @@ class SyncWorkMemoContactTest :
                     memoTagList = memoTags(size = 201),
                     memoContactList = memoContacts(size = 201),
                 )
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val memoContactRequestCount = mutableListOf<Int>()
             coEvery { context.memoContactRemoteDataSource.push(any()) } coAnswers {
                 memoContactRequestCount += 1
@@ -240,7 +243,7 @@ class SyncWorkMemoContactTest :
 
         test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 메모·연락처 연결 내려받기가 실패해도 연락처와 메모는 빈 응답까지 내려받고 동기화는 실패한다") {
             val context = context()
-            val failure = TestException(fixtureMonkey.giveMeOne())
+            val failure = TestException(Arb.string().next())
             val contactPullList = contactPulls(usnList = listOf(3L))
             val memoPullList = memoPulls(usnList = listOf(4L))
             coEvery { context.memoContactRemoteDataSource.pull(any()) } throws failure
@@ -273,8 +276,8 @@ class SyncWorkMemoContactTest :
         }
 
         test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 메모·연락처 연결만 조회한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
             val context = context(accountId = accountId)
             coEvery {
                 context.memoContactSyncLocalDataSource.readPendingList(accountId = otherAccountId)

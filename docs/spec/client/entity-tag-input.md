@@ -1,10 +1,10 @@
 # 항목 태그 입력 컴포넌트 스펙
 
-이 문서는 WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면에서 함께 사용하는 태그 입력 가운데 이 입력에만 해당하는 부분을 다룬다. 태그를 고르는 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을 따르고, 구체적인 구성과 조작 수단은 [항목 태그 입력 컴포넌트 디자인](../../design/entity-tag-input.md)에서 다룬다.
+이 문서는 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd, ContactDetail, ChecklistAdd, ChecklistDetail, MusicAdd, MusicDetail, QrAdd, QrDetail 화면에서 함께 사용하는 태그 입력 가운데 이 입력에만 해당하는 부분을 다룬다. 태그를 고르는 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을 따르고, 구체적인 구성과 조작 수단은 [항목 태그 입력 컴포넌트 디자인](../../design/entity-tag-input.md)에서 다룬다.
 
-이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목 또는 장소 하나를 가리킨다. 대상 항목과 태그의 연결 규칙은 [항목 태그 연결 공통 스펙](../common/entity-tag.md)과 [웹 태그 스펙](../common/web-tag.md), [장소 태그 스펙](../common/place-tag.md)을 따른다. 두 연결은 서로 다른 종류지만 이 입력에서의 사용자 행동과 판정 기준은 같다.
+이 문서에서 `대상 항목`은 태그 입력이 다루는 웹 항목, 장소, 연락처, 체크리스트, 곡 또는 QR 하나를 가리키고, `추가 화면`은 WebAdd, PlaceAdd, ContactAdd, ChecklistAdd, MusicAdd, QrAdd 화면을, `상세 화면`은 WebDetail, PlaceDetail, ContactDetail, ChecklistDetail, MusicDetail, QrDetail 화면을 가리킨다. 대상 항목과 태그의 연결 규칙은 [항목 태그 연결 공통 스펙](../common/entity-tag.md)과 [웹 태그 스펙](../common/web-tag.md), [장소 태그 스펙](../common/place-tag.md), [연락처 태그 스펙](../common/contact-tag.md), [체크리스트 태그 스펙](../common/checklist-tag.md), [곡 태그 스펙](../common/music-tag.md), [QR 태그 스펙](../common/qr-tag.md)을 따른다. 여섯 연결은 서로 다른 종류지만 이 입력에서의 사용자 행동과 판정 기준은 같다.
 
-사용자가 반영한 선택이 언제 저장된 연결이 되는지는 화면마다 다르므로 이 문서에서 다루지 않는다. WebAdd와 PlaceAdd 화면에서는 추가할 항목의 연결 대상으로만 반영되고, WebDetail과 PlaceDetail 화면에서는 상세 대상 항목의 저장된 연결로 즉시 반영되며, 각각 [WebAdd 화면 스펙](./web-add.md), [PlaceAdd 화면 스펙](./place-add.md), [WebDetail 화면 스펙](./web-detail.md), [PlaceDetail 화면 스펙](./place-detail.md)을 따른다.
+사용자가 반영한 선택이 언제 저장된 연결이 되는지는 화면마다 다르므로 이 문서에서 다루지 않는다. 추가 화면에서는 추가할 항목의 연결 대상으로만 반영되고, 상세 화면에서는 상세 대상 항목의 저장된 연결로 즉시 반영되며, 각 화면 스펙을 따른다.
 
 메모의 태그 입력은 대표 태그를 함께 다루므로 이 문서가 아니라 [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)이, 태그와 태그의 연결 입력은 [태그 연결 입력 컴포넌트 스펙](./tag-link-input.md)이 소유한다.
 
@@ -44,7 +44,7 @@
 
 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)의 `표시 대상 태그`를 따른다.
 
-완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르다. WebAdd와 PlaceAdd 화면은 [항목 추가 화면 공통 스펙](./entity-add.md)의 `태그 선택과 추가 성립 조건`을 따르고, WebDetail 화면은 [WebDetail 화면 스펙](./web-detail.md)의 `태그 입력에 표시하는 태그`를, PlaceDetail 화면은 [PlaceDetail 화면 스펙](./place-detail.md)의 `태그 입력에 표시하는 태그`를 따른다.
+완료된 태그를 연결 대상으로 표시하는지는 화면마다 다르다. 추가 화면은 [항목 추가 화면 공통 스펙](./entity-add.md)의 `태그 선택과 추가 성립 조건`을 따르고, 상세 화면은 각 화면 스펙의 `태그 입력에 표시하는 태그`를 따른다.
 
 ### 선택할 수 있는 태그
 
@@ -56,7 +56,7 @@
 
 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)의 `태그 선택 목록에 나타나는 태그`를 따른다.
 
-WebAdd와 PlaceAdd 화면은 연결 대상으로 표시하는 태그가 선택할 수 있는 태그와 같으므로 목록에도 선택할 수 있는 태그만 나타나고, WebDetail과 PlaceDetail 화면은 각 화면 스펙의 `태그 입력에 표시하는 태그`에 따라 연결된 완료된 태그가 함께 나타난다.
+추가 화면은 연결 대상으로 표시하는 태그가 선택할 수 있는 태그와 같으므로 목록에도 선택할 수 있는 태그만 나타나고, 상세 화면은 각 화면 스펙의 `태그 입력에 표시하는 태그`에 따라 연결된 완료된 태그가 함께 나타난다.
 
 ## data
 
@@ -64,7 +64,7 @@ WebAdd와 PlaceAdd 화면은 연결 대상으로 표시하는 태그가 선택�
 
 조회 흐름은 [태그 선택 입력 공통 스펙](./tag-select-input.md)의 `태그 목록 조회`를 따른다.
 
-WebAdd와 PlaceAdd 화면은 선택할 수 있는 태그만 조회하고, WebDetail과 PlaceDetail 화면은 각 화면 스펙의 `태그 입력의 조회와 저장`을 따른다.
+추가 화면은 선택할 수 있는 태그만 조회하고, 상세 화면은 각 화면 스펙의 `태그 입력의 조회와 저장`을 따른다.
 
 ## 이 문서를 참조하는 문서
 
@@ -72,6 +72,18 @@ WebAdd와 PlaceAdd 화면은 선택할 수 있는 태그만 조회하고, WebDet
 - [WebDetail 화면 스펙](./web-detail.md)
 - [PlaceAdd 화면 스펙](./place-add.md)
 - [PlaceDetail 화면 스펙](./place-detail.md)
+- [ContactAdd 화면 스펙](./contact-add.md)
+- [ContactDetail 화면 스펙](./contact-detail.md)
+- [ChecklistAdd 화면 스펙](./checklist-add.md)
+- [ChecklistDetail 화면 스펙](./checklist-detail.md)
+- [MusicAdd 화면 스펙](./music-add.md)
+- [MusicDetail 화면 스펙](./music-detail.md)
+- [QrAdd 화면 스펙](./qr-add.md)
+- [QrDetail 화면 스펙](./qr-detail.md)
 - [웹 태그 스펙](../common/web-tag.md)
 - [장소 태그 스펙](../common/place-tag.md)
+- [연락처 태그 스펙](../common/contact-tag.md)
+- [체크리스트 태그 스펙](../common/checklist-tag.md)
+- [곡 태그 스펙](../common/music-tag.md)
+- [QR 태그 스펙](../common/qr-tag.md)
 - [TagHome 목록 스펙](./tag-home.md)

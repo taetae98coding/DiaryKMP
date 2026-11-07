@@ -1,21 +1,12 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
+import io.github.taetae98coding.diary.compose.calendar.birthday.CalendarBirthdayText
+import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
-import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
+import io.github.taetae98coding.diary.compose.contact.contactDisplayName
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
-import io.github.taetae98coding.diary.feature.calendar.ui.Res
-import io.github.taetae98coding.diary.feature.calendar.ui.calendar_home_birthday_content_description
-import io.github.taetae98coding.diary.feature.calendar.ui.calendar_home_birthday_text
-import kotlinx.datetime.LocalDateRange
-import org.jetbrains.compose.resources.stringResource
 
 internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
     birthdayProvider: () -> List<CalendarContactBirthday>,
@@ -27,20 +18,12 @@ internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
             dateRange = birthday.toDateRange(),
             key = birthday.contactId,
         ) {
-            val name = stringResource(Res.string.calendar_home_birthday_content_description, birthday.name)
-
-            CalendarText(
-                text = stringResource(Res.string.calendar_home_birthday_text, birthday.name),
-                modifier =
-                    Modifier
-                        .animateItem()
-                        .clip(CalendarDefaults.itemShape)
-                        .clickable(role = Role.Button) { onBirthdayClick(birthday) }
-                        .semantics { contentDescription = name },
+            CalendarBirthdayText(
+                displayName = contactDisplayName(name = birthday.name, nameQualifier = birthday.nameQualifier),
                 color = birthdayColor,
+                onClick = { onBirthdayClick(birthday) },
+                modifier = Modifier.animateItem(),
             )
         }
     }
 }
-
-internal fun CalendarContactBirthday.toDateRange(): LocalDateRange = LocalDateRange(start = date, endInclusive = date)

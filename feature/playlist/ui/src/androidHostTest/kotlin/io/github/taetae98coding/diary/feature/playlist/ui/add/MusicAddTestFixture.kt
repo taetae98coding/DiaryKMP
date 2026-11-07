@@ -48,7 +48,7 @@ internal fun screenTestViewModel(
 internal fun effectViewModel(effect: MusicAddEffect): MusicAddViewModel {
     val channel = Channel<MusicAddEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = channel.receiveAsFlow())
-    every { viewModel.add(any()) } answers { channel.trySend(effect).getOrThrow() }
+    every { viewModel.add(any(), tagIdSet = any()) } answers { channel.trySend(effect).getOrThrow() }
     return viewModel
 }
 

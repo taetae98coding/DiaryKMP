@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.core.model.location.Coordinate
@@ -55,7 +56,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-d076578f-3ad6-4942-939b-c41bf6593430 조회에 성공하면 저장된 제목, 설명, 주소, 좌표를 표시한다`() {
+    fun `TC-d076578f-3ad6-4942-939b-c41bf6593430 조회에 성공하면 저장된 제목, 설명, 컬러, 주소, 좌표를 표시한다`() {
         val detail = placeDetail()
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
@@ -67,6 +68,7 @@ class PlaceDetailScreenTest {
         composeRule.input(ADDRESS_INDEX).assert(hasText(detail.address))
         composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
         composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+        composeRule.onNodeWithText(SAVED_COLOR_HEX).assertExists()
         // 저장된 제목은 상단 바와 제목 입력 두 곳에 표시된다.
         composeRule
             .onAllNodes(hasText(detail.title))
@@ -132,22 +134,41 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-1600261e-c788-40a7-8949-b2a37e24b656 좌표가 성립하지 않아도 수정 중인 내용을 유지한다`() {
-        val detail = placeDetail()
+    fun `TC-c41354b3-d63b-4b24-972b-3f479606cb18 컬러를 바꾸면 수정 동작을 제공한다`() {
+        composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = placeDetail()))))
+        composeRule
+            .onAllNodes(hasContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
 
-        composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
+        composeRule.changeColor()
+
+        composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-1600261e-c788-40a7-8949-b2a37e24b656 좌표가 성립하지 않아도 수정 중인 내용을 유지한다`() {
+        composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = placeDetail()))))
 
         composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
         composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
-        composeRule.input(LATITUDE_INDEX).performTextReplacement(INVALID_LATITUDE)
-        composeRule.waitForIdle()
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitForIdle()
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
+        composeRule.changeColor()
 
-        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
-        composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
-        composeRule.input(LATITUDE_INDEX).assert(hasText(INVALID_LATITUDE))
-        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+        listOf(INVALID_LATITUDE, OUT_OF_RANGE_LATITUDE).forEach { invalidLatitude ->
+            composeRule.input(LATITUDE_INDEX).performTextReplacement(invalidLatitude)
+            composeRule.waitForIdle()
+            composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
+            composeRule.waitForIdle()
+
+            composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+            composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+            composeRule.input(ADDRESS_INDEX).assert(hasText(CHANGED_ADDRESS))
+            composeRule.input(LATITUDE_INDEX).assert(hasText(invalidLatitude))
+            composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
+            composeRule.onNodeWithText(CHANGED_COLOR_HEX).assertExists()
+        }
     }
 
     @Test

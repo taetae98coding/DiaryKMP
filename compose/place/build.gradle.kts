@@ -11,5 +11,11 @@ kotlin {
                 implementation(projects.library.composeUi)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

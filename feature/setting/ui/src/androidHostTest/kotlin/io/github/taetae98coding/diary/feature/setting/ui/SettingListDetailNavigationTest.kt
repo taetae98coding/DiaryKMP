@@ -47,6 +47,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileUiState
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
@@ -61,6 +62,8 @@ import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeViewMod
 import io.github.taetae98coding.diary.feature.setting.ui.home.settingHomeItemList
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapUiState
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapViewModel
+import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpUiState
+import io.github.taetae98coding.diary.feature.setting.ui.mcp.SettingMcpViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -217,6 +220,7 @@ class SettingListDetailNavigationTest {
             DEFAULT_MAP_ITEM_LABEL to SettingMapNavKey,
             DEFAULT_GEMINI_ITEM_LABEL to SettingGeminiNavKey,
             DEFAULT_FILE_ITEM_LABEL to SettingFileNavKey,
+            DEFAULT_MCP_ITEM_LABEL to SettingMcpNavKey,
         ).forEach { (itemLabel, detail) ->
             composeRule.onNodeWithText(itemLabel).performClick()
             composeRule.waitForIdle()
@@ -426,6 +430,11 @@ class SettingListDetailNavigationTest {
                     every { uiState } returns MutableStateFlow(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
                 }
             }
+            factory<SettingMcpViewModel> {
+                mockk(relaxed = true) {
+                    every { uiState } returns MutableStateFlow(SettingMcpUiState.Loading)
+                }
+            }
         }
 
     private companion object {
@@ -435,9 +444,16 @@ class SettingListDetailNavigationTest {
         const val DEFAULT_GOOGLE_LABEL = "Google"
         const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         const val DEFAULT_FILE_ITEM_LABEL = "Files"
+        const val DEFAULT_MCP_ITEM_LABEL = "MCP"
         const val DEFAULT_SETTING_HOME_TITLE = "Settings"
         val settingItemLabelList: List<String> =
-            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_FILE_ITEM_LABEL)
+            listOf(
+                DEFAULT_HOLIDAY_ITEM_LABEL,
+                DEFAULT_MAP_ITEM_LABEL,
+                DEFAULT_GEMINI_ITEM_LABEL,
+                DEFAULT_FILE_ITEM_LABEL,
+                DEFAULT_MCP_ITEM_LABEL,
+            )
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         const val EDITING_TEXT = "editing"
         const val DEFAULT_HOLIDAY_LOADING_DESCRIPTION = "Loading holidays"

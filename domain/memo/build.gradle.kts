@@ -9,15 +9,20 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.setting)
                 implementation(projects.domain.sync)
-                implementation(projects.logger.crashlytics.api)
                 api(libs.androidx.paging.common)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
 
         jvmTest {
             dependencies {
+                implementation(projects.logger.crashlytics.api)
                 implementation(libs.androidx.paging.testing)
-                implementation(projects.core.testing)
             }
         }
     }

@@ -4,11 +4,10 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail
 
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
@@ -18,9 +17,13 @@ import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTa
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -74,7 +77,7 @@ class TagDetailViewModelTest : FunSpec() {
         test("TC-18be6cac-d671-479d-bafc-87a099949731 조회가 실패하면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val findTagUseCase = mockk<FindTagUseCase>()
-                every { findTagUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                every { findTagUseCase(any()) } returns flowOf(Result.failure(IllegalStateException(Arb.string().next())))
                 val viewModel = viewModel(findTagUseCase = findTagUseCase)
 
                 viewModel.uiState.test {
@@ -89,7 +92,7 @@ class TagDetailViewModelTest : FunSpec() {
         test("TC-a51bbc33-302d-4e16-a3f9-3d4cd2c501f6 조회한 태그의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val tag = tag()
-                val changedTag = tag.copy(detail = fixtureMonkey.giveMeOne<TagDetail>())
+                val changedTag = tag.copy(detail = Arb.tagDetail().next())
                 val resultFlow = MutableSharedFlow<Result<Tag?>>(replay = 1)
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(any()) } returns resultFlow
@@ -188,9 +191,9 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-b5cee8b7-840d-4a72-920b-97c89936258d 저장 처리 중 전달된 저장 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "first-${fixtureMonkey.giveMeOne<String>()}")
-                val secondDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "second-${fixtureMonkey.giveMeOne<String>()}")
+                val id = Arb.kotlinUuid().next()
+                val firstDetail = Arb.tagDetail().next().copy(title = "first-${Arb.string().next()}")
+                val secondDetail = Arb.tagDetail().next().copy(title = "second-${Arb.string().next()}")
                 val completion = CompletableDeferred<Result<Int>>()
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery { updateTagUseCase(any()) } coAnswers { completion.await() }
@@ -266,7 +269,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 완료 처리 중 전달된 완료와 다시 시작 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
                 coEvery { finishTagUseCase(any()) } coAnswers { completion.await() }
@@ -301,7 +304,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 삭제 처리 중 전달된 삭제 요청은 처리하지 않고 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
                 coEvery { deleteTagUseCase(any()) } coAnswers { completion.await() }
@@ -331,8 +334,8 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 완료 처리 중 전달된 삭제와 수정 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val detail = fixtureMonkey.giveMeOne<TagDetail>()
+                val id = Arb.kotlinUuid().next()
+                val detail = Arb.tagDetail().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
                 coEvery { finishTagUseCase(any()) } coAnswers { completion.await() }
@@ -365,7 +368,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-b3d53578-e089-49fa-8ea2-dc31848b0680 수정 처리 중 전달된 완료 요청은 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val completion = CompletableDeferred<Result<Int>>()
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery { updateTagUseCase(any()) } coAnswers { completion.await() }
@@ -378,7 +381,7 @@ class TagDetailViewModelTest : FunSpec() {
                         finishTagUseCase = finishTagUseCase,
                     )
 
-                viewModel.update(fixtureMonkey.giveMeOne<TagDetail>())
+                viewModel.update(Arb.tagDetail().next())
                 runCurrent()
 
                 viewModel.finish()
@@ -393,9 +396,9 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("수정이 취소되면 다음 수정 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
-                val firstDetail = fixtureMonkey.giveMeOne<TagDetail>()
-                val secondDetail = fixtureMonkey.giveMeOne<TagDetail>()
+                val id = Arb.kotlinUuid().next()
+                val firstDetail = Arb.tagDetail().next()
+                val secondDetail = Arb.tagDetail().next()
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery {
                     updateTagUseCase(UpdateTagUseCase.Parameter(id = id, detail = firstDetail))
@@ -425,7 +428,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("완료가 취소되면 다음 다시 시작 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
                 coEvery { finishTagUseCase(parameter = id) } throws CancellationException()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
@@ -449,7 +452,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("다시 시작이 취소되면 다음 완료 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
                 coEvery { restartTagUseCase(parameter = id) } throws CancellationException()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
@@ -473,7 +476,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("삭제가 취소되면 다음 삭제 요청을 처리한다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
                 coEvery { deleteTagUseCase(parameter = id) } throws CancellationException()
                 val viewModel =
@@ -496,7 +499,7 @@ class TagDetailViewModelTest : FunSpec() {
         test("TC-a472e4f6-4936-4858-b5f4-9e72540c8fd0 수정 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
             runTest(mainDispatcher) {
                 val tag = tag()
-                val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                val detail = Arb.tagDetail().next().copy(title = "title-${Arb.string().next()}")
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
@@ -530,7 +533,7 @@ class TagDetailViewModelTest : FunSpec() {
                 val viewModel = viewModel(updateTagUseCase = updateTagUseCase)
 
                 viewModel.effect.test {
-                    viewModel.update(fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"))
+                    viewModel.update(Arb.tagDetail().next().copy(title = "title-${Arb.string().next()}"))
                     advanceUntilIdle()
 
                     awaitItem() shouldBe TagDetailEffect.UpdateSucceeded
@@ -541,7 +544,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 완료를 실행하면 현재 태그의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val finishTagUseCase = mockk<FinishTagUseCase>()
                 coEvery { finishTagUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -563,7 +566,7 @@ class TagDetailViewModelTest : FunSpec() {
 
         test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 다시 시작을 실행하면 현재 태그의 다시 시작을 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val restartTagUseCase = mockk<RestartTagUseCase>()
                 coEvery { restartTagUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -583,9 +586,67 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 완료에 실패하면 Effect 없이 진행 상태만 해제하고 다시 완료할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val finishTagUseCase = mockk<FinishTagUseCase>()
+                coEvery { finishTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, finishTagUseCase = finishTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.finish()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.finish()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isFinishInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { finishTagUseCase(parameter = tag.id) }
+            }
+        }
+
+        test("TC-d2fb1c8b-cce8-4559-8770-f4ea37448da5 다시 시작에 실패하면 Effect 없이 진행 상태만 해제하고 다시 시작할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val restartTagUseCase = mockk<RestartTagUseCase>()
+                coEvery { restartTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, restartTagUseCase = restartTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.restart()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.restart()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isFinishInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { restartTagUseCase(parameter = tag.id) }
+            }
+        }
+
         test("TC-26fe06e0-1644-4d0b-9787-27d69f252e70 TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 삭제에 성공하면 현재 태그의 삭제를 요청하고 삭제 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
-                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val id = Arb.kotlinUuid().next()
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
                 coEvery { deleteTagUseCase(any()) } returns Result.success(1)
                 val viewModel =
@@ -606,25 +667,39 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-dc0fdee9-0949-4538-9fc5-fd078d6e377d 삭제 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 삭제할 수 있다") {
             runTest(mainDispatcher) {
+                val tag = tag()
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
                 val deleteTagUseCase = mockk<DeleteTagUseCase>()
-                coEvery { deleteTagUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
-                val viewModel = viewModel(deleteTagUseCase = deleteTagUseCase)
+                coEvery { deleteTagUseCase(any()) } returns Result.failure(IllegalStateException(Arb.string().next()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, deleteTagUseCase = deleteTagUseCase)
 
-                viewModel.effect.test {
-                    viewModel.delete()
-                    advanceUntilIdle()
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.delete()
+                        advanceUntilIdle()
 
-                    expectNoEvents()
+                        expectNoEvents()
+
+                        viewModel.delete()
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isDeleteInProgress shouldBe false
                 }
+
+                coVerify(exactly = 2) { deleteTagUseCase(parameter = tag.id) }
             }
         }
 
         test("TC-1c11b1ac-8fe1-4338-b2c0-68c84d8eea13 수정에 성공해 저장 이모지와 제목이 바뀌면 화면 제목에 쓰는 저장 내용이 갱신된다") {
             runTest(mainDispatcher) {
                 val tag = tag().let { value -> value.copy(detail = value.detail.copy(emoji = "\uD83C\uDFC3")) }
-                val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"
+                val newTitle = "new-${Arb.string().next()}"
                 val newEmoji = "\uD83C\uDFCA"
                 val resultFlow = MutableSharedFlow<Result<Tag?>>(replay = 1)
                 val findTagUseCase = mockk<FindTagUseCase>()
@@ -658,15 +733,14 @@ class TagDetailViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun tag(): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
 
         private fun emptyFindTagUseCase(): FindTagUseCase {
             val findTagUseCase = mockk<FindTagUseCase>()
@@ -675,7 +749,7 @@ class TagDetailViewModelTest : FunSpec() {
         }
 
         private fun viewModel(
-            id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
+            id: Uuid = Arb.kotlinUuid().next(),
             findTagUseCase: FindTagUseCase = emptyFindTagUseCase(),
             updateTagUseCase: UpdateTagUseCase = mockk(relaxed = true),
             finishTagUseCase: FinishTagUseCase = mockk(relaxed = true),

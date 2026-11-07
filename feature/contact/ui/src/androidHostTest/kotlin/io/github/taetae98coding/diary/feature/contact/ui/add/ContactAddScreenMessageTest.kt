@@ -95,6 +95,7 @@ class ContactAddScreenMessageTest {
                     match { detail ->
                         detail.name == name && detail.phoneNumberList.map { value -> value.number } == listOfNotNull(phoneNumber)
                     },
+                tagIdSet = emptySet(),
             )
         }
         composeRule.onNodeWithText(expectedMessage).assertExists()

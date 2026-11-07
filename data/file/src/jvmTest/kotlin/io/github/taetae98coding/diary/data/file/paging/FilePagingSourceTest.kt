@@ -3,25 +3,22 @@ package io.github.taetae98coding.diary.data.file.paging
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.core.testing.file.fileRemoteEntity
 import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 
 private const val PAGE_SIZE = 20
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 private val pagingConfig: PagingConfig =
     PagingConfig(pageSize = PAGE_SIZE, initialLoadSize = PAGE_SIZE, enablePlaceholders = false)
@@ -29,8 +26,8 @@ private val pagingConfig: PagingConfig =
 class FilePagingSourceTest :
     FunSpec({
         test("이어서 불러올 때 받은 마지막 파일의 올린 시각과 식별자를 기준으로 불러올 개수만큼 요청한다") {
-            val firstPage = List(PAGE_SIZE) { remoteFile() }
-            val secondPage = List(PAGE_SIZE) { remoteFile() }
+            val firstPage = List(PAGE_SIZE) { Arb.fileRemoteEntity().next() }
+            val secondPage = List(PAGE_SIZE) { Arb.fileRemoteEntity().next() }
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } returns secondPage
@@ -49,7 +46,7 @@ class FilePagingSourceTest :
                 PAGE_SIZE - 1 to false,
                 0 to false,
             ).forEach { (count, hasNext) ->
-                val firstPage = List(count) { remoteFile() }
+                val firstPage = List(count) { Arb.fileRemoteEntity().next() }
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
                 coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = PAGE_SIZE) } returns emptyList()
@@ -69,7 +66,7 @@ class FilePagingSourceTest :
         }
 
         test("TC-63046bc0-52f0-4bd1-96ee-ce560fa074cf 이어서 불러오기에 실패해도 이미 불러온 파일은 남고 스스로 다시 요청하지 않는다") {
-            val firstPage = List(PAGE_SIZE) { remoteFile() }
+            val firstPage = List(PAGE_SIZE) { Arb.fileRemoteEntity().next() }
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } throws IllegalStateException("fetch")
@@ -84,7 +81,7 @@ class FilePagingSourceTest :
 
         test("다시 불러오면 보던 자리와 관계없이 처음부터 불러온다") {
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns List(PAGE_SIZE) { remoteFile() }
+            coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns List(PAGE_SIZE) { Arb.fileRemoteEntity().next() }
             val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
@@ -94,8 +91,6 @@ class FilePagingSourceTest :
         }
     }) {
     public companion object {
-        private fun remoteFile(): FileRemoteEntity = fixtureMonkey.giveMeOne<FileRemoteEntity>()
-
         private fun FileRemoteEntity.cursor(): FileCursorRemoteEntity = FileCursorRemoteEntity(createdAt = createdAt, id = id)
     }
 }

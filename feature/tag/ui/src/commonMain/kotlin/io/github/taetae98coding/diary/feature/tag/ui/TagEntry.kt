@@ -17,10 +17,14 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -44,7 +48,7 @@ import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.tagEntry(
+internal fun EntryProviderScope<ScreenNavKey>.tagEntry(
     backStack: NavBackStack<ScreenNavKey>,
     homeReselectEvent: Flow<Unit>,
 ) {
@@ -186,6 +190,14 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate -> backStack.navigateToPlaceAddFromTagDetail(tagId = navKey.id, coordinate = coordinate) },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
+            navigateToContactAdd = { backStack.navigateToContactAddFromTagDetail(tagId = navKey.id) },
+            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
+            navigateToChecklistAdd = { backStack.navigateToChecklistAddFromTagDetail(tagId = navKey.id) },
+            navigateToChecklistDetail = { id -> backStack.add(ChecklistDetailNavKey(id = id)) },
+            navigateToMusicAdd = { backStack.navigateToMusicAddFromTagDetail(tagId = navKey.id) },
+            navigateToMusicDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
+            navigateToQrAdd = { backStack.navigateToQrAddFromTagDetail(tagId = navKey.id) },
+            navigateToQrDetail = { id -> backStack.add(QrDetailNavKey(id = id)) },
             id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },

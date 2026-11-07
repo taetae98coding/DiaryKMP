@@ -23,23 +23,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.navigation.appEntryProvider
 import io.github.taetae98coding.diary.app.shared.rememberAppState
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
-import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.logger.analytics.api.ScreenViewLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -47,10 +43,13 @@ import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,9 +91,9 @@ class ScreenViewEffectTest {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
         val appState = setListDetailScreenViewEffect(log)
 
-        composeRule.runOnIdle { appState.backStack.add(TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { appState.backStack.add(TagMemoFinishedListNavKey(tagId = Arb.kotlinUuid().next())) }
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
-        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
 
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
@@ -120,7 +119,7 @@ class ScreenViewEffectTest {
     @Test
     fun `TC-e41ebef2-9037-4cf7-ab7c-4abf4694364b 화면 안에서 연 다이얼로그는 화면 조회로 남지 않는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
-        val dialogText = "dialog${fixtureMonkey.giveMeOne<Int>()}"
+        val dialogText = "dialog${Arb.int().next()}"
         var isDialogVisible by mutableStateOf(false)
 
         composeRule.setContent {
@@ -184,7 +183,7 @@ class ScreenViewEffectTest {
             ScreenViewEffect(log = log, appState = appState)
         }
 
-        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.runOnIdle {
             verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_DETAIL)) }
         }
@@ -238,7 +237,7 @@ class ScreenViewEffectTest {
     @Test
     fun `TC-5aaffc7f-b4ed-45b0-82a4-6ea04e4f4f60 현재 화면이 바뀌지 않으면 화면 조회가 더 남지 않는다`() {
         val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
-        val content = mutableStateOf(value = fixtureMonkey.giveMeOne<String>())
+        val content = mutableStateOf(value = Arb.string().next())
 
         composeRule.setContent {
             BasicText(text = content.value)
@@ -272,13 +271,13 @@ class ScreenViewEffectTest {
     @Test
     fun `TC-93c21a25-8e9c-4873-bc82-f6dde6365764 기록에 실패해도 화면은 그대로 표시된다`() {
         val failingDelegate = mockk<DiaryLoggerDelegate>()
-        every { failingDelegate.log(log = any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+        every { failingDelegate.log(log = any()) } throws IllegalStateException(Arb.string().next())
         DiaryLogger.add(delegate = failingDelegate)
         lateinit var appState: AppState
 
         composeRule.setContent {
             appState = rememberAppState()
-            BasicText(text = fixtureMonkey.giveMeOne<String>(), modifier = Modifier.testTag(CONTENT_TEST_TAG))
+            BasicText(text = Arb.string().next(), modifier = Modifier.testTag(CONTENT_TEST_TAG))
             ScreenViewEffect(log = DiaryLogger::log, appState = appState)
         }
 
@@ -313,12 +312,7 @@ class ScreenViewEffectTest {
             appState = rememberAppState()
             val backStack = appState.backStack
             val appEntryProvider =
-                remember(backStack) {
-                    entryProvider<ScreenNavKey>(fallback = { key -> NavEntry(key = key) {} }) {
-                        memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
-                    }
-                }
+                remember(backStack) { appEntryProvider(backStack = backStack) }
 
             DiaryTheme {
                 NavDisplay(
@@ -353,6 +347,5 @@ class ScreenViewEffectTest {
         private const val LIST_CONTENT: String = "TagMemoFinishedListContent"
         private const val DETAIL_CONTENT: String = "MemoDetailContent"
         private const val OTHER_CONTENT: String = "OtherContent"
-        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

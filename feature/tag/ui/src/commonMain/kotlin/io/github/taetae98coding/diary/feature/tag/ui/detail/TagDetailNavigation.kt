@@ -16,4 +16,12 @@ internal class TagDetailNavigation(
     val navigateToWebDetail: (Uuid) -> Unit,
     val navigateToPlaceAdd: (Coordinate?) -> Unit,
     val navigateToPlaceDetail: (Uuid) -> Unit,
+    val navigateToContactAdd: () -> Unit,
+    val navigateToContactDetail: (Uuid) -> Unit,
+    val navigateToChecklistAdd: () -> Unit,
+    val navigateToChecklistDetail: (Uuid) -> Unit,
+    val navigateToMusicAdd: () -> Unit,
+    val navigateToMusicDetail: (Uuid) -> Unit,
+    val navigateToQrAdd: () -> Unit,
+    val navigateToQrDetail: (Uuid) -> Unit,
 )

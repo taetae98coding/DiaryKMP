@@ -28,7 +28,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItem
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistItemSort
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistSummary
@@ -39,7 +39,6 @@ import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKe
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddUiState
 import io.github.taetae98coding.diary.feature.checklist.ui.add.ChecklistAddViewModel
-import io.github.taetae98coding.diary.feature.checklist.ui.card.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailEffect
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailItemUiState
 import io.github.taetae98coding.diary.feature.checklist.ui.detail.ChecklistDetailItemViewModel
@@ -49,6 +48,8 @@ import io.github.taetae98coding.diary.feature.checklist.ui.home.ChecklistHomeVie
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -119,7 +120,7 @@ class ChecklistNavDisplayTest {
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        backStack.toList() shouldBe listOf(ChecklistNavDisplayMoreNavKey, ChecklistHomeNavKey, ChecklistAddNavKey)
+        backStack.toList() shouldBe listOf(ChecklistNavDisplayMoreNavKey, ChecklistHomeNavKey, ChecklistAddNavKey())
     }
 
     @Test
@@ -147,7 +148,7 @@ class ChecklistNavDisplayTest {
         composeRule.waitForIdle()
 
         backStack.toList() shouldBe listOf(ChecklistNavDisplayMoreNavKey, ChecklistHomeNavKey)
-        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any(), itemContentList = any()) } }
+        addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any(), itemContentList = any(), tagIdSet = any()) } }
     }
 
     @Test
@@ -350,7 +351,7 @@ class ChecklistNavDisplayTest {
 
         CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
             KoinApplication(configuration = koinConfiguration { modules(navDisplayViewModelModule()) }) {
-                DiaryTheme(content = content)
+                ChecklistTagTestTheme(content = content)
             }
         }
     }
@@ -358,6 +359,8 @@ class ChecklistNavDisplayTest {
     // 화면을 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun navDisplayViewModelModule() =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<ChecklistHomeViewModel>(relaxed = true).apply {
                     every { checklistPagingData } returns MutableStateFlow(checklistPagingDataOf(homeSummaryList))
@@ -429,7 +432,7 @@ class ChecklistNavDisplayTest {
                 testChecklistSummary(titlePrefix = "${index.toString().padStart(length = 2, padChar = '0')}-")
             }
 
-        fun item(content: String): ChecklistItem = checklistTestFixtureMonkey.checklistItem(isChecked = false, isDeleted = false, content = content)
+        fun item(content: String): ChecklistItem = Arb.checklistItem(isChecked = false, isDeleted = false, content = content).next()
     }
 }
 

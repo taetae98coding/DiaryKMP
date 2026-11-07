@@ -6,6 +6,14 @@ export const DAILY_MEMO_NOTIFICATION_COLLAPSE_ID = "daily-memo";
 export const DAILY_MEMO_NOTIFICATION_ANDROID_CHANNEL_ID = "dailyMemo";
 export const DAILY_MEMO_NOTIFICATION_ANDROID_ICON = "ic_notification";
 
+// 앱의 core:navigation ScreenDeepLink와 같은 키와 주소여야 앱이 알아보고 화면을 연다.
+export const DEEP_LINK_DATA_KEY = "deepLink";
+
+// 알림이 발생한 날을 하루 형식으로 여는 시간표 주소다. localDate는 기기 시간대의 YYYY-MM-DD 날짜다.
+export function buildTimetableDeepLink(localDate: string): string {
+  return `diary://timetable?type=day&date=${localDate}`;
+}
+
 export type DailyMemoNotificationContent =
   | { kind: "listed"; titles: string[] }
   | { kind: "empty" }
@@ -57,12 +65,19 @@ export function buildNotificationText(languageTag: string, content: DailyMemoNot
   }
 }
 
-export function buildFcmMessage(target: FcmTarget, text: NotificationText, expiresAt: Date, now: Date): FcmMessage {
+export function buildFcmMessage(
+  target: FcmTarget,
+  text: NotificationText,
+  localDate: string,
+  expiresAt: Date,
+  now: Date,
+): FcmMessage {
   const ttlSeconds = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / 1000));
 
   return {
     ...target,
     notification: text.body === undefined ? { title: text.title } : { title: text.title, body: text.body },
+    data: { [DEEP_LINK_DATA_KEY]: buildTimetableDeepLink(localDate) },
     android: {
       collapse_key: DAILY_MEMO_NOTIFICATION_COLLAPSE_ID,
       ttl: `${ttlSeconds}s`,

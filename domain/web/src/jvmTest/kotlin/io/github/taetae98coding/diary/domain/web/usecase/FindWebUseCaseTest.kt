@@ -1,19 +1,22 @@
 package io.github.taetae98coding.diary.domain.web.usecase
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.account.accountUser
+import io.github.taetae98coding.diary.core.testing.web.web
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -24,7 +27,7 @@ import kotlin.uuid.Uuid
 class FindWebUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 그 계정의 웹 항목이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val account = Arb.accountUser().next()
             val web = web()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -44,8 +47,8 @@ class FindWebUseCaseTest :
         }
 
         Given("상세 대상이 될 수 없는 웹 항목이 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val account = Arb.accountUser().next()
+            val webId = Arb.kotlinUuid().next()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
@@ -64,7 +67,7 @@ class FindWebUseCaseTest :
         }
 
         Given("계정 조회가 실패하도록 준비되어 있다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val throwable = IllegalStateException(Arb.string().next())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountWebRepository = mockk<AccountWebRepository>(relaxed = true)
@@ -76,7 +79,7 @@ class FindWebUseCaseTest :
 
             When("상세 대상 웹 항목을 조회한다") {
                 Then("TC-bfaaa099-4f3f-430f-835a-81ccb01b0c6a 실패를 그대로 전달한다") {
-                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                    useCase(parameter = Arb.kotlinUuid().next())
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -85,14 +88,13 @@ class FindWebUseCaseTest :
         }
     }) {
     public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
         private fun web(): Web =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Web>()
-                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .web()
+                .next()
+                .copy(
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

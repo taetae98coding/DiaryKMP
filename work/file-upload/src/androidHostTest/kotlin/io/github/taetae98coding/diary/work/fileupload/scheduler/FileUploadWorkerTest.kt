@@ -8,15 +8,14 @@ import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.domain.file.usecase.UploadFileUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadNotifier
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResult
 import io.github.taetae98coding.diary.work.fileupload.report.FileUploadResultReporter
@@ -28,6 +27,9 @@ import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWorkImpl
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -49,8 +51,6 @@ import java.io.File
 import java.io.IOException
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class FileUploadWorkerTest {
@@ -66,7 +66,7 @@ class FileUploadWorkerTest {
     @Test
     fun `맡긴 파일과 계정으로 올리기를 실행하고 성공으로 끝낸다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
             coEvery { fileUploadWork.doWork(request = request, onStep = any()) } returns Unit
 
             val result = worker(request = request, dispatcher = StandardTestDispatcher(testScheduler)).doWork()
@@ -78,8 +78,8 @@ class FileUploadWorkerTest {
     @Test
     fun `TC-da0150d5-c73e-4076-a78f-514a8d001593 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝내고 기기에 둔 제목과 설명을 지운다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
-            coEvery { fileUploadWork.doWork(request = request, onStep = any()) } throws IOException(fixtureMonkey.giveMeOne<String>())
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
+            coEvery { fileUploadWork.doWork(request = request, onStep = any()) } throws IOException(Arb.string().next())
 
             val result = worker(request = request, dispatcher = StandardTestDispatcher(testScheduler)).doWork()
 
@@ -90,7 +90,7 @@ class FileUploadWorkerTest {
     @Test
     fun `성공으로 끝나면 기기에 둔 제목과 설명을 지운다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
             coEvery { fileUploadWork.doWork(request = request, onStep = any()) } returns Unit
 
             worker(request = request, dispatcher = StandardTestDispatcher(testScheduler)).doWork()
@@ -101,12 +101,12 @@ class FileUploadWorkerTest {
     @Test
     fun `TC-3bc3a961-418a-498c-aadf-48ac5abdf7fd 시스템이 작업을 멈춘 뒤 다시 실행하면 같은 제목과 설명으로 다시 올린다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
             val inputData = inputData(request = request, dispatcher = StandardTestDispatcher(testScheduler))
             var runCount = 0
             coEvery { fileUploadWork.doWork(request = request, onStep = any()) } answers {
                 runCount++
-                if (runCount == 1) throw CancellationException(fixtureMonkey.giveMeOne<String>())
+                if (runCount == 1) throw CancellationException(Arb.string().next())
             }
 
             shouldThrow<CancellationException> { worker(inputData = inputData, dispatcher = StandardTestDispatcher(testScheduler)).doWork() }
@@ -121,9 +121,9 @@ class FileUploadWorkerTest {
     @Test
     fun `TC-5ac880b6-b3b1-4069-a145-c2997888d56f FileHome을 보고 있어도 올리기를 시작하면 진행 알림을 띄운다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
-            val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
-            val file = fixtureMonkey.giveMeOne<DiaryFile>()
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
+            val source = Arb.fileUploadSource().next().copy(uri = request.content.uri)
+            val file = Arb.diaryFile().next()
             val uploadFileUseCase = mockk<UploadFileUseCase>()
             every { uploadFileUseCase(parameter = any()) } returns
                 flowOf(
@@ -156,9 +156,9 @@ class FileUploadWorkerTest {
     @Test
     fun `TC-4086bb66-85a0-4489-bb0f-1ed3d084df4b 진행 알림을 띄우지 못해도 올리기는 끝까지 진행되고 결과를 알린다`() =
         runTest {
-            val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
-            val source = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
-            val file = fixtureMonkey.giveMeOne<DiaryFile>()
+            val request = FileUploadRequest(content = Arb.fileUploadContent().next(), accountId = Arb.kotlinUuid().next())
+            val source = Arb.fileUploadSource().next().copy(uri = request.content.uri)
+            val file = Arb.diaryFile().next()
             val uploadFileUseCase = mockk<UploadFileUseCase>()
             every { uploadFileUseCase(parameter = any()) } returns
                 flowOf(
@@ -178,7 +178,7 @@ class FileUploadWorkerTest {
                 )
             val foregroundUpdater =
                 mockk<ForegroundUpdater> {
-                    every { setForegroundAsync(any(), any(), any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                    every { setForegroundAsync(any(), any(), any()) } throws IllegalStateException(Arb.string().next())
                 }
 
             val result = worker(request = request, work = work, foregroundUpdater = foregroundUpdater, dispatcher = StandardTestDispatcher(testScheduler)).doWork()

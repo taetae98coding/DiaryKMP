@@ -14,20 +14,22 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.lifecycle.Lifecycle
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
@@ -92,17 +94,42 @@ class MemoFinishedListExecutionBoundaryTest {
         assertScrolledPosition(memoList)
     }
 
+    @Test
+    fun `TC-d97bbb60-a26b-486a-9da6-7530b3765bc8 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+        val memoList = memoList()
+        val viewModel = screenTestViewModel(memoList = memoList)
+        val syncViewModel = screenTestSyncViewModel()
+        var isFinishedListOnTop by mutableStateOf(true)
+        composeRule.setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            if (isFinishedListOnTop) {
+                saveableStateHolder.SaveableStateProvider(key = MEMO_FINISHED_LIST_ENTRY_KEY) {
+                    FinishedList(viewModel = viewModel, navigateToDetail = {}, syncViewModel = syncViewModel)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { isFinishedListOnTop = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isFinishedListOnTop = true }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { syncViewModel.refresh() }
+    }
+
     @Composable
     private fun FinishedList(
         viewModel: MemoFinishedListViewModel,
         navigateToDetail: (Uuid) -> Unit,
+        syncViewModel: SyncRefreshViewModel = screenTestSyncViewModel(),
     ) {
         DiaryTheme {
             MemoFinishedListScreen(
                 navigateUp = {},
                 navigateToDetail = navigateToDetail,
                 memoViewModel = viewModel,
-                syncViewModel = screenTestSyncViewModel(),
+                syncViewModel = syncViewModel,
             )
         }
     }
@@ -132,10 +159,10 @@ class MemoFinishedListExecutionBoundaryTest {
     }
 
     private fun memoList(): List<Memo> {
-        val titlePrefix = "FinishedBoundaryMemo${fixtureMonkey.giveMeOne<Int>()}"
+        val titlePrefix = "FinishedBoundaryMemo${Arb.int().next()}"
 
         return List(MEMO_COUNT) { index ->
-            val memo = fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null)
+            val memo = Arb.memo(isFinished = true, isDeleted = false, primaryTagId = null).next()
             memo.copy(detail = memo.detail.copy(title = "${titlePrefix}Index$index", dateTime = null))
         }
     }
@@ -147,8 +174,5 @@ class MemoFinishedListExecutionBoundaryTest {
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val DEFAULT_DEFAULT_SORT = "Default"
         private const val DEFAULT_TITLE_SORT = "Title"
-
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
     }
 }

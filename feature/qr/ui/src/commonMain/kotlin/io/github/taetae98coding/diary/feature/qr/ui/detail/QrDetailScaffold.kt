@@ -11,6 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
@@ -19,24 +22,34 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddForm
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.previewQr
 import io.github.taetae98coding.diary.feature.qr.ui.qr_detail_loading_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_detail_update_button_content_description
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun QrDetailScaffold(
     onEvent: (QrDetailScaffoldEvent) -> Unit,
+    onFormEvent: (QrFormEvent) -> Unit,
+    onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
+    tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
+    tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     actionProvider: () -> QrAction? = { null },
     componentVisibleProvider: () -> QrDetailScaffoldComponentVisible = { QrDetailScaffoldComponentVisible() },
 ) {
@@ -79,9 +92,11 @@ internal fun QrDetailScaffold(
         ) { isContent ->
             if (isContent) {
                 QrAddForm(
+                    onEvent = onFormEvent,
                     modifier = Modifier.fillMaxSize(),
                     state = state,
                     isMapDisplayedProvider = { (uiStateProvider() as? QrDetailUiState.Content)?.isMapDisplayed == true },
+                    tagUiStateProvider = tagUiStateProvider,
                 )
             } else {
                 DiaryLoadingBox(
@@ -91,6 +106,13 @@ internal fun QrDetailScaffold(
             }
         }
     }
+
+    EntityTagPickerDialogHost(
+        dialogState = state.tagPickerDialogState,
+        onEvent = onTagPickerEvent,
+        tagPagingItems = tagPagingItems,
+        uiStateProvider = tagUiStateProvider,
+    )
 }
 
 private class QrDetailUiStatePreviewParameter : PreviewParameterProvider<QrDetailUiState> {
@@ -111,6 +133,8 @@ private fun QrDetailScaffoldPreview(
     DiaryTheme {
         QrDetailScaffold(
             onEvent = {},
+            onFormEvent = {},
+            onTagPickerEvent = {},
             state = rememberQrAddFormState(initialDetail = detail),
             uiStateProvider = { uiState },
         )

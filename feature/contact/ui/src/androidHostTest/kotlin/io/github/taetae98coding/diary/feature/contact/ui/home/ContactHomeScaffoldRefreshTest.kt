@@ -7,9 +7,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.contact.ContactListEvent
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactListItem
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,7 +71,7 @@ class ContactHomeScaffoldRefreshTest {
     }
 
     private fun setContactHomeScaffold(
-        contactList: List<Contact> = emptyList(),
+        contactList: List<ContactListItem> = emptyList(),
         isRefreshingProvider: () -> Boolean = { false },
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
     ) {
@@ -80,6 +81,7 @@ class ContactHomeScaffoldRefreshTest {
             DiaryTheme {
                 ContactHomeScaffold(
                     onEvent = onEvent,
+                    onContactListEvent = {},
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshingProvider()) },
                 )

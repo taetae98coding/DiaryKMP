@@ -5,9 +5,11 @@ import io.github.taetae98coding.diary.core.database.api.checklist.entity.Checkli
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklist.transaction.AccountChecklistTransaction
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklisttag.checklistTagTable
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -20,6 +22,7 @@ internal class AccountChecklistTransactionImpl(
         accountId: Uuid,
         checklist: ChecklistLocalEntity,
         itemList: List<ChecklistItemLocalEntity>,
+        checklistTagList: List<EntityTagLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.checklistDao().upsert(checklist)
@@ -40,6 +43,7 @@ internal class AccountChecklistTransactionImpl(
                     )
                 },
             )
+            database.checklistTagTable().upsertPending(accountId = accountId, entityTagList = checklistTagList)
         }
     }
 

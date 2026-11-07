@@ -1,9 +1,11 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -43,12 +45,23 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
+    fun `TC-788e8b77-3937-4809-b69a-b846b0c1a74f 알게 된 경로가 있어도 제목에는 이름만 표시한다`() {
+        val detail = testContactDetail(name = CONTACT_NAME, howWeMet = CONTACT_HOW_WE_MET)
+
+        setContactDetailScaffold(uiState = content(detail = detail))
+
+        composeRule.onNode(hasText(CONTACT_NAME) and SemanticsMatcher.keyNotDefined(SemanticsProperties.EditableText)).assertExists()
+        composeRule.onNode(hasText(CONTACT_NAME, substring = true) and hasText(CONTACT_HOW_WE_MET, substring = true)).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-18548af4-447a-4739-808b-8c5bda1d2f6b 조회 중에는 입력과 수정 삭제 동작을 제공하지 않는다`() {
         setContactDetailScaffold(uiState = ContactDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_NAME_LABEL).assertDoesNotExist()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
     }
 
     @Test
@@ -183,6 +196,7 @@ class ContactDetailScaffoldTest {
 
     private companion object {
         private const val CONTACT_NAME = "ContactDetailName"
+        private const val CONTACT_HOW_WE_MET = "ContactDetailHowWeMet"
         private const val BIRTHDAY_CALENDAR_LUNAR = "Lunar"
         private const val DEFAULT_NAME_LABEL = "Name"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"

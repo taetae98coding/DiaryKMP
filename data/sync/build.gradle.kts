@@ -11,5 +11,11 @@ kotlin {
                 implementation(projects.domain.sync)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

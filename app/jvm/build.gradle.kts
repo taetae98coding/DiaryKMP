@@ -40,16 +40,17 @@ private val macRuntimeProvisioningProfile = providers.gradleProperty("diary.mac.
 private val macAppResourcesDir = layout.buildDirectory.dir("macAppResources")
 
 // 샌드박스 앱은 번들 밖에 풀어 둔 네이티브 라이브러리를 불러올 수 없으므로, SQLite 드라이버의 라이브러리를 번들 resources로 옮긴다.
-private val prepareMacAppResources by tasks.registering(Sync::class) {
-    val runtimeClasspath = configurations.named("jvmRuntimeClasspath")
+private val prepareMacAppResources =
+    tasks.register<Sync>("prepareMacAppResources") {
+        val runtimeClasspath = configurations.named("jvmRuntimeClasspath")
 
-    from(runtimeClasspath.map { classpath -> classpath.filter { file -> file.name.startsWith("sqlite-bundled-jvm") }.map(::zipTree) }) {
-        include("natives/osx_arm64/libsqliteJni.dylib")
-        eachFile { path = "macos-arm64/$name" }
-        includeEmptyDirs = false
+        from(runtimeClasspath.map { classpath -> classpath.filter { file -> file.name.startsWith("sqlite-bundled-jvm") }.map(::zipTree) }) {
+            include("natives/osx_arm64/libsqliteJni.dylib")
+            eachFile { path = "macos-arm64/$name" }
+            includeEmptyDirs = false
+        }
+        into(macAppResourcesDir)
     }
-    into(macAppResourcesDir)
-}
 
 kotlin {
     jvm()
@@ -120,4 +121,11 @@ tasks.matching { it.name == "prepareAppResources" }.configureEach {
 
 tasks.withType<JavaExec>().matching { it.name == "hotRunJvm" }.configureEach {
     jvmArgs(runJvmArgs)
+}
+
+// $APPDIR는 패키징된 앱의 실행기만 앱 경로로 바꾸므로, Gradle로 실행할 때는 이 경로를 빼서 드라이버가 jar 안의 라이브러리를 쓰게 한다.
+tasks.withType<JavaExec>().matching { it.name == "run" }.configureEach {
+    doFirst {
+        jvmArgs = jvmArgs.orEmpty().filterNot { arg -> arg.startsWith("-Dandroidx.sqlite.driver.bundled.path=") }
+    }
 }

@@ -3,17 +3,19 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import app.cash.turbine.test
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.domain.memo.exception.MemoTitleBlankException
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -65,7 +67,7 @@ class MemoAddViewModelTest : FunSpec() {
                     coVerify(exactly = 1) { useCase(AddMemoUseCase.Parameter(detail = firstDetail)) }
                     coVerify(exactly = 0) { useCase(AddMemoUseCase.Parameter(detail = secondDetail)) }
 
-                    completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                    completion.complete(Result.success(Arb.kotlinUuid().next()))
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
@@ -76,7 +78,7 @@ class MemoAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMemoUseCase = useCase)
 
                 viewModel.effect.test {
@@ -94,7 +96,7 @@ class MemoAddViewModelTest : FunSpec() {
 
         test("제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "  ")
+                val detail = Arb.memoDetail().next().copy(title = "  ")
                 val useCase = mockk<AddMemoUseCase>()
                 coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(MemoTitleBlankException())
                 val viewModel = viewModel(addMemoUseCase = useCase)
@@ -127,7 +129,7 @@ class MemoAddViewModelTest : FunSpec() {
 
                     expectMostRecentItem().isInProgress.shouldBeTrue()
 
-                    completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
+                    completion.complete(Result.success(Arb.kotlinUuid().next()))
                     advanceUntilIdle()
 
                     expectMostRecentItem().isInProgress.shouldBeFalse()
@@ -142,7 +144,7 @@ class MemoAddViewModelTest : FunSpec() {
                 val secondDetail = detail(titlePrefix = "second")
                 val useCase = mockk<AddMemoUseCase>()
                 coEvery { useCase(AddMemoUseCase.Parameter(detail = firstDetail)) } throws CancellationException()
-                coEvery { useCase(AddMemoUseCase.Parameter(detail = secondDetail)) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(AddMemoUseCase.Parameter(detail = secondDetail)) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMemoUseCase = useCase)
 
                 viewModel.add(detail = firstDetail)
@@ -163,7 +165,7 @@ class MemoAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val detail = detail()
                 val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMemoUseCase = useCase)
 
                 viewModel.add(detail = detail)
@@ -184,27 +186,33 @@ class MemoAddViewModelTest : FunSpec() {
 
         test("TC-c776dc42-2be2-4593-9942-e6efef1a71b2 TC-93aba386-40ce-4f81-a0e8-98ecc148b468 TC-b26a374f-dbe3-4ad8-9e4f-b36db2d3d639 전달받은 태그 선택을 그대로 추가 요청에 담는다") {
             runTest(mainDispatcher) {
-                val detail = detail()
-                val primaryTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
-                val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
-                val viewModel = viewModel(addMemoUseCase = useCase)
-
-                viewModel.add(
-                    detail = detail,
-                    tagSelection = MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = primaryTagId),
-                )
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) {
-                    useCase(
-                        AddMemoUseCase.Parameter(
-                            detail = detail,
-                            primaryTagId = primaryTagId,
-                            tagIdSet = setOf(primaryTagId, otherTagId),
-                        ),
+                val primaryTagId = Arb.kotlinUuid().next()
+                val otherTagId = Arb.kotlinUuid().next()
+                val selectionList =
+                    listOf(
+                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId), primaryTagId = primaryTagId),
+                        MemoTagSelectionUiState(tagIdSet = setOf(primaryTagId, otherTagId), primaryTagId = otherTagId),
+                        MemoTagSelectionUiState(tagIdSet = setOf(otherTagId), primaryTagId = otherTagId),
                     )
+
+                selectionList.forEach { selection ->
+                    val detail = detail()
+                    val useCase = mockk<AddMemoUseCase>()
+                    coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
+                    val viewModel = viewModel(addMemoUseCase = useCase)
+
+                    viewModel.add(detail = detail, tagSelection = selection)
+                    advanceUntilIdle()
+
+                    coVerify(exactly = 1) {
+                        useCase(
+                            AddMemoUseCase.Parameter(
+                                detail = detail,
+                                primaryTagId = selection.primaryTagId,
+                                tagIdSet = selection.tagIdSet,
+                            ),
+                        )
+                    }
                 }
             }
         }
@@ -212,9 +220,9 @@ class MemoAddViewModelTest : FunSpec() {
         test("TC-5cd9d853-1b39-4712-9282-b33a84585338 전달받은 장소 선택을 그대로 추가 요청에 담는다") {
             runTest(mainDispatcher) {
                 val detail = detail()
-                val placeIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+                val placeIdSet = setOf(Arb.kotlinUuid().next(), Arb.kotlinUuid().next())
                 val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Arb.kotlinUuid().next())
                 val viewModel = viewModel(addMemoUseCase = useCase)
 
                 viewModel.add(detail = detail, placeIdSet = placeIdSet)
@@ -234,7 +242,7 @@ class MemoAddViewModelTest : FunSpec() {
         test("알 수 없는 실패에는 Effect를 보내지 않고 진행 상태만 해제한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<AddMemoUseCase>()
-                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { useCase(any<AddMemoUseCase.Parameter>()) } returns Result.failure(IllegalStateException(Arb.string().next()))
                 val viewModel = viewModel(addMemoUseCase = useCase)
 
                 viewModel.effect.test {
@@ -251,10 +259,7 @@ class MemoAddViewModelTest : FunSpec() {
     }
 
     private companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-
-        private fun detail(titlePrefix: String = "title"): MemoDetail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "$titlePrefix-${fixtureMonkey.giveMeOne<String>()}")
+        private fun detail(titlePrefix: String = "title"): MemoDetail = Arb.memoDetail().next().copy(title = "$titlePrefix-${Arb.string().next()}")
 
         private fun viewModel(addMemoUseCase: AddMemoUseCase = mockk()): MemoAddViewModel = MemoAddViewModel(addMemoUseCase = addMemoUseCase)
 

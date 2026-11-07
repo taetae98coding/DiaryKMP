@@ -16,20 +16,23 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.TAG_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.core.testing.tag.tagDetail
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.long
+import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -64,7 +67,7 @@ class TagFinishedListScaffoldTest {
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `목록의 태그 카드에 저장된 컬러를 표시한다`() {
-        val colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt()
+        val colorArgb = Arb.int().next() or 0xFF000000.toInt()
         val tag = tag(title = FIRST_TITLE, emoji = EMOJI, color = colorArgb.toLong())
 
         setTagFinishedListScaffold(tagList = listOf(tag))
@@ -195,21 +198,21 @@ class TagFinishedListScaffoldTest {
         private const val KOREAN_TITLE = "완료된 태그"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
 
         private fun tag(
             title: String,
             emoji: String = "",
-            color: Long = fixtureMonkey.giveMeOne(),
+            color: Long = Arb.long().next(),
         ): Tag =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title, color = color))
-                .setExp(Tag::isFinished, true)
-                .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                .sample()
+            Arb
+                .tag()
+                .next()
+                .copy(
+                    detail = Arb.tagDetail().next().copy(emoji = emoji, title = title, color = color),
+                    isFinished = true,
+                    isDeleted = false,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
     }
 }

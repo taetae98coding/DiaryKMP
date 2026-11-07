@@ -7,14 +7,14 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.AppFcmTokenUiState
 import io.github.taetae98coding.diary.app.shared.AppFcmTokenViewModel
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,8 +30,6 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class SubmitFcmTokenEffectTest {
@@ -41,7 +39,7 @@ class SubmitFcmTokenEffectTest {
     @Test
     fun `TC-df26f005-cca3-43b9-9b5a-ce35848bf660 앱이 시작되어 계정이 확인되면 토큰 제출을 요청한다`() {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
-        setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
+        setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = Arb.accountUser().next().copy(isSessionValid = true))), submit)
 
         composeRule.runOnIdle {
             verify(exactly = 1) { submit(any()) }
@@ -51,7 +49,7 @@ class SubmitFcmTokenEffectTest {
     @Test
     fun `TC-df26f005-cca3-43b9-9b5a-ce35848bf660 앱이 다시 화면에 보이게 되면 토큰 제출을 다시 요청한다`() {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
-        val lifecycleOwner = setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
+        val lifecycleOwner = setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = Arb.accountUser().next().copy(isSessionValid = true))), submit)
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
@@ -67,7 +65,7 @@ class SubmitFcmTokenEffectTest {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
         setSubmitFcmTokenEffect(uiStateFlow, submit, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
+        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = Arb.accountUser().next().copy(isSessionValid = true)) }
 
         composeRule.runOnIdle {
             verify(exactly = 0) { submit(any()) }
@@ -80,8 +78,8 @@ class SubmitFcmTokenEffectTest {
         val submit = mockk<(Account) -> Unit>(relaxed = true)
         val lifecycleOwner = setSubmitFcmTokenEffect(uiStateFlow, submit, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
-        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
+        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = Arb.accountUser().next().copy(isSessionValid = true)) }
+        composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = Arb.accountUser().next().copy(isSessionValid = true)) }
         composeRule.runOnIdle {
             verify(exactly = 0) { submit(any()) }
             lifecycleOwner.currentState = Lifecycle.State.STARTED
@@ -94,7 +92,7 @@ class SubmitFcmTokenEffectTest {
 
     @Test
     fun `TC-6fee7d8e-8951-49e5-a985-2864217598f2 화면이 재생성되면 같은 계정이어도 다시 등록한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
         val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
@@ -129,7 +127,7 @@ class SubmitFcmTokenEffectTest {
     @Test
     fun `TC-744ada98-8541-475e-971e-b637dc67d656 알림 권한이 거부되어 있어도 앱이 시작되어 계정이 확인되면 등록을 요청한다`() {
         shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val account = Arb.accountUser().next().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
         val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()

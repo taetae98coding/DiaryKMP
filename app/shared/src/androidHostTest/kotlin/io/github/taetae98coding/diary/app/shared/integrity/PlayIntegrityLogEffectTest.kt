@@ -6,8 +6,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.rememberAppState
@@ -16,12 +14,15 @@ import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictV
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -83,7 +84,7 @@ class PlayIntegrityLogEffectTest {
         composeRule.runOnIdle { verify(exactly = 1) { log() } }
 
         composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
-        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { appState.backStack.add(MemoDetailNavKey(id = Arb.kotlinUuid().next())) }
         composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Calendar) }
 
         composeRule.runOnIdle { verify(exactly = 1) { log() } }
@@ -145,6 +146,7 @@ class PlayIntegrityLogEffectTest {
         composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
+        callCount shouldBe 1
     }
 
     private fun setRestorableEffect(log: () -> Unit): StateRestorationTester {
@@ -188,7 +190,7 @@ class PlayIntegrityLogEffectTest {
                 mapOf(
                     "requestDetails" to
                         PlayIntegrityVerdictValue.Group(
-                            fieldMap = mapOf("requestHash" to PlayIntegrityVerdictValue.Text(value = fixtureMonkey.giveMeOne<String>())),
+                            fieldMap = mapOf("requestHash" to PlayIntegrityVerdictValue.Text(value = Arb.string().next())),
                         ),
                 ),
         )
@@ -207,6 +209,5 @@ class PlayIntegrityLogEffectTest {
 
     private companion object {
         const val PLAY_INTEGRITY_EVENT: String = "play_integrity"
-        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

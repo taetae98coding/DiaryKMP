@@ -36,14 +36,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
@@ -52,8 +51,11 @@ import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadSucceeded
 import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -79,9 +81,6 @@ import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
 private const val PAGE_SIZE = 20
-
-private val fixtureMonkey: FixtureMonkey =
-    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko-w411dp-h891dp")
@@ -109,7 +108,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-1c5350e0-97bf-485b-adac-25069bde7bd8 처음 불러오기 실패 후 다시 시도하면 불러오는 중을 표시하고 목록을 처음부터 다시 불러온다`() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
         coEvery { server(0) } throws failure() coAndThen { response.await() }
@@ -222,12 +221,12 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-136eb686-fefb-4b3a-9cde-fa8e6f8a5a29 파일 목록이 표시될 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
-        assertAddNavigatesToFileAdd(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
+        assertAddNavigatesToFileAdd(server = server(pageList = listOf(listOf(Arb.diaryFile().next()))))
     }
 
     @Test
     fun `TC-9707e7f6-f68f-4a28-8701-f2759b92ad40 올리는 중에는 파일 추가 자리에 진행 중 표시를 보이고 FileAdd로 이동하지 않는다`() {
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(Arb.diaryFile().next()))))
         startUpload()
         clickAdd()
 
@@ -287,29 +286,29 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 올리기에 성공하면 이전 목록을 둔 채 진행 중임을 표시한다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
 
         assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(uploaded), expectedFirst = uploaded)
     }
 
     @Test
     fun `TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기에 성공하면 이전 목록을 둔 채 다시 불러와 목록의 처음으로 돌아가 올린 파일을 맨 앞에 보여 준다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
 
         assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(uploaded), expectedFirst = uploaded)
     }
 
     @Test
     fun `TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 다른 기기에서 더 늦게 올린 파일이 앞에 있어도 올리기에 성공하면 목록의 처음으로 돌아간다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
-        val otherDevice = fixtureMonkey.diaryFile(name = "other-device.txt")
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
+        val otherDevice = Arb.diaryFile(name = "other-device.txt").next()
 
         assertUploadSucceededReturnsToTop(uploaded = uploaded, prefix = listOf(otherDevice, uploaded), expectedFirst = otherDevice)
     }
 
     @Test
     fun `TC-f0d423c5-b463-4cef-9f6c-b17e5e1946d9 올리기에 실패하면 크기 초과를 구분해 알리고 목록을 유지하며 다시 추가할 수 있다`() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
         val server = server(pageList = listOf(listOf(file)))
         val upload = FileUploadMocks()
 
@@ -353,7 +352,7 @@ class FileHomeScreenTest {
 
         setFileHomeScreen(server = server, upload = upload)
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         assertBodyLoadFailed(server = server, fileList = fileList)
@@ -374,7 +373,7 @@ class FileHomeScreenTest {
     @Test
     fun `TC-cf9aee73-db43-485e-b452-d2760c2f657b 다시 불러오기에 실패한 뒤 다시 시도하면 이전 목록 대신 불러오는 중을 표시하고 새 목록을 보여 준다`() {
         val fileList = fileList(count = 5)
-        val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
+        val added = Arb.diaryFile(name = ADDED_FILE_NAME).next()
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
         coEvery { server(0) } returns fileList andThenThrows failure() coAndThen { response.await() }
@@ -396,14 +395,14 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 올리는 동안 계정이 바뀌면 올리기를 중단하고 결과를 알리지 않는다`() {
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
         val upload = FileUploadMocks()
 
         val screen = setFileHomeScreen(accountFlow = accountFlow, upload = upload)
         startUpload()
         uploadProgress().assertExists()
         composeRule.runOnIdle {
-            accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>())
+            accountFlow.value = Result.success(Arb.accountUser().next())
             upload.finishWithoutEvent()
         }
         composeRule.waitForIdle()
@@ -417,7 +416,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-e0b5afbf-cf0a-4ab6-b8bf-fe786afb2e7a 올리는 동안 게스트가 되면 올리기를 중단하고 파일 추가 대신 로그인 안내를 표시한다`() {
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
         val upload = FileUploadMocks()
 
         setFileHomeScreen(accountFlow = accountFlow, upload = upload)
@@ -452,7 +451,7 @@ class FileHomeScreenTest {
     @Test
     fun `TC-5dc9ca97-e9c5-4415-bc0b-72c34aa9dc5c 파일 목록에서 당겨서 새로고침하면 이전 목록을 둔 채 진행 중임을 표시한다`() {
         val fileList = fileList(count = 5)
-        val added = fixtureMonkey.diaryFile(name = ADDED_FILE_NAME)
+        val added = Arb.diaryFile(name = ADDED_FILE_NAME).next()
         val response = CompletableDeferred<List<DiaryFile>>()
         val server = server()
         coEvery { server(0) } returns fileList coAndThen { response.await() }
@@ -527,14 +526,14 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 빈 상태에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
 
         assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = null)
     }
 
     @Test
     fun `TC-5e12ca14-d82e-45cb-b939-dd7c6971c7ac 불러오기 실패에서 올리기에 성공하면 불러오는 중을 표시한 뒤 올린 파일을 보여 준다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
 
         assertUploadSucceededFromBlankBody(uploaded = uploaded, firstFailure = failure())
     }
@@ -554,7 +553,7 @@ class FileHomeScreenTest {
 
         setFileHomeScreen(server = server, upload = upload)
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         coVerify(exactly = 2) { server(0) }
@@ -564,9 +563,9 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-4bdd8bc6-139d-4990-8f2f-9f1419454924 목록의 파일을 선택하면 그 파일의 FileDetail 화면으로 이동한다`() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
 
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file, fixtureMonkey.diaryFile()))))
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file, Arb.diaryFile().next()))))
         composeRule.onNodeWithText(file.name).performClick()
         composeRule.waitForIdle()
 
@@ -576,7 +575,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-4bdd8bc6-139d-4990-8f2f-9f1419454924 올리는 중에도 목록의 파일을 선택하면 FileDetail 화면으로 이동한다`() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
 
         val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))))
         startUpload()
@@ -611,7 +610,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-44fcf1ca-d962-4253-9a4a-e633d0d1588c 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값으로 보인다`() {
-        val target = fixtureMonkey.diaryFile()
+        val target = Arb.diaryFile().next()
         val updated = MutableStateFlow(mapOf(target.id to target.copy(title = NEW_TITLE)))
         val server = server()
         var requestCount = 0
@@ -641,10 +640,10 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-093a77f7-1e9e-4ea6-9d9d-f418f6fee728 목록의 계정이 바뀌면 이전 계정의 파일 없이 새 계정의 목록을 처음부터 보여 준다`() {
-        val accountA = fixtureMonkey.giveMeOne<Account.User>()
-        val accountB = fixtureMonkey.giveMeOne<Account.User>().copy(id = fixtureMonkey.giveMeOne<Uuid>())
+        val accountA = Arb.accountUser().next()
+        val accountB = Arb.accountUser().next().copy(id = Arb.kotlinUuid().next())
         val fileListA = fileList(count = 30)
-        val fileListB = List(PAGE_SIZE) { index -> fixtureMonkey.diaryFile(name = "b-$index.txt") }
+        val fileListB = List(PAGE_SIZE) { index -> Arb.diaryFile(name = "b-$index.txt").next() }
         val responseB = CompletableDeferred<List<DiaryFile>>()
         val serverA = server(pageList = fileListA.chunked(PAGE_SIZE))
         val serverB = server()
@@ -672,8 +671,8 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-5c4fce25-16e8-4b9b-b877-7be680796430 사용자에서 게스트로 바뀌면 목록 대신 로그인 안내를 표시한다`() {
-        val file = fixtureMonkey.diaryFile()
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+        val file = Arb.diaryFile().next()
+        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
 
         val paging = MutableStateFlow(pagerFlow(server = server(pageList = listOf(listOf(file)))))
 
@@ -768,9 +767,9 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-7770e14f-351e-4847-aa5f-5dc29decb9c6 올리는 동안 화면이 재생성되어도 진행 표시와 결과 반영이 이어진다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
         val server = server()
-        coEvery { server(0) } returns listOf(fixtureMonkey.diaryFile()) andThen listOf(uploaded)
+        coEvery { server(0) } returns listOf(Arb.diaryFile().next()) andThen listOf(uploaded)
         val upload = FileUploadMocks()
         val screen = fileHomeScreen(server = server, upload = upload)
         val tester = StateRestorationTester(composeRule)
@@ -791,9 +790,9 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-7770e14f-351e-4847-aa5f-5dc29decb9c6 올리는 동안 앱이 백그라운드에 다녀와도 진행 표시와 결과 반영이 이어진다`() {
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
         val server = server()
-        coEvery { server(0) } returns listOf(fixtureMonkey.diaryFile()) andThen listOf(uploaded)
+        coEvery { server(0) } returns listOf(Arb.diaryFile().next()) andThen listOf(uploaded)
         val upload = FileUploadMocks()
         val screen = fileHomeScreen(server = server, upload = upload)
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
@@ -818,8 +817,8 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-cfdfb082-926f-421d-82cb-0dc590b0b2bd 계정 상태를 확인하지 못하면 본문을 비우고 따로 알리지 않으며 올리기는 이어진다`() {
-        val file = fixtureMonkey.diaryFile()
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+        val file = Arb.diaryFile().next()
+        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server(pageList = listOf(listOf(file))), accountFlow = accountFlow, upload = upload)
@@ -836,8 +835,8 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-ebdf6ffc-9d03-4d2f-8ca0-0bd02cf8e9b6 계정 상태를 잠시 확인하지 못했다가 같은 계정으로 돌아오면 목록을 다시 불러오지 않는다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>()
-        val file = fixtureMonkey.diaryFile()
+        val account = Arb.accountUser().next()
+        val file = Arb.diaryFile().next()
         val server = server(pageList = listOf(listOf(file)))
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
 
@@ -854,7 +853,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-cce0fe3f-3e69-41d7-906b-c03ce2110e67 게스트에서 사용자로 바뀌면 목록을 불러오고 파일 추가를 제공한다`() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
         val server = server(pageList = listOf(listOf(file)))
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Account.Guest))
         val paging = MutableStateFlow<Flow<PagingData<DiaryFile>>>(flowOf(PagingData.empty()))
@@ -863,7 +862,7 @@ class FileHomeScreenTest {
         composeRule.onNodeWithText(GUEST_TITLE).assertExists()
         coVerify(exactly = 0) { server(any()) }
         composeRule.runOnIdle {
-            accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>())
+            accountFlow.value = Result.success(Arb.accountUser().next())
             paging.value = pagerFlow(server = server)
         }
         composeRule.waitForIdle()
@@ -877,7 +876,7 @@ class FileHomeScreenTest {
     @Test
     fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 화면이 재생성되면 보이던 안내가 닫히고 다시 나타나지 않는다`() {
         val upload = FileUploadMocks()
-        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
+        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(Arb.diaryFile().next()))), upload = upload)
         val tester = StateRestorationTester(composeRule)
 
         tester.setContent { screen.Content() }
@@ -895,7 +894,7 @@ class FileHomeScreenTest {
     @Test
     fun `TC-e3b11a13-f682-43d8-ab6e-e76754b09b59 앱이 백그라운드에 다녀와도 보이던 안내가 남는다`() {
         val upload = FileUploadMocks()
-        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
+        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(Arb.diaryFile().next()))), upload = upload)
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
 
         composeRule.mainClock.autoAdvance = false
@@ -1032,7 +1031,7 @@ class FileHomeScreenTest {
     // FileAdd나 FileDetail이 위에 열리면 FileHome은 화면에서 내려가 결과를 받지 못하고, 돌아왔을 때 쌓여 있던 성공을 받는다.
     private fun assertSucceededWhileHiddenReturnsToTop() {
         val fileList = fileList(count = 30)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThen (listOf(uploaded) + fileList).take(PAGE_SIZE)
         coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
@@ -1056,7 +1055,7 @@ class FileHomeScreenTest {
     }
 
     private fun assertFinishedWhileAwayIsNotNotified() {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
         val upload = FileUploadMocks()
         upload.finishWithoutEvent()
 
@@ -1100,7 +1099,7 @@ class FileHomeScreenTest {
         response: CompletableDeferred<List<DiaryFile>>,
         blankText: String,
     ) {
-        val file = fixtureMonkey.diaryFile()
+        val file = Arb.diaryFile().next()
 
         setFileHomeScreen(server = server)
         composeRule.onNodeWithText(blankText).assertExists()
@@ -1132,7 +1131,7 @@ class FileHomeScreenTest {
         setFileHomeScreen(server = server, upload = upload)
         pull()
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
 
         coVerify(exactly = 3) { server(0) }
@@ -1141,7 +1140,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-8179e973-096f-4660-8c93-3c27ca946b5d 게스트가 되었다가 같은 계정으로 다시 로그인하면 목록을 처음부터 보여 준다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>()
+        val account = Arb.accountUser().next()
         val fileList = fileList(count = 30)
         val secondServer = server(pageList = fileList.chunked(PAGE_SIZE))
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
@@ -1205,7 +1204,7 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기에 실패하면 실패 안내를 표시한다`() {
-        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
+        val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server(pageList = listOf(fileList(count = 1))), accountFlow = accountFlow, upload = upload)
@@ -1220,9 +1219,9 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 올리기에 성공하면 다시 불러온 목록을 계정이 확인된 뒤 보여 준다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>()
+        val account = Arb.accountUser().next()
         val before = fileList(count = 1)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
         val server = server()
         coEvery { server(0) } returns before andThen listOf(uploaded) + before
         val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
@@ -1245,11 +1244,11 @@ class FileHomeScreenTest {
 
     @Test
     fun `TC-00615cba-60ba-4905-9cea-bd710accd007 다시 불러오는 중에 계정이 바뀌면 앞선 계정의 파일이 새 목록에 나타나지 않는다`() {
-        val accountA = fixtureMonkey.giveMeOne<Account.User>()
-        val accountB = fixtureMonkey.giveMeOne<Account.User>().copy(id = fixtureMonkey.giveMeOne<Uuid>())
+        val accountA = Arb.accountUser().next()
+        val accountB = Arb.accountUser().next().copy(id = Arb.kotlinUuid().next())
         val fileListA = fileList(count = 5)
-        val lateListA = List(2) { index -> fixtureMonkey.diaryFile(name = "late-a-$index.txt") }
-        val fileListB = List(3) { index -> fixtureMonkey.diaryFile(name = "b-$index.txt") }
+        val lateListA = List(2) { index -> Arb.diaryFile(name = "late-a-$index.txt").next() }
+        val fileListB = List(3) { index -> Arb.diaryFile(name = "b-$index.txt").next() }
         val pendingA = CompletableDeferred<List<DiaryFile>>()
         val serverA = server()
         coEvery { serverA(0) } returns fileListA coAndThen { pendingA.await() }
@@ -1280,7 +1279,7 @@ class FileHomeScreenTest {
 
         setFileHomeScreen(server = server, upload = upload)
         startUpload()
-        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = Arb.kotlinUuid().next())) }
         composeRule.waitForIdle()
         pull()
 
@@ -1345,7 +1344,7 @@ class FileHomeScreenTest {
     @Test
     fun `TC-00baa3e3-1e9a-4e68-815f-9ca9d93bcc87 올리기 성공으로 다시 불러오는 중에 화면이 재생성되어도 새 목록의 처음부터 보인다`() {
         val fileList = fileList(count = 30)
-        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val uploaded = Arb.diaryFile(name = UPLOADED_FILE_NAME).next()
         val pending = CompletableDeferred<List<DiaryFile>>()
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) coAndThen { pending.await() }
@@ -1373,7 +1372,7 @@ class FileHomeScreenTest {
     private fun setFileHomeScreen(
         server: suspend (Int) -> List<DiaryFile> = server(pageList = listOf(emptyList())),
         paging: MutableStateFlow<Flow<PagingData<DiaryFile>>> = MutableStateFlow(pagerFlow(server = server)),
-        accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
+        accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(Arb.accountUser().next())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
         updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
@@ -1397,7 +1396,7 @@ class FileHomeScreenTest {
     private fun fileHomeScreen(
         server: suspend (Int) -> List<DiaryFile> = server(pageList = listOf(emptyList())),
         paging: MutableStateFlow<Flow<PagingData<DiaryFile>>> = MutableStateFlow(pagerFlow(server = server)),
-        accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
+        accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(Arb.accountUser().next())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
         updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
@@ -1483,7 +1482,6 @@ class FileHomeScreenTest {
         private const val UPLOADED_FILE_NAME = "uploaded.txt"
         private const val ADDED_FILE_NAME = "added.txt"
         private const val ADD_BUTTON_DESCRIPTION = "파일 추가"
-        private const val SNACKBAR_DISMISS_MILLIS = 20_000L
         private const val LOADING_DESCRIPTION = "파일 불러오는 중"
         private const val REFRESHING = "새로고침 중"
         private const val GUEST_TITLE = "로그인이 필요합니다"
@@ -1586,7 +1584,7 @@ private fun pagerFlow(server: suspend (Int) -> List<DiaryFile>): Flow<PagingData
     return flow.onStart { emit(PagingData.empty(sourceLoadStates = LOADING_LOAD_STATES)) }
 }
 
-private fun failure(): IllegalStateException = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+private fun failure(): IllegalStateException = IllegalStateException(Arb.string().next())
 
 private val LOADING_LOAD_STATES: LoadStates =
     LoadStates(
@@ -1634,4 +1632,4 @@ private fun pagingSource(server: suspend (Int) -> List<DiaryFile>): PagingSource
     return pagingSource
 }
 
-private fun fileList(count: Int): List<DiaryFile> = List(count) { index -> fixtureMonkey.diaryFile(name = "file-$index.txt") }
+private fun fileList(count: Int): List<DiaryFile> = List(count) { index -> Arb.diaryFile(name = "file-$index.txt").next() }

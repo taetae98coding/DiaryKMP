@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -17,13 +19,17 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
 import androidx.navigation3.runtime.result.ResultEventBus
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.qr.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.qr.ui.addTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.just
@@ -104,7 +110,7 @@ class QrAddScreenTest {
             registry = respondingRegistry(isGranted = false),
             navigateToScan = { navigateToScanCount += 1 },
         )
-        val detail = qrTestFixtureMonkey.qrDetail(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
+        val detail = Arb.qrDetail(description = "description-${Arb.string().next()}").next()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
         composeRule.onQrTextInput().performTextInput(detail.value)
@@ -115,6 +121,8 @@ class QrAddScreenTest {
 
         navigateToScanCount shouldBe 0
         composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertExists()
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.onNode(hasText(KOREAN_FORMAT_LABEL) and hasClickAction()).editableText() shouldBe KOREAN_TEXT_FORMAT_NAME
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
         composeRule.qrTextInputText() shouldBe detail.value
@@ -264,7 +272,7 @@ class QrAddScreenTest {
 
     @Test
     fun `스캔 결과로 값을 바꾸면 입력 커서를 값의 끝에 둔다`() {
-        val value = qrTestFixtureMonkey.qrDetail().value
+        val value = Arb.qrDetail().next().value
         val resultEventBus = ResultEventBus()
         setQrAddScreen(
             registry = respondingRegistry(isGranted = true),
@@ -352,7 +360,11 @@ class QrAddScreenTest {
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrAddScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    addViewModel = viewModel,
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    tagViewModel = addTagScreenTestViewModel(),
                 )
             }
         }
@@ -395,6 +407,8 @@ class QrAddScreenTest {
         private const val DEFAULT_SCAN_DESCRIPTION = "Scan QR code"
         private const val KOREAN_SCAN_DESCRIPTION = "QR 스캔"
         private const val KOREAN_ADD_DESCRIPTION = "QR 추가"
+        private const val KOREAN_FORMAT_LABEL = "포맷"
+        private const val KOREAN_TEXT_FORMAT_NAME = "텍스트"
         private const val KOREAN_ADD_SUCCEEDED_MESSAGE = "QR이 추가되었습니다."
         private const val SNACKBAR_DISMISS_WAIT_MILLIS = 10_000L
         private const val KOREAN_PERMISSION_DENIED_MESSAGE = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."

@@ -45,8 +45,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
@@ -58,6 +56,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.nonBlankDiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -77,9 +76,13 @@ import io.github.taetae98coding.diary.feature.file.ui.home.FILE_HOME_LIST_TEST_T
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUiState
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUploadViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeViewModel
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.next
+import io.kotest.property.arbitrary.string
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -105,8 +108,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
-private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
-
 // 제품 entry의 배치 정보와 entry별 화면 상태를 그대로 쓰도록, 두 영역을 함께 표시하는 너비에서 제품 fileEntry로 NavDisplay를 구성한다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "ko-w1280dp-h1600dp")
@@ -115,8 +116,8 @@ class FileListDetailNavigationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, FileHomeNavKey)
-    private val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
-    private val homeUiState = MutableStateFlow<FileHomeUiState>(FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()))
+    private val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Arb.accountUser().next()))
+    private val homeUiState = MutableStateFlow<FileHomeUiState>(FileHomeUiState.User(accountId = Arb.kotlinUuid().next()))
     private val uploadSucceededChannel = Channel<FileUploadEvent.Succeeded>(Channel.UNLIMITED)
     private val uploadEventFlow = MutableSharedFlow<FileUploadEvent>(extraBufferCapacity = 16)
 
@@ -281,7 +282,7 @@ class FileListDetailNavigationTest {
     @Test
     fun `TC-872d944e-87d5-468c-a55c-4d855f6e4d4b FileDetail 위에서 연 FileAdd는 빈 입력과 고른 파일 없음으로 시작한다`() {
         val file = testFile()
-        val source = fixtureMonkey.fileUploadSource()
+        val source = Arb.fileUploadSource().next()
         setFileNavDisplay(fileList = listOf(file))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
         selectPlaceholderFile(source = source)
@@ -299,7 +300,7 @@ class FileListDetailNavigationTest {
     @Test
     fun `TC-2fd4f0fe-865d-4c52-95e8-e8054c97dc8d 선택 전 FileAdd에서 올리기를 시작해도 상세 영역은 FileAdd로 남는다`() {
         val file = testFile()
-        val source = fixtureMonkey.fileUploadSource()
+        val source = Arb.fileUploadSource().next()
         setFileNavDisplay(fileList = listOf(file))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
         selectPlaceholderFile(source = source)
@@ -345,6 +346,23 @@ class FileListDetailNavigationTest {
 
         backStack.last() shouldBe FileDetailNavKey(id = file.id)
         listItem(file).assertExists()
+    }
+
+    @Test
+    fun `TC-12078c1d-5652-4eb6-b4f9-bedc705c8cbc 상세 영역의 FileDetail에서 저장하지 않은 입력은 벗어났다 다시 열면 남지 않는다`() {
+        val file = testFile()
+        val typed = typedTitle()
+        setFileNavDisplay(fileList = listOf(file))
+        openDetail(file = file)
+        titleInput().performTextInput(typed)
+        composeRule.waitForIdle()
+        titleInput().assert(hasText(typed, substring = true))
+
+        pressBack()
+        openDetail(file = file)
+
+        titleInput().assert(hasText(file.title))
+        composeRule.onNodeWithText(typed, substring = true).assertDoesNotExist()
     }
 
     @Test
@@ -469,7 +487,7 @@ class FileListDetailNavigationTest {
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
 
-        composeRule.runOnIdle { accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>()) }
+        composeRule.runOnIdle { accountFlow.value = Result.success(Arb.accountUser().next()) }
         composeRule.waitForIdle()
 
         backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, FileHomeNavKey)
@@ -496,7 +514,7 @@ class FileListDetailNavigationTest {
 
     @Test
     fun `TC-dbd90688-c4d1-468e-a939-728e3263703b 더보기로 돌아갔다가 다시 진입하면 상세 영역의 FileAdd는 빈 상태로 시작한다`() {
-        val source = fixtureMonkey.fileUploadSource()
+        val source = Arb.fileUploadSource().next()
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
         selectPlaceholderFile(source = source)
@@ -518,7 +536,7 @@ class FileListDetailNavigationTest {
         val file = testFile()
         val title = typedTitle()
         val description = typedDescription()
-        val source = fixtureMonkey.fileUploadSource()
+        val source = Arb.fileUploadSource().next()
         setFileNavDisplay(fileList = listOf(file))
         fillPlaceholder(title = title, description = description)
         selectPlaceholderFile(source = source)
@@ -535,7 +553,7 @@ class FileListDetailNavigationTest {
 
     @Test
     fun `TC-86d19c58-91c6-426c-bc18-470661404a39 게스트가 되면 선택한 파일이 없을 때의 상세 영역을 비우고 작성 내용을 남기지 않는다`() {
-        val source = fixtureMonkey.fileUploadSource()
+        val source = Arb.fileUploadSource().next()
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
         selectPlaceholderFile(source = source)
@@ -545,7 +563,7 @@ class FileListDetailNavigationTest {
         composeRule.onNodeWithContentDescription(UPLOAD_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
 
-        val user = fixtureMonkey.giveMeOne<Account.User>()
+        val user = Arb.accountUser().next()
         changeAccount(account = user, homeState = FileHomeUiState.User(accountId = user.id))
 
         composeRule.onNodeWithContentDescription(UPLOAD_DESCRIPTION).assertExists()
@@ -560,7 +578,7 @@ class FileListDetailNavigationTest {
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = title, description = typedDescription())
 
-        changeAccount(result = Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())), homeState = FileHomeUiState.Loading)
+        changeAccount(result = Result.failure(IllegalStateException(Arb.string().next())), homeState = FileHomeUiState.Loading)
 
         composeRule.onNodeWithContentDescription(UPLOAD_DESCRIPTION).assertExists()
         titleInput().assert(hasText(title))
@@ -635,7 +653,7 @@ class FileListDetailNavigationTest {
         titleInput().performTextInput(title)
         composeRule.waitForIdle()
 
-        val user = fixtureMonkey.giveMeOne<Account.User>()
+        val user = Arb.accountUser().next()
         changeAccount(account = user, homeState = FileHomeUiState.User(accountId = user.id))
 
         backStack.last() shouldBe FileAddNavKey
@@ -743,7 +761,7 @@ class FileListDetailNavigationTest {
     }
 
     private fun fillPlaceholderWithFile(fileList: List<DiaryFile>): PlaceholderInput {
-        val input = PlaceholderInput(title = typedTitle(), description = typedDescription(), source = fixtureMonkey.fileUploadSource())
+        val input = PlaceholderInput(title = typedTitle(), description = typedDescription(), source = Arb.fileUploadSource().next())
         setFileNavDisplay(fileList = fileList)
         fillPlaceholder(title = input.title, description = input.description)
         selectPlaceholderFile(source = input.source)
@@ -816,11 +834,11 @@ class FileListDetailNavigationTest {
 
     private fun descriptionInput(): SemanticsNodeInteraction = composeRule.onAllNodes(hasSetTextAction())[1]
 
-    private fun testFile(): DiaryFile = fixtureMonkey.nonBlankDiaryFile().copy(name = "file-${fixtureMonkey.giveMeOne<Int>()}.txt")
+    private fun testFile(): DiaryFile = Arb.nonBlankDiaryFile().next().copy(name = "file-${Arb.kotlinUuid().next()}.txt")
 
-    private fun typedTitle(): String = "title-${fixtureMonkey.giveMeOne<Int>()}"
+    private fun typedTitle(): String = "title-${Arb.int().next()}"
 
-    private fun typedDescription(): String = "description-${fixtureMonkey.giveMeOne<Int>()}"
+    private fun typedDescription(): String = "description-${Arb.int().next()}"
 
     private fun setFileNavDisplay(fileList: List<DiaryFile>) {
         val module = viewModelModule(fileList = fileList)

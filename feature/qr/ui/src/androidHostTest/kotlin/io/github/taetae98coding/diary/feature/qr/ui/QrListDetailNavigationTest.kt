@@ -53,6 +53,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.qr.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -79,7 +80,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
-import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailEffect
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailUiState
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
@@ -248,7 +248,7 @@ class QrListDetailNavigationTest {
 
         openAddOnDetail(qr)
 
-        backStack.last() shouldBe QrAddNavKey
+        backStack.last() shouldBe QrAddNavKey()
         composeRule.onNode(card(qr)).assertExists()
         assertAddOnDetailPane()
     }
@@ -274,7 +274,7 @@ class QrListDetailNavigationTest {
 
         openAddOnDetail(qr)
 
-        backStack.last() shouldBe QrAddNavKey
+        backStack.last() shouldBe QrAddNavKey()
         assertAddInputEmpty()
     }
 
@@ -585,7 +585,7 @@ class QrListDetailNavigationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        restoredBackStack.toList() shouldBe listOf(QrHomeNavKey, QrDetailNavKey(id = qr.id), QrAddNavKey)
+        restoredBackStack.toList() shouldBe listOf(QrHomeNavKey, QrDetailNavKey(id = qr.id), QrAddNavKey())
         waitUntilDisplayed(qr)
         assertAddOnDetailPane()
         pressBack()
@@ -791,6 +791,8 @@ class QrListDetailNavigationTest {
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.
     private fun viewModelModule(): Module =
         module {
+            factory { addTagScreenTestViewModel() }
+            factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<QrHomeViewModel>(relaxed = true)
                     .apply {
@@ -819,7 +821,7 @@ class QrListDetailNavigationTest {
                     every { uiState } returns MutableStateFlow(QrAddUiState())
                     every { effect } returns effectChannel.receiveAsFlow()
                     // 추가가 저장되면 목록이 다시 조회되는 것과 같게 추가한 QR을 목록 조회 결과에 더한다.
-                    every { add(detail = any()) } answers {
+                    every { add(detail = any(), tagIdSet = any()) } answers {
                         homeQrList = homeQrList + testQr().copy(detail = firstArg<QrDetail>())
                         homePagingData.value = qrPagingDataOf(homeQrList)
                         effectChannel.trySend(QrAddEffect.AddSucceeded).getOrThrow()
