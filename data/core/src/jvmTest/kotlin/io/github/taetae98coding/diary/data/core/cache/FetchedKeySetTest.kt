@@ -21,13 +21,13 @@ class FetchedKeySetTest :
         test("기록되지 않은 키는 받아 온 결과를 돌려준다") {
             val fetched = Arb.string().next()
 
-            TestFetchedKeySet().fetchOnce(key = Arb.int().next(), cached = { error("cached") }, fetch = { fetched }) shouldBe fetched
+            FetchedKeySet<Int>().fetchOnce(key = Arb.int().next(), cached = { error("cached") }, fetch = { fetched }) shouldBe fetched
         }
 
         test("받아 온 키는 다시 받지 않고 기억해 둔 결과를 돌려준다") {
             val key = Arb.int().next()
             val cached = Arb.string().next()
-            val keySet = TestFetchedKeySet()
+            val keySet = FetchedKeySet<Int>()
             keySet.fetchOnce(key = key, cached = { error("cached") }, fetch = { Arb.string().next() })
 
             keySet.fetchOnce(key = key, cached = { cached }, fetch = { error("fetch") }) shouldBe cached
@@ -37,7 +37,7 @@ class FetchedKeySetTest :
             val key = Arb.int().next()
             val otherKey = generateSequence { Arb.int().next() }.first { candidate -> candidate != key }
             val fetched = Arb.string().next()
-            val keySet = TestFetchedKeySet()
+            val keySet = FetchedKeySet<Int>()
             keySet.fetchOnce(key = key, cached = { error("cached") }, fetch = { Arb.string().next() })
 
             keySet.fetchOnce(key = otherKey, cached = { error("cached") }, fetch = { fetched }) shouldBe fetched
@@ -46,7 +46,7 @@ class FetchedKeySetTest :
         test("받아 오기에 실패한 키는 기록하지 않아 다음 요청에서 다시 받는다") {
             val key = Arb.int().next()
             val fetched = Arb.string().next()
-            val keySet = TestFetchedKeySet()
+            val keySet = FetchedKeySet<Int>()
             shouldThrowExactly<IllegalStateException> {
                 keySet.fetchOnce(key = key, cached = { error("cached") }, fetch = { throw IllegalStateException() })
             }
@@ -57,9 +57,9 @@ class FetchedKeySetTest :
         test("새로 만든 기록은 이전 기록을 이어받지 않는다") {
             val key = Arb.int().next()
             val fetched = Arb.string().next()
-            TestFetchedKeySet().fetchOnce(key = key, cached = { error("cached") }, fetch = { Arb.string().next() })
+            FetchedKeySet<Int>().fetchOnce(key = key, cached = { error("cached") }, fetch = { Arb.string().next() })
 
-            TestFetchedKeySet().fetchOnce(key = key, cached = { error("cached") }, fetch = { fetched }) shouldBe fetched
+            FetchedKeySet<Int>().fetchOnce(key = key, cached = { error("cached") }, fetch = { fetched }) shouldBe fetched
         }
 
         test("같은 키를 받는 중에 다시 요청하면 끝나기를 기다렸다가 기억해 둔 결과를 돌려준다") {
@@ -68,7 +68,7 @@ class FetchedKeySetTest :
                 val cached = Arb.string().next()
                 val response = CompletableDeferred<String>()
                 var fetchCount = 0
-                val keySet = TestFetchedKeySet()
+                val keySet = FetchedKeySet<Int>()
 
                 val first =
                     async {
@@ -102,7 +102,7 @@ class FetchedKeySetTest :
                 val key = Arb.int().next()
                 val fetched = Arb.string().next()
                 val response = CompletableDeferred<String>()
-                val keySet = TestFetchedKeySet()
+                val keySet = FetchedKeySet<Int>()
 
                 val first = async { runCatching { keySet.fetchOnce(key = key, cached = { error("cached") }, fetch = { response.await() }) } }
                 runCurrent()
@@ -122,7 +122,7 @@ class FetchedKeySetTest :
                 val otherKey = generateSequence { Arb.int().next() }.first { candidate -> candidate != key }
                 val fetched = Arb.string().next()
                 val response = CompletableDeferred<String>()
-                val keySet = TestFetchedKeySet()
+                val keySet = FetchedKeySet<Int>()
 
                 val first = async { keySet.fetchOnce(key = key, cached = { error("cached") }, fetch = { response.await() }) }
                 runCurrent()
@@ -135,5 +135,3 @@ class FetchedKeySetTest :
             }
         }
     })
-
-private class TestFetchedKeySet : FetchedKeySet<Int>()
