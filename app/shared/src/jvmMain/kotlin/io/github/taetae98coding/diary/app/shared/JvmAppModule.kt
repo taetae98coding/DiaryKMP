@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirecto
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraDispatcher
+import io.github.taetae98coding.diary.work.mcp.di.McpServerPort
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -42,6 +43,10 @@ internal class JvmAppModule {
     @Factory
     @CredentialsDispatcher
     fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Factory
+    @McpServerPort
+    fun providesMcpServerPort(): Int = BuildKonfig.MCP_SERVER_PORT
 
     @Single
     fun providesMapHttpServer(): MapHttpServer = MapHttpServer()

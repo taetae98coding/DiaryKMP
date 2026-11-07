@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorag
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.LoginProviderStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.McpSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.WebLoginStorage
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,6 +35,15 @@ public class NonWasmDataStoreModule {
             pathResolver = pathResolver,
             serializer = MapSettingSerializer,
             name = DataStoreModule.MAP_SETTING_NAME,
+        )
+
+    @Single
+    @McpSettingStorage
+    internal fun providesMcpSettingStorage(pathResolver: SettingPathResolver): Storage<McpSettingData> =
+        createSettingStorage(
+            pathResolver = pathResolver,
+            serializer = McpSettingSerializer,
+            name = DataStoreModule.MCP_SETTING_NAME,
         )
 
     @Single

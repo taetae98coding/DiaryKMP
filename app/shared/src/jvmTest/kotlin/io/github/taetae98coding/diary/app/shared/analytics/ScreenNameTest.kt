@@ -48,6 +48,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -203,6 +204,7 @@ class ScreenNameTest :
                 SettingHolidayNavKey to "SettingHoliday",
                 SettingHomeNavKey to "SettingHome",
                 SettingMapNavKey to "SettingMap",
+                SettingMcpNavKey to "SettingMcp",
                 TagAddNavKey() to "TagAdd",
                 TagDetailNavKey(id = Arb.kotlinUuid().next()) to "TagDetail",
                 TagFinishedListNavKey to "TagFinishedList",

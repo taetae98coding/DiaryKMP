@@ -8,6 +8,7 @@ kotlin {
             dependencies {
                 implementation(projects.domain.file)
                 implementation(projects.domain.holiday)
+                implementation(projects.domain.mcp)
                 implementation(projects.domain.setting)
                 implementation(projects.feature.setting.api)
             }

@@ -68,6 +68,18 @@ class SettingSerializerTest :
             GeminiSettingSerializer.writeText(GeminiSettingData()) shouldBe "{}"
         }
 
+        test("AI 도구 연결 설정을 왕복 변환한다") {
+            val settings = listOf(McpSettingData(), McpSettingData(isEnabled = true), McpSettingData(isEnabled = false))
+
+            settings.forEach { setting ->
+                McpSettingSerializer.roundTrip(setting) shouldBe setting
+            }
+        }
+
+        test("TC-af4cbda8-1a65-4f20-bc57-160e76364072 AI 도구 연결 설정을 저장한 적이 없으면 저장된 값이 없다") {
+            McpSettingSerializer.readText("{}") shouldBe McpSettingData(isEnabled = null)
+        }
+
         test("저장된 항목이 없으면 기본 설정을 제공한다") {
             MapSettingSerializer.readText("{}") shouldBe MapSettingData()
             HolidaySettingSerializer.readText("{}") shouldBe HolidaySettingData()

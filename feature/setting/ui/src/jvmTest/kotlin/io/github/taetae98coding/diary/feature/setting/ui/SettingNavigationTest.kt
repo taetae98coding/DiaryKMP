@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -41,6 +42,8 @@ class SettingNavigationTest :
                     SettingGeminiNavKey to SettingMapNavKey,
                     SettingGeminiNavKey to SettingFileNavKey,
                     SettingFileNavKey to SettingHolidayNavKey,
+                    SettingFileNavKey to SettingMcpNavKey,
+                    SettingMcpNavKey to SettingMapNavKey,
                 )
 
             detailCases.forEach { (currentDetail, destination) ->
@@ -70,6 +73,7 @@ class SettingNavigationTest :
                     SettingMapNavKey,
                     SettingGeminiNavKey,
                     SettingFileNavKey,
+                    SettingMcpNavKey,
                 )
 
             detailCases.forEach { detail ->
@@ -110,6 +114,7 @@ private val settingDetailList: List<ScreenNavKey> =
         SettingMapNavKey,
         SettingGeminiNavKey,
         SettingFileNavKey,
+        SettingMcpNavKey,
     )
 
 private fun settingBackStack(vararg detail: ScreenNavKey): NavBackStack<ScreenNavKey> =

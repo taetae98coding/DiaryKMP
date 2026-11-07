@@ -72,3 +72,9 @@ internal val FileDownloadSettingSerializer: SettingSerializer<FileDownloadSettin
         serializer = FileDownloadSettingData.serializer(),
         defaultValue = FileDownloadSettingData(),
     )
+
+internal val McpSettingSerializer: SettingSerializer<McpSettingData> =
+    SettingSerializer(
+        serializer = McpSettingData.serializer(),
+        defaultValue = McpSettingData(),
+    )

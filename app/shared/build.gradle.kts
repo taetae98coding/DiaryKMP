@@ -63,6 +63,7 @@ kotlin {
                 implementation(projects.domain.integrity)
                 implementation(projects.domain.location)
                 implementation(projects.domain.lunar)
+                implementation(projects.domain.mcp)
                 implementation(projects.domain.memo)
                 implementation(projects.domain.place)
                 implementation(projects.domain.playlist)
@@ -115,6 +116,7 @@ kotlin {
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
                 implementation(projects.work.fileUpload)
+                implementation(projects.work.mcp)
                 implementation(projects.work.sync)
                 implementation(projects.logger.analytics.impl)
                 implementation(projects.logger.console.impl)
@@ -303,6 +305,13 @@ buildkonfig {
                 const = true,
             )
             buildConfigField(
+                type = FieldSpec.Type.INT,
+                name = "MCP_SERVER_PORT",
+                value = "38451",
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
                 type = FieldSpec.Type.STRING,
                 name = "GOOGLE_CREDENTIALS_CLIENT_ID",
                 value = localProperties.getProperty("dev.jvm.googleCredentialsClientId"),
@@ -338,6 +347,13 @@ buildkonfig {
                 type = FieldSpec.Type.STRING,
                 name = "APP_DIRECTORY",
                 value = "Diary",
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
+                type = FieldSpec.Type.INT,
+                name = "MCP_SERVER_PORT",
+                value = "38450",
                 nullable = false,
                 const = true,
             )

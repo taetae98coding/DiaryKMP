@@ -56,4 +56,15 @@
     <string name="setting_file_choose_directory">폴더 고르기</string>
     <string name="setting_file_reset_directory">기본 위치로 되돌리기</string>
     <string name="setting_file_change_failed_message">다운로드 위치를 바꾸지 못했습니다.</string>
+    <string name="setting_home_mcp_item_label">MCP</string>
+    <string name="setting_mcp_title">MCP 설정</string>
+    <string name="setting_mcp_connection_label">AI 도구 연결</string>
+    <string name="setting_mcp_connection_description">켜면 이 Mac의 AI 도구가 확인 없이 현재 계정의 메모와 항목을 조회하고 추가, 수정, 삭제할 수 있습니다.</string>
+    <string name="setting_mcp_enabled_label">MCP 서버 사용</string>
+    <string name="setting_mcp_state_off">꺼져 있음</string>
+    <string name="setting_mcp_state_running">동작 중</string>
+    <string name="setting_mcp_state_address_in_use">다른 프로그램이 주소를 쓰고 있어 시작하지 못했습니다</string>
+    <string name="setting_mcp_state_start_failed">연결을 시작하지 못했습니다</string>
+    <string name="setting_mcp_copy_address">주소 복사</string>
+    <string name="setting_mcp_address_copied_message">주소를 복사했습니다.</string>
 </resources>

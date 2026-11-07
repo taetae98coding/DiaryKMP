@@ -28,6 +28,7 @@ public fun DiarySegmentedListItem(
     count: Int = 1,
     leadingContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     SegmentedListItem(
@@ -38,6 +39,7 @@ public fun DiarySegmentedListItem(
         colors = DiarySegmentedListItemDefaults.colors(),
         leadingContent = leadingContent,
         supportingContent = supportingContent,
+        trailingContent = trailingContent,
         content = content,
     )
 }
