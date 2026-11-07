@@ -172,6 +172,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [SettingHome 화면](./setting-home.md)
 - [Setting 목록·상세 배치](./setting-list-detail.md)
 - [SettingMap 화면](./setting-map.md)
+- [SettingMcp 화면](./setting-mcp.md)
 - [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md)
 - [새로고침](./sync-refresh.md)
 - [태그 필터](./tag-filter.md)

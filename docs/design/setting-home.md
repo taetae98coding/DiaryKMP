@@ -26,3 +26,4 @@ SettingHome의 단독·목록/상세 배치와 표시 상태에 따른 뒤로가
 | 지도 항목 이름 | `지도` | `Map` |
 | Gemini 항목 이름 | `Gemini` | `Gemini` |
 | 파일 항목 이름 | `파일` | `Files` |
+| MCP 항목 이름 | `MCP` | `MCP` |

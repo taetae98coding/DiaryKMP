@@ -103,6 +103,7 @@ stateDiagram-v2
 | `SettingHoliday` | [SettingHoliday 화면](./setting-holiday.md) |
 | `SettingHome` | [SettingHome 화면](./setting-home.md) |
 | `SettingMap` | [SettingMap 화면](./setting-map.md) |
+| `SettingMcp` | [SettingMcp 화면](./setting-mcp.md) |
 | `TagAdd` | [TagAdd 화면](./tag-add.md) |
 | `TagDetail` | [TagDetail 화면](./tag-detail.md) |
 | `TagFinishedList` | [TagFinishedList 화면](./tag-finished-list.md) |

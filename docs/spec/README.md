@@ -50,6 +50,7 @@
 
 | 대상 | client | common | server | 디자인 |
 | --- | --- | --- | --- | --- |
+| AI 도구 연결 | [client](./client/mcp-server.md) | — | — | — |
 | Calendar 날짜 선택 | [client](./client/calendar-select.md) | — | — | [Calendar 날짜 선택 디자인](../design/calendar-select.md) |
 | Calendar 컴포넌트 | [client](./client/calendar.md) | — | — | [Calendar 디자인](../design/calendar.md) |
 | CalendarBarText 컴포넌트 | [client](./client/calendar-bar-text.md) | — | — | [CalendarBarText 디자인](../design/calendar-bar-text.md) |
@@ -111,6 +112,7 @@
 | SettingHoliday 화면 | [client](./client/setting-holiday.md) | — | — | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
+| SettingMcp 화면 | [client](./client/setting-mcp.md) | — | — | [SettingMcp 디자인](../design/setting-mcp.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
