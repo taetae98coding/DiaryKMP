@@ -6,22 +6,23 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagEntityTabLocalDataSourceSpec
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabCase
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabItem
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabPage
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabTc
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.loadTagTabPage
+import io.github.taetae98coding.diary.core.database.impl.tag.datasource.tagEntityTabLocalDataSourceTests
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlin.uuid.Uuid
 
-private object QrTagTabCase : TagTabCase(
-    kind = EntityTagKindLocalEntity.QR,
-    label = "QR",
-    tc =
+private object QrTagTabCase : TagTabCase {
+    override val kind = EntityTagKindLocalEntity.QR
+    override val label = "QR"
+    override val tc =
         TagTabTc(
             exposure = "TC-5fff354a-21c6-411a-b65b-7f197f29cc97 TC-735f667d-e3f5-4345-8d75-50bd9d75be44",
             order = "TC-f05da0f4-a05a-4132-b0f2-d5ffaf5d75dc",
@@ -30,8 +31,8 @@ private object QrTagTabCase : TagTabCase(
             tagState = "TC-594d6131-802d-49c5-b4c0-7bc7b637090b",
             saveSelection = "TC-e01c55e0-8cd3-4bd0-8a75-2d313a4d991e",
             otherTag = "TC-e60cad61-9194-44dc-9a62-9e41bf7edd10",
-        ),
-) {
+        )
+
     override suspend fun upsert(
         database: DiaryDatabase,
         accountId: Uuid,
@@ -69,4 +70,7 @@ private object QrTagTabCase : TagTabCase(
             .loadTagTabPage(key = key, loadSize = loadSize) { qr -> qr.id }
 }
 
-internal class AccountTagQrLocalDataSourceImplTest : TagEntityTabLocalDataSourceSpec(case = QrTagTabCase)
+internal class AccountTagQrLocalDataSourceImplTest :
+    FunSpec({
+        include(tagEntityTabLocalDataSourceTests(case = QrTagTabCase))
+    })

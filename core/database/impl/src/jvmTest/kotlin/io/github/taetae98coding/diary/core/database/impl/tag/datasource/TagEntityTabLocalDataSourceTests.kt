@@ -15,7 +15,9 @@ import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.Acc
 import io.github.taetae98coding.diary.core.testing.tag.tagLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.factory.TestFactory
+import io.kotest.core.spec.style.FunSpecTestFactoryConfiguration
+import io.kotest.core.spec.style.funSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -50,19 +52,19 @@ internal class TagTabTc(
     val otherTag: String,
 )
 
-internal abstract class TagTabCase(
-    val kind: EntityTagKindLocalEntity,
-    val label: String,
-    val tc: TagTabTc,
-) {
-    abstract suspend fun upsert(
+internal interface TagTabCase {
+    val kind: EntityTagKindLocalEntity
+    val label: String
+    val tc: TagTabTc
+
+    suspend fun upsert(
         database: DiaryDatabase,
         accountId: Uuid,
         item: TagTabItem,
         entityTagList: List<EntityTagLocalEntity> = emptyList(),
     )
 
-    abstract suspend fun page(
+    suspend fun page(
         database: DiaryDatabase,
         accountId: Uuid,
         tagId: Uuid,
@@ -90,10 +92,13 @@ internal suspend fun <T : Any> PagingSource<Int, T>.loadTagTabPage(
     return TagTabPage(idList = page.data.map(idOf), nextKey = page.nextKey)
 }
 
-internal abstract class TagEntityTabLocalDataSourceSpec(
+// 스펙 본문처럼 공통 시나리오를 한 람다에 담는 팩토리라 함수 길이 검사에서 제외한다.
+@Suppress("LongMethod")
+internal fun tagEntityTabLocalDataSourceTests(
     case: TagTabCase,
-    body: FunSpec.(TagTabContext) -> Unit = {},
-) : FunSpec({
+    body: FunSpecTestFactoryConfiguration.(TagTabContext) -> Unit = {},
+): TestFactory =
+    funSpec {
         val context = TagTabContext(case = case)
 
         beforeTest { context.open() }
@@ -301,7 +306,7 @@ internal abstract class TagEntityTabLocalDataSourceSpec(
         }
 
         body(context)
-    })
+    }
 
 internal class TagTabContext(
     val case: TagTabCase,

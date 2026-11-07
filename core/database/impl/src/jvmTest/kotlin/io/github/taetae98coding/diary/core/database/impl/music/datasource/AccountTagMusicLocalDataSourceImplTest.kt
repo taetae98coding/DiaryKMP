@@ -6,25 +6,26 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
-import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagEntityTabLocalDataSourceSpec
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabCase
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabItem
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabPage
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.TagTabTc
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.loadTagTabPage
+import io.github.taetae98coding.diary.core.database.impl.tag.datasource.tagEntityTabLocalDataSourceTests
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-private object MusicTagTabCase : TagTabCase(
-    kind = EntityTagKindLocalEntity.MUSIC,
-    label = "곡",
-    tc =
+private object MusicTagTabCase : TagTabCase {
+    override val kind = EntityTagKindLocalEntity.MUSIC
+    override val label = "곡"
+    override val tc =
         TagTabTc(
             exposure = "TC-b69fefe3-176e-4958-bd02-f98ca8e1894b TC-1b53a403-fc5f-4cfb-a5d2-e5c71210b8bf",
             order = "TC-e0b49707-d7ca-4003-a7bd-b216b33256f9",
@@ -33,8 +34,8 @@ private object MusicTagTabCase : TagTabCase(
             tagState = "TC-7df2fe7a-d445-449d-ae69-8fc1a903afd9",
             saveSelection = "TC-f69e90b2-3bb0-49e5-9fa6-24283453d59f",
             otherTag = "TC-0bbaa7d1-74a9-48d7-92d6-b49ed5c2e162",
-        ),
-) {
+        )
+
     override suspend fun upsert(
         database: DiaryDatabase,
         accountId: Uuid,
@@ -73,23 +74,24 @@ private object MusicTagTabCase : TagTabCase(
 }
 
 internal class AccountTagMusicLocalDataSourceImplTest :
-    TagEntityTabLocalDataSourceSpec(
-        case = MusicTagTabCase,
-        body = { context ->
-            test("최근 수정순을 고르면 최근에 수정한 곡부터 조회한다") {
-                val accountId = Arb.kotlinUuid().next()
-                val targetTag = context.tag()
-                val old = TagTabItem(title = "a-old", updatedAt = Instant.fromEpochMilliseconds(1_000))
-                val new = TagTabItem(title = "b-new", updatedAt = Instant.fromEpochMilliseconds(2_000))
-                context.insertTag(accountId, targetTag)
-                listOf(old, new).forEach { item ->
-                    context.upsert(accountId, item)
-                    context.link(accountId = accountId, entityId = item.id, tagId = targetTag.id)
-                }
+    FunSpec({
+        include(
+            tagEntityTabLocalDataSourceTests(case = MusicTagTabCase) { context ->
+                test("최근 수정순을 고르면 최근에 수정한 곡부터 조회한다") {
+                    val accountId = Arb.kotlinUuid().next()
+                    val targetTag = context.tag()
+                    val old = TagTabItem(title = "a-old", updatedAt = Instant.fromEpochMilliseconds(1_000))
+                    val new = TagTabItem(title = "b-new", updatedAt = Instant.fromEpochMilliseconds(2_000))
+                    context.insertTag(accountId, targetTag)
+                    listOf(old, new).forEach { item ->
+                        context.upsert(accountId, item)
+                        context.link(accountId = accountId, entityId = item.id, tagId = targetTag.id)
+                    }
 
-                context.idList(accountId = accountId, tagId = targetTag.id, sort = ListSortLocalEntity.TITLE) shouldBe listOf(old.id, new.id)
-                context.idList(accountId = accountId, tagId = targetTag.id, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe
-                    listOf(new.id, old.id)
-            }
-        },
-    )
+                    context.idList(accountId = accountId, tagId = targetTag.id, sort = ListSortLocalEntity.TITLE) shouldBe listOf(old.id, new.id)
+                    context.idList(accountId = accountId, tagId = targetTag.id, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe
+                        listOf(new.id, old.id)
+                }
+            },
+        )
+    })
