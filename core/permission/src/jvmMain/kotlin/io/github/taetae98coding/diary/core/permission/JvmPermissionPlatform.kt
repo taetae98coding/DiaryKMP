@@ -2,9 +2,9 @@ package io.github.taetae98coding.diary.core.permission
 
 import io.github.taetae98coding.diary.library.avfoundation.AVAuthorizationStatus
 
-public class JvmPermissionManager internal constructor(
+public class JvmPermissionPlatform internal constructor(
     private val cameraAuthorization: JvmCameraAuthorization,
-) : PermissionManager() {
+) : PermissionPlatform {
     public constructor() : this(cameraAuthorization = AVFoundationCameraAuthorization)
 
     override suspend fun readIsGranted(permission: Permission): Boolean =

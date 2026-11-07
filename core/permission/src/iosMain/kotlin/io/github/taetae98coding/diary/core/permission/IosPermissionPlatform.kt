@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.core.permission
 
-public class IosPermissionManager : PermissionManager() {
+public class IosPermissionPlatform : PermissionPlatform {
     override suspend fun readIsGranted(permission: Permission): Boolean =
         when (permission) {
             Permission.NOTIFICATION -> isNotificationPermissionGranted()

@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
+import io.github.taetae98coding.diary.core.permission.PermissionPlatform
 import io.github.taetae98coding.diary.core.permission.PermissionResult
 import io.github.taetae98coding.diary.core.permission.isPermissionGranted
 import io.github.taetae98coding.diary.core.permission.toAndroidPermissionList
@@ -18,24 +19,24 @@ import kotlinx.coroutines.CompletableDeferred
 @Composable
 public actual fun rememberPermissionManager(): PermissionManager {
     val context = LocalContext.current
-    val permissionManager = remember(context) { AndroidPermissionManager(context = context) }
+    val platform = remember(context) { AndroidPermissionPlatform(context = context) }
     val launcher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
-            onResult = permissionManager::onRequestResult,
+            onResult = platform::onRequestResult,
         )
 
     SideEffect {
-        permissionManager.launcher = launcher
+        platform.launcher = launcher
     }
 
-    return permissionManager
+    return remember(platform) { PermissionManager(platform = platform) }
 }
 
 // 요청은 composition이 소유한 launcher로만 시작할 수 있으므로 launcher 배선을 이 클래스 안에 둔다.
-private class AndroidPermissionManager(
+private class AndroidPermissionPlatform(
     private val context: Context,
-) : PermissionManager() {
+) : PermissionPlatform {
     var launcher: ActivityResultLauncher<Array<String>>? = null
 
     private val pendingResultMap = mutableMapOf<Permission, CompletableDeferred<Map<String, Boolean>>>()

@@ -6,7 +6,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 // 웹은 알림을 보내는 기능이 없으므로 알림 권한은 요청하지 않고 거부로 다룬다.
-public class WasmPermissionManager : PermissionManager() {
+public class WasmPermissionPlatform : PermissionPlatform {
     override suspend fun readIsGranted(permission: Permission): Boolean =
         when (permission) {
             Permission.NOTIFICATION -> false
