@@ -1,3 +1,75 @@
+## [2.2.3] - 2026-11-07
+
+### 🚀 Features
+
+- 메모 작성 도우미 문구를 AI 작성에서 Gemini 작성으로 바꾼다
+- Gemini 설정 상단 바에서 API 키 발급 페이지를 연다
+- 계정을 즉시 삭제하는 탈퇴 API를 추가한다
+- 프로필 화면에서 계정을 탈퇴하고 프로필 이미지를 크게 본다
+- 이름이 같은 연락처를 알게 된 경로와 함께 표시한다
+- 시간표에 날씨와 생일을 표시하고 종일 영역을 시간대와 함께 스크롤한다
+- IOS 상단 바 버튼과 떠 있는 동작 버튼을 Liquid Glass로 그린다
+- 메모 목록의 날짜 헤더도 카드처럼 자리 이동을 애니메이션한다
+- Android Apple 로그인을 Auth Tab으로 받고 로그인 창이 떠 있는 동안 진행 표시를 없앤다
+- 일일 메모 알림을 선택하면 알림이 발생한 날의 하루 시간표를 연다
+- Crashlytics 오류 보고를 원격 응답 실패 기준으로 바꾼다
+- 연락처·체크리스트·곡·QR 태그 연결 동기화 서버를 추가한다
+- 연락처·체크리스트·곡·QR에 태그를 연결하고 TagDetail에 탭을 추가한다
+- 데스크톱 앱에 AI 도구 연결(MCP 서버)과 SettingMcp 화면을 추가한다
+
+### 🐛 Bug Fixes
+
+- 더보기 기능 바로가기 칸의 최소 너비를 72dp로 줄인다
+- 네트워크에 연결되어 있지 않아도 로그아웃한다
+- IOS 떠 있는 동작 버튼의 색을 Android와 맞춘다
+- 스펙·테스트 케이스·테스트·구현의 어긋남을 전수 점검해 맞춘다
+- 웹·장소 태그 연결 동기화 오류 메시지를 영어로 통일한다
+
+### 💼 Other
+
+- Kotlinx-io와 KSP를 최신 버전으로 올린다
+- Gradle로 JVM 앱을 실행할 때 SQLite 번들 경로 인자를 뺀다
+
+### 🚜 Refactor
+
+- 캘린더 홈과 시간표가 함께 쓰는 코드를 common 패키지로 옮긴다
+- 시간표를 feature:timetable 모듈로 분리하고 캘린더 홈과 함께 쓰는 코드를 compose:calendar로 옮긴다
+- 딥링크 매처와 백스택 정책을 나누고 AppDeepLink를 Koin으로 관리한다
+- 검색 열기와 QR 스캔 시작을 suspend 함수로 바꿔 호출자가 scope를 정한다
+- 딥링크 매처와 백스택 정책을 화면을 소유한 feature ui로 옮긴다
+- 화면 entry와 딥링크를 feature가 Koin에 등록하고 앱이 모으게 한다
+- PermissionManager를 추상 클래스 대신 PermissionPlatform을 합성하는 클래스로 바꾼다
+- FetchedKeySet 하위 클래스를 합성 래퍼로 바꾼다
+
+### 📚 Documentation
+
+- 사이트의 계정 삭제 안내와 개인정보처리방침을 앱 내 탈퇴에 맞춘다
+- 안드로이드 참고 스킬을 v1.0.19로 갱신한다
+- Compose 성능, ANR, R8, 보안, CameraX, 뒤로가기 안드로이드 스킬을 연결한다
+- 코루틴 scope와 생명주기 소유, 딥링크 배치 규칙을 추가한다
+- 연락처·체크리스트·곡·QR 태그 연결과 TagDetail 8탭 문서를 추가한다
+- ViewModel 상속 대신 scope 없는 상태 홀더를 합성하는 규칙을 추가한다
+- 데스크톱 AI 도구 연결(MCP 서버)과 SettingMcp 문서를 추가한다
+- 상속 대신 합성 규칙을 추가한다
+
+### ⚡ Performance
+
+- Android 앱에 Baseline Profile을 적용한다
+
+### 🧪 Testing
+
+- 파일 목록·상세 테스트의 파일 이름이 겹치지 않게 한다
+- 지도를 Override로 그려 지도 표시 테스트 케이스를 자동화한다
+- QR 상세 화면 테스트의 설명을 비어 있지 않게 만들어 간헐 실패를 막는다
+- 테스트 데이터 생성을 FixtureMonkey에서 Kotest Arb로 바꾼다
+- 테스트 데이터 래퍼를 지우고 공용 Arb 규칙을 직접 쓴다
+- 태그 탭 공용 테스트를 추상 스펙 상속 대신 TestFactory include로 바꾼다
+
+### ⚙️ Miscellaneous Tasks
+
+- Gradle 10에서 제거될 tasks.registering 위임을 tasks.register로 바꾼다
+- 외부 안드로이드 참고 스킬 코드를 spotless 포맷 대상에서 뺀다
+- 릴리스마다 Baseline Profile을 새로 생성해 배포하고 커밋한다
 ## [2.2.2] - 2026-11-01
 
 ### 🚀 Features
@@ -51,6 +123,7 @@
 - 배포할 때 CHANGELOG.md를 만들어 버전 커밋에 함께 넣는다
 - 병렬 컴파일 OOM을 막도록 CI Kotlin 데몬 힙을 늘린다
 - Class 파일 이름이 Linux 한도를 넘는지 verify-wave에서 검사한다
+- 앱을 2.2.2 (8) 버전으로 올린다
 
 ### 🛡️ Security
 
