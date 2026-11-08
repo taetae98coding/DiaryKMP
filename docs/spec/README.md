@@ -51,6 +51,7 @@
 | 대상 | client | common | server | 디자인 |
 | --- | --- | --- | --- | --- |
 | AI 도구 연결 | [client](./client/mcp-server.md) | — | — | — |
+| AI 도구 제공 공통 | [client](./client/ai-tool.md) | — | — | — |
 | Calendar 날짜 선택 | [client](./client/calendar-select.md) | — | — | [Calendar 날짜 선택 디자인](../design/calendar-select.md) |
 | Calendar 컴포넌트 | [client](./client/calendar.md) | — | — | [Calendar 디자인](../design/calendar.md) |
 | CalendarBarText 컴포넌트 | [client](./client/calendar-bar-text.md) | — | — | [CalendarBarText 디자인](../design/calendar-bar-text.md) |
@@ -113,6 +114,7 @@
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
 | SettingMcp 화면 | [client](./client/setting-mcp.md) | — | — | [SettingMcp 디자인](../design/setting-mcp.md) |
+| Spotlight 항목 노출 | [client](./client/spotlight.md) | — | — | [Spotlight 항목 디자인](../design/spotlight.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
@@ -172,6 +174,7 @@
 | 새로고침 | [client](./client/sync-refresh.md) | — | — | [새로고침 디자인](../design/sync-refresh.md), [PlaceHome 디자인](../design/place-home.md) |
 | 설명 입력 컴포넌트 | [client](./client/description-input.md) | — | — | [설명 입력 디자인](../design/description-input.md) |
 | 알림 권한 요청 | [client](./client/notification-permission.md) | — | — | — |
+| 앱 동작 제공 | [client](./client/app-action.md) | — | — | [앱 동작 디자인](../design/app-action.md) |
 | 앱 로깅 | [client](./client/app-logging.md) | — | — | — |
 | 앱 밖 브라우저 열기 | [client](./client/external-browser-open.md) | — | — | — |
 | 앱 안 웹 로그인 유지 | [client](./client/web-login-persistence.md) | — | — | [WebDetail 디자인](../design/web-detail.md) |

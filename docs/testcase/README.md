@@ -34,8 +34,10 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | 테스트 케이스 | 기준 스펙 |
 | --- | --- |
 | [AI 도구 연결](./mcp-server.md) | [AI 도구 연결](../spec/client/mcp-server.md) |
+| [AI 도구 제공 공통](./ai-tool.md) | [AI 도구 제공 공통](../spec/client/ai-tool.md) |
 | [계정 조회](./account.md) | [계정 조회](../spec/client/account.md) |
 | [계정 탈퇴](./account-deletion.md) | [계정 탈퇴(client)](../spec/client/account-deletion.md), [계정 탈퇴(common)](../spec/common/account-deletion.md), [계정 탈퇴(server)](../spec/server/account-deletion.md) |
+| [앱 동작 제공](./app-action.md) | [앱 동작 제공](../spec/client/app-action.md) |
 | [앱 로깅](./app-logging.md) | [앱 로깅](../spec/client/app-logging.md) |
 | [앱 안 웹 로그인 유지](./web-login-persistence.md) | [앱 안 웹 로그인 유지](../spec/client/web-login-persistence.md) |
 | [앱 이름](./app-name.md) | [앱 이름](../spec/client/app-name.md) |
@@ -146,6 +148,7 @@ ID는 문서, 영역, 순서를 담지 않는다. 케이스를 다른 영역이�
 | [Setting 목록·상세 배치](./setting-list-detail.md) | [Setting 목록·상세 배치](../spec/client/setting-list-detail.md) |
 | [SettingMap](./setting-map.md) | [SettingMap 화면](../spec/client/setting-map.md) |
 | [SettingMcp](./setting-mcp.md) | [SettingMcp 화면](../spec/client/setting-mcp.md) |
+| [Spotlight 항목 노출](./spotlight.md) | [Spotlight 항목 노출](../spec/client/spotlight.md) |
 | [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md) | [SwipeToFinishAndDelete 컴포넌트](../spec/client/swipe-to-finish-and-delete.md) |
 | [새로고침](./sync-refresh.md) | [새로고침](../spec/client/sync-refresh.md) |
 | [TagAdd](./tag-add.md) | [TagAdd 화면](../spec/client/tag-add.md) |
