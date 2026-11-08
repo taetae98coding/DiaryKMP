@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.domain.tag)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
+                implementation(projects.feature.more.api)
                 implementation(projects.feature.place.api)
                 implementation(projects.feature.search.api)
                 implementation(projects.feature.tag.api)

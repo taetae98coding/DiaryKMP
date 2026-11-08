@@ -10,6 +10,17 @@ public object ScreenDeepLink {
     // 서버가 일일 메모 알림에 담아 보내므로 supabase/functions/_shared/daily-memo-notification.ts의 주소와 같아야 한다.
     public const val TIMETABLE: String = "diary://timetable?type={type}&date={date}"
 
+    // 항목 상세 화면을 여는 주소의 형태다. 중괄호 이름은 각 상세 화면 키의 속성 이름과 같아야 하고, id는 항목 식별자의 문자열 형태로 담는다.
+    // iOS Spotlight 색인이 항목마다 이 주소를 식별자로 담아, 사용자가 고른 항목을 이 주소로 연다.
+    public const val MEMO_DETAIL: String = "diary://memo-detail?id={id}"
+    public const val TAG_DETAIL: String = "diary://tag-detail?id={id}"
+    public const val PLACE_DETAIL: String = "diary://place-detail?id={id}"
+    public const val WEB_DETAIL: String = "diary://web-detail?id={id}"
+    public const val CONTACT_DETAIL: String = "diary://contact-detail?id={id}"
+    public const val CHECKLIST_DETAIL: String = "diary://checklist-detail?id={id}"
+    public const val QR_DETAIL: String = "diary://qr-detail?id={id}"
+    public const val MUSIC_DETAIL: String = "diary://music-detail?id={id}"
+
     // 알림의 추가 정보에 주소를 담는 키다. iOS는 알림의 userInfo로, Android는 FCM SDK가 표시한 알림을 선택했을 때 진입 화면이 받는 값으로 전달된다.
     // 서버가 같은 키로 보내므로 supabase/functions/_shared/daily-memo-notification.ts의 키와 같아야 한다.
     public const val NOTIFICATION_DATA_KEY: String = "deepLink"

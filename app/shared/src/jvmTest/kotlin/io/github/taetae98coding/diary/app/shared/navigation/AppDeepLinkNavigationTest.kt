@@ -7,8 +7,11 @@ import androidx.navigation3.runtime.deeplink.DeepLinkRequest
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
 import io.mockk.mockk
 
 class AppDeepLinkNavigationTest :
@@ -18,12 +21,20 @@ class AppDeepLinkNavigationTest :
                 ScreenDeepLink.FILE_HOME,
                 "diary://timetable?type=day&date=2026-11-04",
                 "diary://timetable?type=week&date=2026-11-01",
+                "diary://memo-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://tag-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://place-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://web-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://contact-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://checklist-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://qr-detail?id=${Arb.kotlinUuid().next()}",
+                "diary://music-detail?id=${Arb.kotlinUuid().next()}",
             ).forEach { deepLink ->
                 val request = DeepLinkRequest(deepLink)
 
                 val matchedCount =
                     appDeepLinkNavigationList.count { navigation ->
-                        navigation.open(request = request, navigator = createNavigator())
+                        navigation.open(request = request, navigator = createNavigator(), isLaunch = false)
                     }
 
                 matchedCount shouldBe 1

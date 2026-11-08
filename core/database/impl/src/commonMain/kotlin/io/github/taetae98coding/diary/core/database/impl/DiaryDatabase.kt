@@ -115,6 +115,7 @@ import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchMemoDa
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchTagDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchWebDao
+import io.github.taetae98coding.diary.core.database.impl.spotlight.dao.SpotlightDao
 import io.github.taetae98coding.diary.core.database.impl.sync.dao.AccountDataDao
 import io.github.taetae98coding.diary.core.database.impl.sync.dao.SyncCursorDao
 import io.github.taetae98coding.diary.core.database.impl.sync.dao.SyncPendingDao
@@ -293,6 +294,8 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun searchPlaceDao(): SearchPlaceDao
 
     abstract fun searchWebDao(): SearchWebDao
+
+    abstract fun spotlightDao(): SpotlightDao
 
     abstract fun webDao(): WebDao
 

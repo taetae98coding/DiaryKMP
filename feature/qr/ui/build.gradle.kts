@@ -14,6 +14,7 @@ kotlin {
                 implementation(projects.domain.setting)
                 implementation(projects.domain.tag)
                 implementation(projects.feature.core)
+                implementation(projects.feature.more.api)
                 implementation(projects.feature.qr.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.library.kotlin)

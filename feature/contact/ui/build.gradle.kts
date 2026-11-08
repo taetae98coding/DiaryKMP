@@ -16,6 +16,7 @@ kotlin {
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
+                implementation(projects.feature.more.api)
                 implementation(projects.feature.tag.api)
             }
         }

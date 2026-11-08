@@ -119,7 +119,7 @@ class AppStateDeepLinkTest :
         test("TC-0df323d1-1092-4bfa-867a-4fb90f107490 앱을 새로 시작하며 알림을 선택하면 캘린더 홈 위에 알림 날짜의 하루 시간표가 열린다") {
             val appState = createAppState(TopLevelNavigation.DEFAULT.key)
 
-            appState.openDeepLink(deepLink = NOTIFICATION_TIMETABLE)
+            appState.openDeepLink(deepLink = NOTIFICATION_TIMETABLE, isLaunch = true)
 
             appState.backStack.size shouldBe 2
             appState.backStack.last().shouldBeNotificationTimetable()

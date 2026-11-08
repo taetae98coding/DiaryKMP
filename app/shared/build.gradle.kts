@@ -156,6 +156,7 @@ kotlin {
             dependencies {
                 implementation(libs.coil.network.ktor3)
                 implementation(projects.compose.map)
+                implementation(projects.work.spotlight)
             }
         }
 
