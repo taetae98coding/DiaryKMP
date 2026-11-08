@@ -1,0 +1,778 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld Places": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Place"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Places"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 %lld개"
+          }
+        }
+      }
+    },
+    "Add Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 추가"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Place"
+          }
+        }
+      }
+    },
+    "Add place ${title} ${latitude} ${longitude}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 추가: ${title}, ${latitude}, ${longitude}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add place ${title} ${latitude} ${longitude}"
+          }
+        }
+      }
+    },
+    "Added the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 추가했어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added the place."
+          }
+        }
+      }
+    },
+    "Adds a new place. The address and coordinates aren't looked up, so enter values you know.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 장소를 추가합니다. 주소와 좌표는 찾아 주지 않으므로 알고 있는 값을 넣습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a new place. The address and coordinates aren't looked up, so enter values you know."
+          }
+        }
+      }
+    },
+    "Changes the title, description, color, address or coordinates of a place. Values left empty stay the same.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소의 제목, 설명, 색, 주소, 좌표를 바꿉니다. 비워 둔 값은 그대로 둡니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the title, description, color, address or coordinates of a place. Values left empty stay the same."
+          }
+        }
+      }
+    },
+    "Couldn't find the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 찾을 수 없어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the place."
+          }
+        }
+      }
+    },
+    "Delete ${place}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place} 삭제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ${place}"
+          }
+        }
+      }
+    },
+    "Delete Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 삭제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Place"
+          }
+        }
+      }
+    },
+    "Deleted the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 삭제했어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted the place."
+          }
+        }
+      }
+    },
+    "Deletes a place. Links to memos stay. Run Restore Deleted Place with the same place to undo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 삭제합니다. 메모와의 연결은 남습니다. 같은 장소로 ‘삭제한 장소 되돌리기’를 실행하면 되돌릴 수 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletes a place. Links to memos stay. Run Restore Deleted Place with the same place to undo."
+          }
+        }
+      }
+    },
+    "Edit ${place}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place} 수정"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit ${place}"
+          }
+        }
+      }
+    },
+    "Edit Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 수정"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Place"
+          }
+        }
+      }
+    },
+    "Found %lld places.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 %lld개를 찾았어요."
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld place."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld places."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Found %lld places. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld places. There's more on page %2$lld."
+          }
+        }
+      }
+    },
+    "Get ${place} Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place} 상세 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${place} Details"
+          }
+        }
+      }
+    },
+    "Get ${place}'s Finished Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place}의 완료된 메모 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${place}'s Finished Memos"
+          }
+        }
+      }
+    },
+    "Get ${place}'s In-Progress Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place}의 진행 중 메모 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${place}'s In-Progress Memos"
+          }
+        }
+      }
+    },
+    "Get Place Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 상세 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Place Details"
+          }
+        }
+      }
+    },
+    "Get Place's Finished Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소의 완료된 메모 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Place's Finished Memos"
+          }
+        }
+      }
+    },
+    "Get Place's In-Progress Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소의 진행 중 메모 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Place's In-Progress Memos"
+          }
+        }
+      }
+    },
+    "Get Places": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 목록 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Places"
+          }
+        }
+      }
+    },
+    "Get Places in Area": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지역 안 장소 보기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Places in Area"
+          }
+        }
+      }
+    },
+    "Get places in area ${south} ${north} ${west} ${east}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지역 안 장소 보기: ${south}, ${north}, ${west}, ${east}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get places in area ${south} ${north} ${west} ${east}"
+          }
+        }
+      }
+    },
+    "Gets a place with its linked tags.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 하나를 연결된 태그와 함께 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a place with its linked tags."
+          }
+        }
+      }
+    },
+    "Gets all places inside an area set by latitude and longitude at once.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위도와 경도로 정한 지역 안의 장소를 한 번에 모두 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets all places inside an area set by latitude and longitude at once."
+          }
+        }
+      }
+    },
+    "Gets finished memos linked to a place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에 연결된 완료된 메모를 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets finished memos linked to a place."
+          }
+        }
+      }
+    },
+    "Gets memos linked to a place that aren't finished.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에 연결된, 완료하지 않은 메모를 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets memos linked to a place that aren't finished."
+          }
+        }
+      }
+    },
+    "Gets saved places in the order of the place list.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장한 장소를 장소 목록과 같은 순서로 가져옵니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets saved places in the order of the place list."
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${place}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place}에 ${tag} 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${place}"
+          }
+        }
+      }
+    },
+    "Link Tag to Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에 태그 연결"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to Place"
+          }
+        }
+      }
+    },
+    "Links a tag to a place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에 태그를 연결합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a place."
+          }
+        }
+      }
+    },
+    "Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소"
+          }
+        }
+      }
+    },
+    "Place to Restore": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌릴 장소"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place to Restore"
+          }
+        }
+      }
+    },
+    "Restore ${place}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place} 되돌리기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore ${place}"
+          }
+        }
+      }
+    },
+    "Restore Deleted Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 장소 되돌리기"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Deleted Place"
+          }
+        }
+      }
+    },
+    "Restored the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 되돌렸어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restored the place."
+          }
+        }
+      }
+    },
+    "Restores a deleted place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 장소를 되돌립니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores a deleted place."
+          }
+        }
+      }
+    },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${place}": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${place}에서 ${tag} 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${place}"
+          }
+        }
+      }
+    },
+    "Unlink Tag from Place": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에서 태그 연결 해제"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from Place"
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소에서 태그 연결을 해제합니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a place."
+          }
+        }
+      }
+    },
+    "Updated the place.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소를 수정했어요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updated the place."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

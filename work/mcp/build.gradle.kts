@@ -20,6 +20,7 @@ kotlin {
                 implementation(projects.domain.tag)
                 implementation(projects.domain.web)
                 implementation(projects.library.coroutines)
+                implementation(projects.work.appaction)
                 implementation(libs.androidx.paging.common)
                 implementation(libs.kotlinx.serialization.json)
             }

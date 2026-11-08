@@ -115,6 +115,7 @@ kotlin {
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
+                implementation(projects.work.appaction)
                 implementation(projects.work.fileUpload)
                 implementation(projects.work.mcp)
                 implementation(projects.work.sync)

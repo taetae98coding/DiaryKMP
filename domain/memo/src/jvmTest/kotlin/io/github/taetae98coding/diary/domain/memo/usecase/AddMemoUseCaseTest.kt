@@ -514,7 +514,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("TC-fdd4b34d-3987-4524-94ae-bf70cf1894d8 추가는 성공으로 전달되고 저장한 메모를 되돌리지 않는다") {
+                Then("TC-fdd4b34d-3987-4524-94ae-bf70cf1894d8 TC-81f55026-4f8d-4b5a-9e18-adc5882a7a44 추가는 성공으로 전달되고 저장한 메모를 되돌리지 않는다") {
                     val memoId = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail())).shouldBeSuccess()
 
                     memoSlot.captured.id shouldBe memoId

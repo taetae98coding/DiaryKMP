@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
+import io.github.taetae98coding.diary.work.appaction.core.APP_ACTION_PAGE_SIZE
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArgumentException
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArguments
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
@@ -24,8 +25,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlin.coroutines.EmptyCoroutineContext
-
-internal const val MCP_PAGE_SIZE: Int = 100
 
 private const val CURSOR_PARAMETER = "cursor"
 
@@ -60,7 +59,7 @@ internal suspend fun <Parameter, T : Any> FlowUseCase<Parameter, PagingData<T>>.
     invoke(parameter = parameter)
         .first()
         .getOrThrow()
-        .readPage(offset = offset, size = MCP_PAGE_SIZE)
+        .readPage(offset = offset, size = APP_ACTION_PAGE_SIZE)
 
 // PagingData는 화면이 끝에 다가갈 때마다 다음 페이지를 불러오도록 만들어져 있으므로, 화면 대신 원하는 위치까지 차례로 불러오기를 요청한다.
 internal suspend fun <T : Any> PagingData<T>.readPage(
