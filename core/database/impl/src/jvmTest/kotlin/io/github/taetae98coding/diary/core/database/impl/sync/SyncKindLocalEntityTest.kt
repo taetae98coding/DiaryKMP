@@ -19,6 +19,7 @@ class SyncKindLocalEntityTest :
                     SyncKindLocalEntity.QR to "qr",
                     SyncKindLocalEntity.CHECKLIST to "checklist",
                     SyncKindLocalEntity.CHECKLIST_ITEM to "checklist_item",
+                    SyncKindLocalEntity.DDAY to "dday",
                     SyncKindLocalEntity.MEMO_TAG to "memo_tag",
                     SyncKindLocalEntity.MEMO_PLACE to "memo_place",
                     SyncKindLocalEntity.MEMO_WEB to "memo_web",
@@ -30,6 +31,7 @@ class SyncKindLocalEntityTest :
                     SyncKindLocalEntity.CHECKLIST_TAG to "checklist_tag",
                     SyncKindLocalEntity.MUSIC_TAG to "music_tag",
                     SyncKindLocalEntity.QR_TAG to "qr_tag",
+                    SyncKindLocalEntity.DDAY_TAG to "dday_tag",
                 )
         }
 

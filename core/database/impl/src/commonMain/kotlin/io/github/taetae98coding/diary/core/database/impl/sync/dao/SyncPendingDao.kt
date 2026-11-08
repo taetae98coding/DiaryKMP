@@ -7,7 +7,7 @@ import kotlin.uuid.Uuid
 
 @Dao
 internal interface SyncPendingDao {
-    // 스무 종류를 한 번의 조회로 확인한다. 어느 종류가 남았는지는 쓰지 않으므로 첫 대기 항목을 찾으면 더 보지 않는다.
+    // 스물두 종류를 한 번의 조회로 확인한다. 어느 종류가 남았는지는 쓰지 않으므로 첫 대기 항목을 찾으면 더 보지 않는다.
     @Query(
         """
         SELECT EXISTS(SELECT 1 FROM account_tag WHERE account_id = :accountId AND is_dirty = 1)
@@ -18,6 +18,7 @@ internal interface SyncPendingDao {
             OR EXISTS(SELECT 1 FROM account_qr WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_checklist WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_checklist_item WHERE account_id = :accountId AND is_dirty = 1)
+            OR EXISTS(SELECT 1 FROM account_dday WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo_tag WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo_place WHERE account_id = :accountId AND is_dirty = 1)
@@ -30,6 +31,7 @@ internal interface SyncPendingDao {
             OR EXISTS(SELECT 1 FROM account_checklist_tag WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_music_tag WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_qr_tag WHERE account_id = :accountId AND is_dirty = 1)
+            OR EXISTS(SELECT 1 FROM account_dday_tag WHERE account_id = :accountId AND is_dirty = 1)
         """,
     )
     fun hasPending(accountId: Uuid): Flow<Boolean>

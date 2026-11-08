@@ -6,6 +6,7 @@
     <string name="search_home_tag_tab_label">태그</string>
     <string name="search_home_place_tab_label">장소</string>
     <string name="search_home_web_tab_label">웹</string>
+    <string name="search_home_dday_tab_label">디데이</string>
     <string name="search_home_empty_title">검색 결과가 없습니다</string>
     <string name="search_home_empty_description">다른 검색어로 찾아보세요</string>
     <string name="search_home_memo_finished_message">메모가 완료되었습니다.</string>

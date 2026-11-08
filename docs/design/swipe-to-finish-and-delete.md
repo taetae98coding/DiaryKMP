@@ -46,8 +46,9 @@
 | PlaylistHome, TagDetail 곡 탭 | 없음 | `곡 삭제` |
 | QrHome, TagDetail QR 탭 | 없음 | `QR 삭제` |
 | ChecklistHome, TagDetail 체크리스트 탭 | 없음 | `체크리스트 삭제` |
+| DDayHome, TagDetail 디데이 탭, SearchHome 디데이 결과 | 없음 | `디데이 삭제` |
 
-그 외 기본 환경에서는 `Finish memo`, `Restart memo`, `Delete memo`, `Finish tag`, `Restart tag`, `Delete tag`, `Delete web`, `Delete place`, `Delete contact`, `Delete song`, `Delete QR code`, `Delete checklist`를 쓴다.
+그 외 기본 환경에서는 `Finish memo`, `Restart memo`, `Delete memo`, `Finish tag`, `Restart tag`, `Delete tag`, `Delete web`, `Delete place`, `Delete contact`, `Delete song`, `Delete QR code`, `Delete checklist`, `Delete D-Day`를 쓴다.
 
 미완료 항목과 완료된 항목을 함께 보여 주는 SearchHome의 메모·태그 결과에서는 카드마다 그 항목의 완료 여부에 맞는 시작 방향 아이콘을 쓴다. 미완료 항목에는 완료 아이콘을, 완료된 항목에는 다시 시작 아이콘을 쓴다. 동작을 실행한 뒤 카드가 목록에 남으면 카드를 원래 자리로 되돌리고, 다음 스와이프에서는 바뀐 완료 여부에 맞는 아이콘을 쓴다.
 

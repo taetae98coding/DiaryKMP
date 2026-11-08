@@ -16,6 +16,7 @@
 | [PlaceHome 화면](./place-home.md) | 장소 | `더보기` |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 | `더보기` |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 | `더보기` |
+| [DDayHome 화면](./dday-home.md) | 디데이 | `더보기` |
 | [MemoHome 목록](./memo-home.md) | 메모 | 공통 내비게이션의 `메모` |
 | [TagHome 목록](./tag-home.md) | 태그 | 공통 내비게이션의 `태그` |
 
@@ -143,5 +144,6 @@
 - [PlaceHome 화면 스펙](./place-home.md)
 - [ChecklistHome 화면 스펙](./checklist-home.md)
 - [PlaylistHome 화면 스펙](./playlist-home.md)
+- [DDayHome 화면 스펙](./dday-home.md)
 - [MemoHome 목록 스펙](./memo-home.md)
 - [TagHome 목록 스펙](./tag-home.md)

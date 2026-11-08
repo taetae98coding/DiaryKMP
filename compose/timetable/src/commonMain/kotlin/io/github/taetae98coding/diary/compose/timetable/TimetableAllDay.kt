@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.compose.timetable
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,7 +34,7 @@ internal fun TimetableAllDay(
     Layout(
         content = {
             itemList.forEach { placed ->
-                key(placed.item.key) { placed.item.content() }
+                key(placed.item.key) { TimetableAllDayItemContent(item = placed.item, selectState = selectState) }
             }
             Text(
                 text = stringResource(Res.string.timetable_all_day),
@@ -87,6 +88,23 @@ internal fun TimetableAllDay(
                 x = startInset - endPadding - labelPlaceable.width,
                 y = labelCenterY - labelPlaceable.height / 2,
             )
+        }
+    }
+}
+
+@Composable
+private fun TimetableAllDayItemContent(
+    item: TimetableAllDayItem,
+    selectState: TimetableSelectState,
+) {
+    if (item.isLongPressSelectEnabled) {
+        item.content()
+    } else {
+        Box(
+            modifier = Modifier.timetableLongPressIgnoredItem(state = selectState),
+            propagateMinConstraints = true,
+        ) {
+            item.content()
         }
     }
 }

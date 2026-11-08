@@ -1,0 +1,1171 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld Tags": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Tag"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Tags"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 %lld개"
+          }
+        }
+      }
+    },
+    "Add Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 추가"
+          }
+        }
+      }
+    },
+    "Add tag ${title}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add tag ${title}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 추가: ${title}"
+          }
+        }
+      }
+    },
+    "Added the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 추가했어요."
+          }
+        }
+      }
+    },
+    "Adds a new tag. A random color is used if you don't choose one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a new tag. A random color is used if you don't choose one."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 태그를 추가합니다. 색을 고르지 않으면 무작위 색을 씁니다."
+          }
+        }
+      }
+    },
+    "All linked tags": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All linked tags"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결된 모든 태그까지"
+          }
+        }
+      }
+    },
+    "Changes the emoji, title, description or color of a tag. Values left empty stay the same.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the emoji, title, description or color of a tag. Values left empty stay the same."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 이모지, 제목, 설명, 색을 바꿉니다. 비워 둔 값은 그대로 둡니다."
+          }
+        }
+      }
+    },
+    "Couldn't find the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 찾을 수 없어요."
+          }
+        }
+      }
+    },
+    "Delete ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 삭제"
+          }
+        }
+      }
+    },
+    "Delete Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 삭제"
+          }
+        }
+      }
+    },
+    "Deleted the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 삭제했어요."
+          }
+        }
+      }
+    },
+    "Deletes a tag. Run Restore Deleted Tag with the same tag to undo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletes a tag. Run Restore Deleted Tag with the same tag to undo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 삭제합니다. 같은 태그로 ‘삭제한 태그 되돌리기’를 실행하면 되돌릴 수 있습니다."
+          }
+        }
+      }
+    },
+    "Directly linked tags": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Directly linked tags"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바로 연결한 태그까지"
+          }
+        }
+      }
+    },
+    "Edit ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 수정"
+          }
+        }
+      }
+    },
+    "Edit Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 수정"
+          }
+        }
+      }
+    },
+    "Finish ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 완료"
+          }
+        }
+      }
+    },
+    "Finish Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 완료"
+          }
+        }
+      }
+    },
+    "Finished the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finished the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 완료했어요."
+          }
+        }
+      }
+    },
+    "Found %lld memos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld memo."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld memos."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld memos. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld memos. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld places.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld place."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld places."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld places. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld places. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장소 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld tags.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld tag."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld tags."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld tags. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld tags. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Found %lld webs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld web."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld webs."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld webs. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld webs. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Get ${tag} Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag} Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 상세 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Finished Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Finished Memos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 완료된 메모 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s In-Progress Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s In-Progress Memos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 진행 중 메모 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Places": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Places"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 장소 보기"
+          }
+        }
+      }
+    },
+    "Get ${tag}'s Webs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${tag}'s Webs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}의 웹 보기"
+          }
+        }
+      }
+    },
+    "Get Finished Tags": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Finished Tags"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료된 태그 목록 보기"
+          }
+        }
+      }
+    },
+    "Get In-Progress Tags": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get In-Progress Tags"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진행 중 태그 목록 보기"
+          }
+        }
+      }
+    },
+    "Get Tag Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 상세 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Finished Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Finished Memos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 완료된 메모 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's In-Progress Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's In-Progress Memos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 진행 중 메모 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Places": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Places"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 장소 보기"
+          }
+        }
+      }
+    },
+    "Get Tag's Webs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Tag's Webs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그의 웹 보기"
+          }
+        }
+      }
+    },
+    "Gets a tag with the child tags it links to.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a tag with the child tags it links to."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 하나를 그 태그가 연결한 하위 태그와 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets finished memos linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets finished memos linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 완료된 메모를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets finished tags.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets finished tags."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료된 태그를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets memos linked to a tag that aren't finished.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets memos linked to a tag that aren't finished."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된, 완료하지 않은 메모를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets places linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets places linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 장소를 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets the tags shown in the tag list that aren't finished. The filters chosen in the app apply.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the tags shown in the tag list that aren't finished. The filters chosen in the app apply."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 목록에 보이는, 완료하지 않은 태그를 가져옵니다. 앱에서 고른 필터가 적용됩니다."
+          }
+        }
+      }
+    },
+    "Gets webs linked to a tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets webs linked to a tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 연결된 웹을 가져옵니다."
+          }
+        }
+      }
+    },
+    "Link ${childTag} to ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${childTag} to ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}에 ${childTag} 연결"
+          }
+        }
+      }
+    },
+    "Link Child Tag to Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Child Tag to Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 하위 태그 연결"
+          }
+        }
+      }
+    },
+    "Links another tag to a tag as its child. Tags of memos, webs and places don't change.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links another tag to a tag as its child. Tags of memos, webs and places don't change."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에 다른 태그를 하위 태그로 연결합니다. 메모, 웹, 장소의 태그는 바뀌지 않습니다."
+          }
+        }
+      }
+    },
+    "Marks a finished tag as not finished.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marks a finished tag as not finished."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료된 태그를 다시 시작합니다."
+          }
+        }
+      }
+    },
+    "Marks a tag as finished.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marks a tag as finished."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 완료합니다."
+          }
+        }
+      }
+    },
+    "Restart ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 다시 시작"
+          }
+        }
+      }
+    },
+    "Restart Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 다시 시작"
+          }
+        }
+      }
+    },
+    "Restarted the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restarted the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 다시 시작했어요."
+          }
+        }
+      }
+    },
+    "Restore ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag} 되돌리기"
+          }
+        }
+      }
+    },
+    "Restore Deleted Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Deleted Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 태그 되돌리기"
+          }
+        }
+      }
+    },
+    "Restored the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restored the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 되돌렸어요."
+          }
+        }
+      }
+    },
+    "Restores a deleted tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores a deleted tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 태그를 되돌립니다."
+          }
+        }
+      }
+    },
+    "Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그"
+          }
+        }
+      }
+    },
+    "Tag to Restore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Restore"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌릴 태그"
+          }
+        }
+      }
+    },
+    "This tag only": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This tag only"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 태그만"
+          }
+        }
+      }
+    },
+    "Unlink ${childTag} from ${tag}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${childTag} from ${tag}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${tag}에서 ${childTag} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Child Tag from Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Child Tag from Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에서 하위 태그 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlinks a child tag from a tag. A link in the opposite direction stays.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a child tag from a tag. A link in the opposite direction stays."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그에서 하위 태그 연결을 해제합니다. 반대 방향의 연결은 그대로 둡니다."
+          }
+        }
+      }
+    },
+    "Updated the tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updated the tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그를 수정했어요."
+          }
+        }
+      }
+    },
+    "What's the tag title?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's the tag title?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "태그 제목이 뭔가요?"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -29,12 +29,15 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
@@ -42,6 +45,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.maps.shouldNotBeEmpty
@@ -1018,6 +1022,48 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
+    fun `TC-747432fc-ca4a-43b1-b545-c57947db869c 디데이 위에서 길게 누르면 아무 동작도 시작되지 않는다`() {
+        val dday = Arb.calendarDDay().next().copy(title = EXAM_TITLE, date = july(day = 15), label = CalendarDDayLabel.BaseDay)
+        val memoAddList = mutableListOf<LocalDateRange>()
+        val ddayDetailList = mutableListOf<Uuid>()
+        val timetableList = mutableListOf<CalendarTimetableNavKey>()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(emptyList()),
+            ddayList = listOf(dday),
+            navigateToMemoAdd = memoAddList::add,
+            navigateToDDayDetail = ddayDetailList::add,
+            navigateToTimetable = timetableList::add,
+            onState = { capturedState = it },
+        )
+        val pressPosition = itemPressPosition(text = EXAM_DDAY_TEXT, day = 15)
+
+        performLongPress(pressPosition)
+        capturedState?.calendarSelectState?.dateRange.shouldBeNull()
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+        performMoveTo(Offset(x = dayCenter(day = 17).x, y = pressPosition.y))
+        capturedState?.calendarSelectState?.dateRange.shouldBeNull()
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+        performUp()
+
+        memoAddList.shouldBeEmpty()
+        ddayDetailList.shouldBeEmpty()
+        timetableList.shouldBeEmpty()
+        movedList.shouldBeEmpty()
+        capturedState?.calendarSelectState?.dateRange.shouldBeNull()
+        composeRule.onAllNodesWithText(EXAM_DDAY_TEXT).assertCountEquals(1)
+        isItemUnderDay(text = EXAM_DDAY_TEXT, day = 15) shouldBe true
+    }
+
+    @Test
     fun `TC-6e98ce37-5a22-4e13-8965-bda526b869a6 저장에 실패하면 원래 기간으로 표시되고 오류 안내가 표시되지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val moveMemoUseCase = mockk<MoveMemoUseCase>()
@@ -1066,6 +1112,9 @@ class CalendarHomeScreenMoveTest {
         uriHandler: UriHandler? = null,
         navigateToMemoAdd: (LocalDateRange) -> Unit = {},
         navigateToContactDetail: (Uuid) -> Unit = {},
+        ddayList: List<CalendarDDay> = emptyList(),
+        navigateToDDayDetail: (Uuid) -> Unit = {},
+        navigateToTimetable: (CalendarTimetableNavKey) -> Unit = {},
         memoViewModel: CalendarHomeMemoViewModel? = null,
         saveableStateRegistry: SaveableStateRegistry? = null,
         isShown: () -> Boolean = { true },
@@ -1105,13 +1154,15 @@ class CalendarHomeScreenMoveTest {
                         navigateToContactDetail = navigateToContactDetail,
                         birthdayViewModel = birthdayViewModel,
                         navigateToFilter = {},
-                        navigateToTimetable = {},
+                        navigateToTimetable = navigateToTimetable,
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = mockMemoViewModel,
                         weatherViewModel = weatherViewModel,
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),
+                        navigateToDDayDetail = navigateToDDayDetail,
+                        ddayViewModel = ddayViewModel(ddayListFlow = MutableStateFlow(ddayList)),
                     )
                 }
             }
@@ -1182,6 +1233,20 @@ class CalendarHomeScreenMoveTest {
                 .boundsInRoot
 
         return Offset(x = dayCenter(day = day).x, y = bounds.center.y)
+    }
+
+    private fun isItemUnderDay(
+        text: String,
+        day: Int,
+    ): Boolean {
+        val itemBounds =
+            composeRule
+                .onNodeWithText(text, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val dayX = dayCenter(day = day).x
+
+        return dayX in itemBounds.left..itemBounds.right
     }
 
     private fun rootWidth(): Float =
@@ -1337,6 +1402,8 @@ class CalendarHomeScreenMoveTest {
         private const val BIRTHDAY_TEXT = "🎂 홍길동"
         private const val SUNNY_DESCRIPTION = "맑음"
         private const val WEATHER_TEMPERATURE_TEXT = "17.8°/28.2°"
+        private const val EXAM_TITLE = "수능"
+        private const val EXAM_DDAY_TEXT = "🎉 수능 D-Day"
 
         // 두 주에 걸친 메모는 원본 조각 2개와 같은 수의 고스트 아이템이 표시된다.
         private const val PIECE_COUNT = 2

@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -12,6 +13,8 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.testing.dday.dday
+import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.core.testing.memo.memoDetail
 import io.github.taetae98coding.diary.core.testing.place.placeDetail
 import io.github.taetae98coding.diary.core.testing.tag.tagDetail
@@ -19,16 +22,24 @@ import io.github.taetae98coding.diary.core.testing.web.webDetail
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.library.fixture.secondPrecisionInstant
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.string
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 internal const val MEMO_TAB_LABEL: String = "Memo"
 internal const val TAG_TAB_LABEL: String = "Tag"
 internal const val PLACE_TAB_LABEL: String = "Place"
 internal const val WEB_TAB_LABEL: String = "Web"
+internal const val DDAY_TAB_LABEL: String = "D-Day"
 internal const val RESULT_EMOJI: String = "✈️"
+private const val MAX_RESULT_DDAY_OFFSET_DAYS = 1_000
 
 internal fun resultTitle(): String = "제목-${Arb.nonBlankString().next()}"
 
@@ -126,6 +137,15 @@ internal fun resultWeb(
         updatedAt = Arb.secondPrecisionInstant().next(),
         createdAt = Arb.secondPrecisionInstant().next(),
     )
+}
+
+// 카드 문구가 유형 탭 이름 `D-Day`와 겹치지 않도록 기준일을 오늘 뒤로 두고 반복하지 않게 한다.
+internal fun resultDDay(title: String = resultTitle()): DDay {
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val baseDate = today.plus(Arb.int(1..MAX_RESULT_DDAY_OFFSET_DAYS).next(), DateTimeUnit.DAY)
+    val detail = Arb.ddayDetail(baseDate = baseDate).next().copy(title = title)
+
+    return Arb.dday(isDeleted = false, detail = detail).next()
 }
 
 internal fun <T : Any> loadingPagingDataFlowOf(): MutableStateFlow<PagingData<T>> =

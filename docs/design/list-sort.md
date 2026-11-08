@@ -69,7 +69,7 @@
 | TagDetail 장소 탭 | 탭 줄 바로 아래 보기 모드 전환 버튼과 같은 줄, 장소 보기 모드 영역 위 |
 | TagDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 목록 위 |
 | ContactDetail·PlaceDetail·WebDetail 메모 탭 | 탭 줄 바로 아래 완료된 메모 진입 버튼과 같은 줄, 그 탭의 목록 위 |
-| SearchHome 네 유형 | 유형 탭 줄 바로 아래, 그 유형의 결과 목록 위 |
+| SearchHome 다섯 유형 | 유형 탭 줄 바로 아래, 그 유형의 결과 목록 위 |
 | PlaceHome | 장소 목록 영역 맨 위, 격자 위 |
 | ChecklistDetail | 본문의 설명 입력 아래, 체크 항목 행 위. 본문을 스크롤하면 상단 바 바로 아래에 붙어 남는다 |
 

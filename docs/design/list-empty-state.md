@@ -80,6 +80,7 @@
 | TagDetail 체크리스트 탭의 태그별 체크리스트 목록 | 체크리스트 아이콘 |
 | TagDetail 곡 탭의 태그별 곡 목록 | 플레이리스트 아이콘 |
 | TagDetail QR 탭의 태그별 QR 목록 | QR 아이콘 |
+| TagDetail 디데이 탭의 태그별 디데이 목록 | 디데이 아이콘 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 완료 아이콘 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 메모 아이콘 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 메모 아이콘 |
@@ -97,18 +98,21 @@
 | PlaylistHome 곡 목록 | 플레이리스트 아이콘 |
 | QrHome QR 목록 | QR 아이콘 |
 | ChecklistHome 체크리스트 목록 | 체크리스트 아이콘 |
+| DDayHome 디데이 목록, 좁히지 않은 상태 | 디데이 아이콘 |
+| DDayHome 디데이 목록, 좁힌 상태 | 필터 아이콘 |
 | SearchHome 메모 검색 결과 목록 | 메모 아이콘 |
 | SearchHome 태그 검색 결과 목록 | 태그 아이콘 |
 | SearchHome 장소 검색 결과 목록 | 장소 아이콘 |
 | SearchHome 웹 검색 결과 목록 | 웹 아이콘 |
+| SearchHome 디데이 검색 결과 목록 | 디데이 아이콘 |
 
-SearchHome의 네 목록은 문구가 같으므로 아이콘이 지금 어느 유형의 결과를 보고 있는지를 알린다. 각 유형은 그 유형의 목록 화면이 쓰는 아이콘을 그대로 쓴다.
+SearchHome의 다섯 목록은 문구가 같으므로 아이콘이 지금 어느 유형의 결과를 보고 있는지를 알린다. 각 유형은 그 유형의 목록 화면이 쓰는 아이콘을 그대로 쓴다.
 
 루틴 아이콘은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `루틴` 목적지 아이콘과 같다.
 
-완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같고, 체크리스트 아이콘은 같은 화면의 `체크리스트` 바로가기 항목이 쓰는 Material Symbols `checklist` 아이콘과 같다. [ChecklistDetail 화면 디자인](./checklist-detail.md)의 체크 항목 빈 상태도 같은 아이콘을 쓰며, 그 화면이 이 문서의 `빈 상태 구성`만 빌려 쓰는 기준은 그 화면 문서가 소유한다.
+완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같고, 체크리스트 아이콘은 같은 화면의 `체크리스트` 바로가기 항목이 쓰는 Material Symbols `checklist` 아이콘과 같다. [ChecklistDetail 화면 디자인](./checklist-detail.md)의 체크 항목 빈 상태도 같은 아이콘을 쓰며, 그 화면이 이 문서의 `빈 상태 구성`만 빌려 쓰는 기준은 그 화면 문서가 소유한다. 디데이 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `디데이` 바로가기 항목이 쓰는 아이콘과 같다.
 
-MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
+MemoHome 목록, TagHome 목록, ContactHome 연락처 목록과 DDayHome 디데이 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
 
 ## 문구
 
@@ -137,6 +141,8 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | TagDetail 곡 탭의 태그별 곡 목록 | 보조 | `추가 버튼으로 새 곡을 만들 수 있습니다` | `Use the add button to add a song.` |
 | TagDetail QR 탭의 태그별 QR 목록 | 제목 | `이 태그에 연결된 QR이 없습니다` | `No QR codes linked to this tag` |
 | TagDetail QR 탭의 태그별 QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
+| TagDetail 디데이 탭의 태그별 디데이 목록 | 제목 | `이 태그에 연결된 디데이가 없습니다` | `No D-Days linked to this tag` |
+| TagDetail 디데이 탭의 태그별 디데이 목록 | 보조 | `추가 버튼으로 새 디데이를 만들 수 있습니다` | `Use the add button to create a D-Day.` |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 제목 | `이 태그에서 완료한 메모가 없습니다` | `No finished memos for this tag` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 제목 | `이 연락처에 연결된 메모가 없습니다` | `No memos linked to this contact` |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
@@ -170,12 +176,16 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | QrHome QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
 | ChecklistHome 체크리스트 목록 | 제목 | `아직 체크리스트가 없습니다` | `No checklists yet` |
 | ChecklistHome 체크리스트 목록 | 보조 | `추가 버튼으로 새 체크리스트를 만들 수 있습니다` | `Use the add button to create a checklist.` |
-| SearchHome 네 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
-| SearchHome 네 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
+| DDayHome 디데이 목록, 좁히지 않은 상태 | 제목 | `아직 디데이가 없습니다` | `No D-Days yet` |
+| DDayHome 디데이 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 디데이를 만들 수 있습니다` | `Use the add button to create a D-Day.` |
+| DDayHome 디데이 목록, 좁힌 상태 | 제목 | `조건에 맞는 디데이가 없습니다` | `No D-Days match the filter` |
+| DDayHome 디데이 목록, 좁힌 상태 | 보조 | `필터를 바꾸면 다른 디데이를 볼 수 있습니다` | `Change the filter to see other D-Days.` |
+| SearchHome 다섯 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
+| SearchHome 다섯 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
 
 TagFinishedList, MemoFinishedList, TagMemoFinishedList와 ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 보조 문구를 두지 않는다.
 
-SearchHome의 네 목록은 같은 문구를 쓴다. 유형 이름을 문구에 넣지 않는 것은 사용자가 이미 유형 탭에서 어느 유형을 보고 있는지 알고 있고, 탭을 옮길 때마다 문구가 바뀌면 결과 영역이 유형마다 다른 화면처럼 보이기 때문이다. 이 화면에서는 항목을 새로 만들 수 없으므로 보조 문구는 추가가 아니라 질의를 고치는 것을 권한다.
+SearchHome의 다섯 목록은 같은 문구를 쓴다. 유형 이름을 문구에 넣지 않는 것은 사용자가 이미 유형 탭에서 어느 유형을 보고 있는지 알고 있고, 탭을 옮길 때마다 문구가 바뀌면 결과 영역이 유형마다 다른 화면처럼 보이기 때문이다. 이 화면에서는 항목을 새로 만들 수 없으므로 보조 문구는 추가가 아니라 질의를 고치는 것을 권한다.
 
 문구에는 오류나 실패를 뜻하는 표현을 쓰지 않는다. 조회에 실패해 표시할 항목이 없는 경우도 모든 목록이 같은 빈 상태와 문구를 그대로 사용하며, 빈 상태 대신 목록 자리를 비워 두는 목록은 없다.
 

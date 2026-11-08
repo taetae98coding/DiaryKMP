@@ -12,6 +12,7 @@ kotlin {
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.tag)
                 implementation(projects.feature.core)
+                implementation(projects.feature.more.api)
                 implementation(projects.feature.playlist.api)
                 implementation(projects.feature.tag.api)
             }

@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 
 class TagDetailTabListTest :
     FunSpec({
-        test("TC-b0b32237-2208-49a9-8108-e6028692e8e5 탭은 태그 디테일, 메모, 웹, 장소, 연락처, 체크리스트, 곡, QR 순서다") {
+        test("TC-b94bf54c-a0e5-4874-af6c-3d6508e99b5e 탭은 태그 디테일, 메모, 웹, 장소, 연락처, 체크리스트, 곡, QR, 디데이 순서다") {
             tagDetailTabList shouldContainExactly
                 listOf(
                     TagDetailTab.DETAIL,
@@ -17,6 +17,7 @@ class TagDetailTabListTest :
                     TagDetailTab.CHECKLIST,
                     TagDetailTab.MUSIC,
                     TagDetailTab.QR,
+                    TagDetailTab.DDAY,
                 )
         }
 

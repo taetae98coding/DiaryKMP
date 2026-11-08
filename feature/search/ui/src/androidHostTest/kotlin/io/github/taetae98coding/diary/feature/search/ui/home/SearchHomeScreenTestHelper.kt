@@ -16,9 +16,11 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
 import io.github.taetae98coding.diary.compose.web.WebListEffect
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -26,6 +28,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
@@ -53,6 +56,7 @@ private val memoPagingDataFlow = MutableStateFlow(pagingDataOf<Memo>(emptyList()
 private val tagPagingDataFlow = MutableStateFlow(pagingDataOf<Tag>(emptyList()))
 private val placePagingDataFlow = MutableStateFlow(pagingDataOf<Place>(emptyList()))
 private val webPagingDataFlow = MutableStateFlow(pagingDataOf<Web>(emptyList()))
+private val ddayPagingDataFlow = MutableStateFlow(pagingDataOf<DDay>(emptyList()))
 
 // 검색어 반영 시점은 ViewModel 테스트가 검증하므로, 화면 테스트에서는 입력한 질의가 곧바로 반영된 것으로 다룬다.
 // 반영을 기다리는 상태를 확인하는 테스트만 반영을 멈춘다.
@@ -70,6 +74,7 @@ private var memoEffectChannel = Channel<SearchHomeMemoEffect>(Channel.BUFFERED)
 private var tagEffectChannel = Channel<TagListEffect>(Channel.BUFFERED)
 private var placeEffectChannel = Channel<PlaceListEffect>(Channel.BUFFERED)
 private var webEffectChannel = Channel<WebListEffect>(Channel.BUFFERED)
+private var ddayEffectChannel = Channel<DDayListEffect>(Channel.BUFFERED)
 
 internal var searchMemoViewModelRef: SearchHomeMemoViewModel? = null
     private set
@@ -78,6 +83,8 @@ internal var searchTagViewModelRef: SearchHomeTagViewModel? = null
 internal var searchPlaceViewModelRef: SearchHomePlaceViewModel? = null
     private set
 internal var searchWebViewModelRef: SearchHomeWebViewModel? = null
+    private set
+internal var searchDDayViewModelRef: SearchHomeDDayViewModel? = null
     private set
 
 private val searchHomeViewModelModule =
@@ -134,6 +141,18 @@ private val searchHomeViewModelModule =
                 searchWebViewModelRef = this
             }
         }
+        factory {
+            mockk<SearchHomeDDayViewModel>(relaxed = true).apply {
+                every { pagingData } returns ddayPagingDataFlow
+                val sortFlow = MutableStateFlow(ListSort.TITLE)
+                every { uiState } returns fakeUiState(sortFlow)
+                every { select(sort = any()) } answers { sortFlow.value = firstArg() }
+                every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                every { effect } returns ddayEffectChannel.receiveAsFlow()
+                every { delete(id = any()) } answers { ddayEffectChannel.trySend(DDayListEffect.Deleted(id = firstArg())) }
+                searchDDayViewModelRef = this
+            }
+        }
     }
 
 // 유형별 ViewModel은 Koin으로 얻으므로, 조회 결과는 ViewModel을 대신 넣어 정한다.
@@ -143,6 +162,7 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     tagList: List<Tag> = emptyList(),
     placeList: List<Place> = emptyList(),
     webList: List<Web> = emptyList(),
+    ddayList: List<DDay> = emptyList(),
     initialType: SearchHomeType = SearchHomeType.MEMO,
     initialTypeProvider: () -> SearchHomeType = { initialType },
     entryKeyProvider: () -> Int = { 0 },
@@ -151,6 +171,7 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     navigateToTagDetail: (Uuid) -> Unit = {},
     navigateToPlaceDetail: (Uuid) -> Unit = {},
     navigateToWebDetail: (Uuid) -> Unit = {},
+    navigateToDDayDetail: (Uuid) -> Unit = {},
     isShownProvider: () -> Boolean = { true },
     lifecycleOwner: LifecycleOwner? = null,
     restorationTester: StateRestorationTester? = null,
@@ -161,6 +182,7 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
         tagList = tagList,
         placeList = placeList,
         webList = webList,
+        ddayList = ddayList,
     )
 
     // 메모리 정리 뒤 복원을 흉내 낼 때는 복원 테스트 도구로 화면을 띄운다. 복원하면 화면 상태만 되살아나고 유형별 ViewModel은 새로 만들어진다.
@@ -201,11 +223,13 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
                                         navigateToTagDetail = navigateToTagDetail,
                                         navigateToPlaceDetail = navigateToPlaceDetail,
                                         navigateToWebDetail = navigateToWebDetail,
+                                        navigateToDDayDetail = navigateToDDayDetail,
                                         initialType = initialTypeProvider(),
                                         memoViewModel = koinViewModel(),
                                         tagViewModel = koinViewModel(),
                                         placeViewModel = koinViewModel(),
                                         webViewModel = koinViewModel(),
+                                        ddayViewModel = koinViewModel(),
                                     )
                                 }
                             }
@@ -241,6 +265,10 @@ internal fun updateSearchTagResult(tagList: List<Tag>) {
     tagPagingDataFlow.value = pagingDataOf(tagList)
 }
 
+internal fun updateSearchDDayResult(ddayList: List<DDay>) {
+    ddayPagingDataFlow.value = pagingDataOf(ddayList)
+}
+
 internal fun sendSearchMemoEffect(effect: SearchHomeMemoEffect) {
     memoEffectChannel.trySend(effect).getOrThrow()
 }
@@ -251,6 +279,7 @@ private fun resetSearchHomeViewModelFake(
     tagList: List<Tag>,
     placeList: List<Place>,
     webList: List<Web>,
+    ddayList: List<DDay>,
 ) {
     appliedQueryFlow.value = ""
     isQueryApplied = isQueryAppliedImmediately
@@ -258,12 +287,15 @@ private fun resetSearchHomeViewModelFake(
     tagPagingDataFlow.value = pagingDataOf(tagList)
     placePagingDataFlow.value = pagingDataOf(placeList)
     webPagingDataFlow.value = pagingDataOf(webList)
+    ddayPagingDataFlow.value = pagingDataOf(ddayList)
     memoEffectChannel = Channel(Channel.BUFFERED)
     tagEffectChannel = Channel(Channel.BUFFERED)
     placeEffectChannel = Channel(Channel.BUFFERED)
     webEffectChannel = Channel(Channel.BUFFERED)
+    ddayEffectChannel = Channel(Channel.BUFFERED)
     searchMemoViewModelRef = null
     searchTagViewModelRef = null
     searchPlaceViewModelRef = null
     searchWebViewModelRef = null
+    searchDDayViewModelRef = null
 }

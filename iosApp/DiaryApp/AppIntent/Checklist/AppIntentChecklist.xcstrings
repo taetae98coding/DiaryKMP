@@ -1,0 +1,938 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld Checklist Items": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Checklist Item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Checklist Items"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 %lld개"
+          }
+        }
+      }
+    },
+    "%lld Checklists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Checklist"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Checklists"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 %lld개"
+          }
+        }
+      }
+    },
+    "Add Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 추가"
+          }
+        }
+      }
+    },
+    "Add Checklist Item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Checklist Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 추가"
+          }
+        }
+      }
+    },
+    "Add checklist ${title}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add checklist ${title}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 추가: ${title}"
+          }
+        }
+      }
+    },
+    "Add checklist item ${checklist} ${content}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add checklist item ${content} to ${checklist}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 추가: ${checklist}, ${content}"
+          }
+        }
+      }
+    },
+    "Added order": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added order"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가순"
+          }
+        }
+      }
+    },
+    "Added the checklist item.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added the checklist item."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목을 추가했어요."
+          }
+        }
+      }
+    },
+    "Added the checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added the checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 추가했어요."
+          }
+        }
+      }
+    },
+    "Adds a new checklist. You can add items too; empty items are skipped.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a new checklist. You can add items too; empty items are skipped."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 체크리스트를 추가합니다. 항목을 함께 넣을 수 있고, 빈 항목은 건너뜁니다."
+          }
+        }
+      }
+    },
+    "Adds an unchecked item to the end of a checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds an unchecked item to the end of a checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 끝에 체크 안 된 항목을 추가합니다."
+          }
+        }
+      }
+    },
+    "Changes the title or description of a checklist. Values left empty stay the same.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the title or description of a checklist. Values left empty stay the same."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트의 제목과 설명을 바꿉니다. 비워 둔 값은 그대로 둡니다."
+          }
+        }
+      }
+    },
+    "Check ${item}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check ${item}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${item} 체크"
+          }
+        }
+      }
+    },
+    "Check Checklist Item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Checklist Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 체크"
+          }
+        }
+      }
+    },
+    "Checked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크했어요."
+          }
+        }
+      }
+    },
+    "Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트"
+          }
+        }
+      }
+    },
+    "Checklist Item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checklist Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목"
+          }
+        }
+      }
+    },
+    "Checklist to Restore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checklist to Restore"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌릴 체크리스트"
+          }
+        }
+      }
+    },
+    "Checks a checklist item.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checks a checklist item."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목을 체크합니다."
+          }
+        }
+      }
+    },
+    "Couldn't find the checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 찾을 수 없어요."
+          }
+        }
+      }
+    },
+    "Delete ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ${checklist}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist} 삭제"
+          }
+        }
+      }
+    },
+    "Delete ${item}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ${item}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${item} 삭제"
+          }
+        }
+      }
+    },
+    "Delete Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 삭제"
+          }
+        }
+      }
+    },
+    "Delete Checklist Item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Checklist Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 삭제"
+          }
+        }
+      }
+    },
+    "Deleted the checklist item.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted the checklist item."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목을 삭제했어요."
+          }
+        }
+      }
+    },
+    "Deleted the checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted the checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 삭제했어요."
+          }
+        }
+      }
+    },
+    "Deletes a checklist. Run Restore Deleted Checklist with the same checklist to undo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletes a checklist. Run Restore Deleted Checklist with the same checklist to undo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 삭제합니다. 같은 체크리스트로 ‘삭제한 체크리스트 되돌리기’를 실행하면 되돌릴 수 있습니다."
+          }
+        }
+      }
+    },
+    "Edit ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit ${checklist}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist} 수정"
+          }
+        }
+      }
+    },
+    "Edit Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 수정"
+          }
+        }
+      }
+    },
+    "Found %lld checklists.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld checklist."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld checklists."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld checklists. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld checklists. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Get ${checklist} Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${checklist} Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist} 상세 보기"
+          }
+        }
+      }
+    },
+    "Get Checklist Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Checklist Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 상세 보기"
+          }
+        }
+      }
+    },
+    "Get Checklists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Checklists"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 목록 보기"
+          }
+        }
+      }
+    },
+    "Gets a checklist with all its items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a checklist with all its items."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 하나를 모든 항목과 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets checklists by title, with how many items are checked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets checklists by title, with how many items are checked."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 제목순으로, 체크한 항목 수와 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Removes an item from its checklist. This can't be undone; add the content again if needed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes an item from its checklist. This can't be undone; add the content again if needed."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트에서 항목을 지웁니다. 되돌릴 수 없으므로 필요하면 같은 내용을 다시 추가합니다."
+          }
+        }
+      }
+    },
+    "Reset ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset ${checklist}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist} 리셋"
+          }
+        }
+      }
+    },
+    "Reset Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 리셋"
+          }
+        }
+      }
+    },
+    "Restore ${checklist}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore ${checklist}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${checklist} 되돌리기"
+          }
+        }
+      }
+    },
+    "Restore Deleted Checklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Deleted Checklist"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 체크리스트 되돌리기"
+          }
+        }
+      }
+    },
+    "Restored the checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restored the checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 되돌렸어요."
+          }
+        }
+      }
+    },
+    "Restores a deleted checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores a deleted checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 체크리스트를 되돌립니다."
+          }
+        }
+      }
+    },
+    "Uncheck ${item}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uncheck ${item}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${item} 체크 해제"
+          }
+        }
+      }
+    },
+    "Uncheck Checklist Item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uncheck Checklist Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목 체크 해제"
+          }
+        }
+      }
+    },
+    "Unchecked %lld items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unchecked %lld item."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unchecked %lld items."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크 %lld개를 해제했어요."
+          }
+        }
+      }
+    },
+    "Unchecked first": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unchecked first"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크 안 된 항목 우선"
+          }
+        }
+      }
+    },
+    "Unchecked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unchecked."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크를 해제했어요."
+          }
+        }
+      }
+    },
+    "Unchecks a checklist item.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unchecks a checklist item."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 항목의 체크를 해제합니다."
+          }
+        }
+      }
+    },
+    "Unchecks all items of a checklist at once. The items stay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unchecks all items of a checklist at once. The items stay."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트의 모든 체크를 한 번에 해제합니다. 항목은 그대로 남습니다."
+          }
+        }
+      }
+    },
+    "Updated the checklist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updated the checklist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트를 수정했어요."
+          }
+        }
+      }
+    },
+    "What's the checklist title?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's the checklist title?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "체크리스트 제목이 뭔가요?"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

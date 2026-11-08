@@ -983,6 +983,8 @@ class CalendarTimetableScreenTest {
                         holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
                         weatherViewModel = weatherViewModel,
                         birthdayViewModel = birthdayViewModel,
+                        navigateToDDayDetail = {},
+                        ddayViewModel = timetableDDayViewModel(),
                     )
                 }
             }

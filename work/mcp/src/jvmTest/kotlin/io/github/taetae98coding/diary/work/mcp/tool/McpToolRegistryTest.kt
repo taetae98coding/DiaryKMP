@@ -21,7 +21,7 @@ class McpToolRegistryTest :
         test("TC-c3ac3b36-0621-4123-838a-1cb57a17ccf8 대상마다 조회 기능과 추가, 수정, 삭제, 되돌리기 기능이 있다") {
             val nameList = createRegistry().toolList.map { tool -> tool.name }
 
-            listOf("memo", "tag", "place", "web", "contact", "checklist", "qr", "music").forEach { entity ->
+            listOf("memo", "tag", "place", "web", "contact", "checklist", "qr", "music", "dday").forEach { entity ->
                 nameList shouldContainAll listOf("list", "get", "add", "update", "delete", "restore").map { action -> "${entity}_$action" }
             }
         }
@@ -35,8 +35,10 @@ class McpToolRegistryTest :
                     "search_tag",
                     "search_place",
                     "search_web",
+                    "search_dday",
                     "calendar_memo_list",
                     "calendar_birthday_list",
+                    "calendar_dday_list",
                     "holiday_list",
                     "lunar_list",
                 )

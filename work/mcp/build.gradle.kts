@@ -9,6 +9,7 @@ kotlin {
                 implementation(projects.core.datastore.api)
                 implementation(projects.domain.checklist)
                 implementation(projects.domain.contact)
+                implementation(projects.domain.dday)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.lunar)
                 implementation(projects.domain.mcp)
@@ -20,6 +21,7 @@ kotlin {
                 implementation(projects.domain.tag)
                 implementation(projects.domain.web)
                 implementation(projects.library.coroutines)
+                implementation(projects.work.appaction)
                 implementation(libs.androidx.paging.common)
                 implementation(libs.kotlinx.serialization.json)
             }

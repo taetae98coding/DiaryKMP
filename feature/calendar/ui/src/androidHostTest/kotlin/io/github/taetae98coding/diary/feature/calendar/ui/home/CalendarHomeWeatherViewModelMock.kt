@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
@@ -55,6 +58,12 @@ internal fun birthdayViewModel(birthdayListFlow: StateFlow<List<CalendarContactB
         every { viewModel.fetch(any()) } returns Unit
         every { viewModel.uiState } returns
             birthdayListFlow.mapState { birthdayList -> CalendarHomeBirthdayUiState(birthdayList = birthdayList) }
+    }
+
+internal fun ddayViewModel(ddayListFlow: StateFlow<List<CalendarDDay>> = MutableStateFlow(emptyList())): CalendarHomeDDayViewModel =
+    mockk<CalendarHomeDDayViewModel>().also { viewModel ->
+        every { viewModel.fetch(any()) } returns Unit
+        every { viewModel.uiState } returns ddayListFlow.mapState { ddayList -> CalendarHomeDDayUiState(ddayList = ddayList) }
     }
 
 internal fun lunarObservingBirthdayViewModel(fetchLunarUseCase: FetchLunarUseCase): CalendarHomeBirthdayViewModel {

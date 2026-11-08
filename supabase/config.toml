@@ -140,6 +140,12 @@ verify_jwt = true
 [functions.v1-sync-pull-checklist-item]
 verify_jwt = true
 
+[functions.v1-sync-push-dday]
+verify_jwt = true
+
+[functions.v1-sync-pull-dday]
+verify_jwt = true
+
 [functions.v1-sync-push-contact-tag]
 verify_jwt = true
 
@@ -162,6 +168,12 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.v1-sync-pull-qr-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-dday-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-dday-tag]
 verify_jwt = true
 
 [functions.v1-profile-upload]

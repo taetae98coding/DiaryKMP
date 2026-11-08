@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
@@ -17,6 +18,7 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun CalendarHomeScreen(
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToDDayDetail: (Uuid) -> Unit,
     navigateToMemoAdd: (LocalDateRange) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,
@@ -25,6 +27,7 @@ internal fun CalendarHomeScreen(
     permissionManager: PermissionManager,
     holidayViewModel: CalendarHomeHolidayViewModel,
     memoViewModel: CalendarHomeMemoViewModel,
+    ddayViewModel: CalendarHomeDDayViewModel,
     birthdayViewModel: CalendarHomeBirthdayViewModel,
     weatherViewModel: CalendarHomeWeatherViewModel,
     syncViewModel: SyncRefreshViewModel,
@@ -32,22 +35,18 @@ internal fun CalendarHomeScreen(
 ) {
     val holidayUiState by holidayViewModel.uiState.collectAsStateWithLifecycle()
     val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
+    val ddayUiState by ddayViewModel.uiState.collectAsStateWithLifecycle()
     val birthdayUiState by birthdayViewModel.uiState.collectAsStateWithLifecycle()
     val filterUiState by memoViewModel.filterUiState.collectAsStateWithLifecycle()
     val weatherUiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateTodayEffect(state = state)
-    FetchHolidayEffect(
+    CalendarHomeMonthEffect(
         state = state,
         holidayViewModel = holidayViewModel,
-    )
-    SelectMemoEffect(
-        state = state,
         memoViewModel = memoViewModel,
-    )
-    FetchBirthdayEffect(
-        state = state,
+        ddayViewModel = ddayViewModel,
         birthdayViewModel = birthdayViewModel,
     )
     FetchWeatherEffect(weatherViewModel = weatherViewModel)
@@ -65,6 +64,7 @@ internal fun CalendarHomeScreen(
         weatherUiStateProvider = { weatherUiState },
         holidayUiStateProvider = { holidayUiState },
         memoUiStateProvider = { memoUiState },
+        ddayUiStateProvider = { ddayUiState },
         birthdayUiStateProvider = { birthdayUiState },
         filterUiStateProvider = { filterUiState },
         uiStateProvider = {
@@ -81,10 +81,37 @@ internal fun CalendarHomeScreen(
                 weatherViewModel = weatherViewModel,
                 syncViewModel = syncViewModel,
                 navigateToMemoDetail = navigateToMemoDetail,
+                navigateToDDayDetail = navigateToDDayDetail,
                 navigateToContactDetail = navigateToContactDetail,
                 navigateToFilter = navigateToFilter,
             )
         },
         onCalendarEvent = { event -> handleCalendarHomeCalendarEvent(event = event, state = state, navigateToMemoAdd = navigateToMemoAdd, navigateToTimetable = navigateToTimetable) },
+    )
+}
+
+@Composable
+private fun CalendarHomeMonthEffect(
+    state: CalendarHomeScaffoldState,
+    holidayViewModel: CalendarHomeHolidayViewModel,
+    memoViewModel: CalendarHomeMemoViewModel,
+    ddayViewModel: CalendarHomeDDayViewModel,
+    birthdayViewModel: CalendarHomeBirthdayViewModel,
+) {
+    FetchHolidayEffect(
+        state = state,
+        holidayViewModel = holidayViewModel,
+    )
+    SelectMemoEffect(
+        state = state,
+        memoViewModel = memoViewModel,
+    )
+    FetchDDayEffect(
+        state = state,
+        ddayViewModel = ddayViewModel,
+    )
+    FetchBirthdayEffect(
+        state = state,
+        birthdayViewModel = birthdayViewModel,
     )
 }

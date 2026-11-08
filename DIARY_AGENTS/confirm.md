@@ -21,9 +21,12 @@
 
 이 형식은 보고에만 쓰고 산출 문서나 커밋 메시지에 남기지 않는다.
 
+결정 항목이 여러 개이거나 선택지마다 장단점을 비교해야 하면 채팅 대신 `skills/html-report`로 HTML 보고서를 만들어 결정을 받는다.
+
 ## 이 문서를 참조하는 문서
 
 - [DIARY_AGENTS.md](../DIARY_AGENTS.md)
 - [wave.md](wave.md)
 - `skills/spec-wave`, `skills/design-wave`, `skills/testcase-wave`, `skills/testcode-wave`
 - `skills/rebase-wave`, `skills/verify-wave`, `skills/audit-wave`
+- `skills/html-report`

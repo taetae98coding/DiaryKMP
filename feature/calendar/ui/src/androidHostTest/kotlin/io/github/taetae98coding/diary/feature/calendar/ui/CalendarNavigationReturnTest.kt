@@ -8,6 +8,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.navigation3.runtime.NavBackStack
@@ -17,7 +18,10 @@ import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldState
@@ -25,6 +29,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScree
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture
 import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnReselectEffect
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.ddayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
@@ -32,6 +37,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarH
 import io.github.taetae98coding.diary.feature.calendar.ui.home.syncViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weatherViewModel
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
@@ -45,6 +51,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -110,6 +117,16 @@ class CalendarNavigationReturnTest {
     }
 
     @Test
+    fun `TC-cd3afc72-2e46-4602-954f-2271b8bafd74 DDayDetail 화면에서 뒤로 가면 보던 달을 유지한다`() {
+        assertDDayDetailReturnKeepsMonth(returnToCalendar = ::pressBack)
+    }
+
+    @Test
+    fun `TC-cd3afc72-2e46-4602-954f-2271b8bafd74 DDayDetail 화면이 디데이를 삭제하고 닫히면 보던 달을 유지한다`() {
+        assertDDayDetailReturnKeepsMonth(returnToCalendar = ::closeTopScreen)
+    }
+
+    @Test
     fun `TC-d774bdc4-ce95-4a92-994b-b802410f0435 시간표에서 연 MemoDetail 화면에서 뒤로 가고 시간표를 닫으면 보던 달이 보인다`() {
         assertTimetableMemoDetailReturn(returnToTimetable = ::pressBack)
     }
@@ -149,6 +166,26 @@ class CalendarNavigationReturnTest {
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(SEPTEMBER_2026)).assertIsDisplayed()
     }
 
+    private fun assertDDayDetailReturnKeepsMonth(returnToCalendar: () -> Unit) {
+        val dday =
+            Arb.calendarDDay().next().copy(
+                title = DDAY_TITLE,
+                date = LocalDate(year = 2026, month = Month.SEPTEMBER, day = DDAY_DAY),
+                label = CalendarDDayLabel.BaseDay,
+            )
+        setCalendarNavDisplay(ddayList = listOf(dday))
+        moveCalendarToSeptember()
+
+        composeRule.onNodeWithText(DDAY_TEXT).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe DDayDetailNavKey(id = dday.ddayId)
+        composeRule.onNodeWithText(DDAY_DETAIL_CONTENT).assertIsDisplayed()
+        returnToCalendar()
+
+        backStack.toList() shouldBe listOf(CalendarHomeNavKey)
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(SEPTEMBER_2026)).assertIsDisplayed()
+    }
+
     private fun assertTimetableMemoDetailReturn(returnToTimetable: () -> Unit) {
         setCalendarNavDisplay()
         moveCalendarToSeptember()
@@ -168,12 +205,13 @@ class CalendarNavigationReturnTest {
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(SEPTEMBER_2026)).assertIsDisplayed()
     }
 
-    private fun setCalendarNavDisplay() {
+    private fun setCalendarNavDisplay(ddayList: List<CalendarDDay> = emptyList()) {
         val memoViewModel = calendarHomeMemoViewModel()
         val homeHolidayViewModel = holidayViewModel()
         val birthdayViewModel = birthdayViewModel()
         val weatherViewModel = weatherViewModel()
         val syncViewModel = syncViewModel()
+        val ddayViewModel = ddayViewModel(ddayListFlow = MutableStateFlow(ddayList))
 
         composeRule.setContent {
             DiaryTheme {
@@ -203,12 +241,15 @@ class CalendarNavigationReturnTest {
                                     birthdayViewModel = birthdayViewModel,
                                     weatherViewModel = weatherViewModel,
                                     syncViewModel = syncViewModel,
+                                    navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
+                                    ddayViewModel = ddayViewModel,
                                 )
                             }
                             entry<CalendarTimetableNavKey> { Text(text = TIMETABLE_CONTENT) }
                             entry<MemoDetailNavKey> { Text(text = MEMO_DETAIL_CONTENT) }
                             entry<MemoAddNavKey> { Text(text = MEMO_ADD_CONTENT) }
                             entry<ContactDetailNavKey> { Text(text = CONTACT_DETAIL_CONTENT) }
+                            entry<DDayDetailNavKey> { Text(text = DDAY_DETAIL_CONTENT) }
                         },
                 )
             }
@@ -276,6 +317,10 @@ class CalendarNavigationReturnTest {
         const val MEMO_DETAIL_CONTENT = "MemoDetailContent"
         const val MEMO_ADD_CONTENT = "MemoAddContent"
         const val CONTACT_DETAIL_CONTENT = "ContactDetailContent"
+        const val DDAY_DETAIL_CONTENT = "DDayDetailContent"
+        const val DDAY_DAY = 15
+        const val DDAY_TITLE = "Exam"
+        const val DDAY_TEXT = "🎉 Exam D-Day"
         const val TIMETABLE_CONTENT = "CalendarTimetableContent"
     }
 }

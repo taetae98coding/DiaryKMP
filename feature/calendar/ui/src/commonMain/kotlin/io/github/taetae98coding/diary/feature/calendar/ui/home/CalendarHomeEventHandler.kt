@@ -19,6 +19,7 @@ internal fun handleCalendarHomeEvent(
     weatherViewModel: CalendarHomeWeatherViewModel,
     syncViewModel: SyncRefreshViewModel,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToDDayDetail: (Uuid) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,
 ) {
@@ -32,6 +33,8 @@ internal fun handleCalendarHomeEvent(
         }
 
         is CalendarHomeScaffoldEvent.ClickMemo -> navigateToMemoDetail(event.id)
+
+        is CalendarHomeScaffoldEvent.ClickDDay -> navigateToDDayDetail(event.id)
 
         is CalendarHomeScaffoldEvent.ClickContactBirthday -> navigateToContactDetail(event.contactId)
 

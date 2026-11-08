@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
@@ -172,6 +173,20 @@ class TagNavigationTest :
                     TagHomeNavKey,
                     TagDetailNavKey(id = tagId),
                     ChecklistAddNavKey(initialTagId = tagId),
+                )
+        }
+
+        test("TC-ee216b2f-cca4-4240-ad87-599d9c553e07 디데이 탭에서 시작한 디데이 추가는 대상 태그를 초기 태그로 넘긴다") {
+            val tagId = Arb.kotlinUuid().next()
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+
+            backStack.navigateToDDayAddFromTagDetail(tagId = tagId)
+
+            backStack shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    DDayAddNavKey(initialTagId = tagId),
                 )
         }
 

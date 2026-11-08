@@ -248,6 +248,7 @@
 
 - [ChecklistDetail 화면 스펙](./checklist-detail.md)
 - [ContactDetail 화면 스펙](./contact-detail.md)
+- [DDayDetail 화면 스펙](./dday-detail.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)
 - [MusicDetail 화면 스펙](./music-detail.md)
 - [PlaceDetail 화면 스펙](./place-detail.md)

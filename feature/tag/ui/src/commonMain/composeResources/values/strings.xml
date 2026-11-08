@@ -83,4 +83,8 @@
     <string name="tag_detail_place_list_view_mode_button_content_description">Show list</string>
     <string name="tag_detail_place_map_view_mode_button_content_description">Show map</string>
     <string name="tag_detail_place_show_on_map_action">Show location on map</string>
+    <string name="tag_detail_tab_dday_content_description">D-Day</string>
+    <string name="tag_detail_dday_add_button_content_description">Add D-Day</string>
+    <string name="tag_detail_dday_empty_title">No D-Days linked to this tag</string>
+    <string name="tag_detail_dday_empty_description">Use the add button to create a D-Day.</string>
 </resources>

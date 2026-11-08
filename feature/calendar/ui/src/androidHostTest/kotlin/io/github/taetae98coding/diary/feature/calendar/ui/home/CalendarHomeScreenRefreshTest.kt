@@ -103,7 +103,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-4c018a1c-1c74-47a7-b7c7-4908842445a3 화면에 들어오는 것만으로는 서버에서 연락처를 다시 가져오지 않는다`() {
+    fun `TC-4c018a1c-1c74-47a7-b7c7-4908842445a3 화면에 들어오는 것만으로는 서버에서 연락처나 디데이를 다시 가져오지 않는다`() {
         val syncViewModel = syncViewModel()
         setCalendarHomeScreen(syncViewModel = syncViewModel)
         composeRule.waitForIdle()
@@ -223,6 +223,8 @@ class CalendarHomeScreenRefreshTest {
                     weatherViewModel = weatherViewModel,
                     syncViewModel = syncViewModel,
                     permissionManager = rememberPermissionManager(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(),
                 )
             }
         }

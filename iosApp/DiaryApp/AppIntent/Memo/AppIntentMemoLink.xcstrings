@@ -1,0 +1,686 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Clear Memo Primary Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Memo Primary Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 대표 태그 해제"
+          }
+        }
+      }
+    },
+    "Clear primary tag of ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear primary tag of ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo} 대표 태그 해제"
+          }
+        }
+      }
+    },
+    "Cleared the primary tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cleared the primary tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대표 태그를 해제했어요."
+          }
+        }
+      }
+    },
+    "Clears the primary tag of a memo. The tag stays linked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clears the primary tag of a memo. The tag stays linked."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모의 대표 태그를 해제합니다. 태그 연결은 그대로 둡니다."
+          }
+        }
+      }
+    },
+    "Contact to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact to Link"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 연락처"
+          }
+        }
+      }
+    },
+    "Contact to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact to Unlink"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 연락처"
+          }
+        }
+      }
+    },
+    "Link ${contact} to ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${contact} to ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에 ${contact} 연결"
+          }
+        }
+      }
+    },
+    "Link ${place} to ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${place} to ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에 ${place} 연결"
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에 ${tag} 연결"
+          }
+        }
+      }
+    },
+    "Link ${web} to ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${web} to ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에 ${web} 연결"
+          }
+        }
+      }
+    },
+    "Link Contact to Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Contact to Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 연락처 연결"
+          }
+        }
+      }
+    },
+    "Link Place to Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Place to Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 장소 연결"
+          }
+        }
+      }
+    },
+    "Link Tag to Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 태그 연결"
+          }
+        }
+      }
+    },
+    "Link Web to Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Web to Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 웹 연결"
+          }
+        }
+      }
+    },
+    "Links a contact to a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a contact to a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 연락처를 연결합니다."
+          }
+        }
+      }
+    },
+    "Links a place to a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a place to a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 장소를 연결합니다."
+          }
+        }
+      }
+    },
+    "Links a tag to a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 태그를 연결합니다."
+          }
+        }
+      }
+    },
+    "Links a web to a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a web to a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에 웹을 연결합니다."
+          }
+        }
+      }
+    },
+    "Place to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place to Link"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 장소"
+          }
+        }
+      }
+    },
+    "Place to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place to Unlink"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 장소"
+          }
+        }
+      }
+    },
+    "Set ${tag} as primary tag of ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set ${tag} as primary tag of ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo} 대표 태그 지정: ${tag}"
+          }
+        }
+      }
+    },
+    "Set Memo Primary Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Memo Primary Tag"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 대표 태그 지정"
+          }
+        }
+      }
+    },
+    "Set the primary tag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the primary tag."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대표 태그를 지정했어요."
+          }
+        }
+      }
+    },
+    "Sets the primary tag of a memo. The tag is linked too if it isn't linked yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets the primary tag of a memo. The tag is linked too if it isn't linked yet."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모의 대표 태그를 정합니다. 연결되지 않은 태그이면 함께 연결합니다."
+          }
+        }
+      }
+    },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        }
+      }
+    },
+    "Unlink ${contact} from ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${contact} from ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에서 ${contact} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink ${place} from ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${place} from ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에서 ${place} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에서 ${tag} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink ${web} from ${memo}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${web} from ${memo}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${memo}에서 ${web} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Contact from Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Contact from Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 연락처 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Place from Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Place from Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 장소 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Tag from Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 태그 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Web from Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Web from Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 웹 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlinks a contact from a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a contact from a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 연락처 연결을 해제합니다."
+          }
+        }
+      }
+    },
+    "Unlinks a place from a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a place from a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 장소 연결을 해제합니다."
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a memo. If it was the primary tag, the primary tag is cleared too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a memo. If it was the primary tag, the primary tag is cleared too."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 태그 연결을 해제합니다. 대표 태그였으면 대표 태그도 해제됩니다."
+          }
+        }
+      }
+    },
+    "Unlinks a web from a memo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a web from a memo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모에서 웹 연결을 해제합니다."
+          }
+        }
+      }
+    },
+    "Web to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web to Link"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 웹"
+          }
+        }
+      }
+    },
+    "Web to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web to Unlink"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 웹"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

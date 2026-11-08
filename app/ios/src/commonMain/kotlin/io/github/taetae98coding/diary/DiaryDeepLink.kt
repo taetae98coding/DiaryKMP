@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.app.shared.navigation.AppDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import org.koin.mp.KoinPlatform
 
-// Swift는 Koin을 쓰지 못하므로 알림 대리 객체가 부를 진입점을 여기에 둔다.
+// Swift는 Koin을 쓰지 못하므로 알림 대리 객체와 장면 대리 객체가 부를 진입점을 여기에 둔다.
 public object DiaryDeepLink {
     private val appDeepLink: AppDeepLink by lazy { KoinPlatform.getKoin().get() }
 
@@ -13,6 +13,11 @@ public object DiaryDeepLink {
         get() = ScreenDeepLink.NOTIFICATION_DATA_KEY
 
     public fun open(deepLink: String) {
-        appDeepLink.open(deepLink = deepLink)
+        appDeepLink.open(deepLink = deepLink, isLaunch = false)
+    }
+
+    // 앱을 새로 시작하며 받은 주소를 연다. 보던 화면이 남아 있지 않은 것을 장면 연결 시점의 Swift만 알 수 있다.
+    public fun openOnLaunch(deepLink: String) {
+        appDeepLink.open(deepLink = deepLink, isLaunch = true)
     }
 }

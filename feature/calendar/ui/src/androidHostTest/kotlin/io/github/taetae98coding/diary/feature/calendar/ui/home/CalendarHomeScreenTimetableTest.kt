@@ -17,11 +17,14 @@ import io.github.taetae98coding.diary.compose.calendar.search.weatherSearchUri
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -100,6 +103,7 @@ class CalendarHomeScreenTimetableTest {
         val memo = Arb.calendarMemo(dateTime = allDay(day = 21), title = MEETING_TITLE).next()
         val birthday = CalendarContactBirthday(contactId = Arb.kotlinUuid().next(), name = BIRTHDAY_NAME, nameQualifier = "", date = september(day = 22))
         val holiday = Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = september(day = 24)..september(day = 24))
+        val dday = Arb.calendarDDay().next().copy(title = EXAM_TITLE, date = september(day = 25), label = CalendarDDayLabel.BaseDay)
         // 날씨는 이름 아이템보다 위 줄을 차지하므로 다른 주에 두어 작은 화면에서도 모든 아이템이 한 번에 보이게 한다.
         val weather =
             Arb
@@ -112,25 +116,30 @@ class CalendarHomeScreenTimetableTest {
         val navKeyList = mutableListOf<CalendarTimetableNavKey>()
         val memoIdList = mutableListOf<Uuid>()
         val contactIdList = mutableListOf<Uuid>()
+        val ddayIdList = mutableListOf<Uuid>()
         setCalendarHomeScreen(
             memoList = listOf(memo),
             holidayList = listOf(holiday),
             birthdayList = listOf(birthday),
+            ddayList = listOf(dday),
             weatherReport = CalendarWeatherReport(weatherList = listOf(weather)),
             uriHandler = uriHandler,
             navigateToTimetable = { navKeyList += it },
             navigateToMemoDetail = { memoIdList += it },
             navigateToContactDetail = { contactIdList += it },
+            navigateToDDayDetail = { ddayIdList += it },
         )
 
         composeRule.onNodeWithText(MEETING_TITLE).performClick()
         composeRule.onNodeWithContentDescription("$BIRTHDAY_NAME's birthday").performClick()
         composeRule.onNodeWithText(HOLIDAY_NAME).performClick()
         composeRule.onNodeWithText("24.3°").performClick()
+        composeRule.onNodeWithText(EXAM_BASE_DAY_TEXT).performClick()
         composeRule.waitForIdle()
 
         memoIdList shouldBe listOf(memo.id)
         contactIdList shouldBe listOf(birthday.contactId)
+        ddayIdList shouldBe listOf(dday.ddayId)
         verify(exactly = 1) { uriHandler.openUri(holidaySearchUri(name = HOLIDAY_NAME)) }
         verify(exactly = 1) { uriHandler.openUri(weatherSearchUri(locationName = "")) }
         navKeyList shouldBe emptyList()
@@ -182,12 +191,14 @@ class CalendarHomeScreenTimetableTest {
         memoViewModel: CalendarHomeMemoViewModel = memoViewModel(memoList = memoList),
         holidayList: List<Holiday> = emptyList(),
         birthdayList: List<CalendarContactBirthday> = emptyList(),
+        ddayList: List<CalendarDDay> = emptyList(),
         weatherReport: CalendarWeatherReport = CalendarWeatherReport(),
         uriHandler: UriHandler = mockk(relaxed = true),
         navigateToTimetable: (CalendarTimetableNavKey) -> Unit,
         navigateToMemoDetail: (Uuid) -> Unit = {},
         navigateToMemoAdd: (LocalDateRange) -> Unit = {},
         navigateToContactDetail: (Uuid) -> Unit = {},
+        navigateToDDayDetail: (Uuid) -> Unit = {},
     ) {
         composeRule.setContent {
             val state =
@@ -210,6 +221,8 @@ class CalendarHomeScreenTimetableTest {
                         birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                         weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(weatherReport)),
                         syncViewModel = syncViewModel(),
+                        navigateToDDayDetail = navigateToDDayDetail,
+                        ddayViewModel = ddayViewModel(ddayListFlow = MutableStateFlow(ddayList)),
                     )
                 }
             }
@@ -250,6 +263,8 @@ class CalendarHomeScreenTimetableTest {
         const val MEETING_TITLE = "Meeting"
         const val BIRTHDAY_NAME = "Hong"
         const val HOLIDAY_NAME = "Holiday"
+        const val EXAM_TITLE = "수능"
+        const val EXAM_BASE_DAY_TEXT = "🎉 수능 D-Day"
         const val LONG_PRESS_MARGIN_MILLIS = 100L
     }
 }

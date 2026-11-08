@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
@@ -17,12 +18,15 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLoca
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memotag.memoTagLocalEntity
@@ -135,6 +139,24 @@ class SearchPagingDaoTest :
             }
         }
 
+        suspend fun insertDDay(
+            accountId: Uuid,
+            vararg ddayList: DDayLocalEntity,
+        ) {
+            database.withWriteTransaction {
+                database.ddayDao().upsert(ddayList.toList())
+                database.accountDDayDao().upsert(
+                    ddayList.map { dday ->
+                        AccountDDayLocalEntity(
+                            accountId = accountId,
+                            ddayId = dday.id,
+                            isDirty = true,
+                        )
+                    },
+                )
+            }
+        }
+
         suspend fun insertMemoTag(
             accountId: Uuid,
             memoTag: MemoTagLocalEntity,
@@ -195,6 +217,17 @@ class SearchPagingDaoTest :
                 .loadWebPage()
                 .data
                 .map { web -> web.id }
+
+        suspend fun ddayIdList(
+            accountId: Uuid,
+            query: String = QUERY,
+        ): List<Uuid> =
+            database
+                .searchDDayDao()
+                .page(accountId = accountId, query = query, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .loadDDayPage()
+                .data
+                .map { dday -> dday.id }
 
         test("TC-cd483a5b-ad04-4c6c-bedb-ea734aa93d42 메모는 제목과 설명 중 하나가 질의를 포함하면 결과가 된다") {
             val accountId = Arb.kotlinUuid().next()
@@ -301,11 +334,13 @@ class SearchPagingDaoTest :
             insertTag(accountId, tag(title = QUERY, isDeleted = true))
             insertPlace(accountId, place(title = QUERY, isDeleted = true))
             insertWeb(accountId, web(title = QUERY, isDeleted = true))
+            insertDDay(accountId, dday(title = QUERY, isDeleted = true))
 
             memoIdList(accountId).shouldBeEmpty()
             tagIdList(accountId).shouldBeEmpty()
             placeIdList(accountId).shouldBeEmpty()
             webIdList(accountId).shouldBeEmpty()
+            ddayIdList(accountId).shouldBeEmpty()
         }
 
         test("TC-ab2e0d4c-f761-4de6-b44c-6ed7de86c7f9 완료된 메모와 완료된 태그도 결과가 된다") {
@@ -367,6 +402,29 @@ class SearchPagingDaoTest :
                 .map { tag -> tag.id } shouldBe tagList.take(PAGE_SIZE).map { tag -> tag.id }
         }
 
+        test("TC-dbb63bc4-ee53-4d78-ac07-f920773ca782 디데이를 이어서 조회해도 다른 유형의 조회 범위는 바뀌지 않는다") {
+            val accountId = Arb.kotlinUuid().next()
+            val ddayList = List(ITEM_COUNT) { index -> dday(title = "$QUERY-${index.pad()}") }
+            val memoList = List(ITEM_COUNT) { index -> memo(title = "$QUERY-${index.pad()}") }
+            insertDDay(accountId, *ddayList.toTypedArray())
+            insertMemo(accountId, *memoList.toTypedArray())
+
+            val ddayPagingSource = database.searchDDayDao().page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
+            val firstDDayPage = ddayPagingSource.loadDDayPage(loadSize = PAGE_SIZE)
+            firstDDayPage.data.map { dday -> dday.id } shouldBe ddayList.take(PAGE_SIZE).map { dday -> dday.id }
+
+            val secondDDayPage = ddayPagingSource.loadDDayPage(key = firstDDayPage.nextKey, loadSize = PAGE_SIZE)
+            secondDDayPage.data.map { dday -> dday.id } shouldBe
+                ddayList.drop(PAGE_SIZE).take(PAGE_SIZE).map { dday -> dday.id }
+
+            database
+                .searchMemoDao()
+                .page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .loadMemoPage(loadSize = PAGE_SIZE)
+                .data
+                .map { memo -> memo.id } shouldBe memoList.take(PAGE_SIZE).map { memo -> memo.id }
+        }
+
         test("TC-55b41830-5dd2-442f-ad02-4fb73a8e0e4f 저장된 항목이 바뀌면 결과가 갱신된다") {
             val accountId = Arb.kotlinUuid().next()
             val savedMemo = memo(title = "가 $QUERY")
@@ -415,11 +473,13 @@ class SearchPagingDaoTest :
             insertTag(otherAccountId, tag(title = QUERY))
             insertPlace(otherAccountId, place(title = QUERY))
             insertWeb(otherAccountId, web(title = QUERY))
+            insertDDay(otherAccountId, dday(title = QUERY))
 
             memoIdList(accountId).shouldBeEmpty()
             tagIdList(accountId).shouldBeEmpty()
             placeIdList(accountId).shouldBeEmpty()
             webIdList(accountId).shouldBeEmpty()
+            ddayIdList(accountId).shouldBeEmpty()
         }
 
         test("TC-1d910620-bfc0-4ea1-871c-f17561570aaf MemoHome에 걸어 둔 필터는 메모 결과를 좁히지 않는다") {
@@ -496,6 +556,13 @@ class SearchPagingDaoTest :
         ): PagingSource.LoadResult.Page<Int, WebLocalEntity> =
             load(loadParams(key = key, loadSize = loadSize))
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>()
+
+        private suspend fun PagingSource<Int, DDayLocalEntity>.loadDDayPage(
+            key: Int? = null,
+            loadSize: Int = 100,
+        ): PagingSource.LoadResult.Page<Int, DDayLocalEntity> =
+            load(loadParams(key = key, loadSize = loadSize))
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, DDayLocalEntity>>()
 
         private fun loadParams(
             key: Int?,
@@ -584,6 +651,21 @@ class SearchPagingDaoTest :
                             url = url,
                             headerList = headerList,
                         ),
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                    createdAt = Arb.secondPrecisionInstant().next(),
+                )
+
+        private fun dday(
+            title: String = Arb.string().next(),
+            description: String = Arb.string().next(),
+            isDeleted: Boolean = false,
+        ): DDayLocalEntity =
+            Arb
+                .ddayLocalEntity()
+                .next()
+                .copy(
+                    detail = Arb.ddayDetailLocalEntity().next().copy(title = title, description = description),
                     isDeleted = isDeleted,
                     updatedAt = Arb.secondPrecisionInstant().next(),
                     createdAt = Arb.secondPrecisionInstant().next(),

@@ -23,6 +23,7 @@ internal fun Modifier.tagDetailTabShortcut(
     onChecklistAdd: () -> Unit,
     onMusicAdd: () -> Unit,
     onQrAdd: () -> Unit,
+    onDDayAdd: () -> Unit,
     state: TagDetailTabState = rememberTagDetailTabState(),
     isUpdateEnabledProvider: () -> Boolean = { false },
 ): Modifier {
@@ -60,6 +61,8 @@ internal fun Modifier.tagDetailTabShortcut(
                 TagDetailTab.MUSIC -> keyEvent.handleAddShortcut(onAdd = onMusicAdd)
 
                 TagDetailTab.QR -> keyEvent.handleAddShortcut(onAdd = onQrAdd)
+
+                TagDetailTab.DDAY -> keyEvent.handleAddShortcut(onAdd = onDDayAdd)
             }
         }
 }

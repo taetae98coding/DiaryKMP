@@ -12,12 +12,13 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.unit.IntSize
 
 internal fun Modifier.timetableSelectDrag(
     state: TimetableSelectState,
@@ -42,8 +43,11 @@ private class TimetableSelectDragNode(
     private var resolver: TimetableSelectionResolver,
     private var onEvent: (TimetableEvent) -> Unit,
 ) : DelegatingNode(),
-    CompositionLocalConsumerModifierNode {
+    CompositionLocalConsumerModifierNode,
+    GlobalPositionAwareModifierNode {
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode { detectSelect() })
+
+    private var layoutCoordinates: LayoutCoordinates? = null
 
     fun update(
         state: TimetableSelectState,
@@ -60,10 +64,19 @@ private class TimetableSelectDragNode(
         }
     }
 
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        layoutCoordinates = coordinates
+    }
+
     private suspend fun PointerInputScope.detectSelect() {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
             val longPress = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+            if (isLongPressIgnored(position = longPress.position)) {
+                awaitIgnoredRelease(longPress = longPress)
+                return@awaitEachGesture
+            }
+
             val selection = resolver.resolve(position = longPress.position, size = size, anchor = null) ?: return@awaitEachGesture
             val selectState = state
             var isReleased = false
@@ -76,6 +89,22 @@ private class TimetableSelectDragNode(
                 selectState.end(isReleased = isReleased, onEvent = onEvent)
             }
         }
+    }
+
+    private fun isLongPressIgnored(position: Offset): Boolean {
+        val coordinates = layoutCoordinates ?: return false
+
+        return state.isLongPressIgnored(windowPosition = coordinates.localToWindow(position))
+    }
+
+    private suspend fun AwaitPointerEventScope.awaitIgnoredRelease(longPress: PointerInputChange) {
+        do {
+            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+            val next = event.changes.firstOrNull { it.id == longPress.id }
+
+            // 길게 누른 아이템의 누름 결과, 페이지 넘김과 세로 스크롤이 이어지지 않도록 손을 뗄 때까지 모든 손가락을 소비한다.
+            event.changes.forEach { it.consume() }
+        } while (next != null && !next.changedToUpIgnoreConsumed())
     }
 
     private suspend fun AwaitPointerEventScope.awaitRelease(longPress: PointerInputChange): Boolean {

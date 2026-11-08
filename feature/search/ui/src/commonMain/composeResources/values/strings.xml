@@ -6,6 +6,7 @@
     <string name="search_home_tag_tab_label">Tag</string>
     <string name="search_home_place_tab_label">Place</string>
     <string name="search_home_web_tab_label">Web</string>
+    <string name="search_home_dday_tab_label">D-Day</string>
     <string name="search_home_empty_title">No search results</string>
     <string name="search_home_empty_description">Try a different search query.</string>
     <string name="search_home_memo_finished_message">Memo finished.</string>

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -57,4 +59,13 @@ internal fun previewHoliday(name: String = "제헌절"): Holiday =
         name = name,
         isHoliday = true,
         dateRange = LocalDate(year = 2026, month = 7, day = 17)..LocalDate(year = 2026, month = 7, day = 17),
+    )
+
+internal fun previewCalendarDDay(title: String = "수능"): CalendarDDay =
+    CalendarDDay(
+        ddayId = Uuid.random(),
+        title = title,
+        color = 0xFFE57373,
+        date = LocalDate(year = 2026, month = 7, day = 19),
+        label = CalendarDDayLabel.BaseDay,
     )

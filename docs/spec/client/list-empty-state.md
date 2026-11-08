@@ -17,6 +17,7 @@
 | [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 태그별 체크리스트 목록 |
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 |
+| [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
@@ -31,7 +32,8 @@
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 |
 | [QrHome 화면](./qr-home.md) | QR 목록 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 |
-| [SearchHome 화면](./search-home.md) | 메모 검색 결과 목록, 태그 검색 결과 목록, 장소 검색 결과 목록, 웹 검색 결과 목록 |
+| [DDayHome 화면](./dday-home.md) | 디데이 목록 |
+| [SearchHome 화면](./search-home.md) | 메모 검색 결과 목록, 태그 검색 결과 목록, 장소 검색 결과 목록, 웹 검색 결과 목록, 디데이 검색 결과 목록 |
 
 SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표시하지 않는다. 이 조건은 [SearchHome 화면 스펙](./search-home.md)의 `결과 없음 판정`이 소유하며, 그 조건을 만족한 뒤의 표시와 행동만 이 문서를 따른다.
 
@@ -99,14 +101,17 @@ SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표�
 | MemoHome 메모 목록 | 유무 필터, 태그 필터 | 구분한다 |
 | TagHome 태그 목록 | 최상위 태그 필터 | 구분한다 |
 | ContactHome 연락처 목록 | 유무 필터 | 구분한다 |
+| DDayHome 디데이 목록 | 태그 필터 | 구분한다 |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 지도의 보이는 영역 | 구분하지 않고 언제나 영역 기준으로 알린다 |
 | PlaceHome 지도 모드의 장소 목록 | 지도의 보이는 영역 | 구분하지 않고 언제나 영역 기준으로 알린다 |
-| SearchHome 네 유형의 검색 결과 목록 | 질의 | 구분하지 않고 언제나 질의 기준으로 알린다 |
+| SearchHome 다섯 유형의 검색 결과 목록 | 질의 | 구분하지 않고 언제나 질의 기준으로 알린다 |
 | 그 밖의 적용 대상 목록 | 없음 | 구분하지 않는다 |
 
 MemoHome의 메모 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 선택할 수 없게 되어 판정에서 무시되는 태그 선택은 좁힌 상태로 세지 않는다. 각 필터의 기준은 [MemoHome 목록 스펙](./memo-home.md)의 `유무 필터 기준`과 `태그 필터 기준`을 따른다.
 
 ContactHome의 연락처 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 각 축의 기준은 [ContactHome 화면 스펙](./contact-home.md)의 `유무 필터 기준`을 따른다.
+
+DDayHome의 디데이 목록은 [목록 필터 반영 스펙](./list-filter.md)의 `필터 적용 상태`에서 필터가 적용되지 않은 상태를 좁히지 않은 상태로, 적용된 상태를 좁힌 상태로 본다. 선택할 수 없게 되어 판정에서 무시되는 태그 선택은 좁힌 상태로 세지 않는다. 필터의 기준은 [DDayHome 화면 스펙](./dday-home.md)의 `태그 필터 기준`을 따른다.
 
 TagHome의 태그 목록은 최상위 태그 필터가 꺼져 있을 때를 좁히지 않은 상태로 보고, 켜져 있으면 좁힌 상태로 본다. 필터의 기준은 [TagHome 목록 스펙](./tag-home.md)의 `최상위 태그 판정 기준`을 따른다.
 
@@ -142,6 +147,7 @@ flowchart TD
 | TagDetail 체크리스트 탭의 태그별 체크리스트 목록 | 이 태그에 연결된 체크리스트가 아직 없으며 새로 추가할 수 있다 |
 | TagDetail 곡 탭의 태그별 곡 목록 | 이 태그에 연결된 곡이 아직 없으며 새로 추가할 수 있다 |
 | TagDetail QR 탭의 태그별 QR 목록 | 이 태그에 연결된 QR이 아직 없으며 새로 추가할 수 있다 |
+| TagDetail 디데이 탭의 태그별 디데이 목록 | 이 태그에 연결된 디데이가 아직 없으며 새로 추가할 수 있다 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 이 태그에서 완료한 메모가 아직 없다 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 이 연락처에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 이 장소에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
@@ -161,10 +167,13 @@ flowchart TD
 | PlaylistHome 곡 목록 | 아직 곡이 없으며 새로 추가할 수 있다 |
 | QrHome QR 목록 | 아직 QR이 없으며 새로 추가할 수 있다 |
 | ChecklistHome 체크리스트 목록 | 아직 체크리스트가 없으며 새로 추가할 수 있다 |
+| DDayHome 디데이 목록, 좁히지 않은 상태 | 아직 디데이가 없으며 새로 추가할 수 있다 |
+| DDayHome 디데이 목록, 좁힌 상태 | 고른 태그에 맞는 디데이가 없으며 필터를 바꾸면 다른 디데이를 볼 수 있다 |
 | SearchHome 메모 검색 결과 목록 | 질의에 맞는 메모가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 태그 검색 결과 목록 | 질의에 맞는 태그가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 장소 검색 결과 목록 | 질의에 맞는 장소가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 웹 검색 결과 목록 | 질의에 맞는 웹 항목이 없으며 다른 질의로 다시 찾을 수 있다 |
+| SearchHome 디데이 검색 결과 목록 | 질의에 맞는 디데이가 없으며 다른 질의로 다시 찾을 수 있다 |
 
 빈 상태 안내는 사용자가 지금 할 수 있는 일을 벗어난 내용을 담지 않는다. 예를 들어 TagFinishedList, MemoFinishedList, TagMemoFinishedList와 세 항목 완료 메모 목록은 그 화면에서 항목을 새로 만들 수 없으므로 추가를 권하지 않는다. SearchHome에서는 항목을 새로 만들 수 없으므로 추가를 권하지 않고 질의를 고치는 것만 권한다.
 

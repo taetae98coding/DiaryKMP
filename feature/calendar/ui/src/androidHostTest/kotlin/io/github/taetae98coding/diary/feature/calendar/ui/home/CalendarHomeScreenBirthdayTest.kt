@@ -21,14 +21,18 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
@@ -212,16 +216,19 @@ class CalendarHomeScreenBirthdayTest {
     // 기본 화면 높이에서는 한 주에 아이템 한 줄만 보여 나머지 줄이 구성되지 않으므로, 세 줄이 모두 보이는 높이로 연다.
     @Test
     @Config(qualifiers = TALL_SCREEN_QUALIFIERS)
-    fun `TC-011e0a79-b3cf-4cc5-acae-ce245ee0b991 같은 기간의 메모 제목·생일·공휴일 이름은 메모, 생일, 공휴일 이름 순으로 놓인다`() {
+    fun `TC-1ecb3c5f-befa-47d8-950f-ede2abee5f36 같은 기간의 메모 제목·디데이·생일·공휴일 이름은 메모, 디데이, 생일, 공휴일 이름 순으로 놓인다`() {
         setCalendarHomeScreen(
             initialYearMonth = JULY_2026,
             holidayList = listOf(Holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, dateRange = july(day = 17)..july(day = 17))),
             birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 17))))),
             memoList = listOf(memo(title = TRIP_TITLE, date = july(day = 17))),
+            ddayList = listOf(dday(title = FIRST_DDAY_TITLE, date = july(day = 17)), dday(title = SECOND_DDAY_TITLE, date = july(day = 17))),
         )
         composeRule.waitForIdle()
 
-        (bottom(text = TRIP_TITLE) <= top(text = BIRTHDAY_TEXT)) shouldBe true
+        (bottom(text = TRIP_TITLE) <= top(text = FIRST_DDAY_TEXT)) shouldBe true
+        (bottom(text = FIRST_DDAY_TEXT) <= top(text = SECOND_DDAY_TEXT)) shouldBe true
+        (bottom(text = SECOND_DDAY_TEXT) <= top(text = BIRTHDAY_TEXT)) shouldBe true
         (bottom(text = BIRTHDAY_TEXT) <= top(text = CONSTITUTION_DAY_NAME)) shouldBe true
     }
 
@@ -259,6 +266,7 @@ class CalendarHomeScreenBirthdayTest {
         holidayList: List<Holiday>,
         birthdayViewModel: CalendarHomeBirthdayViewModel,
         memoList: List<CalendarMemo> = emptyList(),
+        ddayList: List<CalendarDDay> = emptyList(),
         navigateToContactDetail: (Uuid) -> Unit = {},
         moveTarget: MutableState<YearMonth?> = mutableStateOf(null),
     ) {
@@ -293,6 +301,8 @@ class CalendarHomeScreenBirthdayTest {
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(ddayListFlow = MutableStateFlow(ddayList)),
                 )
             }
         }
@@ -314,13 +324,18 @@ class CalendarHomeScreenBirthdayTest {
 
     private fun bottom(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().bottom
 
+    private fun dday(
+        title: String,
+        date: LocalDate,
+    ): CalendarDDay = Arb.calendarDDay().next().copy(title = title, date = date, label = CalendarDDayLabel.BaseDay)
+
     private fun birthday(
         name: String,
         date: LocalDate,
         nameQualifier: String = "",
     ): CalendarContactBirthday =
         CalendarContactBirthday(
-            contactId = Uuid.random(),
+            contactId = Arb.kotlinUuid().next(),
             name = name,
             nameQualifier = nameQualifier,
             date = date,
@@ -331,7 +346,7 @@ class CalendarHomeScreenBirthdayTest {
         date: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = Uuid.random(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = 0xFF3A7BD5,
             dateTime = MemoDateTime.AllDay(dateRange = date..date),
@@ -347,6 +362,10 @@ class CalendarHomeScreenBirthdayTest {
         private const val HOW_WE_MET = "친구 소개"
         private const val SUMMER_BIRTHDAY_TEXT = "🎂 여름"
         private const val TRIP_TITLE = "여행"
+        private const val FIRST_DDAY_TITLE = "가"
+        private const val SECOND_DDAY_TITLE = "나"
+        private const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
+        private const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
         private const val CONSTITUTION_DAY_NAME = "제헌절"
         private const val BIRTHDAY_DESCRIPTION = "홍길동's birthday"
         private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)

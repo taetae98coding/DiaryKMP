@@ -28,6 +28,7 @@
 
 - [ChecklistDetail 화면 디자인](./checklist-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키
 - [ContactDetail 화면 디자인](./contact-detail.md): 상단 바 제목, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점
+- [DDayDetail 화면 디자인](./dday-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점
 - [FileDetail 화면 디자인](./file-detail.md): 수정 실행 단축키
 - [MemoDetail 화면 디자인](./memo-detail.md): 상단 바 제목
 - [MusicDetail 화면 디자인](./music-detail.md): 상단 바 제목, 삭제 버튼의 자리, 수정 실행 단축키, 피드백 스낵바, 진입할 때의 초점

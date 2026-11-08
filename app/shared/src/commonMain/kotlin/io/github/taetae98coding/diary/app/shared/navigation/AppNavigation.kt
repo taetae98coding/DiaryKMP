@@ -56,7 +56,7 @@ internal fun AppNavigation(
     ) {
         NavDisplay(
             backStack = appState.backStack,
-            modifier = modifier,
+            modifier = modifier.navigationHorizontalInsetsPadding(),
             sceneStrategies =
                 listOf(
                     remember { BottomSheetSceneStrategy<ScreenNavKey>() },

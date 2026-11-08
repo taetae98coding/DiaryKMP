@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Report"
+  short_description: "여러 결정과 trade-off를 HTML 폼으로 받는 보고서"
+  default_prompt: "Use $html-report to collect multiple user decisions with radio, checkbox, and text inputs in an HTML report."

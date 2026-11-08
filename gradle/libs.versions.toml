@@ -18,6 +18,7 @@ iosDeploymentTarget = "26.5"
 androidGradlePlugin = "9.4.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
 
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
+androidxAppfunctions = "1.0.0-rc01" # https://developer.android.com/jetpack/androidx/releases/appfunctions?hl=en
 androidxBenchmark = "1.5.0" # https://developer.android.com/jetpack/androidx/releases/benchmark?hl=en
 androidxBrowser = "1.10.0" # https://developer.android.com/jetpack/androidx/releases/browser?hl=en
 androidxCamerax = "1.6.2" # https://developer.android.com/jetpack/androidx/releases/camera?hl=en
@@ -91,6 +92,9 @@ jetbrains-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.l
 jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNavigation3" }
 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "androidxAppfunctions" }
+androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "androidxAppfunctions" }
+androidx-appfunctions-testing = { group = "androidx.appfunctions", name = "appfunctions-testing", version.ref = "androidxAppfunctions" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxBenchmark" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidxCamerax" }

@@ -82,6 +82,13 @@ private val kindCaseList: List<EntityTagKindCase> =
             syncTestCase = "TC-1577840b-df73-4e2e-b0ee-ff80bda2b107 TC-9432f64b-4f31-468e-a411-6b4e3cfdac1f",
             getTestCase = "TC-1e4a39ac-0082-48a4-b07c-60031d3e426b",
         ),
+        EntityTagKindCase(
+            kind = EntityTagKind.DDAY,
+            addTestCase = "TC-9445593e-d391-4723-be37-64d3de0c9a36",
+            removeTestCase = "TC-032f38fc-2324-4c35-b50b-b731ebf81e6f",
+            syncTestCase = "TC-8b4de27f-343a-4b1e-8769-01f6f69f5dd7 TC-d0c1cf97-a302-4533-b78a-69b6e9c435fb",
+            getTestCase = "TC-4e517486-9779-4a15-be00-efdc434b5462",
+        ),
     )
 
 private const val SYNC_PROGRESS_TEST_CASE = "TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c"

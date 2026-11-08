@@ -4,15 +4,18 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.paging.PagingData
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchWebUseCase
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
@@ -83,6 +86,34 @@ class SearchHomeSortTest : FunSpec() {
             }
         }
 
+        test("TC-325ef5d6-2f21-4e58-a256-bd4934f74028 디데이에서 고른 정렬은 메모 결과 순서를 바꾸지 않는다") {
+            runTest(mainDispatcher) {
+                val searchDDayUseCase = searchDDayUseCase(successPagingDataFlowOf(emptyList<DDay>()))
+                val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
+                val ddayViewModel =
+                    SearchHomeDDayViewModel(
+                        searchDDayUseCase = searchDDayUseCase,
+                        deleteDDayUseCase = mockk(),
+                        restoreDDayUseCase = mockk(),
+                    )
+                val memoViewModel = SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk())
+
+                ddayViewModel.pagingData.test {
+                    memoViewModel.pagingData.test {
+                        ddayViewModel.select(sort = ListSort.RECENTLY_UPDATED)
+                        advanceUntilIdle()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                currentUiState(ddayViewModel.uiState).sort shouldBe ListSort.RECENTLY_UPDATED
+                currentUiState(memoViewModel.uiState).sort shouldBe ListSort.TITLE
+                verify(exactly = 1) { searchDDayUseCase(parameter = SearchDDayUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)) }
+                verify(exactly = 0) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)) }
+            }
+        }
+
         test("TC-00c63399-518d-4371-92df-785cfb4c8183 질의를 바꿔도 그 유형에서 고른 정렬이 유지된다") {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
@@ -120,6 +151,7 @@ class SearchHomeSortTest : FunSpec() {
                 val searchTagUseCase = searchTagUseCase(successPagingDataFlowOf(emptyList<Tag>()))
                 val searchPlaceUseCase = searchPlaceUseCase(successPagingDataFlowOf(emptyList<Place>()))
                 val searchWebUseCase = searchWebUseCase(successPagingDataFlowOf(emptyList<Web>()))
+                val searchDDayUseCase = searchDDayUseCase(successPagingDataFlowOf(emptyList<DDay>()))
                 val targetFactoryList: List<() -> SortTarget> =
                     listOf(
                         {
@@ -139,6 +171,11 @@ class SearchHomeSortTest : FunSpec() {
                         },
                         {
                             SearchHomeWebViewModel(searchWebUseCase, mockk(), mockk()).let { viewModel ->
+                                SortTarget(viewModel.uiState, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
+                            }
+                        },
+                        {
+                            SearchHomeDDayViewModel(searchDDayUseCase, mockk(), mockk()).let { viewModel ->
                                 SortTarget(viewModel.uiState, viewModel::select, viewModel::updateQuery, viewModel.pagingData)
                             }
                         },
@@ -169,6 +206,7 @@ class SearchHomeSortTest : FunSpec() {
                 verify(exactly = 2) { searchTagUseCase(parameter = SearchTagUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)) }
                 verify(exactly = 2) { searchPlaceUseCase(parameter = SearchPlaceUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)) }
                 verify(exactly = 2) { searchWebUseCase(parameter = SearchWebUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)) }
+                verify(exactly = 2) { searchDDayUseCase(parameter = SearchDDayUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)) }
             }
         }
     }
@@ -193,6 +231,11 @@ class SearchHomeSortTest : FunSpec() {
 
         fun searchPlaceUseCase(flow: Flow<Result<PagingData<Place>>>): SearchPlaceUseCase =
             mockk<SearchPlaceUseCase>().apply {
+                every { this@apply(any()) } returns flow
+            }
+
+        fun searchDDayUseCase(flow: Flow<Result<PagingData<DDay>>>): SearchDDayUseCase =
+            mockk<SearchDDayUseCase>().apply {
                 every { this@apply(any()) } returns flow
             }
 

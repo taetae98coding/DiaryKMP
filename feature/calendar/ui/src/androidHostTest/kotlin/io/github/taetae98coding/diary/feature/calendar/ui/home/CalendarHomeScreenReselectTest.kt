@@ -100,6 +100,8 @@ class CalendarHomeScreenReselectTest {
                     birthdayViewModel = birthdayViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(),
                 )
             }
         }

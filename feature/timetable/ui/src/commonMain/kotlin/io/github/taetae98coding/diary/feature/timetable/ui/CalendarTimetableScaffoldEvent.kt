@@ -9,6 +9,10 @@ internal sealed interface CalendarTimetableScaffoldEvent {
         val id: Uuid,
     ) : CalendarTimetableScaffoldEvent
 
+    data class ClickDDay(
+        val id: Uuid,
+    ) : CalendarTimetableScaffoldEvent
+
     data class ClickContactBirthday(
         val contactId: Uuid,
     ) : CalendarTimetableScaffoldEvent

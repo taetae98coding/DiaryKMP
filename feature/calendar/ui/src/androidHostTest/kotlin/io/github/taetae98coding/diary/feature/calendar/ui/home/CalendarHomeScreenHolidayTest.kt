@@ -85,6 +85,8 @@ class CalendarHomeScreenHolidayTest {
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(),
                 )
             }
         }

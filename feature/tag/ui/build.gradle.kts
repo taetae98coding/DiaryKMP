@@ -8,6 +8,7 @@ kotlin {
             dependencies {
                 implementation(projects.compose.checklist)
                 implementation(projects.compose.contact)
+                implementation(projects.compose.dday)
                 implementation(projects.compose.list)
                 implementation(projects.compose.memo)
                 implementation(projects.compose.music)
@@ -17,6 +18,7 @@ kotlin {
                 implementation(projects.compose.web)
                 implementation(projects.domain.checklist)
                 implementation(projects.domain.contact)
+                implementation(projects.domain.dday)
                 implementation(projects.domain.location)
                 implementation(projects.domain.memo)
                 implementation(projects.domain.place)
@@ -27,6 +29,7 @@ kotlin {
                 implementation(projects.domain.web)
                 implementation(projects.feature.checklist.api)
                 implementation(projects.feature.contact.api)
+                implementation(projects.feature.dday.api)
                 implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.place.api)
@@ -47,6 +50,7 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }

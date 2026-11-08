@@ -20,6 +20,7 @@ internal val EntityTagKindRemoteEntity.contract: EntityTagRemoteContract
             EntityTagKindRemoteEntity.CHECKLIST -> contract(functionName = "checklist-tag", keyPrefix = "checklist")
             EntityTagKindRemoteEntity.MUSIC -> contract(functionName = "music-tag", keyPrefix = "music")
             EntityTagKindRemoteEntity.QR -> contract(functionName = "qr-tag", keyPrefix = "qr")
+            EntityTagKindRemoteEntity.DDAY -> contract(functionName = "dday-tag", keyPrefix = "dday")
         }
 
 private fun contract(

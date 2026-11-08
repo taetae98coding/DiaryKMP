@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
@@ -86,6 +87,16 @@ class CalendarTimetableNavigationReturnTest {
         assertTimetableDetailReturn(detailKey = ContactDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = CONTACT_DETAIL_CONTENT, returnToTimetable = ::closeTopScreen)
     }
 
+    @Test
+    fun `TC-0bdb1c74-5d0e-4126-a960-01b239929a72 시간표에서 연 DDayDetail 화면에서 뒤로 가면 보던 날짜와 시간대를 유지한다`() {
+        assertTimetableDetailReturn(detailKey = DDayDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = DDAY_DETAIL_CONTENT, returnToTimetable = ::pressBack)
+    }
+
+    @Test
+    fun `TC-0bdb1c74-5d0e-4126-a960-01b239929a72 시간표에서 연 DDayDetail 화면이 디데이를 삭제하고 닫히면 보던 날짜와 시간대를 유지한다`() {
+        assertTimetableDetailReturn(detailKey = DDayDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = DDAY_DETAIL_CONTENT, returnToTimetable = ::closeTopScreen)
+    }
+
     private fun assertTimetableMemoDetailReturn(returnToTimetable: () -> Unit) {
         assertTimetableDetailReturn(detailKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()), detailContent = MEMO_DETAIL_CONTENT, returnToTimetable = returnToTimetable)
     }
@@ -149,11 +160,14 @@ class CalendarTimetableNavigationReturnTest {
                                     holidayViewModel = timetableHolidayViewModel,
                                     weatherViewModel = timetableWeatherViewModel(),
                                     birthdayViewModel = timetableBirthdayViewModel(),
+                                    navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
+                                    ddayViewModel = timetableDDayViewModel(),
                                 )
                             }
                             entry<MemoDetailNavKey> { Text(text = MEMO_DETAIL_CONTENT) }
                             entry<MemoAddNavKey> { Text(text = MEMO_ADD_CONTENT) }
                             entry<ContactDetailNavKey> { Text(text = CONTACT_DETAIL_CONTENT) }
+                            entry<DDayDetailNavKey> { Text(text = DDAY_DETAIL_CONTENT) }
                         },
                 )
             }
@@ -234,5 +248,6 @@ class CalendarTimetableNavigationReturnTest {
         const val MEMO_DETAIL_CONTENT = "MemoDetailContent"
         const val MEMO_ADD_CONTENT = "MemoAddContent"
         const val CONTACT_DETAIL_CONTENT = "ContactDetailContent"
+        const val DDAY_DETAIL_CONTENT = "DDayDetailContent"
     }
 }

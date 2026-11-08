@@ -24,4 +24,6 @@ internal class TagDetailNavigation(
     val navigateToMusicDetail: (Uuid) -> Unit,
     val navigateToQrAdd: () -> Unit,
     val navigateToQrDetail: (Uuid) -> Unit,
+    val navigateToDDayAdd: () -> Unit,
+    val navigateToDDayDetail: (Uuid) -> Unit,
 )

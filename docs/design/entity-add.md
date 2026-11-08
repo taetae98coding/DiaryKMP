@@ -8,6 +8,7 @@
 
 - [ChecklistAdd 화면 디자인](./checklist-add.md)
 - [ContactAdd 화면 디자인](./contact-add.md)
+- [DDayAdd 화면 디자인](./dday-add.md)
 - [FileAdd 화면 디자인](./file-add.md). 진행과 피드백은 따르지 않는다
 - [MusicAdd 화면 디자인](./music-add.md)
 - [PlaceAdd 화면 디자인](./place-add.md)

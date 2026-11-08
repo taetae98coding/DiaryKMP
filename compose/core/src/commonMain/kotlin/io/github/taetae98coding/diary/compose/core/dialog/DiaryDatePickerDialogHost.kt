@@ -10,6 +10,7 @@ public fun DiaryDatePickerDialogHost(
     initialDateProvider: () -> LocalDate,
     onConfirm: (LocalDate) -> Unit,
     dialogState: DialogState = rememberDialogState(),
+    minDateProvider: () -> LocalDate? = { null },
 ) {
     if (!dialogState.isVisible) return
 
@@ -20,6 +21,7 @@ public fun DiaryDatePickerDialogHost(
             dialogState.hide()
             onConfirm(date)
         },
+        minDate = minDateProvider(),
     )
 }
 

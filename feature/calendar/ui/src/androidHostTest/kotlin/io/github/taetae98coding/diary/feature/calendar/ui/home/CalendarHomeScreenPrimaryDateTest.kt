@@ -223,6 +223,8 @@ class CalendarHomeScreenPrimaryDateTest {
                             syncViewModel = syncViewModel,
                             state = state,
                             permissionManager = rememberPermissionManager(),
+                            navigateToDDayDetail = {},
+                            ddayViewModel = ddayViewModel(),
                         )
                     }
                 }

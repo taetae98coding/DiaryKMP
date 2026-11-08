@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.feature.calendar.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -40,6 +42,15 @@ internal fun previewCalendarMemo(title: String = "메모 제목"): CalendarMemo 
             MemoDateTime.AllDay(
                 dateRange = LocalDate(year = 2026, month = 7, day = 19)..LocalDate(year = 2026, month = 7, day = 20),
             ),
+    )
+
+internal fun previewCalendarDDay(title: String = "수능"): CalendarDDay =
+    CalendarDDay(
+        ddayId = Uuid.random(),
+        title = title,
+        color = 0xFFE57373,
+        date = LocalDate(year = 2026, month = 7, day = 15),
+        label = CalendarDDayLabel.BaseDay,
     )
 
 internal fun previewCalendarContactBirthday(

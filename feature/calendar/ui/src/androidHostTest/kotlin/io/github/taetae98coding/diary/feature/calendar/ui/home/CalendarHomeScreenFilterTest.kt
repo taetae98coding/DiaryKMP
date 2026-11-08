@@ -94,6 +94,8 @@ class CalendarHomeScreenFilterTest {
                     syncViewModel = syncViewModel(),
                     state = rememberCalendarHomeScaffoldState(),
                     permissionManager = rememberPermissionManager(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(),
                 )
             }
         }

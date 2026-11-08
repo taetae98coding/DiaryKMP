@@ -6,6 +6,7 @@
 
 - [ChecklistAdd 화면 스펙](./checklist-add.md)
 - [ContactAdd 화면 스펙](./contact-add.md)
+- [DDayAdd 화면 스펙](./dday-add.md)
 - [MemoAdd 화면 스펙](./memo-add.md)
 - [MusicAdd 화면 스펙](./music-add.md)
 - [PlaceAdd 화면 스펙](./place-add.md)
@@ -14,7 +15,7 @@
 - [TagAdd 화면 스펙](./tag-add.md)
 - [WebAdd 화면 스펙](./web-add.md)
 
-이 문서에서 `대상 항목`은 그 화면이 추가하는 체크리스트, 연락처, 메모, 곡, 장소, QR, 루틴, 태그 또는 웹 항목 하나를 가리킨다.
+이 문서에서 `대상 항목`은 그 화면이 추가하는 체크리스트, 연락처, 디데이, 메모, 곡, 장소, QR, 루틴, 태그 또는 웹 항목 하나를 가리킨다.
 
 태그를 함께 고르는 입력의 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을, 메모에 연락처와 웹 항목을 함께 고르는 입력의 행동과 판정 기준은 [메모 항목 선택 입력 공통 스펙](./memo-entity-input.md)을, 함께 만들어지는 연결의 규칙은 [항목 연결 공통 스펙](../common/entity-link.md)을 따른다.
 

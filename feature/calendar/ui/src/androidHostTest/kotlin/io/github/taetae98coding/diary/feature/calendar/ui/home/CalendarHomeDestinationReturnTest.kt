@@ -111,6 +111,8 @@ class CalendarHomeDestinationReturnTest {
                                     birthdayViewModel = birthdayViewModel,
                                     weatherViewModel = weatherViewModel,
                                     syncViewModel = syncViewModel,
+                                    navigateToDDayDetail = {},
+                                    ddayViewModel = ddayViewModel(),
                                 )
                             }
                             entry<DestinationTestTopLevelNavKey> { Text(text = TOP_LEVEL_CONTENT) }

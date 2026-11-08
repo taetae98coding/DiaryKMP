@@ -16,6 +16,7 @@
 | [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 체크리스트 카드 |
 | [TagDetail 곡 탭](./tag-detail-music.md) | 곡 카드 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | QR 카드 |
+| [TagDetail 디데이 탭](./tag-detail-dday.md) | 디데이 카드 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 메모 카드 |
 | [항목 상세 메모 탭 공통](./entity-detail-memo.md) | 메모 카드 |
 | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 메모 카드 |
@@ -27,7 +28,8 @@
 | [PlaylistHome 화면](./playlist-home.md) | 곡 카드 |
 | [QrHome 화면](./qr-home.md) | QR 카드 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 카드 |
-| [SearchHome 화면](./search-home.md) | 메모 카드 · 태그 카드 · 장소 카드 · 웹 카드 |
+| [DDayHome 화면](./dday-home.md) | 디데이 카드 |
+| [SearchHome 화면](./search-home.md) | 메모 카드 · 태그 카드 · 장소 카드 · 웹 카드 · 디데이 카드 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 행 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 항목 |
 | [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | 연락처 선택 항목 |

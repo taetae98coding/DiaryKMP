@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntSize
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -76,8 +77,20 @@ internal fun interface TimetableSelectionResolver {
 
 @Stable
 internal class TimetableSelectState {
+    private val longPressIgnoredTargetList = mutableListOf<TimetableLongPressIgnoredTarget>()
+
     var selection: TimetableSelection? by mutableStateOf(null)
         private set
+
+    fun register(target: TimetableLongPressIgnoredTarget) {
+        longPressIgnoredTargetList += target
+    }
+
+    fun unregister(target: TimetableLongPressIgnoredTarget) {
+        longPressIgnoredTargetList -= target
+    }
+
+    fun isLongPressIgnored(windowPosition: Offset): Boolean = longPressIgnoredTargetList.any { it.bounds.contains(windowPosition) }
 
     fun select(selection: TimetableSelection) {
         this.selection = selection
@@ -86,6 +99,11 @@ internal class TimetableSelectState {
     fun clear() {
         selection = null
     }
+}
+
+internal class TimetableLongPressIgnoredTarget {
+    // 배치마다 갱신되는 레이아웃 값이라 값 교체 대신 슬롯으로 둔다.
+    var bounds: Rect = Rect.Zero
 }
 
 @Composable

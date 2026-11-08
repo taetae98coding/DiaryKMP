@@ -82,6 +82,11 @@ internal class CalendarDragNode(
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
             val longPress = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+            if (moveState?.isLongPressIgnored(coordinates = layoutCoordinates, position = longPress.position) == true) {
+                awaitIgnoredRelease(longPress = longPress)
+                return@awaitEachGesture
+            }
+
             var isReleased = false
 
             session = startSession(position = longPress.position)
@@ -220,6 +225,16 @@ internal class CalendarDragNode(
     private fun performHapticFeedback(type: HapticFeedbackType) {
         currentValueOf(LocalHapticFeedback).performHapticFeedback(type)
     }
+}
+
+private suspend fun AwaitPointerEventScope.awaitIgnoredRelease(longPress: PointerInputChange) {
+    do {
+        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+        val next = event.changes.firstOrNull { it.id == longPress.id }
+
+        // 길게 누른 아이템의 누름 결과, 페이저 스와이프와 날짜 누름이 이어지지 않도록 손을 뗄 때까지 모든 손가락을 소비한다.
+        event.changes.forEach { it.consume() }
+    } while (next != null && !next.changedToUpIgnoreConsumed())
 }
 
 private class CalendarMonthSwipe(

@@ -10,5 +10,6 @@ public object StartupInitializer {
         initializeFileUpload()
         initializeMapHttpServer()
         initializeMcpServer()
+        initializeSpotlight()
     }
 }

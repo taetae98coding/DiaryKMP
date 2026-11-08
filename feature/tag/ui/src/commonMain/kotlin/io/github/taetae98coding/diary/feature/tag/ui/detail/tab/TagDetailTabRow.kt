@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.icon.ChecklistIcon
 import io.github.taetae98coding.diary.compose.core.icon.ContactIcon
+import io.github.taetae98coding.diary.compose.core.icon.DDayIcon
 import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.icon.PlaylistIcon
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_checklist_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_contact_content_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_dday_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_detail_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_memo_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_tab_music_content_description
@@ -60,6 +62,7 @@ private fun TagDetailTabIcon(tab: TagDetailTab) {
         TagDetailTab.CHECKLIST -> ChecklistIcon(contentDescription = stringResource(Res.string.tag_detail_tab_checklist_content_description))
         TagDetailTab.MUSIC -> PlaylistIcon(contentDescription = stringResource(Res.string.tag_detail_tab_music_content_description))
         TagDetailTab.QR -> QrIcon(contentDescription = stringResource(Res.string.tag_detail_tab_qr_content_description))
+        TagDetailTab.DDAY -> DDayIcon(contentDescription = stringResource(Res.string.tag_detail_tab_dday_content_description))
     }
 }
 

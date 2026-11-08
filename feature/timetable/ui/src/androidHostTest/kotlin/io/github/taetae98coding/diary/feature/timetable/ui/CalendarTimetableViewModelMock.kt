@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.timetable.ui
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
@@ -36,6 +37,15 @@ internal fun calendarTimetableWeatherViewModel(
 internal fun getCurrentCalendarWeatherUseCase(flow: Flow<Result<CalendarWeatherReport>> = flowOf(Result.success(CalendarWeatherReport()))): GetCurrentCalendarWeatherUseCase =
     mockk<GetCurrentCalendarWeatherUseCase>().also { useCase ->
         every { useCase(parameter = Unit) } returns flow
+    }
+
+internal fun timetableDDayViewModel(
+    ddayListFlow: MutableStateFlow<List<CalendarDDay>> = MutableStateFlow(emptyList()),
+    onFetch: (LocalDateRange) -> Unit = {},
+): CalendarTimetableDDayViewModel =
+    mockk<CalendarTimetableDDayViewModel>().also { viewModel ->
+        every { viewModel.fetch(any()) } answers { onFetch(firstArg()) }
+        every { viewModel.uiState } returns ddayListFlow.mapState { list -> CalendarTimetableDDayUiState(ddayList = list) }
     }
 
 internal fun timetableBirthdayViewModel(

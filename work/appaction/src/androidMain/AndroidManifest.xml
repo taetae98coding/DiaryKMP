@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- AppFunctionService는 Android 16(API 36)부터 있으므로 그보다 낮은 기기에서는 서비스를 끈다.
+             Android 16은 앱마다 서비스 하나만 색인하므로 모든 도메인의 동작을 이 서비스 하나에 모은다. -->
+        <service
+            android:name="io.github.taetae98coding.diary.work.appaction.appfunction.DiaryAppFunctionService"
+            android:enabled="@bool/app_function_service_enabled"
+            android:exported="true"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="app_functions_schema.xsd" />
+            <property
+                android:name="android.app.appfunctions"
+                android:value="diary_app_functions-v1.xml" />
+            <property
+                android:name="android.app.appfunctions.v2"
+                android:value="diary_app_functions.xml" />
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

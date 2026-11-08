@@ -31,4 +31,5 @@ internal fun EntityTagKindLocalEntity.toRemote(): EntityTagKindRemoteEntity =
         EntityTagKindLocalEntity.CHECKLIST -> EntityTagKindRemoteEntity.CHECKLIST
         EntityTagKindLocalEntity.MUSIC -> EntityTagKindRemoteEntity.MUSIC
         EntityTagKindLocalEntity.QR -> EntityTagKindRemoteEntity.QR
+        EntityTagKindLocalEntity.DDAY -> EntityTagKindRemoteEntity.DDAY
     }

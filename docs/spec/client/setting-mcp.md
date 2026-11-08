@@ -1,6 +1,6 @@
 # SettingMcp 화면 스펙
 
-이 문서는 사용자가 설정 화면의 `MCP` 항목에서 진입하는 SettingMcp 화면의 내용과 행동을 다룬다. 기기에 보관하는 설정 화면의 공통 행동과 저장 영역은 [기기 설정 화면 공통 스펙](./device-setting.md)을 따르고, 이 문서에는 이 설정에만 해당하는 내용을 둔다. 설정 항목의 표시와 선택은 [SettingHome 화면 스펙](./setting-home.md)에서, 설정 목록과 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 연결 주소, 연결 상태와 AI 도구에 제공하는 기능은 [AI 도구 연결 스펙](./mcp-server.md)에서 다룬다.
+이 문서는 사용자가 설정 화면의 `MCP` 항목에서 진입하는 SettingMcp 화면의 내용과 행동을 다룬다. 기기에 보관하는 설정 화면의 공통 행동과 저장 영역은 [기기 설정 화면 공통 스펙](./device-setting.md)을 따르고, 이 문서에는 이 설정에만 해당하는 내용을 둔다. 설정 항목의 표시와 선택은 [SettingHome 화면 스펙](./setting-home.md)에서, 설정 목록과 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 연결 주소와 연결 상태는 [AI 도구 연결 스펙](./mcp-server.md)에서, AI 도구에 제공하는 기능은 [AI 도구 제공 공통 스펙](./ai-tool.md)에서 다룬다.
 
 디자인: [SettingMcp 화면 디자인](../../design/setting-mcp.md)
 

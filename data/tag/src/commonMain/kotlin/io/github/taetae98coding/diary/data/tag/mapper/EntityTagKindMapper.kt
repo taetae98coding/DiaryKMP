@@ -11,4 +11,5 @@ internal fun EntityTagKind.toLocal(): EntityTagKindLocalEntity =
         EntityTagKind.CHECKLIST -> EntityTagKindLocalEntity.CHECKLIST
         EntityTagKind.MUSIC -> EntityTagKindLocalEntity.MUSIC
         EntityTagKind.QR -> EntityTagKindLocalEntity.QR
+        EntityTagKind.DDAY -> EntityTagKindLocalEntity.DDAY
     }

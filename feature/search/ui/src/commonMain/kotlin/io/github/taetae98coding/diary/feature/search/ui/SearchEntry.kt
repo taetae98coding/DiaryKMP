@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.search.ui
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -23,11 +24,13 @@ private fun EntryProviderScope<ScreenNavKey>.searchHomeEntry(backStack: NavBackS
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
             initialType = key.initialType,
             memoViewModel = koinViewModel(),
             tagViewModel = koinViewModel(),
             placeViewModel = koinViewModel(),
             webViewModel = koinViewModel(),
+            ddayViewModel = koinViewModel(),
         )
     }
 }

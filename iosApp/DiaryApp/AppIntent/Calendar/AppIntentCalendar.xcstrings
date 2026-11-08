@@ -1,0 +1,663 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld Birthdays": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Birthday"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Birthdays"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생일 %lld개"
+          }
+        }
+      }
+    },
+    "%lld Calendar D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar D-Day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar D-Days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 %lld개"
+          }
+        }
+      }
+    },
+    "%lld Calendar Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar Memo"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar Memos"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 메모 %lld개"
+          }
+        }
+      }
+    },
+    "%lld Holidays": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Holiday"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Holidays"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공휴일 %lld개"
+          }
+        }
+      }
+    },
+    "Birthday": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Birthday"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생일"
+          }
+        }
+      }
+    },
+    "Calendar D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이"
+          }
+        }
+      }
+    },
+    "Calendar D-Days from ${startDate} to ${endDate}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar D-Days from ${startDate} to ${endDate}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${startDate}부터 ${endDate}까지의 캘린더 디데이"
+          }
+        }
+      }
+    },
+    "Calendar Memo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar Memo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 메모"
+          }
+        }
+      }
+    },
+    "Calendar birthdays from ${startDate} to ${endDate}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar birthdays from ${startDate} to ${endDate}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${startDate}부터 ${endDate}까지의 캘린더 생일"
+          }
+        }
+      }
+    },
+    "Calendar memos from ${startDate} to ${endDate}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar memos from ${startDate} to ${endDate}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${startDate}부터 ${endDate}까지의 캘린더 메모"
+          }
+        }
+      }
+    },
+    "Calendar memos on ${date}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar memos on ${date}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${date}의 캘린더 메모"
+          }
+        }
+      }
+    },
+    "Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜"
+          }
+        }
+      }
+    },
+    "Date Label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date Label"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜 문구"
+          }
+        }
+      }
+    },
+    "Found %lld birthdays.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld birthday."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld birthdays."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생일 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld calendar D-Days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar D-Day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar D-Days."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld calendar memos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar memo."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar memos."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 메모 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld holidays.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld holiday."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld holidays."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공휴일 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Get Calendar Birthdays": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Calendar Birthdays"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 생일 보기"
+          }
+        }
+      }
+    },
+    "Get Calendar D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Calendar D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 보기"
+          }
+        }
+      }
+    },
+    "Get Calendar Memos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Calendar Memos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 메모 보기"
+          }
+        }
+      }
+    },
+    "Get Calendar Memos by Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Calendar Memos by Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜별 캘린더 메모 보기"
+          }
+        }
+      }
+    },
+    "Get Holidays": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Holidays"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공휴일 보기"
+          }
+        }
+      }
+    },
+    "Get holidays in ${year}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get holidays in ${year}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${year} 공휴일 보기"
+          }
+        }
+      }
+    },
+    "Gets a year's holidays as shown on the calendar. Only years saved on this device appear.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a year's holidays as shown on the calendar. Only years saved on this device appear."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 해의 공휴일을 캘린더와 같이 가져옵니다. 이 기기에 받아 둔 연도만 나타납니다."
+          }
+        }
+      }
+    },
+    "Gets contact birthdays in the date range as solar dates. Lunar birthdays appear only for years whose lunar data is saved.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets contact birthdays in the date range as solar dates. Lunar birthdays appear only for years whose lunar data is saved."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜 범위 안의 연락처 생일을 양력 날짜로 가져옵니다. 음력 생일은 음력 자료를 받아 둔 연도에만 나타납니다."
+          }
+        }
+      }
+    },
+    "Gets the memos shown on the calendar on the chosen date. Finished memos are included, and the calendar tag filter chosen in the app applies.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the memos shown on the calendar on the chosen date. Finished memos are included, and the calendar tag filter chosen in the app applies."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고른 날짜 하루에 캘린더에 보이는 메모를 가져옵니다. 완료된 메모도 포함하고 앱에서 고른 캘린더 태그 필터가 적용됩니다."
+          }
+        }
+      }
+    },
+    "Gets the memos shown on the calendar whose period overlaps the date range. Finished memos are included, and the calendar tag filter chosen in the app applies.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the memos shown on the calendar whose period overlaps the date range. Finished memos are included, and the calendar tag filter chosen in the app applies."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기간이 고른 날짜 범위와 겹치는, 캘린더에 보이는 메모를 가져옵니다. 완료된 메모도 포함하고 앱에서 고른 캘린더 태그 필터가 적용됩니다."
+          }
+        }
+      }
+    },
+    "Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜 범위 안에서 캘린더에 보이는 디데이의 기준일 당일과 기념일을 가져옵니다. 앱에서 고른 캘린더 태그 필터가 적용됩니다."
+          }
+        }
+      }
+    },
+    "Holiday": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holiday"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공휴일"
+          }
+        }
+      }
+    },
+    "Which date?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which date?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어느 날짜의 메모를 볼까요?"
+          }
+        }
+      }
+    },
+    "🎂 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎂 %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎂 %@"
+          }
+        }
+      }
+    },
+    "🎂 %@ (%@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎂 %1$@ (%2$@)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎂 %1$@(%2$@)"
+          }
+        }
+      }
+    },
+    "🎉 %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 %1$@ %2$@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 %1$@ %2$@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

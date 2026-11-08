@@ -16,11 +16,13 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchWebUseCase
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
@@ -143,13 +145,13 @@ class SearchHomeTypeReturnTest {
                 }
             }
         val searchPlaceUseCase = mockk<SearchPlaceUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
-        val searchWebUseCase = mockk<SearchWebUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
         val viewModelModule =
             module {
                 factory { SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk()) }
                 factory { SearchHomeTagViewModel(searchTagUseCase, mockk(), mockk(), mockk(), mockk()) }
                 factory { SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()) }
-                factory { SearchHomeWebViewModel(searchWebUseCase, mockk(), mockk()) }
+                factory { SearchHomeWebViewModel(emptySearchWebUseCase(), mockk(), mockk()) }
+                factory { SearchHomeDDayViewModel(emptySearchDDayUseCase(), mockk(), mockk()) }
             }
 
         composeRule.setContent {
@@ -170,11 +172,13 @@ class SearchHomeTypeReturnTest {
                             navigateToTagDetail = {},
                             navigateToPlaceDetail = {},
                             navigateToWebDetail = {},
+                            navigateToDDayDetail = {},
                             initialType = SearchHomeType.MEMO,
                             memoViewModel = koinViewModel(),
                             tagViewModel = koinViewModel(),
                             placeViewModel = koinViewModel(),
                             webViewModel = koinViewModel(),
+                            ddayViewModel = koinViewModel(),
                         )
                     }
                 }
@@ -189,3 +193,7 @@ class SearchHomeTypeReturnTest {
         const val QUERY_IDLE_WAIT_MILLIS = 1_000L
     }
 }
+
+private fun emptySearchWebUseCase(): SearchWebUseCase = mockk<SearchWebUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }
+
+private fun emptySearchDDayUseCase(): SearchDDayUseCase = mockk<SearchDDayUseCase>().apply { every { this@apply(any()) } returns flowOf(Result.success(PagingData.empty())) }

@@ -10,4 +10,5 @@ internal val tagDetailTabList: List<TagDetailTab> =
         TagDetailTab.CHECKLIST,
         TagDetailTab.MUSIC,
         TagDetailTab.QR,
+        TagDetailTab.DDAY,
     )

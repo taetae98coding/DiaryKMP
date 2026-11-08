@@ -148,6 +148,28 @@ class TimetableSelectTest {
     }
 
     @Test
+    fun `TC-d134a9fb-c176-49ea-98b4-74ee0736d225 길게 누르기 선택을 끈 종일 아이템은 아무것도 실행하지 않는다`() {
+        var clickCount = 0
+        setTimetable {
+            allDayItem(dateRange = september(day = 23)..september(day = 23), key = VACATION, isLongPressSelectEnabled = false) {
+                Text(text = VACATION, modifier = Modifier.clickable { clickCount += 1 })
+            }
+        }
+
+        performLongPress(
+            composeRule
+                .onNodeWithText(VACATION)
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot.center,
+        )
+        performUp()
+
+        eventList shouldBe emptyList()
+        clickCount shouldBe 0
+    }
+
+    @Test
     fun `TC-f2211af7-80a6-4c9a-b98c-22c2f47bdc77 날짜 정보를 길게 누르면 날짜 선택이 시작된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {

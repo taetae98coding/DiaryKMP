@@ -19,6 +19,7 @@ kotlin {
                 implementation(projects.app.shared)
                 implementation(projects.compose.core)
                 implementation(projects.core.navigation)
+                implementation(projects.work.appaction)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.koin.core)
             }

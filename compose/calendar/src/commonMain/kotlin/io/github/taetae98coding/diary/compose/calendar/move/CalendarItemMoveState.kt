@@ -6,11 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
 import kotlinx.datetime.LocalDateRange
 
 @Stable
 public class CalendarItemMoveState {
     private val targetList = mutableListOf<CalendarMoveTarget>()
+    private val longPressIgnoredTargetList = mutableListOf<CalendarLongPressIgnoredTarget>()
 
     public var moving: CalendarMovingItem? by mutableStateOf(null)
         internal set
@@ -24,6 +26,23 @@ public class CalendarItemMoveState {
 
     internal fun unregister(target: CalendarMoveTarget) {
         targetList -= target
+    }
+
+    internal fun register(target: CalendarLongPressIgnoredTarget) {
+        longPressIgnoredTargetList += target
+    }
+
+    internal fun unregister(target: CalendarLongPressIgnoredTarget) {
+        longPressIgnoredTargetList -= target
+    }
+
+    internal fun isLongPressIgnored(
+        coordinates: LayoutCoordinates?,
+        position: Offset,
+    ): Boolean {
+        val windowPosition = coordinates?.localToWindow(position) ?: return false
+
+        return longPressIgnoredTargetList.any { it.bounds.contains(windowPosition) }
     }
 
     internal fun findTarget(windowPosition: Offset): CalendarMoveTarget? = targetList.lastOrNull { it.bounds.contains(windowPosition) }
@@ -54,6 +73,11 @@ internal class CalendarMoveTarget(
     val dateRange: LocalDateRange,
     val onMoved: (LocalDateRange) -> Unit,
 ) {
+    // 배치마다 갱신되는 레이아웃 값이라 값 교체 대신 슬롯으로 둔다.
+    var bounds: Rect = Rect.Zero
+}
+
+internal class CalendarLongPressIgnoredTarget {
     // 배치마다 갱신되는 레이아웃 값이라 값 교체 대신 슬롯으로 둔다.
     var bounds: Rect = Rect.Zero
 }

@@ -8,12 +8,16 @@ import androidx.compose.ui.semantics.Role
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.birthday.CalendarBirthdayText
 import io.github.taetae98coding.diary.compose.calendar.birthday.toDateRange
+import io.github.taetae98coding.diary.compose.calendar.dday.CalendarDDayText
+import io.github.taetae98coding.diary.compose.calendar.dday.itemKey
+import io.github.taetae98coding.diary.compose.calendar.dday.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.memo.toDateRange
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.compose.calendar.weather.CalendarWeatherItem
 import io.github.taetae98coding.diary.compose.contact.contactDisplayName
 import io.github.taetae98coding.diary.compose.timetable.TimetableScope
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -21,6 +25,7 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 
 internal fun TimetableScope.calendarTimetableItems(
     memoProvider: () -> List<CalendarMemo>,
+    ddayProvider: () -> List<CalendarDDay>,
     birthdayProvider: () -> List<CalendarContactBirthday>,
     holidayProvider: () -> List<Holiday>,
     birthdayColor: Color,
@@ -30,6 +35,7 @@ internal fun TimetableScope.calendarTimetableItems(
     onHolidayClick: (Holiday) -> Unit,
 ) {
     memoItems(memoProvider = memoProvider, onEvent = onEvent)
+    ddayItems(ddayProvider = ddayProvider, onEvent = onEvent)
     birthdayItems(birthdayProvider = birthdayProvider, birthdayColor = birthdayColor, onEvent = onEvent)
     holidayItems(
         holidayProvider = holidayProvider,
@@ -74,6 +80,26 @@ private fun TimetableScope.memoItems(
                     color = color,
                 )
             }
+        }
+    }
+}
+
+private fun TimetableScope.ddayItems(
+    ddayProvider: () -> List<CalendarDDay>,
+    onEvent: (CalendarTimetableScaffoldEvent) -> Unit,
+) {
+    ddayProvider().forEach { dday ->
+        allDayItem(
+            dateRange = dday.toDateRange(),
+            key = dday.itemKey(),
+            isLongPressSelectEnabled = false,
+        ) {
+            CalendarDDayText(
+                title = dday.title,
+                label = dday.label,
+                color = Color(color = dday.color.toInt()),
+                onClick = { onEvent(CalendarTimetableScaffoldEvent.ClickDDay(id = dday.ddayId)) },
+            )
         }
     }
 }

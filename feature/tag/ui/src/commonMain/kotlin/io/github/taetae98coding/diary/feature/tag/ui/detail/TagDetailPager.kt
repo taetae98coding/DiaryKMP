@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
@@ -54,6 +55,7 @@ private fun TagDetailPagerPreview() {
                 TagDetailTab.CHECKLIST -> TagDetailChecklistTab(onEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.MUSIC -> TagDetailMusicTab(onEvent = {}, modifier = Modifier.fillMaxSize())
                 TagDetailTab.QR -> TagDetailQrTab(onEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.DDAY -> TagDetailDDayTab(onEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
     }

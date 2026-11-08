@@ -40,6 +40,7 @@ kotlin {
                 implementation(projects.data.account)
                 implementation(projects.data.checklist)
                 implementation(projects.data.contact)
+                implementation(projects.data.dday)
                 implementation(projects.data.file)
                 implementation(projects.data.holiday)
                 implementation(projects.data.integrity)
@@ -58,6 +59,7 @@ kotlin {
                 implementation(projects.domain.account)
                 implementation(projects.domain.checklist)
                 implementation(projects.domain.contact)
+                implementation(projects.domain.dday)
                 implementation(projects.domain.file)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.integrity)
@@ -115,6 +117,7 @@ kotlin {
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
+                implementation(projects.work.appaction)
                 implementation(projects.work.fileUpload)
                 implementation(projects.work.mcp)
                 implementation(projects.work.sync)
@@ -156,6 +159,7 @@ kotlin {
             dependencies {
                 implementation(libs.coil.network.ktor3)
                 implementation(projects.compose.map)
+                implementation(projects.work.spotlight)
             }
         }
 

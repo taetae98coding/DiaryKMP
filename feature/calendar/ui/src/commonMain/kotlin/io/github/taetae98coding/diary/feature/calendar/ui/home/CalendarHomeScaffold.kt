@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
@@ -33,6 +34,7 @@ internal fun CalendarHomeScaffold(
     weatherUiStateProvider: () -> CalendarHomeWeatherUiState = { CalendarHomeWeatherUiState() },
     holidayUiStateProvider: () -> CalendarHomeHolidayUiState = { CalendarHomeHolidayUiState() },
     memoUiStateProvider: () -> CalendarHomeMemoUiState = { CalendarHomeMemoUiState() },
+    ddayUiStateProvider: () -> CalendarHomeDDayUiState = { CalendarHomeDDayUiState() },
     birthdayUiStateProvider: () -> CalendarHomeBirthdayUiState = { CalendarHomeBirthdayUiState() },
     filterUiStateProvider: () -> CalendarHomeScaffoldFilterUiState = { CalendarHomeScaffoldFilterUiState() },
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
@@ -70,6 +72,7 @@ internal fun CalendarHomeScaffold(
             weatherUiStateProvider = weatherUiStateProvider,
             holidayUiStateProvider = holidayUiStateProvider,
             memoUiStateProvider = memoUiStateProvider,
+            ddayUiStateProvider = ddayUiStateProvider,
             birthdayUiStateProvider = birthdayUiStateProvider,
             uiStateProvider = uiStateProvider,
             onEvent = onEvent,

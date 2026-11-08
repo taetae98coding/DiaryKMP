@@ -8,6 +8,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
+import io.github.taetae98coding.diary.work.appaction.core.APP_ACTION_PAGE_SIZE
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArgumentException
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolArguments
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -104,8 +105,8 @@ class McpPageTest :
             runTest {
                 val itemList = itemList(count = 3)
 
-                PagingData.from(itemList).readPage(offset = 0, size = MCP_PAGE_SIZE) shouldBe McpPage(itemList = itemList, nextOffset = null)
-                PagingData.empty<String>().readPage(offset = 0, size = MCP_PAGE_SIZE) shouldBe McpPage(itemList = emptyList(), nextOffset = null)
+                PagingData.from(itemList).readPage(offset = 0, size = APP_ACTION_PAGE_SIZE) shouldBe McpPage(itemList = itemList, nextOffset = null)
+                PagingData.empty<String>().readPage(offset = 0, size = APP_ACTION_PAGE_SIZE) shouldBe McpPage(itemList = emptyList(), nextOffset = null)
             }
         }
 
@@ -118,7 +119,7 @@ class McpPageTest :
                         sourceLoadStates = LoadStates(refresh = LoadState.Error(failure), prepend = LoadState.NotLoading(false), append = LoadState.NotLoading(false)),
                     )
 
-                shouldThrowExactly<IllegalStateException> { pagingData.readPage(offset = 0, size = MCP_PAGE_SIZE) }.message shouldBe failure.message
+                shouldThrowExactly<IllegalStateException> { pagingData.readPage(offset = 0, size = APP_ACTION_PAGE_SIZE) }.message shouldBe failure.message
             }
         }
 
@@ -136,7 +137,7 @@ class McpPageTest :
                 }
                 val pagingData = Pager(config = PagingConfig(pageSize = 30, enablePlaceholders = false), pagingSourceFactory = { pagingSource }).flow.first()
 
-                shouldThrowExactly<IllegalStateException> { pagingData.readPage(offset = 0, size = MCP_PAGE_SIZE) }.message shouldBe failure.message
+                shouldThrowExactly<IllegalStateException> { pagingData.readPage(offset = 0, size = APP_ACTION_PAGE_SIZE) }.message shouldBe failure.message
             }
         }
     })
