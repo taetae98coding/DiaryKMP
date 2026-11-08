@@ -1,3 +1,23 @@
+## [2.2.4] - 2026-11-08
+
+### 🚀 Features
+
+- 항목 상세 딥링크와 iOS Spotlight 항목 노출을 추가한다
+- Android AppFunctions와 iOS App Intents로 앱 동작을 제공한다
+- 디데이 저장·동기화·도메인·데이터를 추가한다
+- 디데이 화면과 캘린더·태그·검색 연동을 추가한다
+- AI 도구와 Spotlight에 디데이를 추가한다
+
+### 🐛 Bug Fixes
+
+- IPad 탭 사이드바의 가로 safe area를 내비게이션 루트에서 한 번만 피한다
+
+### 📚 Documentation
+
+- 여러 결정을 HTML 폼으로 받는 html-report 스킬을 추가한다
+- Android·iOS 앱 동작과 iOS Spotlight 스펙·디자인·테스트 케이스를 추가한다
+- 가로 시스템 영역을 내비게이션 루트가 한 번 피하는 규칙을 추가한다
+- 디데이 스펙·디자인·테스트 케이스를 추가한다
 ## [2.2.3] - 2026-11-07
 
 ### 🚀 Features
@@ -70,6 +90,7 @@
 - Gradle 10에서 제거될 tasks.registering 위임을 tasks.register로 바꾼다
 - 외부 안드로이드 참고 스킬 코드를 spotless 포맷 대상에서 뺀다
 - 릴리스마다 Baseline Profile을 새로 생성해 배포하고 커밋한다
+- 앱을 2.2.3 (9) 버전으로 올린다
 ## [2.2.2] - 2026-11-01
 
 ### 🚀 Features

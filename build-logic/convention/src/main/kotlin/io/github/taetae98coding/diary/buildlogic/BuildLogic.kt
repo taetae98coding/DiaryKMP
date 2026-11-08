@@ -6,6 +6,6 @@ public data object BuildLogic {
     internal const val TARGET_SDK = 37
 
     public const val NAMESPACE: String = "io.github.taetae98coding.diary"
-    public const val VERSION_CODE: Int = 9
-    public const val VERSION_NAME: String = "2.2.3"
+    public const val VERSION_CODE: Int = 10
+    public const val VERSION_NAME: String = "2.2.4"
 }
