@@ -16,5 +16,10 @@ internal class CalendarAppFunction(
         endDate: String,
     ): List<AppFunctionCalendarBirthday> = appFunctionCall { calendarAppAction.birthdayList(startDate = startDate, endDate = endDate).map { birthday -> birthday.toAppFunctionCalendarBirthday() } }
 
+    suspend fun ddayList(
+        startDate: String,
+        endDate: String,
+    ): List<AppFunctionCalendarDDay> = appFunctionCall { calendarAppAction.ddayList(startDate = startDate, endDate = endDate).map { dday -> dday.toAppFunctionCalendarDDay() } }
+
     suspend fun holidayList(year: Int): List<AppFunctionHoliday> = appFunctionCall { calendarAppAction.holidayList(year = year).map { holiday -> holiday.toAppFunctionHoliday() } }
 }

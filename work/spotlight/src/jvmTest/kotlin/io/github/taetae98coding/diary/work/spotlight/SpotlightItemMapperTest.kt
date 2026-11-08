@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.spotlight
 
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
@@ -26,6 +27,7 @@ class SpotlightItemMapperTest :
             val checklist = Arb.checklistLocalEntity().next()
             val qr = Arb.qrLocalEntity().next().let { it.copy(detail = it.detail.copy(value = Arb.nonBlankString().next())) }
             val music = Arb.musicLocalEntity().next()
+            val dday = Arb.ddayLocalEntity().next()
 
             memo.toSpotlightItem() shouldBe
                 SpotlightItem(
@@ -90,6 +92,14 @@ class SpotlightItemMapperTest :
                     description = music.detail.artist,
                     icon = SpotlightIcon.MUSIC,
                     iconColor = APP_PRIMARY_COLOR,
+                )
+            dday.toSpotlightItem() shouldBe
+                SpotlightItem(
+                    identifier = "diary://dday-detail?id=${dday.id}",
+                    title = dday.detail.title,
+                    description = dday.detail.description,
+                    icon = SpotlightIcon.DDAY,
+                    iconColor = dday.detail.color,
                 )
         }
 

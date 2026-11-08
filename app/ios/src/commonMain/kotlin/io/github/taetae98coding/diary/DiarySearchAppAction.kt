@@ -54,6 +54,16 @@ public object DiarySearchAppAction {
 
         return DiaryAppActionSearchWebPage(items = page.items.map { web -> web.toDiary() }, nextPageNumber = page.nextPageNumber)
     }
+
+    public suspend fun dday(
+        query: String,
+        sort: DiaryAppActionSort?,
+        pageNumber: Int,
+    ): DiaryAppActionDDayPage {
+        val page = readNumberedPage(pageNumber = pageNumber) { cursor -> searchAppAction().dday(query = query, sort = sort.toSortValue(), cursor = cursor) }
+
+        return DiaryAppActionDDayPage(items = page.items.map { dday -> dday.toDiary() }, nextPageNumber = page.nextPageNumber)
+    }
 }
 
 private fun searchAppAction(): SearchAppAction = diaryAppAction()

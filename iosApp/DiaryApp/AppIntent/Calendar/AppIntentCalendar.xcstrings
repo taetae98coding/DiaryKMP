@@ -30,6 +30,35 @@
         }
       }
     },
+    "%lld Calendar D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar D-Day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Calendar D-Days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 %lld개"
+          }
+        }
+      }
+    },
     "%lld Calendar Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -101,6 +130,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "생일"
+          }
+        }
+      }
+    },
+    "Calendar D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이"
+          }
+        }
+      }
+    },
+    "Calendar D-Days from ${startDate} to ${endDate}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar D-Days from ${startDate} to ${endDate}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${startDate}부터 ${endDate}까지의 캘린더 디데이"
           }
         }
       }
@@ -190,6 +253,23 @@
         }
       }
     },
+    "Date Label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date Label"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜 문구"
+          }
+        }
+      }
+    },
     "Found %lld birthdays.": {
       "extractionState": "manual",
       "localizations": {
@@ -215,6 +295,35 @@
           "stringUnit": {
             "state": "translated",
             "value": "생일 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld calendar D-Days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar D-Day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld calendar D-Days."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 %lld개를 찾았어요."
           }
         }
       }
@@ -290,6 +399,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "캘린더 생일 보기"
+          }
+        }
+      }
+    },
+    "Get Calendar D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Calendar D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 디데이 보기"
           }
         }
       }
@@ -430,6 +556,23 @@
         }
       }
     },
+    "Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜 범위 안에서 캘린더에 보이는 디데이의 기준일 당일과 기념일을 가져옵니다. 앱에서 고른 캘린더 태그 필터가 적용됩니다."
+          }
+        }
+      }
+    },
     "Holiday": {
       "extractionState": "manual",
       "localizations": {
@@ -494,6 +637,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "🎂 %1$@(%2$@)"
+          }
+        }
+      }
+    },
+    "🎉 %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 %1$@ %2$@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 %1$@ %2$@"
           }
         }
       }

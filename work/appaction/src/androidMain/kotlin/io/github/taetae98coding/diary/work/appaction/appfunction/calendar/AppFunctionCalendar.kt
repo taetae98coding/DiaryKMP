@@ -4,6 +4,8 @@ import androidx.appfunctions.AppFunctionSerializable
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoDateTime
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.toAppFunctionMemoDateTime
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarBirthday
+import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarDDay
+import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarDDayLabel
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarMemo
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionHoliday
 
@@ -31,6 +33,30 @@ public data class AppFunctionCalendarBirthday(
     val nameQualifier: String,
     /** Solar date of the birthday, like 2026-01-31. */
     val date: String,
+)
+
+/** What a calendar D-Day marks. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+public data class AppFunctionCalendarDDayLabel(
+    /** base_day for the base date, or days, months or years for an anniversary. */
+    val kind: String,
+    /** Count of days, months or years of the anniversary. Absent for the base day. */
+    val count: Int?,
+)
+
+/** A base date or anniversary of a D-Day shown on the calendar. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+public data class AppFunctionCalendarDDay(
+    /** Id of the D-Day. */
+    val ddayId: String,
+    /** Title of the D-Day. */
+    val title: String,
+    /** Color of the D-Day as a hex color like #4285F4. */
+    val color: String,
+    /** Date shown on the calendar, like 2026-01-31. */
+    val date: String,
+    /** What the date marks. */
+    val label: AppFunctionCalendarDDayLabel,
 )
 
 /** A holiday shown on the calendar. */
@@ -61,6 +87,17 @@ internal fun AppActionCalendarBirthday.toAppFunctionCalendarBirthday(): AppFunct
         nameQualifier = nameQualifier,
         date = date,
     )
+
+internal fun AppActionCalendarDDay.toAppFunctionCalendarDDay(): AppFunctionCalendarDDay =
+    AppFunctionCalendarDDay(
+        ddayId = ddayId,
+        title = title,
+        color = color,
+        date = date,
+        label = label.toAppFunctionCalendarDDayLabel(),
+    )
+
+private fun AppActionCalendarDDayLabel.toAppFunctionCalendarDDayLabel(): AppFunctionCalendarDDayLabel = AppFunctionCalendarDDayLabel(kind = kind, count = count)
 
 internal fun AppActionHoliday.toAppFunctionHoliday(): AppFunctionHoliday =
     AppFunctionHoliday(

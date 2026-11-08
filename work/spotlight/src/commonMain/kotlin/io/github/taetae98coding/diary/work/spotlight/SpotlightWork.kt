@@ -62,6 +62,7 @@ internal class SpotlightWork(
             spotlightLocalDataSource.getChecklistList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
             spotlightLocalDataSource.getQrList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
             spotlightLocalDataSource.getMusicList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
+            spotlightLocalDataSource.getDDayList(accountId = accountId).map { list -> list.map { it.toSpotlightItem() } },
         ) { itemListArray -> itemListArray.flatMap { it } }
     }
 

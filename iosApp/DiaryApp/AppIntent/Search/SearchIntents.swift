@@ -178,3 +178,47 @@ struct SearchWebIntent: AppIntent {
         )
     }
 }
+
+struct SearchDDayIntent: AppIntent {
+    static let title = LocalizedStringResource("Search D-Days", table: "AppIntentSearch")
+    static let description = IntentDescription(LocalizedStringResource("Searches D-Days saved in the app, with the days left or passed.", table: "AppIntentSearch"))
+
+    @Parameter(
+        title: LocalizedStringResource("Search Term", table: "AppIntentCore")
+    )
+    var query: String
+
+    @Parameter(
+        title: LocalizedStringResource("Sort", table: "AppIntentCore"),
+        description: LocalizedStringResource("If not chosen, the list's initial order is used.", table: "AppIntentCore")
+    )
+    var sort: SearchSortAppEnum?
+
+    @Parameter(
+        title: LocalizedStringResource("Page", table: "AppIntentCore"),
+        description: LocalizedStringResource("Page number starting at 1. Leave empty for the first page.", table: "AppIntentCore")
+    )
+    var page: Int?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Search D-Days for \(\.$query)", table: "AppIntentSearch") {
+            \.$sort
+            \.$page
+        }
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<[DDayEntity]> & ProvidesDialog {
+        let searchPage = try await appAction {
+            try await DiarySearchAppAction.shared.dday(query: query, sort: sort?.kotlin, pageNumber: AppIntentPage.number(page))
+        }
+        return .result(
+            value: searchPage.items.map(DDayEntity.init(dday:)),
+            dialog: AppIntentResultDialog.list(
+                count: searchPage.items.count,
+                nextPageNumber: searchPage.nextPageNumber,
+                found: { count in LocalizedStringResource("Found \(count) D-Days.", table: "AppIntentSearch") },
+                foundWithNextPage: { count, nextPageNumber in LocalizedStringResource("Found \(count) D-Days. There's more on page \(nextPageNumber).", table: "AppIntentSearch") }
+            )
+        )
+    }
+}

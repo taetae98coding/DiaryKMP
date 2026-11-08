@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.work.appaction.appfunction.search
 
 import androidx.appfunctions.AppFunctionSerializable
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.AppFunctionDDay
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.toAppFunctionDDay
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionPlace
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.AppFunctionWeb
@@ -8,6 +10,7 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunct
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionTag
 import io.github.taetae98coding.diary.work.appaction.appfunction.item.toAppFunctionWeb
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDay
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
@@ -39,8 +42,19 @@ public data class AppFunctionSearchWebPage(
     val nextCursor: String?,
 )
 
+/** One page of found D-Days. */
+@AppFunctionSerializable(isDescribedByKDoc = true)
+public data class AppFunctionSearchDDayPage(
+    /** D-Days in this page, at most 100. */
+    val items: List<AppFunctionDDay>,
+    /** Pass this value as cursor to read the next page. Absent on the last page. */
+    val nextCursor: String?,
+)
+
 internal fun AppActionPage<AppActionTag>.toAppFunctionSearchTagPage(): AppFunctionSearchTagPage = AppFunctionSearchTagPage(items = items.map { tag -> tag.toAppFunctionTag() }, nextCursor = nextCursor)
 
 internal fun AppActionPage<AppActionPlace>.toAppFunctionSearchPlacePage(): AppFunctionSearchPlacePage = AppFunctionSearchPlacePage(items = items.map { place -> place.toAppFunctionPlace() }, nextCursor = nextCursor)
 
 internal fun AppActionPage<AppActionWeb>.toAppFunctionSearchWebPage(): AppFunctionSearchWebPage = AppFunctionSearchWebPage(items = items.map { web -> web.toAppFunctionWeb() }, nextCursor = nextCursor)
+
+internal fun AppActionPage<AppActionDDay>.toAppFunctionSearchDDayPage(): AppFunctionSearchDDayPage = AppFunctionSearchDDayPage(items = items.map { dday -> dday.toAppFunctionDDay() }, nextCursor = nextCursor)

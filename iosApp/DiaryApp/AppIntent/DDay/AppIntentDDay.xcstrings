@@ -1,0 +1,1166 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ (%@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ (%2$@)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@(%2$@)"
+          }
+        }
+      }
+    },
+    "%lld D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld D-Day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld D-Days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %lld개"
+          }
+        }
+      }
+    },
+    "%lld days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld days"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld일"
+          }
+        }
+      }
+    },
+    "%lld months": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld month"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld months"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개월"
+          }
+        }
+      }
+    },
+    "%lld years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld year"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld years"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld년"
+          }
+        }
+      }
+    },
+    "%lld-year anniversary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld year"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld years"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld주년"
+          }
+        }
+      }
+    },
+    "Add D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 추가"
+          }
+        }
+      }
+    },
+    "Add D-Day ${title}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add D-Day ${title}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 추가: ${title}"
+          }
+        }
+      }
+    },
+    "Added the D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added the D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 추가했어요."
+          }
+        }
+      }
+    },
+    "Adds a new D-Day. Today is used if you don't choose a start date, and a random color if you don't choose one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a new D-Day. Today is used if you don't choose a start date, and a random color if you don't choose one."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 디데이를 추가합니다. 기준일을 고르지 않으면 오늘을, 색을 고르지 않으면 무작위 색을 씁니다."
+          }
+        }
+      }
+    },
+    "Anniversaries are shown only up to this date.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anniversaries are shown only up to this date."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기념일을 이 날까지만 알립니다."
+          }
+        }
+      }
+    },
+    "Changes the title, description, color, start date, repeat intervals, end date or other details of a D-Day. Values left empty stay the same.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the title, description, color, start date, repeat intervals, end date or other details of a D-Day. Values left empty stay the same."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이의 제목, 설명, 색, 기준일, 반복 간격, 종료일 같은 정보를 바꿉니다. 비워 둔 값은 그대로 둡니다."
+          }
+        }
+      }
+    },
+    "Couldn't find the D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 찾을 수 없어요."
+          }
+        }
+      }
+    },
+    "Count Start Date as Day 1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Count Start Date as Day 1"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기준일을 1일로 세기"
+          }
+        }
+      }
+    },
+    "D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이"
+          }
+        }
+      }
+    },
+    "D-Day to Restore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D-Day to Restore"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌릴 디데이"
+          }
+        }
+      }
+    },
+    "Days Left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days Left"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "남은 날 수"
+          }
+        }
+      }
+    },
+    "Days Passed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days Passed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지난 날 수"
+          }
+        }
+      }
+    },
+    "Delete ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 삭제"
+          }
+        }
+      }
+    },
+    "Delete D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 삭제"
+          }
+        }
+      }
+    },
+    "Deleted the D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted the D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 삭제했어요."
+          }
+        }
+      }
+    },
+    "Deletes a D-Day. Run Restore Deleted D-Day with the same D-Day to undo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deletes a D-Day. Run Restore Deleted D-Day with the same D-Day to undo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 삭제합니다. 같은 디데이로 ‘삭제한 디데이 되돌리기’를 실행하면 되돌릴 수 있습니다."
+          }
+        }
+      }
+    },
+    "Edit ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 수정"
+          }
+        }
+      }
+    },
+    "Edit D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 수정"
+          }
+        }
+      }
+    },
+    "End Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종료일"
+          }
+        }
+      }
+    },
+    "Enter each interval like P100D (100 days), P3M (3 months) or P1Y (1 year). One interval can't mix days with months. When editing, they replace all current intervals; an empty list removes them all.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter each interval like P100D (100 days), P3M (3 months) or P1Y (1 year). One interval can't mix days with months. When editing, they replace all current intervals; an empty list removes them all."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "간격 하나를 `P100D`(100일), `P3M`(3개월), `P1Y`(1년)처럼 넣습니다. 한 간격에 일과 개월을 함께 넣을 수 없습니다. 수정에서는 넣은 간격으로 모두 바뀌고, 빈 목록이면 모두 지웁니다."
+          }
+        }
+      }
+    },
+    "Found %lld D-Days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Days."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld D-Days. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld D-Days. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
+    "Full Months": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Months"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채운 개월"
+          }
+        }
+      }
+    },
+    "Full Years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Years"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채운 년"
+          }
+        }
+      }
+    },
+    "Get ${dday} Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ${dday} Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 상세 보기"
+          }
+        }
+      }
+    },
+    "Get D-Day Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get D-Day Details"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 상세 보기"
+          }
+        }
+      }
+    },
+    "Get D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 목록 보기"
+          }
+        }
+      }
+    },
+    "Gets a D-Day with its linked tags.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets a D-Day with its linked tags."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 하나를 연결된 태그와 함께 가져옵니다."
+          }
+        }
+      }
+    },
+    "Gets the D-Days shown in the D-Day list by title, with the days left or passed. The filters chosen in the app apply.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gets the D-Days shown in the D-Day list by title, with the days left or passed. The filters chosen in the app apply."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 목록에 보이는 디데이를 제목순으로, 남은 날이나 지난 날과 함께 가져옵니다. 앱에서 고른 필터가 적용됩니다."
+          }
+        }
+      }
+    },
+    "Link ${tag} to ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link ${tag} to ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday}에 ${tag} 연결"
+          }
+        }
+      }
+    },
+    "Link Tag to D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link Tag to D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이에 태그 연결"
+          }
+        }
+      }
+    },
+    "Links a tag to a D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links a tag to a D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이에 태그를 연결합니다."
+          }
+        }
+      }
+    },
+    "Missing Dates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing Dates"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "달력에 없는 날짜"
+          }
+        }
+      }
+    },
+    "On counts the start date as day 1. When adding, it's on if not chosen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On counts the start date as day 1. When adding, it's on if not chosen."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜면 기준일 당일을 1일째로 셉니다. 추가에서 고르지 않으면 켜집니다."
+          }
+        }
+      }
+    },
+    "Passed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지남"
+          }
+        }
+      }
+    },
+    "Remove End Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove End Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종료일 지우기"
+          }
+        }
+      }
+    },
+    "Repeat Intervals": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat Intervals"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "반복 간격"
+          }
+        }
+      }
+    },
+    "Restore ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday} 되돌리기"
+          }
+        }
+      }
+    },
+    "Restore Deleted D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Deleted D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 디데이 되돌리기"
+          }
+        }
+      }
+    },
+    "Restored the D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restored the D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 되돌렸어요."
+          }
+        }
+      }
+    },
+    "Restores a deleted D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores a deleted D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 디데이를 되돌립니다."
+          }
+        }
+      }
+    },
+    "Skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "표시하지 않음"
+          }
+        }
+      }
+    },
+    "Start Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기준일"
+          }
+        }
+      }
+    },
+    "Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "상태"
+          }
+        }
+      }
+    },
+    "Tag to Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Link"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결할 태그"
+          }
+        }
+      }
+    },
+    "Tag to Unlink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag to Unlink"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결을 해제할 태그"
+          }
+        }
+      }
+    },
+    "Today": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "당일"
+          }
+        }
+      }
+    },
+    "Turn on to remove the end date.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on to remove the end date."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜면 종료일을 지웁니다."
+          }
+        }
+      }
+    },
+    "Unlink ${tag} from ${dday}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink ${tag} from ${dday}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${dday}에서 ${tag} 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlink Tag from D-Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlink Tag from D-Day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이에서 태그 연결 해제"
+          }
+        }
+      }
+    },
+    "Unlinks a tag from a D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlinks a tag from a D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이에서 태그 연결을 해제합니다."
+          }
+        }
+      }
+    },
+    "Upcoming": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 오지 않음"
+          }
+        }
+      }
+    },
+    "Updated the D-Day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updated the D-Day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이를 수정했어요."
+          }
+        }
+      }
+    },
+    "Use 1st of next month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use 1st of next month"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 달 1일로 미룸"
+          }
+        }
+      }
+    },
+    "Use last day of month": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use last day of month"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "말일로 당김"
+          }
+        }
+      }
+    },
+    "What to do when a monthly anniversary falls on a date the month doesn't have. If not chosen when adding, Use last day of month.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What to do when a monthly anniversary falls on a date the month doesn't have. If not chosen when adding, Use last day of month."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개월 간격의 기념일이 그 달에 없는 날짜에 걸릴 때의 처리. 추가에서 고르지 않으면 말일로 당김입니다."
+          }
+        }
+      }
+    },
+    "What's the D-Day title?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's the D-Day title?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 제목이 뭔가요?"
+          }
+        }
+      }
+    },
+    "When adding, leave it empty to use today. When editing, leave it empty to keep the current start date.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When adding, leave it empty to use today. When editing, leave it empty to keep the current start date."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추가에서 비워 두면 오늘입니다. 수정에서는 비워 두면 지금 기준일을 그대로 둡니다."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

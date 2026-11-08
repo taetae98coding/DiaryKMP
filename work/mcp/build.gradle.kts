@@ -9,6 +9,7 @@ kotlin {
                 implementation(projects.core.datastore.api)
                 implementation(projects.domain.checklist)
                 implementation(projects.domain.contact)
+                implementation(projects.domain.dday)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.lunar)
                 implementation(projects.domain.mcp)

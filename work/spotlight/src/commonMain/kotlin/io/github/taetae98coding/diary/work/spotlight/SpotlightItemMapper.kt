@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.spotlight
 
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -84,6 +85,15 @@ internal fun MusicLocalEntity.toSpotlightItem(): SpotlightItem =
         description = detail.artist,
         icon = SpotlightIcon.MUSIC,
         iconColor = APP_PRIMARY_COLOR,
+    )
+
+internal fun DDayLocalEntity.toSpotlightItem(): SpotlightItem =
+    SpotlightItem(
+        identifier = ScreenDeepLink.DDAY_DETAIL.withId(id),
+        title = detail.title,
+        description = detail.description,
+        icon = SpotlightIcon.DDAY,
+        iconColor = detail.color,
     )
 
 private fun String.withId(id: Uuid): String = replace("{id}", id.toString())

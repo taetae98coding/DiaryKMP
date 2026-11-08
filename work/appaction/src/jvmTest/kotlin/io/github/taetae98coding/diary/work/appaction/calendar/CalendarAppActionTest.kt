@@ -1,13 +1,17 @@
 package io.github.taetae98coding.diary.work.appaction.calendar
 
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.contact.calendarContactBirthday
 import io.github.taetae98coding.diary.core.testing.holiday.holiday
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.core.testing.memo.memoDateTime
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.github.taetae98coding.diary.library.fixture.localDateRange
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
@@ -18,6 +22,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
+import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.next
 import io.mockk.every
 import io.mockk.mockk
@@ -121,6 +126,32 @@ class CalendarAppActionTest :
 
                 action.memoList(startDate = date.toString(), endDate = date.toString()) shouldBe emptyList()
                 verify(exactly = 1) { getCalendarMemoUseCase(parameter = date..date) }
+            }
+        }
+
+        test("캘린더 디데이는 받은 날짜 범위로 조회해 날짜순으로 문구의 종류와 숫자를 담아 돌려준다") {
+            runTest {
+                val ddayId = Arb.kotlinUuid().next()
+                val title = Arb.nonBlankString().next()
+                val color = Arb.long().next()
+                val labelList =
+                    listOf(
+                        CalendarDDayLabel.BaseDay to AppActionCalendarDDayLabel(kind = "base_day", count = null),
+                        CalendarDDayLabel.Days(days = 100) to AppActionCalendarDDayLabel(kind = "days", count = 100),
+                        CalendarDDayLabel.Months(months = 6) to AppActionCalendarDDayLabel(kind = "months", count = 6),
+                        CalendarDDayLabel.Years(years = 1) to AppActionCalendarDDayLabel(kind = "years", count = 1),
+                    )
+                val dateList = List(labelList.size) { index -> LocalDate(2026, 1, 1 + index) }
+                val ddayList = labelList.mapIndexed { index, (label, _) -> CalendarDDay(ddayId = ddayId, title = title, color = color, date = dateList[index], label = label) }
+                val getCalendarDDayUseCase = mockk<GetCalendarDDayUseCase>()
+                every { getCalendarDDayUseCase(parameter = any()) } returns flowOf(Result.success(ddayList.reversed()))
+                val action = calendarAppActionOf(getCalendarDDayUseCase)
+
+                action.ddayList(startDate = "2026-01-01", endDate = "2026-01-31") shouldBe
+                    labelList.mapIndexed { index, (_, label) ->
+                        AppActionCalendarDDay(ddayId = ddayId.toString(), title = title, color = color.expectedHex(), date = dateList[index].toString(), label = label)
+                    }
+                verify(exactly = 1) { getCalendarDDayUseCase(parameter = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 31)) }
             }
         }
 

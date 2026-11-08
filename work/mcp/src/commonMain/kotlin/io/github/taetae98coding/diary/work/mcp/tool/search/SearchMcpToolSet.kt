@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.mcp.tool.search
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
@@ -10,6 +11,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.dday.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.sort
 import io.github.taetae98coding.diary.work.mcp.tool.json.sortParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.toJson
@@ -17,7 +19,10 @@ import io.github.taetae98coding.diary.work.mcp.tool.paging.mcpPageCursorParamete
 import io.github.taetae98coding.diary.work.mcp.tool.paging.pageOffset
 import io.github.taetae98coding.diary.work.mcp.tool.paging.readPage
 import io.github.taetae98coding.diary.work.mcp.tool.paging.toJson
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.koin.core.annotation.Factory
+import kotlin.time.Clock
 
 private const val QUERY = "query"
 
@@ -39,6 +44,8 @@ internal class SearchMcpToolSet(
     private val searchTagUseCase: SearchTagUseCase,
     private val searchPlaceUseCase: SearchPlaceUseCase,
     private val searchWebUseCase: SearchWebUseCase,
+    private val searchDDayUseCase: SearchDDayUseCase,
+    private val clock: Clock,
 ) : McpToolSet {
     override val toolList: List<McpTool> =
         listOf(
@@ -89,6 +96,20 @@ internal class SearchMcpToolSet(
                         parameter = SearchWebUseCase.Parameter(query = arguments.string(QUERY), sort = arguments.sort(searchSortList)),
                         offset = arguments.pageOffset(),
                     ).toJson { web -> web.toJson() }
+            },
+            McpTool(
+                name = "search_dday",
+                description = "Searches saved D-Days by the query, like the D-Day results of the search screen, with the days left or passed counted from today.",
+                parameterList = searchParameterList,
+                kind = McpToolKind.READ,
+            ) { arguments ->
+                val today = clock.todayIn(TimeZone.currentSystemDefault())
+
+                searchDDayUseCase
+                    .readPage(
+                        parameter = SearchDDayUseCase.Parameter(query = arguments.string(QUERY), sort = arguments.sort(searchSortList)),
+                        offset = arguments.pageOffset(),
+                    ).toJson { dday -> dday.toJson(today = today) }
             },
         )
 }

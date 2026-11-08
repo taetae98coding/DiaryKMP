@@ -9,5 +9,6 @@ internal fun calendarAppActionOf(vararg useCaseArray: Any): CalendarAppAction {
         getCalendarMemoUseCase = useCaseList.useCase(),
         getCalendarContactBirthdayUseCase = useCaseList.useCase(),
         getCalendarHolidayUseCase = useCaseList.useCase(),
+        getCalendarDDayUseCase = useCaseList.useCase(),
     )
 }

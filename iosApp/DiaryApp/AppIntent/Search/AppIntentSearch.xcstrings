@@ -1,6 +1,52 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Found %lld D-Days.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Found %lld D-Days."
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %lld개를 찾았어요."
+          }
+        }
+      }
+    },
+    "Found %lld D-Days. There's more on page %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found %1$lld D-Days. There's more on page %2$lld."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 %1$lld개를 찾았어요. 다음 페이지 %2$lld가 있어요."
+          }
+        }
+      }
+    },
     "Found %lld memos.": {
       "extractionState": "manual",
       "localizations": {
@@ -185,6 +231,40 @@
         }
       }
     },
+    "Search D-Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search D-Days"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 검색"
+          }
+        }
+      }
+    },
+    "Search D-Days for ${query}": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search D-Days for ${query}"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디데이 검색: ${query}"
+          }
+        }
+      }
+    },
     "Search Memos": {
       "extractionState": "manual",
       "localizations": {
@@ -317,6 +397,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "웹 검색: ${query}"
+          }
+        }
+      }
+    },
+    "Searches D-Days saved in the app, with the days left or passed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searches D-Days saved in the app, with the days left or passed."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱에 저장한 디데이를 남은 날이나 지난 날과 함께 검색합니다."
           }
         }
       }

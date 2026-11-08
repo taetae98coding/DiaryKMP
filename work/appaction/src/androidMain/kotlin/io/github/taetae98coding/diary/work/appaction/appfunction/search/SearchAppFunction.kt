@@ -31,4 +31,10 @@ internal class SearchAppFunction(
         sort: String?,
         cursor: String?,
     ): AppFunctionSearchWebPage = appFunctionCall { searchAppAction.web(query = query, sort = sort, cursor = cursor).toAppFunctionSearchWebPage() }
+
+    suspend fun dday(
+        query: String,
+        sort: String?,
+        cursor: String?,
+    ): AppFunctionSearchDDayPage = appFunctionCall { searchAppAction.dday(query = query, sort = sort, cursor = cursor).toAppFunctionSearchDDayPage() }
 }

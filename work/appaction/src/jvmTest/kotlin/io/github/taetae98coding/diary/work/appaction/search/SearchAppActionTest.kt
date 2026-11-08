@@ -7,10 +7,13 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.dday.dday
+import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.core.testing.memo.memo
 import io.github.taetae98coding.diary.core.testing.place.place
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
@@ -18,6 +21,8 @@ import io.github.taetae98coding.diary.domain.search.usecase.SearchWebUseCase
 import io.github.taetae98coding.diary.library.fixture.nonBlankString
 import io.github.taetae98coding.diary.work.appaction.core.AppActionException
 import io.github.taetae98coding.diary.work.appaction.core.AppActionPage
+import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayCount
+import io.github.taetae98coding.diary.work.appaction.dday.clockAt
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemoDateTime
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
@@ -35,9 +40,26 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 
 class SearchAppActionTest :
     FunSpec({
+        test("디데이 검색은 검색어와 정렬로 검색해 오늘로 계산한 값을 담아 돌려준다") {
+            runTest {
+                val query = Arb.string().next()
+                val dday = Arb.dday().next().copy(detail = Arb.ddayDetail(baseDate = LocalDate(2025, 1, 15), countsBaseDay = false).next())
+                val searchDDayUseCase = mockk<SearchDDayUseCase>()
+                every { searchDDayUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(dday))))
+                val action = searchAppActionOf(searchDDayUseCase, clockAt(date = LocalDate(2026, 3, 20)))
+
+                val page = action.dday(query = query, sort = "recently_updated", cursor = null)
+
+                page.items.map { item -> item.id to item.count } shouldBe
+                    listOf(dday.id.toString() to AppActionDDayCount(status = "passed", remainingDays = null, passedDays = 429, years = 1, months = 2))
+                verify(exactly = 1) { searchDDayUseCase(parameter = SearchDDayUseCase.Parameter(query = query, sort = ListSort.RECENTLY_UPDATED)) }
+            }
+        }
+
         test("메모 검색은 정렬을 담지 않으면 제목순으로 검색해 MCP와 같은 항목을 돌려준다") {
             runTest {
                 val query = Arb.string().next()

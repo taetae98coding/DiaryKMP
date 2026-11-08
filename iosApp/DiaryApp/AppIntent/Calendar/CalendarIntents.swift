@@ -112,6 +112,51 @@ struct CalendarBirthdayListIntent: AppIntent {
     }
 }
 
+struct CalendarDDayListIntent: AppIntent {
+    static let title = LocalizedStringResource("Get Calendar D-Days", table: "AppIntentCalendar")
+    static let description = IntentDescription(
+        LocalizedStringResource(
+            "Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies.",
+            table: "AppIntentCalendar"
+        )
+    )
+
+    @Parameter(title: LocalizedStringResource("Start Date", table: "AppIntentCore"), kind: .date)
+    var startDate: Date
+
+    @Parameter(
+        title: LocalizedStringResource("End Date", table: "AppIntentCore"),
+        description: LocalizedStringResource("The end date is included.", table: "AppIntentCore"),
+        kind: .date
+    )
+    var endDate: Date
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Calendar D-Days from \(\.$startDate) to \(\.$endDate)", table: "AppIntentCalendar")
+    }
+
+    func perform() async throws -> some IntentResult & ReturnsValue<[CalendarDDayEntity]> & ProvidesDialog {
+        let ddayList = try await appAction {
+            try await DiaryCalendarAppAction.shared.ddayList(startDateEpochMillis: startDate.epochMillis, endDateEpochMillis: endDate.epochMillis)
+        }
+        // 같은 디데이의 기준일 당일과 기념일이 함께 나오므로, 디데이는 한 번씩만 읽는다.
+        let ddayIdList = ddayList.reduce(into: [String]()) { idList, dday in
+            if !idList.contains(dday.ddayId) { idList.append(dday.ddayId) }
+        }
+        let entityById = Dictionary(uniqueKeysWithValues: try await DDayEntityQuery().entities(for: ddayIdList).map { entity in (entity.id, entity) })
+        let calendarDDayList = ddayList.map { dday in CalendarDDayEntity(dday: dday, entity: entityById[dday.ddayId]) }
+        return .result(
+            value: calendarDDayList,
+            dialog: AppIntentResultDialog.list(
+                count: calendarDDayList.count,
+                nextPageNumber: nil,
+                found: { count in LocalizedStringResource("Found \(count) calendar D-Days.", table: "AppIntentCalendar") },
+                foundWithNextPage: { count, _ in LocalizedStringResource("Found \(count) calendar D-Days.", table: "AppIntentCalendar") }
+            )
+        )
+    }
+}
+
 struct HolidayListIntent: AppIntent {
     static let title = LocalizedStringResource("Get Holidays", table: "AppIntentCalendar")
     static let description = IntentDescription(

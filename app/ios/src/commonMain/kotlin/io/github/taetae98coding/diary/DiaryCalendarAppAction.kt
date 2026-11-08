@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary
 
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarBirthday
+import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarDDay
+import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarDDayLabelKindValue
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionCalendarMemo
 import io.github.taetae98coding.diary.work.appaction.calendar.AppActionHoliday
 import io.github.taetae98coding.diary.work.appaction.calendar.CalendarAppAction
@@ -20,6 +22,22 @@ public data class DiaryAppActionCalendarBirthday(
     val name: String,
     val nameQualifier: String,
     val dateEpochMillis: Long,
+)
+
+public enum class DiaryAppActionCalendarDDayLabelKind {
+    BASE_DAY,
+    DAYS,
+    MONTHS,
+    YEARS,
+}
+
+public data class DiaryAppActionCalendarDDay(
+    val ddayId: String,
+    val title: String,
+    val color: String,
+    val dateEpochMillis: Long,
+    val labelKind: DiaryAppActionCalendarDDayLabelKind,
+    val labelCount: Int?,
 )
 
 public data class DiaryAppActionHoliday(
@@ -46,6 +64,14 @@ public object DiaryCalendarAppAction {
             .birthdayList(startDate = appActionDate(epochMillis = startDateEpochMillis), endDate = appActionDate(epochMillis = endDateEpochMillis))
             .map { birthday -> birthday.toDiary() }
 
+    public suspend fun ddayList(
+        startDateEpochMillis: Long,
+        endDateEpochMillis: Long,
+    ): List<DiaryAppActionCalendarDDay> =
+        calendarAppAction()
+            .ddayList(startDate = appActionDate(epochMillis = startDateEpochMillis), endDate = appActionDate(epochMillis = endDateEpochMillis))
+            .map { dday -> dday.toDiary() }
+
     public suspend fun holidayList(year: Int): List<DiaryAppActionHoliday> = calendarAppAction().holidayList(year = year).map { holiday -> holiday.toDiary() }
 }
 
@@ -66,6 +92,25 @@ private fun AppActionCalendarBirthday.toDiary(): DiaryAppActionCalendarBirthday 
         nameQualifier = nameQualifier,
         dateEpochMillis = appActionDateEpochMillis(date = date),
     )
+
+private fun AppActionCalendarDDay.toDiary(): DiaryAppActionCalendarDDay =
+    DiaryAppActionCalendarDDay(
+        ddayId = ddayId,
+        title = title,
+        color = color,
+        dateEpochMillis = appActionDateEpochMillis(date = date),
+        labelKind = label.kind.toDiaryLabelKind(),
+        labelCount = label.count,
+    )
+
+private fun String.toDiaryLabelKind(): DiaryAppActionCalendarDDayLabelKind =
+    when (this) {
+        AppActionCalendarDDayLabelKindValue.BASE_DAY -> DiaryAppActionCalendarDDayLabelKind.BASE_DAY
+        AppActionCalendarDDayLabelKindValue.DAYS -> DiaryAppActionCalendarDDayLabelKind.DAYS
+        AppActionCalendarDDayLabelKindValue.MONTHS -> DiaryAppActionCalendarDDayLabelKind.MONTHS
+        AppActionCalendarDDayLabelKindValue.YEARS -> DiaryAppActionCalendarDDayLabelKind.YEARS
+        else -> error("Unknown calendar D-Day label kind: $this")
+    }
 
 private fun AppActionHoliday.toDiary(): DiaryAppActionHoliday =
     DiaryAppActionHoliday(

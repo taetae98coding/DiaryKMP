@@ -7,6 +7,7 @@ import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
 import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.AppFunctionCalendarBirthday
+import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.AppFunctionCalendarDDay
 import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.AppFunctionCalendarMemo
 import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.AppFunctionHoliday
 import io.github.taetae98coding.diary.work.appaction.appfunction.calendar.CalendarAppFunction
@@ -19,6 +20,9 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.contact.Contact
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionChangedCount
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionDone
 import io.github.taetae98coding.diary.work.appaction.appfunction.core.AppFunctionId
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.AppFunctionDDayDetail
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.AppFunctionDDayPage
+import io.github.taetae98coding.diary.work.appaction.appfunction.dday.DDayAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.lunar.AppFunctionLunarDate
 import io.github.taetae98coding.diary.work.appaction.appfunction.lunar.LunarAppFunction
 import io.github.taetae98coding.diary.work.appaction.appfunction.memo.AppFunctionMemoDateTimeInput
@@ -36,6 +40,7 @@ import io.github.taetae98coding.diary.work.appaction.appfunction.place.PlaceAppF
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQr
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.AppFunctionQrPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.qr.QrAppFunction
+import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchDDayPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchPlacePage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchTagPage
 import io.github.taetae98coding.diary.work.appaction.appfunction.search.AppFunctionSearchWebPage
@@ -54,6 +59,7 @@ import io.github.taetae98coding.diary.work.appaction.checklist.AppActionChecklis
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactBirthdayCalendarValue
 import io.github.taetae98coding.diary.work.appaction.contact.AppActionContactUpdateInput
 import io.github.taetae98coding.diary.work.appaction.core.AppActionSortValue
+import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDayOverflowPolicyValue
 import io.github.taetae98coding.diary.work.appaction.tag.AppActionTagScopeValue
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -74,6 +80,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
     private val calendarAppFunction: CalendarAppFunction by lazy { CalendarAppFunction(calendarAppAction = get()) }
     private val checklistAppFunction: ChecklistAppFunction by lazy { ChecklistAppFunction(checklistAppAction = get()) }
     private val contactAppFunction: ContactAppFunction by lazy { ContactAppFunction(contactAppAction = get()) }
+    private val ddayAppFunction: DDayAppFunction by lazy { DDayAppFunction(ddayAppAction = get()) }
     private val lunarAppFunction: LunarAppFunction by lazy { LunarAppFunction(lunarAppAction = get()) }
     private val memoLinkAppFunction: MemoLinkAppFunction by lazy { MemoLinkAppFunction(memoLinkAppAction = get()) }
     private val musicAppFunction: MusicAppFunction by lazy { MusicAppFunction(musicAppAction = get()) }
@@ -490,7 +497,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      *
      * @param tagId Id of the tag.
      * @param linkedTagId Id of the tag that the tag links to (the child tag).
-     * @return Whether the request was carried out.
+     * @return Whether the request was completed.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun tagLinkAdd(
@@ -503,7 +510,7 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
      *
      * @param tagId Id of the tag.
      * @param linkedTagId Id of the tag that the tag links to (the child tag).
-     * @return Whether the request was carried out.
+     * @return Whether the request was completed.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     public suspend fun tagLinkRemove(
@@ -1390,6 +1397,153 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
 
     // endregion
 
+    // region DDay
+
+    /**
+     * Lists the D-Days shown on the D-Day home list by title, with the days left or passed counted from today. The filters the user chose in the app are applied.
+     *
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of D-Days.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayList(cursor: String? = null): AppFunctionDDayPage = ddayAppFunction.list(cursor = cursor)
+
+    /**
+     * Gets one D-Day with its linked tags and the days left or passed counted from today. Returns null when the D-Day does not exist.
+     *
+     * @param ddayId Id of the D-Day.
+     * @return The D-Day with its tags, or null.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayGet(ddayId: String): AppFunctionDDayDetail? = ddayAppFunction.get(ddayId = ddayId)
+
+    /**
+     * Adds a D-Day. The title must not be blank and the end date must not be before the base date. Omitted values use what the D-Day add screen fills in first: today as the base date, counting the base date as day 1, no repeat intervals, no end date, clamp_to_month_end and a random color.
+     *
+     * @param title Title of the D-Day.
+     * @param description Description of the D-Day.
+     * @param color Color of the D-Day. A random color is used when omitted. Use a hex color like #4285F4.
+     * @param baseDate Base date of the D-Day, like 2026-01-31. Today is used when omitted.
+     * @param countsBaseDay Whether the base date counts as day 1. True when omitted.
+     * @param repeats Intervals of anniversaries after the base date. Each interval is an ISO 8601 period of days only or of years and months only, 1 or greater, like P100D (100 days), P3M (3 months) or P1Y (1 year). Weeks and times are not accepted.
+     * @param endDate Last date anniversaries are shown, like 2026-12-31.
+     * @param overflowPolicy What to do when a monthly anniversary falls on a date the month does not have. clamp_to_month_end uses the last day of the month, skip does not show it, next_month_first_day uses the 1st of the next month.
+     * @param tagIds Ids of tags to link.
+     * @return Id of the added D-Day.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayAdd(
+        title: String,
+        description: String? = null,
+        color: String? = null,
+        baseDate: String? = null,
+        countsBaseDay: Boolean? = null,
+        repeats: List<String> = emptyList(),
+        endDate: String? = null,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionDDayOverflowPolicyValue.CLAMP_TO_MONTH_END, AppActionDDayOverflowPolicyValue.SKIP, AppActionDDayOverflowPolicyValue.NEXT_MONTH_FIRST_DAY])
+        overflowPolicy: String? = null,
+        tagIds: List<String> = emptyList(),
+    ): AppFunctionId =
+        ddayAppFunction.add(
+            title = title,
+            description = description,
+            color = color,
+            baseDate = baseDate,
+            countsBaseDay = countsBaseDay,
+            repeats = repeats,
+            endDate = endDate,
+            overflowPolicy = overflowPolicy,
+            tagIds = tagIds,
+        )
+
+    /**
+     * Updates a D-Day. Omitted fields keep their current value. A blank title keeps the current title. The end date must not be before the base date after the update. Tags are changed with ddayTagAdd and ddayTagRemove.
+     *
+     * @param ddayId Id of the D-Day.
+     * @param title New title.
+     * @param description New description.
+     * @param color New color. Use a hex color like #4285F4.
+     * @param baseDate New base date, like 2026-01-31.
+     * @param countsBaseDay Whether the base date counts as day 1.
+     * @param repeats New repeat intervals. They replace all current intervals; pass an empty list to remove them. Each interval is an ISO 8601 period of days only or of years and months only, 1 or greater, like P100D (100 days), P3M (3 months) or P1Y (1 year). Weeks and times are not accepted.
+     * @param endDate New end date, like 2026-12-31.
+     * @param clearEndDate Set true to remove the end date. It wins over endDate.
+     * @param overflowPolicy What to do when a monthly anniversary falls on a date the month does not have. clamp_to_month_end uses the last day of the month, skip does not show it, next_month_first_day uses the 1st of the next month.
+     * @return How many D-Days were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayUpdate(
+        ddayId: String,
+        title: String? = null,
+        description: String? = null,
+        color: String? = null,
+        baseDate: String? = null,
+        countsBaseDay: Boolean? = null,
+        repeats: List<String>? = null,
+        endDate: String? = null,
+        clearEndDate: Boolean? = null,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionDDayOverflowPolicyValue.CLAMP_TO_MONTH_END, AppActionDDayOverflowPolicyValue.SKIP, AppActionDDayOverflowPolicyValue.NEXT_MONTH_FIRST_DAY])
+        overflowPolicy: String? = null,
+    ): AppFunctionChangedCount =
+        ddayAppFunction.update(
+            ddayId = ddayId,
+            title = title,
+            description = description,
+            color = color,
+            baseDate = baseDate,
+            countsBaseDay = countsBaseDay,
+            repeats = repeats,
+            endDate = endDate,
+            clearEndDate = clearEndDate,
+            overflowPolicy = overflowPolicy,
+        )
+
+    /**
+     * Deletes a D-Day. Use ddayRestore with the same id to undo.
+     *
+     * @param ddayId Id of the D-Day.
+     * @return How many D-Days were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayDelete(ddayId: String): AppFunctionChangedCount = ddayAppFunction.delete(ddayId = ddayId)
+
+    /**
+     * Restores a deleted D-Day.
+     *
+     * @param ddayId Id of the D-Day.
+     * @return How many D-Days were changed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayRestore(ddayId: String): AppFunctionChangedCount = ddayAppFunction.restore(ddayId = ddayId)
+
+    /**
+     * Links a tag to a D-Day.
+     *
+     * @param ddayId Id of the D-Day.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayTagAdd(
+        ddayId: String,
+        tagId: String,
+    ): AppFunctionDone = ddayAppFunction.tagAdd(ddayId = ddayId, tagId = tagId)
+
+    /**
+     * Unlinks a tag from a D-Day.
+     *
+     * @param ddayId Id of the D-Day.
+     * @param tagId Id of the tag.
+     * @return Whether the request was completed.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun ddayTagRemove(
+        ddayId: String,
+        tagId: String,
+    ): AppFunctionDone = ddayAppFunction.tagRemove(ddayId = ddayId, tagId = tagId)
+
+    // endregion
+
     // region Search
 
     /**
@@ -1456,6 +1610,22 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         cursor: String? = null,
     ): AppFunctionSearchWebPage = searchAppFunction.web(query = query, sort = sort, cursor = cursor)
 
+    /**
+     * Searches saved D-Days by the query, like the D-Day results of the search screen, with the days left or passed counted from today.
+     *
+     * @param query Search query. A blank query returns no results.
+     * @param sort Sort order. Omit it to use the list's initial order (title).
+     * @param cursor The nextCursor value from the previous page. Omit it to read the first page.
+     * @return One page of found D-Days.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun searchDday(
+        query: String,
+        @AppFunctionStringValueConstraint(enumValues = [AppActionSortValue.TITLE, AppActionSortValue.RECENTLY_UPDATED])
+        sort: String? = null,
+        cursor: String? = null,
+    ): AppFunctionSearchDDayPage = searchAppFunction.dday(query = query, sort = sort, cursor = cursor)
+
     // endregion
 
     // region Calendar
@@ -1485,6 +1655,19 @@ public abstract class DiaryAppFunctionServiceEntryPoint :
         startDate: String,
         endDate: String,
     ): List<AppFunctionCalendarBirthday> = calendarAppFunction.birthdayList(startDate = startDate, endDate = endDate)
+
+    /**
+     * Lists the base dates and anniversaries of D-Days shown on the calendar within the date range, by date. Each label tells whether it is the base day or which count of days, months or years it is. The calendar tag filter the user chose in the app is applied.
+     *
+     * @param startDate First date of the range, like 2026-01-01.
+     * @param endDate Last date of the range, inclusive, like 2026-01-31.
+     * @return D-Days shown on the calendar.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    public suspend fun calendarDdayList(
+        startDate: String,
+        endDate: String,
+    ): List<AppFunctionCalendarDDay> = calendarAppFunction.ddayList(startDate = startDate, endDate = endDate)
 
     /**
      * Lists the holidays shown on the calendar for a year, for the holiday countries the user chose and without the holidays the user hid. isHoliday is false for named days that are not days off. Only years already saved on this device are returned.

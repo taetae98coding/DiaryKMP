@@ -18,4 +18,5 @@ internal enum class SpotlightIcon {
     CHECKLIST,
     QR,
     MUSIC,
+    DDAY,
 }

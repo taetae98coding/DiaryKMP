@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.work.appaction.search
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.domain.search.usecase.SearchDDayUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchTagUseCase
@@ -11,6 +12,8 @@ import io.github.taetae98coding.diary.work.appaction.core.readPage
 import io.github.taetae98coding.diary.work.appaction.core.runAppAction
 import io.github.taetae98coding.diary.work.appaction.core.toPageOffset
 import io.github.taetae98coding.diary.work.appaction.core.toSortArgument
+import io.github.taetae98coding.diary.work.appaction.dday.AppActionDDay
+import io.github.taetae98coding.diary.work.appaction.dday.toAppActionDDay
 import io.github.taetae98coding.diary.work.appaction.memo.AppActionMemo
 import io.github.taetae98coding.diary.work.appaction.memo.toAppActionMemo
 import io.github.taetae98coding.diary.work.appaction.place.AppActionPlace
@@ -19,7 +22,10 @@ import io.github.taetae98coding.diary.work.appaction.tag.AppActionTag
 import io.github.taetae98coding.diary.work.appaction.tag.toAppActionTag
 import io.github.taetae98coding.diary.work.appaction.web.AppActionWeb
 import io.github.taetae98coding.diary.work.appaction.web.toAppActionWeb
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.koin.core.annotation.Factory
+import kotlin.time.Clock
 
 internal val searchSortList: List<ListSort> = listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED)
 
@@ -29,6 +35,8 @@ public class SearchAppAction internal constructor(
     private val searchTagUseCase: SearchTagUseCase,
     private val searchPlaceUseCase: SearchPlaceUseCase,
     private val searchWebUseCase: SearchWebUseCase,
+    private val searchDDayUseCase: SearchDDayUseCase,
+    private val clock: Clock,
 ) {
     public suspend fun memo(
         query: String,
@@ -80,5 +88,20 @@ public class SearchAppAction internal constructor(
                     parameter = SearchWebUseCase.Parameter(query = query, sort = sort.toSortArgument(searchSortList)),
                     offset = cursor.toPageOffset(),
                 ).map { web -> web.toAppActionWeb() }
+        }
+
+    public suspend fun dday(
+        query: String,
+        sort: String?,
+        cursor: String?,
+    ): AppActionPage<AppActionDDay> =
+        runAppAction {
+            val today = clock.todayIn(TimeZone.currentSystemDefault())
+
+            searchDDayUseCase
+                .readPage(
+                    parameter = SearchDDayUseCase.Parameter(query = query, sort = sort.toSortArgument(searchSortList)),
+                    offset = cursor.toPageOffset(),
+                ).map { dday -> dday.toAppActionDDay(today = today) }
         }
 }

@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.dday.usecase.GetCalendarDDayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.work.mcp.tool.McpTool
@@ -13,6 +14,7 @@ import io.github.taetae98coding.diary.work.mcp.tool.McpToolKind
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameter
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolParameterType
 import io.github.taetae98coding.diary.work.mcp.tool.McpToolSet
+import io.github.taetae98coding.diary.work.mcp.tool.dday.toJson
 import io.github.taetae98coding.diary.work.mcp.tool.json.dateRange
 import io.github.taetae98coding.diary.work.mcp.tool.json.dateRangeEndParameter
 import io.github.taetae98coding.diary.work.mcp.tool.json.dateRangeStartParameter
@@ -36,6 +38,7 @@ internal class CalendarMcpToolSet(
     private val getCalendarMemoUseCase: GetCalendarMemoUseCase,
     private val getCalendarContactBirthdayUseCase: GetCalendarContactBirthdayUseCase,
     private val getCalendarHolidayUseCase: GetCalendarHolidayUseCase,
+    private val getCalendarDDayUseCase: GetCalendarDDayUseCase,
 ) : McpToolSet {
     override val toolList: List<McpTool> =
         listOf(
@@ -55,6 +58,19 @@ internal class CalendarMcpToolSet(
                 parameterList = listOf(dateRangeStartParameter, dateRangeEndParameter),
                 kind = McpToolKind.READ,
             ) { arguments -> getCalendarContactBirthdayUseCase.readFirst(parameter = arguments.dateRange()).toJsonArray { birthday -> birthday.toJson() } },
+            McpTool(
+                name = "calendar_dday_list",
+                description =
+                    "Lists the base dates and anniversaries of D-Days shown on the calendar within the date range, by date. " +
+                        "Each label tells whether it is the base day or which count of days, months or years it is. The calendar tag filter the user chose in the app is applied.",
+                parameterList = listOf(dateRangeStartParameter, dateRangeEndParameter),
+                kind = McpToolKind.READ,
+            ) { arguments ->
+                getCalendarDDayUseCase
+                    .readFirst(parameter = arguments.dateRange())
+                    .sortedBy { dday -> dday.date }
+                    .toJsonArray { dday -> dday.toJson() }
+            },
             McpTool(
                 name = "holiday_list",
                 description =
