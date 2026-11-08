@@ -17,6 +17,7 @@
 | [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 태그별 체크리스트 목록 |
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 |
+| [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
@@ -30,7 +31,8 @@
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 |
 | [QrHome 화면](./qr-home.md) | QR 목록 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 |
-| [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹 검색 결과 목록 |
+| [DDayHome 화면](./dday-home.md) | 디데이 목록 |
+| [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹·디데이 검색 결과 목록 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 목록의 목록 보기 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 목록 |
 | [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | 연락처 선택 목록 |

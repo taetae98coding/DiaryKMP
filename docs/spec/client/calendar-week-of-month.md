@@ -82,7 +82,7 @@ CalendarWeekOfMonth는 배치하는 화면이 지정한 달과 주 순서에 해
 
 서로 다른 그룹의 아이템은 기간이 겹치지 않더라도 같은 줄을 공유하지 않는다. 그룹은 배치하는 화면이 지정한 순서대로 위에서 아래로 놓이고, 줄 배치는 그룹마다 따로 적용한다.
 
-이 기준을 따르는 문서: [CalendarHome 스펙](./calendar-home.md)의 `날씨 아이템 그룹 구성`, [캘린더 연락처 생일 표시 스펙](./calendar-contact-birthday.md)의 `조회 결과 정렬`, [캘린더 메모 표시 스펙](./calendar-memo.md)의 `조회 결과 정렬`.
+이 기준을 따르는 문서: [CalendarHome 스펙](./calendar-home.md)의 `날씨 아이템 그룹 구성`, [캘린더 연락처 생일 표시 스펙](./calendar-contact-birthday.md)의 `조회 결과 정렬`, [캘린더 디데이 표시 스펙](./calendar-dday.md)의 `조회 결과 정렬`, [캘린더 메모 표시 스펙](./calendar-memo.md)의 `조회 결과 정렬`.
 
 ### 아이템 스크롤 위치 유지
 

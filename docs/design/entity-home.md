@@ -81,6 +81,7 @@
 
 - [ChecklistHome 화면 디자인](./checklist-home.md)
 - [ContactHome 화면 디자인](./contact-home.md)
+- [DDayHome 화면 디자인](./dday-home.md)
 - [PlaylistHome 화면 디자인](./playlist-home.md)
 - [QrHome 화면 디자인](./qr-home.md)
 - [WebHome 화면 디자인](./web-home.md)
@@ -89,3 +90,4 @@
 - [TagDetail 체크리스트 탭 디자인](./tag-detail-checklist.md): 삭제 스와이프만 따른다
 - [TagDetail 곡 탭 디자인](./tag-detail-music.md): 삭제 스와이프만 따른다
 - [TagDetail QR 탭 디자인](./tag-detail-qr.md): 삭제 스와이프만 따른다
+- [TagDetail 디데이 탭 디자인](./tag-detail-dday.md): 삭제 스와이프만 따른다

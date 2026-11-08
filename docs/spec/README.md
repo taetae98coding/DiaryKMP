@@ -69,6 +69,9 @@
 | ContactDetail 메모 탭 | [client](./client/contact-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [ContactDetail 디자인](../design/contact-detail.md) |
 | ContactDetail 화면 | [client](./client/contact-detail.md) | — | — | [ContactDetail 디자인](../design/contact-detail.md) |
 | ContactHome 화면 | [client](./client/contact-home.md) | — | — | [ContactHome 디자인](../design/contact-home.md) |
+| DDay 목록·상세 배치 | [client](./client/dday-list-detail.md) | — | — | [DDay 목록·상세 배치 디자인](../design/dday-list-detail.md) |
+| DDayAdd 화면 | [client](./client/dday-add.md) | — | — | [DDayAdd 디자인](../design/dday-add.md) |
+| DDayDetail 화면 | [client](./client/dday-detail.md) | — | — | [DDayDetail 디자인](../design/dday-detail.md) |
 | DDayHome 화면 | [client](./client/dday-home.md) | — | — | [DDayHome 디자인](../design/dday-home.md) |
 | DiaryMap 컴포넌트 | [client](./client/diary-map.md) | — | — | [DiaryMap 디자인](../design/diary-map.md) |
 | FileAdd 화면 | [client](./client/file-add.md) | — | — | [FileAdd 디자인](../design/file-add.md) |
@@ -125,6 +128,7 @@
 | TagDetail 체크리스트 탭 | [client](./client/tag-detail-checklist.md) | — | — | [TagDetail 체크리스트 탭 디자인](../design/tag-detail-checklist.md) |
 | TagDetail 곡 탭 | [client](./client/tag-detail-music.md) | — | — | [TagDetail 곡 탭 디자인](../design/tag-detail-music.md) |
 | TagDetail QR 탭 | [client](./client/tag-detail-qr.md) | — | — | [TagDetail QR 탭 디자인](../design/tag-detail-qr.md) |
+| TagDetail 디데이 탭 | [client](./client/tag-detail-dday.md) | — | — | [TagDetail 디데이 탭 디자인](../design/tag-detail-dday.md) |
 | TagDetail 화면 | [client](./client/tag-detail.md) | — | — | [TagDetail 디자인](../design/tag-detail.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
 | TagFinishedList 화면 | [client](./client/tag-finished-list.md) | — | — | [TagFinishedList 디자인](../design/tag-finished-list.md) |
 | TagFinishedList 목록·상세 배치 | [client](./client/tag-finished-list-detail.md) | — | — | [TagFinishedList 목록·상세 배치 디자인](../design/tag-finished-list-detail.md) |
@@ -154,6 +158,8 @@
 | 더보기 준비 중 화면 공통 | [client](./client/more-menu-placeholder.md) | — | — | [더보기 준비 중 화면 공통 디자인](../design/more-menu-placeholder.md) |
 | 데스크톱 앱 데이터 저장 위치 | [client](./client/jvm-database-storage.md) | — | — | — |
 | 데이터 동기화 | [client](./client/data-sync.md) | [common](./common/data-sync.md) | [server](./server/data-sync.md) | — |
+| 디데이 | [client](./client/dday.md) | [common](./common/dday.md) | — | — |
+| 디데이 태그 | [client](./client/dday-tag.md) | [common](./common/dday-tag.md) | — | — |
 | 로그인 | [client](./client/login.md) | [common](./common/login.md) | [server](./server/login.md) | [Login 디자인](../design/login.md) |
 | 메모 Gemini 작성 도우미 | [client](./client/memo-gemini.md) | — | — | [메모 Gemini 작성 도우미 디자인](../design/memo-gemini.md) |
 | 메모 대표 태그 | [client](./client/memo-primary-tag.md) | [common](./common/memo-primary-tag.md) | — | — |
@@ -198,6 +204,7 @@
 | 체크리스트 태그 | [client](./client/checklist-tag.md) | [common](./common/checklist-tag.md) | — | — |
 | 카메라 권한 요청 | [client](./client/camera-permission.md) | — | — | — |
 | 캘린더 메모 이동 | [client](./client/calendar-memo-move.md) | — | — | [캘린더 메모 이동 디자인](../design/calendar-memo-move.md) |
+| 캘린더 디데이 표시 | [client](./client/calendar-dday.md) | — | — | [CalendarHome 디자인](../design/calendar-home.md), [CalendarTimetable 디자인](../design/calendar-timetable.md) |
 | 캘린더 메모 표시 | [client](./client/calendar-memo.md) | — | — | — |
 | 캘린더 연락처 생일 표시 | [client](./client/calendar-contact-birthday.md) | — | — | — |
 | 컬러 입력 컴포넌트 | [client](./client/diary-color-input.md) | — | — | [DiaryColorInput 디자인](../design/diary-color-input.md) |

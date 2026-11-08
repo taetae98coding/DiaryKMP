@@ -113,6 +113,7 @@
 
 - [Checklist 목록·상세 배치 스펙](./checklist-list-detail.md)
 - [Contact 목록·상세 배치 스펙](./contact-list-detail.md)
+- [DDay 목록·상세 배치 스펙](./dday-list-detail.md)
 - [File 목록·상세 배치 스펙](./file-list-detail.md)
 - [Memo 목록·상세 배치 스펙](./memo-list-detail.md)
 - [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)
@@ -125,4 +126,4 @@
 - [TagFinishedList 목록·상세 배치 스펙](./tag-finished-list-detail.md)
 - [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)
 - [Web 목록·상세 배치 스펙](./web-list-detail.md)
-- [ChecklistAdd 화면 스펙](./checklist-add.md), [MusicAdd 화면 스펙](./music-add.md), [QrAdd 화면 스펙](./qr-add.md), [RoutineAdd 화면 스펙](./routine-add.md)의 `함께 사용할 때의 행동`
+- [ChecklistAdd 화면 스펙](./checklist-add.md), [DDayAdd 화면 스펙](./dday-add.md), [MusicAdd 화면 스펙](./music-add.md), [QrAdd 화면 스펙](./qr-add.md), [RoutineAdd 화면 스펙](./routine-add.md)의 `함께 사용할 때의 행동`

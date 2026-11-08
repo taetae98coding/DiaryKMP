@@ -8,7 +8,7 @@
 
 ## 동작 목록과 이름 규칙
 
-앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 97개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
+앱 동작은 데스크톱 앱 연결의 도구와 하나씩 짝을 이루며 모두 107개다. 동작마다 데스크톱 도구 이름을 기준 열쇠로 삼아 Android 함수 이름과 iOS 이름을 정한다.
 
 | 환경 | 보이는 이름 | 규칙 |
 | --- | --- | --- |
@@ -59,12 +59,14 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | 체크리스트 항목 | `체크리스트 항목` | `Checklist Item` / `Checklist Items` | 체크됨 `checkmark.square`, 체크 안 됨 `square` |
 | QR | `QR` | `QR Code` / `QR Codes` | `qrcode` |
 | 곡 | `곡` | `Song` / `Songs` | `music.note` |
+| 디데이 | `디데이` | `D-Day` / `D-Days` | `hourglass` |
 | 캘린더 메모 | `캘린더 메모` | `Calendar Memo` / `Calendar Memos` | `calendar` |
+| 캘린더 디데이 | `캘린더 디데이` | `Calendar D-Day` / `Calendar D-Days` | `calendar` |
 | 생일 | `생일` | `Birthday` / `Birthdays` | `gift` |
 | 공휴일 | `공휴일` | `Holiday` / `Holidays` | `flag` |
 | 음력 날짜 | `음력 날짜` | `Lunar Date` / `Lunar Dates` | `moon` |
 
-메모, 태그, 장소, 캘린더 메모의 아이콘은 그 항목의 색으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
+메모, 태그, 장소, 디데이, 캘린더 메모의 아이콘은 그 항목의 색으로, 캘린더 디데이의 아이콘은 그 디데이의 색으로 칠하고, 나머지는 앱의 주 색으로 칠한다.
 
 ## 기능 영역별 동작
 
@@ -199,6 +201,19 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `music_delete` | `musicDelete` | 곡 삭제<br/>Delete Song | 플레이리스트에서 곡을 삭제합니다. 같은 곡으로 ‘삭제한 곡 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a song from the playlist. Run Restore Deleted Song with the same song to undo. |
 | `music_restore` | `musicRestore` | 삭제한 곡 되돌리기<br/>Restore Deleted Song | 삭제한 곡을 되돌립니다.<br/>Restores a deleted song. |
 
+### 디데이
+
+| 도구 | Android 함수 | iOS 제목 | iOS 설명 |
+| --- | --- | --- | --- |
+| `dday_list` | `ddayList` | 디데이 목록 보기<br/>Get D-Days | 디데이 목록에 보이는 디데이를 제목순으로, 남은 날이나 지난 날과 함께 가져옵니다. 앱에서 고른 필터가 적용됩니다.<br/>Gets the D-Days shown in the D-Day list by title, with the days left or passed. The filters chosen in the app apply. |
+| `dday_get` | `ddayGet` | 디데이 상세 보기<br/>Get D-Day Details | 디데이 하나를 연결된 태그와 함께 가져옵니다.<br/>Gets a D-Day with its linked tags. |
+| `dday_add` | `ddayAdd` | 디데이 추가<br/>Add D-Day | 새 디데이를 추가합니다. 기준일을 고르지 않으면 오늘을, 색을 고르지 않으면 무작위 색을 씁니다.<br/>Adds a new D-Day. Today is used if you don't choose a start date, and a random color if you don't choose one. |
+| `dday_update` | `ddayUpdate` | 디데이 수정<br/>Edit D-Day | 디데이의 제목, 설명, 색, 기준일, 반복 간격, 종료일 같은 정보를 바꿉니다. 비워 둔 값은 그대로 둡니다.<br/>Changes the title, description, color, start date, repeat intervals, end date or other details of a D-Day. Values left empty stay the same. |
+| `dday_delete` | `ddayDelete` | 디데이 삭제<br/>Delete D-Day | 디데이를 삭제합니다. 같은 디데이로 ‘삭제한 디데이 되돌리기’를 실행하면 되돌릴 수 있습니다.<br/>Deletes a D-Day. Run Restore Deleted D-Day with the same D-Day to undo. |
+| `dday_restore` | `ddayRestore` | 삭제한 디데이 되돌리기<br/>Restore Deleted D-Day | 삭제한 디데이를 되돌립니다.<br/>Restores a deleted D-Day. |
+| `dday_tag_add` | `ddayTagAdd` | 디데이에 태그 연결<br/>Link Tag to D-Day | 디데이에 태그를 연결합니다.<br/>Links a tag to a D-Day. |
+| `dday_tag_remove` | `ddayTagRemove` | 디데이에서 태그 연결 해제<br/>Unlink Tag from D-Day | 디데이에서 태그 연결을 해제합니다.<br/>Unlinks a tag from a D-Day. |
+
 ### 검색
 
 | 도구 | Android 함수 | iOS 제목 | iOS 설명 |
@@ -207,6 +222,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `search_tag` | `searchTag` | 태그 검색<br/>Search Tags | 검색 화면의 태그 결과와 같이 태그를 검색합니다.<br/>Searches tags like the tag results of the search screen. |
 | `search_place` | `searchPlace` | 저장한 장소 검색<br/>Search Saved Places | 앱에 저장한 장소를 검색합니다. 앱 밖의 장소는 찾지 않습니다.<br/>Searches places saved in the app. Places outside the app aren't searched. |
 | `search_web` | `searchWeb` | 웹 검색<br/>Search Webs | 앱에 저장한 웹을 검색합니다.<br/>Searches webs saved in the app. |
+| `search_dday` | `searchDday` | 디데이 검색<br/>Search D-Days | 앱에 저장한 디데이를 남은 날이나 지난 날과 함께 검색합니다.<br/>Searches D-Days saved in the app, with the days left or passed. |
 
 ### 캘린더
 
@@ -215,6 +231,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `calendar_memo_list` | `calendarMemoList` | 캘린더 메모 보기<br/>Get Calendar Memos | 기간이 고른 날짜 범위와 겹치는, 캘린더에 보이는 메모를 가져옵니다. 완료된 메모도 포함하고 앱에서 고른 캘린더 태그 필터가 적용됩니다.<br/>Gets the memos shown on the calendar whose period overlaps the date range. Finished memos are included, and the calendar tag filter chosen in the app applies. |
 | — (iOS 전용) | — | 날짜별 캘린더 메모 보기<br/>Get Calendar Memos by Date | 고른 날짜 하루에 캘린더에 보이는 메모를 가져옵니다. 완료된 메모도 포함하고 앱에서 고른 캘린더 태그 필터가 적용됩니다.<br/>Gets the memos shown on the calendar on the chosen date. Finished memos are included, and the calendar tag filter chosen in the app applies. |
 | `calendar_birthday_list` | `calendarBirthdayList` | 캘린더 생일 보기<br/>Get Calendar Birthdays | 날짜 범위 안의 연락처 생일을 양력 날짜로 가져옵니다. 음력 생일은 음력 자료를 받아 둔 연도에만 나타납니다.<br/>Gets contact birthdays in the date range as solar dates. Lunar birthdays appear only for years whose lunar data is saved. |
+| `calendar_dday_list` | `calendarDdayList` | 캘린더 디데이 보기<br/>Get Calendar D-Days | 날짜 범위 안에서 캘린더에 보이는 디데이의 기준일 당일과 기념일을 가져옵니다. 앱에서 고른 캘린더 태그 필터가 적용됩니다.<br/>Gets the start dates and anniversaries of D-Days shown on the calendar in the date range. The calendar tag filter chosen in the app applies. |
 | `holiday_list` | `holidayList` | 공휴일 보기<br/>Get Holidays | 한 해의 공휴일을 캘린더와 같이 가져옵니다. 이 기기에 받아 둔 연도만 나타납니다.<br/>Gets a year's holidays as shown on the calendar. Only years saved on this device appear. |
 | `lunar_list` | `lunarList` | 음력 날짜 보기<br/>Get Lunar Dates | 날짜 범위 안 양력 날짜의 음력 날짜를 가져옵니다. 음력 자료를 받지 않은 날짜는 빠집니다.<br/>Gets the lunar dates of solar dates in the range. Dates without downloaded lunar data are missing. |
 
@@ -258,6 +275,12 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `howWeMet` | 알게 된 경로<br/>How We Met | — |
 | `phoneNumbers` | 전화번호<br/>Phone Numbers | 수정에서는 넣은 번호로 모두 바뀝니다. 빈 목록이면 모두 지웁니다.<br/>When editing, they replace all current numbers. An empty list removes them all. |
 | `clearHeight`, `clearFootSize`, `clearBirthday`, `clearBirthYear` | 키 지우기, 신발 사이즈 지우기, 생일 지우기, 태어난 연도 지우기<br/>Remove Height, Remove Shoe Size, Remove Birthday, Remove Birth Year | 켜면 그 값을 지웁니다.<br/>Turn on to remove the value. |
+| `baseDate` | 기준일<br/>Start Date | 추가에서 비워 두면 오늘입니다. 수정에서는 비워 두면 지금 기준일을 그대로 둡니다.<br/>When adding, leave it empty to use today. When editing, leave it empty to keep the current start date. |
+| `countsBaseDay` | 기준일을 1일로 세기<br/>Count Start Date as Day 1 | 켜면 기준일 당일을 1일째로 셉니다. 추가에서 고르지 않으면 켜집니다.<br/>On counts the start date as day 1. When adding, it's on if not chosen. |
+| `repeats` | 반복 간격<br/>Repeat Intervals | 간격 하나를 `P100D`(100일), `P3M`(3개월), `P1Y`(1년)처럼 넣습니다. 한 간격에 일과 개월을 함께 넣을 수 없습니다. 수정에서는 넣은 간격으로 모두 바뀌고, 빈 목록이면 모두 지웁니다.<br/>Enter each interval like P100D (100 days), P3M (3 months) or P1Y (1 year). One interval can't mix days with months. When editing, they replace all current intervals; an empty list removes them all. |
+| `endDate` (디데이) | 종료일<br/>End Date | 기념일을 이 날까지만 알립니다.<br/>Anniversaries are shown only up to this date. |
+| `clearEndDate` | 종료일 지우기<br/>Remove End Date | 켜면 종료일을 지웁니다.<br/>Turn on to remove the end date. |
+| `overflowPolicy` | 달력에 없는 날짜<br/>Missing Dates | 개월 간격의 기념일이 그 달에 없는 날짜에 걸릴 때의 처리. 선택지: 말일로 당김, 표시하지 않음, 다음 달 1일로 미룸 / Use last day of month, Skip, Use 1st of next month. 추가에서 고르지 않으면 말일로 당김입니다.<br/>What to do when a monthly anniversary falls on a date the month doesn't have. If not chosen when adding, Use last day of month. |
 | `query` | 검색어<br/>Search Term | — |
 | `startDate`, `endDate` | 시작일, 마지막 날<br/>Start Date, End Date | 마지막 날도 범위에 포함합니다.<br/>The end date is included. |
 | `year` | 연도<br/>Year | — |
@@ -266,7 +289,7 @@ iOS에서 결과로 돌려주거나 입력값으로 고르는 항목의 종류 �
 | `scope` | 포함할 태그<br/>Tags to Include | 선택지: 이 태그만, 바로 연결한 태그까지, 연결된 모든 태그까지 / This tag only, Directly linked tags, All linked tags. 고르지 않으면 이 태그만입니다.<br/>If not chosen, this tag only. |
 | `cursor` | 페이지<br/>Page | 1부터 시작하는 페이지 번호. 비워 두면 첫 페이지입니다.<br/>Page number starting at 1. Leave empty for the first page. |
 
-항목을 가리키는 입력값(`memoId`, `tagId`, `placeId`, `webId`, `contactId`, `checklistId`, `itemId`, `qrId`, `musicId`, `primaryTagId`, `linkedTagId`와 그 목록)은 iOS에서 id 글 대신 항목을 고르는 입력으로 보여 준다. 이름은 다음과 같다.
+항목을 가리키는 입력값(`memoId`, `tagId`, `placeId`, `webId`, `contactId`, `checklistId`, `itemId`, `qrId`, `musicId`, `ddayId`, `primaryTagId`, `linkedTagId`와 그 목록)은 iOS에서 id 글 대신 항목을 고르는 입력으로 보여 준다. 이름은 다음과 같다.
 
 | 쓰임 | 한국어 | 영어 |
 | --- | --- | --- |
@@ -397,7 +420,7 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 
 | 항목 | 목적격 |
 | --- | --- |
-| 메모, 태그, 장소, 연락처, 체크리스트, 체크리스트 항목 | `메모를`, `태그를`, `장소를`, `연락처를`, `체크리스트를`, `체크리스트 항목을` |
+| 메모, 태그, 장소, 연락처, 체크리스트, 체크리스트 항목, 디데이 | `메모를`, `태그를`, `장소를`, `연락처를`, `체크리스트를`, `체크리스트 항목을`, `디데이를` |
 | 웹, QR, 곡 | `웹을`, `QR을`, `곡을` |
 
 ### 결과 항목 표시
@@ -416,11 +439,15 @@ iOS에서는 결과 항목과 함께 Siri가 말하고 단축어가 보여 주�
 | 체크리스트 항목 | 내용 | — |
 | QR | 제목 | 설명 |
 | 곡 | 제목 | 가수 |
+| 디데이 | 제목 | 카드 문구 |
+| 캘린더 디데이 | `🎉 {제목} {날짜 문구}` | 날짜 |
 | 생일 | `🎂 {연락처 표시 이름}` | 날짜 |
 | 공휴일 | 이름 | 하루이면 날짜, 여러 날이면 `{시작일} – {마지막 날}` |
 | 음력 날짜 | 한국어 `음력 {월}월 {일}일`, 윤달이면 `음력 윤{월}월 {일}일`<br/>영어 `Lunar {월}/{일}`, 윤달이면 `Lunar leap {월}/{일}` | 양력 날짜 |
 
 QR의 내용은 남에게 보이면 안 되는 값일 수 있으므로 제목과 부제에 넣지 않는다. 단축어에서는 항목의 값으로 꺼내 쓸 수 있다.
+
+디데이의 카드 문구는 동작을 실행한 시점의 오늘로 계산한 값을 [DDayHome 화면 디자인](./dday-home.md)의 `카드 문구 표기`대로 기기 언어에 맞게 쓴다. 캘린더 디데이의 `{날짜 문구}`는 [CalendarHome 디자인](./calendar-home.md)의 디데이 아이템과 같은 표기를 쓴다.
 
 날짜와 시간은 기기의 지역 설정에 맞는 운영체제 기본 형식으로 보여 준다. 하루 종일 기간은 날짜만, 시간이 있는 기간은 날짜와 시간을 보여 주며, 시작과 끝이 같은 날이면 날짜를 한 번만 쓴다.
 
@@ -438,6 +465,11 @@ QR의 내용은 남에게 보이면 안 되는 값일 수 있으므로 제목과
 | 체크리스트의 항목 | `항목` | `Items` |
 | 공휴일 쉬는 날 여부 | `쉬는 날` | `Day Off` |
 | 음력 연·월·일, 윤달 여부, 양력 날짜 | `음력 연도`, `음력 월`, `음력 일`, `윤달`, `양력 날짜` | `Lunar Year`, `Lunar Month`, `Lunar Day`, `Leap Month`, `Solar Date` |
+| 디데이의 상태 | `상태`. 값은 `아직 오지 않음`, `당일`, `지남` | `Status`. Values are `Upcoming`, `Today`, `Passed` |
+| 남은 날 수, 지난 날 수 | `남은 날 수`, `지난 날 수` | `Days Left`, `Days Passed` |
+| 채운 년, 채운 개월 | `채운 년`, `채운 개월` | `Full Years`, `Full Months` |
+| 캘린더 디데이의 날짜와 날짜 문구 | `날짜`, `날짜 문구` | `Date`, `Date Label` |
+| 캘린더 디데이의 디데이 | `디데이` | `D-Day` |
 
 ## 참고
 

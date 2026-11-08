@@ -11,6 +11,7 @@
 - [RoutineHome 화면 디자인](./routine-home.md)
 - [ChecklistHome 화면 디자인](./checklist-home.md)
 - [ContactHome 화면 디자인](./contact-home.md)
+- [DDayHome 화면 디자인](./dday-home.md)
 - [FileHome 화면 디자인](./file-home.md)
 - [PlaceHome 화면 디자인](./place-home.md)
 - [PlaylistHome 화면 디자인](./playlist-home.md)

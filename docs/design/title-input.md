@@ -9,6 +9,8 @@
 - [메모 본문 배치 디자인](./memo-form.md)
 - [ChecklistAdd 화면 디자인](./checklist-add.md)
 - [ChecklistDetail 화면 디자인](./checklist-detail.md)
+- [DDayAdd 화면 디자인](./dday-add.md)
+- [DDayDetail 화면 디자인](./dday-detail.md)
 - [FileAdd 화면 디자인](./file-add.md)
 - [FileDetail 화면 디자인](./file-detail.md)
 - [MusicAdd 화면 디자인](./music-add.md)

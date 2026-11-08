@@ -8,7 +8,7 @@
 
 ## 적용 대상
 
-항목을 카드로 보여 주는 목록은 모두 이 상호작용을 제공한다. 완료 여부가 있는 메모와 태그는 진행 상태 변경과 삭제를, 완료 여부가 없는 웹 항목, 장소, 연락처, 곡, QR, 체크리스트는 삭제만 제공한다.
+항목을 카드로 보여 주는 목록은 모두 이 상호작용을 제공한다. 완료 여부가 있는 메모와 태그는 진행 상태 변경과 삭제를, 완료 여부가 없는 웹 항목, 장소, 연락처, 곡, QR, 체크리스트, 디데이는 삭제만 제공한다.
 
 | 스펙 | 목록 | 진행 상태를 바꾸는 동작 |
 | --- | --- | --- |
@@ -30,14 +30,17 @@
 | [TagDetail 체크리스트 탭](./tag-detail-checklist.md) | 태그별 체크리스트 목록 | 없음 |
 | [TagDetail 곡 탭](./tag-detail-music.md) | 태그별 곡 목록 | 없음 |
 | [TagDetail QR 탭](./tag-detail-qr.md) | 태그별 QR 목록 | 없음 |
+| [TagDetail 디데이 탭](./tag-detail-dday.md) | 태그별 디데이 목록 | 없음 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 | 없음 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 | 없음 |
 | [QrHome 화면](./qr-home.md) | QR 목록 | 없음 |
 | [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 | 없음 |
+| [DDayHome 화면](./dday-home.md) | 디데이 목록 | 없음 |
 | [SearchHome 화면](./search-home.md) | 메모 검색 결과 | 항목마다 완료 또는 다시 시작 |
 | [SearchHome 화면](./search-home.md) | 태그 검색 결과 | 항목마다 완료 또는 다시 시작 |
 | [SearchHome 화면](./search-home.md) | 장소 검색 결과 | 없음 |
 | [SearchHome 화면](./search-home.md) | 웹 검색 결과 | 없음 |
+| [SearchHome 화면](./search-home.md) | 디데이 검색 결과 | 없음 |
 
 진행 상태를 바꾸는 동작이 `없음`인 목록은 완료 여부가 없는 항목을 보여 주므로 삭제 방향만 제공한다.
 

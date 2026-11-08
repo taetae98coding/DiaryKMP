@@ -6,6 +6,7 @@
 
 - [Checklist 목록·상세 배치 디자인](./checklist-list-detail.md)
 - [Contact 목록·상세 배치 디자인](./contact-list-detail.md)
+- [DDay 목록·상세 배치 디자인](./dday-list-detail.md)
 - [File 목록·상세 배치 디자인](./file-list-detail.md)
 - [Memo 목록·상세 배치 디자인](./memo-list-detail.md)
 - [MemoFinishedList 목록·상세 배치 디자인](./memo-finished-list-detail.md)
@@ -87,7 +88,7 @@ JVM 데스크톱의 앱 창은 두 영역을 좌우로 함께 표시하는 1080�
 
 ## 추가 화면이 선택 전 자리를 채우는 배치
 
-선택한 항목이 있으면 상세 영역에 그 항목의 상세 화면을, 없으면 추가 화면을 두는 배치는 이 절을 함께 따른다. 이 절을 따르는 배치는 [Checklist 목록·상세 배치 디자인](./checklist-list-detail.md), [Contact 목록·상세 배치 디자인](./contact-list-detail.md), [File 목록·상세 배치 디자인](./file-list-detail.md), [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md), [QR 목록·상세 배치 디자인](./qr-list-detail.md)이다. 두 영역은 각각 자기 상단 바를 갖는다.
+선택한 항목이 있으면 상세 영역에 그 항목의 상세 화면을, 없으면 추가 화면을 두는 배치는 이 절을 함께 따른다. 이 절을 따르는 배치는 [Checklist 목록·상세 배치 디자인](./checklist-list-detail.md), [Contact 목록·상세 배치 디자인](./contact-list-detail.md), [DDay 목록·상세 배치 디자인](./dday-list-detail.md), [File 목록·상세 배치 디자인](./file-list-detail.md), [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md), [QR 목록·상세 배치 디자인](./qr-list-detail.md)이다. 두 영역은 각각 자기 상단 바를 갖는다.
 
 이 배치는 상세 영역에 아이콘과 안내만 두는 `선택 전 상세`를 쓰지 않는다. 선택 전 자리를 추가 화면이 채우므로 사용자가 목록을 떠나지 않고 곧바로 입력할 수 있고, 비어 있는 안내 자리를 보지 않기 때문이다.
 

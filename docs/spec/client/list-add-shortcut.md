@@ -17,6 +17,7 @@
 | [PlaylistHome 화면](./playlist-home.md) | `곡 추가로 이동` |
 | [QrHome 화면](./qr-home.md) | `QR 추가로 이동` |
 | [ChecklistHome 화면](./checklist-home.md) | `체크리스트 추가로 이동` |
+| [DDayHome 화면](./dday-home.md) | `디데이 추가로 이동` |
 | [WebHome 화면](./web-home.md) | `웹 추가로 이동` |
 
 ## feature
