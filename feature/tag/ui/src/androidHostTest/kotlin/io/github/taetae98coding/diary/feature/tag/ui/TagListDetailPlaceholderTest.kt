@@ -499,6 +499,8 @@ class TagListDetailPlaceholderTest {
             navigateToMusicDetail = {},
             navigateToQrAdd = {},
             navigateToQrDetail = {},
+            navigateToDDayAdd = {},
+            navigateToDDayDetail = {},
         )
     }
 

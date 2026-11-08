@@ -261,6 +261,8 @@ class CalendarHomeScreenWeatherScrollTest {
                             weatherViewModel = weatherViewModel,
                             syncViewModel = syncViewModel,
                             permissionManager = rememberPermissionManager(),
+                            navigateToDDayDetail = {},
+                            ddayViewModel = ddayViewModel(),
                         )
                     }
                 }
@@ -339,6 +341,8 @@ class CalendarHomeScreenWeatherScrollTest {
                     weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow),
                     syncViewModel = syncViewModel(),
                     permissionManager = rememberPermissionManager(),
+                    navigateToDDayDetail = {},
+                    ddayViewModel = ddayViewModel(),
                 )
             }
         }

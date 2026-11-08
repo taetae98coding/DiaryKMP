@@ -11,6 +11,8 @@ import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKe
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
@@ -115,6 +117,7 @@ class AppStateDetailDeepLinkTest :
                 DetailCase("checklist-detail", more + ChecklistHomeNavKey, ::ChecklistDetailNavKey),
                 DetailCase("qr-detail", more + QrHomeNavKey, ::QrDetailNavKey),
                 DetailCase("music-detail", more + PlaylistHomeNavKey, ::MusicDetailNavKey),
+                DetailCase("dday-detail", more + DDayHomeNavKey, ::DDayDetailNavKey),
             )
         }
 

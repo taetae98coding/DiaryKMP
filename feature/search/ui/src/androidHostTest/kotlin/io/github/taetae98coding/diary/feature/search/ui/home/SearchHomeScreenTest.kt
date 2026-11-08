@@ -28,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
+import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
@@ -58,7 +59,7 @@ class SearchHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 네 유형의 결과에 카드가 하나도 없다`() {
+    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있고 다섯 유형의 결과에 카드가 하나도 없다`() {
         composeRule.setSearchHomeScreen()
 
         queryInputText() shouldBe ""
@@ -68,6 +69,7 @@ class SearchHomeScreenTest {
             TAG_TAB_LABEL to TAG_CARD_TEST_TAG,
             PLACE_TAB_LABEL to PLACE_CARD_TEST_TAG,
             WEB_TAB_LABEL to WEB_CARD_TEST_TAG,
+            DDAY_TAB_LABEL to DDAY_CARD_TEST_TAG,
         ).forEach { (label, cardTestTag) ->
             composeRule.selectSearchHomeTab(label)
 
@@ -149,6 +151,40 @@ class SearchHomeScreenTest {
         composeRule.selectSearchHomeTab(MEMO_TAB_LABEL)
 
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-81dbea76-4318-43e8-a5b1-c48cd824b574 시작 유형이 아니어도 디데이 결과를 채운다`() {
+        val memo = resultMemo()
+        val dday = resultDDay()
+
+        composeRule.setSearchHomeScreen(
+            memoList = listOf(memo),
+            tagList = listOf(resultTag()),
+            placeList = listOf(resultPlace()),
+            webList = listOf(resultWeb()),
+            ddayList = listOf(dday),
+            initialType = SearchHomeType.WEB,
+        )
+        inputQuery()
+        composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
+
+        searchDDayViewModelRef
+            .shouldNotBeNull()
+            .uiState.value.appliedQuery shouldBe QUERY
+        composeRule.onNodeWithText(dday.detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 디데이 유형으로 바꾸면 디데이 결과를 본다`() {
+        val memo = resultMemo()
+        val dday = resultDDay()
+
+        composeRule.setSearchHomeScreen(memoList = listOf(memo), ddayList = listOf(dday))
+        composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
+
+        composeRule.onNodeWithText(dday.detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memo.detail.title).assertDoesNotExist()
     }
 
     @Test
@@ -275,6 +311,22 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
 
         idList shouldBe listOf(web.id)
+    }
+
+    @Test
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 디데이 결과를 선택하면 그 디데이의 상세로 이동한다`() {
+        val dday = resultDDay()
+        val idList = mutableListOf<Uuid>()
+
+        composeRule.setSearchHomeScreen(
+            ddayList = listOf(dday),
+            initialType = SearchHomeType.DDAY,
+            navigateToDDayDetail = idList::add,
+        )
+        composeRule.onNodeWithText(dday.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        idList shouldBe listOf(dday.id)
     }
 
     @Test

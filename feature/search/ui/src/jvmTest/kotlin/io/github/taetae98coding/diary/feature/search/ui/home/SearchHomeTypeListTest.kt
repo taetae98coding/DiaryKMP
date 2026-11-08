@@ -7,13 +7,14 @@ import io.kotest.matchers.shouldBe
 
 class SearchHomeTypeListTest :
     FunSpec({
-        test("유형은 메모, 태그, 장소, 웹 순서다") {
+        test("유형은 메모, 태그, 장소, 웹, 디데이 순서다") {
             searchHomeTypeList shouldContainExactly
                 listOf(
                     SearchHomeType.MEMO,
                     SearchHomeType.TAG,
                     SearchHomeType.PLACE,
                     SearchHomeType.WEB,
+                    SearchHomeType.DDAY,
                 )
         }
 

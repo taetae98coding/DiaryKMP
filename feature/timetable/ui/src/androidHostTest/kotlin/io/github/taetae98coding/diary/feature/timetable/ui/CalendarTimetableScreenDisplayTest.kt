@@ -42,6 +42,8 @@ import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_T
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_NOW_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.timetable.rememberTimetableState
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -374,17 +376,24 @@ class CalendarTimetableScreenDisplayTest {
     }
 
     @Test
-    fun `TC-fb62b5b0-2dc7-4216-a01e-294064e930a1 같은 날짜의 메모, 생일, 공휴일 이름은 그 순서로 놓인다`() {
+    fun `TC-0e398647-ab0b-46d8-a2f0-e532fb0b63e5 같은 날짜의 메모, 디데이, 생일, 공휴일 이름은 그 순서로 위쪽 줄부터 놓인다`() {
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 24),
             memoList = listOf(memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 24)..september(day = 24)))),
             holidayList = listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 24))),
             birthdayList = listOf(birthday(name = BIRTHDAY_NAME, day = 24)),
+            ddayList = listOf(dday(title = FIRST_DDAY_TITLE, day = 24), dday(title = SECOND_DDAY_TITLE, day = 24)),
         )
         scrollToAllDay()
 
-        listOf(boundsOf(text = VACATION_TITLE).top, boundsOf(text = BIRTHDAY_TEXT).top, boundsOf(text = CHUSEOK).top).shouldBeStrictlyIncreasing()
+        listOf(
+            boundsOf(text = VACATION_TITLE).top,
+            boundsOf(text = FIRST_DDAY_TEXT).top,
+            boundsOf(text = SECOND_DDAY_TEXT).top,
+            boundsOf(text = BIRTHDAY_TEXT).top,
+            boundsOf(text = CHUSEOK).top,
+        ).shouldBeStrictlyIncreasing()
     }
 
     @Test
@@ -433,6 +442,18 @@ class CalendarTimetableScreenDisplayTest {
         composeRule.runOnIdle { birthdayFetchDateRangeList.toList() } shouldBe emptyList()
     }
 
+    private fun dday(
+        title: String,
+        day: Int,
+    ): CalendarDDay =
+        CalendarDDay(
+            ddayId = Uuid.random(),
+            title = title,
+            color = DDAY_COLOR,
+            date = september(day = day),
+            label = CalendarDDayLabel.BaseDay,
+        )
+
     private fun birthday(
         name: String,
         day: Int,
@@ -450,6 +471,7 @@ class CalendarTimetableScreenDisplayTest {
         memoList: List<CalendarMemo> = emptyList(),
         holidayList: List<Holiday> = emptyList(),
         birthdayList: List<CalendarContactBirthday> = emptyList(),
+        ddayList: List<CalendarDDay> = emptyList(),
         restorationTester: StateRestorationTester? = null,
         launchCount: MutableState<Int>? = null,
         lifecycleOwner: LifecycleOwner? = null,
@@ -508,6 +530,8 @@ class CalendarTimetableScreenDisplayTest {
                                 holidayViewModel = holidayViewModel,
                                 weatherViewModel = weatherViewModel,
                                 birthdayViewModel = birthdayViewModel,
+                                navigateToDDayDetail = {},
+                                ddayViewModel = timetableDDayViewModel(ddayListFlow = MutableStateFlow(ddayList)),
                             )
                         }
                     }
@@ -645,5 +669,10 @@ class CalendarTimetableScreenDisplayTest {
         const val VACATION_TITLE = "Vacation"
         const val BIRTHDAY_NAME = "홍길동"
         const val BIRTHDAY_TEXT = "🎂 홍길동"
+        const val FIRST_DDAY_TITLE = "가"
+        const val SECOND_DDAY_TITLE = "나"
+        const val FIRST_DDAY_TEXT = "🎉 가 D-Day"
+        const val SECOND_DDAY_TEXT = "🎉 나 D-Day"
+        const val DDAY_COLOR = 0xFFE57373
     }
 }

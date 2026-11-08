@@ -1,0 +1,18 @@
+<resources>
+    <string name="dday_card_upcoming">D-%1$s</string>
+    <string name="dday_card_today">D-Day</string>
+    <plurals name="dday_card_passed">
+        <item quantity="other">%1$s일</item>
+    </plurals>
+    <string name="dday_card_with_period">%1$s(%2$s)</string>
+    <plurals name="dday_card_period_year">
+        <item quantity="other">%1$s년</item>
+    </plurals>
+    <plurals name="dday_card_period_month">
+        <item quantity="other">%1$s개월</item>
+    </plurals>
+    <string name="dday_card_period_year_month">%1$s %2$s</string>
+    <string name="dday_list_deleted_message">디데이가 삭제되었습니다.</string>
+    <string name="dday_list_undo_action">실행 취소</string>
+    <string name="dday_list_delete_content_description">디데이 삭제</string>
+</resources>

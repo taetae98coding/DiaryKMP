@@ -2,7 +2,10 @@ package io.github.taetae98coding.diary.feature.search.ui.home.result
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -10,29 +13,40 @@ import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.core.testing.dday.ddayDetail
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.RESULT_EMOJI
+import io.github.taetae98coding.diary.feature.search.ui.home.dday.SearchHomeDDayList
 import io.github.taetae98coding.diary.feature.search.ui.home.loadingPagingDataFlowOf
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoList
 import io.github.taetae98coding.diary.feature.search.ui.home.pagingDataFlowOf
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceList
 import io.github.taetae98coding.diary.feature.search.ui.home.resultAddress
+import io.github.taetae98coding.diary.feature.search.ui.home.resultDDay
 import io.github.taetae98coding.diary.feature.search.ui.home.resultMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.resultPlace
 import io.github.taetae98coding.diary.feature.search.ui.home.resultTag
 import io.github.taetae98coding.diary.feature.search.ui.home.resultWeb
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagList
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebList
+import io.github.taetae98coding.diary.library.fixture.kotlinxLocalDate
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.next
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
+import kotlinx.datetime.plus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,6 +142,31 @@ class SearchHomeResultListTest {
     }
 
     @Test
+    fun `TC-25cf1b5e-6b1d-45a8-8fa9-27690b27c069 디데이 결과에 제목과 카드 문구를 표시한다`() {
+        val today = Arb.kotlinxLocalDate().next()
+        val detail = Arb.ddayDetail(baseDate = today.plus(1, DateTimeUnit.DAY), countsBaseDay = false).next()
+        val dday = resultDDay().let { value -> value.copy(detail = detail.copy(title = value.detail.title)) }
+        val ddayPagingDataFlow = pagingDataFlowOf(listOf(dday))
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeDDayList(
+                    onEvent = {},
+                    onItemEvent = {},
+                    modifier = Modifier.fillMaxSize(),
+                    ddayListState = rememberDDayListState(initialToday = today),
+                    ddayPagingItems = ddayPagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+
+        composeRule
+            .onNode(hasTestTag(DDAY_CARD_TEST_TAG) and hasText(dday.detail.title))
+            .assertIsDisplayed()
+            .assert(hasText(DDAY_TOMORROW_COUNT_TEXT))
+    }
+
+    @Test
     fun `TC-d71fce30-8fd0-422f-9428-2e1c6beeccb9 질의를 입력했는데 결과가 없으면 결과 없음을 알린다`() {
         setMemoList(query = QUERY)
 
@@ -197,6 +236,13 @@ class SearchHomeResultListTest {
     }
 
     @Test
+    fun `TC-1aae2f41-1e12-4453-9380-c359e10156b0 질의가 비어 있으면 디데이 결과에도 결과 없음을 알리지 않는다`() {
+        setEmptyResultList(type = SearchHomeType.DDAY, query = "")
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-82173665-c0c7-4ac5-94d4-2e16efa29fa5 결과를 준비하는 동안에는 결과 없음을 알리지 않는다`() {
         val memoPagingDataFlow = loadingPagingDataFlowOf<Memo>()
 
@@ -237,6 +283,28 @@ class SearchHomeResultListTest {
         idList shouldBe listOf(memo.id)
     }
 
+    @Test
+    fun `TC-af25c0b5-1b0a-4c9a-815c-f9ab7983a4cd 디데이 결과를 선택하면 그 디데이의 식별자를 전달한다`() {
+        val dday = resultDDay()
+        val ddayPagingDataFlow = pagingDataFlowOf(listOf(dday))
+        val eventList = mutableListOf<SearchHomeResultItemEvent>()
+
+        composeRule.setContent {
+            DiaryTheme {
+                SearchHomeDDayList(
+                    onEvent = {},
+                    onItemEvent = eventList::add,
+                    modifier = Modifier.fillMaxSize(),
+                    ddayPagingItems = ddayPagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+        composeRule.onNodeWithText(dday.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(SearchHomeResultItemEvent.Click(id = dday.id))
+    }
+
     private fun setMemoList(
         memoList: List<Memo> = emptyList(),
         query: String = "",
@@ -259,7 +327,7 @@ class SearchHomeResultListTest {
         }
     }
 
-    // 태그·장소·웹 결과 목록을 빈 조회 결과와 테스트 데이터의 질의로 구성한다.
+    // 태그·장소·웹·디데이 결과 목록을 빈 조회 결과와 테스트 데이터의 질의로 구성한다.
     private fun setEmptyResultList(
         type: SearchHomeType,
         query: String,
@@ -267,6 +335,7 @@ class SearchHomeResultListTest {
         val tagPagingDataFlow = pagingDataFlowOf(emptyList<Tag>())
         val placePagingDataFlow = pagingDataFlowOf(emptyList<Place>())
         val webPagingDataFlow = pagingDataFlowOf(emptyList<Web>())
+        val ddayPagingDataFlow = pagingDataFlowOf(emptyList<DDay>())
 
         composeRule.setContent {
             DiaryTheme {
@@ -286,6 +355,14 @@ class SearchHomeResultListTest {
                         placePagingItems = placePagingDataFlow.collectAsLazyPagingItems(),
                         query = query,
                     )
+                } else if (type == SearchHomeType.DDAY) {
+                    SearchHomeDDayList(
+                        onEvent = {},
+                        onItemEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        ddayPagingItems = ddayPagingDataFlow.collectAsLazyPagingItems(),
+                        query = query,
+                    )
                 } else {
                     SearchHomeWebList(
                         onEvent = {},
@@ -303,5 +380,6 @@ class SearchHomeResultListTest {
         private const val QUERY = "여행"
         private const val EMPTY_TITLE = "No search results"
         private const val EMPTY_DESCRIPTION = "Try a different search query."
+        private const val DDAY_TOMORROW_COUNT_TEXT = "D-1"
     }
 }

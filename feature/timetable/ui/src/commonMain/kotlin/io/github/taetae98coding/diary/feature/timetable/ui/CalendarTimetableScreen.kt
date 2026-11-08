@@ -12,18 +12,21 @@ import kotlin.uuid.Uuid
 internal fun CalendarTimetableScreen(
     navigateUp: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToDDayDetail: (Uuid) -> Unit,
     navigateToMemoAdd: (MemoDateTime) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     state: CalendarTimetableScaffoldState,
     memoViewModel: CalendarTimetableViewModel,
     holidayViewModel: CalendarTimetableHolidayViewModel,
     weatherViewModel: CalendarTimetableWeatherViewModel,
+    ddayViewModel: CalendarTimetableDDayViewModel,
     birthdayViewModel: CalendarTimetableBirthdayViewModel,
     modifier: Modifier = Modifier,
 ) {
     val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
     val holidayUiState by holidayViewModel.uiState.collectAsStateWithLifecycle()
     val weatherUiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val ddayUiState by ddayViewModel.uiState.collectAsStateWithLifecycle()
     val birthdayUiState by birthdayViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateNowEffect(state = state)
@@ -36,6 +39,10 @@ internal fun CalendarTimetableScreen(
         holidayViewModel = holidayViewModel,
     )
     FetchWeatherEffect(weatherViewModel = weatherViewModel)
+    FetchDDayEffect(
+        state = state,
+        ddayViewModel = ddayViewModel,
+    )
     FetchBirthdayEffect(
         state = state,
         birthdayViewModel = birthdayViewModel,
@@ -45,6 +52,7 @@ internal fun CalendarTimetableScreen(
             when (event) {
                 is CalendarTimetableScaffoldEvent.ClickNavigateUp -> navigateUp()
                 is CalendarTimetableScaffoldEvent.ClickMemo -> navigateToMemoDetail(event.id)
+                is CalendarTimetableScaffoldEvent.ClickDDay -> navigateToDDayDetail(event.id)
                 is CalendarTimetableScaffoldEvent.ClickContactBirthday -> navigateToContactDetail(event.contactId)
             }
         },
@@ -57,6 +65,7 @@ internal fun CalendarTimetableScreen(
         modifier = modifier,
         state = state,
         memoUiStateProvider = { memoUiState },
+        ddayUiStateProvider = { ddayUiState },
         holidayUiStateProvider = { holidayUiState },
         weatherUiStateProvider = { weatherUiState },
         birthdayUiStateProvider = { birthdayUiState },

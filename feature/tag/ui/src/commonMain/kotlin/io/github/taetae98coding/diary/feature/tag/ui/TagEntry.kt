@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
@@ -198,6 +199,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             navigateToMusicDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
             navigateToQrAdd = { backStack.navigateToQrAddFromTagDetail(tagId = navKey.id) },
             navigateToQrDetail = { id -> backStack.add(QrDetailNavKey(id = id)) },
+            navigateToDDayAdd = { backStack.navigateToDDayAddFromTagDetail(tagId = navKey.id) },
+            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
             id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
@@ -29,6 +30,10 @@ internal fun NavBackStack<ScreenNavKey>.navigateToMusicAddFromTagDetail(tagId: U
 
 internal fun NavBackStack<ScreenNavKey>.navigateToQrAddFromTagDetail(tagId: Uuid) {
     add(QrAddNavKey(initialTagId = tagId))
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToDDayAddFromTagDetail(tagId: Uuid) {
+    add(DDayAddNavKey(initialTagId = tagId))
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToPlaceAddFromTagDetail(

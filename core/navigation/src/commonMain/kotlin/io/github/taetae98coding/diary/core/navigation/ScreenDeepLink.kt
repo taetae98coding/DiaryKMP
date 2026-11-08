@@ -20,6 +20,7 @@ public object ScreenDeepLink {
     public const val CHECKLIST_DETAIL: String = "diary://checklist-detail?id={id}"
     public const val QR_DETAIL: String = "diary://qr-detail?id={id}"
     public const val MUSIC_DETAIL: String = "diary://music-detail?id={id}"
+    public const val DDAY_DETAIL: String = "diary://dday-detail?id={id}"
 
     // 알림의 추가 정보에 주소를 담는 키다. iOS는 알림의 userInfo로, Android는 FCM SDK가 표시한 알림을 선택했을 때 진입 화면이 받는 값으로 전달된다.
     // 서버가 같은 키로 보내므로 supabase/functions/_shared/daily-memo-notification.ts의 키와 같아야 한다.

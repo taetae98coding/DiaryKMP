@@ -32,6 +32,8 @@ import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
@@ -179,6 +181,11 @@ class CalendarHomeFilterOpenBoundaryTest {
             factory<CalendarHomeBirthdayViewModel> {
                 mockk<CalendarHomeBirthdayViewModel>(relaxed = true) {
                     every { uiState } returns MutableStateFlow(CalendarHomeBirthdayUiState())
+                }
+            }
+            factory<CalendarHomeDDayViewModel> {
+                mockk<CalendarHomeDDayViewModel>(relaxed = true) {
+                    every { uiState } returns MutableStateFlow(CalendarHomeDDayUiState())
                 }
             }
             factory<CalendarHomeWeatherViewModel> {

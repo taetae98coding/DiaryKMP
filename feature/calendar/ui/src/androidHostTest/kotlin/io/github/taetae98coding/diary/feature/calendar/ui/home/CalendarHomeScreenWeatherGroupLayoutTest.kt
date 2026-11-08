@@ -6,10 +6,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.APPOINTMENT_TITLE
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.BIRTHDAY_TEXT
+import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.DDAY_TEXT
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.HOLIDAY_NAME
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.SUNDAY_TEMPERATURE_TEXT
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.TRIP_TITLE
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.birthday
+import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.dday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.holiday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.july
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.memo
@@ -66,6 +68,16 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
         )
 
         (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = BIRTHDAY_TEXT)) shouldBe true
+    }
+
+    @Test
+    fun `TC-99b7b166-3e09-42a1-8f0d-63cdf07f7fdc 날씨 날짜와 겹치지 않는 디데이도 날씨보다 아래 줄에 놓인다`() {
+        composeRule.setCalendarHomeWeatherGroupScreen(
+            weatherList = listOf(sundayWeather(), mondayWeather()),
+            ddayList = listOf(dday(date = july(day = 16))),
+        )
+
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = DDAY_TEXT)) shouldBe true
     }
 
     @Test

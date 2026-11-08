@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
@@ -184,6 +185,32 @@ class SearchHomeSwipeTest {
     }
 
     @Test
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 디데이 결과 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내를 표시한다`() {
+        val dday = resultDDay()
+        composeRule.setSearchHomeScreen(ddayList = listOf(dday))
+        composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
+
+        swipeCard(testTag = DDAY_CARD_TEST_TAG, title = dday.detail.title, isRight = false)
+
+        verify(exactly = 1) { ddayViewModel().delete(id = dday.id) }
+        composeRule.onNodeWithText(DEFAULT_DDAY_DELETED).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-52108144-1cad-4c1b-85da-0bca00128799 한국어 환경에서 디데이 삭제 안내를 표시한다`() {
+        val dday = resultDDay()
+        composeRule.setSearchHomeScreen(ddayList = listOf(dday))
+        composeRule.selectSearchHomeTab(KOREAN_DDAY_TAB_LABEL)
+
+        swipeCard(testTag = DDAY_CARD_TEST_TAG, title = dday.detail.title, isRight = false)
+
+        composeRule.onNodeWithText(KOREAN_DDAY_DELETED).assertIsDisplayed()
+        composeRule.onNodeWithText(KOREAN_UNDO).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 메모 완료를 실행 취소하면 그 완료를 되돌리는 요청을 보낸다`() {
         val memo = resultMemo()
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
@@ -267,6 +294,31 @@ class SearchHomeSwipeTest {
         swipeCard(testTag = WEB_CARD_TEST_TAG, title = web.detail.title, isRight = false)
         clickUndo()
         verify(exactly = 1) { webViewModel().restore(id = web.id) }
+    }
+
+    @Test
+    fun `TC-27470dd3-8e88-4047-bf84-f787c9bfd442 디데이 삭제를 실행 취소하면 그 삭제를 되돌리는 요청을 보낸다`() {
+        val dday = resultDDay()
+        composeRule.setSearchHomeScreen(ddayList = listOf(dday))
+        composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
+
+        swipeCard(testTag = DDAY_CARD_TEST_TAG, title = dday.detail.title, isRight = false)
+        clickUndo()
+
+        verify(exactly = 1) { ddayViewModel().restore(id = dday.id) }
+    }
+
+    @Test
+    fun `TC-fb17bb9c-c8c9-4b06-a0fa-b02b18f54f7f 디데이 카드를 시작 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+        val dday = resultDDay()
+        composeRule.setSearchHomeScreen(ddayList = listOf(dday))
+        composeRule.selectSearchHomeTab(DDAY_TAB_LABEL)
+
+        swipeCard(testTag = DDAY_CARD_TEST_TAG, title = dday.detail.title, isRight = true)
+
+        verify(exactly = 0) { ddayViewModel().delete(id = any()) }
+        composeRule.onNodeWithText(dday.detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_UNDO).assertDoesNotExist()
     }
 
     @Test
@@ -579,6 +631,8 @@ class SearchHomeSwipeTest {
 
     private fun webViewModel() = requireNotNull(searchWebViewModelRef)
 
+    private fun ddayViewModel() = requireNotNull(searchDDayViewModelRef)
+
     private companion object {
         const val QUERY = "여행"
         const val DEFAULT_UNDO = "Undo"
@@ -599,6 +653,9 @@ class SearchHomeSwipeTest {
         const val KOREAN_PLACE_DELETED = "장소가 삭제되었습니다."
         const val DEFAULT_WEB_DELETED = "Web deleted."
         const val KOREAN_WEB_DELETED = "웹이 삭제되었습니다."
+        const val DEFAULT_DDAY_DELETED = "D-Day deleted."
+        const val KOREAN_DDAY_DELETED = "디데이가 삭제되었습니다."
+        const val KOREAN_DDAY_TAB_LABEL = "디데이"
         const val KOREAN_TAG_TAB_LABEL = "태그"
         const val KOREAN_PLACE_TAB_LABEL = "장소"
         const val KOREAN_WEB_TAB_LABEL = "웹"

@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnRe
 import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.CalendarHomeFilterContent
 import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarHomeScaffoldState
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
@@ -45,6 +46,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
         )
         CalendarHomeScreen(
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
             navigateToMemoAdd = { dateRange ->
                 backStack.add(
                     MemoAddNavKey(
@@ -63,6 +65,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
             permissionManager = rememberPermissionManager(),
             holidayViewModel = koinViewModel(),
             memoViewModel = koinViewModel(),
+            ddayViewModel = koinViewModel(),
             birthdayViewModel = koinViewModel(),
             weatherViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),

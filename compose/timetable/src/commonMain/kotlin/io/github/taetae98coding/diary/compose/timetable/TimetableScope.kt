@@ -16,6 +16,7 @@ public interface TimetableScope {
     public fun allDayItem(
         dateRange: LocalDateRange,
         key: Any,
+        isLongPressSelectEnabled: Boolean = true,
         content: @Composable () -> Unit,
     )
 
@@ -35,6 +36,7 @@ internal data class TimetableTimeItem(
 internal data class TimetableAllDayItem(
     val dateRange: LocalDateRange,
     val key: Any,
+    val isLongPressSelectEnabled: Boolean = true,
     val content: @Composable () -> Unit,
 )
 
@@ -55,9 +57,10 @@ internal class TimetableScopeImpl : TimetableScope {
     override fun allDayItem(
         dateRange: LocalDateRange,
         key: Any,
+        isLongPressSelectEnabled: Boolean,
         content: @Composable () -> Unit,
     ) {
-        allDayItemList += TimetableAllDayItem(dateRange = dateRange, key = key, content = content)
+        allDayItemList += TimetableAllDayItem(dateRange = dateRange, key = key, isLongPressSelectEnabled = isLongPressSelectEnabled, content = content)
     }
 
     override fun dateInfo(

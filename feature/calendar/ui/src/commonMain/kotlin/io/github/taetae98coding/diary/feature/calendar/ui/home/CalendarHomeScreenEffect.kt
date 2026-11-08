@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.core.permission.PermissionResult
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
@@ -103,6 +104,19 @@ internal fun SelectMemoEffect(
         snapshotFlow { state.calendarState.currentYearMonth }
             .collect { yearMonth ->
                 memoViewModel.select(yearMonth = yearMonth)
+            }
+    }
+}
+
+@Composable
+internal fun FetchDDayEffect(
+    ddayViewModel: CalendarHomeDDayViewModel,
+    state: CalendarHomeScaffoldState,
+) {
+    LaunchedEffect(state, ddayViewModel) {
+        snapshotFlow { state.calendarState.currentYearMonth }
+            .collect { yearMonth ->
+                ddayViewModel.fetch(yearMonth = yearMonth)
             }
     }
 }

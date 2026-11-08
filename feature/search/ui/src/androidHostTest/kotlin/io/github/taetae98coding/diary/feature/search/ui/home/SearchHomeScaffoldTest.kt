@@ -110,6 +110,17 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 디데이 유형으로 바꾸면 디데이 유형을 본다`() {
+        setSearchHomeScaffold()
+
+        composeRule.onNodeWithText(DEFAULT_DDAY_TAB_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DDAY_TAB_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_MEMO_TAB_LABEL).assertIsNotSelected()
+    }
+
+    @Test
     fun `TC-10cbe4a5-b4e2-4025-aff1-050b0ed7dbcb 유형을 바꿔도 질의가 유지된다`() {
         setSearchHomeScaffold()
 
@@ -211,5 +222,6 @@ class SearchHomeScaffoldTest {
         private const val DEFAULT_TAG_TAB_LABEL = "Tag"
         private const val DEFAULT_PLACE_TAB_LABEL = "Place"
         private const val DEFAULT_WEB_TAB_LABEL = "Web"
+        private const val DEFAULT_DDAY_TAB_LABEL = "D-Day"
     }
 }

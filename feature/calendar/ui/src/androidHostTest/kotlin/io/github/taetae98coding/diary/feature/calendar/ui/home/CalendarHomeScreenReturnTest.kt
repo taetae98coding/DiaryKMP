@@ -207,6 +207,8 @@ class CalendarHomeScreenReturnTest {
                             birthdayViewModel = birthdayViewModel,
                             weatherViewModel = weatherViewModel,
                             syncViewModel = syncViewModel,
+                            navigateToDDayDetail = {},
+                            ddayViewModel = ddayViewModel(),
                         )
                     }
                 }

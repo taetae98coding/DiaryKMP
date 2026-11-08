@@ -27,6 +27,21 @@
     <string name="calendar_home_year_month_title">%2$s %1$s</string>
     <string name="calendar_home_birthday_text">🎂 %1$s</string>
     <string name="calendar_home_birthday_content_description">%1$s's birthday</string>
+    <string name="calendar_home_dday_text">🎉 %1$s %2$s</string>
+    <string name="calendar_home_dday_content_description">%1$s %2$s, D-Day</string>
+    <string name="calendar_home_dday_base_day_label">D-Day</string>
+    <plurals name="calendar_home_dday_days_label">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="calendar_home_dday_months_label">
+        <item quantity="one">%1$d month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
+    <plurals name="calendar_home_dday_years_label">
+        <item quantity="one">%1$d year</item>
+        <item quantity="other">%1$d years</item>
+    </plurals>
     <string-array name="calendar_home_month_titles">
         <item>January</item>
         <item>February</item>

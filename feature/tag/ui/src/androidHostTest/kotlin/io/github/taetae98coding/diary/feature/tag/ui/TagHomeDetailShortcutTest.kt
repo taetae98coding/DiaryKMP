@@ -181,6 +181,8 @@ class TagHomeDetailShortcutTest {
                             detailViewModel = detailViewModel,
                             placeMapViewModel = placeMapViewModel,
                             modifier = Modifier.weight(1F).fillMaxHeight(),
+                            navigateToDDayAdd = {},
+                            navigateToDDayDetail = {},
                         )
                     }
                 }

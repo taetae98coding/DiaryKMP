@@ -175,6 +175,8 @@ class CalendarHomeScreenTagSelectTest {
                         weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(weatherReport)),
                         syncViewModel = syncViewModel(),
                         modifier = Modifier.weight(1F),
+                        navigateToDDayDetail = {},
+                        ddayViewModel = ddayViewModel(),
                     )
                 }
             }

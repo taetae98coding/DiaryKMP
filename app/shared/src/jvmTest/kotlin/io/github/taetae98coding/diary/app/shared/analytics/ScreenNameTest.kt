@@ -16,6 +16,9 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayAddNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
@@ -117,6 +120,8 @@ class ScreenNameTest :
                     ContactAddNavKey(initialTagId = id, requestKey = id),
                     ContactDetailNavKey(id = id),
                     ContactMemoFinishedListNavKey(contactId = id),
+                    DDayAddNavKey(initialTagId = id, requestKey = id),
+                    DDayDetailNavKey(id = id),
                     FileDetailNavKey(id = id),
                     MemoDetailNavKey(id = id),
                     MemoAddNavKey(primaryTagId = id, initialContactId = id, initialPlaceId = id, initialWebId = id),
@@ -170,7 +175,10 @@ class ScreenNameTest :
                 ContactDetailNavKey(id = Arb.kotlinUuid().next()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
                 ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()) to "ContactMemoFinishedList",
+                DDayAddNavKey() to "DDayAdd",
+                DDayDetailNavKey(id = Arb.kotlinUuid().next()) to "DDayDetail",
                 DDayHomeNavKey to "DDayHome",
+                DDayHomeFilterNavKey to "DDayHomeFilter",
                 FileAddNavKey to "FileAdd",
                 FileDetailNavKey(id = Arb.kotlinUuid().next()) to "FileDetail",
                 FileHomeNavKey to "FileHome",
@@ -225,10 +233,12 @@ class ScreenNameTest :
                 ContactDetailNavKey(id = Arb.kotlinUuid().next()) to ContactDetailNavKey(id = Arb.kotlinUuid().next()),
                 ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()) to
                     ContactMemoFinishedListNavKey(contactId = Arb.kotlinUuid().next()),
+                DDayDetailNavKey(id = Arb.kotlinUuid().next()) to DDayDetailNavKey(id = Arb.kotlinUuid().next()),
                 FileDetailNavKey(id = Arb.kotlinUuid().next()) to FileDetailNavKey(id = Arb.kotlinUuid().next()),
                 MemoDetailNavKey(id = Arb.kotlinUuid().next()) to MemoDetailNavKey(id = Arb.kotlinUuid().next()),
                 ChecklistAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to ChecklistAddNavKey(),
                 ContactAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to ContactAddNavKey(),
+                DDayAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to DDayAddNavKey(),
                 MusicAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to MusicAddNavKey(),
                 QrAddNavKey(initialTagId = Arb.kotlinUuid().next(), requestKey = Arb.kotlinUuid().next()) to QrAddNavKey(),
                 MemoAddNavKey(primaryTagId = Arb.kotlinUuid().next(), initialContactId = Arb.kotlinUuid().next()) to MemoAddNavKey(),

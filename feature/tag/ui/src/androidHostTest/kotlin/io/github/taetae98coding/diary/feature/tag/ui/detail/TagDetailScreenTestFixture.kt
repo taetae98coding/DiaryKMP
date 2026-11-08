@@ -36,6 +36,7 @@ import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.music.TagDetailMusicTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
@@ -73,6 +74,7 @@ internal const val DEFAULT_CONTACT_TAB_DESCRIPTION = "Contact"
 internal const val DEFAULT_CHECKLIST_TAB_DESCRIPTION = "Checklist"
 internal const val DEFAULT_MUSIC_TAB_DESCRIPTION = "Music"
 internal const val DEFAULT_QR_TAB_DESCRIPTION = "QR code"
+internal const val DEFAULT_DDAY_TAB_DESCRIPTION = "D-Day"
 internal const val KOREAN_CONTACT_TAB_DESCRIPTION = "연락처"
 internal const val KOREAN_CHECKLIST_TAB_DESCRIPTION = "체크리스트"
 internal const val KOREAN_MUSIC_TAB_DESCRIPTION = "곡"
@@ -231,5 +233,7 @@ internal fun TagDetailTestTabContent(
                 modifier = Modifier.fillMaxSize(),
                 qrPagingItems = qrPagingItems,
             )
+
+        TagDetailTab.DDAY -> TagDetailDDayTab(onEvent = {}, modifier = Modifier.fillMaxSize())
     }
 }

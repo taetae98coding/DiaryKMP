@@ -203,6 +203,8 @@ class TagDetailNavigationTest {
                                             screenTestViewModel(uiStateFlowOf(navKey.id))
                                         },
                                     placeMapViewModel = koinViewModel(),
+                                    navigateToDDayAdd = {},
+                                    navigateToDDayDetail = {},
                                 )
                             }
                             entry<TagMemoFinishedListNavKey> { Text(text = FINISHED_LIST_CONTENT) }

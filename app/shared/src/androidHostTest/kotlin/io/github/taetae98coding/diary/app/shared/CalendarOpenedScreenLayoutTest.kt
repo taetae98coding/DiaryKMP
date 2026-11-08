@@ -19,6 +19,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
@@ -71,6 +73,19 @@ class CalendarOpenedScreenLayoutTest {
     }
 
     @Test
+    fun `TC-cd3afc72-2e46-4602-954f-2271b8bafd74 캘린더 홈 화면에서 연 DDayDetail 화면은 단독으로 표시된다`() {
+        assertShownAlone(openedKey = DDayDetailNavKey(id = Arb.kotlinUuid().next()))
+    }
+
+    @Test
+    fun `TC-0bdb1c74-5d0e-4126-a960-01b239929a72 시간표에서 연 DDayDetail 화면은 단독으로 표시된다`() {
+        assertShownAlone(
+            openedKey = DDayDetailNavKey(id = Arb.kotlinUuid().next()),
+            belowKeyList = listOf(CalendarHomeNavKey, SEPTEMBER_24_TIMETABLE),
+        )
+    }
+
+    @Test
     fun `TC-d774bdc4-ce95-4a92-994b-b802410f0435 시간표에서 연 MemoDetail 화면은 단독으로 표시된다`() {
         assertShownAlone(
             openedKey = MemoDetailNavKey(id = Arb.kotlinUuid().next()),
@@ -118,6 +133,7 @@ class CalendarOpenedScreenLayoutTest {
 
         composeRule.onNodeWithText(contentOf(openedKey)).assertIsDisplayed()
         belowKeyList.forEach { belowKey -> composeRule.onNodeWithText(contentOf(belowKey)).assertDoesNotExist() }
+        composeRule.onNodeWithText(contentOf(DDayHomeNavKey)).assertDoesNotExist()
         composeRule.onNodeWithText(MEMO_PLACEHOLDER_TEXT).assertDoesNotExist()
     }
 

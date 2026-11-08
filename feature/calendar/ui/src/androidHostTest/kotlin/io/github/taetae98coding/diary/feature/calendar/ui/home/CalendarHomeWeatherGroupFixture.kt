@@ -5,17 +5,21 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.testing.dday.calendarDDay
 import io.github.taetae98coding.diary.core.testing.weather.calendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.mockk.every
@@ -25,7 +29,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
-import kotlin.uuid.Uuid
 
 internal object CalendarHomeWeatherGroupFixture {
     const val SUNDAY_TEMPERATURE_TEXT = "17.8°/28.2°"
@@ -34,6 +37,8 @@ internal object CalendarHomeWeatherGroupFixture {
     const val HOLIDAY_NAME = "임시공휴일"
     const val BIRTHDAY_NAME = "홍길동"
     const val BIRTHDAY_TEXT = "🎂 홍길동"
+    const val DDAY_TITLE = "수능"
+    const val DDAY_TEXT = "🎉 수능 D-Day"
 
     val JULY_2026: YearMonth = YearMonth(year = 2026, month = Month.JULY)
 
@@ -62,7 +67,7 @@ internal object CalendarHomeWeatherGroupFixture {
         endInclusive: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = Uuid.random(),
+            id = Arb.kotlinUuid().next(),
             title = title,
             color = MEMO_COLOR,
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
@@ -77,11 +82,13 @@ internal object CalendarHomeWeatherGroupFixture {
 
     fun birthday(date: LocalDate): CalendarContactBirthday =
         CalendarContactBirthday(
-            contactId = Uuid.random(),
+            contactId = Arb.kotlinUuid().next(),
             name = BIRTHDAY_NAME,
             nameQualifier = "",
             date = date,
         )
+
+    fun dday(date: LocalDate): CalendarDDay = Arb.calendarDDay().next().copy(title = DDAY_TITLE, date = date, label = CalendarDDayLabel.BaseDay)
 
     fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 
@@ -104,6 +111,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     memoList: List<CalendarMemo> = emptyList(),
     holidayList: List<Holiday> = emptyList(),
     birthdayList: List<CalendarContactBirthday> = emptyList(),
+    ddayList: List<CalendarDDay> = emptyList(),
 ) {
     val holidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
@@ -137,6 +145,8 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
                 weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = weatherList))),
                 syncViewModel = syncViewModel(),
                 permissionManager = rememberPermissionManager(),
+                navigateToDDayDetail = {},
+                ddayViewModel = ddayViewModel(ddayListFlow = MutableStateFlow(ddayList)),
             )
         }
     }

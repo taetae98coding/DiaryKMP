@@ -208,6 +208,8 @@ class CalendarHomeScreenWeatherSearchTest {
                         weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow),
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),
+                        navigateToDDayDetail = {},
+                        ddayViewModel = ddayViewModel(),
                     )
                 }
             }

@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.dday.api.DDayDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.timetable.api.CalendarTimetableNavKey
@@ -19,12 +20,14 @@ private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: N
         CalendarTimetableScreen(
             navigateUp = { backStack.removeLastOrNull() },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToDDayDetail = { id -> backStack.add(DDayDetailNavKey(id = id)) },
             navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
             navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
             memoViewModel = koinViewModel(),
             holidayViewModel = koinViewModel(),
             weatherViewModel = koinViewModel(),
+            ddayViewModel = koinViewModel(),
             birthdayViewModel = koinViewModel(),
         )
     }

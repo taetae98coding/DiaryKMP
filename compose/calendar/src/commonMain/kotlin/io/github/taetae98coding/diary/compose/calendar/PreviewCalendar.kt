@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.compose.calendar
 
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDayLabel
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.model.weather.Weather
@@ -35,4 +37,16 @@ internal fun previewCalendarContactBirthday(
         name = name,
         nameQualifier = nameQualifier,
         date = LocalDate(year = 2026, month = 7, day = 22),
+    )
+
+internal fun previewCalendarDDay(
+    title: String = "수능",
+    label: CalendarDDayLabel = CalendarDDayLabel.BaseDay,
+): CalendarDDay =
+    CalendarDDay(
+        ddayId = Uuid.random(),
+        title = title,
+        color = 0xFFE57373,
+        date = LocalDate(year = 2026, month = 7, day = 15),
+        label = label,
     )

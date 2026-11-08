@@ -16,6 +16,9 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
+import io.github.taetae98coding.diary.compose.dday.DDayListState
+import io.github.taetae98coding.diary.compose.dday.UpdateDDayListTodayEffect
+import io.github.taetae98coding.diary.compose.dday.rememberDDayListState
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -23,6 +26,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailC
 import io.github.taetae98coding.diary.feature.tag.ui.detail.checklist.TagDetailChecklistFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.contact.TagDetailContactFloatingActionButton
+import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayContent
+import io.github.taetae98coding.diary.feature.tag.ui.detail.dday.TagDetailDDayFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoContent
@@ -67,6 +72,8 @@ internal fun TagDetailScreen(
     navigateToMusicDetail: (Uuid) -> Unit,
     navigateToQrAdd: () -> Unit,
     navigateToQrDetail: (Uuid) -> Unit,
+    navigateToDDayAdd: () -> Unit,
+    navigateToDDayDetail: (Uuid) -> Unit,
     id: Uuid,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
@@ -99,6 +106,8 @@ internal fun TagDetailScreen(
                     navigateToMusicDetail = navigateToMusicDetail,
                     navigateToQrAdd = navigateToQrAdd,
                     navigateToQrDetail = navigateToQrDetail,
+                    navigateToDDayAdd = navigateToDDayAdd,
+                    navigateToDDayDetail = navigateToDDayDetail,
                 ),
             id = id,
             tagAddRequestKey = tagAddRequestKey,
@@ -126,6 +135,7 @@ private fun TagDetailScreenContent(
 ) {
     val tabState = rememberTagDetailTabState()
     val scopeState = rememberTagDetailScopeState()
+    val ddayListState = rememberDDayListState()
     val viewModelStoreProvider = rememberViewModelStoreProvider()
     val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
     val content = uiState as? TagDetailUiState.Content
@@ -136,6 +146,7 @@ private fun TagDetailScreenContent(
 
     TagDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigation.navigateUp)
     DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
+    UpdateDDayListTodayEffect(state = ddayListState)
 
     TagDetailScaffold(
         onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = detailViewModel, scopeState = scopeState, navigateUp = navigation.navigateUp) },
@@ -149,6 +160,7 @@ private fun TagDetailScreenContent(
                 onChecklistAdd = navigation.navigateToChecklistAdd,
                 onMusicAdd = navigation.navigateToMusicAdd,
                 onQrAdd = navigation.navigateToQrAdd,
+                onDDayAdd = navigation.navigateToDDayAdd,
                 state = tabState,
                 isUpdateEnabledProvider = { isUpdateEnabled },
             ),
@@ -178,6 +190,7 @@ private fun TagDetailScreenContent(
             placeMapViewModel = placeMapViewModel,
             placeMapState = placeMapState,
             scopeState = scopeState,
+            ddayListState = ddayListState,
             uiStateProvider = { uiState },
             state = scaffoldState,
         )
@@ -228,6 +241,7 @@ private fun TabFloatingActionButton(
                 TagDetailTab.CHECKLIST -> TagDetailChecklistFloatingActionButton(onClick = navigation.navigateToChecklistAdd)
                 TagDetailTab.MUSIC -> TagDetailMusicFloatingActionButton(onClick = navigation.navigateToMusicAdd)
                 TagDetailTab.QR -> TagDetailQrFloatingActionButton(onClick = navigation.navigateToQrAdd)
+                TagDetailTab.DDAY -> TagDetailDDayFloatingActionButton(onClick = navigation.navigateToDDayAdd)
             }
         }
     }
@@ -244,6 +258,7 @@ private fun TabContent(
     placeMapViewModel: TagDetailPlaceMapViewModel,
     placeMapState: DiaryMapState,
     scopeState: TagDetailScopeState,
+    ddayListState: DDayListState,
     uiStateProvider: () -> TagDetailUiState,
     state: TagFormState,
 ) {
@@ -301,5 +316,16 @@ private fun TabContent(
         TagDetailTab.MUSIC -> TagDetailMusicContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToMusicDetail = navigation.navigateToMusicDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
 
         TagDetailTab.QR -> TagDetailQrContent(id = id, viewModelStoreProvider = viewModelStoreProvider, navigateToQrDetail = navigation.navigateToQrDetail, scopeState = scopeState, modifier = Modifier.fillMaxSize(), snackbarHostState = state.snackbarHostState)
+
+        TagDetailTab.DDAY ->
+            TagDetailDDayContent(
+                id = id,
+                viewModelStoreProvider = viewModelStoreProvider,
+                navigateToDDayDetail = navigation.navigateToDDayDetail,
+                scopeState = scopeState,
+                listState = ddayListState,
+                modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.snackbarHostState,
+            )
     }
 }

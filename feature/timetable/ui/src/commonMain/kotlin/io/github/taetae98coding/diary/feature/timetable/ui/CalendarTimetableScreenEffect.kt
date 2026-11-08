@@ -48,6 +48,17 @@ internal fun FetchHolidayEffect(
 }
 
 @Composable
+internal fun FetchDDayEffect(
+    state: CalendarTimetableScaffoldState,
+    ddayViewModel: CalendarTimetableDDayViewModel,
+) {
+    LaunchedEffect(state, ddayViewModel) {
+        snapshotFlow { state.timetableState.currentDateRange }
+            .collect { dateRange -> ddayViewModel.fetch(dateRange = dateRange) }
+    }
+}
+
+@Composable
 internal fun FetchBirthdayEffect(
     state: CalendarTimetableScaffoldState,
     birthdayViewModel: CalendarTimetableBirthdayViewModel,

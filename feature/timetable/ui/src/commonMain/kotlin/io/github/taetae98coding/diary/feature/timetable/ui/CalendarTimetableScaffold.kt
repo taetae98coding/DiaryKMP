@@ -36,6 +36,7 @@ internal fun CalendarTimetableScaffold(
     modifier: Modifier = Modifier,
     state: CalendarTimetableScaffoldState = rememberCalendarTimetableScaffoldState(),
     memoUiStateProvider: () -> CalendarTimetableMemoUiState = { CalendarTimetableMemoUiState() },
+    ddayUiStateProvider: () -> CalendarTimetableDDayUiState = { CalendarTimetableDDayUiState() },
     holidayUiStateProvider: () -> CalendarTimetableHolidayUiState = { CalendarTimetableHolidayUiState() },
     weatherUiStateProvider: () -> CalendarTimetableWeatherUiState = { CalendarTimetableWeatherUiState() },
     birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
@@ -78,6 +79,7 @@ internal fun CalendarTimetableScaffold(
             state = state,
             searchOpener = searchOpener,
             memoUiStateProvider = memoUiStateProvider,
+            ddayUiStateProvider = ddayUiStateProvider,
             holidayUiStateProvider = holidayUiStateProvider,
             weatherUiStateProvider = weatherUiStateProvider,
             birthdayUiStateProvider = birthdayUiStateProvider,
@@ -93,6 +95,7 @@ private fun CalendarTimetableContent(
     modifier: Modifier = Modifier,
     state: CalendarTimetableScaffoldState = rememberCalendarTimetableScaffoldState(),
     memoUiStateProvider: () -> CalendarTimetableMemoUiState = { CalendarTimetableMemoUiState() },
+    ddayUiStateProvider: () -> CalendarTimetableDDayUiState = { CalendarTimetableDDayUiState() },
     holidayUiStateProvider: () -> CalendarTimetableHolidayUiState = { CalendarTimetableHolidayUiState() },
     weatherUiStateProvider: () -> CalendarTimetableWeatherUiState = { CalendarTimetableWeatherUiState() },
     birthdayUiStateProvider: () -> CalendarTimetableBirthdayUiState = { CalendarTimetableBirthdayUiState() },
@@ -117,6 +120,7 @@ private fun CalendarTimetableContent(
     ) {
         calendarTimetableItems(
             memoProvider = { memoUiStateProvider().memoList },
+            ddayProvider = { ddayUiStateProvider().ddayList },
             birthdayProvider = { birthdayUiStateProvider().birthdayList },
             holidayProvider = { holidayUiStateProvider().holidayList },
             birthdayColor = birthdayColor,
@@ -146,6 +150,7 @@ private fun CalendarTimetableScaffoldPreview(
     @PreviewParameter(CalendarTimetableTypePreviewParameter::class) type: CalendarTimetableNavKey.Type,
 ) {
     val memoUiState = remember { CalendarTimetableMemoUiState(memoList = listOf(previewCalendarMemo(), previewCalendarTimedMemo())) }
+    val ddayUiState = remember { CalendarTimetableDDayUiState(ddayList = listOf(previewCalendarDDay())) }
     val holidayUiState = remember { CalendarTimetableHolidayUiState(holidayList = listOf(previewHoliday())) }
     val weatherUiState = remember { CalendarTimetableWeatherUiState(weatherReport = CalendarWeatherReport(weatherList = listOf(previewCalendarWeather()))) }
 
@@ -155,6 +160,7 @@ private fun CalendarTimetableScaffoldPreview(
             onTimetableEvent = {},
             state = rememberCalendarTimetableScaffoldState(type = type, initialDate = LocalDate(year = 2026, month = 7, day = 19)),
             memoUiStateProvider = { memoUiState },
+            ddayUiStateProvider = { ddayUiState },
             holidayUiStateProvider = { holidayUiState },
             weatherUiStateProvider = { weatherUiState },
         )

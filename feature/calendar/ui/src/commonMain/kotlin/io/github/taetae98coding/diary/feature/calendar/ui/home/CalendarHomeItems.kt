@@ -4,10 +4,12 @@ import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.dday.CalendarDDay
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.birthdayItem
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.ddayItem
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.holidayItem
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.memoItem
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.weatherItem
@@ -20,6 +22,7 @@ internal fun CalendarWeekOfMonthGridScope.calendarHomeItems(
     holidayNameColor: Color,
     nonHolidayNameColor: Color,
     memoProvider: () -> List<CalendarMemo>,
+    ddayProvider: () -> List<CalendarDDay>,
     birthdayProvider: () -> List<CalendarContactBirthday>,
     birthdayColor: Color,
     onWeatherClick: () -> Unit,
@@ -36,6 +39,11 @@ internal fun CalendarWeekOfMonthGridScope.calendarHomeItems(
         memoItem(
             moveState = moveState,
             memoProvider = memoProvider,
+            onEvent = onEvent,
+        )
+        ddayItem(
+            moveState = moveState,
+            ddayProvider = ddayProvider,
             onEvent = onEvent,
         )
         birthdayItem(

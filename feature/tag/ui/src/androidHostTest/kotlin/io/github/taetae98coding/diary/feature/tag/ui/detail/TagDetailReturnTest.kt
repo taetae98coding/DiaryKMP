@@ -21,6 +21,8 @@ import io.github.taetae98coding.diary.compose.checklist.CHECKLIST_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.checklist.ChecklistListEffect
 import io.github.taetae98coding.diary.compose.contact.CONTACT_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.contact.ContactListEffect
+import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.dday.DDayListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.music.MUSIC_CARD_TEST_TAG
@@ -36,6 +38,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagChecklist
 import io.github.taetae98coding.diary.feature.tag.ui.tagContact
+import io.github.taetae98coding.diary.feature.tag.ui.tagDDay
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
@@ -71,6 +74,7 @@ class TagDetailReturnTest {
     private val checklist = tagChecklist(title = CHECKLIST_TITLE)
     private val music = tagMusic(title = MUSIC_TITLE)
     private val qr = tagQr(title = QR_TITLE)
+    private val dday = tagDDay(title = DDAY_TITLE)
 
     @Before
     fun resetUiDispatcher() {
@@ -465,6 +469,59 @@ class TagDetailReturnTest {
         verify(exactly = 0) { requireNotNull(qrViewModelRef).restore(id = any()) }
     }
 
+    @Test
+    fun `TC-ebb8b7df-cfa8-4d4b-a4bf-50b386655656 디데이 추가에서 뒤로가면 디데이 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_DDAY_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(DDAY_ADD)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.refreshableList().assertExists()
+    }
+
+    // 디데이 상세는 삭제에 성공하면 뒤로가기와 같은 닫기를 부르므로, TagDetail에서 본 두 경우의 결과는 위에 놓인 상세가 닫히는 것으로 같다.
+    @Test
+    fun `TC-ebb8b7df-cfa8-4d4b-a4bf-50b386655656 디데이 상세가 닫히면 디데이 탭이 선택된 TagDetail로 돌아온다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_DDAY_TAB_DESCRIPTION)
+        waitForText(DDAY_TITLE)
+
+        composeRule.onNodeWithText(DDAY_TITLE).performClick()
+        composeRule.waitForIdle()
+        assertLeftTo(DDAY_DETAIL)
+
+        returnToTagDetail()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
+        waitForText(DDAY_TITLE)
+        composeRule.onNodeWithText(DDAY_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-1464fa8f-b917-4750-84ea-601467c15dad 디데이 탭의 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+        setReturnableTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_DDAY_TAB_DESCRIPTION)
+        waitForText(DDAY_TITLE)
+
+        composeRule.onNode(hasTestTag(DDAY_CARD_TEST_TAG) and hasText(DDAY_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        ddayPagingDataFlow.value = tagEntityPagingData(itemList = emptyList())
+        ddayEffectFlow.tryEmit(DDayListEffect.Deleted(id = dday.id))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_DDAY_DELETED_MESSAGE).assertIsDisplayed()
+
+        leaveAndReturn()
+
+        composeRule.onNodeWithText(DEFAULT_DDAY_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { requireNotNull(ddayViewModelRef).restore(id = any()) }
+    }
+
     private fun waitForText(text: String) {
         composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
@@ -504,6 +561,7 @@ class TagDetailReturnTest {
             checklistPagingData = tagEntityPagingData(itemList = listOf(checklist)),
             musicPagingData = tagEntityPagingData(itemList = listOf(music)),
             qrPagingData = tagEntityPagingData(itemList = listOf(qr)),
+            ddayPagingData = tagEntityPagingData(itemList = listOf(dday)),
         )
 
         composeRule.setContent {
@@ -536,6 +594,8 @@ class TagDetailReturnTest {
                             navigateToMusicDetail = { leaveTo(MUSIC_DETAIL) },
                             navigateToQrAdd = { leaveTo(QR_ADD) },
                             navigateToQrDetail = { leaveTo(QR_DETAIL) },
+                            navigateToDDayAdd = { leaveTo(DDAY_ADD) },
+                            navigateToDDayDetail = { leaveTo(DDAY_DETAIL) },
                         )
                     }
                 } else {
@@ -587,6 +647,11 @@ class TagDetailReturnTest {
         const val QR_TITLE = "TagDetailReturnQr"
         const val DEFAULT_QR_ADD_DESCRIPTION = "Add QR code"
         const val DEFAULT_QR_DELETED_MESSAGE = "QR code deleted."
+        const val DDAY_ADD = "DDayAdd"
+        const val DDAY_DETAIL = "DDayDetail"
+        const val DDAY_TITLE = "TagDetailReturnDDay"
+        const val DEFAULT_DDAY_ADD_DESCRIPTION = "Add D-Day"
+        const val DEFAULT_DDAY_DELETED_MESSAGE = "D-Day deleted."
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
     }
 }

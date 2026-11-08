@@ -8,4 +8,5 @@ internal val searchHomeTypeList: List<SearchHomeType> =
         SearchHomeType.TAG,
         SearchHomeType.PLACE,
         SearchHomeType.WEB,
+        SearchHomeType.DDAY,
     )

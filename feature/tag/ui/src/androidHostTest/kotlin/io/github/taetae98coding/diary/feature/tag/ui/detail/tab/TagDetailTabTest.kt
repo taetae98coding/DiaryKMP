@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CHECKLIST_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_CONTACT_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DDAY_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_FINISH_BUTTON_DESCRIPTION
@@ -128,7 +129,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-b0b32237-2208-49a9-8108-e6028692e8e5 여덟 탭이 정해진 순서로 놓인다`() {
+    fun `TC-b94bf54c-a0e5-4874-af6c-3d6508e99b5e 아홉 탭이 정해진 순서로 놓인다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
 
         val leftList =
@@ -139,7 +140,7 @@ class TagDetailTabTest {
                     .positionInRoot.x
             }
 
-        leftList.size shouldBe 8
+        leftList.size shouldBe 9
         leftList.zipWithNext().forEach { (left, right) -> (left < right) shouldBe true }
     }
 
@@ -154,10 +155,10 @@ class TagDetailTabTest {
 
         repeat(ALL_TAB_DESCRIPTION_LIST.size - 1) { swipePager { swipeLeft() } }
 
-        composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).assertIsSelected()
-        val qrTab = composeRule.onNodeWithContentDescription(DEFAULT_QR_TAB_DESCRIPTION).fetchSemanticsNode()
-        (qrTab.positionInRoot.x >= 0F) shouldBe true
-        (qrTab.positionInRoot.x + qrTab.size.width <= rootWidth) shouldBe true
+        composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).assertIsSelected()
+        val lastTab = composeRule.onNodeWithContentDescription(DEFAULT_DDAY_TAB_DESCRIPTION).fetchSemanticsNode()
+        (lastTab.positionInRoot.x >= 0F) shouldBe true
+        (lastTab.positionInRoot.x + lastTab.size.width <= rootWidth) shouldBe true
     }
 
     @Test
@@ -544,6 +545,7 @@ class TagDetailTabTest {
                 DEFAULT_CHECKLIST_TAB_DESCRIPTION,
                 DEFAULT_MUSIC_TAB_DESCRIPTION,
                 DEFAULT_QR_TAB_DESCRIPTION,
+                DEFAULT_DDAY_TAB_DESCRIPTION,
             )
     }
 }
@@ -720,6 +722,8 @@ class TagDetailTabScreenTest {
                     navigateToMusicDetail = {},
                     navigateToQrAdd = {},
                     navigateToQrDetail = {},
+                    navigateToDDayAdd = {},
+                    navigateToDDayDetail = {},
                 )
             }
         }

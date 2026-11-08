@@ -27,6 +27,18 @@
     <string name="calendar_home_year_month_title">%1$s년 %2$s</string>
     <string name="calendar_home_birthday_text">🎂 %1$s</string>
     <string name="calendar_home_birthday_content_description">%1$s 생일</string>
+    <string name="calendar_home_dday_text">🎉 %1$s %2$s</string>
+    <string name="calendar_home_dday_content_description">%1$s %2$s, 디데이</string>
+    <string name="calendar_home_dday_base_day_label">D-Day</string>
+    <plurals name="calendar_home_dday_days_label">
+        <item quantity="other">%1$d일</item>
+    </plurals>
+    <plurals name="calendar_home_dday_months_label">
+        <item quantity="other">%1$d개월</item>
+    </plurals>
+    <plurals name="calendar_home_dday_years_label">
+        <item quantity="other">%1$d주년</item>
+    </plurals>
     <string-array name="calendar_home_month_titles">
         <item>1월</item>
         <item>2월</item>

@@ -15,6 +15,10 @@ internal sealed interface CalendarHomeScaffoldEvent {
         val id: Uuid,
     ) : CalendarHomeScaffoldEvent
 
+    data class ClickDDay(
+        val id: Uuid,
+    ) : CalendarHomeScaffoldEvent
+
     data class ClickContactBirthday(
         val contactId: Uuid,
     ) : CalendarHomeScaffoldEvent

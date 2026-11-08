@@ -17,11 +17,13 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGe
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.dday.CalendarHomeDDayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMoveGhost
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarContactBirthday
+import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarDDay
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
 import kotlinx.coroutines.launch
@@ -35,6 +37,7 @@ internal fun CalendarHomeContent(
     weatherUiStateProvider: () -> CalendarHomeWeatherUiState = { CalendarHomeWeatherUiState() },
     holidayUiStateProvider: () -> CalendarHomeHolidayUiState = { CalendarHomeHolidayUiState() },
     memoUiStateProvider: () -> CalendarHomeMemoUiState = { CalendarHomeMemoUiState() },
+    ddayUiStateProvider: () -> CalendarHomeDDayUiState = { CalendarHomeDDayUiState() },
     birthdayUiStateProvider: () -> CalendarHomeBirthdayUiState = { CalendarHomeBirthdayUiState() },
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
 ) {
@@ -74,6 +77,7 @@ internal fun CalendarHomeContent(
                         holidayNameColor = calendarColors.sundayAndHolidayColor,
                         nonHolidayNameColor = nonHolidayNameColor,
                         memoProvider = { memoUiStateProvider().memoList },
+                        ddayProvider = { ddayUiStateProvider().ddayList },
                         birthdayProvider = { birthdayUiStateProvider().birthdayList },
                         birthdayColor = birthdayColor,
                         onWeatherClick = { coroutineScope.launch { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) } },
@@ -95,6 +99,7 @@ internal fun CalendarHomeContent(
 private fun CalendarHomeContentPreview() {
     val weatherUiState = remember { CalendarHomeWeatherUiState(weatherReport = CalendarWeatherReport(weatherList = listOf(previewCalendarWeather()))) }
     val memoUiState = remember { CalendarHomeMemoUiState(memoList = listOf(previewCalendarMemo())) }
+    val ddayUiState = remember { CalendarHomeDDayUiState(ddayList = listOf(previewCalendarDDay())) }
     val birthdayUiState = remember { CalendarHomeBirthdayUiState(birthdayList = listOf(previewCalendarContactBirthday())) }
 
     DiaryTheme {
@@ -104,6 +109,7 @@ private fun CalendarHomeContentPreview() {
             modifier = Modifier.fillMaxSize(),
             weatherUiStateProvider = { weatherUiState },
             memoUiStateProvider = { memoUiState },
+            ddayUiStateProvider = { ddayUiState },
             birthdayUiStateProvider = { birthdayUiState },
         )
     }
