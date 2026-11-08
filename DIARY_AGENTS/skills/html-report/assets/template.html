@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__REPORT_TITLE__</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1d2129;
+    --muted: #5f6673;
+    --border: #dde1e7;
+    --accent: #2f6fed;
+    --accent-soft: #e8f0fe;
+    --pro: #1a7f4b;
+    --con: #c0392b;
+    --warn: #d97706;
+    --warn-soft: #fff4e0;
+    --skip-soft: #eef0f3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171b;
+      --card: #1f2228;
+      --text: #e6e8eb;
+      --muted: #9aa1ad;
+      --border: #343841;
+      --accent: #7aa5ff;
+      --accent-soft: #1f2d4a;
+      --pro: #52c98a;
+      --con: #ff7b6e;
+      --warn: #f5a524;
+      --warn-soft: #3a2c12;
+      --skip-soft: #262a31;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 20px 140px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  .summary { color: var(--muted); white-space: pre-wrap; margin: 0 0 24px; }
+  .item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    scroll-margin-top: 24px;
+    transition: border-color .2s, background .2s;
+  }
+  .item.unanswered { border-color: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
+  .item.skipped { background: var(--skip-soft); }
+  .item.skipped .body { opacity: .4; pointer-events: none; }
+  .item-head { display: flex; align-items: flex-start; gap: 12px; }
+  .item-head h2 { flex: 1; font-size: 17px; margin: 0; }
+  .item-id { color: var(--muted); font-weight: 500; margin-right: 6px; }
+  .type { font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 2px; font-weight: 400; }
+  .skip { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; }
+  .context { color: var(--muted); white-space: pre-wrap; margin: 8px 0 0; }
+  .reason { margin: 10px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: 14px; white-space: pre-wrap; }
+  .reason b { color: var(--accent); }
+  .options { display: grid; gap: 10px; margin-top: 14px; }
+  .option {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option.checked { border-color: var(--accent); background: var(--accent-soft); }
+  .option-top { display: flex; align-items: center; gap: 10px; }
+  .option-top input { margin: 0; width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
+  .option-label { font-weight: 600; }
+  .badge { font-size: 12px; font-weight: 600; color: #fff; background: var(--accent); border-radius: 999px; padding: 1px 8px; }
+  .option-desc { margin: 4px 0 0 27px; color: var(--muted); white-space: pre-wrap; }
+  .pc { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 0 27px; font-size: 14px; }
+  .pc ul { margin: 0; padding-left: 18px; }
+  .pc h3 { font-size: 13px; margin: 0 0 2px; }
+  .pc .pros h3 { color: var(--pro); }
+  .pc .cons h3 { color: var(--con); }
+  @media (max-width: 600px) { .pc { grid-template-columns: 1fr; } }
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .field { margin-top: 14px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .text-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+  button {
+    font: inherit;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; padding: 10px 18px; }
+  button.primary:hover { filter: brightness(1.08); }
+  .final { margin-top: 28px; }
+  .final h2 { font-size: 17px; margin: 0 0 8px; }
+  .final textarea { min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .final .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+  .bar {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 10px 10px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+    font-size: 14px;
+    max-width: calc(100% - 24px);
+  }
+  .bar .stat b { font-variant-numeric: tabular-nums; }
+  .bar .stat.warn b { color: var(--warn); }
+  .bar button.primary { border-radius: 999px; }
+  .media { display: grid; gap: 10px; margin-top: 12px; }
+  .option .media { margin: 10px 0 0 27px; }
+  .example { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg); }
+  .example-head { display: flex; justify-content: space-between; gap: 8px; padding: 4px 10px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .example pre { margin: 0; padding: 10px 12px; overflow-x: auto; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
+  .figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  figure { margin: 0; border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: var(--card); cursor: zoom-in; }
+  figure .canvas { display: flex; justify-content: center; align-items: center; min-height: 60px; }
+  figure img, figure svg { max-width: 100%; max-height: 420px; height: auto; }
+  .mermaid-wrap { background: #fff; border-radius: 6px; padding: 6px; width: 100%; display: flex; justify-content: center; }
+  figure pre { margin: 0; font: 12px/1.5 ui-monospace, Menlo, monospace; white-space: pre-wrap; color: var(--muted); }
+  figcaption { font-size: 13px; color: var(--muted); text-align: center; margin-top: 6px; white-space: pre-wrap; }
+  dialog#lightbox { border: 0; border-radius: 12px; padding: 16px; max-width: 94vw; max-height: 94vh; background: var(--card); color: var(--text); cursor: zoom-out; }
+  dialog#lightbox::backdrop { background: rgba(0, 0, 0, .6); }
+  dialog#lightbox img, dialog#lightbox svg { max-width: 90vw; max-height: 82vh; height: auto; display: block; margin: 0 auto; }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 88px;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title"></h1>
+  <p class="summary" id="summary"></p>
+  <div id="report-media"></div>
+  <div id="items"></div>
+  <section class="final">
+    <h2>프롬프트 미리보기</h2>
+    <textarea id="preview" readonly></textarea>
+    <div class="actions">
+      <button type="button" id="reset">추천안으로 되돌리기</button>
+      <button type="button" class="primary" data-copy>프롬프트 복사</button>
+    </div>
+  </section>
+</main>
+<div class="bar" role="region" aria-label="진행 상황">
+  <span class="stat">결정 <b id="count-answered">0</b></span>
+  <span class="stat">건너뜀 <b id="count-skipped">0</b></span>
+  <span class="stat" id="stat-unanswered">미응답 <b id="count-unanswered">0</b></span>
+  <button type="button" class="primary" data-copy>프롬프트 복사</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog id="lightbox" aria-label="확대 보기"></dialog>
+<script>
+const REPORT = /*__REPORT_DATA__*/null;
+
+const TYPE_LABEL = { radio: "하나 선택", checkbox: "여러 개 선택", text: "직접 입력" };
+const $ = (id) => document.getElementById(id);
+
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === "class") node.className = value;
+    else if (key === "text") node.textContent = value;
+    else node.setAttribute(key, value);
+  }
+  for (const child of children) if (child) node.append(child);
+  return node;
+}
+
+function list(title, values, cls) {
+  if (!values || values.length === 0) return null;
+  return el("div", { class: cls }, el("h3", { text: title }), el("ul", {}, ...values.map((v) => el("li", { text: v }))));
+}
+
+function renderExample(example) {
+  const box = el("div", { class: "example" });
+  if (example.title || example.language) {
+    box.append(el("div", { class: "example-head" }, el("span", { text: example.title || "예시" }), el("span", { text: example.language || "" })));
+  }
+  box.append(el("pre", {}, el("code", { text: example.content })));
+  return box;
+}
+
+function renderFigure(figure) {
+  const canvas = el("div", { class: "canvas" });
+  if (figure.kind === "image") {
+    canvas.append(el("img", { src: figure.src, alt: figure.caption || "이미지", loading: "lazy" }));
+  } else if (figure.kind === "svg") {
+    // 인라인 SVG의 스크립트가 실행되지 않도록 img로 그린다.
+    canvas.append(el("img", { src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(figure.content), alt: figure.caption || "다이어그램" }));
+  } else {
+    const wrap = el("div", { class: "mermaid-wrap", "data-mermaid": "" }, el("pre", { text: figure.content }));
+    canvas.append(wrap);
+  }
+  const node = el("figure", { title: "클릭하면 크게 봅니다" }, canvas);
+  if (figure.caption) node.append(el("figcaption", { text: figure.caption }));
+  node.addEventListener("click", (event) => {
+    // 선택지 label 안에 있어도 선택이 바뀌지 않게 막고 확대만 한다.
+    event.preventDefault();
+    event.stopPropagation();
+    const dialog = $("lightbox");
+    dialog.replaceChildren(canvas.cloneNode(true));
+    if (figure.caption) dialog.append(el("figcaption", { text: figure.caption }));
+    dialog.showModal();
+  });
+  return node;
+}
+
+function renderMedia(holder) {
+  const examples = holder.examples || [];
+  const figures = holder.figures || [];
+  if (examples.length === 0 && figures.length === 0) return null;
+  const media = el("div", { class: "media" }, ...examples.map(renderExample));
+  if (figures.length > 0) media.append(el("div", { class: "figures" }, ...figures.map(renderFigure)));
+  return media;
+}
+
+async function renderMermaid() {
+  const targets = [...document.querySelectorAll("[data-mermaid]")];
+  if (targets.length === 0) return;
+  try {
+    const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+    mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
+    for (const [index, target] of targets.entries()) {
+      const source = target.querySelector("pre").textContent;
+      try {
+        const { svg } = await mermaid.render(`mermaid-${index}`, source);
+        target.innerHTML = svg;
+      } catch (error) {
+        target.prepend(el("p", { class: "context", text: "다이어그램 문법 오류로 원본을 표시합니다." }));
+      }
+    }
+  } catch (error) {
+    targets.forEach((target) => target.prepend(el("p", { class: "context", text: "Mermaid를 불러오지 못해(오프라인 등) 원본을 표시합니다." })));
+  }
+}
+
+function hasNote(item) {
+  return item.type !== "text" && item.note !== false;
+}
+
+function renderItem(item, index) {
+  const card = el("section", { class: "item", id: `item-${index}` });
+  const name = `item-${index}-choice`;
+
+  const heading = el("h2", {}, el("span", { class: "item-id", text: item.id }), document.createTextNode(item.title), el("span", { class: "type", text: TYPE_LABEL[item.type] }));
+  const skip = el("input", { type: "checkbox", "data-skip": "" });
+  card.append(el("div", { class: "item-head" }, heading, el("label", { class: "skip" }, skip, document.createTextNode("건너뛰기"))));
+
+  const body = el("div", { class: "body" });
+  if (item.context) body.append(el("p", { class: "context", text: item.context }));
+  if (item.recommendReason) {
+    const reason = el("p", { class: "reason" }, el("b", { text: "추천 근거 " }), document.createTextNode(item.recommendReason));
+    body.append(reason);
+  }
+  const itemMedia = renderMedia(item);
+  if (itemMedia) body.append(itemMedia);
+
+  if (item.type === "text") {
+    const area = el("textarea", { "data-text": "", placeholder: item.placeholder || "" });
+    area.value = item.default || "";
+    body.append(el("div", { class: "field" }, area));
+    if (item.default) {
+      const restore = el("button", { type: "button", text: "추천안 다시 넣기" });
+      restore.addEventListener("click", () => { area.value = item.default; update(); });
+      body.append(el("div", { class: "text-actions" }, restore));
+    }
+  } else {
+    const options = el("div", { class: "options" });
+    for (const option of item.options) {
+      const input = el("input", { type: item.type, name, value: option.id, "data-option": "" });
+      input.checked = option.recommended === true;
+      const top = el("div", { class: "option-top" }, input, el("span", { class: "option-label", text: option.label }));
+      if (option.recommended) top.append(el("span", { class: "badge", text: "추천" }));
+      const box = el("label", { class: "option" }, top);
+      if (option.description) box.append(el("p", { class: "option-desc", text: option.description }));
+      const pros = list("장점", option.pros, "pros");
+      const cons = list("단점", option.cons, "cons");
+      if (pros || cons) box.append(el("div", { class: "pc" }, pros || el("div"), cons || el("div")));
+      const optionMedia = renderMedia(option);
+      if (optionMedia) box.append(optionMedia);
+      options.append(box);
+    }
+    body.append(options);
+    if (hasNote(item)) {
+      const note = el("textarea", { "data-note": "", placeholder: "추가로 전달할 내용이 있으면 적어 주세요 (선택)" });
+      note.style.minHeight = "60px";
+      body.append(el("div", { class: "field" }, el("label", { text: "메모" }), note));
+    }
+  }
+  card.append(body);
+  card.addEventListener("input", update);
+  card.addEventListener("change", update);
+  return card;
+}
+
+function readItem(item, index) {
+  const card = $(`item-${index}`);
+  const skipped = card.querySelector("[data-skip]").checked;
+  const note = card.querySelector("[data-note]")?.value.trim() || "";
+  if (item.type === "text") {
+    const text = card.querySelector("[data-text]").value.replace(/\s+$/, "");
+    return { skipped, text, answered: text.trim().length > 0 };
+  }
+  const selected = [...card.querySelectorAll("[data-option]")].filter((i) => i.checked).map((i) => item.options.find((o) => o.id === i.value));
+  return { skipped, selected, note, answered: selected.length > 0 };
+}
+
+function indent(text, prefix) {
+  return text.split("\n").map((line) => prefix + line).join("\n");
+}
+
+function buildPrompt(states) {
+  const lines = [`[${REPORT.title}] 결정 사항을 전달합니다.`, ""];
+  REPORT.items.forEach((item, index) => {
+    const state = states[index];
+    lines.push(`${index + 1}. ${item.id} ${item.title}`);
+    if (state.skipped) {
+      lines.push("   - 건너뜀");
+      return;
+    }
+    if (!state.answered) {
+      lines.push("   - 미응답");
+      return;
+    }
+    if (item.type === "text") {
+      const mark = item.default && state.text === item.default.replace(/\s+$/, "") ? " (추천안)" : "";
+      lines.push(`   - 입력${mark}:`);
+      lines.push(indent(state.text, "     "));
+    } else {
+      const label = (o) => o.label + (o.recommended ? " (추천안)" : "");
+      if (item.type === "radio") lines.push(`   - 선택: ${label(state.selected[0])}`);
+      else {
+        lines.push("   - 선택:");
+        state.selected.forEach((o) => lines.push(`     - ${label(o)}`));
+      }
+      if (state.note) {
+        if (state.note.includes("\n")) {
+          lines.push("   - 메모:");
+          lines.push(indent(state.note, "     "));
+        } else lines.push(`   - 메모: ${state.note}`);
+      }
+    }
+  });
+  return lines.join("\n");
+}
+
+function update() {
+  const states = REPORT.items.map(readItem);
+  let answered = 0, skipped = 0, unanswered = 0;
+  states.forEach((state, index) => {
+    const card = $(`item-${index}`);
+    card.classList.toggle("skipped", state.skipped);
+    if (state.skipped) skipped++;
+    else if (state.answered) answered++;
+    else unanswered++;
+    if (state.skipped || state.answered) card.classList.remove("unanswered");
+    card.querySelectorAll(".option").forEach((box) => box.classList.toggle("checked", box.querySelector("input").checked));
+    card.querySelectorAll("[data-option], [data-text], [data-note]").forEach((input) => { input.disabled = state.skipped; });
+  });
+  $("count-answered").textContent = answered;
+  $("count-skipped").textContent = skipped;
+  $("count-unanswered").textContent = unanswered;
+  $("stat-unanswered").classList.toggle("warn", unanswered > 0);
+  $("preview").value = buildPrompt(states);
+  return states;
+}
+
+function toast(message) {
+  const node = $("toast");
+  node.textContent = message;
+  node.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => node.classList.remove("show"), 2200);
+}
+
+function legacyCopy(text) {
+  const area = el("textarea");
+  area.value = text;
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.append(area);
+  area.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  area.remove();
+  return ok;
+}
+
+async function copyPrompt() {
+  const states = update();
+  const missing = states.findIndex((s) => !s.skipped && !s.answered);
+  if (missing >= 0) {
+    states.forEach((s, i) => { if (!s.skipped && !s.answered) $(`item-${i}`).classList.add("unanswered"); });
+    $(`item-${missing}`).scrollIntoView({ behavior: "smooth", block: "start" });
+    toast("미응답 항목이 있습니다. 답하거나 건너뛰기를 선택해 주세요.");
+    return;
+  }
+  const text = $("preview").value;
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch (e) {
+    ok = legacyCopy(text);
+  }
+  if (ok) {
+    toast("프롬프트를 복사했습니다. 채팅에 붙여 넣어 주세요.");
+  } else {
+    const preview = $("preview");
+    preview.scrollIntoView({ behavior: "smooth", block: "center" });
+    preview.focus();
+    preview.select();
+    toast("자동 복사에 실패했습니다. 선택된 텍스트를 직접 복사해 주세요.");
+  }
+}
+
+function reset() {
+  REPORT.items.forEach((item, index) => {
+    const card = $(`item-${index}`);
+    card.querySelector("[data-skip]").checked = false;
+    card.classList.remove("unanswered");
+    if (item.type === "text") card.querySelector("[data-text]").value = item.default || "";
+    else {
+      card.querySelectorAll("[data-option]").forEach((input) => {
+        input.checked = item.options.find((o) => o.id === input.value)?.recommended === true;
+      });
+      const note = card.querySelector("[data-note]");
+      if (note) note.value = "";
+    }
+  });
+  update();
+  toast("추천안으로 되돌렸습니다.");
+}
+
+$("title").textContent = REPORT.title;
+if (REPORT.summary) $("summary").textContent = REPORT.summary;
+else $("summary").remove();
+const reportMedia = renderMedia(REPORT);
+if (reportMedia) $("report-media").append(reportMedia);
+$("lightbox").addEventListener("click", () => $("lightbox").close());
+REPORT.items.forEach((item, index) => $("items").append(renderItem(item, index)));
+document.querySelectorAll("[data-copy]").forEach((button) => button.addEventListener("click", copyPrompt));
+$("reset").addEventListener("click", reset);
+update();
+renderMermaid();
+</script>
+</body>
+</html>
