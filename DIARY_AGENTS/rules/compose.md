@@ -589,6 +589,8 @@ internal fun DiaryFloatingActionButton(onClick: () -> Unit, /* ... */ modifier: 
 
 **소프트 키보드를 여는 입력이 있는 화면은 `contentWindowInsets`에 `DiaryScaffoldDefaults.contentWindowInsets`를 넘겨 본문 전체를 키보드 위로 줄인다.** `ScaffoldDefaults.contentWindowInsets`는 키보드를 포함하지 않는다. 떠 있는 버튼, `FloatingActionButtonMenu`, `snackbarHost` 슬롯의 스낵바도 본문과 함께 키보드 위로 올라간다. 슬롯 안에서 `imePadding()`처럼 inset을 다시 읽지 않는다. 조상이 소비하지 않은 시스템 내비게이션 바 높이가 한 번 더 빠진다.
 
+**가로 시스템 영역은 `AppNavigation`이 `NavDisplay`에 `Modifier.navigationHorizontalInsetsPadding()`으로 한 번 피하고 소비한다.** 목록·상세 배치처럼 화면 여럿이 가로로 나란히 놓이면 각 화면의 `Scaffold`가 같은 가로 inset을 따로 피해 시작 쪽이 아닌 화면의 본문이 그만큼 밀린다. iPad의 탭 사이드바는 사이드바 너비를 시작 쪽 safe area로 보고하므로 상세 영역이 사이드바 너비만큼 밀렸다. 화면은 `DiaryScaffoldDefaults.contentWindowInsets`를 그대로 쓰고 가로 inset을 따로 피하거나 소비하지 않는다.
+
 **`Modifier.fitInside(WindowInsetsRulers.Xxx.current)`는 본문 일부만 시스템 영역을 피하고 나머지는 그대로 두어야 할 때만 쓴다.** 예: 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 키보드와 관계없이 제자리에 두는 경우. 여러 영역을 함께 피할 때는 `WindowInsetsRulers.innermostOf(...)`로 묶고, 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
 
 - 판단 기준: https://developer.android.com/develop/ui/compose/system/evaluate-rulers
