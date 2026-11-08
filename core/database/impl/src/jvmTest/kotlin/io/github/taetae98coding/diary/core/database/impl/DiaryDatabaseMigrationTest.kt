@@ -81,7 +81,7 @@ class DiaryDatabaseMigrationTest :
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 6).close()
+            helper.runMigrationsAndValidate(version = 7).close()
 
             val database =
                 Room
@@ -195,7 +195,7 @@ class DiaryDatabaseMigrationTest :
                 connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
                 connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
             }
-            helper.runMigrationsAndValidate(version = 6).close()
+            helper.runMigrationsAndValidate(version = 7).close()
 
             val database =
                 Room

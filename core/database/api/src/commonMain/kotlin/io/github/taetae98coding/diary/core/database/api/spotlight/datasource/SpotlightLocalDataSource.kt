@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.api.spotlight.datasource
 
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -27,4 +28,6 @@ public interface SpotlightLocalDataSource {
     public fun getQrList(accountId: Uuid): Flow<List<QrLocalEntity>>
 
     public fun getMusicList(accountId: Uuid): Flow<List<MusicLocalEntity>>
+
+    public fun getDDayList(accountId: Uuid): Flow<List<DDayLocalEntity>>
 }

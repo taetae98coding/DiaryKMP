@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklisttag.checklistTagTable
 import io.github.taetae98coding.diary.core.database.impl.contacttag.contactTagTable
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.ddayTagTable
 import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.AccountEntityTagDao
 import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.AccountEntityTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.entitytag.dao.EntityTagDao
@@ -129,4 +130,5 @@ internal fun DiaryDatabase.entityTagTable(kind: EntityTagKindLocalEntity): Entit
         EntityTagKindLocalEntity.CHECKLIST -> checklistTagTable()
         EntityTagKindLocalEntity.MUSIC -> musicTagTable()
         EntityTagKindLocalEntity.QR -> qrTagTable()
+        EntityTagKindLocalEntity.DDAY -> ddayTagTable()
     }

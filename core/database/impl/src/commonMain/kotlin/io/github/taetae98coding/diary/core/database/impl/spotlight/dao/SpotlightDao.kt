@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Query
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -110,4 +111,16 @@ internal interface SpotlightDao {
         """,
     )
     fun getMusicList(accountId: Uuid): Flow<List<MusicLocalEntity>>
+
+    @Query(
+        """
+        SELECT dday.*
+        FROM dday
+        INNER JOIN account_dday
+            ON account_dday.dday_id = dday.id AND account_dday.account_id = :accountId
+        WHERE dday.is_deleted = 0
+        ORDER BY dday.id ASC
+        """,
+    )
+    fun getDDayList(accountId: Uuid): Flow<List<DDayLocalEntity>>
 }

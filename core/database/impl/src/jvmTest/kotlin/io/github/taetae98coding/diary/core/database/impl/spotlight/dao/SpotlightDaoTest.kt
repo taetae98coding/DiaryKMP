@@ -5,6 +5,7 @@ import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -14,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntit
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
@@ -23,6 +25,7 @@ import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLo
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeLocalEntity
@@ -35,6 +38,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
 class SpotlightDaoTest :
@@ -133,6 +137,16 @@ class SpotlightDaoTest :
             }
         }
 
+        suspend fun insertDDay(
+            accountId: Uuid,
+            vararg entityList: DDayLocalEntity,
+        ) {
+            database.withWriteTransaction {
+                database.ddayDao().upsert(entityList.toList())
+                database.accountDDayDao().upsert(entityList.map { entity -> AccountDDayLocalEntity(accountId = accountId, ddayId = entity.id, isDirty = true) })
+            }
+        }
+
         test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 현재 계정의 삭제되지 않은 메모와 태그를 완료 여부와 목록 필터와 관계없이 돌려준다") {
             val dao = database.spotlightDao()
             val accountId = Arb.kotlinUuid().next()
@@ -196,5 +210,22 @@ class SpotlightDaoTest :
             insertMusic(accountId, music, deletedMusic)
             insertMusic(otherAccountId, Arb.musicLocalEntity().next().copy(isDeleted = false))
             dao.getMusicList(accountId = accountId).first().map { it.id } shouldContainExactlyInAnyOrder listOf(music.id)
+        }
+
+        test("TC-75a4449a-4607-4404-bee9-cdfb3d735a29 디데이는 종료일이 지나도 돌려주고 삭제된 디데이와 다른 계정의 디데이는 돌려주지 않는다") {
+            val dao = database.spotlightDao()
+            val accountId = Arb.kotlinUuid().next()
+            val otherAccountId = Arb.kotlinUuid().next()
+            val endedDDay =
+                Arb.ddayLocalEntity().next().let { entity ->
+                    entity.copy(detail = entity.detail.copy(baseDate = LocalDate(2000, 1, 1), endDate = LocalDate(2000, 12, 31)), isDeleted = false)
+                }
+            val deletedDDay = Arb.ddayLocalEntity().next().copy(isDeleted = true)
+            val otherAccountDDay = Arb.ddayLocalEntity().next().copy(isDeleted = false)
+
+            insertDDay(accountId, endedDDay, deletedDDay)
+            insertDDay(otherAccountId, otherAccountDDay)
+
+            dao.getDDayList(accountId = accountId).first().map { it.id } shouldContainExactlyInAnyOrder listOf(endedDDay.id)
         }
     })

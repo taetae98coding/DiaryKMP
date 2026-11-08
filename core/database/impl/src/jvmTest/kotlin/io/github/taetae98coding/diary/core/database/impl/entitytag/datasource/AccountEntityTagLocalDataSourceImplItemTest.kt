@@ -24,6 +24,11 @@ import io.github.taetae98coding.diary.core.database.impl.contact.datasource.Acco
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountTagContactLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.datasource.AccountDDayLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.datasource.AccountDDaySyncLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.datasource.AccountTagDDayLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.transaction.AccountDDaySyncTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.transaction.AccountDDayTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import io.github.taetae98coding.diary.core.database.impl.entitytag.transaction.AccountEntityTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountTagMemoLocalDataSourceImpl
@@ -46,6 +51,7 @@ import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountT
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.qr.qrLocalEntity
@@ -65,7 +71,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
-// 연락처·체크리스트·곡·QR이 저마다 다른 목록, 태그 탭, 업로드 대기 조회를 쓰므로 종류마다 그 조회를 묶어 같은 시나리오로 확인한다.
+// 연락처·체크리스트·곡·QR·디데이가 저마다 다른 목록, 태그 탭, 업로드 대기 조회를 쓰므로 종류마다 그 조회를 묶어 같은 시나리오로 확인한다.
 class AccountEntityTagLocalDataSourceImplItemTest :
     FunSpec({
         lateinit var database: DiaryDatabase
@@ -675,6 +681,50 @@ class AccountEntityTagLocalDataSourceImplItemTest :
                         AccountQrTransactionImpl(database = database).updateDeleted(
                             accountId = accountId,
                             qrId = entityId,
+                            isDeleted = isDeleted,
+                            updatedAt = Arb.secondPrecisionInstant().next(),
+                        )
+                    },
+                ),
+                ItemKind(
+                    kind = EntityTagKindLocalEntity.DDAY,
+                    label = "디데이",
+                    tcMap =
+                        mapOf(
+                            ItemTc.CONTENT to listOf("TC-794a3da0-1cab-4ac5-aa97-a0761302730b"),
+                            ItemTc.HOME_LIST to listOf("TC-b096dc1c-757d-4943-8500-8c566766cbdd"),
+                            ItemTc.TAG_LINK_NOT_FOLLOWED to listOf("TC-e8b9ab06-a3bd-4e34-a611-8dcd6dd92cd9"),
+                            ItemTc.NO_OTHER_LINK to listOf("TC-4b8f4fd2-fa10-43db-bee0-f093b7e9379f"),
+                        ),
+                    insert = { database, accountId, isDeleted ->
+                        val dday = Arb.ddayLocalEntity().next().copy(isDeleted = isDeleted, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+                        AccountDDayTransactionImpl(database = database).upsert(accountId = accountId, dday = dday, ddayTagList = emptyList())
+                        dday.id
+                    },
+                    snapshot = { database, accountId, entityId ->
+                        AccountDDayLocalDataSourceImpl(database = database).find(accountId = accountId, ddayId = entityId).first()
+                    },
+                    homeIdLists = { database, accountId ->
+                        listOf(AccountDDayLocalDataSourceImpl(database = database).page(accountId = accountId).pagedIdList { dday -> dday.id })
+                    },
+                    tagTabIdList = { database, accountId, tagId ->
+                        AccountTagDDayLocalDataSourceImpl(database = database)
+                            .page(accountId = accountId, tagId = tagId, scope = TagScopeLocalEntity.SELF)
+                            .pagedIdList { dday -> dday.id }
+                    },
+                    pendingEntityIdList = { database, accountId ->
+                        AccountDDaySyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId).map { dday -> dday.id }
+                    },
+                    clearEntityPending = { database, accountId ->
+                        AccountDDaySyncTransactionImpl(database = database).clearPending(
+                            accountId = accountId,
+                            ddayList = AccountDDaySyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId),
+                        )
+                    },
+                    updateDeleted = { database, accountId, entityId, isDeleted ->
+                        AccountDDayTransactionImpl(database = database).updateDeleted(
+                            accountId = accountId,
+                            ddayId = entityId,
                             isDeleted = isDeleted,
                             updatedAt = Arb.secondPrecisionInstant().next(),
                         )

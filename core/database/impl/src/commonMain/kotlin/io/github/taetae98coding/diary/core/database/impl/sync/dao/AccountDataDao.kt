@@ -162,6 +162,23 @@ internal interface AccountDataDao {
 
     @Query(
         """
+        DELETE FROM dday
+        WHERE EXISTS (
+            SELECT 1 FROM account_dday
+            WHERE account_dday.dday_id = dday.id AND account_dday.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_dday
+            WHERE account_dday.dday_id = dday.id AND account_dday.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteDDay(accountId: Uuid)
+
+    @Query("DELETE FROM account_dday WHERE account_id = :accountId")
+    suspend fun deleteAccountDDay(accountId: Uuid)
+
+    @Query(
+        """
         DELETE FROM memo_tag
         WHERE EXISTS (
             SELECT 1 FROM account_memo_tag
@@ -391,6 +408,27 @@ internal interface AccountDataDao {
     @Query("DELETE FROM account_qr_tag WHERE account_id = :accountId")
     suspend fun deleteAccountQrTag(accountId: Uuid)
 
+    @Query(
+        """
+        DELETE FROM dday_tag
+        WHERE EXISTS (
+            SELECT 1 FROM account_dday_tag
+            WHERE account_dday_tag.dday_id = dday_tag.dday_id
+                AND account_dday_tag.tag_id = dday_tag.tag_id
+                AND account_dday_tag.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_dday_tag
+            WHERE account_dday_tag.dday_id = dday_tag.dday_id
+                AND account_dday_tag.tag_id = dday_tag.tag_id
+                AND account_dday_tag.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteDDayTag(accountId: Uuid)
+
+    @Query("DELETE FROM account_dday_tag WHERE account_id = :accountId")
+    suspend fun deleteAccountDDayTag(accountId: Uuid)
+
     @Query("DELETE FROM tag_filter WHERE account_id = :accountId")
     suspend fun deleteTagFilter(accountId: Uuid)
 
@@ -399,6 +437,9 @@ internal interface AccountDataDao {
 
     @Query("DELETE FROM calendar_filter_tag WHERE account_id = :accountId")
     suspend fun deleteCalendarFilterTag(accountId: Uuid)
+
+    @Query("DELETE FROM dday_filter_tag WHERE account_id = :accountId")
+    suspend fun deleteDDayFilterTag(accountId: Uuid)
 
     @Query("DELETE FROM sync_cursor WHERE account_id = :accountId")
     suspend fun deleteSyncCursor(accountId: Uuid)

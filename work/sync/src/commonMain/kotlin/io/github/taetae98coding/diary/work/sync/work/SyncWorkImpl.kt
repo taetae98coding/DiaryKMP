@@ -29,6 +29,7 @@ internal class SyncWorkImpl(
     private val qrSyncWork: QrSyncWork,
     private val checklistSyncWork: ChecklistSyncWork,
     private val checklistItemSyncWork: ChecklistItemSyncWork,
+    private val ddaySyncWork: DDaySyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -78,6 +79,7 @@ internal class SyncWorkImpl(
                     checklist.await()
                     checklistItemSyncWork.push(accountId = accountId)
                 }
+            val dday = async { ddaySyncWork.push(accountId = accountId) }
             val memo =
                 async {
                     tag.await()
@@ -100,6 +102,7 @@ internal class SyncWorkImpl(
                             EntityTagKindLocalEntity.CHECKLIST -> checklist
                             EntityTagKindLocalEntity.MUSIC -> music
                             EntityTagKindLocalEntity.QR -> qr
+                            EntityTagKindLocalEntity.DDAY -> dday
                         }
 
                     pushEntityTag(accountId = accountId, kind = kind, tag = tag, entity = entity)
@@ -115,6 +118,7 @@ internal class SyncWorkImpl(
                     qr,
                     checklist,
                     checklistItem,
+                    dday,
                     memo,
                     tagLink,
                 ) + memoLinkList + entityTagList
@@ -182,6 +186,7 @@ internal class SyncWorkImpl(
                 async { qrSyncWork.pull(accountId = accountId) },
                 async { checklistSyncWork.pull(accountId = accountId) },
                 async { checklistItemSyncWork.pull(accountId = accountId) },
+                async { ddaySyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

@@ -8,6 +8,7 @@ import androidx.room3.RoomDatabase
 import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.dday.entity.DDayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
@@ -48,9 +49,25 @@ import io.github.taetae98coding.diary.core.database.impl.contacttag.dao.AccountC
 import io.github.taetae98coding.diary.core.database.impl.contacttag.dao.ContactTagDao
 import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.AccountContactTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.ContactTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.converter.CalendarDDayKindColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactBirthdayCalendarColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactPhoneNumberListColumnTypeConverter
+import io.github.taetae98coding.diary.core.database.impl.converter.DDayOverflowPolicyColumnTypeConverter
+import io.github.taetae98coding.diary.core.database.impl.converter.DDayRepeatListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.WebHeaderListColumnTypeConverter
+import io.github.taetae98coding.diary.core.database.impl.dday.dao.AccountCalendarDDayDao
+import io.github.taetae98coding.diary.core.database.impl.dday.dao.AccountDDayDao
+import io.github.taetae98coding.diary.core.database.impl.dday.dao.AccountDDaySyncDao
+import io.github.taetae98coding.diary.core.database.impl.dday.dao.AccountTagDDayDao
+import io.github.taetae98coding.diary.core.database.impl.dday.dao.DDayDao
+import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.ddayfilter.dao.DDayFilterTagDao
+import io.github.taetae98coding.diary.core.database.impl.ddayfilter.entity.DDayFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.dao.AccountDDayTagDao
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.dao.AccountDDayTagSyncDao
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.dao.DDayTagDao
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.entity.AccountDDayTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.entity.DDayTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountCalendarMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountContactMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoDao
@@ -111,6 +128,7 @@ import io.github.taetae98coding.diary.core.database.impl.qrtag.dao.AccountQrTagS
 import io.github.taetae98coding.diary.core.database.impl.qrtag.dao.QrTagDao
 import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.AccountQrTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qrtag.entity.QrTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchDDayDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchMemoDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchTagDao
@@ -190,15 +208,21 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountMusicTagLocalEntity::class,
         QrTagLocalEntity::class,
         AccountQrTagLocalEntity::class,
+        DDayLocalEntity::class,
+        AccountDDayLocalEntity::class,
+        DDayTagLocalEntity::class,
+        AccountDDayTagLocalEntity::class,
+        DDayFilterTagLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 6,
+    version = 7,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = ContactBirthYearAutoMigrationSpec::class),
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5, spec = ContactHowWeMetAutoMigrationSpec::class),
         AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7),
     ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)
@@ -210,6 +234,9 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
     WebHeaderListColumnTypeConverter::class,
     ContactPhoneNumberListColumnTypeConverter::class,
     ContactBirthdayCalendarColumnTypeConverter::class,
+    DDayRepeatListColumnTypeConverter::class,
+    DDayOverflowPolicyColumnTypeConverter::class,
+    CalendarDDayKindColumnTypeConverter::class,
 )
 @Suppress("TooManyFunctions")
 internal abstract class DiaryDatabase : RoomDatabase() {
@@ -297,6 +324,8 @@ internal abstract class DiaryDatabase : RoomDatabase() {
 
     abstract fun spotlightDao(): SpotlightDao
 
+    abstract fun searchDDayDao(): SearchDDayDao
+
     abstract fun webDao(): WebDao
 
     abstract fun accountWebDao(): AccountWebDao
@@ -374,6 +403,24 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountChecklistItemDao(): AccountChecklistItemDao
 
     abstract fun accountChecklistItemSyncDao(): AccountChecklistItemSyncDao
+
+    abstract fun ddayDao(): DDayDao
+
+    abstract fun accountDDayDao(): AccountDDayDao
+
+    abstract fun accountDDaySyncDao(): AccountDDaySyncDao
+
+    abstract fun ddayTagDao(): DDayTagDao
+
+    abstract fun accountDDayTagDao(): AccountDDayTagDao
+
+    abstract fun accountDDayTagSyncDao(): AccountDDayTagSyncDao
+
+    abstract fun accountTagDDayDao(): AccountTagDDayDao
+
+    abstract fun accountCalendarDDayDao(): AccountCalendarDDayDao
+
+    abstract fun ddayFilterTagDao(): DDayFilterTagDao
 
     abstract fun syncCursorDao(): SyncCursorDao
 

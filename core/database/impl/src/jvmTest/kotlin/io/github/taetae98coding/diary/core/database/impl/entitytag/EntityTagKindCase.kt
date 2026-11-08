@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityT
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.dday.transaction.AccountDDayTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.music.transaction.AccountMusicTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
@@ -13,6 +14,8 @@ import io.github.taetae98coding.diary.core.testing.checklist.checklistDetailLoca
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayDetailLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicDetailLocalEntity
 import io.github.taetae98coding.diary.core.testing.music.musicLocalEntity
 import io.github.taetae98coding.diary.core.testing.place.placeDetailLocalEntity
@@ -27,7 +30,7 @@ import io.kotest.property.arbitrary.next
 import io.mockk.every
 import kotlin.uuid.Uuid
 
-// 여섯 종류를 같은 시나리오로 확인하도록 종류마다 항목 저장, 테이블 이름, 테스트 케이스 ID를 묶는다.
+// 일곱 종류를 같은 시나리오로 확인하도록 종류마다 항목 저장, 테이블 이름, 테스트 케이스 ID를 묶는다.
 internal class EntityTagKindCase(
     val kind: EntityTagKindLocalEntity,
     val label: String,
@@ -358,6 +361,57 @@ internal val entityTagKindCaseList: List<EntityTagKindCase> =
                     accountId = accountId,
                     qrId = entityId,
                     detail = Arb.qrDetailLocalEntity().next(),
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                )
+            },
+        ),
+        EntityTagKindCase(
+            kind = EntityTagKindLocalEntity.DDAY,
+            label = "디데이",
+            entityTable = "dday",
+            accountEntityTable = "account_dday",
+            linkTable = "dday_tag",
+            accountLinkTable = "account_dday_tag",
+            failAccountLinkDao = { database -> every { database.accountDDayTagDao() } throws IllegalStateException("save failed") },
+            tcMap =
+                tcMap(
+                    "TC-9445593e-d391-4723-be37-64d3de0c9a36",
+                    "TC-a0bab956-2e17-4545-9931-31230c3efede",
+                    "TC-881de0f8-f2de-49ef-a56e-5b6808c987ec",
+                    "TC-2bf11490-1619-423b-b33f-be67e67dd349",
+                    "TC-88a9e31a-e730-4ed9-bc4b-dae971e9804f",
+                    "TC-679754f5-b8e4-42d7-b42e-3d818c650f58",
+                    "TC-032f38fc-2324-4c35-b50b-b731ebf81e6f",
+                    "TC-9e91bdec-5259-45d3-bf48-670924760261",
+                    "TC-4e517486-9779-4a15-be00-efdc434b5462",
+                    "TC-9ec6ae67-baf8-47f8-b9ed-e8e33cf7e9ec",
+                    "TC-c74457d1-4688-459b-9854-4bd169b07a02",
+                    "TC-9e771c50-cf93-42af-8f0d-ce6c6383e99b",
+                    "TC-87aea5a9-f2df-47b1-92fb-6bc60147948c",
+                    "TC-99a037ce-688e-46c0-8882-bfe416f65a64",
+                    "TC-5214aa7e-f00b-4303-b462-b2cf242d724a",
+                    "TC-c280f59c-174e-470c-b388-130229164424",
+                    "TC-7b52d472-69e2-4eae-b090-d63d9e4d705f",
+                    "TC-5540aae3-5d58-4bcb-a8cf-7f74047a738d",
+                    "TC-d0da3432-3cea-4efa-a56f-db5c60bec70c",
+                ),
+            upsertEntity = { database, accountId, entityId, entityTagList ->
+                val entity = Arb.ddayLocalEntity().next().copy(id = entityId, isDeleted = false, updatedAt = Arb.secondPrecisionInstant().next(), createdAt = Arb.secondPrecisionInstant().next())
+                AccountDDayTransactionImpl(database = database).upsert(accountId = accountId, dday = entity, ddayTagList = entityTagList)
+            },
+            updateDeletedEntity = { database, accountId, entityId, isDeleted ->
+                AccountDDayTransactionImpl(database = database).updateDeleted(
+                    accountId = accountId,
+                    ddayId = entityId,
+                    isDeleted = isDeleted,
+                    updatedAt = Arb.secondPrecisionInstant().next(),
+                )
+            },
+            updateDetailEntity = { database, accountId, entityId ->
+                AccountDDayTransactionImpl(database = database).updateDetail(
+                    accountId = accountId,
+                    ddayId = entityId,
+                    detail = Arb.ddayDetailLocalEntity().next(),
                     updatedAt = Arb.secondPrecisionInstant().next(),
                 )
             },

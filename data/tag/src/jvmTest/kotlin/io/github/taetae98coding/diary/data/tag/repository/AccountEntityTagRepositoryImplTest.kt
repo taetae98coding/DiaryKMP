@@ -42,6 +42,7 @@ private val kindPairList: List<Pair<EntityTagKind, EntityTagKindLocalEntity>> =
         EntityTagKind.CHECKLIST to EntityTagKindLocalEntity.CHECKLIST,
         EntityTagKind.MUSIC to EntityTagKindLocalEntity.MUSIC,
         EntityTagKind.QR to EntityTagKindLocalEntity.QR,
+        EntityTagKind.DDAY to EntityTagKindLocalEntity.DDAY,
     )
 
 class AccountEntityTagRepositoryImplTest :

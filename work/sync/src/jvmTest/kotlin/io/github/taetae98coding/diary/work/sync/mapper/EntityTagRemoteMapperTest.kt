@@ -54,6 +54,7 @@ class EntityTagRemoteMapperTest :
                     EntityTagKindRemoteEntity.CHECKLIST,
                     EntityTagKindRemoteEntity.MUSIC,
                     EntityTagKindRemoteEntity.QR,
+                    EntityTagKindRemoteEntity.DDAY,
                 )
         }
 

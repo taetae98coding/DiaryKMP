@@ -11,4 +11,5 @@ public enum class EntityTagKindLocalEntity(
     CHECKLIST(SyncKindLocalEntity.CHECKLIST_TAG),
     MUSIC(SyncKindLocalEntity.MUSIC_TAG),
     QR(SyncKindLocalEntity.QR_TAG),
+    DDAY(SyncKindLocalEntity.DDAY_TAG),
 }

@@ -8,6 +8,8 @@ import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.Ac
 import io.github.taetae98coding.diary.core.database.impl.checklisttag.entity.AccountChecklistTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contacttag.entity.AccountContactTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.ddaytag.entity.AccountDDayTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
@@ -123,12 +125,22 @@ private val pendingWriterMap: Map<String, PendingWriter> =
                 AccountQrTagLocalEntity(accountId = accountId, qrId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
             )
         },
+        "디데이" to { database, accountId, isDirty ->
+            database.accountDDaySyncDao().upsert(
+                AccountDDayLocalEntity(accountId = accountId, ddayId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
+        "디데이와 태그의 연결" to { database, accountId, isDirty ->
+            database.accountDDayTagSyncDao().upsert(
+                AccountDDayTagLocalEntity(accountId = accountId, ddayId = Arb.kotlinUuid().next(), tagId = Arb.kotlinUuid().next(), isDirty = isDirty),
+            )
+        },
     )
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 스무 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 20
+        test("업로드 대기 확인이 동기화 대상 스물두 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 22
         }
 
         lateinit var database: DiaryDatabase
@@ -147,7 +159,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 스무 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 스물두 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = Arb.kotlinUuid().next()
 

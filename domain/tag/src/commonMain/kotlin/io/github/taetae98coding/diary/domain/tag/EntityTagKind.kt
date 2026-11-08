@@ -7,4 +7,5 @@ public enum class EntityTagKind {
     CHECKLIST,
     MUSIC,
     QR,
+    DDAY,
 }

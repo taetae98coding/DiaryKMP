@@ -160,6 +160,47 @@ export const checklistItemPushRequestSchema = z.object({
   ),
 });
 
+const localDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+const ddayRepeatValueSchema = z.number().int().min(1).max(2147483647);
+
+// 간격 하나는 days나 months 중 정확히 하나만 가지므로 다른 키가 섞이지 않도록 strict로 받는다.
+const ddayRepeatSchema = z.union([
+  z.object({ days: ddayRepeatValueSchema }).strict(),
+  z.object({ months: ddayRepeatValueSchema }).strict(),
+]);
+
+export const ddayPushRequestSchema = z.object({
+  ddayList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z
+        .object({
+          title: z.string(),
+          description: z.string(),
+          color: z.number().int(),
+          baseDate: localDateSchema,
+          countsBaseDay: z.boolean(),
+          repeats: z.array(ddayRepeatSchema).refine(
+            (repeats) =>
+              new Set(repeats.map((repeat) => ("days" in repeat ? `days:${repeat.days}` : `months:${repeat.months}`))).size ===
+                repeats.length,
+            { message: "repeats must not contain the same interval twice." },
+          ),
+          endDate: localDateSchema.nullable(),
+          overflowPolicy: z.enum(["clamp_to_month_end", "skip", "next_month_first_day"]),
+        })
+        .refine(
+          (detail) => detail.endDate === null || detail.endDate >= detail.baseDate,
+          { message: "endDate must not be before baseDate." },
+        ),
+    }),
+  ),
+});
+
 // 태어난 연도와 알게 된 경로는 이 정보가 생기기 전 버전의 앱이 보내지 않으므로 선택 키로 받는다.
 // 키가 없으면 DB 함수가 저장된 값을 유지하거나 기본값을 쓰고, 키가 있으면 null이어도 그 값으로 저장한다.
 export const contactPushRequestSchema = z.object({
@@ -296,6 +337,18 @@ export const qrTagPushRequestSchema = z.object({
   qrTagList: z.array(
     z.object({
       qrId: z.string().uuid(),
+      tagId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const ddayTagPushRequestSchema = z.object({
+  ddayTagList: z.array(
+    z.object({
+      ddayId: z.string().uuid(),
       tagId: z.string().uuid(),
       isDeleted: z.boolean(),
       updatedAt: z.string().datetime({ offset: true }),

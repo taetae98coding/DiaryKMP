@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-// 여섯 종류의 항목과 태그의 연결을 같은 방식으로 검증하도록 종류마다 항목의 요청과 문서의 케이스를 묶는다.
+// 일곱 종류의 항목과 태그의 연결을 같은 방식으로 검증하도록 종류마다 항목의 요청과 문서의 케이스를 묶는다.
 private class EntityTagCase(
     val label: String,
     val kind: EntityTagKindLocalEntity,
@@ -103,6 +103,17 @@ private val entityTagCaseList: List<EntityTagCase> =
             entityPush = { context -> context.qrRemoteDataSource.push(any()) },
             entityPull = { context, usn -> context.qrRemoteDataSource.pull(usn = usn) },
         ),
+        EntityTagCase(
+            label = "디데이",
+            kind = EntityTagKindLocalEntity.DDAY,
+            remoteKind = EntityTagKindRemoteEntity.DDAY,
+            separateUploadTcId = "TC-625e9cc2-5758-408e-b2cc-3848aced64e9",
+            deletedUploadTcId = "TC-e3c79a10-0f67-404b-9a01-c528f91912af",
+            pullTcId = "TC-5540aae3-5d58-4bcb-a8cf-7f74047a738d",
+            entityFailureTcId = "TC-bbb82d9b-1756-4aac-8be5-71f1e3903825",
+            entityPush = { context -> context.ddayRemoteDataSource.push(any()) },
+            entityPull = { context, usn -> context.ddayRemoteDataSource.pull(usn = usn) },
+        ),
     )
 
 private fun EntityTagCase.context(
@@ -124,6 +135,7 @@ private fun EntityTagCase.context(
         checklistList = checklists(size = count(EntityTagKindLocalEntity.CHECKLIST)),
         musicList = musics(size = count(EntityTagKindLocalEntity.MUSIC)),
         qrList = qrs(size = count(EntityTagKindLocalEntity.QR)),
+        ddayList = ddays(size = count(EntityTagKindLocalEntity.DDAY)),
         memoList = memos(size = memoCount),
         memoTagList = memoTags(size = memoTagCount),
         entityTagMap = mapOf(kind to entityTagList),

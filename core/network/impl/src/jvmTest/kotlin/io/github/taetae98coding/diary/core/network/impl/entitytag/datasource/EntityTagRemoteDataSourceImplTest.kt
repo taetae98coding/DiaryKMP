@@ -97,6 +97,14 @@ private val entityTagRemoteCaseList: List<EntityTagRemoteCase> =
             pushTcId = "TC-f7ef8c7b-8bd9-4627-a510-fb09b2099345 TC-7480fbc5-d840-49ae-af4a-918f9ce3ccd2",
             pullTcId = "TC-e6e6a0ab-99b7-446a-b6d5-0d03d0372fe1",
         ),
+        EntityTagRemoteCase(
+            label = "디데이",
+            kind = EntityTagKindRemoteEntity.DDAY,
+            keyPrefix = "dday",
+            functionName = "dday-tag",
+            pushTcId = "TC-625e9cc2-5758-408e-b2cc-3848aced64e9 TC-e3c79a10-0f67-404b-9a01-c528f91912af",
+            pullTcId = "TC-5540aae3-5d58-4bcb-a8cf-7f74047a738d",
+        ),
     )
 
 class EntityTagRemoteDataSourceImplTest :

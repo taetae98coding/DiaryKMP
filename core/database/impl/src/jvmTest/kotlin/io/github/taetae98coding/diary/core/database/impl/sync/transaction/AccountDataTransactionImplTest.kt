@@ -27,6 +27,8 @@ import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.C
 import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.dday.entity.AccountDDayLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.ddayfilter.entity.DDayFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entitytag.entityTagTable
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
@@ -45,6 +47,7 @@ import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLo
 import io.github.taetae98coding.diary.core.testing.checklist.checklistLocalEntity
 import io.github.taetae98coding.diary.core.testing.checklistitem.checklistItemLocalEntity
 import io.github.taetae98coding.diary.core.testing.contact.contactLocalEntity
+import io.github.taetae98coding.diary.core.testing.dday.ddayLocalEntity
 import io.github.taetae98coding.diary.core.testing.entitytag.entityTagLocalEntity
 import io.github.taetae98coding.diary.core.testing.memo.memoLocalEntity
 import io.github.taetae98coding.diary.core.testing.memocontact.memoContactLocalEntity
@@ -78,6 +81,7 @@ private val ACCOUNT_TABLE_LIST =
         "account_qr",
         "account_checklist",
         "account_checklist_item",
+        "account_dday",
         "account_memo_tag",
         "account_memo_place",
         "account_memo_web",
@@ -89,9 +93,11 @@ private val ACCOUNT_TABLE_LIST =
         "account_checklist_tag",
         "account_music_tag",
         "account_qr_tag",
+        "account_dday_tag",
         "tag_filter",
         "memo_filter_tag",
         "calendar_filter_tag",
+        "dday_filter_tag",
         "sync_cursor",
     )
 
@@ -106,6 +112,7 @@ private val ENTITY_TABLE_LIST =
         "qr",
         "checklist",
         "checklist_item",
+        "dday",
         "memo_tag",
         "memo_place",
         "memo_web",
@@ -117,6 +124,7 @@ private val ENTITY_TABLE_LIST =
         "checklist_tag",
         "music_tag",
         "qr_tag",
+        "dday_tag",
     )
 
 private data class FilledEntity(
@@ -130,6 +138,7 @@ private data class FilledEntity(
     val qrId: Uuid,
     val checklistId: Uuid,
     val checklistItemId: Uuid,
+    val ddayId: Uuid,
 )
 
 class AccountDataTransactionImplTest :
@@ -178,6 +187,7 @@ class AccountDataTransactionImplTest :
             val qr = Arb.qrLocalEntity().next()
             val checklist = Arb.checklistLocalEntity().next()
             val checklistItem = Arb.checklistItemLocalEntity().next().copy(checklistId = checklist.id)
+            val dday = Arb.ddayLocalEntity().next()
 
             database.memoDao().upsert(memo)
             database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = memo.id, isDirty = isDirty))
@@ -214,6 +224,9 @@ class AccountDataTransactionImplTest :
                 AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = checklistItem.id, isDirty = isDirty),
             )
 
+            database.ddayDao().upsert(dday)
+            database.accountDDayDao().upsert(AccountDDayLocalEntity(accountId = accountId, ddayId = dday.id, isDirty = isDirty))
+
             return FilledEntity(
                 memoId = memo.id,
                 tagId = tag.id,
@@ -225,6 +238,7 @@ class AccountDataTransactionImplTest :
                 qrId = qr.id,
                 checklistId = checklist.id,
                 checklistItemId = checklistItem.id,
+                ddayId = dday.id,
             )
         }
 
@@ -249,6 +263,7 @@ class AccountDataTransactionImplTest :
             database.accountChecklistItemDao().upsert(
                 AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = entity.checklistItemId, isDirty = false),
             )
+            database.accountDDayDao().upsert(AccountDDayLocalEntity(accountId = accountId, ddayId = entity.ddayId, isDirty = false))
         }
 
         suspend fun fillRelation(
@@ -307,6 +322,7 @@ class AccountDataTransactionImplTest :
                                 EntityTagKindLocalEntity.CHECKLIST -> entity.checklistId
                                 EntityTagKindLocalEntity.MUSIC -> entity.musicId
                                 EntityTagKindLocalEntity.QR -> entity.qrId
+                                EntityTagKindLocalEntity.DDAY -> entity.ddayId
                             },
                         tagId = entity.tagId,
                     )
@@ -328,6 +344,7 @@ class AccountDataTransactionImplTest :
             database.accountTagFilterDao().upsert(TagFilterLocalEntity(accountId = accountId, isTopLevelOnly = true))
             database.memoFilterTagDao().upsert(MemoFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
             database.calendarFilterTagDao().upsert(CalendarFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
+            database.ddayFilterTagDao().upsert(DDayFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
 
             SyncKindLocalEntity.entries.forEach { kind ->
                 database.syncCursorDao().upsert(
@@ -410,7 +427,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 스무 종류가 모두 기본 커서로 조회된다") {
+        test("TC-c246624e-aaa2-445e-9493-99a81ffdb6a2 강제 전체 재동기화 뒤에는 스물두 종류가 모두 기본 커서로 조회된다") {
             val accountId = Arb.kotlinUuid().next()
             fill(accountId = accountId)
 

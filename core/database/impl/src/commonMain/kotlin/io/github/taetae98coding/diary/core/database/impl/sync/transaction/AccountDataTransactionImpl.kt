@@ -47,6 +47,9 @@ internal class AccountDataTransactionImpl(
             dao.deleteQrTag(accountId = accountId)
             dao.deleteAccountQrTag(accountId = accountId)
 
+            dao.deleteDDayTag(accountId = accountId)
+            dao.deleteAccountDDayTag(accountId = accountId)
+
             dao.deleteMemo(accountId = accountId)
             dao.deleteAccountMemo(accountId = accountId)
 
@@ -74,9 +77,13 @@ internal class AccountDataTransactionImpl(
             dao.deleteChecklist(accountId = accountId)
             dao.deleteAccountChecklist(accountId = accountId)
 
+            dao.deleteDDay(accountId = accountId)
+            dao.deleteAccountDDay(accountId = accountId)
+
             dao.deleteTagFilter(accountId = accountId)
             dao.deleteMemoFilterTag(accountId = accountId)
             dao.deleteCalendarFilterTag(accountId = accountId)
+            dao.deleteDDayFilterTag(accountId = accountId)
             dao.deleteSyncCursor(accountId = accountId)
         }
     }

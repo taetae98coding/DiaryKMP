@@ -12,6 +12,7 @@ public enum class SyncKindLocalEntity(
     QR("qr"),
     CHECKLIST("checklist"),
     CHECKLIST_ITEM("checklist_item"),
+    DDAY("dday"),
     MEMO_TAG("memo_tag"),
     MEMO_PLACE("memo_place"),
     MEMO_WEB("memo_web"),
@@ -23,4 +24,5 @@ public enum class SyncKindLocalEntity(
     CHECKLIST_TAG("checklist_tag"),
     MUSIC_TAG("music_tag"),
     QR_TAG("qr_tag"),
+    DDAY_TAG("dday_tag"),
 }
