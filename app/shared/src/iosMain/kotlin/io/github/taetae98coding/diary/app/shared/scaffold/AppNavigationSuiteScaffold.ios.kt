@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.app.shared.scaffold
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,7 +22,8 @@ internal actual fun AppNavigationSuiteScaffold(
     modifier: Modifier,
     content: @Composable () -> Unit,
 ) {
-    Box(modifier = modifier) {
+    // 다른 플랫폼의 NavigationSuiteScaffold처럼 앱 배경을 칠해, 화면이 가로 시스템 영역을 피해 비운 자리(탭 사이드바 뒤)도 같은 배경이 되게 한다.
+    Box(modifier = modifier.background(DiaryTheme.colorScheme.background)) {
         content()
     }
 
