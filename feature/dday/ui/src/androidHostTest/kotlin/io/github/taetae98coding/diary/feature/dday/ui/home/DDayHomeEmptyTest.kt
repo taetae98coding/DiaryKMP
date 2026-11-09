@@ -1,18 +1,24 @@
 package io.github.taetae98coding.diary.feature.dday.ui.home
 
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
+import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.dday.DDAY_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.dday.DDay
 import io.github.taetae98coding.diary.feature.dday.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
+import io.kotest.matchers.floats.plusOrMinus
+import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -115,12 +121,46 @@ class DDayHomeEmptyTest {
     }
 
     @Test
+    fun `아직 디데이가 없음을 알리는 빈 상태 안내는 목록 영역을 채우고 세로 가운데에 놓인다`() {
+        setDDayHomeScaffold(pagingData = homeDDayPagingDataOf(emptyList()))
+
+        assertEmptyBoxCenteredInListArea(title = DEFAULT_EMPTY_TITLE, description = DEFAULT_EMPTY_DESCRIPTION)
+    }
+
+    @Test
+    fun `조건에 맞는 디데이가 없음을 알리는 빈 상태 안내는 목록 영역을 채우고 세로 가운데에 놓인다`() {
+        val tagId = Arb.kotlinUuid().next()
+        setDDayHomeScaffold(
+            pagingData = homeDDayPagingDataOf(emptyList()),
+            filterUiState = DDayHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)),
+        )
+
+        assertEmptyBoxCenteredInListArea(title = DEFAULT_FILTERED_EMPTY_TITLE, description = DEFAULT_FILTERED_EMPTY_DESCRIPTION)
+    }
+
+    @Test
     fun `TC-3c1ca627-98c7-4412-b8f9-f4232bbab368 처음 불러오기에 실패하면 빈 상태 안내를 표시한다`() {
         setDDayHomeScaffold(pagingData = failedHomeDDayPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
         composeRule.onNodeWithTag(DDAY_CARD_TEST_TAG).assertDoesNotExist()
+    }
+
+    // 빈 상태의 아이콘 배경 도형, 제목, 보조 문구 묶음이 당김 새로고침 컨테이너의 세로 가운데에 놓이는지 확인한다.
+    // 아이콘 배경 도형에는 노드가 없으므로 제목 위쪽에 디자인 문서의 도형 크기와 항목 간격을 더해 묶음의 위를 구한다.
+    private fun assertEmptyBoxCenteredInListArea(
+        title: String,
+        description: String,
+    ) {
+        val listArea = composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).getUnclippedBoundsInRoot()
+        val emptyBox = composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).getUnclippedBoundsInRoot()
+        val contentTop = composeRule.onNodeWithText(title).getUnclippedBoundsInRoot().top - ITEM_SPACING - EMPTY_ICON_CONTAINER_SIZE
+        val contentBottom = composeRule.onNodeWithText(description).getUnclippedBoundsInRoot().bottom
+
+        emptyBox.top shouldBe listArea.top
+        emptyBox.bottom shouldBe listArea.bottom
+        ((contentTop + contentBottom) / 2 - (listArea.top + listArea.bottom) / 2).value shouldBe (0f plusOrMinus CENTER_TOLERANCE.value)
     }
 
     private fun setDDayHomeScaffold(
@@ -152,5 +192,8 @@ class DDayHomeEmptyTest {
         const val DEFAULT_FILTERED_EMPTY_TITLE = "No D-Days match the filter"
         const val DEFAULT_FILTERED_EMPTY_DESCRIPTION = "Change the filter to see other D-Days."
         const val DDAY_TITLE = "Anniversary"
+        val EMPTY_ICON_CONTAINER_SIZE: Dp = 96.dp
+        val ITEM_SPACING: Dp = 8.dp
+        val CENTER_TOLERANCE: Dp = 1.dp
     }
 }

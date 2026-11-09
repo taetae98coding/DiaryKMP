@@ -75,11 +75,7 @@ internal fun DDayHomeList(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 DDayHomeEmpty(
-                    // 당김 새로고침은 중첩 스크롤로만 시작되므로 스크롤할 내용이 없어도 verticalScroll을 둔다.
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.fillMaxSize(),
                     isFilterAppliedProvider = { filterUiStateProvider().isApplied },
                 )
             }
@@ -119,17 +115,24 @@ private fun DDayHomeEmpty(
         targetState = isFilterAppliedProvider(),
         modifier = modifier,
     ) { isFilterApplied ->
+        // 당김 새로고침은 중첩 스크롤로만 시작되므로 스크롤할 내용이 없어도 verticalScroll을 둔다.
+        // Crossfade는 자식에게 최소 높이를 전달하지 않으므로 Crossfade가 아니라 빈 상태 자체에 두어야 세로 가운데에 놓인다.
+        val emptyBoxModifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+
         if (isFilterApplied) {
             DiaryEmptyBox(
                 title = stringResource(Res.string.dday_home_filtered_empty_title),
-                modifier = Modifier.fillMaxSize(),
+                modifier = emptyBoxModifier,
                 description = stringResource(Res.string.dday_home_filtered_empty_description),
                 icon = { FilterIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
             )
         } else {
             DiaryEmptyBox(
                 title = stringResource(Res.string.dday_home_empty_title),
-                modifier = Modifier.fillMaxSize(),
+                modifier = emptyBoxModifier,
                 description = stringResource(Res.string.dday_home_empty_description),
                 icon = { DDayIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
             )
