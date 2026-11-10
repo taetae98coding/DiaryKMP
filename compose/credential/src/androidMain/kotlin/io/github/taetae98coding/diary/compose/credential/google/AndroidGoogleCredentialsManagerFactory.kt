@@ -12,21 +12,22 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import io.github.taetae98coding.diary.compose.credential.CredentialsNonce
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.uuid.Uuid
 
-@Composable
-public actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
-    val context = LocalContext.current
-    val serverClientId = koinInject<String>(qualifier = named<GoogleCredentialsServerClientId>())
+public class AndroidGoogleCredentialsManagerFactory(
+    private val serverClientId: String,
+) : GoogleCredentialsManagerFactory {
+    @Composable
+    override fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
+        val context = LocalContext.current
 
-    return remember(context, serverClientId) {
-        AndroidGoogleCredentialsManager(
-            context = context,
-            serverClientId = serverClientId,
-        )
+        return remember(context, serverClientId) {
+            AndroidGoogleCredentialsManager(
+                context = context,
+                serverClientId = serverClientId,
+            )
+        }
     }
 }
 

@@ -17,12 +17,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.uuid.Uuid
 
-@Composable
-public actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
-    val viewController = LocalUIViewController.current
+public object IosGoogleCredentialsManagerFactory : GoogleCredentialsManagerFactory {
+    @Composable
+    override fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
+        val viewController = LocalUIViewController.current
 
-    return remember(viewController) {
-        IosGoogleCredentialsManager(viewController = viewController)
+        return remember(viewController) {
+            IosGoogleCredentialsManager(viewController = viewController)
+        }
     }
 }
 

@@ -22,8 +22,6 @@ kotlin {
             dependencies {
                 api(projects.core.model)
                 implementation(libs.jetbrains.compose.ui)
-                implementation(libs.koin.annotations)
-                implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlincrypto.hash.sha2)
             }
         }

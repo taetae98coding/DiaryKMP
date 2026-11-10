@@ -17,6 +17,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.core)
+                implementation(projects.compose.map)
                 implementation(projects.compose.permission)
                 implementation(projects.compose.web)
                 implementation(projects.core.calendarDatabase.impl)
@@ -158,14 +159,12 @@ kotlin {
         iosMain {
             dependencies {
                 implementation(libs.coil.network.ktor3)
-                implementation(projects.compose.map)
                 implementation(projects.work.spotlight)
             }
         }
 
         jvmMain {
             dependencies {
-                implementation(projects.compose.map)
                 runtimeOnly(libs.kotlinx.coroutines.swing)
             }
         }

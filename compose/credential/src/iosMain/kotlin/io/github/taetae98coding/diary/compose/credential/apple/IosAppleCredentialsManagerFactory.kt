@@ -16,12 +16,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.uuid.Uuid
 
-@Composable
-public actual fun rememberAppleCredentialsManager(): AppleCredentialsManager {
-    val viewController = LocalUIViewController.current
+public object IosAppleCredentialsManagerFactory : AppleCredentialsManagerFactory {
+    @Composable
+    override fun rememberAppleCredentialsManager(): AppleCredentialsManager {
+        val viewController = LocalUIViewController.current
 
-    return remember(viewController) {
-        IosAppleCredentialsManager(viewController = viewController)
+        return remember(viewController) {
+            IosAppleCredentialsManager(viewController = viewController)
+        }
     }
 }
 

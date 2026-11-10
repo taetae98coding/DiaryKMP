@@ -4,18 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-@Composable
-public actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
-    val clientId = koinInject<String>(qualifier = named<GoogleCredentialsClientId>())
-
-    return remember(clientId) {
-        WasmGoogleCredentialsManager(clientId = clientId)
-    }
+public class WasmGoogleCredentialsManagerFactory(
+    private val clientId: String,
+) : GoogleCredentialsManagerFactory {
+    @Composable
+    override fun rememberGoogleCredentialsManager(): GoogleCredentialsManager =
+        remember(clientId) {
+            WasmGoogleCredentialsManager(clientId = clientId)
+        }
 }
 
 private class WasmGoogleCredentialsManager(

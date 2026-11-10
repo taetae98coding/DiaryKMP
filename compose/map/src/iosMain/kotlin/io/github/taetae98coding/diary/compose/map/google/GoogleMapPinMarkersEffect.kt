@@ -11,11 +11,11 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.PinMarkerImage
+import io.github.taetae98coding.diary.compose.map.PinMarkerImageFactory
 import io.github.taetae98coding.diary.compose.map.isFinite
 import io.github.taetae98coding.diary.compose.map.pinMarkerImageKey
 import io.github.taetae98coding.diary.compose.map.provider.label
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
-import io.github.taetae98coding.diary.compose.map.rememberPinMarkerImageFactory
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGPointMake
 import platform.CoreLocation.CLLocationCoordinate2DMake
@@ -27,12 +27,12 @@ private const val PIN_ANCHOR_X = 0.5
 
 @Composable
 internal fun GoogleMapPinMarkersEffect(
+    pinMarkerImageFactory: PinMarkerImageFactory,
     density: Float,
     mapView: GMSMapView? = null,
     state: DiaryMapState = rememberDiaryMapState(),
     isPinSelectable: Boolean = false,
 ) {
-    val pinMarkerImageFactory = rememberPinMarkerImageFactory()
     val markers = remember { mutableListOf<GMSMarker>() }
     val textMeasurer = rememberTextMeasurer()
 

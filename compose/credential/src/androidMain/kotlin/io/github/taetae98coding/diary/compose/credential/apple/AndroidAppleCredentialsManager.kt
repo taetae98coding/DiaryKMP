@@ -6,25 +6,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
-import org.koin.compose.koinInject
 
-@Composable
-public actual fun rememberAppleCredentialsManager(): AppleCredentialsManager {
-    val context = LocalContext.current
-    val config = koinInject<AppleCredentialsConfig>()
-    val resultReceiver = remember { AuthTabResultReceiver() }
-    val launcher =
-        rememberLauncherForActivityResult(AuthTabIntent.AuthenticateUserResultContract()) { result ->
-            resultReceiver.deliver(resultCode = result.resultCode, resultUri = result.resultUri)
+public class AndroidAppleCredentialsManagerFactory(
+    private val config: AppleCredentialsConfig,
+) : AppleCredentialsManagerFactory {
+    @Composable
+    override fun rememberAppleCredentialsManager(): AppleCredentialsManager {
+        val context = LocalContext.current
+        val resultReceiver = remember { AuthTabResultReceiver() }
+        val launcher =
+            rememberLauncherForActivityResult(AuthTabIntent.AuthenticateUserResultContract()) { result ->
+                resultReceiver.deliver(resultCode = result.resultCode, resultUri = result.resultUri)
+            }
+
+        return remember(context, config, resultReceiver, launcher) {
+            AndroidAppleCredentialsManager(
+                requestFactory = AppleWebSignInRequestFactory(config = config),
+                redirectScheme = context.packageName,
+                resultReceiver = resultReceiver,
+                launchAuthTab = { url -> AuthTabIntent.Builder().build().launch(launcher, url.toUri(), context.packageName) },
+            )
         }
-
-    return remember(context, config, resultReceiver, launcher) {
-        AndroidAppleCredentialsManager(
-            requestFactory = AppleWebSignInRequestFactory(config = config),
-            redirectScheme = context.packageName,
-            resultReceiver = resultReceiver,
-            launchAuthTab = { url -> AuthTabIntent.Builder().build().launch(launcher, url.toUri(), context.packageName) },
-        )
     }
 }
 

@@ -5,16 +5,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
 import io.github.taetae98coding.diary.core.permission.Permission
 import kotlin.uuid.Uuid
 
 @Composable
-internal actual fun NaverMap(
-    modifier: Modifier,
-    state: DiaryMapState,
-    onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
-    onPinClick: ((Uuid) -> Unit)?,
+internal fun NaverMap(
+    modifier: Modifier = Modifier,
+    state: DiaryMapState = rememberDiaryMapState(),
+    onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
+    onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     val mapView = rememberNaverMapViewWithLifecycle(camera = state.camera)
     val client = rememberNaverMapClient(mapView = mapView)

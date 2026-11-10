@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import kotlinx.browser.window
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.koin.compose.koinInject
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.Window
 import org.w3c.dom.events.Event
@@ -15,16 +14,17 @@ import org.w3c.dom.url.URL
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-@Composable
-public actual fun rememberAppleCredentialsManager(): AppleCredentialsManager {
-    val config = koinInject<AppleCredentialsConfig>()
-
-    return remember(config) {
-        WasmAppleCredentialsManager(
-            requestFactory = AppleWebSignInRequestFactory(config = config),
-            callbackOrigin = URL(config.callbackUrl).origin,
-        )
-    }
+public class WasmAppleCredentialsManagerFactory(
+    private val config: AppleCredentialsConfig,
+) : AppleCredentialsManagerFactory {
+    @Composable
+    override fun rememberAppleCredentialsManager(): AppleCredentialsManager =
+        remember(config) {
+            WasmAppleCredentialsManager(
+                requestFactory = AppleWebSignInRequestFactory(config = config),
+                callbackOrigin = URL(config.callbackUrl).origin,
+            )
+        }
 }
 
 private class WasmAppleCredentialsManager(

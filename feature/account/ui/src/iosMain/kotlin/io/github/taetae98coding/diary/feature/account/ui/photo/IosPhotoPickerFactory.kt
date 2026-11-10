@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.koin.core.annotation.Single
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
@@ -24,11 +25,14 @@ import kotlin.coroutines.resume
 
 private const val IMAGE_TYPE_IDENTIFIER = "public.image"
 
-@Composable
-internal actual fun rememberPhotoPicker(): PhotoPicker {
-    val viewController = LocalUIViewController.current
+@Single(binds = [PhotoPickerFactory::class])
+internal class IosPhotoPickerFactory : PhotoPickerFactory {
+    @Composable
+    override fun rememberPhotoPicker(): PhotoPicker {
+        val viewController = LocalUIViewController.current
 
-    return remember(viewController) { IosPhotoPicker(viewController = viewController) }
+        return remember(viewController) { IosPhotoPicker(viewController = viewController) }
+    }
 }
 
 private class IosPhotoPicker(
