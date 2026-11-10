@@ -193,6 +193,13 @@ class GeminiContentRemoteDataSourceImplTest :
             createDataSource(createEngine(body = body)).stream(request = request()) shouldContainExactly listOf("조각")
         }
 
+        test("CR 단독 줄바꿈도 줄 끝으로 읽는다") {
+            val text = "조각${Arb.kotlinUuid().next()}"
+            val body = "data: ${chunk(text = text)}" + CR + CR
+
+            createDataSource(createEngine(body = body)).stream(request = request()) shouldContainExactly listOf(text)
+        }
+
         test("TC-cafafa06-f52a-4988-ab6e-164c6d4fd04b: Gemini의 실패 응답을 실패 이유로 나누어 알린다") {
             listOf<Pair<HttpClientEngine, (Throwable) -> Unit>>(
                 errorEngine(HttpStatusCode.TooManyRequests, status = "RESOURCE_EXHAUSTED") to { it.shouldBeInstanceOf<GeminiException.QuotaExceeded>() },
@@ -316,6 +323,8 @@ class GeminiContentRemoteDataSourceImplTest :
     }) {
     private companion object {
         private val json = Json
+
+        private const val CR = "\r"
 
         private const val CRLF = "\r\n"
 
