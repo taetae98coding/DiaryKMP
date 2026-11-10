@@ -14,17 +14,36 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import io.github.taetae98coding.diary.library.avfoundation.AVCaptureVideoPreviewPanel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.Single
+
+@Single(binds = [QrScanCameraPreviewContent::class])
+internal class JvmQrScanCameraPreviewContent(
+    @QrScanCameraDispatcher private val dispatcher: CoroutineDispatcher,
+) : QrScanCameraPreviewContent {
+    @Composable
+    override fun Content(
+        onDetect: (String) -> Unit,
+        modifier: Modifier,
+    ) {
+        QrScanCameraPreview(
+            onDetect = onDetect,
+            modifier = modifier,
+            camera = remember(dispatcher) { QrScanCamera(dispatcher = dispatcher) },
+        )
+    }
+}
 
 @Composable
-internal actual fun QrScanCameraPreview(
+private fun QrScanCameraPreview(
     onDetect: (String) -> Unit,
     modifier: Modifier,
+    camera: QrScanCamera,
 ) {
-    val camera = rememberQrScanCamera()
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnDetect by rememberUpdatedState(onDetect)
     val previewPanel = remember { AVCaptureVideoPreviewPanel() }

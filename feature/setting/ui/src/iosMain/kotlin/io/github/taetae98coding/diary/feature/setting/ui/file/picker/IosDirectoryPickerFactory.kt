@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.uikit.LocalUIViewController
+import org.koin.core.annotation.Single
 import platform.Foundation.NSURL
 import platform.UIKit.UIDocumentPickerDelegateProtocol
 import platform.UIKit.UIDocumentPickerViewController
@@ -12,12 +13,15 @@ import platform.UIKit.UIViewController
 import platform.UniformTypeIdentifiers.UTTypeFolder
 import platform.darwin.NSObject
 
-@Composable
-internal actual fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {
-    val viewController = LocalUIViewController.current
-    val latestOnPick by rememberUpdatedState(onPick)
+@Single(binds = [DirectoryPickerFactory::class])
+internal class IosDirectoryPickerFactory : DirectoryPickerFactory {
+    @Composable
+    override fun rememberDirectoryPicker(onPick: (uri: String) -> Unit): DirectoryPicker {
+        val viewController = LocalUIViewController.current
+        val latestOnPick by rememberUpdatedState(onPick)
 
-    return remember(viewController) { IosDirectoryPicker(viewController = viewController, onPick = { uri -> latestOnPick(uri) }) }
+        return remember(viewController) { IosDirectoryPicker(viewController = viewController, onPick = { uri -> latestOnPick(uri) }) }
+    }
 }
 
 private class IosDirectoryPicker(

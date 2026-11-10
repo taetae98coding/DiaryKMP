@@ -23,14 +23,29 @@ import kotlinx.browser.document
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.koin.core.annotation.Single
 import org.w3c.dom.HTMLVideoElement
 import org.w3c.dom.mediacapture.MediaStream
 import kotlin.coroutines.resume
 
 private const val FRAME_SCAN_INTERVAL_MILLIS = 100L
 
+@Single(binds = [QrScanCameraPreviewContent::class])
+internal class WasmQrScanCameraPreviewContent : QrScanCameraPreviewContent {
+    @Composable
+    override fun Content(
+        onDetect: (String) -> Unit,
+        modifier: Modifier,
+    ) {
+        QrScanCameraPreview(
+            onDetect = onDetect,
+            modifier = modifier,
+        )
+    }
+}
+
 @Composable
-internal actual fun QrScanCameraPreview(
+private fun QrScanCameraPreview(
     onDetect: (String) -> Unit,
     modifier: Modifier,
 ) {

@@ -17,7 +17,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
+import org.koin.core.annotation.Single
 import platform.AVFoundation.AVCaptureConnection
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDevicePositionBack
@@ -36,12 +38,29 @@ import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import platform.darwin.NSObject
 
+@Single(binds = [QrScanCameraPreviewContent::class])
+internal class IosQrScanCameraPreviewContent(
+    @QrScanCameraDispatcher private val dispatcher: CoroutineDispatcher,
+) : QrScanCameraPreviewContent {
+    @Composable
+    override fun Content(
+        onDetect: (String) -> Unit,
+        modifier: Modifier,
+    ) {
+        QrScanCameraPreview(
+            onDetect = onDetect,
+            modifier = modifier,
+            camera = remember(dispatcher) { QrScanCamera(dispatcher = dispatcher) },
+        )
+    }
+}
+
 @Composable
-internal actual fun QrScanCameraPreview(
+private fun QrScanCameraPreview(
     onDetect: (String) -> Unit,
     modifier: Modifier,
+    camera: QrScanCamera,
 ) {
-    val camera = rememberQrScanCamera()
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnDetect by rememberUpdatedState(onDetect)
     // 출력은 대리 객체를 약하게 참조하므로 화면이 살아 있는 동안 여기서 붙잡아 둔다.

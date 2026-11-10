@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinate
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.handleQrFormEvent
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.rememberQrScanStarter
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.rememberQrActionController
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
 import kotlinx.coroutines.launch
@@ -38,6 +39,7 @@ internal fun QrDetailScreen(
     navigateToTagDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
     permissionManager: PermissionManager,
+    qrActionLauncherFactory: QrActionLauncherFactory,
     resultEventBus: ResultEventBus,
     componentVisibleProvider: () -> QrDetailScaffoldComponentVisible,
     qrViewModel: QrDetailViewModel,
@@ -52,7 +54,7 @@ internal fun QrDetailScreen(
     val content = uiState as? QrDetailUiState.Content
     val scanStarter = rememberQrScanStarter(permissionManager = permissionManager)
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
-    val actionController = rememberQrActionController()
+    val actionController = rememberQrActionController(launcherFactory = qrActionLauncherFactory)
 
     EntityTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add, resultEventBus = resultEventBus)
 

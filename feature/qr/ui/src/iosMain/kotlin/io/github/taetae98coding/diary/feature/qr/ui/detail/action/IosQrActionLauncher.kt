@@ -14,6 +14,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import org.koin.core.annotation.Single
 import platform.Contacts.CNContact
 import platform.Contacts.CNContactVCardSerialization
 import platform.ContactsUI.CNContactViewController
@@ -43,11 +44,14 @@ import kotlin.time.Instant
 
 private const val APPLE_MAP_URI = "https://maps.apple.com/"
 
-@Composable
-internal actual fun rememberQrActionLauncher(): QrActionLauncher {
-    val viewController = LocalUIViewController.current
+@Single(binds = [QrActionLauncherFactory::class])
+internal class IosQrActionLauncherFactory : QrActionLauncherFactory {
+    @Composable
+    override fun rememberQrActionLauncher(): QrActionLauncher {
+        val viewController = LocalUIViewController.current
 
-    return remember(viewController) { IosQrActionLauncher(viewController = viewController) }
+        return remember(viewController) { IosQrActionLauncher(viewController = viewController) }
+    }
 }
 
 internal class IosQrActionLauncher(

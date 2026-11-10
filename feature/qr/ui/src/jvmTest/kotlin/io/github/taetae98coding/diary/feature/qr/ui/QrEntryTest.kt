@@ -18,6 +18,7 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class QrEntryTest :
@@ -81,7 +82,7 @@ class QrEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { qrEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { qrEntry(backStack = NavBackStack(*backStack.toTypedArray()), cameraPreviewContent = mockk(), qrActionLauncherFactory = mockk()) }
 
             return provider(key).metadata
         }

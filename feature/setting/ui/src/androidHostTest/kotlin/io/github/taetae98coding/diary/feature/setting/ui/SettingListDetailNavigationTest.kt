@@ -51,6 +51,7 @@ import io.github.taetae98coding.diary.feature.setting.api.SettingMcpNavKey
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileUiState
 import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
+import io.github.taetae98coding.diary.feature.setting.ui.file.picker.AndroidDirectoryPickerFactory
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiUiState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
@@ -373,7 +374,7 @@ class SettingListDetailNavigationTest {
             entryProvider =
                 entryProvider {
                     entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                    settingEntry(backStack = backStack)
+                    settingEntry(backStack = backStack, directoryPickerFactory = AndroidDirectoryPickerFactory())
                 },
         )
     }

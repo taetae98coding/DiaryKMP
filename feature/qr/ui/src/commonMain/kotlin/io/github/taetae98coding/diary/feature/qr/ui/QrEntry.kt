@@ -25,19 +25,25 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScaffoldComponentVi
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScreen
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScreen
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScreen
+import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraPreviewContent
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.qrEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    cameraPreviewContent: QrScanCameraPreviewContent,
+    qrActionLauncherFactory: QrActionLauncherFactory,
+) {
     qrHomeEntry(backStack = backStack)
     qrAddEntry(backStack = backStack)
-    qrDetailEntry(backStack = backStack)
-    qrScanEntry(backStack = backStack)
+    qrDetailEntry(backStack = backStack, qrActionLauncherFactory = qrActionLauncherFactory)
+    qrScanEntry(backStack = backStack, cameraPreviewContent = cameraPreviewContent)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -105,7 +111,10 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    qrActionLauncherFactory: QrActionLauncherFactory,
+) {
     entry<QrDetailNavKey>(
         metadata = { key -> backStack.qrListDetailPaneMetadata(key) },
     ) { key ->
@@ -119,6 +128,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(backStack: NavBackSta
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
             permissionManager = rememberPermissionManager(),
+            qrActionLauncherFactory = qrActionLauncherFactory,
             resultEventBus = LocalResultEventBus.current,
             componentVisibleProvider = { QrDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             qrViewModel = koinViewModel { parametersOf(key.id) },
@@ -127,7 +137,10 @@ private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(backStack: NavBackSta
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.qrScanEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.qrScanEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    cameraPreviewContent: QrScanCameraPreviewContent,
+) {
     entry<QrScanNavKey> {
         val resultEventBus = LocalResultEventBus.current
 
@@ -139,6 +152,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrScanEntry(backStack: NavBackStack
                     value = value,
                 )
             },
+            cameraPreviewContent = cameraPreviewContent,
         )
     }
 }

@@ -29,10 +29,25 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import kotlinx.coroutines.awaitCancellation
+import org.koin.core.annotation.Single
 import java.util.concurrent.Executors
 
+@Single(binds = [QrScanCameraPreviewContent::class])
+internal class AndroidQrScanCameraPreviewContent : QrScanCameraPreviewContent {
+    @Composable
+    override fun Content(
+        onDetect: (String) -> Unit,
+        modifier: Modifier,
+    ) {
+        QrScanCameraPreview(
+            onDetect = onDetect,
+            modifier = modifier,
+        )
+    }
+}
+
 @Composable
-internal actual fun QrScanCameraPreview(
+private fun QrScanCameraPreview(
     onDetect: (String) -> Unit,
     modifier: Modifier,
 ) {

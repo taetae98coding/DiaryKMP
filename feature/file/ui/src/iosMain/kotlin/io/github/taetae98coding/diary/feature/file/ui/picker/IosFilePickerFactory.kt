@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.uikit.LocalUIViewController
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import org.koin.core.annotation.Single
 import platform.Foundation.NSURL
 import platform.UIKit.UIDocumentPickerDelegateProtocol
 import platform.UIKit.UIDocumentPickerViewController
@@ -13,12 +14,15 @@ import platform.UIKit.UIViewController
 import platform.UniformTypeIdentifiers.UTTypeItem
 import platform.darwin.NSObject
 
-@Composable
-internal actual fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
-    val viewController = LocalUIViewController.current
-    val latestOnPick by rememberUpdatedState(onPick)
+@Single(binds = [FilePickerFactory::class])
+internal class IosFilePickerFactory : FilePickerFactory {
+    @Composable
+    override fun rememberFilePicker(onPick: (FileUri) -> Unit): FilePicker {
+        val viewController = LocalUIViewController.current
+        val latestOnPick by rememberUpdatedState(onPick)
 
-    return remember(viewController) { IosFilePicker(viewController = viewController, onPick = { uri -> latestOnPick(uri) }) }
+        return remember(viewController) { IosFilePicker(viewController = viewController, onPick = { uri -> latestOnPick(uri) }) }
+    }
 }
 
 private class IosFilePicker(

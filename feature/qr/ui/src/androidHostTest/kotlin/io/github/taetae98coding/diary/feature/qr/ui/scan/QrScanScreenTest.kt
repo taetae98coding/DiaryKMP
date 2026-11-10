@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
@@ -124,6 +125,7 @@ class QrScanScreenTest {
                     QrScanScreen(
                         navigateUp = {},
                         navigateUpWithValue = {},
+                        cameraPreviewContent = remember { AndroidQrScanCameraPreviewContent() },
                     )
                 }
             }
@@ -142,6 +144,7 @@ class QrScanScreenTest {
                 QrScanScreen(
                     navigateUp = navigateUp,
                     navigateUpWithValue = navigateUpWithValue,
+                    cameraPreviewContent = remember { AndroidQrScanCameraPreviewContent() },
                 )
             }
         }

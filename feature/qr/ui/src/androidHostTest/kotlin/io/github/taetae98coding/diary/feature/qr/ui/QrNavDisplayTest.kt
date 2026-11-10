@@ -59,9 +59,11 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailEffect
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailUiState
 import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
+import io.github.taetae98coding.diary.feature.qr.ui.scan.AndroidQrScanCameraPreviewContent
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
@@ -395,7 +397,11 @@ class QrNavDisplayTest {
                     entryProvider =
                         entryProvider {
                             entry<QrNavDisplayMoreNavKey> { Text(text = MORE_CONTENT) }
-                            qrEntry(backStack = backStack)
+                            qrEntry(
+                                backStack = backStack,
+                                cameraPreviewContent = AndroidQrScanCameraPreviewContent(),
+                                qrActionLauncherFactory = AndroidQrActionLauncherFactory(),
+                            )
                         },
                 )
             }

@@ -2,27 +2,16 @@
 
 package io.github.taetae98coding.diary.feature.qr.ui.scan
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
 import platform.AVFoundation.AVCaptureMetadataOutput
 import platform.AVFoundation.AVCaptureSession
 import platform.AVFoundation.AVMetadataObjectTypeQRCode
 import platform.darwin.dispatch_get_main_queue
-
-@Composable
-internal fun rememberQrScanCamera(): QrScanCamera {
-    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<QrScanCameraDispatcher>())
-
-    return remember(dispatcher) { QrScanCamera(dispatcher = dispatcher) }
-}
 
 // 입력을 붙이며 카메라 장치를 열 때와 startRunning·stopRunning이 끝날 때까지 호출한 스레드가 막히므로 메인 스레드 밖에서 한다.
 internal class QrScanCamera(

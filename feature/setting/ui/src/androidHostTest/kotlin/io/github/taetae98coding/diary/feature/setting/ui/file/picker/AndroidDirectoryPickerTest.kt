@@ -7,6 +7,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -42,7 +43,7 @@ class AndroidDirectoryPickerTest {
 
         tester.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides harness.owner) {
-                picker = rememberDirectoryPicker(onPick = { value -> pickedList += value })
+                picker = remember { AndroidDirectoryPickerFactory() }.rememberDirectoryPicker(onPick = { value -> pickedList += value })
             }
         }
         composeRule.runOnIdle { picker.open() }
@@ -62,7 +63,7 @@ class AndroidDirectoryPickerTest {
 
         tester.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides harness.owner) {
-                picker = rememberDirectoryPicker(onPick = { value -> pickedList += value })
+                picker = remember { AndroidDirectoryPickerFactory() }.rememberDirectoryPicker(onPick = { value -> pickedList += value })
             }
         }
         composeRule.runOnIdle { picker.open() }
@@ -84,7 +85,7 @@ class AndroidDirectoryPickerTest {
 
         composeRule.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides harness.owner) {
-                picker = rememberDirectoryPicker(onPick = { value -> pickedList += value })
+                picker = remember { AndroidDirectoryPickerFactory() }.rememberDirectoryPicker(onPick = { value -> pickedList += value })
             }
         }
         composeRule.runOnIdle { picker.open() }

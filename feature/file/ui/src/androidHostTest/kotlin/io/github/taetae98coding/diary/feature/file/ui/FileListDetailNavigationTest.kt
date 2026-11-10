@@ -76,6 +76,7 @@ import io.github.taetae98coding.diary.feature.file.ui.home.FILE_HOME_LIST_TEST_T
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUiState
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeUploadViewModel
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeViewModel
+import io.github.taetae98coding.diary.feature.file.ui.picker.AndroidFilePickerFactory
 import io.github.taetae98coding.diary.library.fixture.kotlinUuid
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -864,7 +865,7 @@ class FileListDetailNavigationTest {
                         entryProvider =
                             entryProvider {
                                 entry<NavigationTestMoreNavKey> { Text(text = MORE_CONTENT) }
-                                fileEntry(backStack = backStack)
+                                fileEntry(backStack = backStack, filePickerFactory = AndroidFilePickerFactory())
                             },
                     )
                 }

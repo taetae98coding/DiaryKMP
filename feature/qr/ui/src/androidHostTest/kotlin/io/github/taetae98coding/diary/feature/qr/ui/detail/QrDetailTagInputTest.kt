@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.clickEntityTagInput
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
@@ -239,6 +240,7 @@ class QrDetailTagInputTest {
                 navigateToTagDetail = navigateToTagDetail,
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 permissionManager = rememberPermissionManager(),
+                qrActionLauncherFactory = remember { AndroidQrActionLauncherFactory() },
                 resultEventBus = remember { resultEventBus },
                 componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                 qrViewModel = qrViewModel,

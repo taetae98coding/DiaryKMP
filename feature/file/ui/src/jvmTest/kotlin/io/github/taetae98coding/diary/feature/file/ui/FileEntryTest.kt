@@ -16,6 +16,7 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
+import io.mockk.mockk
 import kotlin.uuid.Uuid
 
 class FileEntryTest :
@@ -66,7 +67,7 @@ class FileEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { fileEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { fileEntry(backStack = NavBackStack(*backStack.toTypedArray()), filePickerFactory = mockk()) }
 
             return provider(key).metadata
         }

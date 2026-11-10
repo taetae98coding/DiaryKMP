@@ -67,6 +67,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.AndroidQrActionLauncherFactory
 import io.github.taetae98coding.diary.feature.qr.ui.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
@@ -850,6 +851,7 @@ class QrDetailScreenTest {
                     navigateUp = navigateUp,
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
+                    qrActionLauncherFactory = remember { AndroidQrActionLauncherFactory() },
                     resultEventBus = resultEventBus,
                     componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                     qrViewModel = viewModel,
