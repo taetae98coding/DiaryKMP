@@ -8,7 +8,7 @@
 
 **`withContext`는 다음 두 조건을 모두 만족하는 곳에만 둔다.**
 
-1. dispatcher를 생성자로 주입받는 컴포넌트다. Koin이 관리하는 DataSource, Repository, Manager, Provider, Transport, 변환기가 여기 속한다. UseCase는 아래 `UseCase는 다시 옮기지 않는다`의 예외일 때만 속한다. 그 컴포넌트가 주입받은 dispatcher를 생성자로 넘겨 만드는 보조 class(플랫폼 구현을 나눠 맡는 `JavaFileLocalDataSource` 등)와, Composable이 `remember`로 만들고 `koinInject`로 받은 dispatcher를 생성자로 넘기는 보조 class(파일·사진 선택기, 자격 증명 요청, 카메라 등)도 포함한다.
+1. dispatcher를 생성자로 주입받는 컴포넌트다. Koin이 관리하는 DataSource, Repository, Manager, Provider, Transport, 변환기가 여기 속한다. UseCase는 아래 `UseCase는 다시 옮기지 않는다`의 예외일 때만 속한다. 그 컴포넌트가 주입받은 dispatcher를 생성자로 넘겨 만드는 보조 class(플랫폼 구현을 나눠 맡는 `JavaFileLocalDataSource` 등)와, Koin이 만든 `XxxFactory`·`XxxContent` 구현이 주입받은 dispatcher를 생성자로 넘겨 `remember`로 만드는 보조 class(파일·사진 선택기, 자격 증명 요청, 카메라 등. [di.md](di.md)의 `Composable이 만드는 플랫폼 보조 class는 팩토리를 주입받는다`)도 포함한다.
 2. 그 컴포넌트가 직접 하거나, 주입받거나 만든 객체로 하는 작업이 호출한 스레드를 막을 수 있다. 파일·`ContentResolver` I/O, 프로세스 실행과 대기, 이미지 디코딩·인코딩, 행마다 하는 복호화나 여러 해의 날짜를 훑는 계산처럼 큰 CPU 작업, 응답을 기다리는 동기 시스템 호출이 그렇다.
 
 컴포넌트는 블로킹 작업을 감싼 `suspend` 함수를 내보내 main-safe한 경계가 된다. Repository, UseCase, ViewModel, Compose effect, `coroutineScope`는 그 함수를 부르기만 하고 다시 옮기지 않는다. 블로킹이 일어나는 가장 낮은 컴포넌트에서 한 번 옮기면 위의 모든 호출 경로가 main-safe해진다.
@@ -142,11 +142,11 @@ onHolidayClick = { holiday -> coroutineScope.launch { searchOpener.openHolidaySe
 
 ## Dispatcher 주입
 
-**`Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** Composable이 만드는 보조 class는 qualifier를 public으로 두고 앱 모듈의 플랫폼 Koin 모듈이 공급하며, 그 class를 만드는 `rememberXxx()` 팩토리가 `koinInject`로 받아 생성자에 넘긴다. 컴포넌트가 만드는 보조 class는 그 컴포넌트가 주입받은 dispatcher를 그대로 넘긴다.
+**`Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** Composable이 만드는 보조 class는 qualifier를 public으로 두고 앱 모듈의 플랫폼 Koin 모듈이 공급하며, Koin이 만드는 `XxxFactory` 구현이 생성자로 받아 `rememberXxx()`에서 생성자에 넘긴다([di.md](di.md)). `compose:*`의 보조 class는 qualifier 없이 앱 모듈의 제공 함수가 dispatcher를 팩토리 생성자에 직접 넘긴다. 컴포넌트가 만드는 보조 class는 그 컴포넌트가 주입받은 dispatcher를 그대로 넘긴다.
 
 wasm처럼 `IO`가 없는 플랫폼이 있으므로 어떤 dispatcher를 줄지는 플랫폼 소스셋의 Koin 모듈이 소유한다.
 
-1. 모듈의 `impl/di`(domain은 `di`)에 `internal` `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `LocationDispatcher`, `DiarySettingDispatcher`, `HolidayDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다. Composable이 만드는 보조 class의 qualifier는 위에 적은 대로 public으로 보조 class 곁에 둔다.
+1. 모듈의 `impl/di`(domain은 `di`)에 `internal` `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `LocationDispatcher`, `DiarySettingDispatcher`, `HolidayDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다. `feature:*:ui`에서 Composable이 만드는 보조 class의 qualifier는 위에 적은 대로 public으로 보조 class 곁에 둔다.
 2. Koin 모듈의 제공 함수가 그 qualifier로 `CoroutineDispatcher`를 제공한다. `Dispatchers.IO`·`Dispatchers.Default`는 제공 함수에서만 참조하고, 기본 인자로도 두지 않는다. `IO`는 wasm에 없으므로 플랫폼 소스셋의 모듈에서, 모든 플랫폼에 있는 `Default`는 `commonMain` 모듈에서 제공해도 된다. 작업 전용 `CoroutineScope`를 만드는 제공 함수도 dispatcher를 명시해 넘긴다.
 3. 컴포넌트는 같은 qualifier로 `CoroutineDispatcher`를 주입받는다.
 4. 테스트는 `runTest`의 `testScheduler`를 공유하는 `TestDispatcher`(`StandardTestDispatcher(testScheduler)`, `UnconfinedTestDispatcher(testScheduler)`)를 생성자에 넘긴다. 모든 코루틴이 테스트 스레드 하나에서 실행되어 결과가 결정적이다. scope를 받는 컴포넌트에는 `runTest`의 `backgroundScope`를 넘긴다. 실패를 삼키는 `CoroutineExceptionHandler`처럼 제공 함수의 scope와 같은 구성이 필요하면 `CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler) + ...)`로 직접 만들어도 된다. 실제 서버처럼 다른 스레드의 작업을 기다릴 때는 `withTimeout` 대신 `runTest(timeout = ...)`로 한도를 준다. `runTest` 안의 `withTimeout`은 가상 시간으로 흘러 곧바로 시간 초과가 난다.

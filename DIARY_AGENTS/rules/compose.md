@@ -554,7 +554,8 @@ composeRule.setContent {
 - 공개 컴포저블은 받은 파라미터로 Scope를 만들어 `with(LocalXxxOverride.current) { scope.Xxx() }`로 그리고, 그 밖의 일은 하지 않는다.
 - iOS 구현은 `iosMain`의 `UiKitXxxOverride`로 두고, iOS Compose 루트에서 `ProvideUiKitComponentOverrides`가 한 번에 제공한다. 화면 코드는 플랫폼을 분기하지 않는다.
 - Scope에는 모든 구현이 그리는 데 필요한 값만 둔다. 테스트에서만 읽는 값을 Scope에 더하지 않는다.
-- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니며 `expect`/`actual`을 쓴다.
+- 플랫폼 API를 부르는 일(권한, 파일 선택, 로그인 등)처럼 화면 표현이 아닌 갈래는 이 규칙의 대상이 아니다. Composable이 만드는 보조 class는 [di.md](di.md)의 `XxxFactory`로, 그 밖의 갈래는 `expect`/`actual`로 나눈다.
+- 플랫폼 구현이 dispatcher나 서버 같은 Koin 의존을 가지면(지도) 그 구현은 의존을 생성자로 받는 class로 두고, `App` 루트가 `AppDependencies`로 받아 제공한다. 한 feature 안에서만 쓰는 표시 요소(QR 카메라 미리보기)는 Override 대신 [di.md](di.md)의 `XxxContent`로 등록 클래스가 주입받는다. 그 플랫폼의 `PlatformXxxOverride` 기본값은 제공이 빠졌음을 알리는 구현으로 둔다([di.md](di.md)의 `플랫폼 표시 요소의 Koin 의존은 Override 구현이 받는다`).
 - 플랫폼별 표현을 두는 공통 컴포넌트는 [플랫폼별 컴포넌트 표현 범위](../../docs/design/platform-presentation.md)의 허용 목록(떠 있는 동작 버튼, 상단 바의 뒤로가기 버튼·동작 버튼·검색 입력)에 있는 것뿐이다. 목록에 없는 컴포넌트는 모든 플랫폼에서 Material 3 컴포넌트를 그대로 쓰고 Override를 만들지 않는다. 새 컴포넌트에 플랫폼별 표현이 필요하면 그 문서의 목록에 먼저 더한다. 지도처럼 플랫폼 표시 요소를 그리는 컴포넌트는 이 목록과 관계없이 Override로 둔다.
 
 ✅ 권장 예시:

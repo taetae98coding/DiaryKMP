@@ -47,6 +47,7 @@
 | 변경 대상 | 규칙 문서 |
 | --- | --- |
 | 모든 Kotlin 코드 | [kotlin.md](DIARY_AGENTS/rules/kotlin.md) |
+| `@Module`·`@Single`·`@Factory`, `koinInject`·`getKoin`·`KoinPlatform` 같은 Koin 조회, `AppDependencies` | [di.md](DIARY_AGENTS/rules/di.md) |
 | Composable, UI Event·Effect, 레이아웃 | [compose.md](DIARY_AGENTS/rules/compose.md) |
 | ViewModel | [viewmodel.md](DIARY_AGENTS/rules/viewmodel.md) |
 | `NavKey`, 딥링크 매처·`AppDeepLink` | [navigation.md](DIARY_AGENTS/rules/navigation.md) |
