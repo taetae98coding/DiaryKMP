@@ -210,6 +210,77 @@ class SyncWorkTest :
             }
         }
 
+        test("TC-06635dcf-adbd-4d7c-ae3b-c510d3a97ee4 멈춘 세션을 갱신한 뒤 동기화한다") {
+            runTest {
+                val accountId = Arb.kotlinUuid().next()
+                val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
+                accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
+                val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
+                coEvery { context.supabaseAuth.refreshStoppedSession() } coAnswers {
+                    accountFlow.emit(Result.success(sessionValidUser(accountId = accountId)))
+                }
+
+                context.subject.doWork()
+
+                coVerify(exactly = 1) { context.supabaseAuth.refreshStoppedSession() }
+                coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
+                coVerify(exactly = 1) { context.tagRemoteDataSource.pull(any()) }
+            }
+        }
+
+        test("TC-501338e8-2224-4bd8-b3c4-4dc55bd8df11 세션이 스스로 갱신되고 있으면 그대로 동기화한다") {
+            val accountId = Arb.kotlinUuid().next()
+            val context = context(accountId = accountId, tagList = tags(size = 1))
+
+            context.subject.doWork()
+
+            coVerify(exactly = 1) { context.supabaseAuth.refreshStoppedSession() }
+            coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
+            coVerify(exactly = 1) { context.tagRemoteDataSource.pull(any()) }
+        }
+
+        test("TC-4aec434b-fd3a-4df7-9881-046bf3795d1e 갱신 정보가 폐기되어 게스트가 되면 동기화하지 않고 끝낸다") {
+            runTest {
+                val accountId = Arb.kotlinUuid().next()
+                val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
+                accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
+                val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
+                coEvery { context.supabaseAuth.refreshStoppedSession() } coAnswers {
+                    accountFlow.emit(Result.success(Account.Guest))
+                }
+
+                context.subject.doWork()
+
+                coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+                coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
+            }
+        }
+
+        listOf(
+            "네트워크 연결 실패" to UnknownHostException("example.supabase.co"),
+            "서버의 일시적인 오류 응답" to IllegalStateException("503"),
+        ).forEach { (failure, exception) ->
+            test("TC-c97615f3-df76-4736-97cf-66e30f37908d 갱신 실패($failure) 시 다시 시도하지 않고 기다린다") {
+                runTest {
+                    val accountId = Arb.kotlinUuid().next()
+                    val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
+                    accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
+                    val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
+                    coEvery { context.supabaseAuth.refreshStoppedSession() } throws exception
+
+                    val job = launch { context.subject.doWork() }
+                    runCurrent()
+
+                    job.isActive shouldBe true
+                    coVerify(exactly = 1) { context.supabaseAuth.refreshStoppedSession() }
+                    coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+                    coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
+
+                    job.cancel()
+                }
+            }
+        }
+
         test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 태그 내려받기가 지연되어도 메모 내려받기를 먼저 시작한다") {
             runTest {
                 val context = context(tagList = tags(size = 1), memoList = memos(size = 1))

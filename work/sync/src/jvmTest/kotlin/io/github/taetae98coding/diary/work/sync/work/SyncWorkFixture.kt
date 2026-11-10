@@ -84,6 +84,7 @@ import io.github.taetae98coding.diary.core.network.api.taglink.datasource.TagLin
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
+import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.testing.account.accountUser
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
 import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
@@ -117,8 +118,10 @@ import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.next
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -133,6 +136,7 @@ internal const val PUSH_DELAY: Long = 1_000
 internal data class TestContext(
     val accountId: Uuid,
     val getAccountUseCase: GetAccountUseCase,
+    val supabaseAuth: SupabaseAuth,
     val prepareSyncUseCase: PrepareSyncUseCase,
     val tagSyncLocalDataSource: AccountTagSyncLocalDataSource,
     val placeSyncLocalDataSource: AccountPlaceSyncLocalDataSource,
@@ -190,6 +194,7 @@ internal data class TestContext(
     val subject: SyncWorkImpl =
         SyncWorkImpl(
             getAccountUseCase = getAccountUseCase,
+            supabaseAuth = supabaseAuth,
             prepareSyncUseCase = prepareSyncUseCase,
             tagSyncWork =
                 TagSyncWork(
@@ -388,6 +393,7 @@ private fun mockedTestContext(
     return TestContext(
         accountId = accountId,
         getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
+        supabaseAuth = mockk<SupabaseAuth>().apply { coEvery { refreshStoppedSession() } just Runs },
         prepareSyncUseCase = mockk<PrepareSyncUseCase>().apply { coEvery { this@apply(parameter = any()) } returns Result.success(Unit) },
         tagSyncLocalDataSource = mockk(),
         placeSyncLocalDataSource = mockk(),

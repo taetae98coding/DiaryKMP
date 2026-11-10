@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import io.github.taetae98coding.diary.core.database.api.entitytag.entity.EntityTagKindLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
@@ -20,6 +21,7 @@ import kotlin.uuid.Uuid
 @Factory
 internal class SyncWorkImpl(
     private val getAccountUseCase: GetAccountUseCase,
+    private val supabaseAuth: SupabaseAuth,
     private val prepareSyncUseCase: PrepareSyncUseCase,
     private val tagSyncWork: TagSyncWork,
     private val placeSyncWork: PlaceSyncWork,
@@ -55,8 +57,10 @@ internal class SyncWorkImpl(
         accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
     }
 
-    private suspend fun awaitConfirmedAccount(): Account =
-        getAccountUseCase(parameter = Unit)
+    private suspend fun awaitConfirmedAccount(): Account {
+        refreshStoppedSession()
+
+        return getAccountUseCase(parameter = Unit)
             .map { result -> result.getOrThrow() }
             .first { account ->
                 when (account) {
@@ -64,6 +68,18 @@ internal class SyncWorkImpl(
                     is Account.User -> account.isSessionValid
                 }
             }
+    }
+
+    // 갱신에 실패해도 다시 시도하지 않고, 세션이 갱신될 때까지 기다리는 기존 판단에 맡긴다.
+    private suspend fun refreshStoppedSession() {
+        try {
+            supabaseAuth.refreshStoppedSession()
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Throwable) {
+            Unit
+        }
+    }
 
     private suspend fun push(accountId: Uuid) {
         supervisorScope {
